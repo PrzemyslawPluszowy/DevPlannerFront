@@ -1,0 +1,38 @@
+{
+  "client": "Thunder Client",
+  "environmentName": "Ready Next Local API",
+  "dateExported": "2026-04-10T09:00:00.000Z",
+  "version": "1.0",
+  "variables": [
+    {
+      "name": "baseUrl",
+      "value": "http://192.168.170.20:8100",
+      "type": "default"
+    },
+    {
+      "name": "accessToken",
+      "value": "",
+      "type": "secret"
+    },
+    {
+      "name": "apiKey",
+      "value": "",
+      "type": "secret"
+    },
+    {
+      "name": "firmaId",
+      "value": "1",
+      "type": "default"
+    },
+    {
+      "name": "limit",
+      "value": "100",
+      "type": "default"
+    },
+    {
+      "name": "offset",
+      "value": "0",
+      "type": "default"
+    }
+  ]
+}

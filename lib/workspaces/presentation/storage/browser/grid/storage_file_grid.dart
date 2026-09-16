@@ -1,0 +1,280 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
+import 'package:ready_next/core/l10n/l10n_extensions.dart';
+import 'package:ready_next/core/theme/theme.dart';
+import 'package:ready_next/shared/presentation/icons/app_icons.dart';
+import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
+import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:ready_next/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
+import 'package:ready_next/workspaces/presentation/storage/browser/shared/storage_file_context_menu.dart';
+import 'package:ready_next/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
+import 'package:ready_next/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
+import 'package:ready_next/workspaces/presentation/storage/shared/storage_formatters.dart';
+import 'package:ready_next/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
+import 'package:ready_next/workspaces/presentation/storage/versions/storage_versions_dialog.dart';
+
+/// Siatka plików w widoku kafelkowym eksploratora.
+class StorageFileGrid extends StatelessWidget {
+  /// Tworzy siatkę plików.
+  const StorageFileGrid({
+    required this.files,
+    super.key,
+  });
+
+  /// Lista plików do wyrenderowania.
+  final List<StorageFileResponse> files;
+
+  @override
+  Widget build(BuildContext context) {
+    if (files.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(
+            context.l10n.storageFilesCount(files.length),
+            style: context.text.labelMedium?.copyWith(
+              color: context.colors.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200,
+            mainAxisExtent: 160,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: files.length,
+          itemBuilder: (context, index) {
+            final file = files[index];
+            return _FileGridCard(file: file);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _FileGridCard extends StatelessWidget {
+  const _FileGridCard({required this.file});
+
+  final StorageFileResponse file;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectionCubit = context.watch<StorageSelectionCubit>();
+    final isSelected = selectionCubit.state.isFileSelected(file.id);
+    final iconData = StorageFormatters.iconForFile(
+      mimeType: file.mimeType,
+      extension: file.extension,
+    );
+
+    return GestureDetector(
+      onSecondaryTapDown: (details) => StorageFileContextMenu.show(
+        context,
+        file,
+        details.globalPosition,
+      ),
+      child: InkWell(
+        onTap: () {
+          if (selectionCubit.state.hasSelection) {
+            selectionCubit.toggleFile(file);
+          } else {
+            _openPreview(context, file);
+          }
+        },
+        onLongPress: () => selectionCubit.toggleFile(file),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isSelected
+                ? context.colors.primaryContainer.withValues(alpha: 0.4)
+                : context.colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : context.colors.outlineVariant.withValues(alpha: 0.4),
+              width: isSelected ? 1.5 : 1.0,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Obszar ikony / miniatury
+              Expanded(
+                child: Center(
+                  child: Icon(
+                    iconData,
+                    size: 40,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              // Pasek metadanych pliku
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      file.originalFileName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Text(
+                          StorageFormatters.formatBytes(file.fileSizeBytes),
+                          style: context.text.labelSmall?.copyWith(
+                            color: context.colors.onSurfaceVariant,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (file.isFavorite)
+                          Icon(
+                            AppIcons.star,
+                            size: 14,
+                            color: context.colors.tertiary,
+                          ),
+                        IconButton(
+                          icon: const Icon(AppIcons.moreVertical, size: 14),
+                          tooltip: context.l10n.storageMoreOptionsTooltip,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () => _showFileMenu(context, file),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openPreview(BuildContext context, StorageFileResponse file) {
+    unawaited(context.read<StoragePreviewCubit>().preparePreview(file));
+    unawaited(
+      AppModalHost.showDialog<void>(
+        context,
+        builder: (_) => BlocProvider.value(
+          value: context.read<StoragePreviewCubit>(),
+          child: StoragePreviewDialog(file: file),
+        ),
+      ),
+    );
+  }
+
+  void _showFileMenu(BuildContext context, StorageFileResponse file) {
+    final mutationCubit = context.read<StorageFileMutationCubit>();
+    final l10n = context.l10n;
+    final isTrash = context.read<StorageBrowserCubit>().currentScope.isTrash;
+    unawaited(
+      AppModalHost.showBottomSheet<void>(
+        context,
+        builder: (sheetCtx) => SafeArea(
+          child: Column(
+            mainAxisSize: .min,
+            children: [
+              if (file.canShare && !isTrash)
+                ListTile(
+                  leading: const Icon(AppIcons.share),
+                  title: Text(l10n.storageShareAction),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    unawaited(StorageSharingDialog.show(context, file: file));
+                  },
+                ),
+              if (file.canRead && !isTrash)
+                ListTile(
+                  leading: Icon(
+                    AppIcons.star,
+                    color: file.isFavorite ? context.colors.tertiary : null,
+                  ),
+                  title: Text(
+                    file.isFavorite
+                        ? l10n.storageRemoveFavoriteAction
+                        : l10n.storageAddFavoriteAction,
+                  ),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    unawaited(mutationCubit.toggleFavorite(file));
+                  },
+                ),
+              if (file.canRead)
+                ListTile(
+                  leading: const Icon(AppIcons.download),
+                  title: Text(l10n.storageDownloadAction),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    unawaited(mutationCubit.downloadFile(file));
+                  },
+                ),
+              if (file.canRead)
+                ListTile(
+                  leading: const Icon(AppIcons.documentText),
+                  title: Text(l10n.storageVersionsTitle),
+                  onTap: () async {
+                    Navigator.of(sheetCtx).pop();
+                    final restored = await StorageVersionsDialog.show(
+                      context,
+                      file: file,
+                    );
+                    if (restored == true && context.mounted) {
+                      unawaited(
+                        context.read<StorageBrowserCubit>().load(
+                          showLoading: false,
+                        ),
+                      );
+                    }
+                  },
+                ),
+              if (isTrash)
+                ListTile(
+                  leading: const Icon(AppIcons.refresh),
+                  title: Text(l10n.storageRestoreSelected),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    unawaited(mutationCubit.restoreFile(file.id));
+                  },
+                )
+              else if (file.canDelete)
+                ListTile(
+                  leading: Icon(AppIcons.delete, color: context.colors.error),
+                  title: Text(
+                    l10n.storageDeleteAction,
+                    style: TextStyle(color: context.colors.error),
+                  ),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    unawaited(mutationCubit.deleteFile(file.id));
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

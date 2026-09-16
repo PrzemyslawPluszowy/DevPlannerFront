@@ -1,0 +1,191 @@
+import 'dart:convert';
+
+import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
+import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:ready_next/workspaces/domain/chat/realtime/chat_realtime_export.dart';
+
+/// Dekoduje envelope SignalR Chat do kontraktu domenowego bez przecieku JSON.
+final class ChatRealtimeEventMapper {
+  /// Rozwija `payloadJson` live envelope'u do payloadu zdarzenia domenowego.
+  Map<String, dynamic>? normalizeLiveEnvelope(Map<String, dynamic> envelope) {
+    final normalizedEnvelope = _normalizeMap(envelope);
+    final decodedPayload = normalizedEnvelope['payload'] is Map
+        ? _normalizeMap(normalizedEnvelope['payload'] as Map)
+        : _payloadJson(normalizedEnvelope['payloadJson']);
+    if (decodedPayload == null) return normalizedEnvelope;
+    return <String, dynamic>{
+      ...decodedPayload,
+      if (normalizedEnvelope['eventId'] != null)
+        'eventId': normalizedEnvelope['eventId'],
+      if (normalizedEnvelope['sequence'] != null)
+        'sequence': normalizedEnvelope['sequence'],
+      if (normalizedEnvelope['conversationId'] != null)
+        'conversationId': normalizedEnvelope['conversationId'],
+    };
+  }
+
+  /// Mapuje otrzymany event albo zwraca null dla envelope'u bez rozmowy.
+  ChatConversationRealtimeEvent? map({
+    required String method,
+    required Map<String, dynamic> payload,
+    required bool isReplay,
+  }) {
+    final normalizedPayload = _normalizeMap(payload);
+    final conversationId = _nonEmptyString(normalizedPayload['conversationId']);
+    if (conversationId == null) return null;
+    final kind = _kindFor(method);
+    final message = switch (kind) {
+      ChatConversationRealtimeEventKind.messageCreated ||
+      ChatConversationRealtimeEventKind.messageUpdated => _messageFrom(
+        normalizedPayload,
+      ),
+      _ => null,
+    };
+    return ChatConversationRealtimeEvent(
+      eventId: _nonEmptyString(normalizedPayload['eventId']),
+      sequence: _int(normalizedPayload['sequence']),
+      conversationId: conversationId,
+      kind: kind,
+      isReplay: isReplay,
+      message: message,
+      messageId: _nonEmptyString(normalizedPayload['messageId']),
+      messageVersion: _int(normalizedPayload['version']),
+    );
+  }
+
+  /// Odtwarza stronę huba, łącznie z obowiązkowym sygnałem pełnego resyncu.
+  ChatRealtimeReplayPage decodeReplay(Object? value) {
+    final map = value is Map ? _normalizeMap(value) : null;
+    final items = map?['items'] ?? map?['events'] ?? const <Object?>[];
+    final events = <({String method, Map<String, dynamic> payload})>[];
+    if (items is List) {
+      for (final item in items) {
+        if (item is! Map) continue;
+        final raw = _normalizeMap(item);
+        final method = _nonEmptyString(raw['eventType'] ?? raw['method']);
+        final decodedPayload = raw['payload'] is Map
+            ? _normalizeMap(raw['payload'] as Map)
+            : _payloadJson(raw['payloadJson']);
+        if (method == null || decodedPayload == null) continue;
+        events.add((
+          method: method,
+          payload: <String, dynamic>{
+            ...decodedPayload,
+            if (raw['eventId'] != null) 'eventId': raw['eventId'],
+            if (raw['sequence'] != null) 'sequence': raw['sequence'],
+            if (raw['conversationId'] != null)
+              'conversationId': raw['conversationId'],
+          },
+        ));
+      }
+    }
+    return ChatRealtimeReplayPage(
+      events: events,
+      nextCursor: _nonEmptyString(map?['nextCursor']),
+      resyncRequired: map?['resyncRequired'] == true,
+    );
+  }
+
+  /// Konwertuje tekstowy sequence na backendowy URL-safe cursor replay.
+  String cursorForSequence(int sequence) =>
+      base64Url.encode(utf8.encode('$sequence')).replaceAll('=', '');
+
+  ChatConversationRealtimeEventKind _kindFor(String method) => switch (method) {
+    'chat.message.created' => ChatConversationRealtimeEventKind.messageCreated,
+    'chat.message.updated' => ChatConversationRealtimeEventKind.messageUpdated,
+    'chat.message.deleted' => ChatConversationRealtimeEventKind.messageDeleted,
+    'chat.member.access_revoked' ||
+    'chat.member.added' ||
+    'chat.member.left' ||
+    'chat.member.rejoined' ||
+    'chat.member.removed' ||
+    'chat.member.role_changed' =>
+      ChatConversationRealtimeEventKind.membershipChanged,
+    _ => ChatConversationRealtimeEventKind.unsupported,
+  };
+
+  ChatMessage? _messageFrom(Map<String, dynamic> payload) {
+    try {
+      final response = ChatMessageResponse.fromJson(payload);
+      return ChatMessage(
+        id: response.id,
+        conversationId: response.conversationId,
+        authorCoreUserId: response.authorCoreUserId,
+        clientMessageId: response.clientMessageId,
+        text: response.text,
+        deltaJson: response.deltaJson,
+        replyToMessageId: response.replyToMessageId,
+        payloadHash: response.payloadHash,
+        version: response.version,
+        createdAtUtc: response.createdAtUtc,
+        isDeleted: response.isDeleted,
+        threadRootMessageId: response.threadRootMessageId,
+        isEdited: response.isEdited,
+        deletedAtUtc: response.deletedAtUtc,
+        deliveryState: ChatMessageDeliveryState.sent,
+      );
+    } on Object {
+      // Wygenerowany fromJson może rzucić także TypeError dla brakującego lub
+      // błędnie typowanego pola. Tylko granica deserializacji jest fail-closed;
+      // transport i replay raportują własne błędy poza tym mapperem.
+      return null;
+    }
+  }
+
+  Map<String, dynamic>? _payloadJson(Object? value) {
+    if (value is! String || value.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(value);
+      return decoded is Map ? _normalizeMap(decoded) : null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  String? _nonEmptyString(Object? value) =>
+      value is String && value.isNotEmpty ? value : null;
+
+  int? _int(Object? value) => value is int ? value : int.tryParse('$value');
+
+  /// Dopasowuje JSON outboxa C# (PascalCase) do camelCase wygenerowanego API.
+  ///
+  /// Payload jest serializowany niezależnie od opcji Web API, więc zarówno jego
+  /// pola, jak i zagnieżdżone DTO mogą mieć PascalCase. Normalizacja jest
+  /// ograniczona do granicy transportu; modele domenowe pozostają typowane.
+  Map<String, dynamic> _normalizeMap(Map<Object?, Object?> value) {
+    final normalized = <String, dynamic>{};
+    for (final entry in value.entries) {
+      final key = entry.key;
+      if (key is! String) continue;
+      normalized[_normalizeKey(key)] = _normalizeValue(entry.value);
+    }
+    return normalized;
+  }
+
+  Object? _normalizeValue(Object? value) => switch (value) {
+    Map() => _normalizeMap(value),
+    List() => List<Object?>.unmodifiable(
+      value.map<Object?>(_normalizeValue),
+    ),
+    _ => value,
+  };
+
+  String _normalizeKey(String key) {
+    if (key.isEmpty) return key;
+    return '${key[0].toLowerCase()}${key.substring(1)}';
+  }
+}
+
+/// Jedna strona replayu zwrócona przez ChatEventsHub.
+final class ChatRealtimeReplayPage {
+  /// Tworzy zdekodowaną stronę i sygnał utraty cursoru z backendu.
+  const ChatRealtimeReplayPage({
+    required this.events,
+    required this.resyncRequired,
+    this.nextCursor,
+  });
+
+  final List<({String method, Map<String, dynamic> payload})> events;
+  final String? nextCursor;
+  final bool resyncRequired;
+}

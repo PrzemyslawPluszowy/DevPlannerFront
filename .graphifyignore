@@ -1,0 +1,11 @@
+AGENTS.md
+graphify-out/
+.opencode/
+.dart_tool/
+.pub/
+.pub-cache/
+build/
+coverage/
+android/**/build/
+ios/Pods/
+macos/Pods/

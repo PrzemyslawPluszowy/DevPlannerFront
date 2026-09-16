@@ -1,0 +1,88 @@
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+#
+# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
+# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# invoked from the command line by running `flutter analyze`.
+
+# The following line activates a set of recommended lints for Flutter apps,
+# packages, and plugins designed to encourage good coding practices.
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "graphify-out/**"
+    - "lib/generated_plugin_registrant.dart"
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+  errors:
+    public_member_api_docs: ignore
+    diagnostic_describe_all_properties: ignore
+    lines_longer_than_80_chars: ignore
+    always_put_required_named_parameters_first: ignore
+
+linter:
+  rules:
+    always_use_package_imports: true
+    avoid_dynamic_calls: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    sort_pub_dependencies: false
+    leading_newlines_in_multiline_strings: false
+    curly_braces_in_flow_control_structures: true
+    constant_identifier_names: false
+    depend_on_referenced_packages: true
+    cascade_invocations: false
+    omit_local_variable_types: true
+    avoid_catches_without_on_clauses: false
+    avoid_types_on_closure_parameters: true
+    unawaited_futures: true
+    use_build_context_synchronously: true
+    library_private_types_in_public_api: false
+    deprecated_member_use_from_same_package: false
+    sort_constructors_first: true
+    unnecessary_string_interpolations: true
+    use_raw_strings: false
+    prefer_final_locals: true
+    avoid_multiple_declarations_per_line: true
+    prefer_expression_function_bodies: false
+    avoid_positional_boolean_parameters: false
+    package_prefixed_library_names: false
+    parameter_assignments: false
+    overridden_fields: false
+    use_setters_to_change_properties: false
+    avoid_returning_this: false
+    type_annotate_public_apis: true
+    avoid_void_async: true
+    unnecessary_this: true
+    use_key_in_widget_constructors: true
+    prefer_int_literals: false
+    file_names: true
+    empty_constructor_bodies: true
+    camel_case_extensions: true
+    camel_case_types: true
+    library_names: true
+    non_constant_identifier_names: true
+    slash_for_doc_comments: true
+    await_only_futures: true
+    avoid_unnecessary_containers: true
+    prefer_void_to_null: true
+    avoid_empty_else: true
+    avoid_init_to_null: true
+    prefer_is_empty: true
+    prefer_is_not_empty: true
+    unnecessary_brace_in_string_interps: true
+    unnecessary_const: true
+    unnecessary_new: true
+    unnecessary_getters_setters: true
+    prefer_adjacent_string_concatenation: true
+    prefer_collection_literals: true
+    prefer_conditional_assignment: true
+    prefer_contains: true

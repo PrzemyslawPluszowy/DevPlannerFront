@@ -1,0 +1,17 @@
+Analyzing inventory...                                          
+
+   info • Sort directive sections alphabetically • lib/features/inventory/presentation/pages/companies/inventory_companies_page.dart:26:1 • directives_ordering
+  error • Target of URI doesn't exist: 'package:ready_next/features/inventory/data/repositories/inwentaryzacje_repository.dart' • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:6:8 • uri_does_not_exist
+   info • Sort directive sections alphabetically • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:14:1 • directives_ordering
+  error • The name 'InwentaryzacjeRepository' isn't a type, so it can't be used as a type argument • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:27:34 • non_type_as_type_argument
+  error • The method 'refresh' isn't defined for the type 'InventoriesCubit' • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:50:65 • undefined_method
+  error • Undefined class 'InventoriesInitial' • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:55:15 • undefined_class
+  error • Undefined class 'InventoriesLoading' • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:55:39 • undefined_class
+  error • Undefined class 'InventoriesSuccess' • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:58:15 • undefined_class
+  error • Undefined class 'InventoriesError' • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:59:15 • undefined_class
+   info • Use 'const' with the constructor to improve performance • lib/features/inventory/presentation/pages/inventories/inventory_inventories_page.dart:236:11 • prefer_const_constructors
+   info • Sort directive sections alphabetically • lib/features/inventory/presentation/pages/overview/inventory_overview_page.dart:16:1 • directives_ordering
+   info • Unnecessary type annotation on a function expression parameter • lib/features/inventory/presentation/pages/overview/inventory_overview_page.dart:59:27 • avoid_types_on_closure_parameters
+   info • The value of the argument is redundant because it matches the default value • lib/features/inventory/presentation/pages/overview/widgets/inventory_overview_widgets.dart:148:11 • avoid_redundant_argument_values
+   info • Closure should be a tearoff • lib/features/inventory/presentation/pages/stock/cubit/stock_cubit.dart:31:7 • unnecessary_lambdas
+

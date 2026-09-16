@@ -1,0 +1,5 @@
+- Wdrożono backend: `aktualny_stan`, pełne payloady elementu, `event` skanu i filtr `STAN=1` przy tworzeniu arkusza.
+- Wdrożono ostrzeżenie do `uwagi_loc` dla nietypowego `aktualny_stan` bez zmiany logiki `status_spisu`.
+- Zaktualizowano Swagger/OpenAPI i schematy proxy dla arkuszy, elementów i skanowania; `stan` zostaje deprecated.
+- Testy Laravel `ArkuszTest` i `SkanujTest` przeszły po zmianach.
+- Pending: frontend dla `aktualny_stan`, decyzja o raportach i końcowy backend code review.

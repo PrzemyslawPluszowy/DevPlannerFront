@@ -1,0 +1,105 @@
+name: Flutter desktop and web quality
+
+on:
+  push:
+    paths:
+      - 'lib/**'
+      - 'test/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/flutter-tasks-quality.yml'
+  pull_request:
+    paths:
+      - 'lib/**'
+      - 'test/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/flutter-tasks-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  desktop:
+    name: Desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            device: linux
+          - os: windows-latest
+            device: windows
+          - os: macos-latest
+            device: macos
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux WebView dependencies
+        if: matrix.device == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libwebkit2gtk-4.1-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Enable desktop target
+        run: flutter config --enable-${{ matrix.device }}-desktop
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Generate localizations
+        run: flutter gen-l10n
+      - name: Analyze
+        run: flutter analyze
+      - name: Run Tasks and shell tests (Linux)
+        if: matrix.device == 'linux'
+        run: >-
+          xvfb-run -a flutter test -d ${{ matrix.device }}
+          test/workspaces/presentation/tasks/list
+          test/workspaces/data/realtime/workspace_signalr_client_test.dart
+          test/workspaces/data/storage
+          test/workspaces/presentation/storage
+          test/shared/presentation/widgets/app_module_layout_test.dart
+      - name: Run Tasks and shell tests (desktop)
+        if: matrix.device != 'linux'
+        run: >-
+          flutter test -d ${{ matrix.device }}
+          test/workspaces/presentation/tasks/list
+          test/workspaces/data/realtime/workspace_signalr_client_test.dart
+          test/workspaces/data/storage
+          test/workspaces/presentation/storage
+          test/shared/presentation/widgets/app_module_layout_test.dart
+      - name: Build desktop application
+        run: flutter build ${{ matrix.device }} --debug
+
+  web:
+    name: Web (${{ matrix.mode }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [chrome, wasm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Generate localizations
+        run: flutter gen-l10n
+      - name: Analyze
+        run: flutter analyze
+      - name: Run web layout and Tasks tests
+        run: >-
+          flutter test
+          ${{ matrix.mode == 'wasm' && '--wasm ' || '' }}
+          --platform chrome
+          test/workspaces/presentation/tasks/list/project_tasks_list_rows_test.dart
+          test/workspaces/data/storage
+          test/workspaces/presentation/storage
+          test/shared/presentation/widgets/app_module_layout_test.dart
+      - name: Build web application
+        run: flutter build web ${{ matrix.mode == 'wasm' && '--wasm' || '' }}

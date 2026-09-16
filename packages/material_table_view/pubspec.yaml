@@ -1,0 +1,38 @@
+name: material_table_view
+description: Comprehensive, feature-rich and intuitive UI/UX widget solution for many data table use cases that is easy to integrate into any Flutter app.
+
+repository: 'https://github.com/NikolayNIK/material_table_view'
+issue_tracker: 'https://github.com/NikolayNIK/material_table_view/issues'
+
+version: 5.5.2
+
+topics:
+  - table
+  - list
+  - widget
+  - sliver
+  - scroll
+
+environment:
+  sdk: ">=2.17.1 <4.0.0"
+  flutter: ">=3.35.0"
+
+screenshots:
+  - description: 'Regular box TableView demo running on Windows laptop'
+    path: 'screenshots/demo-regular-box-windows-light.png'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  sliver_passthrough: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+

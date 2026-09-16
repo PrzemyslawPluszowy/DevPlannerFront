@@ -1,0 +1,222 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Ready Next - Inwentaryzacja Slowniki",
+  "dateExported": "2026-04-10T09:00:00.000Z",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "req_inw_miejsca_all_bearer",
+      "colId": "col_inwentaryzacja_slowniki",
+      "containerId": "",
+      "name": "GET miejsca (all) [Bearer]",
+      "url": "http://192.168.170.20:8100/api/v1/inwentaryzacja/miejsca",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-04-10T09:00:00.000Z",
+      "modified": "2026-04-10T09:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{accessToken}}"
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_inw_miejsca_firma_bearer",
+      "colId": "col_inwentaryzacja_slowniki",
+      "containerId": "",
+      "name": "GET miejsca (firma) [Bearer]",
+      "url": "http://192.168.170.20:8100/api/v1/inwentaryzacja/miejsca",
+      "method": "GET",
+      "sortNum": 11000,
+      "created": "2026-04-10T09:00:00.000Z",
+      "modified": "2026-04-10T09:00:00.000Z",
+      "headers": [],
+      "params": [
+        {
+          "name": "firma",
+          "value": "{{firmaId}}",
+          "isPath": false
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{accessToken}}"
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_inw_miejsca_firma_apikey",
+      "colId": "col_inwentaryzacja_slowniki",
+      "containerId": "",
+      "name": "GET miejsca (firma) [X-API-Key]",
+      "url": "http://192.168.170.20:8100/api/v1/inwentaryzacja/miejsca",
+      "method": "GET",
+      "sortNum": 12000,
+      "created": "2026-04-10T09:00:00.000Z",
+      "modified": "2026-04-10T09:00:00.000Z",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [
+        {
+          "name": "firma",
+          "value": "{{firmaId}}",
+          "isPath": false
+        }
+      ],
+      "auth": {
+        "type": "none"
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_inw_firmy_all_bearer",
+      "colId": "col_inwentaryzacja_slowniki",
+      "containerId": "",
+      "name": "GET firmy (all) [Bearer]",
+      "url": "http://192.168.170.20:8100/api/v1/inwentaryzacja/firmy",
+      "method": "GET",
+      "sortNum": 13000,
+      "created": "2026-04-10T09:00:00.000Z",
+      "modified": "2026-04-10T09:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{accessToken}}"
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_inw_firmy_all_apikey",
+      "colId": "col_inwentaryzacja_slowniki",
+      "containerId": "",
+      "name": "GET firmy (all) [X-API-Key]",
+      "url": "http://192.168.170.20:8100/api/v1/inwentaryzacja/firmy",
+      "method": "GET",
+      "sortNum": 14000,
+      "created": "2026-04-10T09:00:00.000Z",
+      "modified": "2026-04-10T09:00:00.000Z",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "auth": {
+        "type": "none"
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_inw_stan_st_bearer",
+      "colId": "col_inwentaryzacja_slowniki",
+      "containerId": "",
+      "name": "GET stan_st [Bearer]",
+      "url": "http://192.168.170.20:8100/api/v1/inwentaryzacja/stan_st",
+      "method": "GET",
+      "sortNum": 15000,
+      "created": "2026-04-10T09:00:00.000Z",
+      "modified": "2026-04-10T09:00:00.000Z",
+      "headers": [],
+      "params": [
+        {
+          "name": "firma",
+          "value": "{{firmaId}}",
+          "isPath": false
+        },
+        {
+          "name": "nazwa",
+          "value": "",
+          "isPath": false
+        },
+        {
+          "name": "nrewid",
+          "value": "",
+          "isPath": false
+        },
+        {
+          "name": "kod_kreskowy",
+          "value": "",
+          "isPath": false
+        },
+        {
+          "name": "limit",
+          "value": "{{limit}}",
+          "isPath": false
+        },
+        {
+          "name": "offset",
+          "value": "{{offset}}",
+          "isPath": false
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": "{{accessToken}}"
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_inw_stan_st_apikey",
+      "colId": "col_inwentaryzacja_slowniki",
+      "containerId": "",
+      "name": "GET stan_st [X-API-Key]",
+      "url": "http://192.168.170.20:8100/api/v1/inwentaryzacja/stan_st",
+      "method": "GET",
+      "sortNum": 16000,
+      "created": "2026-04-10T09:00:00.000Z",
+      "modified": "2026-04-10T09:00:00.000Z",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [
+        {
+          "name": "firma",
+          "value": "{{firmaId}}",
+          "isPath": false
+        },
+        {
+          "name": "nazwa",
+          "value": "",
+          "isPath": false
+        },
+        {
+          "name": "nrewid",
+          "value": "",
+          "isPath": false
+        },
+        {
+          "name": "kod_kreskowy",
+          "value": "",
+          "isPath": false
+        },
+        {
+          "name": "limit",
+          "value": "{{limit}}",
+          "isPath": false
+        },
+        {
+          "name": "offset",
+          "value": "{{offset}}",
+          "isPath": false
+        }
+      ],
+      "auth": {
+        "type": "none"
+      },
+      "tests": []
+    }
+  ],
+  "ref": "thunder-collection_inwentaryzacja_slowniki"
+}

@@ -1,0 +1,3488 @@
+{
+  "storageNewDocument": "New document",
+  "storageCreateDocumentDialogTitle": "Create document",
+  "storageDocumentName": "Name",
+  "storageDocumentNameHint": "For example: meeting notes",
+  "storageDocumentFormat": "Format",
+  "storageCreateDocumentButton": "Create",
+  "storageCreateDocumentSuccess": "The document was created.",
+  "storageFormatTxt": "Text file (.txt)",
+  "storageFormatOdt": "OpenDocument text (.odt)",
+  "storageFormatOds": "OpenDocument spreadsheet (.ods)",
+  "storageFormatOdp": "OpenDocument presentation (.odp)",
+  "storageFormatDocx": "Word document (.docx)",
+  "storageFormatXlsx": "Excel spreadsheet (.xlsx)",
+  "storageFormatPptx": "PowerPoint presentation (.pptx)",
+  "@@locale": "en",
+  "appName": "Ready Custom",
+  "loginSubtitle": "Sign in to access modules.",
+  "loginUsernameLabel": "Username",
+  "loginUsernameRequired": "Enter username.",
+  "loginPasswordLabel": "Password",
+  "loginPasswordRequired": "Enter password.",
+  "loginRememberCredentials": "Remember username and password",
+  "loginSubmit": "Sign in",
+  "loginSubmitting": "Signing in...",
+  "globalUserFallback": "User",
+  "globalModuleDashboard": "Dashboard",
+  "globalModuleInventory": "Inventory",
+  "globalModuleBhp": "BHP",
+  "globalModuleWorkspaces": "Workspaces",
+  "appShellChangelogTitle": "Changelog",
+  "appShellChangelogLoadError": "Could not load the changelog.",
+  "appShellChangelogEmpty": "There are no changelog entries.",
+  "appShellChangelogShowAll": "Show all entries",
+  "appShellBrandName": "Ready Next",
+  "appShellCommandPaletteUnavailable": "Global search is coming soon",
+  "appModalDismiss": "Close dialog",
+  "workspacesMenuTitle": "Workspaces",
+  "workspacesMenuSubtitle": "Spaces, projects and collaboration",
+  "workspacesSectionOverview": "Overview",
+  "workspacesSectionProjects": "Projects",
+  "workspacesNoProjects": "No projects",
+  "workspacesMenuCreateProject": "Create first project",
+  "workspacesMenuAdd": "Add",
+  "workspacesTaskList": "List",
+  "workspacesMenuCreateTask": "Add task",
+  "workspacesTaskKanban": "Kanban",
+  "workspacesTaskAutomations": "Automations",
+  "workspacesProjectCorkboard": "Corkboard",
+  "workspaceShellTitle": "Workspace",
+  "workspaceShellSubtitle": "Workspace",
+  "workspaceShellCollapseMenu": "Collapse menu",
+  "workspaceShellExpandMenu": "Expand menu",
+  "workspaceShellNavigationTitle": "Workspace",
+  "workspaceShellDashboard": "Dashboard",
+  "workspaceShellProjects": "Projects",
+  "workspaceShellProjectsPlaceholder": "The project list will appear here",
+  "workspaceShellDashboardDescription": "Dashboard skeleton — data and widgets will be connected after the contracts are agreed.",
+  "workspaceShellWidgetProjects": "Projects",
+  "workspaceShellWidgetTasks": "Tasks",
+  "workspaceShellWidgetActivity": "Activity",
+  "workspaceShellBackToDirectory": "Back to workspace directory",
+  "workspacesSectionTasks": "Tasks",
+  "workspacesSectionFiles": "Files and documents",
+  "workspacesSectionChat": "Chat",
+  "workspacesSectionWhiteboards": "Whiteboards",
+  "workspacesSectionWiki": "Wiki",
+  "workspacesSectionNotifications": "Notifications",
+  "workspacesSectionPending": "The section structure is ready. The next screen will be connected to the Workspaces backend contract.",
+  "workspacesEmptyTitle": "You do not have a workspace yet",
+  "workspacesEmptyMessage": "Workspaces available for your account will appear here.",
+  "workspacesErrorTitle": "Could not load workspaces",
+  "workspacesForbiddenTitle": "No access to workspaces",
+  "workspacesSessionTitle": "Your session requires sign-in again",
+  "workspacesRefresh": "Refresh",
+  "workspacesRetry": "Try again",
+  "workspacesCreatePrivateWorkspace": "Create private workspace",
+  "workspacesCreateWorkspace": "Create workspace",
+  "workspacesCreateWorkspaceTitle": "New workspace",
+  "workspacesCreateWorkspaceSubtitle": "Enter a name and create a new workspace.",
+  "workspacesEditWorkspaceTitle": "Edit workspace",
+  "workspacesEditWorkspaceSubtitle": "Enter a new name and customize the appearance of the workspace.",
+  "workspacesNameFieldLabel": "Workspace name",
+  "workspacesNameFieldPlaceholder": "e.g. Marketing, Project A, Finance",
+  "workspacesNameRequiredError": "Name cannot be empty",
+  "workspacesPickIconLabel": "Pick icon",
+  "workspacesAccentColorLabel": "Accent color",
+  "workspacesCancelButton": "Cancel",
+  "workspacesCreateButton": "Create",
+  "workspacesSaveButton": "Save",
+  "workspacesCreateProjectTitle": "New project",
+  "workspacesCreateProjectSubtitle": "Create a project and organize team work.",
+  "workspacesProjectNameLabel": "Project name *",
+  "workspacesProjectNameHint": "e.g. Mobile App Development, ERP Deployment...",
+  "workspacesProjectNameRequired": "Please enter a project name",
+  "workspacesProjectDescriptionLabel": "Project description (optional)",
+  "workspacesProjectDescriptionHint": "Project goal, scope or objectives...",
+  "workspacesProjectVisibilityLabel": "Project visibility",
+  "workspacesProjectVisibilityShared": "Shared with all workspace members",
+  "workspacesProjectVisibilityPrivate": "Private",
+  "workspacesCreateWhiteboardTitle": "New whiteboard",
+  "workspacesCreateWhiteboardSubtitle": "Create a whiteboard for sketching, diagrams and brainstorming.",
+  "workspacesWhiteboardNameLabel": "Whiteboard name *",
+  "workspacesWhiteboardNameHint": "e.g. System architecture, User journey map...",
+  "workspacesWhiteboardNameRequired": "Please enter a whiteboard name",
+  "workspacesWhiteboardFormatLabel": "Whiteboard format",
+  "workspacesWhiteboardFormatCanvas": "Infinite canvas",
+  "workspacesWhiteboardFormatA4": "A4 Document",
+  "workspacesMenuCreateWhiteboard": "Create whiteboard",
+  "workspacesMenuAddAnotherWhiteboard": "Add another whiteboard",
+  "workspacesCreateTaskTitle": "New task",
+  "workspacesCreateTaskSubtitle": "Add a task to the project workflow.",
+  "workspacesTaskTitleLabel": "Task title *",
+  "workspacesTaskTitleHint": "Task title...",
+  "workspacesTaskTitleRequired": "Please enter a task title",
+  "workspacesTaskDescriptionLabel": "Task description (optional)",
+  "workspacesTaskDescriptionHint": "Add details, reproduction steps or criteria...",
+  "workspacesTaskPriorityLabel": "Priority",
+  "workspacesTaskPriorityLow": "Low",
+  "workspacesTaskPriorityNormal": "Normal",
+  "workspacesTaskPriorityHigh": "High",
+  "workspacesTaskPriorityCritical": "Critical",
+  "workspacesTaskStatusLabel": "Initial status",
+  "workspacesTaskStatusTodo": "To do",
+  "workspacesTaskStatusInProgress": "In progress",
+  "workspacesTaskStatusBacklog": "Backlog",
+  "workspacesCreateWikiTitle": "New Wiki page",
+  "workspacesCreateWikiSubtitle": "Add an article to the project knowledge base.",
+  "workspacesWikiTitleLabel": "Page title *",
+  "workspacesWikiTitleHint": "e.g. Technical requirements, Code standards...",
+  "workspacesWikiTitleRequired": "Please enter a page title",
+  "workspacesCreateCorkboardTitle": "Pin a note",
+  "workspacesCreateCorkboardSubtitle": "Add a note to the project corkboard.",
+  "workspacesCorkboardTitleLabel": "Note title *",
+  "workspacesCorkboardTitleHint": "Short title...",
+  "workspacesCorkboardTitleRequired": "Please enter a title",
+  "workspacesCorkboardContentLabel": "Note content (optional)",
+  "workspacesCorkboardContentHint": "Enter note content or reminders...",
+  "workspacesCorkboardColorLabel": "Note color",
+  "workspacesCreateFolderTitle": "New folder",
+  "workspacesCreateFolderSubtitle": "Create a folder in project files repository.",
+  "workspacesFolderNameLabel": "Folder name *",
+  "workspacesFolderNameHint": "e.g. Documentation, Attachments, Mockups...",
+  "workspacesFolderNameRequired": "Please enter a folder name",
+  "workspacesEditAction": "Edit",
+  "workspacesPinAction": "Pin to favorites",
+  "workspacesUnpinAction": "Unpin from favorites",
+  "workspacesHideAction": "Hide from list",
+  "workspacesShowAction": "Restore to list",
+  "workspacesMyTasksLabel": "My tasks",
+  "workspacesMyFilesLabel": "My files",
+  "workspacesMyPrivateSectionLabel": "Private",
+  "workspacesMyWorkspacesSection": "My workspaces",
+  "workspacesFavoritesSection": "Favorites ({count})",
+  "@workspacesFavoritesSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workspacesTeamWorkspacesSection": "Team spaces ({count})",
+  "@workspacesTeamWorkspacesSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workspacesAllWorkspacesSection": "All workspaces",
+  "workspacesHiddenWorkspacesLabel": "Hidden workspaces",
+  "workspacesOwnerBadge": "Owner",
+  "workspacesSharedBadge": "Shared",
+  "workspacesPersonalBadge": "Private",
+  "globalModuleOther": "Other",
+  "globalModuleOrders": "Orders",
+  "globalModuleSettings": "Settings",
+  "globalActionSettings": "Settings",
+  "globalActionLogout": "Sign out",
+  "appDashboardTitle": "Dashboard",
+  "appDashboardSubtitle": "Main application surface that aggregates modules and future system areas.",
+  "appDashboardPlaceholderTitle": "New top-level module",
+  "appDashboardPlaceholderMessage": "This is the new parent application dashboard. In the next step, it can become a shared overview for Inventory, BHP, and future modules.",
+  "dashboardContextMenuChangeWallpaper": "Change wallpaper",
+  "dashboardContextMenuManageShortcuts": "Manage shortcuts",
+  "dashboardContextMenuAddWidget": "Add widget",
+  "dashboardContextMenuAutoArrange": "Auto arrange",
+  "dashboardContextMenuSnapToGrid": "Snap to grid",
+  "dashboardCollapsedTrayTitle": "Desktop Tray",
+  "dashboardCollapsedTraySubtitle": "Items hidden due to small window size. Increase the window size to automatically restore them to the desktop.",
+  "dashboardCollapsedTrayWidgets": "Widgets ({count})",
+  "@dashboardCollapsedTrayWidgets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardCollapsedTrayShortcuts": "Shortcuts ({count})",
+  "@dashboardCollapsedTrayShortcuts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardCollapsedTrayNoItems": "All items fit on the screen.",
+  "dashboardWidgetRefreshTooltip": "Refresh",
+  "dashboardWidgetResizeTitle": "Change size",
+  "dashboardWidgetResizeLabel": "Size {size}",
+  "@dashboardWidgetResizeLabel": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "dashboardWidgetRemoveAction": "Remove from desktop",
+  "dashboardWidgetBringToFront": "Bring to front",
+  "dashboardWidgetSendToBack": "Send to back",
+  "dashboardWidgetCategoryAll": "All",
+  "dashboardWidgetCategoryGeneral": "General",
+  "dashboardWidgetPickerTitle": "Add widget",
+  "dashboardWidgetPickerCloseTooltip": "Close",
+  "dashboardWidgetPickerAddButton": "Add widget",
+  "dashboardWidgetPickerNoSpaceMessage": "No free space on the dashboard.",
+  "dashboardWidgetPickerPreviewTitle": "WIDGET PREVIEW",
+  "dashboardWallpaperPickerTitle": "Change wallpaper",
+  "dashboardWallpaperPickerSubtitle": "Choose one of the available desktop wallpapers.",
+  "dashboardShortcutRenameTitle": "Rename shortcut",
+  "dashboardShortcutRenameSubtitle": "The new label will appear under the desktop icon.",
+  "dashboardShortcutRenameFieldLabel": "New name",
+  "dashboardShortcutRenameCancel": "Cancel",
+  "dashboardShortcutRenameSave": "Save",
+  "dashboardShortcutsPanelTitle": "Available modules",
+  "dashboardShortcutsPanelCloseTooltip": "Close",
+  "dashboardShortcutsPanelSubtitle": "Click a module to place it in a free spot on the dashboard, or drag its icon directly onto the wallpaper.",
+  "dashboardShortcutsPanelRenameAction": "Rename",
+  "dashboardShortcutsPanelRemoveAction": "Remove from dashboard",
+  "dashboardShortcutsPickerTitle": "Available modules",
+  "dashboardShortcutsPickerCloseTooltip": "Close",
+  "dashboardShortcutsPickerInstruction": "Click a module to add it to an empty spot on the dashboard, or drag its icon directly onto the wallpaper.",
+  "dashboardShortcutsPickerVisibleLabel": "Visible",
+  "dashboardShortcutsPickerDragHint": "Click / drag icon",
+  "dashboardQuickActionsName": "Quick actions",
+  "dashboardQuickActionsDescription": "Gives fast access to key forms and system functions.",
+  "dashboardQuickActionsCategory": "General",
+  "dashboardQuickActionsInventoryAction": "Inventory",
+  "dashboardQuickActionsBhpAction": "BHP issue",
+  "dashboardQuickActionsSettingsAction": "Settings",
+  "dashboardStartupModuleName": "App Autostart",
+  "dashboardStartupModuleDescription": "Choose which module will open automatically when launching the app.",
+  "dashboardStartupModuleCategory": "General",
+  "dashboardActiveInventoriesName": "Active inventories",
+  "dashboardActiveInventoriesDescription": "List of active inventories currently in progress across branches.",
+  "dashboardActiveInventoriesCategory": "Inventory",
+  "dashboardActiveInventoriesErrorTitle": "Failed to load data",
+  "dashboardActiveInventoriesRetryLabel": "Try again",
+  "dashboardActiveInventoriesEmptyTitle": "No active inventories",
+  "dashboardActiveInventoriesSheetsLabel": "Sheets: {count}",
+  "@dashboardActiveInventoriesSheetsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardBhpUsersName": "BHP: employees",
+  "dashboardBhpUsersDescription": "Quick preview of BHP employees with a shortcut to the employee list module.",
+  "dashboardBhpUsersCategory": "BHP",
+  "dashboardBhpUsersErrorTitle": "Failed to load employees",
+  "dashboardBhpUsersSectionTitle": "BHP employees",
+  "dashboardBhpUsersEmptyTitle": "No employees",
+  "dashboardBhpUsersEmptyMessage": "No active employees were found.",
+  "dashboardBhpUsersNoPositionLabel": "No position",
+  "dashboardBhpUsersDeadlineOverdueLabel": "{days} days overdue",
+  "@dashboardBhpUsersDeadlineOverdueLabel": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardBhpUsersDeadlineTodayLabel": "today",
+  "dashboardBhpUsersDeadlineUpcomingLabel": "in {days} days",
+  "@dashboardBhpUsersDeadlineUpcomingLabel": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardBhpUsersDeadlineOverdueCountLabel": "{count} overdue",
+  "@dashboardBhpUsersDeadlineOverdueCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardBhpUsersDeadlineUpcomingCountLabel": "{count} soon",
+  "@dashboardBhpUsersDeadlineUpcomingCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardBhpUsersDeadlineOkLabel": "ok",
+  "dashboardBhpPositionsName": "BHP: positions",
+  "dashboardBhpPositionsDescription": "Quick preview of BHP positions with a shortcut to the full position list.",
+  "dashboardBhpPositionsCategory": "BHP",
+  "dashboardBhpPositionsErrorTitle": "Failed to load positions",
+  "dashboardBhpPositionsSectionTitle": "BHP positions",
+  "dashboardBhpPositionsEmptyTitle": "No positions",
+  "dashboardBhpPositionsEmptyMessage": "No active positions were found.",
+  "dashboardBhpPositionsNoNotesLabel": "No notes",
+  "dashboardBhpPositionsActiveLabel": "active",
+  "dashboardBhpPositionsInactiveLabel": "inactive",
+  "dashboardBhpEquipmentName": "BHP: equipment",
+  "dashboardBhpEquipmentDescription": "Quick preview of the BHP equipment catalog with a shortcut to the full list.",
+  "dashboardBhpEquipmentCategory": "BHP",
+  "dashboardBhpEquipmentErrorTitle": "Failed to load equipment",
+  "dashboardBhpEquipmentSectionTitle": "BHP equipment",
+  "dashboardBhpEquipmentEmptyTitle": "No equipment",
+  "dashboardBhpEquipmentEmptyMessage": "No active equipment was found.",
+  "dashboardBhpEquipmentNoPeriodLabel": "No period",
+  "dashboardBhpEquipmentActiveLabel": "active",
+  "dashboardBhpUpcomingName": "BHP: upcoming",
+  "dashboardBhpUpcomingDescription": "List of BHP alerts approaching their deadline and needing preparation.",
+  "dashboardBhpUpcomingCategory": "BHP",
+  "dashboardBhpUpcomingErrorTitle": "Failed to load upcoming alerts",
+  "dashboardBhpUpcomingRefreshLabel": "Refresh",
+  "dashboardBhpUpcomingSectionTitle": "Upcoming",
+  "dashboardBhpUpcomingEmptyTitle": "No upcoming alerts",
+  "dashboardBhpUpcomingEmptyMessage": "There are no items approaching their deadline.",
+  "dashboardBhpOverdueName": "BHP: overdue",
+  "dashboardBhpOverdueDescription": "List of the most urgent BHP alerts that are already overdue.",
+  "dashboardBhpOverdueCategory": "BHP",
+  "dashboardBhpOverdueErrorTitle": "Failed to load overdue alerts",
+  "dashboardBhpOverdueRefreshLabel": "Refresh",
+  "dashboardBhpOverdueSectionTitle": "Overdue",
+  "dashboardBhpOverdueEmptyTitle": "No overdue alerts",
+  "dashboardBhpOverdueEmptyMessage": "All BHP items are within their deadlines.",
+  "dashboardInventorySummaryName": "Inventory stats",
+  "dashboardInventorySummaryDescription": "Overview of inventory progress, active sheets, and latest readings.",
+  "dashboardInventorySummaryCategory": "Inventory",
+  "dashboardInventorySummaryActiveSheetsLabel": "Active sheets",
+  "dashboardInventorySummaryCompletedLabel": "Completed",
+  "dashboardInventorySummaryProgressLabel": "Overall progress",
+  "settingsHeaderTitle": "Application settings",
+  "settingsHeaderSubtitle": "Local configuration shared across all modules. This section will grow with language, preferences and module settings.",
+  "settingsCategoriesTitle": "Categories",
+  "settingsCategoriesSubtitle": "Choose a configuration area",
+  "settingsSectionAppearanceTitle": "Appearance",
+  "settingsSectionAppearanceSubtitle": "Theme and color palette",
+  "settingsSectionLanguageTitle": "Language",
+  "settingsSectionLanguageSubtitle": "Application language",
+  "settingsSectionModulesTitle": "Modules",
+  "settingsSectionModulesSubtitle": "Startup and post-login behavior",
+  "settingsStartupModuleTitle": "Module auto start",
+  "settingsStartupModuleSubtitle": "After sign-in the app always shows the dashboard first and then automatically opens the selected module.",
+  "settingsStartupModuleDashboardSubtitle": "Stay on the dashboard after sign-in",
+  "settingsStartupModuleInventorySubtitle": "Open the inventory module after the dashboard",
+  "settingsStartupModuleBhpSubtitle": "Open the BHP module after the dashboard",
+  "settingsStartupModuleSettingsSubtitle": "Open application settings after the dashboard",
+  "settingsLanguageTitle": "Language",
+  "settingsLanguageSubtitle": "Choose primary interface language.",
+  "settingsLanguagePolish": "Polish (Polski)",
+  "settingsLanguagePolishSubtitle": "Default language for your organization",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageEnglishSubtitle": "Secondary language for international users",
+  "settingsAppearanceModeTitle": "Theme mode",
+  "settingsAppearanceModeSubtitle": "Choose how light and dark appearance is selected.",
+  "settingsThemeSystem": "System",
+  "settingsThemeSystemSubtitle": "Follow operating system preference",
+  "settingsThemeLight": "Light",
+  "settingsThemeLightSubtitle": "Always use light appearance",
+  "settingsThemeDark": "Dark",
+  "settingsThemeDarkSubtitle": "Always use dark appearance",
+  "settingsPaletteTitle": "Color palette",
+  "settingsPaletteSubtitle": "Palette variant for the whole application.",
+  "settingsPaletteClassicTitle": "Classic",
+  "settingsPaletteClassicSubtitle": "Neutral blue, default visual style",
+  "settingsPaletteMaterialTitle": "Material",
+  "settingsPaletteMaterialSubtitle": "Standard Material 3 generated by ColorScheme.fromSeed",
+  "settingsSeedColorTitle": "Material seed color",
+  "settingsSeedColorSubtitle": "Choose the seed color for the Material palette.",
+  "settingsSeedColorBlueTitle": "Blue",
+  "settingsSeedColorBlueSubtitle": "Closest to the current app look",
+  "settingsSeedColorEmeraldTitle": "Emerald",
+  "settingsSeedColorEmeraldSubtitle": "Cool green-teal variant",
+  "settingsSeedColorAmberTitle": "Amber",
+  "settingsSeedColorAmberSubtitle": "Warm orange-gold variant",
+  "settingsSeedColorRoseTitle": "Rose",
+  "settingsSeedColorRoseSubtitle": "Soft raspberry accent",
+  "settingsSeedColorVioletTitle": "Violet",
+  "settingsSeedColorVioletSubtitle": "Cool violet variant",
+  "settingsSeedColorTealTitle": "Teal",
+  "settingsSeedColorTealSubtitle": "Sea-toned, more saturated variant",
+  "settingsSeedColorIndigoTitle": "Indigo",
+  "settingsSeedColorIndigoSubtitle": "Deep blue-violet variant",
+  "settingsSeedColorOrangeTitle": "Orange",
+  "settingsSeedColorOrangeSubtitle": "Energetic orange variant",
+  "settingsSeedColorCrimsonTitle": "Crimson",
+  "settingsSeedColorCrimsonSubtitle": "Strong crimson accent",
+  "close": "Close",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "inventoryModuleTitle": "Inventory",
+  "inventorySectionInventories": "Inventories",
+  "inventoryInventoriesSubtitle": "List of active and archived records.",
+  "inventoryNew": "New",
+  "inventorySectionAssetState": "Asset state",
+  "@inventorySectionAssetState": {
+    "description": "Section title for the fixed asset state overview screen."
+  },
+  "inventoryCurrentState": "Current state",
+  "@inventoryCurrentState": {
+    "description": "Column label for the source current state of an inventory sheet item."
+  },
+  "inventorySectionLocations": "Locations",
+  "inventorySectionCompanies": "Companies",
+  "inventorySidebarSubtitle": "Manage assets and inventory sheets",
+  "inventoryUiGallery": "UI Gallery",
+  "inventoryRefresh": "Refresh",
+  "inventoryNoNumber": "No number",
+  "inventoryDateRangeLabel": "Range",
+  "inventoryPeopleCount": "{count} people",
+  "@inventoryPeopleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryFetchErrorTitle": "Fetch error",
+  "inventoryActionNotConnected": "Action \"{label}\" will be connected to API.",
+  "@inventoryActionNotConnected": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "inventoryOverviewTitle": "Asset state",
+  "inventoryOverviewSubtitle": "Quick filtering and fixed assets list.",
+  "inventorySearch": "Search",
+  "inventoryLoadingErrorTitle": "Loading error",
+  "inventoryOverviewSearchHintName": "Enter fixed asset name...",
+  "inventoryOverviewSearchHintRegisterNumber": "Enter register number...",
+  "inventoryOverviewSearchHintBarcode": "Enter barcode...",
+  "inventoryOverviewSearchHintGlobal": "Name, register no., person, location or barcode...",
+  "inventoryCompany": "Companies/Branches",
+  "inventoryAll": "All",
+  "inventoryAllCompanies": "All companies",
+  "inventorySearchBy": "Search by",
+  "inventorySearchSheetsAction": "Search sheets",
+  "inventorySearchSheetsTitle": "Search across sheets",
+  "inventorySearchSheetsSubtitle": "Inventory {number}",
+  "@inventorySearchSheetsSubtitle": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "inventorySearchSheetsHint": "Register no., name, person or barcode...",
+  "inventorySearchSheetsSortByRegisterNumber": "Reg. no.",
+  "inventorySearchSheetsSortByName": "Name",
+  "inventorySearchSheetsSortByMatches": "Matches count",
+  "inventorySearchSheetsStartTitle": "Start searching",
+  "inventorySearchSheetsStartMessage": "Type at least 2 characters to search across all sheets in this inventory.",
+  "inventorySearchSheetsResultsCount": "Groups: {groups}, matches: {matches}",
+  "@inventorySearchSheetsResultsCount": {
+    "placeholders": {
+      "groups": {
+        "type": "int"
+      },
+      "matches": {
+        "type": "int"
+      }
+    }
+  },
+  "inventorySearchSheetsMatchesCount": "{count} matches",
+  "@inventorySearchSheetsMatchesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventorySearchSheetsCurrentSheet": "Current sheet",
+  "inventorySearchSheetsFocusCurrentAction": "Show in sheet",
+  "inventorySearchSheetsOpenSheetAction": "Open sheet",
+  "inventorySearchSheetsToDisposeStatus": "To dispose",
+  "inventoryPresenceConflictsTitle": "Presence conflicts",
+  "inventoryPresenceConflictsSubtitle": "Inventory {number}",
+  "@inventoryPresenceConflictsSubtitle": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "inventoryPresenceConflictsLoadingLabel": "Checking conflicts",
+  "inventoryPresenceConflictsRetryLabel": "Show conflicts",
+  "inventoryPresenceConflictsEmptyBadge": "No conflicts detected",
+  "inventoryPresenceConflictsDetectedAction": "{count} conflicts",
+  "@inventoryPresenceConflictsDetectedAction": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryPresenceConflictsResultsCount": "Conflicts: {count}",
+  "@inventoryPresenceConflictsResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryPresenceConflictsArkuszeCount": "{count} sheets",
+  "@inventoryPresenceConflictsArkuszeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryPresenceConflictsEmptyTitle": "No conflicts detected",
+  "inventoryPresenceConflictsEmptyMessage": "This inventory currently has no fixed assets detected in multiple sheets as present entries.",
+  "inventorySurplusConflictsTitle": "Surplus conflicts",
+  "inventorySurplusConflictsSubtitle": "Inventory {number}",
+  "@inventorySurplusConflictsSubtitle": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "inventorySurplusConflictsLoadingLabel": "Checking surplus conflicts",
+  "inventorySurplusConflictsRetryLabel": "Show surplus conflicts",
+  "inventorySurplusConflictsEmptyBadge": "No surplus conflicts",
+  "inventorySurplusConflictsDetectedAction": "{count} unpaired surpluses",
+  "@inventorySurplusConflictsDetectedAction": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventorySurplusConflictsResultsCount": "Unpaired surpluses: {count}",
+  "@inventorySurplusConflictsResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventorySurplusConflictsEmptyTitle": "No surplus conflicts",
+  "inventorySurplusConflictsEmptyMessage": "This inventory currently has no surplus entries without a matching missing item in other sheets.",
+  "inventorySurplusConflictsMatchBasisLabel": "Matched by",
+  "inventorySurplusConflictsMatchBasisRegisterNumber": "Register number",
+  "inventorySurplusConflictsMatchBasisBarcode": "Barcode",
+  "inventoryDuplicateConflictsTitle": "Duplicate register numbers",
+  "inventoryDuplicateConflictsSubtitle": "Duplicate register numbers detected in stan_st.",
+  "inventoryDuplicateConflictsRetryLabel": "Show duplicates",
+  "inventoryDuplicateConflictsSummary": "Groups: {groups} • Records: {records}",
+  "@inventoryDuplicateConflictsSummary": {
+    "placeholders": {"groups": {}, "records": {}}
+  },
+  "inventoryDuplicateConflictsDetected": "Detected {count} duplicate groups",
+  "@inventoryDuplicateConflictsDetected": {"placeholders": {"count": {"type": "int"}}},
+  "inventoryDuplicateConflictsVisibleResults": "Visible: {groups} groups • {records} records",
+  "@inventoryDuplicateConflictsVisibleResults": {
+    "placeholders": {
+      "groups": {"type": "int"},
+      "records": {"type": "int"}
+    }
+  },
+  "inventoryDuplicateConflictsFetchError": "Failed to fetch stan_st duplicates.",
+  "inventoryDuplicateConflictsEmptyTitle": "No duplicate register numbers",
+  "inventoryDuplicateConflictsEmptyMessage": "No duplicate register numbers were found in the current stan_st snapshot.",
+  "inventoryDuplicateGroupRecordsCount": "{count} records",
+  "@inventoryDuplicateGroupRecordsCount": {"placeholders": {"count": {"type": "int"}}},
+  "inventoryDuplicateCompaniesLabel": "Companies: {list}",
+  "@inventoryDuplicateCompaniesLabel": {"placeholders": {"list": {}}},
+  "inventoryDuplicateVariantsLabel": "Variants: {variants}",
+  "@inventoryDuplicateVariantsLabel": {"placeholders": {"variants": {}}},
+  "inventoryDuplicateCopiedRegisterToast": "Register number copied.",
+  "inventoryImport": "Import",
+  "inventoryName": "Name",
+  "inventoryRegisterNumber": "Register number",
+  "inventoryRegisterNumberShort": "Reg. no.",
+  "inventoryBarcode": "Barcode",
+  "inventoryNoName": "No name",
+  "inventoryPerson": "Person",
+  "inventoryLocation": "Location",
+  "inventoryState": "State",
+  "inventoryUnknownWithCode": "Unknown ({code})",
+  "@inventoryUnknownWithCode": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "inventoryPurchaseDate": "Purchase date",
+  "inventoryValueP": "Value P",
+  "inventoryAssetDetailsTitle": "Asset details",
+  "inventoryBasicInfoSection": "Basic information",
+  "inventoryLocationSection": "Location",
+  "inventoryFinancialSection": "Financial and purchase data",
+  "inventoryLevel": "Level",
+  "inventoryValueA": "Value A",
+  "inventoryImportedAt": "Imported",
+  "inventoryNoData": "No data",
+  "inventoryLocationsTitle": "Locations",
+  "inventoryLocationsSubtitle": "Locations list",
+  "inventoryTable": "Table",
+  "inventoryTree": "Tree",
+  "inventoryLocationsSearchHint": "Code, name, level...",
+  "inventoryLocationsTreeSearchHint": "Company, code, name, level...",
+  "inventoryNoResultsTitle": "No results",
+  "inventoryLocationsNoResultsMessage": "No branches matching the filter were found.",
+  "inventoryCompanyWithId": "Branch {id}",
+  "@inventoryCompanyWithId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryLocationsCount": "{count} locations",
+  "@inventoryLocationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryCode": "Code",
+  "inventoryCompaniesTitle": "Companies",
+  "inventoryCompaniesSubtitle": "List of registered companies in inventory dictionary.",
+  "inventoryCompaniesEmptyTitle": "No companies",
+  "inventoryCompaniesEmptyMessage": "No companies were found in the dictionary.",
+  "inventoryCompanyIdLabel": "Company ID: {id}",
+  "@inventoryCompanyIdLabel": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryCompanyDeletedMessage": "Company has been deleted.",
+  "inventoryDetailsTitle": "Inventory details",
+  "inventoryNumberLabel": "Number: {number}",
+  "@inventoryNumberLabel": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "inventoryDetailsLoadErrorTitle": "Failed to load inventory details",
+  "retry": "Retry",
+  "save": "Save",
+  "create": "Create",
+  "id": "ID",
+  "inventorySheetsLabel": "Sheets",
+  "inventoryWarehouseLabel": "Warehouse",
+  "inventoryActionsLabel": "Actions",
+  "inventoryReportsTitle": "Reports",
+  "inventoryReportsSubtitle": "Inventory {number}",
+  "@inventoryReportsSubtitle": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "inventoryReportsIntro": "Reports are calculated on all sheet items attached to the selected inventory.",
+  "inventoryReportsListTitle": "Report list",
+  "inventoryReportsBundleTitle": "PDF bundle",
+  "inventoryReportsBundleDescription": "A merged document matching the legacy Delphi report set.",
+  "inventoryReportsPreview": "Preview",
+  "inventoryReportsDownload": "Download",
+  "inventoryReportsPrint": "Print",
+  "inventoryReportsPreviewPdf": "PDF preview",
+  "inventoryReportsBundleSubtitle": "Report bundle",
+  "inventoryReportsSortLabel": "Sort",
+  "inventoryReportsSortDirectionLabel": "Direction",
+  "inventoryReportsSortById": "ID",
+  "inventoryReportsSortByRegisterNumber": "Reg. no.",
+  "inventoryReportsSortByLocation": "Location",
+  "inventoryReportsSortByStatus": "Count status",
+  "inventoryReportsSortByInventoryState": "Inventory state",
+  "inventoryReportsRefresh": "Refresh",
+  "inventoryReportsDownloadPdf": "Download PDF",
+  "inventoryReportsDownloadReportPdf": "Download report PDF",
+  "inventoryReportsDownloadProtocol": "Download protocol",
+  "inventoryReportsPrintPdf": "Print PDF",
+  "inventoryReportsPrintReportPdf": "Print report PDF",
+  "inventoryReportsPrintProtocol": "Print protocol",
+  "inventoryReportsElements": "Items",
+  "inventoryReportsGeneratedAt": "Generated at",
+  "inventoryReportsNotesLabel": "Notes in bundle",
+  "inventoryReportsEnabled": "Enabled",
+  "inventoryReportsDisabled": "Disabled",
+  "inventoryReportsPreviewOpenError": "Failed to open the PDF bundle preview.",
+  "inventoryReportsSortAscending": "Ascending",
+  "inventoryReportsSortDescending": "Descending",
+  "inventoryReportNoDataTitle": "No data for this report",
+  "inventoryReportNoDataMessage": "Backend returned no items for the selected type.",
+  "inventoryReportFetchErrorTitle": "Failed to load report",
+  "inventoryReportInternalBannerTitle": "Internal report",
+  "inventoryReportSearchHint": "Search by reg. no., name, location, person, or barcode",
+  "inventoryReportRegisterNumberLabel": "Register number",
+  "inventoryReportNameLabel": "Name",
+  "inventoryReportLocationLabel": "Location",
+  "inventoryReportPersonLabel": "Person",
+  "inventoryReportBarcodeLabel": "Barcode",
+  "inventoryReportGrossValueLabel": "Gross value",
+  "inventoryReportNetValueLabel": "Net value",
+  "inventoryReportPurchaseDateLabel": "Purchase date",
+  "inventoryReportUwagiLabel": "Notes",
+  "inventoryReportMissingLocationLabel": "Missing location",
+  "inventoryReportMissingPersonLabel": "Missing person",
+  "inventoryReportExcessLocationLabel": "Excess location",
+  "inventoryReportExcessPersonLabel": "Excess person",
+  "inventoryCountStatusMissing": "Missing",
+  "inventoryCountStatusPresent": "Present",
+  "inventoryCountStatusTransferred": "Present (mismatch)",
+  "inventoryCountStatusExcess": "Excess",
+  "inventoryCountStatusNew": "New",
+  "inventoryCountStatusFoundInOtherCompany": "Found in another company",
+  "inventoryCountStatusAmbiguousCode": "Ambiguous code",
+  "inventoryCountStatusSoldDuringInventory": "Sold during inventory",
+  "inventoryCountStatusPurchasedDuringInventory": "Purchased during inventory",
+  "inventoryCountStatusExcessDescription": "An item found during count that does not belong to the sheet.",
+  "inventoryCountStatusNewDescription": "An item added as new because it was not present in the source data.",
+  "inventoryCountStatusFoundInOtherCompanyDescription": "An item physically found but assigned to another company.",
+  "inventoryCountStatusAmbiguousCodeDescription": "The barcode or identifier does not uniquely identify the item.",
+  "inventoryCountStatusSoldDuringInventoryDescription": "The item was sold during the inventory process.",
+  "inventoryCountStatusPurchasedDuringInventoryDescription": "The item was purchased during the inventory process.",
+  "inventoryAssetStateMissingDescription": "No current state information is available for this item.",
+  "inventoryAssetStateUnapprovedDescription": "The item status has not been approved yet.",
+  "inventoryAssetStateInUseDescription": "The item is currently in use.",
+  "inventoryAssetStateDisposedDescription": "The item has been disposed.",
+  "inventoryAssetStateSoldDescription": "The item has been sold.",
+  "inventoryAssetStateTransferredDescription": "The item has been transferred.",
+  "inventoryAssetStateNotInAssetsDescription": "The item is not present in the current register.",
+  "inventoryCreateTitle": "New inventory",
+  "inventoryCreateSubtitle": "Create a new inventory record.",
+  "inventoryCreatedMessage": "Inventory has been created.",
+  "inventoryLoadCompaniesErrorTitle": "Failed to load companies",
+  "inventoryCompaniesListEmptyMessage": "Companies list is empty.",
+  "inventorySelectCompanyHint": "Select companies/branches",
+  "inventoryNumber": "Number",
+  "inventoryNumberRequired": "Number is required.",
+  "inventorySearchPersonHint": "Search person...",
+  "inventoryRemarks": "Remarks",
+  "inventoryFoundInOtherSheet": "Found in other sheet",
+  "inventoryOptionalRemarks": "Optional remarks",
+  "inventoryCreateDatesInfo": "Start and end dates are set automatically to today. Status remains backend default.",
+  "inventorySelectCompanyError": "Select at least one branch.",
+  "inventorySelectMinTwoCommissionUsers": "Select at least two commission users.",
+  "inventoryCommissionSavedMessage": "Commission has been saved.",
+  "inventoryNewSheet": "New sheet",
+  "inventorySheetCreatedMessage": "Sheet has been created.",
+  "inventoryCommissionTitle": "Inventory commission",
+  "inventoryEditSheetDatesTitle": "Edit sheet dates",
+  "inventoryEditSheetDatesSubtitle": "Change start and end dates without opening details.",
+  "inventoryStartDateLabel": "Start date",
+  "inventoryStartDateHelper": "Set the sheet start day and time.",
+  "inventoryStartTimeLabel": "Start time",
+  "inventoryEndDateLabel": "End date",
+  "inventoryEndDateHelper": "Set the sheet end day and time.",
+  "inventoryEndTimeLabel": "End time",
+  "inventoryStartDateRequiredError": "Start date is required.",
+  "inventoryEndDateBeforeStartError": "End date cannot be earlier than start date.",
+  "inventoryPrint": "Print",
+  "inventoryDates": "Dates",
+  "inventoryStatusSpisuFieldLabel": "Count status (options)",
+  "inventoryStatusSpisuNoOptions": "No selected options",
+  "inventoryStatusSpisuYesMismatch": "Yes (mismatch)",
+  "inventoryStatusSpisuExcess": "Excess",
+  "inventoryChooseCompanyTitle": "Choose company",
+  "inventoryChooseCompanyOutsideMessage": "Choose a company outside this inventory scope, then the exact location.",
+  "inventoryChooseCompanyInsideMessage": "Choose a company covered by this inventory, then the exact location.",
+  "inventoryInventoryStateAvailable": "Available",
+  "inventoryChangeItemStatusTitle": "Count status",
+  "inventoryChangeItemResultTitle": "Count result",
+  "inventoryChangeItemResultLabel": "Result",
+  "inventoryChangeItemAdditionalTitle": "Additional findings",
+  "inventoryChangeItemMismatchDataTitle": "Mismatch data",
+  "inventoryChangeItemCorrectionTitle": "Data correction",
+  "inventoryChangeItemChooseResultHint": "Choose count result",
+  "inventoryChangeItemTypeLabel": "Change type",
+  "inventoryDeleteItemTitle": "Delete sheet item",
+  "inventoryDeleteItemSubtitle": "This operation removes the selected item from the current sheet.",
+  "inventoryDeleteItemDetailsMessage": "Item ID: {id}\nRegister number: {register}\nName: {name}",
+  "@inventoryDeleteItemDetailsMessage": {
+    "placeholders": {
+      "id": {},
+      "register": {},
+      "name": {}
+    }
+  },
+  "inventoryDeleteItemSuccessMessage": "Sheet item has been deleted.",
+  "inventoryDeleteItemUnlockLabel": "Deletion confirmation",
+  "inventoryDeleteStockTitle": "Delete fixed asset",
+  "inventoryDeleteStockSubtitle": "This operation removes the record from the fixed assets snapshot.",
+  "inventoryDeleteStockConfirmTitle": "Are you sure you want to delete this record?",
+  "inventoryDeleteStockConfirmBody": "Record ID: {id}\nRegister number: {register}\nName: {name}",
+  "@inventoryDeleteStockConfirmBody": {
+    "placeholders": {
+      "id": { "type": "int" },
+      "register": {},
+      "name": {}
+    }
+  },
+  "inventoryDeleteStockHelper": "Retype the register number and full name. Letter case does not matter.",
+  "inventoryDeleteStockRegisterLabel": "Register number",
+  "inventoryDeleteStockNameLabel": "Full name",
+  "inventoryDeleteStockSuccessMessage": "Fixed asset has been removed from the snapshot.",
+  "inventorySheetDatesSavedMessage": "Sheet dates have been saved.",
+  "inventorySheetDateSearchHint": "sheet name, location",
+  "inventorySheetStatusesTitle": "Sheet statuses",
+  "inventorySheetStatusesCommissionTitle": "Commission",
+  "inventorySheetStatusesCommissionEmpty": "None",
+  "inventorySheetManagementTitle": "Edit sheet dates",
+  "inventorySheetManagementSubtitle": "Change start and end dates without editing the commission.",
+  "inventorySheetStartTimeLabel": "Start time",
+  "inventorySheetEndTimeLabel": "End time",
+  "frameworkGalleryTitle": "Framework Components Gallery",
+  "frameworkActionToast": "Action: {label}",
+  "@frameworkActionToast": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "frameworkNewDocumentTitle": "New document",
+  "frameworkNewDocumentSubtitle": "A right-side sheet variant.",
+  "frameworkClose": "Close",
+  "frameworkError": "Error",
+  "frameworkSave": "Save",
+  "frameworkNewDocumentTemplateTitle": "New document",
+  "frameworkNewDocumentTemplateSubtitle": "Template for BLoC initial/loading/loaded/error.",
+  "frameworkDocumentDataTitle": "Document data",
+  "frameworkDocumentNameHint": "e.g. Inventory Q2",
+  "frameworkDocumentStatusOpen": "Open",
+  "frameworkDocumentStatusClosed": "Closed",
+  "frameworkDataTableTitle": "Data Table",
+  "frameworkDataTableSubtitle": "Table with sorting and loading/error/empty states.",
+  "frameworkStressTest": "Stress test 100x4000",
+  "frameworkLoadingDataTitle": "Loading data",
+  "frameworkLoadingDataMessage": "Fetching records, this will take a moment.",
+  "frameworkLoadErrorTitle": "Failed to load data",
+  "frameworkName": "Name",
+  "frameworkStatus": "Status",
+  "frameworkItems": "Items",
+  "frameworkOwner": "Owner",
+  "frameworkListTilesTitle": "List Tiles",
+  "frameworkListTilesSubtitle": "Shared AppListTile and AppExpansionListTile for menus/lists.",
+  "frameworkInbox": "Inbox",
+  "frameworkReports": "Reports",
+  "frameworkDaily": "Daily",
+  "frameworkNewItemsCount": "12 new items",
+  "frameworkFavorites": "Favorites",
+  "frameworkAnalytics": "Analytics views",
+  "frameworkDailyReport": "Daily report",
+  "frameworkMonthlyReport": "Monthly report",
+  "frameworkDropdownTitle": "Dropdown",
+  "frameworkDropdownSubtitle": "Basic dropdown based on theme and shared styles.",
+  "frameworkDropdownLabel": "Range",
+  "frameworkToday": "Today",
+  "frameworkThisWeek": "This week",
+  "frameworkOuterLabel": "Outer label",
+  "frameworkStatusLabel": "Status",
+  "frameworkChoose": "Choose",
+  "frameworkToggleLoading": "Show loading",
+  "frameworkHideLoading": "Hide loading",
+  "frameworkShowError": "Show error",
+  "frameworkHideError": "Hide error",
+  "frameworkShowTable": "Show table",
+  "frameworkRetry": "Retry",
+  "frameworkLoadingText": "Loading data",
+  "frameworkLoadingMessage": "Fetching records, this will take a moment.",
+  "frameworkErrorTitle": "Failed to load data",
+  "frameworkSearchApiError": "API error: timeout while fetching the list.",
+  "frameworkListTileInboxCount": "12 new items",
+  "frameworkListTileFavorites": "Favorites",
+  "frameworkListTileAnalytics": "Analytics views",
+  "frameworkListTileDailyReport": "Daily report",
+  "frameworkListTileMonthlyReport": "Monthly report",
+  "frameworkTableRowHover": "Hover: {name}",
+  "@frameworkTableRowHover": {
+    "placeholders": { "name": {} }
+  },
+  "frameworkTableRowTap": "Tapped row #{index}: {name} | {status} | {count} | {owner}",
+  "@frameworkTableRowTap": {
+    "placeholders": {
+      "index": { "type": "int" },
+      "name": {},
+      "status": {},
+      "count": {},
+      "owner": {}
+    }
+  },
+  "frameworkTableName": "Name",
+  "frameworkTableStatus": "Status",
+  "frameworkTableItems": "Items",
+  "frameworkTableOwner": "Owner",
+  "ordersTitle": "Orders",
+  "ordersBody": "This is the second feature running in the same app.",
+  "ordersInitialRoute": "Initial route: /orders",
+  "ordersUserId": "User ID: n/d",
+  "ordersUser": "User: n/d",
+  "ordersBearerPassed": "Bearer passed: n/d",
+  "bhpModuleTitle": "BHP",
+  "bhpSidebarSubtitle": "Employee, position and equipment workflow",
+  "bhpSectionDashboard": "Dashboard",
+  "bhpSectionOperations": "Operations history",
+  "bhpSectionUsers": "Employees",
+  "bhpSectionPositions": "Positions",
+  "bhpSectionEquipment": "Equipment",
+  "bhpRefreshAction": "Refresh",
+  "bhpDashboardSectionTitle": "BHP dashboard",
+  "bhpDashboardSectionSubtitle": "Due-date alerts and basic operational signals from the BHP backend.",
+  "bhpDashboardErrorTitle": "Failed to load dashboard",
+  "bhpDashboardRefreshingLabel": "Refreshing",
+  "bhpDashboardRefreshInProgress": "Refreshing data.",
+  "bhpDashboardRetryLabel": "Try again",
+  "bhpDashboardOverdueTitle": "Overdue",
+  "bhpDashboardOverdueSubtitle": "Active issues that already require action.",
+  "bhpDashboardUpcomingTitle": "Upcoming",
+  "bhpDashboardUpcomingSubtitle": "Alerts in the next {months} months.",
+  "@bhpDashboardUpcomingSubtitle": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpDashboardSnapshotTitle": "Snapshot",
+  "bhpDashboardSnapshotSubtitle": "Dashboard generation timestamp.",
+  "bhpDashboardOverdueTableTitle": "Overdue issues",
+  "bhpDashboardOverdueTableSubtitle": "Records that already exceeded their usage term.",
+  "bhpDashboardNoOverdueTitle": "No overdue issues",
+  "bhpDashboardNoOverdueMessage": "There are no overdue items right now.",
+  "bhpDashboardUpcomingTableTitle": "Issues approaching due date",
+  "bhpDashboardUpcomingTableSubtitle": "Items that will soon require replacement or closure.",
+  "bhpDashboardNoUpcomingTitle": "No upcoming alerts",
+  "bhpDashboardNoUpcomingMessage": "There are no alerts in the selected time window right now.",
+  "bhpUsersTitle": "BHP employees",
+  "bhpUsersSectionSubtitle": "Employee cards and their current status.",
+  "bhpUsersSubtitle": "Active: {active}, archived: {archived}",
+  "@bhpUsersSubtitle": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "archived": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpUsersErrorTitle": "Failed to load employees",
+  "bhpUsersEmptyTitle": "No employees",
+  "bhpUsersEmptyMessage": "The BHP employee list is empty.",
+  "bhpUsersNoSearchResultsTitle": "No results",
+  "bhpUsersNoSearchResultsMessage": "No employee matches the current phrase. Clear the search or change the query.",
+  "bhpUsersNoActiveMessage": "There are no active employees in the list right now.",
+  "bhpUsersNoArchivedMessage": "There are no archived employees in the list right now.",
+  "bhpUsersSearchResultsSummary": "Results: {visible} of {total}",
+  "@bhpUsersSearchResultsSummary": {
+    "placeholders": {
+      "visible": {},
+      "total": {}
+    }
+  },
+  "bhpUsersClearSearchAction": "Clear search",
+  "bhpUsersBulkSelectLabel": "Bulk Actions",
+  "bhpUsersBulkSelectedCount": "{count, plural, =1{Selected 1 employee} other{Selected {count} employees}}",
+  "@bhpUsersBulkSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpUsersBulkChangePositionAction": "Change Position",
+  "bhpUsersBulkChangePositionTitle": "Bulk Position Change",
+  "bhpUsersBulkChangePositionConfirm": "Change position for {count} employees",
+  "@bhpUsersBulkChangePositionConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpUsersBulkSuccessMessage": "Successfully changed position for {count} employees.",
+  "@bhpUsersBulkSuccessMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpUsersDataQualityLabel": "Data",
+  "bhpUsersDataQualityComplete": "Complete",
+  "bhpUsersDataQualityMissingPosition": "Missing position",
+  "bhpUsersDataQualityMissingPesel": "Missing PESEL",
+  "bhpUsersDataQualityMissingPhone": "Missing phone",
+  "bhpUsersSearchHint": "Search by name, registry number or position...",
+  "bhpPositionsTitle": "BHP positions",
+  "bhpPositionsSectionSubtitle": "Positions dictionary used in employee cards.",
+  "bhpPositionsSubtitle": "Active: {active}, total: {total}",
+  "@bhpPositionsSubtitle": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpPositionsErrorTitle": "Failed to load positions",
+  "bhpPositionsEmptyTitle": "No positions",
+  "bhpPositionsEmptyMessage": "The positions dictionary does not contain data yet.",
+  "bhpPositionsSearchHint": "Search by name or notes...",
+  "bhpPositionsFilterAll": "All",
+  "bhpPositionsFilterInactive": "Inactive",
+  "bhpPositionsRestoreAction": "Restore",
+  "bhpPositionsRestoreTitle": "Restore position",
+  "bhpPositionsRestoreMessage": "Position {name} will be re-enabled in the active dictionary.",
+  "@bhpPositionsRestoreMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpPositionsRestoreSuccess": "Position {name} has been restored.",
+  "@bhpPositionsRestoreSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpPositionsAddAndStandardAction": "Add and standard",
+  "bhpPositionsEditStandardAction": "Edit standard",
+  "bhpPositionsOpenStandardAction": "Equipment standard",
+  "bhpPositionStandardsTitle": "Position equipment standard",
+  "bhpPositionStandardsLoadErrorTitle": "Failed to load position standard",
+  "bhpPositionStandardsPositionLabel": "Position",
+  "bhpPositionStandardsItemsCount": "Items: {count}",
+  "@bhpPositionStandardsItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpPositionStandardsActiveCount": "Active: {count}",
+  "@bhpPositionStandardsActiveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpPositionStandardsEquipmentPoolCount": "Available cards: {count}",
+  "@bhpPositionStandardsEquipmentPoolCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpPositionStandardsEmptyTitle": "No standard items",
+  "bhpPositionStandardsEmptyMessage": "This position has no assigned equipment yet.",
+  "bhpPositionStandardsAddAction": "Add item",
+  "bhpPositionStandardsArchiveAction": "Set inactive",
+  "bhpPositionStandardsArchiveTitle": "Set standard item as inactive",
+  "bhpPositionStandardsArchiveMessage": "Item {symbol} will be set inactive only on this position standard card.",
+  "@bhpPositionStandardsArchiveMessage": {
+    "placeholders": {
+      "symbol": {}
+    }
+  },
+  "bhpPositionStandardsArchiveSuccess": "The standard item has been set as inactive.",
+  "bhpPositionStandardsRestoreAction": "Set active",
+  "bhpPositionStandardsRestoreTitle": "Set standard item as active",
+  "bhpPositionStandardsRestoreMessage": "Item {symbol} will be set active only on this position standard card.",
+  "@bhpPositionStandardsRestoreMessage": {
+    "placeholders": {
+      "symbol": {}
+    }
+  },
+  "bhpPositionStandardsRestoreSuccess": "The standard item has been set as active.",
+  "bhpPositionStandardsDeleteTitle": "Delete standard item",
+  "bhpPositionStandardsDeleteMessage": "Item {symbol} will be permanently removed only from this position standard card.",
+  "@bhpPositionStandardsDeleteMessage": {
+    "placeholders": {
+      "symbol": {}
+    }
+  },
+  "bhpPositionStandardsDeleteSuccess": "The standard item has been deleted.",
+  "bhpPositionStandardEditorCreateTitle": "Add standard item",
+  "bhpPositionStandardEditorEditTitle": "Edit standard item",
+  "bhpPositionStandardEditorEquipmentLabel": "Equipment card",
+  "bhpPositionStandardEditorEquipmentHint": "Search equipment card...",
+  "bhpPositionStandardEditorEquipmentRequired": "Equipment card is required.",
+  "bhpPositionStandardEditorPeriodLabel": "Period (months)",
+  "bhpPositionStandardEditorQuantityLabel": "Quantity",
+  "bhpPositionStandardEditorCreateSuccess": "The standard item has been added.",
+  "bhpPositionStandardEditorEditSuccess": "The standard item has been saved.",
+  "bhpEquipmentTitle": "Equipment catalog",
+  "bhpEquipmentSectionSubtitle": "Catalog items used in BHP standards and issues.",
+  "bhpEquipmentFilterActiveTooltip": "Shows only active equipment cards.",
+  "bhpEquipmentFilterInactiveTooltip": "Shows only inactive equipment cards.",
+  "bhpEquipmentFilterAllTooltip": "Shows all equipment cards.",
+  "bhpEquipmentStatusActiveTooltip": "The equipment card is active and can be used in standards.",
+  "bhpEquipmentStatusInactiveTooltip": "The equipment card is inactive and is excluded from new issues.",
+  "bhpEquipmentSubtitle": "Active: {active}, total: {total}",
+  "@bhpEquipmentSubtitle": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpEquipmentErrorTitle": "Failed to load equipment",
+  "bhpEquipmentEmptyTitle": "No equipment",
+  "bhpEquipmentEmptyMessage": "The equipment catalog does not contain data yet.",
+  "bhpEquipmentSearchHint": "Search by symbol, name or unit...",
+  "bhpEquipmentSetInactiveAction": "Set inactive",
+  "bhpEquipmentSetInactiveTitle": "Set card as inactive",
+  "bhpEquipmentSetInactiveMessage": "Card {symbol} will be disabled in the active equipment catalog.",
+  "@bhpEquipmentSetInactiveMessage": {
+    "placeholders": {
+      "symbol": {}
+    }
+  },
+  "bhpEquipmentSetInactiveSuccess": "Card {symbol} has been set as inactive.",
+  "@bhpEquipmentSetInactiveSuccess": {
+    "placeholders": {
+      "symbol": {}
+    }
+  },
+  "bhpEquipmentSetActiveAction": "Set active",
+  "bhpEquipmentSetActiveTitle": "Set card as active",
+  "bhpEquipmentSetActiveMessage": "Card {symbol} will return to the active equipment catalog.",
+  "@bhpEquipmentSetActiveMessage": {
+    "placeholders": {
+      "symbol": {}
+    }
+  },
+  "bhpEquipmentSetActiveSuccess": "Card {symbol} has been set as active.",
+  "@bhpEquipmentSetActiveSuccess": {
+    "placeholders": {
+      "symbol": {}
+    }
+  },
+  "bhpEquipmentImpactSetInactiveDescription": "Setting this card as inactive will disable all active assignments of this equipment across positions.",
+  "bhpEquipmentImpactSetActiveDescription": "You can activate the card globally only, or additionally select which inactive position assignments should be restored.",
+  "bhpEquipmentImpactActiveLinksCount": "Active assignments: {count}",
+  "@bhpEquipmentImpactActiveLinksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpEquipmentImpactInactiveLinksCount": "Inactive assignments: {count}",
+  "@bhpEquipmentImpactInactiveLinksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpEquipmentImpactSelectedLinksCount": "To restore: {count}",
+  "@bhpEquipmentImpactSelectedLinksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpEquipmentImpactInactiveSection": "Positions that will be disabled",
+  "bhpEquipmentImpactActiveSection": "Inactive assignments available to restore",
+  "bhpEquipmentImpactActiveHint": "Select only the assignments that should return together with global card activation.",
+  "bhpEquipmentImpactInactiveEmptyTitle": "No active links",
+  "bhpEquipmentImpactInactiveEmptyMessage": "This card currently has no active standard assignments, so the status change will affect only the global catalog.",
+  "bhpEquipmentImpactActiveEmptyTitle": "No assignments to restore",
+  "bhpEquipmentImpactActiveEmptyMessage": "The card can be activated globally without restoring any position assignments.",
+  "bhpSearchAlertsHint": "Search by employee, position or equipment...",
+  "bhpTableRegistryNumber": "Reg. no.",
+  "bhpTableEmployee": "Employee",
+  "bhpTablePosition": "Position",
+  "bhpTableEquipment": "Equipment",
+  "bhpTableEmploymentStart": "Employed from",
+  "bhpTableEmploymentEnd": "Employed to",
+  "bhpTableDueDate": "Due date",
+  "bhpTableDaysToDue": "Days",
+  "bhpTableStatus": "Status",
+  "bhpTableNotes": "Notes",
+  "bhpTableSymbol": "Symbol",
+  "bhpTableUnit": "Unit",
+  "bhpTablePeriod": "Period",
+  "bhpTableDefaultQuantity": "Default qty",
+  "bhpTablePrice": "Price",
+  "bhpStatusActive": "Active",
+  "bhpStatusActiveTooltip": "The status means the item is active and available in current views.",
+  "bhpStatusInactive": "Inactive",
+  "bhpStatusInactiveTooltip": "The status means the item is inactive and should not be used for new operations.",
+  "bhpStatusArchived": "Archived",
+  "bhpUserIssuesTitle": "Employee issues",
+  "bhpUserIssuesSubtitle": "BHP issues and equivalents history for: {name}",
+  "@bhpUserIssuesSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bhpUserIssuesEmptyTitle": "No issues",
+  "bhpUserIssuesEmptyMessage": "This employee has no registered equipment issues.",
+  "bhpUserIssuesErrorTitle": "Failed to load issues",
+  "bhpUserIssuesSectionSubtitle": "Employee equipment issue register.",
+  "bhpUserIssuesHideInactive": "Hide inactive",
+  "bhpUserIssuesEmployeeLabel": "Employee:",
+  "bhpUserIssuesPositionLabel": "Position:",
+  "bhpUserIssuesNoPosition": "No position",
+  "bhpUserIssuesEditEmployeeTooltip": "Edit employee data",
+  "bhpUserIssuesSearchHint": "Search equipment (symbol, name)...",
+  "bhpUserIssuesRowNumber": "No.",
+  "bhpUserIssuesNoEquipmentName": "No name",
+  "bhpUserIssuesTooltipEquipmentInfo": "Show equipment information",
+  "bhpUserIssuesTooltipEditQuantity": "Edit quantity",
+  "bhpUserIssuesTooltipEditIssueDate": "Edit assignment date",
+  "bhpUserIssuesAddEquivalent": "Add",
+  "bhpUserIssuesTooltipAddEquivalent": "Add equivalent",
+  "bhpUserIssuesTooltipEditEquivalent": "Edit equivalent",
+  "bhpUserIssuesTooltipEditEquivalentDate": "Edit equivalent date",
+  "bhpUserIssuesActionDeleteEquivalent": "Delete equivalent",
+  "bhpUserIssuesTooltipDeleteEquivalent": "Delete equivalent",
+  "bhpUserIssuesAddNote": "Add note",
+  "bhpUserIssuesTooltipAddNote": "Add note to issue",
+  "bhpUserIssuesActiveStatusTooltip": "The equipment is currently used by the employee.\nIt consumes the norm assigned to the position.",
+  "bhpUserIssuesInactiveStatusTooltip": "The issue has been closed.\nThe equipment is no longer in use and releases the norm for the position.",
+  "bhpUserIssuesRepeatAction": "Add again",
+  "bhpUserIssuesActionsForSymbol": "Actions for: {symbol}",
+  "@bhpUserIssuesActionsForSymbol": {
+    "placeholders": {
+      "symbol": {}
+    }
+  },
+  "bhpUserIssuesActionsForIssue": "Issue actions",
+  "bhpUserIssuesDeleteIssueTitle": "Delete issue",
+  "bhpUserIssuesDeleteIssueMessage": "Are you sure you want to delete issue {item}? This operation cannot be undone.",
+  "@bhpUserIssuesDeleteIssueMessage": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "bhpUserIssuesDeleteIssueSuccess": "The issue has been deleted.",
+  "bhpUserIssuesRepeatIssueTitle": "Add again",
+  "bhpUserIssuesRepeatIssueMessage": "Are you sure you want to automatically repeat issue {item}?",
+  "@bhpUserIssuesRepeatIssueMessage": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "bhpUserIssuesRepeatIssueSuccess": "The issue has been repeated.",
+  "bhpUserIssuesBulkRepeatAction": "Issue selected again",
+  "bhpUserIssuesBulkRepeatTitle": "Confirm reissue",
+  "bhpUserIssuesBulkRepeatSubtitle": "New issues will be created for the items selected on the active list.",
+  "bhpUserIssuesBulkRepeatDescription": "Review the selected items and choose one shared assignment date for the new issues.",
+  "bhpUserIssuesBulkRepeatDateHelper": "Today's date is selected by default, but you can change it before saving the operation.",
+  "bhpUserIssuesBulkRepeatSelectAll": "Select all",
+  "bhpUserIssuesBulkRepeatClearSelection": "Clear selection",
+  "bhpUserIssuesBulkRepeatEmptyTitle": "No items available to repeat",
+  "bhpUserIssuesBulkRepeatEmptyMessage": "No active items have been selected for reissue.",
+  "bhpUserIssuesBulkRepeatSelectedCount": "Selected: {count}",
+  "@bhpUserIssuesBulkRepeatSelectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "bhpUserIssuesBulkRepeatSubmitAction": "Issue again",
+  "bhpUserIssuesBulkRepeatSelectionRequired": "Select at least one active item to issue again.",
+  "bhpUserIssuesBulkRepeatSuccess": "Repeated {count} issues.",
+  "@bhpUserIssuesBulkRepeatSuccess": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "bhpUserIssuesBulkRepeatItemSubtitle": "Assigned: {assignedAt} • Closed: {closedAt} • Quantity: {quantity}",
+  "@bhpUserIssuesBulkRepeatItemSubtitle": {
+    "placeholders": {
+      "assignedAt": {},
+      "closedAt": {},
+      "quantity": {}
+    }
+  },
+  "bhpUserIssuesOpenPositionDetails": "Open position details",
+  "bhpUserIssuesPrintCardError": "Error while generating the card printout: {error}",
+  "@bhpUserIssuesPrintCardError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "bhpUserIssuesActionAdd": "Add issue",
+  "bhpUserIssuesActionFromStandard": "Generate from standard",
+  "bhpUserIssuesActionClose": "Close Issue",
+  "bhpUserIssuesActionEquivalent": "Equivalent",
+  "bhpUserIssuesPrint": "Print",
+  "bhpUserIssuesPrintOptionsTitle": "Print options",
+  "bhpUserIssuesPrintOptionsIncludeInactive": "Include inactive (closed) items",
+  "bhpUserIssuesPrintOptionsAction": "Generate print",
+  "bhpTableEquipmentSymbol": "Symbol",
+  "bhpTableEquipmentName": "Equipment name",
+  "bhpTableIssueDate": "Issue date",
+  "bhpTableEndDate": "End date",
+  "bhpTableQuantity": "Quantity",
+  "bhpTableEquivalentDate": "Equiv. date",
+  "bhpTableEquivalentAmount": "Equiv. amount",
+  "bhpIssueFormAddTitle": "New equipment issue",
+  "bhpIssueFormCloseTitle": "Close Issue",
+  "bhpIssueFormEquivalentTitle": "Equivalent payout",
+  "bhpIssueFormEquipmentLabel": "Equipment item",
+  "bhpIssueFormEquipmentHint": "Select equipment from catalog",
+  "bhpIssueFormDateLabel": "Issue date",
+  "bhpIssueFormQuantityLabel": "Quantity",
+  "bhpIssueFormNotesLabel": "Notes",
+  "bhpIssueFormEndDateLabel": "End date",
+  "bhpIssueFormEquivalentDateLabel": "Equivalent date",
+  "bhpIssueFormEquivalentAmountLabel": "Equivalent amount",
+  "bhpIssueFormSuccessAdd": "New equipment issue added.",
+  "bhpIssueFormSuccessClose": "Equipment issue successfully closed.",
+  "bhpIssueFormSuccessEquivalent": "Equivalent registered.",
+  "bhpIssueFormSuccessStandard": "Missing equipment from standard successfully assigned.",
+  "bhpIssueEditTitle": "Edit issue",
+  "bhpIssueEditDateTitle": "Edit issue date",
+  "bhpIssueEditEndDateTitle": "Edit end date",
+  "bhpIssueEditEndDateHelperText": "Cannot be earlier than the issue date.",
+  "bhpIssueEditQuantityTitle": "Edit quantity",
+  "bhpIssueEditNotesTitle": "Edit notes",
+  "bhpIssueEditSuccess": "Issue updated.",
+  "bhpIssueEquivalentEditTitle": "Edit equivalent",
+  "bhpIssueEquivalentEditSuccess": "Equivalent updated.",
+  "bhpIssueEquivalentDeleteTitle": "Delete equivalent",
+  "bhpIssueEquivalentDeleteAction": "Delete equivalent",
+  "bhpIssueEquivalentDeleteSuccess": "Equivalent removed.",
+  "bhpIssueEquivalentDeleteMessage": "Delete equivalent for: {item}? This clears the equivalent date and amount without removing the issue itself.",
+  "@bhpIssueEquivalentDeleteMessage": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "bhpIssueValidationPositiveQuantity": "Enter a valid quantity greater than 0.",
+  "bhpAssignFromStandardTitle": "Assign from standard",
+  "bhpAssignFromStandardLoadErrorTitle": "Failed to load standard",
+  "bhpAssignFromStandardDescription": "Below you can see entries from the job-position standard. Selected entries will be assigned, while already active entries are locked.",
+  "bhpAssignFromStandardSelectedCount": "To add: {count}",
+  "@bhpAssignFromStandardSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpAssignFromStandardLockedCount": "Already active: {count}",
+  "@bhpAssignFromStandardLockedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpAssignFromStandardInactiveCount": "Inactive: {count}",
+  "@bhpAssignFromStandardInactiveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpAssignFromStandardSectionAddable": "To add",
+  "bhpAssignFromStandardSectionLocked": "Already active",
+  "bhpAssignFromStandardSectionInactive": "Inactive",
+  "bhpAssignFromStandardSubmitAction": "Assign items",
+  "bhpAssignFromStandardBlockedTitle": "Assignment unavailable",
+  "bhpAssignFromStandardBlockedMessage": "This employee has no active position or cannot receive issues.",
+  "bhpAssignFromStandardBadgeAddable": "To add",
+  "bhpAssignFromStandardBadgeLocked": "Already active",
+  "bhpAssignFromStandardBadgeInactive": "Inactive",
+  "bhpAssignFromStandardBadgeInfo": "Info",
+  "bhpAssignFromStandardBadgeWarning": "Warning",
+  "bhpPositionStandardTitle": "Position and standard",
+  "bhpPositionStandardSaveAction": "Save position",
+  "bhpPositionStandardSaveSuccess": "Position saved.",
+  "bhpPositionStandardLoadErrorTitle": "Failed to load position",
+  "bhpPositionStandardCurrentTitle": "Current position",
+  "bhpPositionStandardNoPosition": "No position",
+  "bhpPositionStandardDescriptionTitle": "Position description",
+  "bhpPositionStandardChangeTitle": "Change position",
+  "bhpPositionStandardSelectHint": "Select position",
+  "bhpPositionStandardSelectedStatus": "Position selected",
+  "bhpPositionStandardUnselectedStatus": "No selection",
+  "bhpPositionStandardLoadingStandard": "Loading standard...",
+  "bhpPositionStandardStandardCount": "Standard items: {count}",
+  "@bhpPositionStandardStandardCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpPositionStandardPreviewLabel": "Standard preview: {name}",
+  "@bhpPositionStandardPreviewLabel": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpPositionStandardEmptyStandardTitle": "No standard",
+  "bhpPositionStandardEmptyStandardMessage": "No items are assigned to the selected position yet.",
+  "bhpAddUserTitle": "Add employee",
+  "bhpAddUserSubtitle": "New BHP employee card with assigned position.",
+  "bhpAddUserLoadErrorTitle": "Failed to prepare form",
+  "bhpAddUserSuccessMessage": "Employee {name} has been added.",
+  "@bhpAddUserSuccessMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpAddUserBaseSectionTitle": "Basic data",
+  "bhpAddUserBaseSectionDescription": "Required fields to create an employee card.",
+  "bhpAddUserFirstNameLabel": "First name",
+  "bhpAddUserLastNameLabel": "Last name",
+  "bhpAddUserPeselLabel": "PESEL",
+  "bhpAddUserPhoneLabel": "Phone number",
+  "bhpAddUserSelectPositionHint": "Select position",
+  "bhpAddUserPositionRequiredError": "Position is required.",
+  "bhpAddUserResidenceLabel": "Place of residence",
+  "bhpAddUserDimensionsSectionTitle": "BHP data",
+  "bhpAddUserDimensionsSectionDescription": "Measurements used when assigning equipment.",
+  "bhpAddUserHeightLabel": "Height",
+  "bhpAddUserChestLabel": "Chest circumference",
+  "bhpAddUserWaistLabel": "Waist circumference",
+  "bhpAddUserHeadLabel": "Head circumference",
+  "bhpAddUserFootLabel": "Foot length",
+  "bhpAddUserSubmitAction": "Add",
+  "bhpAddUserPotentialDuplicateTitle": "A similar employee already exists",
+  "bhpAddUserPotentialDuplicateMessage": "Found employees with the same basic data. Review the list before saving.",
+  "bhpAddUserPotentialDuplicateBannerMessage": "Similar records: {users}. You can still save, but it is worth checking.",
+  "@bhpAddUserPotentialDuplicateBannerMessage": {
+    "placeholders": {
+      "users": {}
+    }
+  },
+  "bhpAddUserPotentialDuplicateConfirmAction": "Add anyway",
+  "bhpAddUserPotentialDuplicateCancelAction": "Back to form",
+  "bhpAddUserInvalidEmploymentDatesMessage": "Employment end date cannot be earlier than employment start date.",
+  "bhpUserEmploymentEndDatePastWarning": "The selected employment end date is in the past. After saving, the employee will be marked as inactive.",
+  "bhpUserIssuesReadOnlyArchivedMessage": "The employee is archived, so the issues card is read-only. Restore the employee to unlock editing.",
+  "bhpEditUserTitle": "Edit employee",
+  "bhpEditUserLoadErrorTitle": "Failed to prepare edit form",
+  "bhpEditUserBaseSectionTitle": "Employee data",
+  "bhpEditUserBaseSectionDescription": "Update basic data and parameters used in BHP issues.",
+  "bhpEditUserSubmitAction": "Save changes",
+  "bhpEditUserSuccessMessage": "Employee {name} has been updated.",
+  "@bhpEditUserSuccessMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpPreviewNoAssignedPosition": "No assigned position",
+  "bhpPreviewDescription": "This is a temporary modal for the employee workflow. The next step is a full detail view with issues.",
+  "bhpPreviewIssuesAction": "Issues",
+  "bhpPreviewEditPendingMessage": "Employee editing is not connected yet.",
+  "bhpPreviewArchivedMessage": "Employee {name} has been archived.",
+  "@bhpPreviewArchivedMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpPreviewRestoreAction": "Restore",
+  "bhpPreviewRestoreEmployeeMessage": "Restoring will reactivate the employee. If the employee has a past employment end date, it will be cleared.",
+  "bhpPreviewRestoredMessage": "Employee {name} has been restored.",
+  "@bhpPreviewRestoredMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpPreviewForceDeleteAction": "Delete from database",
+  "bhpForceDeleteUserConfirmTitle": "Delete employee from database",
+  "bhpForceDeleteUserConfirmBody": "This operation will physically and irreversibly delete employee {name} (ID: {id}) along with all related equipment issues from the database.",
+  "@bhpForceDeleteUserConfirmBody": {
+    "placeholders": {
+      "name": {},
+      "id": {}
+    }
+  },
+  "bhpForceDeleteUnlockLabel": "To unlock deletion, type: Excellent2026",
+  "bhpForceDeleteUnlockHint": "Type Excellent2026 to unlock deletion.",
+  "bhpPreviewForceDeletedMessage": "Employee {name} has been deleted from the database.",
+  "@bhpPreviewForceDeletedMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpIssueConfirmStandardTitle": "Generate equipment from standard",
+  "bhpIssueConfirmStandardMessage": "Are you sure you want to generate BHP equipment from the standard of this employee's job position?\n\nThe system will check the assigned standard for their position and automatically create missing, active issues. Existing active issues will not be duplicated.",
+  "bhpIssueConfirmStandardAction": "Generate",
+  "inneTitle": "Inne module",
+  "edit": "Edit",
+  "inventoryEditCommissionTitle": "Edit commission",
+  "inventoryCommissionForInventory": "Inventory commission {number}",
+  "@inventoryCommissionForInventory": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "inventoryNoAssignedCommissionTitle": "No commission assigned",
+  "inventoryNoAssignedCommissionMessage": "No commission has been assigned to this inventory yet.",
+  "inventoryUserWithId": "User #{id}",
+  "@inventoryUserWithId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryNoSheetsTitle": "No sheets",
+  "inventoryNoSheetsMessage": "Add the first sheet for this inventory.",
+  "inventorySheetWithId": "Sheet #{id}",
+  "@inventorySheetWithId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryCommissionForSheet": "Sheet commission {label}",
+  "@inventoryCommissionForSheet": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "inventoryNoAssignedLocation": "No assigned location",
+  "inventoryItemsLabel": "Items",
+  "inventoryLocationLevelLabel": "Location level",
+  "start": "Start",
+  "end": "End",
+  "inventorySheetCommissionNone": "Sheet commission: none",
+  "inventorySheetCommissionWithMembers": "Sheet commission: {members}",
+  "@inventorySheetCommissionWithMembers": {
+    "placeholders": {
+      "members": {}
+    }
+  },
+  "inventoryDeleteCompanyTitle": "Delete company",
+  "inventoryDeleteCompanySubtitle": "Company deletion is irreversible.",
+  "inventoryDeleteCompanyConfirmTitle": "Are you sure you want to delete this company?",
+  "inventoryDeleteCompanyConfirmBody": "Company: {name}\nCompany ID: {id}\nThis operation cannot be undone.",
+  "@inventoryDeleteCompanyConfirmBody": {
+    "placeholders": {
+      "name": {},
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryDeleteTitle": "Delete inventory",
+  "inventoryDeleteSubtitle": "Inventory deletion is irreversible.",
+  "inventoryDeleteConfirmTitle": "Are you sure you want to delete this inventory?",
+  "inventoryDeleteConfirmBody": "Inventory: {number}\nID: {id}\nThis operation cannot be undone.",
+  "@inventoryDeleteConfirmBody": {
+    "placeholders": {
+      "number": {},
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryDeleteUnlockLabel": "Confirmation",
+  "inventoryDeleteUnlockHint": "Type Excellent to unlock deletion.",
+  "inventoryDeletedMessage": "Inventory has been deleted.",
+  "inventorySnapshotRefreshButton": "Refresh snapshot",
+  "inventorySnapshotRefreshTitle": "ST snapshot refresh",
+  "inventorySnapshotRefreshSubtitle": "ST data synchronization for all databases.",
+  "inventorySnapshotRefreshConfirmTitle": "Snapshot refresh",
+  "inventorySnapshotRefreshConfirmSubtitle": "Operation confirmation",
+  "inventorySnapshotRefreshConfirmQuestion": "Are you sure you want to refresh the ST snapshot? The operation may take several dozen seconds.",
+  "inventorySnapshotRefreshUnlockLabel": "To unlock refresh, type: Excellent",
+  "inventorySnapshotRefreshUnlockHint": "Type the unlock phrase",
+  "inventorySnapshotRefreshAction": "Refresh",
+  "inventorySnapshotRefreshInProgressTitle": "ST snapshot refresh in progress",
+  "inventorySnapshotRefreshInProgressMessage": "Operation is running. This may take several dozen seconds.",
+  "inventorySnapshotRefreshBlockedTitle": "Snapshot refresh unavailable",
+  "inventorySnapshotRefreshBlockedMessage": "There is an active inventory. Close it and try again.",
+  "inventorySnapshotRefreshFailureTitle": "Refresh failed",
+  "inventorySnapshotRefreshSuccessTitle": "Refresh completed",
+  "inventorySnapshotRefreshSuccessMessage": "Refresh completed. Success: {okCount}, errors: {errorCount}.",
+  "@inventorySnapshotRefreshSuccessMessage": {
+    "placeholders": {
+      "okCount": {
+        "type": "int"
+      },
+      "errorCount": {
+        "type": "int"
+      }
+    }
+  },
+  "inventorySnapshotRefreshProcessingAction": "Processing...",
+  "inventoryCloseTitle": "Close inventory",
+  "inventoryCloseSubtitle": "After closing, editing will no longer be available.",
+  "inventoryCloseConfirmTitle": "Are you sure you want to close this inventory?",
+  "inventoryCloseConfirmBody": "Inventory: {number}\nID: {id}\nStatus will be changed to finished (2).",
+  "@inventoryCloseConfirmBody": {
+    "placeholders": {
+      "number": {},
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryCloseDateLabel": "End date (data_do)",
+  "inventoryCloseUnlockLabel": "Close confirmation",
+  "inventoryCloseUnlockHint": "Type Excellent to unlock closing.",
+  "inventoryCloseBlockedStatusMessage": "Inventory can be closed only from In progress status (1).",
+  "inventoryCloseDateValidationMessage": "End date must be greater than or equal to start date.",
+  "inventoryClosedMessage": "Inventory has been closed.",
+  "inventoryDeleteSheetTitle": "Delete sheet",
+  "inventoryDeleteSheetSubtitle": "Sheet deletion is irreversible.",
+  "inventoryDeleteSheetConfirmTitle": "Are you sure you want to delete this sheet?",
+  "inventoryDeleteSheetConfirmBody": "Sheet: {number}\nID: {id}\nThis operation cannot be undone.",
+  "@inventoryDeleteSheetConfirmBody": {
+    "placeholders": {
+      "number": {},
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryDeleteSheetBlockedMessage": "Cannot delete a sheet in a finished inventory (status=2).",
+  "inventorySheetDeletedMessage": "Sheet has been deleted.",
+  "inventoryArchiveTitle": "Archive",
+  "inventoryArchiveSubtitle": "Archived views and supporting data.",
+  "inventoryCommissionLabel": "Commission",
+  "inventoryReportsShowNotesLabel": "Show notes",
+  "inventoryReportsDisposalProtocolLabel": "Disposal protocol",
+  "inventoryReportsMacOSWorkaroundPrefix": "macOS workaround: dynamicLayout disabled • ",
+  "inventoryReportsPrintStatusAvailable": "available",
+  "inventoryReportsPrintStatusUnavailable": "unavailable",
+  "inventoryReportsShareStatusAvailable": "available",
+  "inventoryReportsShareStatusUnavailable": "unavailable",
+  "inventorySearchUserHint": "Search user...",
+  "inventorySearching": "Searching...",
+  "inventoryTypeMinTwoChars": "Type at least 2 characters",
+  "inventoryNoResults": "No results",
+  "inventoryNoSelectedPeopleTitle": "No selected people",
+  "inventoryNoSelectedPeopleMessage": "Add users to commission from search.",
+  "yes": "Yes",
+  "no": "No",
+  "inventoryEditSheetItemTitle": "Edit sheet item",
+  "inventoryEditSheetItemSubtitle": "{name} ({register}) | BC: {barcode}",
+  "@inventoryEditSheetItemSubtitle": {
+    "placeholders": {
+      "name": {},
+      "register": {},
+      "barcode": {}
+    }
+  },
+  "inventoryItemSavedMessage": "Item changes have been saved.",
+  "inventoryInventoryStateShort": "Inv. state",
+  "inventoryInventoryStateNone": "Missing",
+  "inventoryInventoryStateMatching": "Matching",
+  "inventoryInventoryStateTransferred": "Transferred",
+  "inventoryScan": "Scan",
+  "inventoryScannerNotRead": "Not scanned",
+  "inventoryScannerRead": "Scanned",
+  "inventoryLiquidation": "Liquidation",
+  "inventorySurplus": "Surplus",
+  "inventoryNewBarcode": "New barcode",
+  "inventoryNewPerson": "New person",
+  "inventoryNewName": "New name",
+  "inventoryLocalRemarksHint": "Remarks",
+  "@inventoryLocalRemarksHint": {
+    "description": "Placeholder for sheet item remarks backed by uwagi_loc from the API."
+  },
+  "inventoryNewBarcodeMaxLengthError": "New barcode can contain at most 64 characters.",
+  "inventoryAddSheetToInventory": "Add sheet to inventory #{inventoryId}",
+  "@inventoryAddSheetToInventory": {
+    "placeholders": {
+      "inventoryId": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryLoadLocationsErrorTitle": "Failed to load locations",
+  "inventoryOptionalCommission": "Commission (optional)",
+  "inventorySearchByNameOrLoginHint": "Search person by name or login...",
+  "inventorySelectLocationFromTree": "Select location from the tree.",
+  "inventoryScopeAutoSet": "The sheet will include only the selected location.",
+  "inventoryNoLocationsTitle": "No locations",
+  "inventoryLocationsBackendEmptyMessage": "Backend did not return locations for this inventory.",
+  "inventoryIdWithValue": "ID {id}",
+  "@inventoryIdWithValue": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryLocationWithId": "Location: {id}",
+  "@inventoryLocationWithId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "inventorySelectLocationBeforeCreateError": "Select location in the tree before creating the sheet.",
+  "inventoryInvalidCommissionFormatError": "Commission list has invalid format.",
+  "inventorySheetDetailsTitle": "Sheet details",
+  "inventorySheetDetailsLoadErrorTitle": "Failed to load sheet details",
+  "inventorySheetItemsTitle": "Sheet items",
+  "inventorySearchSheetItemsHint": "Search by ID, register no., name, person, location or barcode",
+  "inventoryAdd": "Add",
+  "inventoryAddByRegisterNumberShort": "Add by reg. no.",
+  "inventoryAddSheetItemTitle": "Add sheet item",
+  "inventoryAddSheetItemSubtitle": "Manually add a new item to the current sheet.",
+  "inventoryAddSheetItemBarcodeOptionalHelper": "Optional field. If left empty, the backend will save 0.",
+  "inventoryAddSheetItemAtLeastOneFieldError": "Fill in at least one field identifying the item.",
+  "inventoryAddSheetItemByRegisterNumberTitle": "Add by register number",
+  "inventoryAddSheetItemByRegisterNumberSubtitle": "Find and add an item to the sheet using its register number.",
+  "inventorySheetItemAddedMessage": "Sheet item has been added.",
+  "inventorySheetItemAddedByRegisterNumberMessage": "Item has been added to the sheet by register number.",
+  "inventoryBarcodeRequiredError": "Barcode is required.",
+  "inventoryBarcodePositiveIntegerError": "Enter a valid barcode as an integer greater than 0.",
+  "inventoryRegisterNumberRequiredError": "Register number is required.",
+  "inventoryAssetStateLabel": "Asset status",
+  "inventoryResultsCount": "Results: {filtered}/{total}",
+  "@inventoryResultsCount": {
+    "placeholders": {
+      "filtered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryNoItemsTitle": "No items",
+  "inventoryNoSearchResultsTitle": "No search results",
+  "inventoryHideFinished": "Hide finished",
+  "inventoryHideFinishedEmptyMessage": "All inventories are finished or hidden by the filter.",
+  "inventorySheetNoItemsMessage": "Sheet does not contain any items.",
+  "inventoryTryAnotherPhraseMessage": "Try another phrase.",
+  "inventorySheetLabel": "Inventory sheet",
+  "inventoryEditSheetNumberAction": "Change sheet number",
+  "inventoryAssetStatusNone": "None",
+  "inventoryAssetStatusUnconfirmed": "Unconfirmed",
+  "inventoryAssetStatusInUse": "In use",
+  "inventoryAssetStatusDisposed": "Disposed",
+  "inventoryAssetStatusSold": "Sold",
+  "inventoryAssetStatusTransferred": "Transferred",
+  "inventoryAssetStatusMissingInAssets": "Not present in fixed assets",
+  "inventoryStatusNew": "New",
+  "inventoryStatusInProgress": "In progress",
+  "inventoryStatusFinished": "Finished",
+  "inventoryStatusUnknown": "Unknown",
+  "inventorySheetNumberSavedMessage": "Sheet number has been saved.",
+  "inventoryNumberExampleHint": "e.g. INV/2026/04/001",
+  "inventoryModuleStatusTitle": "Module status",
+  "inventoryModuleStatusSubtitle": "Current module startup parameters.",
+  "inventoryModuleInitialRoute": "Initial route",
+  "inventoryModuleSession": "Session",
+  "inventoryModuleSessionNoAuthContext": "UI does not require auth context",
+  "bhpUsersFilterActive": "Active",
+  "bhpUsersFilterArchived": "Archived",
+  "bhpUsersFilterAll": "All",
+  "bhpUsersRowNumber": "No.",
+  "bhpUsersOverdueLabel": "Overdue",
+  "bhpUsersUpcomingLabel": "Upcoming",
+  "bhpUsersDaysSuffix": "days",
+  "bhpUserIssuesViewActive": "Active",
+  "bhpUserIssuesViewHistory": "History",
+  "bhpUserIssuesViewStandard": "To standard",
+  "bhpSectionStatistics": "Statistics",
+  "bhpOperationsTitle": "Operations history",
+  "bhpOperationsSubtitle": "Full list of BHP operations for the selected year.",
+  "bhpOperationsEmptyTitle": "No operations",
+  "bhpOperationsEmptyMessage": "No BHP operations were found for the selected year.",
+  "bhpStatisticsTitle": "Operations statistics",
+  "bhpStatisticsSubtitle": "Monthly summary of BHP operations.",
+  "bhpStatisticsEmptyTitle": "No statistical data",
+  "bhpStatisticsEmptyMessage": "No BHP operations were found for the selected year, so statistics cannot be calculated yet.",
+  "bhpStatisticsOperationsTab": "Operations",
+  "bhpStatisticsMonthLabel": "Month",
+  "bhpStatisticsMonthlyTitle": "Monthly statistics",
+  "bhpStatisticsOperationsCountLabel": "Operations",
+  "bhpStatisticsItemsCountLabel": "Items",
+  "bhpStatisticsUsersCountLabel": "Employees",
+  "bhpStatisticsDominantTypeLabel": "Dominant type",
+  "bhpStatisticsOperationsCaption": "Events in the selected month",
+  "bhpStatisticsItemsCaption": "Total quantity from operations",
+  "bhpStatisticsUsersCaption": "Unique people involved",
+  "bhpStatisticsDominantTypeCaptionNone": "No data",
+  "bhpStatisticsDominantTypeCaptionMany": "{count} times",
+  "@bhpStatisticsDominantTypeCaptionMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpStatisticsTopEquipmentTitle": "Most issued items",
+  "bhpStatisticsTopUsersTitle": "Most active employees",
+  "bhpStatisticsMonthEmptyMessage": "No data for the selected month.",
+  "bhpStatisticsIssuesTab": "Issues",
+  "bhpStatisticsStructureTab": "Structure",
+  "bhpStatisticsMissingTab": "Missing",
+  "bhpStatisticsComparisonsTab": "Comparisons",
+  "bhpStatisticsStructurePlaceholderTitle": "Structure",
+  "bhpStatisticsStructurePlaceholderMessage": "Operation types, positions, and equipment breakdowns will be built here.",
+  "bhpStatisticsStructureSummaryTitle": "Operation structure",
+  "bhpStatisticsStructureSummarySubtitle": "Breakdowns show which items, positions, and people generated the most operations in the selected year.",
+  "bhpStatisticsStructureEquipmentLabel": "Distinct items",
+  "bhpStatisticsStructurePositionsLabel": "Distinct positions",
+  "bhpStatisticsStructureTypesTitle": "Operation types",
+  "bhpStatisticsStructureTypesSubtitle": "The share of each type within the full yearly operation feed.",
+  "bhpStatisticsStructureShareLabel": "Share",
+  "bhpStatisticsStructureEquipmentSubtitle": "Equipment cards ranked by operation count and issued quantity.",
+  "bhpStatisticsStructurePositionsTitle": "Positions",
+  "bhpStatisticsStructurePositionsSubtitle": "Which positions had the most operations and the highest issued quantities.",
+  "bhpStatisticsStructureUsersSubtitle": "Clicking an employee opens their issue card.",
+  "bhpStatisticsStructureIssuedCountTooltip": "Sum of all individual equipment issue events this year.",
+  "bhpStatisticsStructureIssuedQuantityTooltip": "Total number of pieces or pairs of equipment issued to employees.",
+  "bhpStatisticsStructureEquipmentTooltip": "Number of different equipment types issued this year.",
+  "bhpStatisticsStructureUsersTooltip": "Number of unique employees who received at least one issue this year.",
+  "bhpStatisticsMissingPlaceholderTitle": "Missing",
+  "bhpStatisticsMissingPlaceholderMessage": "A global view of users with incomplete equipment will be built here.",
+  "bhpStatisticsMissingSummaryTitle": "Missing vs standard",
+  "bhpStatisticsMissingSummarySubtitle": "This tab will show who is missing which items compared with their assigned equipment standard.",
+  "bhpStatisticsMissingPeopleLabel": "People with gaps",
+  "bhpStatisticsMissingItemsLabel": "Missing items",
+  "bhpStatisticsMissingTopItemLabel": "Most common gap",
+  "bhpStatisticsMissingPeopleTooltip": "This is the number of active employees who are currently missing at least one required item from their position standard.",
+  "bhpStatisticsMissingItemsTooltip": "This is the total number of standard items that currently have no active issue assigned to employees.",
+  "bhpStatisticsMissingTopItemTooltip": "This is the piece of equipment that appears most often in today's missing list.",
+  "bhpStatisticsMissingBackendTitle": "What will be shown here",
+  "bhpStatisticsMissingBackendMessage": "Once the data is connected, this tab will show users with incomplete equipment, missing item counts per person, and the most frequently missing items.",
+  "bhpStatisticsMissingTableTitle": "People with missing equipment",
+  "bhpStatisticsMissingTableMessage": "This table will be used operationally: sorting by missing count, person, and position.",
+  "bhpStatisticsMissingTableItemsLabel": "Missing items list",
+  "bhpStatisticsMissingTableLatestIssueLabel": "Last closure",
+  "bhpStatisticsMissingNoDataTitle": "No missing equipment",
+  "bhpStatisticsMissingNoDataMessage": "At the moment all active employees have complete active issues compared with their standard.",
+  "bhpStatisticsMissingEndpointTitle": "Required backend data",
+  "bhpStatisticsMissingEndpointMessage": "This tab needs a separate global missing-equipment endpoint. The current issue data is not enough to calculate this view for all employees.",
+  "bhpStatisticsComparisonsPlaceholderTitle": "Comparisons",
+  "bhpStatisticsComparisonsPlaceholderMessage": "Year-over-year and month-over-month comparisons will be built here.",
+  "bhpStatisticsIssuesSummaryTitle": "Detailed issue statistics",
+  "bhpStatisticsIssuesSummarySubtitle": "The selected year is shown first and the previous year appears in parentheses.",
+  "bhpStatisticsIssuesTableTitle": "Issued items list",
+  "bhpStatisticsIssuesTableSubtitle": "Sorted by total quantity issued in the selected year.",
+  "bhpStatisticsIssuesNoDataTitle": "No data",
+  "bhpStatisticsIssuesNoDataMessage": "There were no issues in the selected year.",
+  "bhpStatisticsIssuesIssuedQuantityLabel": "Total issued quantity",
+  "bhpStatisticsIssuesIssuedCountLabel": "Issue count",
+  "bhpStatisticsIssuesClosedCountLabel": "Closed count",
+  "bhpStatisticsIssuesEquivalentCountLabel": "Equivalent count",
+  "bhpStatisticsIssuesOperationsTooltip": "This includes every event saved this year: issues, closures, and equivalents.",
+  "bhpStatisticsIssuesIssuedQuantityTooltip": "This is the total number of items issued to employees during the year.",
+  "bhpStatisticsIssuesIssuedCountTooltip": "This is the number of issue actions performed during the year, regardless of how many items were included in each one.",
+  "bhpStatisticsIssuesClosedCountTooltip": "This is the number of issues that were closed or returned during the year.",
+  "bhpStatisticsIssuesEquivalentCountTooltip": "This is the number of cases where an equivalent was registered instead of a regular issue.",
+  "bhpStatisticsIssuesComparisonLoading": "Loading comparison...",
+  "bhpStatisticsIssuesTableOperationsSuffix": "{count} operations",
+  "@bhpStatisticsIssuesTableOperationsSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpIssueOperationsTabOperations": "Operations",
+  "bhpIssueOperationsTabStatistics": "Statistics",
+  "bhpIssueOperationsStatisticsTitle": "Monthly statistics",
+  "bhpIssueOperationsStatisticsYearLabel": "Year",
+  "bhpIssueOperationsStatisticsNoDataTitle": "No monthly data",
+  "bhpIssueOperationsStatisticsNoDataMessage": "There are no operations in the selected year to calculate statistics from.",
+  "bhpIssueOperationsStatisticsOperationsLabel": "Operations",
+  "bhpIssueOperationsStatisticsItemsLabel": "Items",
+  "bhpIssueOperationsStatisticsUsersLabel": "Employees",
+  "bhpIssueOperationsStatisticsDominantTypeLabel": "Dominant type",
+  "bhpIssueOperationsStatisticsOperationsCaption": "Events in the selected month",
+  "bhpIssueOperationsStatisticsItemsCaption": "Total quantity from operations",
+  "bhpIssueOperationsStatisticsUsersCaption": "Unique people involved in movement",
+  "bhpIssueOperationsStatisticsDominantTypeCaptionNone": "No data",
+  "bhpIssueOperationsStatisticsDominantTypeCaptionMany": "{count} times",
+  "@bhpIssueOperationsStatisticsDominantTypeCaptionMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpIssueOperationsStatisticsTopEquipmentTitle": "Most frequently issued items",
+  "bhpIssueOperationsStatisticsTopUsersTitle": "Most active employees",
+  "bhpIssueOperationsStatisticsNoMonthItemsMessage": "No data for the selected month.",
+  "bhpOperationsSearchHint": "Search employee, equipment, or description...",
+  "bhpUserIssuesStandardTitle": "To issue from standard",
+  "bhpUserIssuesStandardSubtitle": "Missing position-standard items without an active issue.",
+  "bhpUserIssuesStandardEmptyTitle": "No missing items",
+  "bhpUserIssuesStandardEmptyMessage": "All active position-standard items are already covered by active issues.",
+  "bhpUserIssuesStandardSearchHint": "Search standard gaps...",
+  "bhpUserIssuesHistoryTitle": "Issue history",
+  "bhpUserIssuesHistorySubtitle": "Closed issues. You can reissue them if the employee no longer has the same active card.",
+  "bhpUserIssuesHistoryEmptyTitle": "No issue history",
+  "bhpUserIssuesHistoryEmptyMessage": "This employee has no closed issues yet.",
+  "bhpUserIssuesActiveTitle": "Active issues",
+  "bhpUserIssuesActiveSubtitle": "Equipment currently issued to the employee. This is where you close or reissue items.",
+  "bhpUserIssuesActiveEmptyTitle": "No active issues",
+  "bhpUserIssuesActiveEmptyMessage": "The employee currently has no active issue.",
+  "bhpUserIssuesBlockedBannerTitle": "Issues blocked",
+  "bhpUserIssuesBlockedBannerMessage": "The employee cannot receive issues right now. Check the employee and position status.",
+  "bhpUserIssuesCompliantBannerTitle": "Compliant with standard",
+  "bhpUserIssuesCompliantBannerMessage": "All active position-standard items are covered by active issues. Active issues: {count}.",
+  "@bhpUserIssuesCompliantBannerMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpUserIssuesMissingBannerTitle": "Standard gaps",
+  "bhpUserIssuesMissingBannerMessage": "Missing {count} items required by the position standard. Add them in the \"To issue from standard\" section.",
+  "@bhpUserIssuesMissingBannerMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpUserIssuesNoNameFallback": "No name",
+  "bhpUserIssuesRenewAction": "Reissue",
+  "bhpUserIssuesIssueStandardConfirmTitle": "Issue standard item",
+  "bhpUserIssuesIssueStandardConfirmMessage": "Do you want to issue {item} according to the position standard?",
+  "@bhpUserIssuesIssueStandardConfirmMessage": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "bhpUserIssuesIssueStandardConfirmAction": "Issue",
+  "bhpUserIssuesIssueStandardSuccess": "The item has been issued according to the standard.",
+  "bhpUserIssuesRenewActiveTitle": "Reissue",
+  "bhpUserIssuesRenewActiveMessage": "The previous active issue {item} will be closed automatically and a new issue will be created today. Continue?",
+  "@bhpUserIssuesRenewActiveMessage": {
+    "placeholders": {
+      "item": {}
+    }
+  },
+  "bhpUserIssuesRenewActiveAction": "Reissue",
+  "bhpUserIssuesRenewActiveSuccess": "A new issue has been created and the previous one has been closed.",
+  "bhpUserIssuesPrintSelectTitle": "Select items to print",
+  "bhpUserIssuesPrintOnlyActive": "Active only",
+  "bhpUserIssuesPrintOnlyInactive": "Inactive only",
+  "bhpUserIssuesPrintAll": "All",
+  "bhpUserIssuesPrintEmptyTitle": "No items to print",
+  "bhpUserIssuesPrintEmptyMessage": "This employee has no issues to select yet.",
+  "bhpUserIssuesPrintSelectedAction": "Print selected",
+  "bhpUserIssuesPrintIssueLabelFallback": "Item #{id}",
+  "@bhpUserIssuesPrintIssueLabelFallback": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpUserIssuesLastIssueLabel": "Last issue",
+  "bhpUserIssueInfoSubtitle": "Equipment card",
+  "bhpUserIssueInfoNoEquipmentTitle": "No equipment card",
+  "bhpUserIssueInfoNoEquipmentMessage": "This issue has no assigned equipment card.",
+  "bhpUserIssueInfoLoadErrorTitle": "Failed to load equipment details",
+  "bhpUserIssueInfoRetryAction": "Try again",
+  "bhpUserIssueInfoDescription": "Equipment card details from the BHP catalog.",
+  "bhpUserIssueInfoSymbolLabel": "Symbol",
+  "bhpUserIssueInfoNameLabel": "Name",
+  "bhpUserIssueInfoUnitLabel": "Unit",
+  "bhpUserIssueInfoPeriodLabel": "Usable period",
+  "bhpUserIssueInfoDefaultQuantityLabel": "Default quantity",
+  "bhpUserIssueInfoEvidenceNumberLabel": "Issue evidence no.",
+  "bhpUserIssueInfoEquivalentLabel": "Card equivalent",
+  "bhpUserIssueInfoPriceLabel": "Price",
+  "bhpUserIssueInfoAvailabilityLabel": "Availability",
+  "bhpUserIssueInfoPercentLabel": "Usability percentage",
+  "bhpUserIssueInfoStatusLabel": "Status",
+  "bhpUserIssueInfoMonthSuffix": "mo.",
+  "bhpUserIssuesPdfTitle": "BHP EQUIPMENT CARD",
+  "bhpUserIssuesPdfIssuerSignatureLabel": "Issuer signature",
+  "bhpUserIssuesPdfEmployeeSignatureLabel": "Employee signature",
+  "bhpUserIssuesPdfDisclaimer": "I confirm receipt of the above equipment in a condition suitable for use and I agree to use it according to its intended purpose.",
+  "bhpUserIssuesPdfHeightLabel": "Height",
+  "bhpUserIssuesPdfChestLabel": "Chest circumference",
+  "bhpUserIssuesPdfWaistLabel": "Waist circumference",
+  "bhpUserIssuesPdfHeadLabel": "Head circumference",
+  "bhpUserIssuesPdfFootLabel": "Foot length",
+  "bhpUserIssuesPdfPageLabel": "Page {current} / {total}",
+  "@bhpUserIssuesPdfPageLabel": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpIssueFormEquipmentRequired": "Equipment is required.",
+  "bhpIssueNoEquipmentFallback": "No equipment",
+  "bhpIssueCardFallback": "Card #{id}",
+  "@bhpIssueCardFallback": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpIssueUnknownEquipmentFallback": "Unknown equipment",
+  "bhpIssueEquivalentHelperExisting": "You can change the equivalent date and amount. The date cannot be earlier than the issue date.",
+  "bhpIssueEquivalentHelperOpen": "You can enter an equivalent even for an open issue. The date cannot be earlier than the issue date.",
+  "bhpIssueEquivalentHelperClosed": "The date cannot be earlier than the issue date or the issue closing date.",
+  "bhpIssueEquivalentInvalidIssueDate": "The equivalent date cannot be earlier than the issue date.",
+  "bhpIssueEquivalentInvalidCloseDate": "The equivalent date cannot be earlier than the issue closing date.",
+  "bhpIssueValidationPositiveAmount": "Enter a valid amount greater than 0.",
+  "bhpIssueEditInvalidDateMessage": "Choose a valid issue date.",
+  "bhpIssueEditMissingSourceMessage": "This issue cannot be edited because source data is missing.",
+  "bhpUserIssueCommandInProgress": "An operation is already in progress.",
+  "bhpDeleteUserTitle": "Delete employee",
+  "bhpDeleteUserSubtitle": "This operation removes the employee from the active list by archiving them.",
+  "bhpDeleteUserConfirmMessage": "Are you sure you want to delete {name}?",
+  "@bhpDeleteUserConfirmMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpDeleteUserArchiveMessage": "This operation irreversibly deletes the employee and all BHP history from the database.",
+  "bhpArchiveUserAction": "Archive",
+  "bhpArchiveUserTitle": "Archive employee",
+  "bhpArchiveUserSubtitle": "This operation removes the employee from the active list, but it does not delete their BHP history.",
+  "bhpArchiveUserConfirmMessage": "Are you sure you want to archive {name}?",
+  "@bhpArchiveUserConfirmMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bhpArchiveUserMessage": "The employee will be moved to the archive and removed from the active list. Their BHP history will remain available, and the employee can be restored later.",
+  "bhpStatisticsComparisonsTabMetrics": "Annual indicators",
+  "bhpStatisticsComparisonsTabProducts": "Products",
+  "bhpStatisticsComparisonsTabEquivalents": "Equivalents",
+  "bhpStatisticsComparisonsMetricsTitle": "Comparison of main annual indicators",
+  "bhpStatisticsComparisonsMetricsSubtitle": "Summary of key BHP indicators for the selected year and two years back.",
+  "bhpStatisticsComparisonsTableColumnMetric": "Indicator",
+  "bhpStatisticsComparisonsYearLabel": "Year {year}",
+  "@bhpStatisticsComparisonsYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "bhpStatisticsComparisonsProductsTitle": "Comparison of product issues (BHP items)",
+  "bhpStatisticsComparisonsProductsSubtitle": "Summary of demand for individual products in the format: Number of issues (Quantity).",
+  "bhpStatisticsComparisonsTableColumnProduct": "Product / BHP item",
+  "bhpStatisticsComparisonsEquivalentsCountRow": "Number of equivalents paid",
+  "bhpStatisticsComparisonsEquivalentsCountTooltip": "Total number of registered monetary equivalent payments in a given year.",
+  "bhpStatisticsComparisonsEquivalentsAmountRow": "Total equivalents paid",
+  "bhpStatisticsComparisonsEquivalentsAmountTooltip": "Total sum of paid equivalent amounts (in PLN) in a given year.",
+  "bhpStatisticsComparisonsEquivalentsTitle": "Summary of equivalents",
+  "bhpStatisticsComparisonsEquivalentsSubtitle": "Summary of the number of paid equivalents and their total annual sum.",
+  "bhpStatisticsComparisonsEquivalentsProductsTitle": "Equivalents by products (BHP items)",
+  "bhpStatisticsComparisonsEquivalentsProductsSubtitle": "Summary of equivalent payments for individual products in the format: Number of payments (Total PLN).",
+  "bhpCurrencyPln": "PLN",
+  "bhpStatisticsChartTitle": "Monthly Visualization",
+  "bhpStatisticsChartToggleCount": "Number of operations",
+  "bhpStatisticsChartToggleQuantity": "Issued quantity",
+  "bhpStatisticsChartStructureEquipmentTitle": "Most frequently issued items (Top 5)",
+  "bhpStatisticsChartStructurePositionsTitle": "Issues by position (Top 5)",
+  "bhpStatisticsChartComparisonsTitle": "Visual Metric Comparison",
+  "inventoryEditDatesAction": "Edit dates",
+  "inventoryEditDatesTitle": "Edit inventory dates",
+  "inventoryEditDatesSubtitle": "Change the date range of the active inventory.",
+  "inventoryDatesSavedMessage": "Inventory dates have been saved.",
+  "inventoryTreeProgressTitle": "Sheet completion",
+  "inventoryTreeLoadErrorTitle": "Could not load the tree",
+  "inventoryRetryAction": "Retry",
+  "inventoryTreeNoLocationsTitle": "No locations to display",
+  "inventoryTreeNoLocationsMessage": "This inventory has no assigned locations yet.",
+  "inventoryTreeNodesSummary": "Nodes: {count}",
+  "@inventoryTreeNodesSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryTreeNodesAmbiguousSummary": "Nodes: {count} • ambiguous: {ambiguous}",
+  "@inventoryTreeNodesAmbiguousSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ambiguous": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryTreeCompanySummary": "{places, plural, =1{1 location} other{{places} locations}} • {sheets} with sheets",
+  "@inventoryTreeCompanySummary": {
+    "placeholders": {
+      "places": {
+        "type": "int"
+      },
+      "sheets": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryTreeCompanyAmbiguousSuffix": " • contains ambiguous locations",
+  "inventoryProductsCount": "{count, plural, =1{1 product} other{{count} products}}",
+  "@inventoryProductsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryTreeIncompleteTitle": "Incomplete ({count})",
+  "@inventoryTreeIncompleteTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryTreeStatusAmbiguous": "Ambiguous",
+  "inventoryTreeStatusCompleted": "Completed",
+  "inventoryTreeStatusMissingSheet": "Missing sheet",
+  "inventoryTreeStatusNoProducts": "No products",
+  "inventoryTreeAmbiguousTooltip": "This location has more than one mapping for the same company and location identifier. The sheet status is uncertain.",
+  "inventoryTreeProductsTooltip": "Show the product list for this location",
+  "inventoryLocationProductsTitle": "Products in location",
+  "inventoryProductsLoadErrorTitle": "Could not load products",
+  "inventoryProductsEmptyTitle": "No products",
+  "inventoryProductsEmptyMessage": "This location has no active products in the stan_st snapshot.",
+  "inventoryProductsShownSummary": "Showing {visible} of {total} products",
+  "@inventoryProductsShownSummary": {
+    "placeholders": {
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryProductsSummary": "Products: {total}",
+  "@inventoryProductsSummary": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryShowingLastDataTitle": "Showing the last available data",
+  "tasksBoardTitle": "Project tasks",
+  "tasksBoardErrorTitle": "Could not open the board",
+  "tasksBoardForbiddenTitle": "You do not have access to this board",
+  "tasksBoardNotFoundTitle": "The project or board was not found",
+  "tasksBoardOfflineTitle": "No connection to the server",
+  "tasksBoardSubtitle": "{count} tasks on the board",
+  "@tasksBoardSubtitle": {"placeholders": {"count": {"type": "int"}}},
+  "tasksKanbanQuickFilter": "Quick board filter",
+  "tasksKanbanQuickFilterAll": "All tasks",
+  "tasksKanbanQuickFilterMine": "My tasks",
+  "tasksKanbanQuickFilterUnassigned": "Unassigned",
+  "tasksKanbanQuickFilterBlocked": "Blocked",
+  "tasksKanbanQuickFilterDueSoon": "Due within 7 days",
+  "tasksPresenceCount": "People online: {count}",
+  "@tasksPresenceCount": {"placeholders": {"count": {"type": "int"}}},
+  "tasksPresenceOnline": "Online",
+  "tasksPresenceOffline": "Offline",
+  "tasksRealtimeConnected": "Changes are synchronized live",
+  "tasksRealtimeConnecting": "Reconnecting live synchronization…",
+  "tasksRealtimeOffline": "Live synchronization is offline",
+  "tasksColumnEmpty": "No tasks in this column",
+  "tasksQuickCreate": "Add task",
+  "tasksQuickCreateHint": "New task name",
+  "tasksTemplatesUse": "Use template",
+  "tasksTemplatesTitle": "Create from template",
+  "tasksTemplatesDescription": "Choose a ready-made task layout. Use the star to set your default template.",
+  "tasksTemplatesEmpty": "There are no task templates in this workspace yet.",
+  "tasksTemplatesDefault": "Your default template",
+  "tasksTemplatesApplyHint": "Click to create a task",
+  "tasksTemplatesSetDefault": "Set as default template",
+  "tasksTemplatesClearDefault": "Clear default template",
+  "tasksTemplatesNew": "New template",
+  "tasksTemplatesNewDescription": "Create a new template from scratch with custom default values.",
+  "tasksTemplateForThisTask": "Template for this task",
+  "tasksTemplateNoTemplate": "No template",
+  "tasksTemplateDefaultChip": "Template: {name}",
+  "@tasksTemplateDefaultChip": {"placeholders": {"name": {"type": "String"}}},
+  "tasksTemplateUsingDefault": "Default template",
+  "tasksBulkSelected": "Selected: {count}",
+  "@tasksBulkSelected": {"placeholders": {"count": {"type": "int"}}},
+  "tasksBulkMove": "Move selected tasks",
+  "tasksBulkPriority": "Change priority of selected tasks",
+  "tasksBulkDueDate": "Set due date for selected tasks",
+  "tasksBulkClearSelection": "Clear selection",
+  "tasksSelectLoadedGroup": "Select only tasks in this group",
+  "tasksSelectLoadedSubtasks": "Select only subtasks in this branch",
+  "tasksKeyboardShortcuts": "Ctrl or Command+A selects loaded tasks, Escape clears the selection, and Alt+Left or Right Arrow scrolls Kanban columns.",
+  "tasksManageLabels": "Manage labels",
+  "tasksManageCustomFields": "Custom fields",
+  "tasksCustomFieldsEmpty": "This project has no custom fields yet.",
+  "tasksCustomFieldText": "Text",
+  "tasksCustomFieldNumber": "Number",
+  "tasksCustomFieldDate": "Date",
+  "tasksCustomFieldBoolean": "Yes/No",
+  "tasksCustomFieldSingleSelect": "Single select",
+  "tasksCustomFieldMultiSelect": "Multi-select",
+  "tasksCustomFieldUser": "User",
+  "tasksCreateCustomField": "Add custom field",
+  "tasksEditCustomField": "Edit custom field",
+  "tasksArchiveCustomField": "Archive custom field",
+  "tasksArchiveCustomFieldConfirm": "Archive the “{name}” field? Existing values remain in history, but the field will be removed from new tasks.",
+  "@tasksArchiveCustomFieldConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "tasksCustomFieldName": "Field name",
+  "tasksCustomFieldType": "Field type",
+  "tasksCustomFieldOptions": "Options (one per line)",
+  "tasksCustomFieldOptionsHint": "For example: To do, In progress, Done",
+  "tasksCustomFieldNameRequired": "Enter a field name.",
+  "tasksCustomFieldOptionsRequired": "Add at least one option.",
+  "tasksCustomFieldTypeImmutable": "The field type is set on creation and cannot be changed.",
+  "tasksManageMilestones": "Milestones",
+  "tasksManageWorkflow": "Workflow transitions",
+  "tasksWorkflowDescription": "Enable the transitions users can make on the Kanban board.",
+  "tasksWorkflowEmpty": "This project has no configured workflow statuses.",
+  "tasksWorkflowAllowTransition": "Allowed transitions from this status",
+  "tasksWorkflowInitial": "Initial",
+  "tasksWorkflowTerminal": "Terminal",
+  "tasksCustomWorkflowTitle": "Custom statuses",
+  "tasksCustomWorkflowAddStatus": "Add status",
+  "tasksCustomWorkflowStatusName": "Status name",
+  "tasksCustomWorkflowCategory": "Category",
+  "tasksCustomWorkflowColor": "Color",
+  "tasksCustomWorkflowCategoryTodo": "To do",
+  "tasksCustomWorkflowCategoryInProgress": "In progress",
+  "tasksCustomWorkflowCategoryDone": "Done",
+  "tasksCustomWorkflowCategoryCancelled": "Cancelled",
+  "tasksCustomWorkflowDefault": "Default status",
+  "tasksCustomWorkflowWip": "WIP limit",
+  "tasksCustomWorkflowTemplates": "Workflow templates",
+  "tasksCustomWorkflowReplaceWarning": "Applying this template will replace the current custom statuses and their order.",
+  "tasksCustomWorkflowApply": "Apply template",
+  "tasksAutomationsTitle": "Automations",
+  "tasksSettings": "Task settings",
+  "tasksSettingsHubDescription": "Shared project configuration and private settings in one place.",
+  "tasksAdministration": "Administration",
+  "tasksPersonalSettings": "My settings",
+  "tasksPersonalSettingsDescription": "This note is private and stored only on this device. Your team cannot see it.",
+  "tasksPersonalNote": "My project note",
+  "tasksPersonalNoteHint": "For example: this week's priorities, work context, or a reminder",
+  "tasksPersonalSettingsSaved": "Your settings have been saved.",
+  "tasksKanbanSettingsTitle": "Kanban settings",
+  "tasksKanbanSettingsDescription": "Configure the shared board layout for the whole project.",
+  "tasksKanbanLayout": "Board layout",
+  "tasksKanbanSwimlane": "Horizontal grouping",
+  "tasksKanbanSwimlaneNone": "No grouping",
+  "tasksKanbanSwimlaneAssignee": "By assignee",
+  "tasksKanbanSwimlanePriority": "By priority",
+  "tasksKanbanSwimlaneMilestone": "By milestone",
+  "tasksKanbanCardDensity": "Card density",
+  "tasksKanbanDensityCompact": "Compact",
+  "tasksKanbanDensityComfortable": "Comfortable",
+  "tasksKanbanDensityDetailed": "Detailed",
+  "tasksKanbanVisibleColumns": "Visible system columns",
+  "tasksKanbanCardFields": "Card fields",
+  "tasksKanbanFieldAssignee": "Assignees",
+  "tasksKanbanFieldDueDate": "Due date",
+  "tasksKanbanFieldLabels": "Labels",
+  "tasksKanbanFieldChecklist": "Checklist",
+  "tasksKanbanFieldSubtasks": "Subtasks",
+  "tasksKanbanFieldTimeTracking": "Time tracking",
+  "tasksKanbanFieldBlockers": "Blockers",
+  "tasksKanbanFieldCoverAttachment": "Attachment cover",
+  "tasksKanbanFieldCustomFields": "Custom fields",
+  "tasksKanbanWipLimits": "Work-in-progress limits (WIP)",
+  "tasksKanbanWipLimitsDescription": "Leave a field empty for no limit in that column.",
+  "tasksKanbanWipUnlimited": "No limit",
+  "tasksAutomationsDescription": "Rules perform actions in response to project events.",
+  "tasksAutomationsRules": "Project rules",
+  "tasksAutomationsEmpty": "This project has no automations yet.",
+  "tasksAutomationsRecipes": "Ready-made recipes",
+  "tasksAutomationsRecipesEmpty": "There are no automation recipes available.",
+  "tasksAutomationsInstall": "Install",
+  "tasksAutomationsArchive": "Archive",
+  "tasksAutomationsArchiveConfirm": "Archive the “{name}” automation? It will stop immediately, but the run history will remain available.",
+  "@tasksAutomationsArchiveConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "tasksAutomationsRuleSummary": "Trigger: {trigger} · runs: {count}",
+  "@tasksAutomationsRuleSummary": {"placeholders": {"trigger": {"type": "String"}, "count": {"type": "int"}}},
+  "tasksAutomationTriggerTaskCreated": "task created",
+  "tasksAutomationTriggerTaskStatusChanged": "task status changed",
+  "tasksAutomationTriggerTaskKanbanMoved": "Kanban moved",
+  "tasksAutomationTriggerTaskDueSoon": "due date approaching",
+  "tasksAutomationTriggerFileUploaded": "file uploaded",
+  "tasksAutomationTriggerWikiPublished": "Wiki published",
+  "tasksAutomationTriggerWhiteboardExported": "whiteboard exported",
+  "tasksAutomationTriggerSchedule": "schedule",
+  "tasksAutomationsRuns": "Run history",
+  "tasksAutomationsRunsEmpty": "This automation has not run yet.",
+  "tasksAutomationRunQueued": "Queued",
+  "tasksAutomationRunRunning": "Running",
+  "tasksAutomationRunSucceeded": "Succeeded",
+  "tasksAutomationRunPartiallySucceeded": "Partially succeeded",
+  "tasksAutomationRunFailed": "Failed",
+  "tasksAutomationRunSkippedConditions": "Skipped: conditions",
+  "tasksAutomationRunSkippedDisabled": "Skipped: rule disabled",
+  "tasksAutomationRunSkippedLoop": "Skipped: loop protection",
+  "tasksAutomationsDryRun": "Simulate",
+  "tasksAutomationsDryRunDescription": "The simulation does not save changes. Choose a task to check conditions and planned actions.",
+  "tasksAutomationsSelectTask": "Task to simulate",
+  "tasksAutomationsTasksEmpty": "This project has no tasks available for simulation.",
+  "tasksAutomationsDryRunMatched": "Conditions are met",
+  "tasksAutomationsDryRunSkipped": "Conditions are not met",
+  "tasksPresenceAnonymousUser": "User currently viewing this board",
+  "tasksListEmpty": "No tasks match the selected filters.",
+  "tasksListLoadMore": "Show more tasks",
+  "tasksListStatus": "Status",
+  "tasksListPriority": "Priority",
+  "tasksListTask": "Task",
+  "tasksListOwner": "Owner",
+  "tasksListDueDate": "Due date",
+  "tasksListProgress": "Progress",
+  "tasksListActions": "Task actions",
+  "tasksListAll": "All",
+  "tasksListStatusBacklog": "Backlog",
+  "tasksListStatusTodo": "To do",
+  "tasksListStatusInProgress": "In progress",
+  "tasksListStatusBlocked": "Blocked",
+  "tasksListStatusDone": "Done",
+  "tasksListStatusCancelled": "Cancelled",
+  "tasksViewBoard": "Board",
+  "tasksViewRecurrence": "Recurring",
+  "tasksViewList": "List",
+  "tasksMilestonesEmpty": "This project has no milestones yet.",
+  "tasksCreateMilestone": "Add milestone",
+  "tasksEditMilestone": "Edit milestone",
+  "tasksDeleteMilestone": "Delete milestone",
+  "tasksDeleteMilestoneConfirm": "Delete the “{name}” milestone? This action cannot be undone.",
+  "@tasksDeleteMilestoneConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "tasksMilestoneName": "Milestone name",
+  "tasksMilestoneDescription": "Description",
+  "tasksMilestoneDueDate": "Due date",
+  "tasksMilestoneNoDueDate": "No due date",
+  "tasksMilestoneStatus": "Status",
+  "tasksMilestoneActive": "Active",
+  "tasksMilestoneCompleted": "Completed",
+  "tasksMilestoneCancelled": "Cancelled",
+  "tasksMilestoneNameRequired": "Enter a milestone name.",
+  "tasksMilestoneTasksEmpty": "No assigned tasks.",
+  "taskDetailsMilestone": "Milestone",
+  "taskDetailsNoMilestone": "Not assigned",
+  "taskDetailsRemoveMilestone": "Remove assignment",
+  "taskDetailsMilestoneUnavailable": "Could not read the assignment — tap to try again.",
+  "taskDetailsLoading": "Loading…",
+  "tasksLabelsSettingsDescription": "Labels are available to all tasks in this project.",
+  "tasksLabelsEmpty": "This project has no active labels yet.",
+  "tasksCreateLabel": "Add label",
+  "tasksEditLabel": "Edit label",
+  "tasksArchiveLabel": "Archive label",
+  "tasksArchiveLabelConfirm": "Archive the “{name}” label? It will not be assignable to new tasks.",
+  "@tasksArchiveLabelConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "tasksLabelName": "Label name",
+  "tasksLabelColor": "Color",
+  "tasksLabelNameRequired": "Enter a label name.",
+  "tasksArchiveAction": "Archive",
+  "tasksSelectTask": "Select task {taskCode}",
+  "tasksOpenTask": "Open task {taskCode}: {title}",
+  "@tasksOpenTask": {
+    "placeholders": {
+      "taskCode": {},
+      "title": {}
+    }
+  },
+  "tasksExpandColumn": "Expand {name} column",
+  "@tasksExpandColumn": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "tasksDropAtEnd": "Drop task at the end of the {name} column",
+  "@tasksDropAtEnd": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "@tasksSelectTask": {"placeholders": {"taskCode": {"type": "String"}}},
+  "tasksPinTask": "Pin task",
+  "tasksUnpinTask": "Unpin task",
+  "tasksWatchTask": "Watch task",
+  "tasksUnwatchTask": "Stop watching task",
+  "tasksRecurrenceSeries": "Series",
+  "tasksRecurrenceCycle": "Cycle",
+  "tasksAssignedToMilestone": "Assigned to milestone",
+  "tasksShowSubtasks": "Show subtasks ({count})",
+  "@tasksShowSubtasks": {"placeholders": {"count": {"type": "int"}}},
+  "tasksHideSubtasks": "Hide subtasks",
+  "tasksSubtasksLoading": "Loading subtasks…",
+  "tasksSubtasksError": "Failed to load subtasks",
+  "tasksSubtasksEmpty": "No subtasks",
+  "tasksSubtasksMore": "+{count} more",
+  "@tasksSubtasksMore": {"placeholders": {"count": {"type": "int"}}},
+  "tasksSubtasksTitle": "Subtasks",
+  "tasksSubtasksShowMoreRemaining": "Show {count} more",
+  "@tasksSubtasksShowMoreRemaining": {"placeholders": {"count": {"type": "int"}}},
+  "tasksAddSubtask": "Add subtask",
+  "tasksContextMenuOpen": "Open details",
+  "tasksContextMenuCopyCode": "Copy task code",
+  "tasksContextMenuCopyLink": "Copy task link",
+  "tasksContextMenuStatus": "Change status",
+  "tasksContextMenuPriority": "Change priority",
+  "tasksContextMenuAssignee": "Change assignee",
+  "tasksContextMenuDueDate": "Change due date",
+  "tasksContextMenuAddSubtask": "Add subtask",
+  "tasksTemplatesManage": "Manage template",
+  "tasksTemplateLineItemsHint": "One item per line",
+  "tasksTemplatesRename": "Rename",
+  "tasksTemplatesDeleteTitle": "Delete template?",
+  "tasksTemplatesDeleteDescription": "The “{name}” template will be permanently deleted.",
+  "@tasksTemplatesDeleteDescription": {"placeholders": {"name": {"type": "String"}}},
+  "taskDetailsArchive": "Archive task",
+  "taskDetailsRestore": "Restore task",
+  "taskDetailsArchiveConfirmTitle": "Archive task?",
+  "taskDetailsArchiveConfirmMessage": "The task will leave active views, but can be restored later.",
+  "taskDetailsHistory": "History",
+  "taskDetailsCreateTemplate": "Save as template",
+  "taskDetailsCreateTemplateTitle": "New task template",
+  "taskDetailsCreateTemplateDescription": "The current state of this task will be saved as a template in this workspace.",
+  "taskDetailsTemplateName": "Template name",
+  "taskDetailsTemplateCreated": "Task template created.",
+  "taskDetailsHistoryEmpty": "There are no recorded changes yet.",
+  "taskDetailsHistoryRetry": "Try again",
+  "taskDetailsHistoryActorSystem": "System",
+  "taskDetailsHistoryActorAutomation": "Automation",
+  "taskDetailsHistoryActorUser": "User",
+  "taskDetailsHistoryVersion": "v{version}",
+  "@taskDetailsHistoryVersion": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "taskDetailsRecurrence": "Recurrence",
+  "taskDetailsConfigureRecurrence": "Configure",
+  "taskDetailsRecurrenceNotConfigured": "This task is not recurring.",
+  "taskDetailsRecurrenceEvery": "every {count}",
+  "@taskDetailsRecurrenceEvery": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "taskDetailsRecurrenceActive": "Active",
+  "taskDetailsRecurrencePaused": "Paused",
+  "taskDetailsRecurrenceMode": "Schedule type",
+  "taskDetailsRecurrenceModeScheduled": "On a schedule",
+  "taskDetailsRecurrenceModeAfterCompletion": "After completion",
+  "taskDetailsRecurrenceFrequency": "Frequency",
+  "taskDetailsRecurrenceFrequencyDaily": "Daily",
+  "taskDetailsRecurrenceFrequencyWeekly": "Weekly",
+  "taskDetailsRecurrenceFrequencyMonthly": "Monthly",
+  "taskDetailsRecurrenceInterval": "Every N periods",
+  "taskDetailsRecurrenceTimeZone": "IANA time zone",
+  "taskDetailsRecurrenceOccurrenceStatus": "New occurrence status",
+  "taskDetailsRecurrenceSkipPrevious": "Skip when the previous occurrence remains open",
+  "taskDetailsRecurrenceFirstOccurrence": "First occurrence",
+  "taskDetailsRecurrenceNextOccurrence": "Next occurrence",
+  "taskDetailsRecurrencePause": "Pause recurrence",
+  "taskDetailsRecurrenceResume": "Resume recurrence",
+  "taskDetailsRecurrenceCreate": "Create recurrence",
+  "taskDetailsRecurrenceInvalid": "Enter a positive interval and a valid IANA time zone, for example Europe/Warsaw.",
+  "taskDetailsRecurrenceRetry": "Try again",
+  "taskDetailsAttachments": "Attachments",
+  "taskDetailsAttachmentsAdd": "Add files",
+  "taskDetailsAttachmentsEmpty": "No attachments yet",
+  "taskDetailsAttachmentsSelect": "Select files to add them to this task.",
+  "taskDetailsAttachmentsDrop": "Drop files here to attach them",
+  "taskDetailsAttachmentsQueued": "Waiting to upload",
+  "taskDetailsAttachmentsUploading": "Uploading",
+  "taskDetailsAttachmentsUploaded": "Uploaded",
+  "taskDetailsAttachmentsFailed": "Upload failed",
+  "taskDetailsTimeTracking": "Time tracking",
+  "taskDetailsTimeAdd": "Add time",
+  "taskDetailsTimeTotal": "Logged: {duration}",
+  "@taskDetailsTimeTotal": {"placeholders": {"duration": {"type": "String"}}},
+  "taskDetailsTimeStart": "Start timer",
+  "taskDetailsTimeStop": "Stop timer",
+  "taskDetailsTimeNoDescription": "No description",
+  "taskDetailsTimeSubmit": "Submit",
+  "taskDetailsTimeMinutes": "Duration in minutes",
+  "taskDetailsTimeDescription": "Description",
+  "taskDetailsTimeBillable": "Billable",
+  "taskDetailsTimeDraft": "Draft",
+  "taskDetailsTimeSubmitted": "Submitted",
+  "taskDetailsTimeApproved": "Approved",
+  "taskDetailsTimeRejected": "Rejected",
+  "tasksBoardEmpty": "This project has no configured columns",
+  "tasksPriorityLow": "Low priority",
+  "tasksPriorityNormal": "Normal priority",
+  "tasksPriorityHigh": "High priority",
+  "tasksPriorityCritical": "Critical priority",
+  "taskDetailsClose": "Close task details",
+  "taskDetailsArchived": "Archived",
+  "taskDetailsProperties": "Properties",
+  "taskDetailsAssignees": "Assignees",
+  "taskDetailsEditAssignees": "Edit assignees",
+  "taskDetailsAssigneesLoadError": "Project members could not be loaded.",
+  "taskDetailsNoProjectMembers": "No project members are available.",
+  "taskDetailsProjectMember": "Project member",
+  "taskDetailsNobody": "Unassigned",
+  "taskDetailsWatch": "Watch task",
+  "taskDetailsStopWatching": "Stop watching task",
+  "taskDetailsWatchers": "Watchers",
+  "taskDetailsNoWatchers": "No one is watching this task yet.",
+  "taskDetailsWatchersMore": "+{count}",
+  "@taskDetailsWatchersMore": {"placeholders": {"count": {"type": "int"}}},
+  "taskDetailsPin": "Pin task",
+  "taskDetailsUnpin": "Unpin task",
+  "taskDetailsLabels": "Labels",
+  "taskDetailsEditLabels": "Edit labels",
+  "taskDetailsNoLabels": "No labels have been assigned yet.",
+  "taskDetailsNoProjectLabels": "This project has no active labels yet.",
+  "taskDetailsCustomFields": "Custom fields",
+  "taskDetailsEditCustomFields": "Edit custom fields",
+  "taskDetailsNoCustomFields": "This project has no custom fields configured.",
+  "taskDetailsRequiredField": "Required",
+  "taskDetailsInvalidNumber": "Enter a valid number.",
+  "taskDetailsUserFieldUnavailable": "User selection requires the project member directory.",
+  "taskDetailsDueDate": "Due date",
+  "tasksTemplateTaskType": "Task type",
+  "tasksTemplateSize": "Size",
+  "tasksTemplateComplexity": "Complexity",
+  "tasksTemplateRisk": "Risk",
+  "tasksTemplateBusinessValue": "Business value",
+  "tasksTemplateAddLabel": "Add label",
+  "tasksTemplateNoLabels": "No labels in this template",
+  "tasksTemplateAssignees": "Default assignees",
+  "tasksTemplateCustomValues": "Custom fields",
+  "tasksTemplateAddCustomValue": "Add value",
+  "tasksTemplateNoCustomValues": "No custom-field values",
+  "tasksTemplateCustomValue": "Value",
+  "tasksTemplateMultiValueHint": "Separate values with commas",
+  "tasksTemplatesUnsavedTitle": "Discard unsaved changes?",
+  "tasksTemplatesUnsavedDescription": "You have unsaved changes in this template form. Are you sure you want to discard them?",
+  "tasksTemplatesDiscardChanges": "Discard changes",
+  "tasksTemplatesKeepEditing": "Continue editing",
+  "tasksTemplatesCreateAction": "Create template",
+  "tasksTemplatesSaveAction": "Save changes",
+  "tasksTemplatesFormFixErrors": "Please fix the highlighted form errors.",
+  "tasksTemplatesNameRequired": "Template name is required.",
+  "tasksTemplatesNameTooLong": "Template name cannot exceed 160 characters.",
+  "tasksTemplatesTitleRequired": "Task title is required.",
+  "tasksTemplatesTitleTooLong": "Task title cannot exceed 240 characters.",
+  "tasksTemplatesDescriptionTooLong": "Description cannot exceed 20,000 characters.",
+  "tasksTemplatesInvalidDueDate": "Due date cannot be earlier than start date.",
+  "tasksTemplatesInvalidEstimate": "Estimate must be a positive integer in minutes.",
+  "tasksTemplatesInvalidPercentage": "Value must be an integer between 0 and 100.",
+  "tasksTemplatesTaskTypeTooLong": "Task type cannot exceed 80 characters.",
+  "tasksTemplatesChecklistItemTooLong": "Checklist item cannot exceed 500 characters.",
+  "tasksTemplatesCriteriaTooLong": "Acceptance criterion cannot exceed 1,000 characters.",
+  "tasksTemplatesLabelDuplicate": "A label with this name already exists.",
+  "tasksTemplatesCustomFieldDuplicate": "A custom field with this name already exists.",
+  "tasksTemplatesSectionBasic": "Basic info",
+  "tasksTemplatesSectionPlanning": "Planning",
+  "tasksTemplatesSectionResponsibility": "Responsibility",
+  "tasksTemplatesSectionScope": "Scope of work",
+  "tasksTemplatesSectionClassification": "Classification",
+  "tasksTemplatesSectionMetadata": "Metadata",
+  "tasksTemplatesAssigneesSearchHint": "Search people...",
+  "tasksTemplatesAssigneesEmpty": "No matching people",
+  "tasksTemplatesAssigneesLoadError": "Failed to load project members",
+  "tasksTemplatesEmptyCreateCta": "Create first template",
+  "tasksTemplatesUseTileAction": "Use",
+  "tasksTemplatesCustomStatus": "Custom column",
+  "tasksTemplatesSystemStatus": "System status",
+  "tasksAutomationsCreate": "New automation",
+  "tasksAutomationsName": "Rule name",
+  "tasksAutomationsEdit": "Edit automation",
+  "tasksAutomationsConditionStatus": "Only when task status is",
+  "tasksAutomationsConditionPriority": "Only when task priority is",
+  "tasksAutomationsConditionDueWithinDays": "Only when due within (days)",
+  "tasksAutomationsConditionTitleContains": "Only when title contains",
+  "tasksAutomationsConditionOptional": "Leave empty to omit this condition.",
+  "tasksAutomationsConditionAssignee": "Only when assignee is",
+  "tasksAutomationsConditionLabel": "Only when task has label",
+  "tasksAutomationsUnknownMember": "Member unavailable in this project",
+  "tasksAutomationsUnknownLabel": "Inactive label",
+  "tasksAutomationsNoCondition": "No status condition",
+  "tasksAutomationsTrigger": "When this happens",
+  "tasksAutomationsAction": "Do this",
+  "tasksAutomationsDueWithinDays": "Due-date horizon (days)",
+  "tasksAutomationsDaysHint": "From 0 to 365 days",
+  "tasksAutomationsSubtaskTitle": "Subtask title",
+  "tasksAutomationsActionSetStatus": "Set task status",
+  "tasksAutomationsActionSetPriority": "Set task priority",
+  "tasksAutomationsActionClearDueDate": "Clear task due date",
+  "tasksAutomationsActionSetDueDate": "Set or clear task due date",
+  "tasksAutomationsDueDateUnset": "No due date (clear)",
+  "tasksAutomationsClearDueDate": "Clear selected due date",
+  "tasksAutomationsActionCreateSubtask": "Create subtask",
+  "tasksAutomationsActionAssignTask": "Assign task",
+  "tasksAutomationsActionAddLabel": "Add label",
+  "tasksAutomationsActionRemoveLabel": "Remove label",
+  "tasksAutomationsActionAssignee": "Target assignee",
+  "tasksAutomationsActionLabel": "Target label",
+  "tasksAutomationsActionNotifyUser": "Send notification",
+  "tasksAutomationsNotificationRecipient": "Notification recipient",
+  "tasksAutomationsNotificationText": "Notification text",
+  "tasksAutomationsBuilderInvalid": "Provide a name and valid automation parameters.",
+  "taskDetailsNoDueDate": "No due date",
+  "taskDetailsNoDate": "No date set",
+  "taskDetailsEstimate": "Estimate",
+  "taskDetailsNoEstimate": "No estimate",
+  "taskDetailsMinutes": "{count} min",
+  "@taskDetailsMinutes": {"placeholders": {"count": {"type": "int"}}},
+  "taskDetailsDescription": "Description",
+  "taskDetailsEditDescription": "Edit description",
+  "tasksCollapseColumn": "Collapse column",
+  "taskDetailsNoDescription": "This task does not have a description yet.",
+  "taskDetailsChecklist": "Checklist",
+  "taskDetailsAddChecklistItem": "Add checklist item",
+  "taskDetailsDeleteChecklistItem": "Delete checklist item",
+  "taskDetailsEditChecklistItem": "Edit checklist item",
+  "taskDetailsAcceptanceCriteria": "Acceptance criteria",
+  "taskDetailsAddAcceptanceCriterion": "Add acceptance criterion",
+  "taskDetailsDeleteAcceptanceCriterion": "Delete acceptance criterion",
+  "taskDetailsEditAcceptanceCriterion": "Edit acceptance criterion",
+  "taskDetailsSubtasks": "Subtasks",
+  "taskDetailsAddSubtask": "Add subtask",
+  "taskDetailsNoSubtasks": "There are no subtasks yet.",
+  "taskDetailsDependencies": "Dependencies",
+  "taskDetailsAddDependency": "Add dependency",
+  "taskDetailsDeleteDependency": "Delete dependency",
+  "taskDetailsNoDependencies": "This task has no dependencies yet.",
+  "taskDetailsSearchTask": "Search task",
+  "taskDetailsDependencyType": "Dependency type",
+  "taskDetailsDependencyKind": "Schedule relationship",
+  "taskDetailsDependencyLagDays": "Lag (working days)",
+  "taskDependencyKindFinishToStart": "Finish to start",
+  "taskDependencyKindStartToStart": "Start to start",
+  "taskDependencyKindFinishToFinish": "Finish to finish",
+  "taskDependencyKindStartToFinish": "Start to finish",
+  "taskDependencyBlocks": "Blocks",
+  "taskDependencyRelated": "Related to",
+  "taskDependencyDuplicate": "Duplicate",
+  "taskDetailsEditBasics": "Edit task",
+  "taskDetailsTitleField": "Title",
+  "taskDetailsStatusField": "Status",
+  "taskDetailsPriorityField": "Priority",
+  "taskDetailsEditPlanning": "Edit dates and estimate",
+  "taskDetailsStartDate": "Start date",
+  "taskDetailsEstimateMinutes": "Estimate in minutes",
+  "taskDetailsClearDate": "Clear date",
+  "taskDetailsInvalidEstimate": "The estimate must be a positive number of minutes.",
+  "taskDetailsInvalidDependencyLag": "Lag must be between -365 and 365 days.",
+  "taskDetailsInvalidDateRange": "The due date cannot be earlier than the start date.",
+  "taskStatusBacklog": "Backlog",
+  "taskStatusTodo": "To do",
+  "taskStatusInProgress": "In progress",
+  "taskStatusBlocked": "Blocked",
+  "taskStatusDone": "Done",
+  "taskStatusCanceled": "Canceled",
+  "myTasksFilter": "Filter tasks",
+  "myTasksFiltersTitle": "Task filters",
+  "myTasksFiltersSubtitle": "Customize personal task filtering criteria.",
+  "projectUserHubPinnedSuccess": "Project pinned to favorites.",
+  "projectUserHubUnpinnedSuccess": "Project unpinned from favorites.",
+  "projectUserHubHiddenSuccess": "Project hidden from sidebar.",
+  "projectUserHubUnhiddenSuccess": "Project restored to sidebar.",
+  "myTasksStatus": "Status",
+  "myTasksPriority": "Priority",
+  "myTasksInvolvement": "My involvement",
+  "myTasksAll": "All",
+  "myTasksAny": "Any",
+  "myTasksDueFrom": "Due from",
+  "myTasksDueTo": "Due to",
+  "myTasksAnyDueDate": "Any due date",
+  "myTasksClear": "Clear",
+  "myTasksChooseDate": "Choose date",
+  "myTasksApply": "Apply",
+  "myTasksInvalidDueRange": "The end date cannot be earlier than the start date.",
+  "myTasksEmpty": "You currently have no tasks that require action.",
+  "myTasksRetry": "Try again",
+  "myTasksPriorityLow": "Low",
+  "myTasksPriorityNormal": "Normal",
+  "myTasksPriorityHigh": "High",
+  "myTasksPriorityCritical": "Critical",
+  "myTasksInvolvementAny": "Any",
+  "myTasksInvolvementPrimaryAssignee": "Primary assignee",
+  "myTasksInvolvementCollaborator": "Collaborator",
+  "myTasksInvolvementAssignee": "Assignee",
+  "myTasksInvolvementWatcher": "Watcher",
+  "settingsSectionProfileTitle": "Profile",
+  "settingsSectionProfileSubtitle": "Photo and account details",
+  "settingsProfileTitle": "Profile photo",
+  "settingsProfileSubtitle": "Your photo will be visible in Workspaces and next to your tasks.",
+  "settingsProfileChooseAvatar": "Choose photo",
+  "settingsProfileRemoveAvatar": "Remove photo",
+  "settingsProfileAvatarHint": "PNG, JPEG, WebP or GIF. Choose a clear square photo.",
+  "settingsProfileUploadInProgress": "Saving photo…",
+  "settingsProfileRetry": "Try again",
+  "settingsProfileAvatarTooLarge": "The selected photo is larger than 5 MB.",
+  "tasksScheduleTitle": "Project schedule",
+  "tasksScheduleDescription": "Set how deadlines cascade and manage workspace-wide non-working days.",
+  "tasksScheduleMode": "Scheduling mode",
+  "tasksScheduleManual": "Manual",
+  "tasksSchedulePushSuccessors": "Push successors only",
+  "tasksScheduleStrictCascade": "Strict cascade",
+  "tasksScheduleHolidays": "Non-working days",
+  "tasksScheduleNoHolidays": "No non-working days defined.",
+  "tasksScheduleAddHoliday": "Add non-working day",
+  "tasksScheduleHolidayName": "Name of non-working day",
+  "tasksScheduleChooseHolidayDate": "Choose date",
+  "tasksSavedViews": "Saved views",
+  "tasksSavedViewsCreate": "Create view",
+  "tasksSavedViewsManage": "Manage view",
+  "tasksSavedViewsRename": "Rename",
+  "tasksSavedViewsDelete": "Delete view",
+  "tasksSavedViewsDeleteDescription": "Do you really want to delete the “{name}” view?",
+  "@tasksSavedViewsDeleteDescription": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "tasksSavedViewsName": "View name",
+  "tasksSavedViewsLayout": "Layout",
+  "tasksSavedViewsSort": "Sort",
+  "tasksSavedViewsAscending": "Ascending",
+  "tasksSavedViewsDescending": "Descending",
+  "tasksSavedViewsGroup": "Group",
+  "tasksSavedViewsFilters": "Filters",
+  "tasksSavedViewsSearch": "Search title and description",
+  "tasksSavedViewsPinnedOnly": "Pinned tasks only",
+  "tasksSavedViewsIncludeArchived": "Include archived",
+  "tasksSavedViewsStatuses": "Statuses",
+  "tasksSavedViewsPriorities": "Priorities",
+  "tasksSavedViewsColumns": "Visible columns",
+  "tasksSavedViewsSortPosition": "Board position",
+  "tasksSavedViewsSortUpdated": "Last updated",
+  "tasksSavedViewsSortDueDate": "Due date",
+  "tasksSavedViewsSortPriority": "Priority",
+  "tasksSavedViewsSortTitle": "Title",
+  "tasksSavedViewsGroupNone": "No grouping",
+  "tasksSavedViewsGroupStatus": "By status",
+  "tasksListGroupProjectWorkflow": "Project workflow",
+  "tasksSavedViewsGroupPriority": "By priority",
+  "tasksSavedViewsGroupAssignee": "By assignee",
+  "tasksSavedViewsColumnKey": "Key",
+  "tasksSavedViewsColumnTitle": "Title",
+  "tasksSavedViewsColumnStatus": "Status",
+  "tasksSavedViewsColumnPriority": "Priority",
+  "tasksSavedViewsColumnAssignees": "Assignees",
+  "tasksSavedViewsColumnStartDate": "Start date",
+  "tasksSavedViewsColumnDueDate": "Due date",
+  "tasksSavedViewsColumnChecklist": "Checklist progress",
+  "tasksSavedViewsColumnUpdated": "Last updated",
+  "tasksSavedViewsUnassigned": "Unassigned",
+  "tasksSavedViewsAssigned": "Assigned tasks",
+  "tasksSavedViewsDefault": "Default view",
+  "tasksSavedViewsSaveCurrent": "Save current view",
+  "tasksSavedViewsSaveActiveChanges": "Save changes to view",
+  "tasksSavedViewsModified": "Modified",
+  "tasksSavedViewsListLoading": "Task list is still loading",
+  "tasksCapacityTitle": "Team availability",
+  "tasksCapacityDescription": "Set the workspace default daily availability and time-bound exceptions for people in this project.",
+  "tasksCapacityDefaultDaily": "Default daily availability",
+  "tasksCapacityMinutes": "min",
+  "tasksCapacityOverrides": "Availability exceptions",
+  "tasksCapacityAddOverride": "Add exception",
+  "tasksCapacityNoOverrides": "No availability exceptions yet.",
+  "tasksCapacityUnknownMember": "Unavailable project member",
+  "tasksCapacityMember": "Project member",
+  "tasksCapacityStartDate": "Start date",
+  "tasksCapacityEndDate": "End date",
+  "tasksCapacityReason": "Reason (optional)",
+  "tasksViewWorkload": "Workload",
+  "tasksWorkloadTitle": "Team workload",
+  "tasksWorkloadRange": "Date range",
+  "tasksWorkloadTasks": "tasks",
+  "tasksWorkloadAvailable": "Available",
+  "tasksWorkloadRemaining": "Remaining",
+  "tasksWorkloadOverCapacity": "Over capacity",
+  "tasksWorkloadEmpty": "No workload data for the selected range.",
+  "tasksViewTimeline": "Timeline",
+  "tasksTimelineTitle": "Project schedule",
+  "tasksTimelineRange": "Schedule range",
+  "tasksTimelineUndated": "Undated",
+  "tasksTimelineDependencies": "dependencies",
+  "taskDetailsCascadePreview": "Preview cascade",
+  "taskDetailsCascadePreviewDescription": "Review affected tasks and dates before saving.",
+  "taskDetailsCascadeChanges": "Schedule changes",
+  "taskDetailsCascadeNoChanges": "The date change does not move other tasks.",
+  "taskDetailsCascadeApply": "Apply cascade",
+  "taskDetailsCascadeCritical": "Critical path",
+  "taskDetailsCascadePreviewFailed": "Could not prepare the cascade preview.",
+  "taskDetailsCascadeApplyFailed": "Could not apply the cascade. Refresh the data and try again.",
+  "taskDetailsCascadeDatesRequired": "Set both a start and due date to preview the cascade.",
+  "tasksRecurrenceTitle": "Recurring tasks",
+  "tasksRecurrenceDescription": "Manage recurrence schedules and audit past occurrences in project",
+  "tasksRecurrenceTabSchedule": "Schedule",
+  "tasksRecurrenceTabRuns": "Run history",
+  "tasksRecurrenceActive": "Active",
+  "tasksRecurrencePaused": "Paused",
+  "tasksRecurrenceEmptyTitle": "No recurring tasks in this project",
+  "tasksRecurrenceEmptyDescription": "To configure recurrence, open a task and click the recurrence icon 🔄.",
+  "tasksRecurrenceRunsEmptyTitle": "No run history",
+  "tasksRecurrenceRunsEmptyDescription": "Completed and skipped task occurrences will appear here.",
+  "tasksRecurrenceRunNow": "Run occurrence now",
+  "tasksRecurrenceRunNowSuccess": "New task occurrence created",
+  "tasksRecurrenceEdit": "Edit recurrence settings",
+  "tasksRecurrenceNext": "Next",
+  "tasksRecurrenceModeScheduled": "Scheduled",
+  "tasksRecurrenceModeAfterCompletion": "After completion",
+  "tasksRecurrenceOutcomeCreated": "Occurrence created",
+  "tasksRecurrenceOutcomeSkipped": "Skipped (previous task still open)",
+  "tasksRecurrenceFilterOnly": "Recurring",
+  "tasksRecurrenceDelete": "Delete recurrence",
+  "tasksRecurrenceDeleteConfirm": "Are you sure you want to delete this recurrence rule?",
+  "tasksRecurrenceDeleteSuccess": "Recurrence deleted successfully",
+  "taskRecurrenceIntervalDaily": "Daily",
+  "taskRecurrenceIntervalDays": "Every {interval} days",
+  "@taskRecurrenceIntervalDays": {
+    "placeholders": {
+      "interval": {
+        "type": "int"
+      }
+    }
+  },
+  "taskRecurrenceIntervalWeekly": "Weekly",
+  "taskRecurrenceIntervalWeeks": "Every {interval} weeks",
+  "@taskRecurrenceIntervalWeeks": {
+    "placeholders": {
+      "interval": {
+        "type": "int"
+      }
+    }
+  },
+  "taskRecurrenceIntervalMonthly": "Monthly",
+  "taskRecurrenceIntervalMonths": "Every {interval} months",
+  "@taskRecurrenceIntervalMonths": {
+    "placeholders": {
+      "interval": {
+        "type": "int"
+      }
+    }
+  },
+  "taskRecurrenceHeader": "Task recurrence",
+  "taskRecurrenceFrequencyLabel": "Recurrence frequency",
+  "taskRecurrencePresetWorkdays": "On workdays",
+  "taskRecurrencePresetCustom": "Custom...",
+  "taskRecurrenceRepeatEvery": "Repeat every:",
+  "taskRecurrenceUnitDays": "Days",
+  "taskRecurrenceUnitWeeks": "Weeks",
+  "taskRecurrenceUnitMonths": "Months",
+  "taskRecurrenceScheduleLabel": "Recurrence occurrence schedule",
+  "taskRecurrenceModeLabel": "Recurrence mode",
+  "taskRecurrenceOccurrenceStatus": "Initial status for new task",
+  "taskRecurrenceSkipIfPreviousOpen": "Skip creation if previous task is still open",
+  "taskRecurrenceSave": "Save schedule",
+  "taskRecurrenceSaving": "Saving...",
+  "taskRecurrencePauseSeries": "Pause series",
+  "taskRecurrenceResumeSeries": "Resume series",
+  "taskRecurrenceSaveSuccess": "Recurrence schedule saved",
+  "tasksListEditTitleTooltip": "Edit task title",
+  "tasksListPinTooltip": "Pin task",
+  "tasksListUnpinTooltip": "Unpin task",
+  "tasksListWatchTooltip": "Watch task",
+  "tasksListUnwatchTooltip": "Stop watching task",
+  "tasksListMoreOptionsTooltip": "More options",
+  "tasksListKeyCopiedTooltip": "Task key copied to clipboard",
+  "tasksListAddInGroupTooltip": "Add task in group: {group}",
+  "@tasksListAddInGroupTooltip": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "tasksListQuickCreateTitle": "New task",
+  "tasksListQuickCreateHint": "Enter new task title...",
+  "tasksListQuickCreateButton": "Create",
+  "tasksListQuickCreateCancel": "Cancel",
+  "tasksListRecurrenceSeriesBadge": "Series",
+  "tasksListRecurrenceCycleBadge": "Cycle",
+  "tasksListInlineCreateKeyboardHint": "Press Enter to save, Esc to cancel",
+  "tasksListInlineCreateHint": "Task name",
+  "tasksListInlineCreateButton": "Add task",
+  "tasksListExpandGroupTooltip": "Expand group",
+  "tasksListCollapseGroupTooltip": "Collapse group",
+  "tasksListClearDateButton": "Clear",
+  "tasksListCancelButton": "Cancel",
+  "tasksListSaveButton": "Save",
+  "tasksListChecklistTitle": "Checklist",
+  "tasksListChecklistEmpty": "No checklist items",
+  "tasksListChecklistAddItem": "Add item",
+  "tasksListChecklistNewItemHint": "Enter new item...",
+  "tasksListChecklistAddAction": "Add checklist",
+  "tasksListDatePresetToday": "Today",
+  "tasksListDatePresetTomorrow": "Tomorrow",
+  "tasksListDatePresetNextWeek": "In a week",
+  "tasksListDatePresetNextMonth": "In a month",
+  "tasksListCustomStatusLabel": "Custom status",
+  "tasksListCustomStatusNone": "No custom status",
+  "tasksListLabelsSearchHint": "Search labels...",
+  "tasksListLabelsEmpty": "No labels",
+  "projectSettingsTitle": "Project settings",
+  "projectSettingsTabGeneral": "General",
+  "projectSettingsTabMembers": "Members & access",
+  "projectSettingsTabWorkflow": "Statuses & workflow",
+  "projectSettingsTabCustomFields": "Custom fields",
+  "projectSettingsTabLabels": "Labels",
+  "projectSettingsTabMilestones": "Milestones",
+  "projectSettingsTabAutomations": "Automations",
+  "projectSettingsNameLabel": "Project name",
+  "projectSettingsNameHint": "Enter project name...",
+  "projectSettingsDescriptionLabel": "Project description",
+  "projectSettingsDescriptionHint": "Enter optional project description...",
+  "projectSettingsIconAndColorLabel": "Icon & primary color",
+  "projectSettingsVisibilityLabel": "Project visibility",
+  "projectSettingsVisibilityShared": "Shared",
+  "projectSettingsVisibilitySharedDesc": "Visible to all members of the workspace.",
+  "projectSettingsVisibilityPrivate": "Private",
+  "projectSettingsVisibilityPrivateDesc": "Only accessible by members explicitly added to the project.",
+  "projectSettingsSaveGeneral": "Save changes",
+  "projectSettingsGeneralSavedSuccess": "Project details updated successfully.",
+  "projectSettingsDangerZoneTitle": "Danger zone",
+  "projectSettingsArchiveProject": "Archive project",
+  "projectSettingsArchiveProjectConfirm": "Are you sure you want to archive this project? Tasks and resources will remain in history.",
+  "projectSettingsRestoreProject": "Restore project",
+  "projectSettingsDeleteProject": "Delete project permanently",
+  "projectSettingsDeleteProjectConfirm": "Are you sure you want to permanently delete this archived project? This action cannot be undone.",
+  "projectSettingsMembersSearchHint": "Filter project members...",
+  "projectSettingsAddMemberButton": "Add member",
+  "projectSettingsAddMemberDialogTitle": "Add member to project",
+  "projectSettingsSelectWorkspaceUser": "Select user from workspace",
+  "projectSettingsSelectRole": "Select project role",
+  "projectSettingsMemberRoleOwner": "Owner",
+  "projectSettingsMemberRoleAdmin": "Admin",
+  "projectSettingsMemberRoleMember": "Member",
+  "projectSettingsMemberRoleObserver": "Observer",
+  "projectSettingsRemoveMemberConfirm": "Are you sure you want to remove this user from the project?",
+  "projectSettingsNoMembersFound": "No project members found",
+  "projectSettingsWorkflowColumnsHeader": "Board columns and task statuses",
+  "projectSettingsWorkflowAddStatus": "Add status",
+  "projectSettingsWorkflowEditStatus": "Edit status",
+  "projectSettingsWorkflowDeleteStatus": "Delete status",
+  "projectSettingsWorkflowStatusName": "Status name",
+  "projectSettingsWorkflowStatusColor": "Color",
+  "projectSettingsWorkflowStatusCategory": "Category",
+  "projectSettingsWorkflowWipLimit": "Task limit (WIP)",
+  "projectSettingsWorkflowWipLimitHint": "0 = no limit",
+  "projectSettingsWorkflowTemplatesButton": "Workflow templates",
+  "projectSettingsWorkflowApplyTemplateConfirm": "Applying template will create new workflow columns. Do you want to proceed?",
+  "projectSettingsWorkflowEmptyTitle": "No workflow columns configured",
+  "projectSettingsWorkflowEmptyDesc": "This project uses system default task statuses or does not have custom Kanban columns yet. Define custom statuses or select a ready workflow template.",
+  "projectSettingsCustomFieldsHeader": "Custom field definitions",
+  "projectSettingsAddCustomField": "Add field",
+  "projectSettingsCustomFieldName": "Field name",
+  "projectSettingsCustomFieldType": "Field type",
+  "projectSettingsCustomFieldRequired": "Required field",
+  "projectSettingsCustomFieldOptions": "Options (comma-separated)",
+  "projectSettingsCustomFieldsEmpty": "No custom fields defined",
+  "projectSettingsLabelsHeader": "Project labels",
+  "projectSettingsAddLabel": "Add label",
+  "projectSettingsLabelName": "Label name",
+  "projectSettingsLabelColor": "Label color",
+  "projectSettingsLabelsEmpty": "No labels created",
+  "projectSettingsMilestonesHeader": "Milestones (Project stages)",
+  "projectSettingsAddMilestone": "New milestone",
+  "projectSettingsMilestoneName": "Milestone name",
+  "projectSettingsMilestoneDueDate": "Due date",
+  "projectSettingsMilestoneProgress": "Progress",
+  "projectSettingsMilestonesEmpty": "No milestones defined",
+  "projectSettingsAutomationsHeader": "Task automation rules",
+  "projectSettingsAddAutomation": "New automation",
+  "projectSettingsAutomationTrigger": "Trigger (When)",
+  "projectSettingsAutomationAction": "Action (Then)",
+  "projectSettingsAutomationsEmpty": "No automations configured",
+  "projectSettingsReadOnlyNotice": "You have read-only access (Member/Observer). Project settings editing is restricted.",
+  "workspaceSettingsTitle": "Workspace settings",
+  "workspaceSettingsTabGeneral": "General",
+  "workspaceSettingsTabMembers": "Members & invitations",
+  "workspaceSettingsTabNotifications": "Notifications",
+  "workspaceSettingsTabCapacity": "Working hours & capacity",
+  "workspaceSettingsNameLabel": "Workspace name",
+  "workspaceSettingsNameHint": "Enter workspace name...",
+  "workspaceSettingsDescriptionLabel": "Workspace description",
+  "workspaceSettingsDescriptionHint": "Enter optional workspace description...",
+  "workspaceSettingsSaveGeneral": "Save workspace details",
+  "workspaceSettingsSavedSuccess": "Workspace details updated successfully.",
+  "workspaceSettingsArchiveWorkspace": "Archive workspace",
+  "workspaceSettingsArchiveConfirm": "Are you sure you want to archive this workspace? It will be hidden from the active list.",
+  "workspaceSettingsRestoreWorkspace": "Restore workspace",
+  "workspaceSettingsMembersHeader": "Active members",
+  "workspaceSettingsInviteUserButton": "Invite user",
+  "workspaceSettingsInviteDialogTitle": "Invite Ready user to workspace",
+  "workspaceSettingsSearchReadyHint": "Type name or email to search in Ready...",
+  "workspaceSettingsSearchReadyMinChars": "Type at least 2 characters to search in Ready directory.",
+  "workspaceSettingsInvitationsSentHeader": "Pending invitations",
+  "workspaceSettingsInvitationResend": "Resend",
+  "workspaceSettingsInvitationCancel": "Cancel",
+  "workspaceSettingsMemberRoleOwner": "Owner",
+  "workspaceSettingsMemberRoleAdmin": "Admin",
+  "workspaceSettingsMemberRoleMember": "Member",
+  "workspaceSettingsMemberRoleObserver": "Observer",
+  "workspaceSettingsRemoveMemberConfirm": "Are you sure you want to remove this member from the workspace?",
+  "workspaceSettingsNotificationsChannels": "Delivery channels",
+  "workspaceSettingsNotificationsInApp": "In-app notifications",
+  "workspaceSettingsNotificationsEmail": "Email notifications",
+  "workspaceSettingsNotificationsCategories": "Notification categories",
+  "workspaceSettingsCategoryTasks": "Task updates and assignments",
+  "workspaceSettingsCategoryProjects": "Project events",
+  "workspaceSettingsCategoryWorkspace": "Workspace administration & invitations",
+  "workspaceSettingsCategoryMentions": "Chat mentions & comments",
+  "workspaceSettingsSaveNotifications": "Save notification preferences",
+  "workspaceSettingsNotificationsSaved": "Notification preferences updated successfully.",
+  "workspaceSettingsReadOnlyNotice": "You have read-only access in this workspace. Administrative settings are restricted.",
+  "projectSettingsTabTemplates": "Project Templates",
+  "projectSettingsTemplatesHeader": "Project Templates",
+  "projectSettingsCreateTemplateFromProject": "Save project as template",
+  "projectSettingsCreateTemplateDialogTitle": "New template from project",
+  "projectSettingsTemplateNameLabel": "Template name *",
+  "projectSettingsTemplateDescLabel": "Template description (optional)",
+  "projectSettingsTemplatesEmpty": "No saved templates in this workspace.",
+  "projectSettingsTemplateApplyButton": "Create project from template",
+  "projectSettingsTemplateApplyDialogTitle": "Create new project from template",
+  "projectSettingsTemplateApplyNewProjectName": "New project name *",
+  "projectSettingsTemplateDeleteConfirm": "Are you sure you want to delete this project template?",
+  "projectSettingsTemplateRefreshButton": "Refresh template from project",
+  "projectSettingsTemplateRefreshConfirm": "Are you sure you want to update the template content with the current state of this project?",
+  "projectSettingsTemplateApplySuccess": "New project successfully created from template.",
+  "projectSettingsTemplateCreatedSuccess": "Template successfully created from project.",
+  "projectSettingsTemplateRefreshedSuccess": "Template successfully refreshed from project.",
+  "projectSettingsTemplateDeletedSuccess": "Project template successfully deleted.",
+  "projectSettingsTemplateLeaveDeleteTitle": "Delete Project Template",
+  "projectSettingsTemplateLeaveDeleteAction": "Delete template",
+  "projectSettingsTemplateDetailsTitle": "Project Template Details",
+  "projectSettingsTemplateDetailsWorkflow": "Workflow Statuses",
+  "projectSettingsTemplateDetailsCustomFields": "Custom Fields",
+  "projectSettingsTemplateDetailsLabels": "Labels",
+  "projectSettingsTemplateDetailsTasks": "Starter Tasks ({count})",
+  "@projectSettingsTemplateDetailsTasks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "projectSettingsTemplateDetailsNoTasks": "No starter tasks defined.",
+  "projectSettingsTemplateDetailsNoFields": "No custom fields defined.",
+  "projectSettingsTemplateDetailsNoLabels": "No labels defined.",
+  "projectSettingsTemplateDetailsPreviewButton": "Details Preview",
+  "projectSettingsTemplateDesc": "Manage project templates and create repeatable structures for tasks, workflows, and configurations.",
+  "projectSettingsTemplateCreateDialogDesc": "The current project, along with its workflow statuses, custom fields, and starter tasks, will be saved as a reusable template.",
+  "projectSettingsTemplateApplyDialogDesc": "A new project will be created based on this template with all statuses, custom fields, and tasks.",
+  "projectSettingsTemplateUpdatedLabel": "Updated: {date}",
+  "@projectSettingsTemplateUpdatedLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "projectUserHubTitle": "My Project Hub",
+  "projectUserHubTabProfile": "My Profile",
+  "projectUserHubTabPreferences": "My Preferences",
+  "projectUserHubProfileHeader": "Your role in this project",
+  "projectUserHubProfileDesc": "Information about your membership and assigned permissions.",
+  "projectUserHubRoleOwnerDesc": "Full control over the project, member management, workflow, automations and danger zone.",
+  "projectUserHubRoleAdminDesc": "Manage task configuration, statuses, custom fields and project members.",
+  "projectUserHubRoleMemberDesc": "Full access to creating and editing tasks, comments and delivering work.",
+  "projectUserHubRoleObserverDesc": "Read-only access to board, tasks and project resources.",
+  "projectUserHubLeaveProjectTitle": "Leave Project",
+  "projectUserHubLeaveProjectSharedDesc": "You are a member of this workspace. After leaving explicit membership, you will retain access to the project as a shared workspace project.",
+  "projectUserHubLeaveProjectPrivateDesc": "Leaving will revoke your direct access to this private project.",
+  "projectUserHubLeaveProjectButton": "Leave this project",
+  "projectUserHubLeaveConfirmTitle": "Are you sure you want to leave this project?",
+  "projectUserHubLeaveConfirmContent": "Your explicit membership will be revoked. In a private project you will lose access.",
+  "projectUserHubLeaveConfirmAction": "Yes, leave project",
+  "projectUserHubPreferencesHeader": "Project Personalization",
+  "projectUserHubPreferencesDesc": "Customize how this project appears on your account.",
+  "projectUserHubPinLabel": "Pin to favorites",
+  "projectUserHubPinDesc": "The project will be displayed at the very top of the project tree.",
+  "projectUserHubHideLabel": "Hide project from sidebar menu",
+  "projectUserHubHideDesc": "The project will not be visible in the sidebar list (you can still search for it).",
+  "projectUserHubPreferenceSaved": "Project preferences updated successfully.",
+  "projectUserHubLeaveSharedSuccessNotice": "Left explicit project membership. As a workspace member you still have access to this project.",
+  "projectUserHubLeavePrivateSuccessNotice": "Successfully left the project.",
+  "tasksListClearValue": "Clear",
+  "tasksListCustomStatus": "Custom status",
+  "tasksListMilestone": "Milestone",
+  "tasksListNoDueDate": "No due date",
+  "tasksListDefaultColor": "Default color",
+  "tasksListNoIcon": "No icon",
+  "tasksListMoveUp": "Move up",
+  "tasksListMoveDown": "Move down",
+  "tasksListRemoveOption": "Remove option",
+  "tasksListOptionNameHint": "Option name (e.g. High, Urgent)...",
+  "tasksListAddOptionButton": "Add",
+  "tasksListCollaborators": "Collaborators",
+  "tasksListWatchers": "Watchers",
+  "tasksListCreated": "Created",
+  "tasksListTaskType": "Type",
+  "tasksListSize": "Size",
+  "tasksListComplexity": "Complexity",
+  "tasksListRisk": "Risk",
+  "tasksListBusinessValue": "Value",
+  "tasksListEstimatedMinutes": "Estimate",
+  "tasksListActualMinutes": "Actual time",
+  "tasksListResizeColumnTooltip": "Resize column: {name}",
+  "@tasksListResizeColumnTooltip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tasksListColumnsTitle": "Customize columns",
+  "tasksListColumnsSubtitle": "Manage column visibility and order in the list",
+  "tasksListColumnsSearchHint": "Search columns...",
+  "tasksListColumnsRequiredBadge": "Required",
+  "tasksListColumnsRequiredTooltip": "This column is required by the project administrator",
+  "tasksListColumnsDisabledBadge": "Locked",
+  "tasksListColumnsDisabledTooltip": "Disabled by the project administrator",
+  "tasksListColumnsResetButton": "Restore defaults",
+  "tasksListColumnsResetSuccess": "Default column layout restored",
+  "tasksListColumnsSaveAsViewButton": "Save as new view",
+  "tasksListColumnsDoneButton": "Done",
+  "tasksListMySettingsButton": "My settings",
+  "tasksListAdminPanelButton": "Admin panel",
+  "tasksListColumnsScopeUser": "My settings",
+  "tasksListColumnsScopeProject": "Project defaults (Admin)",
+  "tasksListSaveProjectDefaults": "Save as project defaults",
+  "tasksListProjectDefaultsSaved": "Project default columns updated successfully",
+  "tasksListManageWorkflowButton": "Manage workflow & statuses...",
+  "tasksListManageCustomFieldsButton": "Project custom fields...",
+  "tasksListSortAscending": "Sort ascending",
+  "tasksListSortDescending": "Sort descending",
+  "tasksListSortClear": "Clear sorting",
+  "tasksListSavingPreferences": "Saving preferences...",
+  "tasksListPreferencesConflict": "Column layout was updated in another session. View refreshed.",
+  "tasksListSaveViewDialogTitle": "New saved view",
+  "tasksListSaveViewDialogHint": "View name...",
+  "tasksListDragToReorderTooltip": "Hold and drag to reorder",
+  "tasksListTaskCopySuffix": "(copy)",
+  "storageMyFiles": "My files",
+  "storageSharedWithMe": "Shared with me",
+  "storageRecent": "Recent",
+  "storageFavorites": "Favorites",
+  "storageTrash": "Trash",
+  "storageNewFolder": "New folder",
+  "storageUploadFiles": "Upload files",
+  "storageSearchHint": "Search files and folders...",
+  "storageAllFiles": "All files",
+  "storageSortNameAsc": "Name (A-Z)",
+  "storageSortNameDesc": "Name (Z-A)",
+  "storageSortDateDesc": "Newest",
+  "storageSortDateAsc": "Oldest",
+  "storageSortSizeDesc": "Largest",
+  "storageSortSizeAsc": "Smallest",
+  "storageSelectedCount": "{count, plural, =1{1 item selected} other{{count} items selected}}",
+  "@storageSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storageDownloadZip": "Download ZIP",
+  "storageDeleteSelected": "Delete selected",
+  "storageRestoreSelected": "Restore",
+  "storageClearSelection": "Clear selection",
+  "storageEmptyTitle": "Directory is empty",
+  "storageEmptySubtitle": "No files or folders in this view.",
+  "storageUploadQueueTitle": "Upload queue",
+  "storageUploadSuccess": "File uploaded successfully",
+  "storageUploadFailed": "Failed to upload file",
+  "storageDetailsTitle": "File details",
+  "storagePreviewTitle": "File preview",
+  "storageFileSize": "Size",
+  "storageFileCreatedAt": "Created",
+  "storageFileUpdatedAt": "Updated",
+  "storageFileVersion": "Version",
+  "storageCreateFolderDialogTitle": "Create new folder",
+  "storageCreateFolderDialogHint": "Folder name...",
+  "storageCreateFolderButton": "Create",
+  "storageRenameFolderDialogTitle": "Rename folder",
+  "storageDeleteConfirmTitle": "Confirm deletion",
+  "storageDeleteConfirmMessage": "Are you sure you want to move selected items to trash?",
+  "storageShareTitle": "Share: {fileName}",
+  "@storageShareTitle": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "storageActiveShares": "Active shares",
+  "storageNoActiveShares": "No active shares besides owner.",
+  "storageShareUserLabel": "User: {identifier}",
+  "@storageShareUserLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "storageShareWorkspaceLabel": "Workspace: {identifier}",
+  "@storageShareWorkspaceLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "storageShareProjectLabel": "Project: {identifier}",
+  "@storageShareProjectLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "storageUserInputHint": "User ID / email",
+  "storageUserSearchWorkspaceRequired": "Ready directory search is available for workspace or project files.",
+  "storageUserSearchNoResults": "No users with an active Core account were found.",
+  "storageAddShareButton": "Add",
+  "storagePublicLinkTitle": "Public link",
+  "storagePublicLinkSubtitle": "Allows access without login with selected permissions",
+  "storagePublicSharePageTitle": "Shared file",
+  "storagePublicSharePageDescription": "Download the file using a secure link. If the owner set a password, enter it below.",
+  "storagePublicSharePassword": "Password",
+  "storagePublicSharePasswordOptional": "Leave empty if the link does not require a password",
+  "storageShowPassword": "Show password",
+  "storageHidePassword": "Hide password",
+  "storagePublicShareDownload": "Download file",
+  "storagePublicShareDownloadStarted": "Download started: {fileName}",
+  "@storagePublicShareDownloadStarted": {"placeholders":{"fileName":{"type":"String"}}},
+  "storagePublicLinkNoExpiry": "No expiration date",
+  "storagePublicLinkExpires": "Expires {date}",
+  "@storagePublicLinkExpires": {"placeholders":{"date":{"type":"String"}}},
+  "storageCopyPublicLink": "Copy public link",
+  "storageGenerateLinkButton": "Generate link",
+  "storageLinkCopied": "Link copied to clipboard",
+  "storageAccessReader": "Viewer",
+  "storageAccessCommenter": "Commenter",
+  "storageAccessEditor": "Editor",
+  "storageAccessOwner": "Owner",
+  "storageShareAction": "Share",
+  "storageAddFavoriteAction": "Add to favorites",
+  "storageRemoveFavoriteAction": "Remove from favorites",
+  "storageDownloadAction": "Download",
+  "storageDeleteAction": "Delete",
+  "storageOpenOfficeAction": "Open document",
+  "storageOfficeEditMode": "Edit mode",
+  "storageOfficeViewMode": "View only",
+  "storageOfficeActive": "OnlyOffice Document Server session active",
+  "storageOfficeHostLoading": "Loading the OnlyOffice editor…",
+  "storageOfficeHostFailure": "The embedded OnlyOffice editor could not be loaded.",
+  "storageOfficeDownloadFailure": "The document download could not be prepared. Check the OnlyOffice connection and try again.",
+  "storageOfficeCloseUnconfirmed": "The editor did not confirm a safe close. Closing anyway may lose unsaved changes. Close the document?",
+  "storageOfficeSessionFailure": "The OnlyOffice editor session could not be started",
+  "storageCloseOffice": "Close document",
+  "storageOfficePrintAction": "Print",
+  "storageOfficePrinting": "Preparing print…",
+  "storageOfficePrintFailure": "Failed to print document.",
+  "storageOfficeDownloadSuccess": "Downloaded file: {fileName} to Downloads",
+  "@storageOfficeDownloadSuccess": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "storageOfficeSaveCopyAction": "Save copy in Storage",
+  "storageOfficeSavingCopy": "Saving copy in Storage…",
+  "storageOfficeSaveCopySuccess": "Saved copy ”{fileName}” in Storage",
+  "@storageOfficeSaveCopySuccess": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "storageOfficeSaveCopyFailure": "Failed to save document copy in Storage.",
+  "storageSortTooltip": "Sort",
+  "storageListViewTooltip": "List view",
+  "storageGridViewTooltip": "Grid view",
+  "storageMoreOptionsTooltip": "More options",
+  "storageClearCompletedTooltip": "Clear completed",
+  "storageCancelUploadTooltip": "Cancel upload",
+  "storageRetryUploadTooltip": "Retry transfer",
+  "storageErrorTitle": "Something went wrong",
+  "storageForbiddenTitle": "Access denied",
+  "storagePreviewError": "Preview error: {message}",
+  "@storagePreviewError": {"placeholders":{"message":{"type":"String"}}},
+  "storageImageLoadError": "The image could not be loaded.",
+  "storageOfficeDescription": "Office document ready to open in OnlyOffice.",
+  "storagePdfDescription": "The PDF can be opened in the secure system preview.",
+  "storageVideoDescription": "The video can be played in the system preview.",
+  "storageAudioDescription": "The recording can be played in the system preview.",
+  "storageTextDescription": "Text file or source code.",
+  "storageUnsupportedDescription": "A direct preview is not available for this format.",
+  "storageOpenPdfPreview": "Open PDF preview",
+  "storagePlayVideo": "Play video",
+  "storagePlayAudio": "Play audio",
+  "storageOpenText": "Open content",
+  "storageRemoveShareTooltip": "Remove permission",
+  "storageShareAccessLabel": "Access: {access}",
+  "@storageShareAccessLabel": {"placeholders":{"access":{"type":"String"}}},
+  "storageFolderTitle": "Folder",
+  "storageWorkspaceFilesTitle": "Workspace files",
+  "storageProjectFilesTitle": "Project files",
+  "storageAttachmentsTitle": "Attachments"
+  ,"storageFilesCount": "{count, plural, =1{1 file} other{{count} files}}",
+  "@storageFilesCount": {"placeholders":{"count":{"type":"int"}}},
+  "storageFoldersTitle": "Folders",
+  "storageItemsCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@storageItemsCount": {"placeholders":{"count":{"type":"int"}}}
+  ,"storageVersionsTitle": "Version history",
+  "storageVersionsEmpty": "No saved file versions.",
+  "storageVersionLabel": "Version {version}",
+  "@storageVersionLabel": {"placeholders":{"version":{"type":"int"}}},
+  "storageUploadFileTooLarge": "The file exceeds the 20 MB size limit.",
+  "storageUploadCancelledByUser": "Cancelled by user.",
+  "storageUploadCancelled": "Upload cancelled.",
+  "storageUploadUnsupportedScope": "Files cannot be uploaded in this view.",
+  "storageUploadTicketReservationFailed": "Could not reserve an upload ticket.",
+  "storageUploadTransferFailed": "Data transfer failed.",
+  "storageUploadCompletionFailed": "Could not complete the file upload.",
+  "storageUploadPlacementFailed": "The file was uploaded but could not be added to the selected folder."
+  ,"storagePartialDeleteFailed": "Some items could not be deleted.",
+  "storageDeleteSelectedFailed": "Could not delete the selected items.",
+  "globalChatEmptyTitle": "No conversations",
+  "globalChatEmptyMessage": "Your active conversations will appear here.",
+  "globalChatLoadFailureTitle": "Could not load conversations",
+  "globalChatConversationFallback": "Conversation {identifier}",
+  "@globalChatConversationFallback": {"placeholders":{"identifier":{"type":"String"}}},
+  "globalChatGroupProject": "Project",
+  "globalChatGroupWorkspace": "Workspace",
+  "globalChatGroupPrivate": "Private",
+  "globalChatBackToConversations": "Back to conversations",
+  "globalChatOpenFullView": "Open full view",
+  "globalChatComposerHint": "Write a message…",
+  "globalChatSendMessage": "Send message",
+  "globalChatDeletedMessage": "Message deleted",
+  "chatComposerPlainMode": "Plain text",
+  "chatComposerRichMode": "Rich text",
+  "chatComposerReplyTo": "Replying to: {message}",
+  "@chatComposerReplyTo": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "chatComposerCancelReply": "Cancel reply",
+  "chatComposerReplyAction": "Reply",
+  "chatThreadTitle": "Thread",
+  "chatThreadClose": "Close thread",
+  "chatThreadOpen": "Open thread",
+  "globalNotificationsTitle": "Notifications",
+  "globalNotificationsEmptyTitle": "No new notifications",
+  "globalNotificationsEmptyMessage": "Information about your work will appear here.",
+  "globalNotificationsSessionRequired": "Your session needs refreshing",
+  "globalNotificationsAccessDenied": "Access denied",
+  "globalNotificationsLoadFailureTitle": "Could not load notifications",
+  "globalNotificationsMarkAllRead": "Mark all as read",
+  "globalNotificationsRefreshFailed": "Could not refresh notifications",
+  "globalNotificationsConnecting": "Connecting to live notifications…",
+  "globalNotificationsReconnecting": "Reconnecting to live notifications…",
+  "globalNotificationsOffline": "Live notifications are offline",
+  "globalChatConnecting": "Connecting to live chat…",
+  "globalChatReconnecting": "Reconnecting to live chat…",
+  "globalChatOffline": "Live chat is offline",
+  "globalNotificationsGroups": "Groups",
+  "globalNotificationsItems": "Items",
+  "globalNotificationsUnreadOnly": "Unread only",
+  "globalNotificationsAllCategories": "All categories",
+  "globalNotificationsLoadMore": "Load more",
+  "globalNotificationsGroupActions": "Group actions",
+  "globalNotificationsMarkGroupRead": "Mark group as read",
+  "globalNotificationsPin": "Pin",
+  "globalNotificationsUnpin": "Unpin",
+  "globalNotificationsArchive": "Archive",
+  "globalNotificationsReply": "Reply",
+  "globalNotificationsReplyTitle": "Reply in Chat",
+  "globalNotificationsReplyHint": "Write a reply…",
+  "globalNotificationsReplyPlainMode": "Text",
+  "globalNotificationsReplyRichMode": "Rich text",
+  "globalNotificationsReplySend": "Send reply",
+  "globalNotificationsReplyAccessRevoked": "Access to this conversation was removed. Your reply draft was cleared.",
+  "globalNotificationsReplyFailed": "Could not send reply",
+  "globalNotificationsUnreadCount": "{count} unread notifications",
+  "@globalNotificationsUnreadCount": {"placeholders":{"count":{"type":"int"}}},
+  "notificationPreferencesOpen": "Notification preferences",
+  "notificationPreferencesTitle": "Notification preferences",
+  "notificationPreferencesDeliveryTitle": "Email delivery",
+  "notificationPreferencesDeliveryDescription": "Choose how each type of notification is delivered to your email.",
+  "notificationPreferencesDeliveryMode": "Delivery mode",
+  "notificationPreferencesCategoryInvitation": "Invitations",
+  "notificationPreferencesCategoryMembership": "Membership",
+  "notificationPreferencesCategoryWorkspace": "Workspaces",
+  "notificationPreferencesCategoryProject": "Projects",
+  "notificationPreferencesCategoryTask": "Tasks",
+  "notificationPreferencesCategoryComment": "Comments",
+  "notificationPreferencesCategoryChat": "Chat",
+  "notificationPreferencesCategoryStorage": "Files",
+  "notificationPreferencesCategorySystem": "System",
+  "notificationPreferencesModeNone": "Do not send",
+  "notificationPreferencesModeImmediate": "Immediately",
+  "notificationPreferencesModeDailyDigest": "Daily digest",
+  "notificationPreferencesModeDigest": "Digest",
+  "notificationPreferencesStorageTitle": "File notifications",
+  "notificationPreferencesStorageDescription": "Choose delivery for events related to files you can access.",
+  "notificationPreferencesStorageMode": "File delivery mode",
+  "notificationPreferencesStorageInherited": "The current setting is inherited from the default policy.",
+  "notificationPreferencesStorageImmediate": "Immediately",
+  "notificationPreferencesStorageDigest": "Digest",
+  "notificationPreferencesStorageMentionsOnly": "Mentions only",
+  "notificationPreferencesStorageDisabled": "Disabled",
+  "notificationPreferencesDigestTitle": "Digest preview",
+  "notificationPreferencesDigestDescription": "A read-only summary of currently visible notification groups.",
+  "notificationPreferencesDigestEmpty": "There are no notifications in the digest.",
+  "notificationPreferencesDigestSummary": "Digest contains {count} notification groups",
+  "@notificationPreferencesDigestSummary": {"placeholders":{"count":{"type":"int"}}},
+  "notificationPreferencesDigestCount": "{count} notifications",
+  "@notificationPreferencesDigestCount": {"placeholders":{"count":{"type":"int"}}},
+  "chatNotificationSettingsGlobalTitle": "Chat notifications",
+  "chatNotificationSettingsGlobalDescription": "Choose the channels used to deliver notifications from global chat.",
+  "chatNotificationSettingsChannelInApp": "In app",
+  "chatNotificationSettingsChannelEmail": "Email",
+  "chatNotificationSettingsChannelPush": "Push",
+  "chatNotificationSettingsChannelDigest": "Digest",
+  "chatConversationNotificationSettingsOpen": "Conversation notification settings",
+  "chatConversationNotificationSettingsTitle": "Conversation notifications",
+  "chatConversationNotificationSettingsDescription": "Set how you receive notifications from this conversation only.",
+  "chatConversationNotificationModeLabel": "Notification mode",
+  "chatConversationNotificationModeAll": "All messages",
+  "chatConversationNotificationModeMentionsOnly": "Mentions only",
+  "chatConversationNotificationModeMuted": "Muted",
+  "chatConversationNotificationModeHighOnly": "High priority only",
+  "resourceChatFileAction": "File chat",
+  "resourceChatFileDescription": "Open the authorized conversation for this shared file.",
+  "resourceChatFileHeader": "File: {fileName} · Owner: {ownerUserId} · Access: {accessLevel}",
+  "@resourceChatFileHeader": {
+    "placeholders": {
+      "fileName": {"type": "String"},
+      "ownerUserId": {"type": "String"},
+      "accessLevel": {"type": "String"}
+    }
+  },
+  "chatDiscussionTitle": "Named discussion",
+  "chatDiscussionNameLabel": "Discussion name",
+  "chatDiscussionOpen": "Open discussion",
+  "chatDiscussionReady": "Discussion ready: {name}",
+  "chatMessageActionsOpen": "Message actions",
+  "chatMessageEdit": "Edit message",
+  "chatMessageDelete": "Delete message",
+  "chatMessageRevisions": "Edit history",
+  "chatMessageEditTitle": "Edit message",
+  "chatMessageEditLabel": "Message text",
+  "chatMessageCancel": "Cancel",
+  "chatMessageSave": "Save changes",
+  "chatMessageClose": "Close",
+  "chatMessageRevisionsTitle": "Edit history",
+  "chatMessageRevisionsEmpty": "This message has no earlier versions.",
+  "chatMessageRevisionVersion": "Version {version} → {newVersion}",
+  "@chatMessageRevisionVersion": {
+    "placeholders": {
+      "version": {"type": "int"},
+      "newVersion": {"type": "int"}
+    }
+  },
+  "chatThreadLoadOlder": "Load older replies",
+  "chatAttachmentsEmpty": "No attachments selected",
+  "chatAttachmentsAdd": "Add files",
+  "chatAttachmentRemove": "Remove attachment",
+  "chatAttachmentStatusProcessing": "Processing",
+  "chatAttachmentStatusScanning": "Scanning",
+  "chatAttachmentStatusClean": "Clean",
+  "chatAttachmentStatusInfected": "Infected",
+  "chatAttachmentStatusFailed": "Failed",
+  "@chatDiscussionReady": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  }
+}

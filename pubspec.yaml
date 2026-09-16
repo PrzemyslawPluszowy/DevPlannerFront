@@ -1,0 +1,133 @@
+name: ready_next
+description: "EXCELLENT - ready-next"
+publish_to: none
+version: 1.7.4+38
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  bloc: ^9.2.0
+  cupertino_icons: ^1.0.9
+  dartz: ^0.10.1
+  desktop_drop: ^0.8.2
+  dio: ^5.9.2
+  envied: ^1.3.4
+  equatable: ^2.0.8
+  file_selector: ^1.1.0
+  fl_chart: ^1.2.0
+  flutter:
+    sdk: flutter
+  flutter_animate: ^4.5.2
+  flutter_bloc: ^9.1.1
+  flutter_localizations:
+    sdk: flutter
+  flutter_markdown: ^0.7.7+1
+  flutter_quill: ^11.5.1
+  flutter_secure_storage: ^10.3.1
+  flutter_web_plugins:
+    sdk: flutter
+  freezed_annotation: ^3.1.0
+  geolocator: ^14.0.2
+  go_router: ^18.0.0
+  google_fonts: ^8.0.2
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
+  intl: ^0.20.2
+  json_annotation: ^4.11.0
+  material_symbols_icons: ^4.2960.0
+  material_table_view:
+    path: packages/material_table_view
+  media_kit: ^1.2.6
+  media_kit_libs_video: ^1.0.7
+  media_kit_video: ^2.0.1
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  pdf: ^3.12.0
+  pdfrx: ^2.6.1
+  printing: ^5.15.0
+  provider: ^6.1.5+1
+  qweather_icons: ^1.8.0
+  retrofit: ^4.9.2
+  rxdart: ^0.28.0
+  sentry_dio: ^8.14.2
+  sentry_flutter: ^8.14.2
+  shared_preferences: ^2.5.3
+  signalr_netcore: ^1.4.4
+  talker: ^5.1.20
+  talker_dio_logger: ^5.1.20
+  talker_flutter: ^5.1.20
+  web: ^1.1.1
+  webview_all: ^1.4.1
+  crypto: ^3.0.7
+
+dev_dependencies:
+  sentry_dart_plugin: ^3.3.0
+  bloc_test: ^10.0.0
+  build_runner: ^2.13.1
+  envied_generator: ^1.3.4
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  freezed: ^3.2.5
+  hive_ce_generator: ^1.11.1
+  icons_launcher: ^3.1.0
+  json_serializable: ^6.13.1
+  mocktail: ^1.0.4
+  retrofit_generator: ^10.2.3
+  very_good_analysis: ^10.2.0
+
+flutter:
+  generate: true
+  config:
+    enable-swift-package-manager: false
+  uses-material-design: true
+  assets:
+    - assets/icons/icon.png
+    - assets/images/
+    - assets/changelog.md
+    - assets/pdf_fonts/Lato-Regular.ttf
+    - assets/pdf_fonts/Lato-Bold.ttf
+    - assets/pdf_fonts/Lato-Italic.ttf
+    - shorebird.yaml
+  shaders:
+    - shaders/app_context_menu_glass.frag
+    - shaders/app_context_menu_reflection.frag
+    - shaders/app_spinner.frag
+    - shaders/login_background.frag
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Light.ttf
+          weight: 300
+
+icons_launcher:
+  image_path: "assets/icons/icon.png"
+  platforms:
+    web:
+      enable: true
+      image_path: "assets/icons/icon.png"
+      maskable_image_path: "assets/icons/icon.png"
+      favicon_path: "assets/icons/icon.png"
+      favicon_output_extension: ".png"
+    windows:
+      enable: true
+      image_path: "assets/icons/icon.png"
+    macos:
+      enable: true
+      image_path: "assets/icons/icon.png"
+    linux:
+      enable: true
+      image_path: "assets/icons/icon.png"
+
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: true
+  project: ready-next-web
+  org: service-excellen

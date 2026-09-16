@@ -1,0 +1,101 @@
+import 'package:equatable/equatable.dart';
+import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
+
+/// Rozpoznany typ podglądu pliku w UI.
+enum StoragePreviewKind {
+  /// Obraz graficzny (PNG, JPEG, WebP, GIF, SVG).
+  image,
+
+  /// Dokument PDF.
+  pdf,
+
+  /// Plik wideo (MP4, WebM).
+  video,
+
+  /// Plik audio (MP3, WAV, OGG).
+  audio,
+
+  /// Plik tekstowy / kod źródłowy / Markdown.
+  text,
+
+  /// Dokument pakietu biurowego (DOCX, XLSX, PPTX) zdatny do sesji OnlyOffice.
+  office,
+
+  /// Nieobsługiwany format do bezpośredniego podglądu w aplikacji.
+  unsupported,
+}
+
+/// Bazowy stan podglądu pliku.
+sealed class StoragePreviewState extends Equatable {
+  /// Tworzy bazowy stan podglądu.
+  const StoragePreviewState();
+
+  @override
+  List<Object?> get props => [];
+}
+
+/// Stan początkowy.
+class StoragePreviewInitial extends StoragePreviewState {
+  /// Tworzy stan początkowy.
+  const StoragePreviewInitial();
+}
+
+/// Stan ładowania biletu podglądu / strumienia.
+class StoragePreviewLoading extends StoragePreviewState {
+  /// Tworzy stan ładowania podglądu.
+  const StoragePreviewLoading({required this.file});
+
+  /// Plik, dla którego przygotowywany jest podgląd.
+  final StorageFileResponse file;
+
+  @override
+  List<Object?> get props => [file];
+}
+
+/// Stan gotowości podglądu ze zweryfikowanym źródłem danych.
+class StoragePreviewReady extends StoragePreviewState {
+  /// Tworzy stan gotowości podglądu.
+  const StoragePreviewReady({
+    required this.file,
+    required this.kind,
+    required this.previewUrl,
+    this.officeSessionUrl,
+    this.previewHeaders = const {},
+  });
+
+  /// Metadane pliku.
+  final StorageFileResponse file;
+
+  /// Typ podglądu.
+  final StoragePreviewKind kind;
+
+  /// Bezpieczny URL pobrania/strumienia z biletu.
+  final String previewUrl;
+
+  /// Opcjonalny URL sesji OnlyOffice dla dokumentów biurowych.
+  final String? officeSessionUrl;
+
+  /// Headers required by an authenticated backend stream (never logged).
+  final Map<String, String> previewHeaders;
+
+  @override
+  List<Object?> get props => [file, kind, previewUrl, officeSessionUrl];
+}
+
+/// Stan błędu przygotowania podglądu.
+class StoragePreviewFailure extends StoragePreviewState {
+  /// Tworzy stan błędu.
+  const StoragePreviewFailure({
+    required this.file,
+    required this.message,
+  });
+
+  /// Plik, dla którego nie udało się przygotować podglądu.
+  final StorageFileResponse file;
+
+  /// Komunikat błędu.
+  final String message;
+
+  @override
+  List<Object?> get props => [file, message];
+}
