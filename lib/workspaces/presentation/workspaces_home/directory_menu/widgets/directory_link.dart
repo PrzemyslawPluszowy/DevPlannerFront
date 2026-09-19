@@ -27,74 +27,81 @@ class DirectoryLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final navigationTheme = context.devPlannerNavigationTheme;
     final currentPath = context.plannerNavigation.currentPath;
     final isSelected = currentPath == path || currentPath.startsWith('$path/');
 
     return Material(
       color: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: const .all(.circular(6)),
-        side: BorderSide(
-          color: isSelected
-              ? colors.primary.withValues(alpha: .22)
-              : Colors.transparent,
-        ),
-      ),
       child: InkWell(
         onTap: () => context.plannerNavigation.go(path),
-        borderRadius: const .all(.circular(6)),
+        borderRadius: BorderRadius.all(
+          Radius.circular(navigationTheme.selectedRadius),
+        ),
         hoverColor: colors.primary.withValues(alpha: .06),
         child: Container(
           decoration: BoxDecoration(
             color: isSelected
                 ? colors.primary.withValues(alpha: .08)
                 : Colors.transparent,
-            borderRadius: const .all(.circular(6)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(navigationTheme.selectedRadius),
+            ),
           ),
-          padding: const .symmetric(
-            horizontal: Sizes.p8,
-            vertical: 5,
-          ),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                size: 16,
-                color: isSelected ? colors.primary : colors.onSurfaceVariant,
+          child: SizedBox(
+            height: navigationTheme.rowHeight,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: navigationTheme.rowHorizontalPadding,
               ),
-              Gaps.w8,
-              Expanded(
-                child: Text(
-                  label,
-                  style: context.text.bodySmall?.copyWith(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? colors.primary : colors.onSurface,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (badge != null)
-                Container(
-                  padding: const .symmetric(horizontal: 5, vertical: 1),
-                  decoration: BoxDecoration(
+              child: Row(
+                children: [
+                  Icon(
+                    icon,
+                    size: navigationTheme.rowIconSize,
                     color: isSelected
-                        ? colors.primary.withValues(alpha: .14)
-                        : colors.surfaceContainerHigh,
-                    borderRadius: const .all(.circular(8)),
+                        ? colors.primary
+                        : colors.onSurfaceVariant,
                   ),
-                  child: Text(
-                    badge!,
-                    style: context.text.labelSmall?.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? colors.primary
-                          : colors.onSurfaceVariant,
+                  SizedBox(width: navigationTheme.rowHorizontalPadding),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: context.text.bodySmall?.copyWith(
+                        fontSize: navigationTheme.rowFontSize,
+                        height: 20 / 12,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: isSelected ? colors.primary : colors.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-            ],
+                  if (badge != null)
+                    Container(
+                      padding: const .symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? colors.primary.withValues(alpha: .14)
+                            : colors.surfaceContainerHigh,
+                        borderRadius: const .all(.circular(8)),
+                      ),
+                      child: Text(
+                        badge!,
+                        style: context.text.labelSmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? colors.primary
+                              : colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

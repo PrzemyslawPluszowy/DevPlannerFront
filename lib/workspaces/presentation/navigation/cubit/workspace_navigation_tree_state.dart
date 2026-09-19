@@ -17,9 +17,22 @@ final class WorkspaceNavigationTreeLoading
 }
 
 final class WorkspaceNavigationTreeReady extends WorkspaceNavigationTreeState {
-  const WorkspaceNavigationTreeReady(this.tree);
+  const WorkspaceNavigationTreeReady(
+    this.tree, {
+    this.loadingProjectWorkspaceIds = const <String>{},
+    this.projectFailuresByWorkspace =
+        const <String, ProjectsGatewayException>{},
+  });
 
   final WorkspaceNavigationTree tree;
+  final Set<String> loadingProjectWorkspaceIds;
+  final Map<String, ProjectsGatewayException> projectFailuresByWorkspace;
+
+  bool isLoadingProjects(String workspaceId) =>
+      loadingProjectWorkspaceIds.contains(workspaceId);
+
+  ProjectsGatewayException? projectFailureFor(String workspaceId) =>
+      projectFailuresByWorkspace[workspaceId];
 }
 
 enum WorkspaceNavigationTreeFailureSource { workspaces, projects, composition }

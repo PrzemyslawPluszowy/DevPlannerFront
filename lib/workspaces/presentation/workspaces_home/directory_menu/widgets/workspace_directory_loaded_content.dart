@@ -116,59 +116,51 @@ class _PrivateWorkspaceSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHigh.withValues(alpha: .35),
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        border: Border.all(color: colors.outlineVariant.withValues(alpha: .3)),
-      ),
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DirectorySectionHeader(
-            label: context.l10n.workspacesMyPrivateSectionLabel,
-            icon: Symbols.person_outline_rounded,
-            onAdd: onCreate,
-          ),
-          Gaps.h4,
-          DirectoryLink(
-            label: context.l10n.workspacesMyTasksLabel,
-            icon: Symbols.task_alt_rounded,
-            path: DevPlannerRouteCatalog.myTasks,
-          ),
-          Gaps.h2,
-          DirectoryLink(
-            label: context.l10n.workspacesMyFilesLabel,
-            icon: Symbols.folder_shared_rounded,
-            path: DevPlannerRouteCatalog.myFiles,
-          ),
-          if (personalWorkspaces.isNotEmpty) ...[
-            Gaps.h8,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                context.l10n.workspacesMyWorkspacesSection.toUpperCase(),
-                style: context.text.labelSmall?.copyWith(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: colors.onSurfaceVariant.withValues(alpha: .6),
-                  letterSpacing: .3,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DirectorySectionHeader(
+          label: context.l10n.workspacesMyPrivateSectionLabel,
+          icon: Symbols.person_outline_rounded,
+          onAdd: onCreate,
+        ),
+        Gaps.h4,
+        DirectoryLink(
+          label: context.l10n.workspacesMyTasksLabel,
+          icon: Symbols.task_alt_rounded,
+          path: DevPlannerRouteCatalog.myTasks,
+        ),
+        Gaps.h2,
+        DirectoryLink(
+          label: context.l10n.workspacesMyFilesLabel,
+          icon: Symbols.folder_shared_rounded,
+          path: DevPlannerRouteCatalog.myFiles,
+        ),
+        if (personalWorkspaces.isNotEmpty) ...[
+          Gaps.h8,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              context.l10n.workspacesMyWorkspacesSection.toUpperCase(),
+              style: context.text.labelSmall?.copyWith(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w700,
+                color: colors.onSurfaceVariant.withValues(alpha: .6),
+                letterSpacing: .3,
               ),
             ),
-            Gaps.h4,
-            WorkspaceDirectoryReorderableList(
-              allItems: allItems,
-              visibleItems: personalWorkspaces,
-              searchQuery: searchQuery,
-            ),
-          ] else ...[
-            Gaps.h8,
-            _CreatePrivateWorkspaceAction(onCreate: onCreate),
-          ],
+          ),
+          Gaps.h4,
+          WorkspaceDirectoryReorderableList(
+            allItems: allItems,
+            visibleItems: personalWorkspaces,
+            searchQuery: searchQuery,
+          ),
+        ] else ...[
+          Gaps.h8,
+          _CreatePrivateWorkspaceAction(onCreate: onCreate),
         ],
-      ),
+      ],
     );
   }
 }

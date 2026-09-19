@@ -23,55 +23,56 @@ class DirectorySectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final navigationTheme = context.devPlannerNavigationTheme;
 
-    return Padding(
-      padding: const .only(
-        left: Sizes.p4,
-        right: Sizes.p4,
-        top: Sizes.p8,
-        bottom: 2,
-      ),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Icon(
-              icon,
-              size: 13,
-              color: colors.onSurfaceVariant.withValues(alpha: .7),
+    return SizedBox(
+      height: 32,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: navigationTheme.rowHorizontalPadding,
+        ),
+        child: Row(
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: navigationTheme.rowIconSize,
+                color: colors.onSurfaceVariant.withValues(alpha: .7),
+              ),
+              Gaps.w6,
+            ],
+            Expanded(
+              child: Text(
+                label.toUpperCase(),
+                style: context.text.labelSmall?.copyWith(
+                  fontSize: navigationTheme.sectionFontSize,
+                  fontWeight: FontWeight.w500,
+                  color: colors.onSurfaceVariant.withValues(alpha: .75),
+                  letterSpacing: .4,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            Gaps.w6,
+            if (onAdd != null)
+              IconButton(
+                onPressed: onAdd,
+                icon: const Icon(Symbols.add_rounded),
+                iconSize: 15,
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: 28,
+                  minHeight: 28,
+                ),
+                tooltip: label,
+                style: IconButton.styleFrom(
+                  foregroundColor: colors.onSurfaceVariant,
+                  hoverColor: colors.primary.withValues(alpha: .08),
+                ),
+              ),
           ],
-          Expanded(
-            child: Text(
-              label.toUpperCase(),
-              style: context.text.labelSmall?.copyWith(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w700,
-                color: colors.onSurfaceVariant.withValues(alpha: .75),
-                letterSpacing: .4,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (onAdd != null)
-            IconButton(
-              onPressed: onAdd,
-              icon: const Icon(Symbols.add_rounded),
-              iconSize: 15,
-              visualDensity: VisualDensity.compact,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(
-                minWidth: 22,
-                minHeight: 22,
-              ),
-              tooltip: label,
-              style: IconButton.styleFrom(
-                foregroundColor: colors.onSurfaceVariant,
-                hoverColor: colors.primary.withValues(alpha: .08),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

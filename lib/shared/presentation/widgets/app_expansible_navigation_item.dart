@@ -208,6 +208,7 @@ class _AppExpansibleNavigationItemState
 
   Widget _buildHeader(BuildContext context, Animation<double>? animation) {
     final colors = context.colors;
+    final navigationTheme = context.devPlannerNavigationTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final background = widget.selected
         ? (isDark
@@ -222,22 +223,17 @@ class _AppExpansibleNavigationItemState
     if (widget.customLeading != null) {
       leadingWidget = widget.customLeading!;
     } else if (widget.iconColor != null) {
-      leadingWidget = Container(
-        width: 22,
-        height: 22,
-        decoration: BoxDecoration(
-          color: widget.iconColor!.withValues(alpha: isDark ? .22 : .12),
-          borderRadius: const BorderRadius.all(Radius.circular(6)),
-          border: Border.all(
-            color: widget.iconColor!.withValues(alpha: isDark ? .38 : .24),
-          ),
-        ),
-        child: Center(
-          child: Icon(widget.icon, size: 13, color: widget.iconColor),
-        ),
+      leadingWidget = Icon(
+        widget.icon,
+        size: navigationTheme.rowIconSize,
+        color: widget.iconColor,
       );
     } else {
-      leadingWidget = Icon(widget.icon, size: 18, color: foreground);
+      leadingWidget = Icon(
+        widget.icon,
+        size: navigationTheme.rowIconSize,
+        color: foreground,
+      );
     }
 
     final hasBadge =
@@ -252,10 +248,10 @@ class _AppExpansibleNavigationItemState
         color: Colors.transparent,
         child: Padding(
           padding: EdgeInsetsDirectional.only(
-            start: Sizes.p4 + (widget.depth * Sizes.p12),
-            end: Sizes.p4,
-            top: 1.5,
-            bottom: 1.5,
+            start:
+                navigationTheme.sidebarHorizontalPadding +
+                (widget.depth * navigationTheme.depthIndent),
+            end: navigationTheme.sidebarHorizontalPadding,
           ),
           child: InkWell(
             onTap: widget.enabled ? widget.onTap : null,
@@ -263,42 +259,43 @@ class _AppExpansibleNavigationItemState
                 ? colors.onSurface.withValues(alpha: .06)
                 : colors.primary.withValues(alpha: .05),
             focusColor: colors.primary.withValues(alpha: .12),
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(navigationTheme.selectedRadius),
+            ),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               curve: Curves.easeOut,
               decoration: BoxDecoration(
                 color: background,
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                border: widget.selected
-                    ? Border.all(
-                        color: colors.primary.withValues(
-                          alpha: isDark ? .35 : .22,
-                        ),
-                      )
-                    : (_hasFocus ? Border.all(color: colors.secondary) : null),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(navigationTheme.selectedRadius),
+                ),
+                border: _hasFocus ? Border.all(color: colors.secondary) : null,
               ),
               child: SizedBox(
-                height: 34,
+                height: navigationTheme.rowHeight,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: navigationTheme.rowHorizontalPadding,
+                  ),
                   child: Row(
                     children: [
                       leadingWidget,
-                      Gaps.w8,
+                      SizedBox(width: navigationTheme.rowHorizontalPadding),
                       Expanded(
                         child: Text(
                           widget.label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: context.text.labelMedium?.copyWith(
+                            fontSize: navigationTheme.rowFontSize,
+                            height: 20 / 12,
                             color: widget.selected
                                 ? (isDark ? colors.onSurface : colors.primary)
                                 : colors.onSurface,
                             fontWeight: widget.selected
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            letterSpacing: .1,
+                                ? FontWeight.w600
+                                : FontWeight.w400,
                           ),
                         ),
                       ),
@@ -344,6 +341,11 @@ class _AppExpansibleNavigationItemState
                             ),
                             child: const Icon(AppIcons.chevronRight, size: 16),
                           ),
+                          constraints: BoxConstraints.tightFor(
+                            width: navigationTheme.rowHeight,
+                            height: navigationTheme.rowHeight,
+                          ),
+                          padding: EdgeInsets.zero,
                           visualDensity: VisualDensity.compact,
                         ),
                     ],

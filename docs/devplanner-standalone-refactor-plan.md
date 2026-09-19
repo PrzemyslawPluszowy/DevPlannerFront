@@ -1598,3 +1598,47 @@ Odbiór konfiguracji: `https://devnote.flutter-dev.pl/health/ready` zwraca
 `Healthy`; `jq empty .vscode/launch.json`, synchronizacja dokumentów
 Front/Backend oraz `git diff --check` w obu repozytoriach są PASS. Nie
 uruchomiono GUI ani nie wykonano loginu — to nie jest dowód desktopowego E2E.
+
+### 2026-09-19 — R3s: ciągła rama Gmail-inspired shella
+
+Desktopowy shell renderuje nagłówek marki jako górną część lewej kolumny,
+zamiast jako fragment pełnej belki nad sidebarem. Sidebar i jego nagłówek mają
+więc wspólne, ciągłe tło gradientowe; prawa belka ma kompaktowe 40 px i zawiera
+tylko kontekst modułu oraz akcje globalne. Nie zmieniono tras, composition,
+portów, danych ani kontraktu Chat/Notifications. Typografia menu i kontekstu
+belki używa lokalnego Intera 11 px, a marka 12 px. Globalny `ThemeData`
+ustala spójne, mniejsze role tekstu i ikonę domyślną 18 px; nie dodano
+skalowania tekstu, które omijałoby ustawienia dostępności systemu.
+
+Odbiór: scoped analyzer PASS; shell oraz testy theme/typography **7/7 PASS**;
+`flutter build macos --debug` PASS z istniejącym nieblokującym ostrzeżeniem
+Swift Package Manager dla `media_kit_*`; `git diff --check` PASS. Manualny
+odbiór z relaunchu desktopowego pozostaje następnym krokiem.
+
+### 2026-09-19 — R3t: nowe drzewo lewego menu Workspace
+
+Zatwierdzono nową implementację menu bez przywracania legacy UI: katalog
+workspace'ów jest odczytywany przy starcie, a projekty są pobierane dopiero po
+rozwinięciu konkretnej gałęzi. Błąd projektu pozostaje lokalny i nie usuwa
+innych workspace'ów. Shell otrzymał wąski kontrakt tworzenia workspace'u,
+odświeżenie katalogu i przejście na nową przestrzeń po sukcesie.
+
+Kanoniczne trasy Lista/Kanban/Files, polityki Backend oraz globalne overlaye
+Chat/Powiadomienia nie zmieniły się. Pionów Whiteboard/Wiki/Corkboard/
+Automations nie dodano jako klikalnych placeholderów.
+
+### 2026-09-19 — R3u: globalna gęstość i typografia nawigacji
+
+Po ręcznym porównaniu z referencją Gmail-inspired ustalono jeden kontrakt
+geometrii dla nawigacji: rozwinięty sidebar ma 224 px, zwinięty 56 px,
+nagłówek 56 px, a wiersz menu 28 px. `DevPlannerNavigationTheme` jest
+rozszerzeniem globalnego `ThemeData` i publikuje także rozmiar ikon 18 px,
+tekst wiersza Inter 12 px, etykietę sekcji 11 px, wcięcie drzewa 16 px oraz
+promień zaznaczenia 14 px.
+
+Shell, katalog workspace'ów, ulubione workspace'y, drzewa rozwijane i gałęzie
+zasobów korzystają z tych samych tokenów. Aktywny element zachowuje tylko
+delikatne tło — usunięto dodatkowe obramowania i dekoracyjne kafelki ikon z
+nawigacji. Prywatna sekcja katalogu nie otrzymuje już osobnej ramki, dzięki
+czemu hierarchię tworzą wcięcia i nagłówki, a nie zagnieżdżone kapsuły. Nie
+zmieniono tras, danych, portów ani kontraktów API.

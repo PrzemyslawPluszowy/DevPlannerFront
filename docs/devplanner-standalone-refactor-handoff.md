@@ -1465,3 +1465,54 @@ Odbiór konfiguracji: `https://devnote.flutter-dev.pl/health/ready` zwraca
 `Healthy`; `jq empty .vscode/launch.json`, synchronizacja dokumentów
 Front/Backend oraz `git diff --check` w obu repozytoriach są PASS. Nie
 uruchomiono GUI ani nie wykonano loginu — to nie jest dowód desktopowego E2E.
+
+### 2026-09-19 — R3s: ciągła rama Gmail-inspired shella
+
+Zmieniono layout `lib/app/shell/devplanner_shell_layout.dart`, tokeny globalne
+`lib/foundation/theme/theme.dart` oraz testy geometrii/typografii. Lewa
+kolumna obejmuje teraz nagłówek marki i menu, a oddzielna prawa belka ma 40 px
+i zachowuje sekcję bieżącego modułu oraz akcje globalne. Zwijany sidebar ma
+52 px; menu ma wiersze 32 px, Inter 11 px i ikony 18 px. Globalny ThemeData
+ustala mniejsze role tekstu i spójne ikony 18 px. Nie zmieniono routingu,
+Chat, Notifications, API ani kontraktów danych.
+
+Wykonane komendy: `dart format`, scoped `flutter analyze`, `flutter test`
+shell/theme/typography (**7/7 PASS**), `flutter build macos --debug` (PASS)
+i `git diff --check` (PASS). Następny krok: zamknąć i ponownie uruchomić
+desktopową aplikację, a następnie wykonać manualne porównanie z referencją w
+trybie jasnym i ciemnym przy 100%, 125% i 150% skalowania tekstu.
+
+### 2026-09-19 — R3t: nowe drzewo lewego menu Workspace
+
+Menu Workspace nie pobiera już projektów dla wszystkich workspace'ów przy
+starcie. WorkspaceNavigationTreeCubit pobiera katalog, a projekty ładuje
+leniwie dopiero po rozwinięciu gałęzi Projekty; równoległe kliknięcia dzielą
+jedno żądanie, a błąd projektu pozostaje lokalny dla workspace'u. Nie zmieniono
+kanonicznych tras Lista/Kanban/Files ani nie dodano tras dla nieukończonych
+pionów.
+
+Shell otrzymał wąski WorkspaceManagementGateway i przycisk tworzenia
+workspace'u. Produkcyjny adapter używa istniejącego POST /api/v1/workspaces/;
+po sukcesie katalog odświeża się, nowy workspace jest rozwijany, a aplikacja
+przechodzi na jego kanoniczny URL. Chat i Powiadomienia nadal są overlayami,
+nie elementami drzewa.
+
+Odbiór: scoped flutter analyze PASS; testy lazy loadingu drzewa oraz shell i
+router 23/23 PASS; git diff --check PASS. Nie uruchamiano GUI, Backend,
+stagingu ani pełnego buildu platformowego. Następny krok: ręczny odbiór
+desktopu z rzeczywistą sesją, w tym utworzenie workspace'u oraz dark/light i
+125/150% tekstu.
+
+### 2026-09-19 — R3u: globalne tokeny nawigacji
+
+Dodano `lib/foundation/theme/navigation_theme.dart` i zarejestrowano go w
+globalnym `ThemeData`. Shell oraz wszystkie aktywne warianty menu Workspace
+używają wspólnych wymiarów: sidebar 224/56 px, nagłówek 56 px, wiersz 28 px,
+ikona 18 px, tekst 12 px, etykieta sekcji 11 px, wcięcie 16 px i promień 14 px.
+Zmieniono również test geometrii shella oraz test tokenów motywu.
+
+Wykonane komendy: `dart format`, scoped `flutter analyze` (PASS) i targeted
+`flutter test` dla motywu, shella oraz menu Workspace (**10/10 PASS**).
+Następny krok: ręczne porównanie uruchomionej aplikacji desktopowej z
+referencją przy 100%, 125% i 150% skalowania tekstu; należy zweryfikować
+widok jasny i ciemny, długie nazwy oraz stan rozwiniętego projektu.

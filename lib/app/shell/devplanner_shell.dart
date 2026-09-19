@@ -7,8 +7,11 @@ import 'package:devplanner/foundation/presentation/devplanner_panels.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/domain/navigation/workspace_navigation_node.dart';
+import 'package:devplanner/workspaces/domain/ports/project_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/domain/ports/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.dart';
+import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_cubit.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_state.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +30,8 @@ class DevPlannerShellRoute extends StatefulWidget {
   const DevPlannerShellRoute({
     required this.child,
     this.workspaceNavigationGateway,
+    this.workspaceManagementGateway,
+    this.projectManagementGateway,
     this.projectsGateway,
     this.tasksBoardAvailable = false,
     super.key,
@@ -34,6 +39,8 @@ class DevPlannerShellRoute extends StatefulWidget {
 
   final Widget child;
   final WorkspaceNavigationGateway? workspaceNavigationGateway;
+  final WorkspaceManagementGateway? workspaceManagementGateway;
+  final ProjectManagementGateway? projectManagementGateway;
   final ProjectsGateway? projectsGateway;
   final bool tasksBoardAvailable;
 
@@ -70,10 +77,54 @@ class _DevPlannerShellRouteState extends State<DevPlannerShellRoute> {
     super.dispose();
   }
 
-  void _toggleNavigationNode(String nodeId) {
+  void _toggleNavigationNode(WorkspaceNavigationNode node) {
+    final nodeId = node.id;
     final next = Set<String>.of(_expandedNavigationNodeIds.value);
     if (!next.add(nodeId)) next.remove(nodeId);
     _expandedNavigationNodeIds.value = Set<String>.unmodifiable(next);
+    if (node.kind == WorkspaceNavigationNodeKind.projects &&
+        node.workspaceId != null &&
+        next.contains(nodeId)) {
+      unawaited(
+        _navigationCubit?.loadProjects(node.workspaceId!) ??
+            Future<void>.value(),
+      );
+    }
+  }
+
+  Future<void> _createWorkspace(BuildContext context) async {
+    final gateway = widget.workspaceManagementGateway;
+    final cubit = _navigationCubit;
+    if (gateway == null || cubit == null) return;
+    await _CreateWorkspaceFromSidebarDialog.show(
+      context,
+      gateway: gateway,
+      onCreated: (workspaceId) async {
+        await cubit.load();
+        if (!mounted || !context.mounted) return;
+        _expandedNavigationNodeIds.value = Set<String>.unmodifiable({
+          ..._expandedNavigationNodeIds.value,
+          'workspace:$workspaceId',
+        });
+        context.go(DevPlannerRouteCatalog.workspace(workspaceId));
+      },
+    );
+  }
+
+  Future<void> _createProject(BuildContext context, String workspaceId) async {
+    final gateway = widget.projectManagementGateway;
+    final cubit = _navigationCubit;
+    if (gateway == null || cubit == null) return;
+    await _CreateProjectFromSidebarDialog.show(
+      context,
+      gateway: gateway,
+      workspaceId: workspaceId,
+      onCreated: (projectId) async {
+        await cubit.loadProjects(workspaceId, refresh: true);
+        if (!mounted || !context.mounted) return;
+        context.go(DevPlannerRouteCatalog.projectTasks(workspaceId, projectId));
+      },
+    );
   }
 
   @override
@@ -95,6 +146,12 @@ class _DevPlannerShellRouteState extends State<DevPlannerShellRoute> {
                 isSidebarCollapsed: isSidebarCollapsed,
                 expandedNavigationNodeIds: expandedNavigationNodeIds,
                 onToggleNavigationNode: _toggleNavigationNode,
+                onCreateWorkspace: widget.workspaceManagementGateway == null
+                    ? null
+                    : _createWorkspace,
+                onCreateProject: widget.projectManagementGateway == null
+                    ? null
+                    : _createProject,
                 onToggleSidebar: () {
                   _sidebarCollapsed.value = !isSidebarCollapsed;
                 },

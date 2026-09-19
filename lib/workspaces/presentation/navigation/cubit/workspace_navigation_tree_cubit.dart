@@ -21,44 +21,21 @@ final class WorkspaceNavigationTreeCubit
 
   final WorkspaceNavigationGateway workspaceGateway;
   final ProjectsGateway projectsGateway;
+  List<WorkspaceSummary> _workspaces = const <WorkspaceSummary>[];
+  final Map<String, List<ProjectListItem>> _projectsByWorkspace = {};
+  final Map<String, Future<void>> _pendingProjectLoads = {};
+  final Map<String, ProjectsGatewayException> _projectFailures = {};
 
   Future<void> load() async {
     if (isClosed) return;
     emit(const WorkspaceNavigationTreeLoading());
-    String? activeWorkspaceId;
-
     try {
       final workspaces = await workspaceGateway.listWorkspaces();
       if (isClosed) return;
-
-      final projectsByWorkspace = <String, List<ProjectListItem>>{};
-      for (final workspace in workspaces) {
-        activeWorkspaceId = workspace.id;
-        final projects = await projectsGateway.listProjects(workspace.id);
-        if (isClosed) return;
-        if (_violatesWorkspaceScope(workspace, projects)) {
-          emit(
-            WorkspaceNavigationTreeFailure(
-              source: WorkspaceNavigationTreeFailureSource.composition,
-              workspaceId: activeWorkspaceId,
-              projectsReason: ProjectsFailureReason.invalidResponse,
-            ),
-          );
-          return;
-        }
-        projectsByWorkspace[workspace.id] = List<ProjectListItem>.unmodifiable(
-          projects,
-        );
-      }
-
-      emit(
-        WorkspaceNavigationTreeReady(
-          WorkspaceNavigationTree.fromWorkspacesWithProjects(
-            workspaces: workspaces,
-            projectsByWorkspace: projectsByWorkspace,
-          ),
-        ),
-      );
+      _workspaces = List<WorkspaceSummary>.unmodifiable(workspaces);
+      _projectsByWorkspace.clear();
+      _projectFailures.clear();
+      _emitReady();
     } on WorkspacesGatewayException catch (error) {
       if (isClosed) return;
       emit(
@@ -69,19 +46,6 @@ final class WorkspaceNavigationTreeCubit
           backendCode: error.backendCode,
         ),
       );
-    } on ProjectsGatewayException catch (error) {
-      if (isClosed) return;
-      emit(
-        WorkspaceNavigationTreeFailure(
-          source: WorkspaceNavigationTreeFailureSource.projects,
-          workspaceId: activeWorkspaceId,
-          projectsReason: error.reason,
-          statusCode: error.statusCode,
-          backendCode: error.backendCode,
-          message: error.message,
-          traceId: error.traceId,
-        ),
-      );
     } on Exception catch (_) {
       if (isClosed) return;
       emit(
@@ -90,6 +54,72 @@ final class WorkspaceNavigationTreeCubit
         ),
       );
     }
+  }
+
+  /// Ładuje projekty tylko dla rozwiniętego workspace'u. Równoległe kliknięcia
+  /// współdzielą jedno żądanie, a błąd pozostaje lokalny dla tej gałęzi.
+  Future<void> loadProjects(String workspaceId, {bool refresh = false}) {
+    if (isClosed || !_workspaces.any((item) => item.id == workspaceId)) {
+      return Future<void>.value();
+    }
+    if (!refresh && _projectsByWorkspace.containsKey(workspaceId)) {
+      return Future<void>.value();
+    }
+    final pending = _pendingProjectLoads[workspaceId];
+    if (pending != null) return pending;
+
+    final task = _loadProjects(workspaceId);
+    _pendingProjectLoads[workspaceId] = task;
+    return task.whenComplete(() => _pendingProjectLoads.remove(workspaceId));
+  }
+
+  Future<void> _loadProjects(String workspaceId) async {
+    _projectFailures.remove(workspaceId);
+    _emitReady(loadingWorkspaceIds: {workspaceId});
+    try {
+      final projects = await projectsGateway.listProjects(workspaceId);
+      if (isClosed) return;
+      final workspace = _workspaces.firstWhere(
+        (item) => item.id == workspaceId,
+      );
+      if (_violatesWorkspaceScope(workspace, projects)) {
+        _projectFailures[workspaceId] = const ProjectsGatewayException(
+          reason: ProjectsFailureReason.invalidResponse,
+        );
+      } else {
+        _projectsByWorkspace[workspaceId] = List<ProjectListItem>.unmodifiable(
+          projects,
+        );
+      }
+    } on ProjectsGatewayException catch (error) {
+      if (isClosed) return;
+      _projectFailures[workspaceId] = error;
+    } on Exception catch (_) {
+      if (isClosed) return;
+      _projectFailures[workspaceId] = const ProjectsGatewayException(
+        reason: ProjectsFailureReason.requestFailed,
+      );
+    }
+    if (!isClosed) _emitReady();
+  }
+
+  void _emitReady({Set<String> loadingWorkspaceIds = const <String>{}}) {
+    if (isClosed) return;
+    emit(
+      WorkspaceNavigationTreeReady(
+        WorkspaceNavigationTree.fromWorkspacesWithProjects(
+          workspaces: _workspaces,
+          projectsByWorkspace: _projectsByWorkspace,
+        ),
+        loadingProjectWorkspaceIds: Set<String>.unmodifiable(
+          loadingWorkspaceIds,
+        ),
+        projectFailuresByWorkspace:
+            Map<String, ProjectsGatewayException>.unmodifiable(
+              _projectFailures,
+            ),
+      ),
+    );
   }
 
   bool _violatesWorkspaceScope(

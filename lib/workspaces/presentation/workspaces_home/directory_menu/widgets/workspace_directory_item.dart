@@ -138,6 +138,7 @@ class _WorkspaceDirectoryItemState extends State<WorkspaceDirectoryItem> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final navigationTheme = context.devPlannerNavigationTheme;
     final currentPath = context.plannerNavigation.currentPath;
     final workspacePath = '/workspaces/${widget.item.id}';
     final isSelected =
@@ -166,134 +167,142 @@ class _WorkspaceDirectoryItemState extends State<WorkspaceDirectoryItem> {
                 child: Material(
                   color: Colors.transparent,
                   shape: RoundedRectangleBorder(
-                    borderRadius: const .all(.circular(6)),
-                    side: BorderSide(
-                      color: isSelected
-                          ? colors.primary.withValues(alpha: .24)
-                          : Colors.transparent,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(navigationTheme.selectedRadius),
                     ),
                   ),
                   child: InkWell(
                     onTap: () => _openWorkspace(context),
-                    borderRadius: const .all(.circular(6)),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(navigationTheme.selectedRadius),
+                    ),
                     hoverColor: colors.primary.withValues(alpha: .06),
                     child: Container(
                       decoration: BoxDecoration(
                         color: isSelected
                             ? colors.primary.withValues(alpha: .09)
                             : Colors.transparent,
-                        borderRadius: const .all(.circular(6)),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(navigationTheme.selectedRadius),
+                        ),
                       ),
-                      padding: const .symmetric(
-                        horizontal: 4,
-                        vertical: 4,
-                      ),
-                      child: Row(
-                        children: [
-                          // Uchwyt przeciągania
-                          ReorderableDragStartListener(
-                            index: widget.index,
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.grab,
-                              child: Padding(
-                                padding: const .symmetric(horizontal: 2),
-                                child: Icon(
-                                  Symbols.drag_indicator_rounded,
-                                  size: 14,
-                                  color: uiState.isHovered
-                                      ? colors.onSurfaceVariant.withValues(
-                                          alpha: .6,
-                                        )
-                                      : Colors.transparent,
+                      child: SizedBox(
+                        height: navigationTheme.rowHeight,
+                        child: Row(
+                          children: [
+                            // Uchwyt przeciągania
+                            ReorderableDragStartListener(
+                              index: widget.index,
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.grab,
+                                child: Padding(
+                                  padding: const .symmetric(horizontal: 2),
+                                  child: Icon(
+                                    Symbols.drag_indicator_rounded,
+                                    size: navigationTheme.rowIconSize - 4,
+                                    color: uiState.isHovered
+                                        ? colors.onSurfaceVariant.withValues(
+                                            alpha: .6,
+                                          )
+                                        : Colors.transparent,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
 
-                          // Przycisk rozwijania drzewa projektów
-                          InkWell(
-                            onTap: () => _uiState.value = uiState.copyWith(
-                              isExpanded: !uiState.isExpanded,
-                            ),
-                            borderRadius: const .all(.circular(4)),
-                            child: Padding(
-                              padding: const .all(2),
-                              child: AnimatedRotation(
-                                turns: uiState.isExpanded ? .25 : 0,
-                                duration: const Duration(milliseconds: 150),
-                                child: Icon(
-                                  Symbols.chevron_right_rounded,
-                                  size: 15,
-                                  color: colors.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Gaps.w4,
-
-                          // Ikona przestrzeni z kolorem akcentu
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: accentColor.withValues(alpha: .18),
-                              borderRadius: const .all(.circular(5)),
-                            ),
-                            alignment: .center,
-                            child: Icon(
-                              WorkspaceIconHelper.getIcon(widget.item.iconKey),
-                              size: 12,
-                              color: accentColor,
-                            ),
-                          ),
-                          Gaps.w6,
-
-                          // Nazwa przestrzeni
-                          Expanded(
-                            child: Text(
-                              widget.item.name,
-                              style: context.text.bodySmall?.copyWith(
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? colors.primary
-                                    : colors.onSurface,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-
-                          // Gwiazdka ulubionych
-                          if (widget.item.isPinned)
-                            Padding(
-                              padding: const .only(right: 2),
-                              child: Icon(
-                                Symbols.star_rounded,
-                                size: 13,
-                                color: colors.primary,
-                              ),
-                            ),
-
-                          // Przycisk menu akcji
-                          if (uiState.isHovered || isSelected)
+                            // Przycisk rozwijania drzewa projektów
                             InkWell(
-                              onTapDown: (details) => _showContextMenu(
-                                context,
-                                details.globalPosition,
+                              onTap: () => _uiState.value = uiState.copyWith(
+                                isExpanded: !uiState.isExpanded,
                               ),
                               borderRadius: const .all(.circular(4)),
-                              child: Padding(
-                                padding: const .all(2),
-                                child: Icon(
-                                  Symbols.more_horiz_rounded,
-                                  size: 15,
-                                  color: colors.onSurfaceVariant,
+                              child: SizedBox.square(
+                                dimension: navigationTheme.rowHeight,
+                                child: AnimatedRotation(
+                                  turns: uiState.isExpanded ? .25 : 0,
+                                  duration: const Duration(milliseconds: 150),
+                                  child: Icon(
+                                    Symbols.chevron_right_rounded,
+                                    size: navigationTheme.rowIconSize - 2,
+                                    color: colors.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
                             ),
-                        ],
+                            SizedBox(
+                              width: navigationTheme.rowHorizontalPadding,
+                            ),
+
+                            // Ikona przestrzeni z kolorem akcentu
+                            Container(
+                              width: navigationTheme.rowIconSize,
+                              height: navigationTheme.rowIconSize,
+                              decoration: BoxDecoration(
+                                color: accentColor.withValues(alpha: .18),
+                                borderRadius: const .all(.circular(5)),
+                              ),
+                              alignment: .center,
+                              child: Icon(
+                                WorkspaceIconHelper.getIcon(
+                                  widget.item.iconKey,
+                                ),
+                                size: navigationTheme.rowIconSize - 6,
+                                color: accentColor,
+                              ),
+                            ),
+                            SizedBox(
+                              width: navigationTheme.rowHorizontalPadding,
+                            ),
+
+                            // Nazwa przestrzeni
+                            Expanded(
+                              child: Text(
+                                widget.item.name,
+                                style: context.text.bodySmall?.copyWith(
+                                  fontSize: navigationTheme.rowFontSize,
+                                  height: 20 / 12,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: isSelected
+                                      ? colors.primary
+                                      : colors.onSurface,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+
+                            // Gwiazdka ulubionych
+                            if (widget.item.isPinned)
+                              Padding(
+                                padding: const .only(right: 2),
+                                child: Icon(
+                                  Symbols.star_rounded,
+                                  size: navigationTheme.rowIconSize - 4,
+                                  color: colors.primary,
+                                ),
+                              ),
+
+                            // Przycisk menu akcji
+                            if (uiState.isHovered || isSelected)
+                              InkWell(
+                                onTapDown: (details) => _showContextMenu(
+                                  context,
+                                  details.globalPosition,
+                                ),
+                                borderRadius: const .all(.circular(4)),
+                                child: SizedBox.square(
+                                  dimension: navigationTheme.rowHeight,
+                                  child: Icon(
+                                    Symbols.more_horiz_rounded,
+                                    size: navigationTheme.rowIconSize - 2,
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

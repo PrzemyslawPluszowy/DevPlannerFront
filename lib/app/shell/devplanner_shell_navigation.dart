@@ -8,6 +8,8 @@ final class _NavigationTree extends StatelessWidget {
     required this.tasksBoardAvailable,
     required this.expandedNavigationNodeIds,
     required this.onToggleNavigationNode,
+    required this.onCreateWorkspace,
+    required this.onCreateProject,
   });
 
   final bool isCollapsed;
@@ -15,7 +17,9 @@ final class _NavigationTree extends StatelessWidget {
   final WorkspaceNavigationTreeCubit? navigationCubit;
   final bool tasksBoardAvailable;
   final Set<String> expandedNavigationNodeIds;
-  final ValueChanged<String> onToggleNavigationNode;
+  final ValueChanged<WorkspaceNavigationNode> onToggleNavigationNode;
+  final Future<void> Function(BuildContext)? onCreateWorkspace;
+  final Future<void> Function(BuildContext, String)? onCreateProject;
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +39,21 @@ final class _NavigationTree extends StatelessWidget {
         WorkspaceNavigationTreeReady(:final tree) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (!isCollapsed && onCreateWorkspace != null)
+              _WorkspaceSectionHeader(onCreateWorkspace: onCreateWorkspace!),
             for (final node in tree.nodes)
               _NavigationTreeNode(
                 node: node,
+                navigationCubit: cubit,
                 depth: 0,
                 isCollapsed: isCollapsed,
                 location: location,
                 tasksBoardAvailable: tasksBoardAvailable,
                 expandedNavigationNodeIds: expandedNavigationNodeIds,
                 onToggleNavigationNode: onToggleNavigationNode,
+                loadingProjectWorkspaceIds: state.loadingProjectWorkspaceIds,
+                projectFailuresByWorkspace: state.projectFailuresByWorkspace,
+                onCreateProject: onCreateProject,
               ),
           ],
         ),
@@ -58,21 +68,29 @@ final class _NavigationTree extends StatelessWidget {
 final class _NavigationTreeNode extends StatelessWidget {
   const _NavigationTreeNode({
     required this.node,
+    required this.navigationCubit,
     required this.depth,
     required this.isCollapsed,
     required this.location,
     required this.tasksBoardAvailable,
     required this.expandedNavigationNodeIds,
     required this.onToggleNavigationNode,
+    required this.loadingProjectWorkspaceIds,
+    required this.projectFailuresByWorkspace,
+    required this.onCreateProject,
   });
 
   final WorkspaceNavigationNode node;
+  final WorkspaceNavigationTreeCubit navigationCubit;
   final int depth;
   final bool isCollapsed;
   final String location;
   final bool tasksBoardAvailable;
   final Set<String> expandedNavigationNodeIds;
-  final ValueChanged<String> onToggleNavigationNode;
+  final ValueChanged<WorkspaceNavigationNode> onToggleNavigationNode;
+  final Set<String> loadingProjectWorkspaceIds;
+  final Map<String, ProjectsGatewayException> projectFailuresByWorkspace;
+  final Future<void> Function(BuildContext, String)? onCreateProject;
 
   @override
   Widget build(BuildContext context) {
@@ -92,23 +110,54 @@ final class _NavigationTreeNode extends StatelessWidget {
       isExpandable: node.hasChildren,
       isExpanded: expanded,
       onTap: path == null ? null : () => context.go(path),
-      onToggle: node.hasChildren ? () => onToggleNavigationNode(node.id) : null,
+      onToggle: node.hasChildren ? () => onToggleNavigationNode(node) : null,
+      trailingAction:
+          node.kind == WorkspaceNavigationNodeKind.projects &&
+              node.workspaceId != null &&
+              onCreateProject != null
+          ? () => unawaited(onCreateProject!(context, node.workspaceId!))
+          : null,
     );
     if (isCollapsed || node.children.isEmpty || !expanded) return item;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         item,
-        for (final child in node.children)
-          _NavigationTreeNode(
-            node: child,
-            depth: depth + 1,
-            isCollapsed: isCollapsed,
-            location: location,
-            tasksBoardAvailable: tasksBoardAvailable,
-            expandedNavigationNodeIds: expandedNavigationNodeIds,
-            onToggleNavigationNode: onToggleNavigationNode,
-          ),
+        if (node.kind == WorkspaceNavigationNodeKind.projects &&
+            node.workspaceId != null &&
+            loadingProjectWorkspaceIds.contains(node.workspaceId))
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Center(
+              child: SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          )
+        else if (node.kind == WorkspaceNavigationNodeKind.projects &&
+            node.workspaceId != null &&
+            projectFailuresByWorkspace.containsKey(node.workspaceId))
+          _ProjectBranchFailure(
+            onRetry: () => unawaited(
+              navigationCubit.loadProjects(node.workspaceId!, refresh: true),
+            ),
+          )
+        else
+          for (final child in node.children)
+            _NavigationTreeNode(
+              node: child,
+              navigationCubit: navigationCubit,
+              depth: depth + 1,
+              isCollapsed: isCollapsed,
+              location: location,
+              tasksBoardAvailable: tasksBoardAvailable,
+              expandedNavigationNodeIds: expandedNavigationNodeIds,
+              onToggleNavigationNode: onToggleNavigationNode,
+              loadingProjectWorkspaceIds: loadingProjectWorkspaceIds,
+              projectFailuresByWorkspace: projectFailuresByWorkspace,
+              onCreateProject: onCreateProject,
+            ),
       ],
     );
   }
@@ -203,6 +252,231 @@ final class _NavigationTreeNode extends StatelessWidget {
 
   bool _isSelected(String path, String currentLocation) =>
       currentLocation == path || currentLocation.startsWith('$path/');
+}
+
+final class _ProjectBranchFailure extends StatelessWidget {
+  const _ProjectBranchFailure({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(left: 36, right: 8, bottom: 6),
+    child: TextButton.icon(
+      onPressed: onRetry,
+      icon: const Icon(Icons.refresh, size: 16),
+      label: Text(AppLocalizations.of(context)!.workspacesRetry),
+    ),
+  );
+}
+
+final class _WorkspaceSectionHeader extends StatelessWidget {
+  const _WorkspaceSectionHeader({required this.onCreateWorkspace});
+
+  final Future<void> Function(BuildContext) onCreateWorkspace;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 10, 8, 4),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            AppLocalizations.of(context)!.globalModuleWorkspaces.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              letterSpacing: .8,
+            ),
+          ),
+        ),
+        IconButton(
+          key: const ValueKey('workspace-create-button'),
+          tooltip: AppLocalizations.of(context)!.workspacesCreateWorkspace,
+          onPressed: () => unawaited(onCreateWorkspace(context)),
+          icon: const Icon(Icons.add, size: 18),
+          visualDensity: VisualDensity.compact,
+        ),
+      ],
+    ),
+  );
+}
+
+final class _CreateWorkspaceFromSidebarDialog extends StatefulWidget {
+  const _CreateWorkspaceFromSidebarDialog({
+    required this.gateway,
+    required this.onCreated,
+  });
+
+  final WorkspaceManagementGateway gateway;
+  final Future<void> Function(String workspaceId) onCreated;
+
+  static Future<void> show(
+    BuildContext context, {
+    required WorkspaceManagementGateway gateway,
+    required Future<void> Function(String workspaceId) onCreated,
+  }) => showDialog<void>(
+    context: context,
+    builder: (_) => _CreateWorkspaceFromSidebarDialog(
+      gateway: gateway,
+      onCreated: onCreated,
+    ),
+  );
+
+  @override
+  State<_CreateWorkspaceFromSidebarDialog> createState() =>
+      _CreateWorkspaceFromSidebarDialogState();
+}
+
+final class _CreateProjectFromSidebarDialog extends StatelessWidget {
+  const _CreateProjectFromSidebarDialog({
+    required this.gateway,
+    required this.workspaceId,
+    required this.onCreated,
+  });
+
+  final ProjectManagementGateway gateway;
+  final String workspaceId;
+  final Future<void> Function(String projectId) onCreated;
+
+  static Future<void> show(
+    BuildContext context, {
+    required ProjectManagementGateway gateway,
+    required String workspaceId,
+    required Future<void> Function(String projectId) onCreated,
+  }) => showDialog<void>(
+    context: context,
+    builder: (_) => _CreateProjectFromSidebarDialog(
+      gateway: gateway,
+      workspaceId: workspaceId,
+      onCreated: onCreated,
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = TextEditingController();
+    return AlertDialog(
+      title: Text(AppLocalizations.of(context)!.workspacesCreateProjectTitle),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        decoration: InputDecoration(
+          labelText: AppLocalizations.of(context)!.workspacesProjectNameLabel,
+        ),
+        onSubmitted: (name) => _submit(context, name.trim()),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(AppLocalizations.of(context)!.workspacesCancelButton),
+        ),
+        FilledButton(
+          onPressed: () => _submit(context, controller.text.trim()),
+          child: Text(AppLocalizations.of(context)!.workspacesCreateButton),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _submit(BuildContext context, String name) async {
+    if (name.isEmpty) return;
+    try {
+      final projectId = await gateway.createProject(
+        workspaceId: workspaceId,
+        name: name,
+      );
+      await onCreated(projectId);
+      if (context.mounted) Navigator.of(context).pop();
+    } on ProjectsGatewayException {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.workspacesRequestFailedMessage,
+            ),
+          ),
+        );
+      }
+    }
+  }
+}
+
+final class _CreateWorkspaceFromSidebarDialogState
+    extends State<_CreateWorkspaceFromSidebarDialog> {
+  late final TextEditingController _controller;
+  final ValueNotifier<bool> _isSubmitting = ValueNotifier(false);
+  final ValueNotifier<String?> _error = ValueNotifier(null);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _isSubmitting.dispose();
+    _error.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final name = _controller.text.trim();
+    if (name.isEmpty || _isSubmitting.value) return;
+    _isSubmitting.value = true;
+    _error.value = null;
+    try {
+      final workspace = await widget.gateway.createWorkspace(name: name);
+      await widget.onCreated(workspace.id);
+      if (mounted) Navigator.of(context).pop();
+    } on WorkspacesGatewayException catch (_) {
+      if (mounted) {
+        _error.value = AppLocalizations.of(context)!
+            .workspacesRequestFailedMessage;
+      }
+    } catch (_) {
+      if (mounted) {
+        _error.value = AppLocalizations.of(context)!
+            .workspacesRequestFailedMessage;
+      }
+    } finally {
+      if (mounted) _isSubmitting.value = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(l10n.workspacesCreateWorkspaceTitle),
+      content: ValueListenableBuilder<String?>(
+        valueListenable: _error,
+        builder: (context, error, _) => TextField(
+          controller: _controller,
+          autofocus: true,
+          onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            labelText: l10n.workspacesNameFieldLabel,
+            errorText: error,
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.workspacesCancelButton),
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: _isSubmitting,
+          builder: (context, isSubmitting, _) => FilledButton(
+            onPressed: isSubmitting ? null : _submit,
+            child: Text(l10n.workspacesCreateButton),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 final class _SidebarRouteLinks extends StatelessWidget {

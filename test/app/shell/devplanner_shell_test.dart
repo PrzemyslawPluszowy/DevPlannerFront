@@ -34,23 +34,53 @@ void main() {
 
     expect(find.text('route content'), findsOneWidget);
     expect(find.text('DevPlanner'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text('DevPlanner')).style?.fontSize,
+      16,
+    );
+    expect(
+      tester.widget<Text>(find.text('Settings')).style?.fontSize,
+      12,
+    );
     expect(find.byTooltip('Notifications'), findsOneWidget);
     expect(find.byType(NavigationRail), findsNothing);
     expect(
       tester.getSize(find.byKey(const ValueKey('devplanner-topbar'))).height,
-      64,
+      56,
+    );
+    expect(
+      tester.getSize(
+        find.byKey(const ValueKey('devplanner-sidebar-header')),
+      ),
+      const Size(224, 56),
+    );
+    expect(
+      tester
+          .getTopLeft(
+            find.byKey(const ValueKey('devplanner-sidebar-header')),
+          )
+          .dy,
+      0,
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('devplanner-topbar'))).dy,
+      0,
+    );
+    expect(
+      tester.getSize(find.byKey(const ValueKey('devplanner-topbar'))).width,
+      800,
     );
     expect(
       tester.getSize(find.byKey(const ValueKey('devplanner-sidebar'))).width,
-      256,
+      224,
     );
     expect(
       tester.getSize(find.byKey(const ValueKey('devplanner-content-margin'))),
-      const Size(768, 704),
+      const Size(800, 712),
     );
     expect(
       tester.getSize(find.byKey(const ValueKey('devplanner-content-canvas'))),
-      const Size(744, 680),
+      const Size(776, 688),
     );
 
     await tester.tap(find.byTooltip('Collapse menu'));
@@ -58,7 +88,7 @@ void main() {
 
     expect(
       tester.getSize(find.byKey(const ValueKey('devplanner-sidebar'))).width,
-      72,
+      56,
     );
     expect(find.byTooltip('Expand menu'), findsOneWidget);
   });

@@ -116,7 +116,7 @@ void main() {
   });
 
   test(
-    'loads every workspace and produces a complete ready snapshot',
+    'loads only workspaces until a project branch is requested',
     () async {
       final projectsGateway = _ProjectsGateway({
         'workspace-a': Future.value(const [
@@ -136,15 +136,18 @@ void main() {
 
       await cubit.load();
 
-      expect(projectsGateway.requestedWorkspaceIds, [
-        'workspace-a',
-        'workspace-b',
-      ]);
+      expect(projectsGateway.requestedWorkspaceIds, isEmpty);
       expect(cubit.state, isA<WorkspaceNavigationTreeReady>());
       final ready = cubit.state as WorkspaceNavigationTreeReady;
-      expect(ready.tree.hasPendingProjectData, isFalse);
+      expect(ready.tree.hasPendingProjectData, isTrue);
+
+      await cubit.loadProjects('workspace-a');
+
+      expect(projectsGateway.requestedWorkspaceIds, ['workspace-a']);
+      final afterProjectLoad = cubit.state as WorkspaceNavigationTreeReady;
+      expect(afterProjectLoad.tree.hasPendingProjectData, isTrue);
       expect(
-        ready.tree.workspaceNodes.first.children
+        afterProjectLoad.tree.workspaceNodes.first.children
             .firstWhere(
               (node) => node.kind == WorkspaceNavigationNodeKind.projects,
             )
@@ -157,7 +160,7 @@ void main() {
   );
 
   test(
-    'keeps typed project failure and does not emit fallback projects',
+    'keeps a project failure local to its workspace branch',
     () async {
       final cubit = WorkspaceNavigationTreeCubit(
         workspaceGateway: _WorkspaceGateway(Future.value(workspaces)),
@@ -174,13 +177,15 @@ void main() {
       addTearDown(cubit.close);
 
       await cubit.load();
+      await cubit.loadProjects('workspace-a');
 
-      expect(cubit.state, isA<WorkspaceNavigationTreeFailure>());
-      final failure = cubit.state as WorkspaceNavigationTreeFailure;
-      expect(failure.source, WorkspaceNavigationTreeFailureSource.projects);
-      expect(failure.workspaceId, 'workspace-a');
-      expect(failure.projectsReason, ProjectsFailureReason.forbidden);
-      expect(failure.statusCode, 403);
+      expect(cubit.state, isA<WorkspaceNavigationTreeReady>());
+      final ready = cubit.state as WorkspaceNavigationTreeReady;
+      expect(
+        ready.projectFailureFor('workspace-a')?.reason,
+        ProjectsFailureReason.forbidden,
+      );
+      expect(ready.tree.workspaceNodes, hasLength(2));
     },
   );
 
@@ -200,12 +205,13 @@ void main() {
     addTearDown(cubit.close);
 
     await cubit.load();
+    await cubit.loadProjects('workspace-a');
 
-    expect(cubit.state, isA<WorkspaceNavigationTreeFailure>());
-    final failure = cubit.state as WorkspaceNavigationTreeFailure;
-    expect(failure.source, WorkspaceNavigationTreeFailureSource.composition);
-    expect(failure.workspaceId, 'workspace-a');
-    expect(failure.projectsReason, ProjectsFailureReason.invalidResponse);
+    final ready = cubit.state as WorkspaceNavigationTreeReady;
+    expect(
+      ready.projectFailureFor('workspace-a')?.reason,
+      ProjectsFailureReason.invalidResponse,
+    );
   });
 
   test('keeps typed workspace failure at the catalog boundary', () async {

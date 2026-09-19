@@ -15,6 +15,8 @@ import 'package:devplanner/workspaces/data/projects/tasks/api/task_views_api.dar
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_view_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
+import 'package:devplanner/workspaces/data/standalone/project_management_gateway.dart';
+import 'package:devplanner/workspaces/data/standalone/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/data/standalone/workspace_navigation_gateway.dart';
 import 'package:devplanner/workspaces/data/standalone/workspaces_gateway.dart';
 import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
@@ -22,7 +24,9 @@ import 'package:devplanner/workspaces/data/storage/repositories/storage_reposito
 import 'package:devplanner/workspaces/data/storage/transport/download_transport_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/file_picker_port_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/presigned_upload_transport.dart';
+import 'package:devplanner/workspaces/domain/ports/project_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/domain/ports/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
@@ -54,6 +58,8 @@ class DevPlannerRouter with _DevPlannerRouterPages {
     WorkspacesGateway? workspacesGateway,
     ProjectsGateway? projectsGateway,
     WorkspaceNavigationGateway? workspaceNavigationGateway,
+    WorkspaceManagementGateway? workspaceManagementGateway,
+    ProjectManagementGateway? projectManagementGateway,
     StorageRepository? storageRepository,
     TaskViewRepository? taskViewRepository,
     TasksBoardComposition? tasksBoardComposition,
@@ -64,6 +70,8 @@ class DevPlannerRouter with _DevPlannerRouterPages {
        _explicitWorkspacesGateway = workspacesGateway,
        _explicitProjectsGateway = projectsGateway,
        _explicitWorkspaceNavigationGateway = workspaceNavigationGateway,
+       _explicitWorkspaceManagementGateway = workspaceManagementGateway,
+       _explicitProjectManagementGateway = projectManagementGateway,
        _explicitStorageRepository = storageRepository,
        _explicitTaskViewRepository = taskViewRepository,
        _explicitTasksBoardComposition = tasksBoardComposition,
@@ -120,6 +128,8 @@ class DevPlannerRouter with _DevPlannerRouterPages {
         ShellRoute(
           builder: (context, _, child) => DevPlannerShellRoute(
             workspaceNavigationGateway: _resolvedWorkspaceNavigationGateway,
+            workspaceManagementGateway: _resolvedWorkspaceManagementGateway,
+            projectManagementGateway: _resolvedProjectManagementGateway,
             projectsGateway: _resolvedProjectsGateway,
             tasksBoardAvailable: _resolvedTasksBoardComposition != null,
             child: child,
@@ -210,6 +220,8 @@ class DevPlannerRouter with _DevPlannerRouterPages {
   final WorkspacesGateway? _explicitWorkspacesGateway;
   final ProjectsGateway? _explicitProjectsGateway;
   final WorkspaceNavigationGateway? _explicitWorkspaceNavigationGateway;
+  final WorkspaceManagementGateway? _explicitWorkspaceManagementGateway;
+  final ProjectManagementGateway? _explicitProjectManagementGateway;
   final StorageRepository? _explicitStorageRepository;
   final TaskViewRepository? _explicitTaskViewRepository;
   final TasksBoardComposition? _explicitTasksBoardComposition;
@@ -238,6 +250,26 @@ class DevPlannerRouter with _DevPlannerRouterPages {
         : DevPlannerWorkspaceNavigationGateway(
             workspacesGateway: workspaces,
           );
+  }
+
+  WorkspaceManagementGateway? get _resolvedWorkspaceManagementGateway {
+    final explicit = _explicitWorkspaceManagementGateway;
+    if (explicit != null) return explicit;
+    final transport = httpTransport;
+    if (transport == null || !transport.supportsStandaloneApiClients) {
+      return null;
+    }
+    return DevPlannerWorkspaceManagementGateway(transport: transport);
+  }
+
+  ProjectManagementGateway? get _resolvedProjectManagementGateway {
+    final explicit = _explicitProjectManagementGateway;
+    if (explicit != null) return explicit;
+    final transport = httpTransport;
+    if (transport == null || !transport.supportsStandaloneApiClients) {
+      return null;
+    }
+    return DevPlannerProjectManagementGateway(transport: transport);
   }
 
   @override

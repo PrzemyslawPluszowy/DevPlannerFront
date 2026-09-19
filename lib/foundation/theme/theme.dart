@@ -1,8 +1,10 @@
+import 'package:devplanner/foundation/theme/navigation_theme.dart';
 import 'package:devplanner/foundation/theme/shell_theme.dart';
 import 'package:devplanner/foundation/theme/theme_extensions.dart';
 import 'package:devplanner/foundation/theme/util.dart';
 import 'package:flutter/material.dart';
 
+export 'navigation_theme.dart';
 export 'shell_theme.dart';
 export 'theme_extensions.dart';
 
@@ -160,10 +162,22 @@ class MaterialTheme {
           DevPlannerShellTheme.dark()
         else
           DevPlannerShellTheme.light(),
+        const DevPlannerNavigationTheme.standard(),
       ],
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       textTheme: appTextTheme,
+      iconTheme: IconThemeData(
+        size: 18,
+        color: effectiveColorScheme.onSurfaceVariant,
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          minimumSize: const Size(36, 36),
+          padding: const EdgeInsets.all(8),
+          visualDensity: VisualDensity.compact,
+        ),
+      ),
       scaffoldBackgroundColor: effectiveColorScheme.surface,
       canvasColor: effectiveColorScheme.surface,
       appBarTheme: AppBarTheme(
@@ -252,43 +266,43 @@ class MaterialTheme {
 
     return baseTextTheme.copyWith(
       headlineMedium: baseTextTheme.headlineMedium?.copyWith(
-        fontSize: 22,
+        fontSize: 20,
         color: colorScheme.onSurface,
       ),
       headlineSmall: baseTextTheme.headlineSmall?.copyWith(
-        fontSize: 18,
+        fontSize: 17,
         color: colorScheme.onSurface,
       ),
       titleLarge: baseTextTheme.titleLarge?.copyWith(
-        fontSize: 16,
+        fontSize: 15,
         color: colorScheme.onSurface,
       ),
       titleMedium: baseTextTheme.titleMedium?.copyWith(
-        fontSize: 14,
+        fontSize: 13,
         color: colorScheme.onSurface,
       ),
       titleSmall: baseTextTheme.titleSmall?.copyWith(
-        fontSize: 13,
+        fontSize: 12,
         color: colorScheme.onSurface,
       ),
       bodyLarge: baseTextTheme.bodyLarge?.copyWith(
-        fontSize: 14,
+        fontSize: 13,
         color: colorScheme.onSurface,
       ),
       bodyMedium: baseTextTheme.bodyMedium?.copyWith(
-        fontSize: 13,
+        fontSize: 12,
         color: colorScheme.onSurface,
       ),
       bodySmall: baseTextTheme.bodySmall?.copyWith(
-        fontSize: 12,
+        fontSize: 11,
         color: colorScheme.onSurfaceVariant,
       ),
       labelLarge: baseTextTheme.labelLarge?.copyWith(
-        fontSize: 13,
+        fontSize: 12,
         color: colorScheme.onSurface,
       ),
       labelMedium: baseTextTheme.labelMedium?.copyWith(
-        fontSize: 11,
+        fontSize: 10,
         color: colorScheme.onSurface,
       ),
       labelSmall: baseTextTheme.labelSmall?.copyWith(
