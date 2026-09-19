@@ -1,8 +1,9 @@
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
 
 /// Gałąź pojedynczego zasobu w projekcie (np. zadanie, plik, whiteboard, notatka).
 class ProjectResourceMenuBranch extends StatelessWidget {
@@ -50,18 +51,18 @@ class ProjectResourceMenuBranch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: context.router,
+      listenable: GoRouter.of(context).routerDelegate,
       builder: (context, _) {
         final colors = context.colors;
         final path = _getResourcePath();
-        final currentPath = context.router.currentPath;
+        final currentPath = context.plannerNavigation.currentPath;
         final isSelected =
             currentPath == path || currentPath.startsWith('$path/');
 
         return Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => context.router.navigatePath(path),
+            onTap: () => context.plannerNavigation.go(path),
             borderRadius: const .all(.circular(4)),
             hoverColor: colors.primary.withValues(alpha: .06),
             child: Container(

@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_context.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_request.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/resource/cubit/resource_chat_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation.dart';
-import 'package:ready_next/workspaces/domain/chat/resource/resource_chat_file_context.dart';
-import 'package:ready_next/workspaces/domain/chat/resource/resource_chat_file_request.dart';
-import 'package:ready_next/workspaces/domain/chat/resource/resource_chat_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/resource/cubit/resource_chat_cubit.dart';
 
 void main() {
   test(

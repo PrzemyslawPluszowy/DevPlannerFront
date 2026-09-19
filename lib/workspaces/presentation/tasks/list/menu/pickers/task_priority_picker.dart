@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 
 /// Standaryzowany picker wyboru priorytetu zadania w tabeli.
 abstract final class TaskPriorityPicker {

@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'task_time_tracking_api.g.dart';

@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_capacity_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_capacity_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/task_capacity_settings_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_capacity_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_capacity_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/settings/cubit/task_capacity_settings_cubit.dart';
 
 final class _CapacityRepository implements TaskCapacityRepository {
   WorkspaceCapacityResponse capacity = const WorkspaceCapacityResponse(
@@ -66,7 +66,7 @@ final class _CapacityRepository implements TaskCapacityRepository {
       id: 'override-2',
       workspaceId: workspaceId,
       projectId: projectId,
-      coreUserId: payload.coreUserId,
+      userId: payload.userId,
       startDate: payload.startDate,
       endDate: payload.endDate,
       availableMinutesPerDay: payload.availableMinutesPerDay,
@@ -109,7 +109,7 @@ UserCapacityOverrideResponse _override() => UserCapacityOverrideResponse(
   id: 'override-1',
   workspaceId: 'workspace-1',
   projectId: 'project-1',
-  coreUserId: 'user-1',
+  userId: 'user-1',
   startDate: DateTime.utc(2026, 8),
   endDate: DateTime.utc(2026, 8, 31),
   availableMinutesPerDay: 240,
@@ -157,7 +157,7 @@ void main() {
   test('tworzy i scala override dostępności osoby', () async {
     await cubit.load();
     final payload = CreateUserCapacityOverridePayload(
-      coreUserId: 'user-2',
+      userId: 'user-2',
       startDate: DateTime.utc(2026, 9),
       endDate: DateTime.utc(2026, 9, 5),
       availableMinutesPerDay: 180,
@@ -174,7 +174,7 @@ void main() {
     expect(
       await cubit.createOverride(
         CreateUserCapacityOverridePayload(
-          coreUserId: 'user-2',
+          userId: 'user-2',
           startDate: DateTime.utc(2026, 9, 5),
           endDate: DateTime.utc(2026, 9),
           availableMinutesPerDay: 180,

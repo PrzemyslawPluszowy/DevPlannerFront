@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
+import 'package:devplanner/core/error/api_error.dart';
 
 /// Abstrakcja pobierania i zapisywania plików na urządzeniu użytkownika.
 abstract interface class DownloadTransport {

@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 
 /// Fallback źródła uploadu.
 final class StorageUploadBodyPlatform {

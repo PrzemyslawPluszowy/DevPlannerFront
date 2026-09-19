@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/transport/presigned_upload_transport.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/transport/presigned_upload_transport.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
 
 class _MockDio extends Mock implements Dio {}
 

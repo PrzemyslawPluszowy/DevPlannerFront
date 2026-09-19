@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
-import 'package:ready_next/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 
 import '../../support/chat_realtime_test_support.dart';
 

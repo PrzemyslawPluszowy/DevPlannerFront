@@ -1,8 +1,8 @@
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/kanban_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/domain/repositories/kanban_repository.dart';
 
 sealed class KanbanSettingsState {
   const KanbanSettingsState();

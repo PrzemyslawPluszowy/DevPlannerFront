@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/api/projects_api.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_member_profile_response.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/api/projects_api.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_member_profile_response.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
 
 /// Repozytorium profili członków, dozwolonych przez ACL danego projektu.
 final class ProjectMemberProfilesRepositoryImpl extends ApiRepository
@@ -81,7 +81,7 @@ final class ProjectMemberProfilesRepositoryImpl extends ApiRepository
 
   ProjectMemberProfile _toDomain(ProjectMemberProfileResponse response) =>
       ProjectMemberProfile(
-        coreUserId: response.coreUserId,
+        userId: response.userId,
         displayName: response.displayName,
         avatarUrl: response.avatarUrl,
         role: response.role,

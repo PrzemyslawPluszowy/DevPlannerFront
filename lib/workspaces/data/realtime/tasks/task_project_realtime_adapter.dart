@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:ready_next/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/task_project_realtime_update.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_project_realtime.dart';
+import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_project_realtime.dart';
 
 /// Typowany adapter huba Tasks dla jednego ekranu projektu.
 final class TaskProjectRealtimeAdapter implements TaskProjectRealtime {
@@ -104,7 +104,7 @@ final class TaskProjectRealtimeAdapter implements TaskProjectRealtime {
       number: number,
       key: key,
       version: version,
-      actorCoreUserId: _string(payload, 'actorCoreUserId'),
+      actorUserId: _string(payload, 'actorUserId'),
       correlationId: _string(payload, 'correlationId'),
       occurredAtUtc: occurredAtUtc,
       status: _status(_string(payload, 'status')),
@@ -137,12 +137,12 @@ final class TaskProjectRealtimeAdapter implements TaskProjectRealtime {
     for (final raw in rawUsers) {
       if (raw is! Map) continue;
       final map = Map<String, dynamic>.from(raw);
-      final coreUserId = _string(map, 'coreUserId');
+      final userId = _string(map, 'userId');
       final connectionCount = _integer(map, 'connectionCount');
-      if (coreUserId != null && connectionCount != null) {
+      if (userId != null && connectionCount != null) {
         users.add(
           TaskProjectPresenceUser(
-            coreUserId: coreUserId,
+            userId: userId,
             connectionCount: connectionCount,
           ),
         );
@@ -162,40 +162,42 @@ final class TaskProjectRealtimeAdapter implements TaskProjectRealtime {
     await _service.dispose();
     await _updates.close();
   }
+
+  static Object? _value(Map<String, dynamic> map, String key) =>
+      map[key] ?? map['${key[0].toUpperCase()}${key.substring(1)}'];
+
+  static String? _string(Map<String, dynamic> map, String key) {
+    final value = _value(map, key);
+    return value?.toString();
+  }
+
+  static int? _integer(Map<String, dynamic> map, String key) {
+    final value = _value(map, key);
+    return value is int ? value : int.tryParse(value?.toString() ?? '');
+  }
+
+  static DateTime? _date(Map<String, dynamic> map, String key) {
+    final value = _string(map, key);
+    return value == null ? null : DateTime.tryParse(value)?.toUtc();
+  }
+
+  static ProjectTaskStatus? _status(String? value) =>
+      switch (value?.toLowerCase()) {
+        'backlog' => ProjectTaskStatus.backlog,
+        'todo' => ProjectTaskStatus.todo,
+        'inprogress' => ProjectTaskStatus.inProgress,
+        'blocked' => ProjectTaskStatus.blocked,
+        'done' => ProjectTaskStatus.done,
+        'cancelled' => ProjectTaskStatus.cancelled,
+        _ => null,
+      };
+
+  static TaskPriority? _priority(String? value) =>
+      switch (value?.toLowerCase()) {
+        'low' => TaskPriority.low,
+        'normal' => TaskPriority.normal,
+        'high' => TaskPriority.high,
+        'critical' => TaskPriority.critical,
+        _ => null,
+      };
 }
-
-Object? _value(Map<String, dynamic> map, String key) =>
-    map[key] ?? map['${key[0].toUpperCase()}${key.substring(1)}'];
-
-String? _string(Map<String, dynamic> map, String key) {
-  final value = _value(map, key);
-  return value?.toString();
-}
-
-int? _integer(Map<String, dynamic> map, String key) {
-  final value = _value(map, key);
-  return value is int ? value : int.tryParse(value?.toString() ?? '');
-}
-
-DateTime? _date(Map<String, dynamic> map, String key) {
-  final value = _string(map, key);
-  return value == null ? null : DateTime.tryParse(value)?.toUtc();
-}
-
-ProjectTaskStatus? _status(String? value) => switch (value?.toLowerCase()) {
-  'backlog' => ProjectTaskStatus.backlog,
-  'todo' => ProjectTaskStatus.todo,
-  'inprogress' => ProjectTaskStatus.inProgress,
-  'blocked' => ProjectTaskStatus.blocked,
-  'done' => ProjectTaskStatus.done,
-  'cancelled' => ProjectTaskStatus.cancelled,
-  _ => null,
-};
-
-TaskPriority? _priority(String? value) => switch (value?.toLowerCase()) {
-  'low' => TaskPriority.low,
-  'normal' => TaskPriority.normal,
-  'high' => TaskPriority.high,
-  'critical' => TaskPriority.critical,
-  _ => null,
-};

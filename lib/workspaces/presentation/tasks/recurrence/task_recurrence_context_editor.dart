@@ -1,71 +1,63 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_bubble_toast.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_options_section.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_presets.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_schedule_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_picker_host.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/shared/presentation/widgets/app_action_pill.dart';
-import 'package:ready_next/shared/presentation/widgets/app_bubble_toast.dart';
-import 'package:ready_next/shared/presentation/widgets/app_context_menu.dart';
-import 'package:ready_next/shared/presentation/widgets/app_text_field.dart';
-import 'package:ready_next/shared/presentation/widgets/app_toggle_switch.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart';
 
-part 'widgets/task_recurrence_editor_options_section.part.dart';
-part 'widgets/task_recurrence_editor_presets.part.dart';
-part 'widgets/task_recurrence_editor_schedule_section.part.dart';
+/// Otwiera wizualny edytor cykliczności z kontrolowanym lifecycle Cubitu.
+final class TaskRecurrenceContextEditorLauncher {
+  const TaskRecurrenceContextEditorLauncher._();
 
-/// Otwiera wizualny edytor cykliczności zadania w menu kontekstowym.
-Future<void> showTaskRecurrenceContextEditor(
-  BuildContext context, {
-  Offset? globalPosition,
-  TaskRecurrenceSummaryResponse? taskRecurrence,
-  required TaskRecurrenceRepository repository,
-  required String workspaceId,
-  required String projectId,
-  required String taskId,
-  required int taskVersion,
-  required bool hasRecurrence,
-  required ValueChanged<TaskMutationResponse<TaskRecurrenceResponse>> onSaved,
-}) {
-  final targetPosition =
-      globalPosition ??
-      (() {
-        final box = context.findRenderObject() as RenderBox?;
-        return box?.localToGlobal(Offset(0, box.size.height)) ?? Offset.zero;
-      })();
-
-  return AppContextMenu.showCustom(
-    context,
-    globalPosition: targetPosition,
-    maxWidth: 340,
-    maxHeight: 560,
-    contentBuilder: (_, dismiss) => BlocProvider(
-      create: (_) => TaskRecurrenceEditorCubit(
-        repository: repository,
-        workspaceId: workspaceId,
-        projectId: projectId,
-        taskId: taskId,
-        taskVersion: taskVersion,
-        hasRecurrence: hasRecurrence,
-        initialSummary: taskRecurrence,
+  static Future<void> show(
+    BuildContext context, {
+    Offset? globalPosition,
+    TaskRecurrenceSummaryResponse? taskRecurrence,
+    required TaskRecurrenceRepository repository,
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required int taskVersion,
+    required bool hasRecurrence,
+    required ValueChanged<TaskMutationResponse<TaskRecurrenceResponse>> onSaved,
+  }) {
+    final targetPosition = globalPosition ?? _targetPosition(context);
+    return AppContextMenu.showCustom(
+      context,
+      globalPosition: targetPosition,
+      maxWidth: 340,
+      maxHeight: 560,
+      contentBuilder: (_, dismiss) => BlocProvider(
+        create: (_) => TaskRecurrenceEditorCubit(
+          repository: repository,
+          workspaceId: workspaceId,
+          projectId: projectId,
+          taskId: taskId,
+          taskVersion: taskVersion,
+          hasRecurrence: hasRecurrence,
+          initialSummary: taskRecurrence,
+        ),
+        child: _TaskRecurrenceContextEditor(onSaved: onSaved, dismiss: dismiss),
       ),
-      child: _TaskRecurrenceContextEditor(
-        onSaved: onSaved,
-        dismiss: dismiss,
-      ),
-    ),
-  );
+    );
+  }
+
+  static Offset _targetPosition(BuildContext context) {
+    final box = context.findRenderObject() as RenderBox?;
+    return box?.localToGlobal(Offset(0, box.size.height)) ?? Offset.zero;
+  }
 }
 
 class _TaskRecurrenceContextEditor extends StatelessWidget {
@@ -176,7 +168,7 @@ class _TaskRecurrenceContextEditor extends StatelessWidget {
               ),
               Gaps.h12,
             ],
-            _TaskRecurrenceEditorPresets(
+            TaskRecurrenceEditorPresets(
               selectedPreset: state.preset,
               interval: state.interval,
               frequency: state.frequency,
@@ -185,11 +177,14 @@ class _TaskRecurrenceContextEditor extends StatelessWidget {
               onFrequencyChanged: cubit.setFrequency,
             ),
             Gaps.h12,
-            _TaskRecurrenceEditorScheduleSection(
+            TaskRecurrenceEditorScheduleSection(
               scheduledDate: state.scheduledDate,
-              scheduledTime: state.scheduledTime,
+              scheduledTime: TimeOfDay(
+                hour: state.scheduledTime.hour,
+                minute: state.scheduledTime.minute,
+              ),
               onPickDate: () async {
-                final picked = await AppModalPickerHost.showDate(
+                final picked = await DevPlannerModalPickerHost.showDate(
                   context,
                   initialDate: state.scheduledDate,
                   firstDate: DateTime.now().subtract(const Duration(days: 1)),
@@ -198,15 +193,25 @@ class _TaskRecurrenceContextEditor extends StatelessWidget {
                 if (picked != null) cubit.setScheduledDate(picked);
               },
               onPickTime: () async {
-                final picked = await AppModalPickerHost.showTime(
+                final picked = await DevPlannerModalPickerHost.showTime(
                   context,
-                  initialTime: state.scheduledTime,
+                  initialTime: TimeOfDay(
+                    hour: state.scheduledTime.hour,
+                    minute: state.scheduledTime.minute,
+                  ),
                 );
-                if (picked != null) cubit.setScheduledTime(picked);
+                if (picked != null) {
+                  cubit.setScheduledTime(
+                    TaskRecurrenceScheduledTime(
+                      hour: picked.hour,
+                      minute: picked.minute,
+                    ),
+                  );
+                }
               },
             ),
             Gaps.h12,
-            _TaskRecurrenceEditorOptionsSection(
+            TaskRecurrenceEditorOptionsSection(
               mode: state.mode,
               occurrenceStatus: state.occurrenceStatus,
               skipIfPreviousOpen: state.skipIfPreviousOpen,

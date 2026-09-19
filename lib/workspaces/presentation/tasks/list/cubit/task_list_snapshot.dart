@@ -1,8 +1,8 @@
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
 
 /// Czyste transformacje lokalnego snapshotu listy.
 ///
@@ -269,9 +269,9 @@ abstract final class TaskListSnapshot {
         assignees: assigneeIds == null
             ? task.assignees
             : [
-                for (final (index, coreUserId) in assigneeIds.indexed)
+                for (final (index, userId) in assigneeIds.indexed)
                   TaskAssigneeResponse(
-                    coreUserId: coreUserId,
+                    userId: userId,
                     isPrimary: index == 0,
                     createdAtUtc: updated.updatedAtUtc,
                   ),
@@ -311,11 +311,10 @@ abstract final class TaskListSnapshot {
       }
       if (filter.pinnedOnly) return false;
       if (filter.myInvolvement != null) return false;
-      if (filter.assigneeCoreUserIds != null &&
-          filter.assigneeCoreUserIds!.isNotEmpty) {
+      if (filter.assigneeUserIds != null &&
+          filter.assigneeUserIds!.isNotEmpty) {
         final matches = task.assignees.any(
-          (assignee) =>
-              filter.assigneeCoreUserIds!.contains(assignee.coreUserId),
+          (assignee) => filter.assigneeUserIds!.contains(assignee.userId),
         );
         if (!matches) return false;
       }
@@ -335,9 +334,9 @@ abstract final class TaskListSnapshot {
     }
     if (current.pinnedOnly) return false;
     if (current.unassignedOnly && task.assignees.isNotEmpty) return false;
-    if (current.assigneeCoreUserId case final assigneeId?) {
+    if (current.assigneeUserId case final assigneeId?) {
       return task.assignees.any(
-        (assignee) => assignee.coreUserId == assigneeId,
+        (assignee) => assignee.userId == assigneeId,
       );
     }
     return true;

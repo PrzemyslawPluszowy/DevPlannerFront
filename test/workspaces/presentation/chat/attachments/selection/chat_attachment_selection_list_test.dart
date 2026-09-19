@@ -1,10 +1,10 @@
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/widgets/chat_attachment_selection_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/selection/widgets/chat_attachment_selection_list.dart';
 
 void main() {
   testWidgets('prezentuje status lokalnego pliku i pozwala odłączyć wybór', (

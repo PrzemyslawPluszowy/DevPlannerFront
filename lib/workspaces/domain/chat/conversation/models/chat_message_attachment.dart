@@ -7,7 +7,7 @@ final class ChatMessageAttachment extends Equatable {
     required this.id,
     required this.messageId,
     required this.storageFileId,
-    required this.attachedByCoreUserId,
+    required this.attachedByUserId,
     required this.position,
     required this.createdAtUtc,
   });
@@ -15,7 +15,7 @@ final class ChatMessageAttachment extends Equatable {
   final String id;
   final String messageId;
   final String storageFileId;
-  final String attachedByCoreUserId;
+  final String attachedByUserId;
   final int position;
   final DateTime createdAtUtc;
 
@@ -24,7 +24,7 @@ final class ChatMessageAttachment extends Equatable {
     id,
     messageId,
     storageFileId,
-    attachedByCoreUserId,
+    attachedByUserId,
     position,
     createdAtUtc,
   ];

@@ -14,7 +14,7 @@ extension _TaskListRowCellsExtension on TaskListRow {
             SystemColumnReference(:final column) => _TaskListCell(
               column: column,
               task: task,
-              profiles: memberProfilesByCoreUserId,
+              profiles: memberProfilesByUserId,
               milestones: milestones,
               onMilestoneChanged: onMilestoneChanged,
               onTitleChanged: onTitleChanged,
@@ -55,13 +55,13 @@ extension _TaskListRowCellsExtension on TaskListRow {
                     .where((item) => item.fieldId == field.id)
                     .firstOrNull
                     ?.value,
-                profiles: memberProfilesByCoreUserId,
+                profiles: memberProfilesByUserId,
                 onChanged: onCustomFieldChanged,
                 canManage: TaskPermissionHelper.canManageProject(
                   context,
-                  memberProfiles: memberProfilesByCoreUserId,
+                  memberProfiles: memberProfilesByUserId,
                 ),
-                onConfigureField: () => _openProjectSettings(
+                onConfigureField: () => TaskListProjectSettingsLauncher.show(
                   context,
                   ProjectSettingsTab.customFields,
                 ),
@@ -77,7 +77,7 @@ extension _TaskListRowCellsExtension on TaskListRow {
         _TaskListCell(
           column: column,
           task: task,
-          profiles: memberProfilesByCoreUserId,
+          profiles: memberProfilesByUserId,
           milestones: milestones,
           onMilestoneChanged: onMilestoneChanged,
           onTitleChanged: onTitleChanged,
@@ -114,13 +114,13 @@ extension _TaskListRowCellsExtension on TaskListRow {
               .where((item) => item.fieldId == field.id)
               .firstOrNull
               ?.value,
-          profiles: memberProfilesByCoreUserId,
+          profiles: memberProfilesByUserId,
           onChanged: onCustomFieldChanged,
           canManage: TaskPermissionHelper.canManageProject(
             context,
-            memberProfiles: memberProfilesByCoreUserId,
+            memberProfiles: memberProfilesByUserId,
           ),
-          onConfigureField: () => _openProjectSettings(
+          onConfigureField: () => TaskListProjectSettingsLauncher.show(
             context,
             ProjectSettingsTab.customFields,
           ),

@@ -1,17 +1,19 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/versions/storage_versions_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/shared/presentation/widgets/app_context_menu.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
-import 'package:ready_next/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
-import 'package:ready_next/workspaces/presentation/storage/versions/storage_versions_dialog.dart';
 
 /// Desktop menu for a file, backed by the same cubit operations as the toolbar.
 abstract final class StorageFileContextMenu {
@@ -74,6 +76,8 @@ abstract final class StorageFileContextMenu {
                 final restored = await StorageVersionsDialog.show(
                   context,
                   file: file,
+                  repository: context.read<StorageRepository>(),
+                  downloadTransport: context.read<DownloadTransport>(),
                 );
                 if (restored == true && context.mounted) {
                   unawaited(

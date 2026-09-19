@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_response.dart';
+import 'package:devplanner/workspaces/data/projects/templates/models/project_template_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_templates_repository.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/admin/tabs/templates/cubit/project_templates_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_response.dart';
-import 'package:ready_next/workspaces/data/projects/templates/models/project_template_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_templates_repository.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/admin/tabs/templates/cubit/project_templates_cubit.dart';
 
 class _MockProjectTemplatesRepository extends Mock
     implements ProjectTemplatesRepository {}
@@ -137,7 +137,7 @@ void main() {
         project: ProjectResponse(
           id: 'new-proj-1',
           workspaceId: workspaceId,
-          createdByCoreUserId: 'user-1',
+          createdByUserId: 'user-1',
           name: 'Nowy Projekt',
           visibility: ProjectVisibility.shared,
           status: ProjectStatus.active,

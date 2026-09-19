@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
 
 /// Stan lokalnego edytora serii cyklicznej zadania.
 sealed class TaskRecurrenceState {

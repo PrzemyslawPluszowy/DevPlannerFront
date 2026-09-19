@@ -1,12 +1,12 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/notifications/api/notifications_api.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/notification_enums.dart'
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/notifications/api/notifications_api.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart'
     as transport;
-import 'package:ready_next/workspaces/domain/notifications/models/notification_preferences.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_preferences_repository.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_preferences.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_preferences_repository.dart';
 
 /// Adapter transportu dla ustawień globalnego dostarczania i Storage.
 final class NotificationPreferencesRepositoryImpl extends ApiRepository
@@ -59,7 +59,7 @@ final class NotificationPreferencesRepositoryImpl extends ApiRepository
   NotificationDeliveryPreferences _toDeliveryPreferences(
     NotificationDeliveryPreferenceResponse response,
   ) => NotificationDeliveryPreferences(
-    coreUserId: response.coreUserId,
+    userId: response.userId,
     modes: {
       NotificationDeliveryCategory.invitation: _toEmailMode(
         response.invitation.emailMode,
@@ -105,7 +105,7 @@ final class NotificationPreferencesRepositoryImpl extends ApiRepository
   StorageNotificationPreference _toStoragePreference(
     StorageNotificationPreferenceResponse response,
   ) => StorageNotificationPreference(
-    coreUserId: response.coreUserId,
+    userId: response.userId,
     mode: _fromStorageMode(response.mode),
     isDefault: response.isDefault,
     updatedAtUtc: response.updatedAtUtc,

@@ -1,6 +1,6 @@
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/core/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 /// Model pojedynczej pozycji menu bocznego.
 ///
@@ -195,7 +195,7 @@ List<AppSideMenuSection> buildSideMenuSectionsFromSpecs(
       onTap: spec.onTap != null
           ? () => spec.onTap!(context)
           : spec.routeName != null
-          ? () => context.router.navigatePath(spec.routeName!)
+          ? () => context.plannerNavigation.go(spec.routeName!)
           : onDefaultAction == null
           ? null
           : () => onDefaultAction(context, spec.label),

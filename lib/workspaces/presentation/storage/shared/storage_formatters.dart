@@ -1,8 +1,8 @@
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_browser_filter.dart';
 
 /// Bezstanowa klasa pomocnicza formatowania rozmiaru plików i dobierania ikon typów plików.
 abstract final class StorageFormatters {

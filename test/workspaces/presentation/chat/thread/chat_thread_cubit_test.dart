@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/thread/cubit/chat_thread_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/thread/cubit/chat_thread_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/domain/chat/thread/chat_thread_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/thread/cubit/chat_thread_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/thread/cubit/chat_thread_state.dart';
 
 void main() {
   test('wątek fail-closed po forbidden', () async {
@@ -86,7 +86,7 @@ final class _ParentMessageDeliveryRepo implements ChatConversationRepository {
     ChatMessage(
       id: 'server:${command.clientMessageId}',
       conversationId: command.conversationId,
-      authorCoreUserId: 'user',
+      authorUserId: 'user',
       clientMessageId: command.clientMessageId,
       text: command.text,
       payloadHash: command.payloadHash,

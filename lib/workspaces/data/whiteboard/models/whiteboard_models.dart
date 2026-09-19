@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/data/shared/enums/whiteboard_enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/data/shared/enums/whiteboard_enums.dart';
 
 part 'whiteboard_models.freezed.dart';
 part 'whiteboard_models.g.dart';
@@ -291,7 +291,7 @@ abstract class CreateTaskFromStickyNotePayload
     String? description,
     @Default(TaskPriority.normal) TaskPriority priority,
     DateTime? dueAtUtc,
-    List<String>? assigneeCoreUserIds,
+    List<String>? assigneeUserIds,
   }) = _CreateTaskFromStickyNotePayload;
 
   /// Odtwarza payload z JSON.
@@ -309,7 +309,7 @@ abstract class BulkCreateTasksFromStickyNotesPayload
     String? description,
     @Default(TaskPriority.normal) TaskPriority priority,
     DateTime? dueAtUtc,
-    List<String>? assigneeCoreUserIds,
+    List<String>? assigneeUserIds,
   }) = _BulkCreateTasksFromStickyNotesPayload;
 
   /// Odtwarza payload z JSON.

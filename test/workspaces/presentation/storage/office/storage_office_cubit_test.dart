@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/presentation/storage/office/cubit/storage_office_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/office/cubit/storage_office_state.dart';
 
 class _MockStorageRepository extends Mock implements StorageRepository {}
 

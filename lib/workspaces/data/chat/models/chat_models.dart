@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/chat_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
 
 part 'chat_models.freezed.dart';
 part 'chat_models.g.dart';
@@ -18,13 +18,12 @@ abstract class ResolveChatConversationPayload
     String? projectId,
     String? name,
     String? directConversationKey,
-    List<String>? coreUserIds,
+    List<String>? userIds,
     String? discussionRootMessageId,
     @Default('Everyone') String postingPermission,
     String? scopeProvider,
     String? scopeResourceType,
     String? scopeResourceId,
-    List<int>? readyUserIds,
   }) = _ResolveChatConversationPayload;
 
   /// Odtwarza payload z JSON.
@@ -74,10 +73,9 @@ abstract class ChatConversationResponse with _$ChatConversationResponse {
 /// Payload dodania członków rozmowy.
 @Freezed(makeCollectionsUnmodifiable: false)
 abstract class AddChatMembersPayload with _$AddChatMembersPayload {
-  /// Przekazuje użytkowników Core albo profile Ready.
+  /// Przekazuje UUID lokalnych użytkowników do dodania.
   const factory AddChatMembersPayload({
-    List<String>? coreUserIds,
-    List<int>? readyUserIds,
+    List<String>? userIds,
   }) = _AddChatMembersPayload;
 
   /// Odtwarza payload z JSON.
@@ -102,7 +100,7 @@ abstract class UpdateChatMemberRolePayload with _$UpdateChatMemberRolePayload {
 abstract class ChatMemberResponse with _$ChatMemberResponse {
   /// Zawiera użytkownika, rolę i czas dołączenia.
   const factory ChatMemberResponse({
-    required String coreUserId,
+    required String userId,
     required String role,
     required DateTime joinedAtUtc,
   }) = _ChatMemberResponse;
@@ -118,7 +116,7 @@ abstract class ChatMentionSuggestionResponse
     with _$ChatMentionSuggestionResponse {
   /// Zawiera login, nazwę i avatar użytkownika.
   const factory ChatMentionSuggestionResponse({
-    required String coreUserId,
+    required String userId,
     required String login,
     required String displayName,
     String? avatarUrl,
@@ -182,8 +180,8 @@ abstract class ChatMessageRevisionResponse with _$ChatMessageRevisionResponse {
   const factory ChatMessageRevisionResponse({
     required String id,
     required String messageId,
-    required String authorCoreUserId,
-    required String editedByCoreUserId,
+    required String authorUserId,
+    required String editedByUserId,
     required String text,
     String? deltaJson,
     required DateTime createdAtUtc,
@@ -302,7 +300,7 @@ abstract class ChatMessageResponse with _$ChatMessageResponse {
   const factory ChatMessageResponse({
     required String id,
     required String conversationId,
-    required String authorCoreUserId,
+    required String authorUserId,
     required String clientMessageId,
     required String text,
     String? deltaJson,
@@ -347,7 +345,7 @@ abstract class ChatMessageDeliveryResponse with _$ChatMessageDeliveryResponse {
   /// Zawiera odbiorcę, urządzenie i stan doręczenia.
   const factory ChatMessageDeliveryResponse({
     required String messageId,
-    required String recipientCoreUserId,
+    required String recipientUserId,
     String? deviceId,
     required ChatMessageDeliveryStatus status,
     required DateTime updatedAtUtc,
@@ -378,7 +376,7 @@ abstract class ChatReactionResponse with _$ChatReactionResponse {
   const factory ChatReactionResponse({
     required String id,
     required String messageId,
-    required String coreUserId,
+    required String userId,
     required String emoji,
     required DateTime createdAtUtc,
   }) = _ChatReactionResponse;
@@ -440,7 +438,7 @@ abstract class ChatPlacementResponse with _$ChatPlacementResponse {
     required String resourceId,
     String? label,
     String? deepLink,
-    required String createdByCoreUserId,
+    required String createdByUserId,
     required DateTime createdAtUtc,
   }) = _ChatPlacementResponse;
 
@@ -470,7 +468,7 @@ abstract class UpsertChatUserStatusPayload with _$UpsertChatUserStatusPayload {
 abstract class ChatUserStatusResponse with _$ChatUserStatusResponse {
   /// Zawiera status, DND i czas aktualizacji.
   const factory ChatUserStatusResponse({
-    required String coreUserId,
+    required String userId,
     String? emoji,
     String? text,
     DateTime? expiresAtUtc,
@@ -489,7 +487,7 @@ abstract class ChatUserNotificationPreferenceResponse
     with _$ChatUserNotificationPreferenceResponse {
   /// Zawiera preferencje kanałów in-app, e-mail, push i digest.
   const factory ChatUserNotificationPreferenceResponse({
-    required String coreUserId,
+    required String userId,
     required bool inAppEnabled,
     required bool emailEnabled,
     required bool pushEnabled,
@@ -527,7 +525,7 @@ abstract class ChatNotificationPreferenceResponse
   /// Zawiera rozmowę, użytkownika i politykę powiadomień.
   const factory ChatNotificationPreferenceResponse({
     required String conversationId,
-    required String coreUserId,
+    required String userId,
     required ChatNotificationPreference preference,
   }) = _ChatNotificationPreferenceResponse;
 
@@ -574,7 +572,7 @@ abstract class ChatAttachmentResponse with _$ChatAttachmentResponse {
     required String id,
     required String messageId,
     required String storageFileId,
-    required String attachedByCoreUserId,
+    required String attachedByUserId,
     required int position,
     required DateTime createdAtUtc,
   }) = _ChatAttachmentResponse;
@@ -622,7 +620,7 @@ abstract class ChatBookmarkResponse with _$ChatBookmarkResponse {
     required String id,
     required String messageId,
     required String conversationId,
-    required String coreUserId,
+    required String userId,
     String? note,
     required DateTime createdAtUtc,
   }) = _ChatBookmarkResponse;
@@ -640,7 +638,7 @@ abstract class ChatPinnedMessageResponse with _$ChatPinnedMessageResponse {
     required String id,
     required String conversationId,
     required String messageId,
-    required String pinnedByCoreUserId,
+    required String pinnedByUserId,
     required DateTime pinnedAtUtc,
   }) = _ChatPinnedMessageResponse;
 
@@ -755,7 +753,7 @@ abstract class ChatSearchItemResponse with _$ChatSearchItemResponse {
   const factory ChatSearchItemResponse({
     required String messageId,
     required String conversationId,
-    required String authorCoreUserId,
+    required String authorUserId,
     required ChatConversationType conversationType,
     String? workspaceId,
     String? projectId,

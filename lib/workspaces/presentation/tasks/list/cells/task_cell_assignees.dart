@@ -1,16 +1,16 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_assignee_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_assignee_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
-export 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_assignee_picker.dart'
-    show showTaskAssigneeEditor;
+export 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_assignee_picker.dart'
+    show TaskAssigneePicker;
 
 /// Akcja menu kontekstowego przypisania osób.
 enum AssigneeMenuAction { setOwner, toggleCollaborator, clear }
@@ -38,7 +38,7 @@ class TaskCellAssignees extends StatelessWidget {
   final ProjectTaskListItemResponse task;
   final Map<String, ProjectMemberProfile> profiles;
   final TaskAssigneeColumnMode mode;
-  final Future<bool> Function(List<String> coreUserIds)? onChanged;
+  final Future<bool> Function(List<String> userIds)? onChanged;
   final EligibleProfilesPageLoader? searchEligibleProfiles;
 
   @override
@@ -73,7 +73,7 @@ class TaskCellAssignees extends StatelessWidget {
         onTap: onChanged == null
             ? null
             : () => unawaited(
-                showTaskAssigneeEditor(
+                TaskAssigneePicker.show(
                   cellContext,
                   assignees: task.assignees,
                   profiles: profiles,
@@ -102,7 +102,7 @@ class TaskCellAssignees extends StatelessWidget {
                         Flexible(
                           child: Text(
                             filtered
-                                .map((a) => _resolveName(a.coreUserId))
+                                .map((a) => _resolveName(a.userId))
                                 .join(', '),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -120,8 +120,8 @@ class TaskCellAssignees extends StatelessWidget {
     );
   }
 
-  String _resolveName(String coreUserId) {
-    final profile = profiles[coreUserId];
+  String _resolveName(String userId) {
+    final profile = profiles[userId];
     return profile?.displayName?.trim().isNotEmpty == true
         ? profile!.displayName!.trim()
         : 'Nieznany użytkownik';

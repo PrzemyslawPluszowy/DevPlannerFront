@@ -1,50 +1,19 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_assignees.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_title_actions.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_row_actions.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_assignees.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/rows/task_list_row_actions.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
-/// Komórka klucza zadania (np. TASK-123).
-class TaskCellKey extends StatelessWidget {
-  const TaskCellKey({required this.task, super.key});
-
-  final ProjectTaskListItemResponse task;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    width: TaskListGrid.key,
-    child: Padding(
-      padding: const .symmetric(horizontal: 12),
-      child: Align(
-        alignment: .centerLeft,
-        child: Text(
-          task.key,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: context.text.labelMedium?.copyWith(
-            color: context.colors.onSurface,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-/// Główna komórka tytułu zadania w tabeli arkusza.
-///
-/// Obsługuje wcięcia hierarchii drzewa (subtaski), szybką edycję tytułu
-/// w wierszu (inline rename na podwójne kliknięcie), wskaźniki powtarzania
-/// oraz przyciski akcji (przypinanie, obserwowanie, menu więcej) pojawiające się po najechaniu myszą.
 class TaskCellTitle extends StatefulWidget {
   const TaskCellTitle({
     required this.task,
@@ -89,7 +58,7 @@ class TaskCellTitle extends StatefulWidget {
   final EligibleProfilesPageLoader? onSearchEligibleProfiles;
   final Future<bool> Function(ProjectTaskStatus status)? onStatusChanged;
   final Future<bool> Function(TaskPriority priority)? onPriorityChanged;
-  final Future<bool> Function(List<String> coreUserIds)? onAssigneesChanged;
+  final Future<bool> Function(List<String> userIds)? onAssigneesChanged;
   final Future<bool> Function(DateTime? dueAtUtc)? onDueDateChanged;
 
   @override
@@ -227,7 +196,7 @@ class _TaskCellTitleState extends State<TaskCellTitle> {
                       onDoubleTap: _startEditing,
                       onSecondaryTapDown: (details) {
                         unawaited(
-                          showTaskRowContextMenu(
+                          TaskRowContextMenu.show(
                             context,
                             task: task,
                             position: details.globalPosition,
@@ -333,7 +302,7 @@ class _TaskCellTitleState extends State<TaskCellTitle> {
               if (task.recurrence case final recurrence?) ...[
                 const SizedBox(width: 4),
                 Tooltip(
-                  message: taskRecurrenceSummaryLabel(recurrence),
+                  message: TaskRecurrenceSummaryLabeler.format(recurrence),
                   child: Container(
                     padding: const .symmetric(
                       horizontal: Sizes.p6,
@@ -390,137 +359,26 @@ class _TaskCellTitleState extends State<TaskCellTitle> {
                   ),
                 ),
               ],
-              ValueListenableBuilder<bool>(
-                valueListenable: _isHovered,
-                builder: (context, isHovered, _) {
-                  if (!isHovered && !task.isPinned && !task.isWatchedByMe) {
-                    return const SizedBox.shrink();
-                  }
-                  return Row(
-                    mainAxisSize: .min,
-                    children: [
-                      if (isHovered)
-                        IconButton(
-                          tooltip: context.l10n.tasksListEditTitleTooltip,
-                          visualDensity: .compact,
-                          constraints: const BoxConstraints.tightFor(
-                            width: 26,
-                            height: 26,
-                          ),
-                          padding: EdgeInsets.zero,
-                          onPressed: _startEditing,
-                          icon: Icon(
-                            Symbols.edit_rounded,
-                            size: 15,
-                            color: context.colors.onSurfaceVariant,
-                          ),
-                        ),
-                      if (task.isPinned || isHovered)
-                        IconButton(
-                          tooltip: task.isPinned
-                              ? context.l10n.tasksListUnpinTooltip
-                              : context.l10n.tasksListPinTooltip,
-                          visualDensity: .compact,
-                          constraints: const BoxConstraints.tightFor(
-                            width: 26,
-                            height: 26,
-                          ),
-                          padding: EdgeInsets.zero,
-                          onPressed: widget.onPinnedChanged == null
-                              ? null
-                              : () => unawaited(
-                                  widget.onPinnedChanged!(!task.isPinned),
-                                ),
-                          icon: Icon(
-                            task.isPinned
-                                ? Symbols.push_pin_rounded
-                                : Symbols.push_pin,
-                            size: 15,
-                            color: task.isPinned
-                                ? context.colors.primary
-                                : context.colors.onSurfaceVariant,
-                          ),
-                        ),
-                      if (task.isWatchedByMe || isHovered)
-                        IconButton(
-                          tooltip: task.isWatchedByMe
-                              ? context.l10n.tasksListUnwatchTooltip
-                              : context.l10n.tasksListWatchTooltip,
-                          visualDensity: .compact,
-                          constraints: const BoxConstraints.tightFor(
-                            width: 26,
-                            height: 26,
-                          ),
-                          padding: EdgeInsets.zero,
-                          onPressed: widget.onWatchingToggled == null
-                              ? null
-                              : () => unawaited(widget.onWatchingToggled!()),
-                          icon: Icon(
-                            task.isWatchedByMe
-                                ? Symbols.visibility_rounded
-                                : Symbols.visibility,
-                            size: 15,
-                            color: task.isWatchedByMe
-                                ? context.colors.primary
-                                : context.colors.onSurfaceVariant,
-                          ),
-                        ),
-                      if (isHovered)
-                        Builder(
-                          builder: (btnContext) => IconButton(
-                            tooltip: context.l10n.tasksListMoreOptionsTooltip,
-                            visualDensity: .compact,
-                            constraints: const BoxConstraints.tightFor(
-                              width: 26,
-                              height: 26,
-                            ),
-                            padding: EdgeInsets.zero,
-                            onPressed: () {
-                              final box =
-                                  btnContext.findRenderObject() as RenderBox?;
-                              final pos = box != null
-                                  ? box.localToGlobal(
-                                      Offset(0, box.size.height),
-                                    )
-                                  : Offset.zero;
-                              unawaited(
-                                showTaskRowContextMenu(
-                                  context,
-                                  task: widget.task,
-                                  position: pos,
-                                  onOpen: widget.onOpen,
-                                  onDuplicate: widget.onDuplicate,
-                                  onCreateSubtask: widget.onCreateSubtask,
-                                  onStatusChanged: widget.onStatusChanged,
-                                  onPriorityChanged: widget.onPriorityChanged,
-                                  onAssigneesChanged: widget.onAssigneesChanged,
-                                  onDueDateChanged: widget.onDueDateChanged,
-                                  onArchive: widget.onArchive,
-                                  onPinnedChanged: widget.onPinnedChanged,
-                                  onWatchingToggled: widget.onWatchingToggled,
-                                  onRecurrenceToggled:
-                                      widget.onRecurrenceToggled,
-                                  onRecurrenceConfigured:
-                                      widget.onRecurrenceConfigured,
-                                  profiles: widget.profiles,
-                                  customFields: widget.customFields,
-                                  onCustomFieldChanged:
-                                      widget.onCustomFieldChanged,
-                                  searchEligibleProfiles:
-                                      widget.onSearchEligibleProfiles,
-                                ),
-                              );
-                            },
-                            icon: Icon(
-                              Symbols.more_horiz_rounded,
-                              size: 16,
-                              color: context.colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
+              TaskCellTitleActions(
+                task: task,
+                isHovered: _isHovered,
+                onStartEditing: _startEditing,
+                onPinnedChanged: widget.onPinnedChanged,
+                onWatchingToggled: widget.onWatchingToggled,
+                onOpen: widget.onOpen,
+                onDuplicate: widget.onDuplicate,
+                onCreateSubtask: widget.onCreateSubtask,
+                onStatusChanged: widget.onStatusChanged,
+                onPriorityChanged: widget.onPriorityChanged,
+                onAssigneesChanged: widget.onAssigneesChanged,
+                onDueDateChanged: widget.onDueDateChanged,
+                onArchive: widget.onArchive,
+                onRecurrenceToggled: widget.onRecurrenceToggled,
+                onRecurrenceConfigured: widget.onRecurrenceConfigured,
+                profiles: widget.profiles,
+                customFields: widget.customFields,
+                onCustomFieldChanged: widget.onCustomFieldChanged,
+                onSearchEligibleProfiles: widget.onSearchEligibleProfiles,
               ),
               if (widget.showKey) ...[
                 const SizedBox(width: 8),

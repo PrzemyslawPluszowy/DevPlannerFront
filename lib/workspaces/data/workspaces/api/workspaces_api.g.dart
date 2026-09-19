@@ -352,7 +352,7 @@ class _WorkspacesApi implements WorkspacesApi {
   }
 
   @override
-  Future<List<ReadyDirectoryUserResponse>> searchReadyUsers(
+  Future<List<LocalUserDirectoryResponse>> searchLocalUsers(
     String workspaceId,
     String query,
   ) async {
@@ -360,7 +360,7 @@ class _WorkspacesApi implements WorkspacesApi {
     final queryParameters = <String, dynamic>{r'query': query};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ReadyDirectoryUserResponse>>(
+    final _options = _setStreamType<List<LocalUserDirectoryResponse>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -371,12 +371,12 @@ class _WorkspacesApi implements WorkspacesApi {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ReadyDirectoryUserResponse> _value;
+    late List<LocalUserDirectoryResponse> _value;
     try {
       _value = _result.data!
           .map(
             (dynamic i) =>
-                ReadyDirectoryUserResponse.fromJson(i as Map<String, dynamic>),
+                LocalUserDirectoryResponse.fromJson(i as Map<String, dynamic>),
           )
           .toList();
     } on Object catch (e, s) {

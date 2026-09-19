@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 
 /// Kontrakt historii i dostawy jednej rozmowy, odseparowany od listy drawera.
 abstract interface class ChatConversationRepository {

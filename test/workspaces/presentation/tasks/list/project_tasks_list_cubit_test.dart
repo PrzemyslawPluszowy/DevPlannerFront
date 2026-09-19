@@ -1,23 +1,23 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/task_project_realtime_update.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_collaboration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
 
 final class _TasksRepository implements TasksRepository {
   ProjectTasksQuery? lastQuery;
@@ -502,7 +502,7 @@ ProjectTaskResponse _taskResponse({
   priority: TaskPriority.normal,
   taskType: 'Task',
   position: 1000,
-  createdByCoreUserId: 'user-1',
+  createdByUserId: 'user-1',
   assignees: const [],
   checklistItems: const [],
   createdAtUtc: DateTime.utc(2026),
@@ -725,27 +725,27 @@ void main() {
     'przekazuje i zachowuje filtry osoby, udziału oraz nieprzypisanych',
     () async {
       await cubit.load(
-        assigneeCoreUserId: 'person-1',
+        assigneeUserId: 'person-1',
         myInvolvement: TaskInvolvementFilter.collaborator,
       );
 
-      expect(repository.lastGroupedQuery?.assigneeCoreUserId, 'person-1');
+      expect(repository.lastGroupedQuery?.assigneeUserId, 'person-1');
       expect(repository.lastGroupedQuery?.myInvolvement, 'Collaborator');
       expect(repository.lastGroupedQuery?.unassignedOnly, isFalse);
       final state = cubit.state as ProjectTasksListReady;
-      expect(state.assigneeCoreUserId, 'person-1');
+      expect(state.assigneeUserId, 'person-1');
       expect(state.myInvolvement, TaskInvolvementFilter.collaborator);
       expect(state.unassignedOnly, isFalse);
 
       await cubit.loadMoreGroup('status:Todo');
 
-      expect(repository.lastGroupedQuery?.assigneeCoreUserId, 'person-1');
+      expect(repository.lastGroupedQuery?.assigneeUserId, 'person-1');
       expect(repository.lastGroupedQuery?.myInvolvement, 'Collaborator');
       expect(repository.lastGroupedQuery?.unassignedOnly, isFalse);
 
-      await cubit.load(clearAssigneeCoreUserId: true, unassignedOnly: true);
+      await cubit.load(clearAssigneeUserId: true, unassignedOnly: true);
 
-      expect(repository.lastGroupedQuery?.assigneeCoreUserId, isNull);
+      expect(repository.lastGroupedQuery?.assigneeUserId, isNull);
       expect(repository.lastGroupedQuery?.unassignedOnly, isTrue);
     },
   );
@@ -1578,13 +1578,13 @@ void main() {
       await customCubit.load();
       final task = (customCubit.state as ProjectTasksListReady).tasks.single;
       customCubit.toggleSelection(task.id);
-      const coreUserId = 'user-2';
+      const userId = 'user-2';
       when(
         () => collaboration.replaceAssignees(
           workspaceId: 'workspace-1',
           projectId: 'project-1',
           taskId: task.id,
-          coreUserIds: [coreUserId],
+          userIds: [userId],
           expectedVersion: task.version,
         ),
       ).thenAnswer(
@@ -1596,7 +1596,7 @@ void main() {
             data: _taskResponse(id: task.id, title: task.title).copyWith(
               assignees: [
                 TaskAssigneeResponse(
-                  coreUserId: coreUserId,
+                  userId: userId,
                   isPrimary: true,
                   createdAtUtc: DateTime.utc(2026, 1, 2),
                 ),
@@ -1608,7 +1608,7 @@ void main() {
       final groupedCallsBeforeSave = repository.groupedCalls;
 
       final updated = await customCubit.bulkUpdateSelected(
-        assigneeIds: [coreUserId],
+        assigneeIds: [userId],
       );
 
       expect(updated, 1);
@@ -1618,7 +1618,7 @@ void main() {
           .single
           .items
           .single;
-      expect(saved.assignees.single.coreUserId, coreUserId);
+      expect(saved.assignees.single.userId, userId);
       expect(saved.version, 2);
     },
   );
@@ -1849,7 +1849,7 @@ void main() {
     () async {
       await cubit.load(
         status: ProjectTaskStatus.blocked,
-        assigneeCoreUserId: 'member-1',
+        assigneeUserId: 'member-1',
         myInvolvement: TaskInvolvementFilter.watcher,
         pinnedOnly: true,
       );
@@ -1861,7 +1861,7 @@ void main() {
       expect(updated, 5000);
       expect(repository.selectionTokenPayload?.query.status, 'blocked');
       expect(
-        repository.selectionTokenPayload?.query.assigneeCoreUserId,
+        repository.selectionTokenPayload?.query.assigneeUserId,
         'member-1',
       );
       expect(

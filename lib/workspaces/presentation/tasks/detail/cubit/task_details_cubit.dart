@@ -1,30 +1,89 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_acceptance_criteria_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_checklist_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_acceptance_criteria_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_acceptance_commands.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_basic_mutation_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_checklist_commands.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_checklist_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_collaboration_commands.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_collaboration_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_dependencies_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_dependency_commands.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_loader_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_metadata_commands.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_metadata_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_mutation_coordinator.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_response_assembler.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_acceptance_criteria_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_checklist_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_collaboration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/detail/cubit/task_details_state.dart';
 
 final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
   TaskDetailsCubit({
     required this.repository,
-    required this.acceptanceCriteriaRepository,
+    required TaskAcceptanceCriteriaRepository acceptanceCriteriaRepository,
     required this.checklistRepository,
     this.collaborationRepository,
     this.metadataRepository,
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
-  }) : super(const TaskDetailsInitial());
+  }) : _acceptanceCriteriaService = TaskAcceptanceCriteriaService(
+         repository: acceptanceCriteriaRepository,
+         workspaceId: workspaceId,
+         projectId: projectId,
+         taskId: taskId,
+       ),
+       _dependenciesService = TaskDetailsDependenciesService(
+         repository: repository,
+         workspaceId: workspaceId,
+         projectId: projectId,
+         taskId: taskId,
+       ),
+       _basicMutationService = TaskDetailsBasicMutationService(
+         repository: repository,
+         workspaceId: workspaceId,
+         projectId: projectId,
+         taskId: taskId,
+       ),
+       _checklistService = TaskDetailsChecklistService(
+         repository: checklistRepository,
+         workspaceId: workspaceId,
+         projectId: projectId,
+         taskId: taskId,
+       ),
+       _collaborationService = collaborationRepository == null
+           ? null
+           : TaskDetailsCollaborationService(
+               repository: collaborationRepository,
+               workspaceId: workspaceId,
+               projectId: projectId,
+               taskId: taskId,
+             ),
+       _loaderService = TaskDetailsLoaderService(
+         repository: repository,
+         workspaceId: workspaceId,
+         projectId: projectId,
+         taskId: taskId,
+       ),
+       _metadataService = metadataRepository == null
+           ? null
+           : TaskDetailsMetadataService(
+               repository: metadataRepository,
+               workspaceId: workspaceId,
+               projectId: projectId,
+               taskId: taskId,
+             ),
+       _assembler = const TaskDetailsResponseAssembler(),
+       super(const TaskDetailsInitial());
 
   final TasksRepository repository;
-  final TaskAcceptanceCriteriaRepository acceptanceCriteriaRepository;
   final TaskChecklistRepository checklistRepository;
 
   /// Opcjonalne wyłącznie dla izolowanych preview i istniejących testów cubitu.
@@ -36,35 +95,81 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
   final String workspaceId;
   final String projectId;
   final String taskId;
+  final TaskAcceptanceCriteriaService _acceptanceCriteriaService;
+  final TaskDetailsDependenciesService _dependenciesService;
+  final TaskDetailsBasicMutationService _basicMutationService;
+  final TaskDetailsChecklistService _checklistService;
+  final TaskDetailsCollaborationService? _collaborationService;
+  final TaskDetailsLoaderService _loaderService;
+  final TaskDetailsMetadataService? _metadataService;
+  final TaskDetailsResponseAssembler _assembler;
+
+  TaskDetailsMutationCoordinator get _coordinator =>
+      TaskDetailsMutationCoordinator(
+        repository: repository,
+        workspaceId: workspaceId,
+        projectId: projectId,
+        taskId: taskId,
+        emitReady: emit,
+        isClosed: () => isClosed,
+      );
+
+  TaskDetailsChecklistCommands get _checklistCommands =>
+      TaskDetailsChecklistCommands(
+        service: _checklistService,
+        coordinator: _coordinator,
+        assembler: _assembler,
+        readState: () => state,
+        emitReady: emit,
+      );
+
+  TaskDetailsAcceptanceCommands get _acceptanceCommands =>
+      TaskDetailsAcceptanceCommands(
+        service: _acceptanceCriteriaService,
+        coordinator: _coordinator,
+        assembler: _assembler,
+        readState: () => state,
+        emitReady: emit,
+      );
+
+  TaskDetailsDependencyCommands get _dependencyCommands =>
+      TaskDetailsDependencyCommands(
+        service: _dependenciesService,
+        coordinator: _coordinator,
+        assembler: _assembler,
+        readState: () => state,
+        emitReady: emit,
+      );
+
+  TaskDetailsMetadataCommands? get _metadataCommands {
+    final service = _metadataService;
+    if (service == null) return null;
+    return TaskDetailsMetadataCommands(
+      service: service,
+      coordinator: _coordinator,
+      assembler: _assembler,
+      readState: () => state,
+      emitReady: emit,
+    );
+  }
+
+  TaskDetailsCollaborationCommands? get _collaborationCommands {
+    final service = _collaborationService;
+    if (service == null) return null;
+    return TaskDetailsCollaborationCommands(
+      service: service,
+      coordinator: _coordinator,
+      assembler: _assembler,
+      readState: () => state,
+      emitReady: emit,
+    );
+  }
 
   Future<void> load() async {
     emit(const TaskDetailsLoading());
-    final result = await repository.getTask(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-    );
+    final result = await _loaderService.loadState();
     if (isClosed) return;
-    result.fold(
-      (error) => emit(
-        TaskDetailsFailure(
-          kind: switch (error.type) {
-            ApiErrorType.forbidden ||
-            ApiErrorType.unauthorized => TaskDetailsFailureKind.forbidden,
-            ApiErrorType.notFound => TaskDetailsFailureKind.notFound,
-            ApiErrorType.conflict => TaskDetailsFailureKind.conflict,
-            ApiErrorType.connection ||
-            ApiErrorType.connectionTimeout ||
-            ApiErrorType.sendTimeout ||
-            ApiErrorType.receiveTimeout => TaskDetailsFailureKind.offline,
-            _ => TaskDetailsFailureKind.other,
-          },
-          message: error.message,
-          backendCode: error.backendCode,
-        ),
-      ),
-      (details) => emit(TaskDetailsReady(details)),
-    );
+    emit(result);
   }
 
   /// Zapisuje pola podstawowe z wersją agregatu zwróconą przez backend.
@@ -78,17 +183,15 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     final normalizedTitle = title.trim();
     if (normalizedTitle.isEmpty) return false;
     final task = current.details.task;
-    return _save(
+    return _coordinator.executeProjectTask(
       current,
-      _payloadFrom(
-        task,
+      _basicMutationService.updateBasics(
+        task: task,
         title: normalizedTitle,
         status: status,
         priority: priority,
-        startAtUtc: task.startAtUtc,
-        dueAtUtc: task.dueAtUtc,
-        estimatedMinutes: task.estimatedMinutes,
       ),
+      _assembler,
     );
   }
 
@@ -107,14 +210,15 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
       return false;
     }
     final task = current.details.task;
-    return _save(
+    return _coordinator.executeProjectTask(
       current,
-      _payloadFrom(
-        task,
+      _basicMutationService.updatePlanning(
+        task: task,
         startAtUtc: startAtUtc,
         dueAtUtc: dueAtUtc,
         estimatedMinutes: estimatedMinutes,
       ),
+      _assembler,
     );
   }
 
@@ -126,61 +230,20 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     final current = state;
     if (current is! TaskDetailsReady || current.isSaving) return false;
     final task = current.details.task;
-    return _save(
+    return _coordinator.executeProjectTask(
       current,
-      _payloadFrom(
-        task,
-        description: description.trim().isEmpty ? null : description.trim(),
+      _basicMutationService.updateDescription(
+        task: task,
+        description: description,
         descriptionDeltaJson: descriptionDeltaJson,
       ),
+      _assembler,
     );
   }
 
   /// Zastępuje wykonawców i zachowuje wersję agregatu zwróconą przez backend.
-  Future<bool> replaceAssignees(List<String> coreUserIds) async {
-    final current = state;
-    final collaboration = collaborationRepository;
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        collaboration == null) {
-      return false;
-    }
-    final normalized = coreUserIds.toSet().toList(growable: false);
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await collaboration.replaceAssignees(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      coreUserIds: normalized,
-      expectedVersion: current.details.task.version,
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        if (error.type == ApiErrorType.conflict) {
-          await _reloadAfterConflict(current, error);
-        } else {
-          emit(
-            current.copyWith(
-              isSaving: false,
-              mutationError: error.message,
-              mutationSerial: current.mutationSerial + 1,
-            ),
-          );
-        }
-        return false;
-      },
-      (response) async {
-        emit(
-          current.copyWith(
-            details: current.details.copyWith(task: response.data),
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
-    );
+  Future<bool> replaceAssignees(List<String> userIds) async {
+    return _collaborationCommands?.replaceAssignees(userIds) ?? false;
   }
 
   /// Archiwizuje albo przywraca zadanie z kontrolą wersji agregatu.
@@ -189,45 +252,10 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     if (current is! TaskDetailsReady || current.isSaving) return false;
     final task = current.details.task;
     emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = task.archivedAtUtc == null
-        ? await repository.archiveTask(
-            workspaceId: workspaceId,
-            projectId: projectId,
-            taskId: taskId,
-            expectedVersion: task.version,
-          )
-        : await repository.restoreTask(
-            workspaceId: workspaceId,
-            projectId: projectId,
-            taskId: taskId,
-            expectedVersion: task.version,
-          );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        if (error.type == ApiErrorType.conflict) {
-          await _reloadAfterConflict(current, error);
-        } else {
-          emit(
-            current.copyWith(
-              isSaving: false,
-              mutationError: error.message,
-              mutationSerial: current.mutationSerial + 1,
-            ),
-          );
-        }
-        return false;
-      },
-      (response) async {
-        emit(
-          current.copyWith(
-            details: current.details.copyWith(task: response.data),
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
+    return _coordinator.execute(
+      current: current,
+      operation: _basicMutationService.toggleArchive(task),
+      onSuccess: _assembler.withProjectTaskMutation,
     );
   }
 
@@ -242,161 +270,16 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     }
     emit(current.copyWith(isSaving: true, clearMutationError: true));
     final task = current.details.task;
-    final result = await repository.quickCreateTask(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      payload: QuickCreateProjectTaskPayload(
+    return _coordinator.executeAndRefresh(
+      current: current,
+      operation: _basicMutationService.createSubtask(
+        task: task,
         title: normalized,
-        parentTaskId: task.id,
-        targetStatus: ProjectTaskStatus.todo,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold(
-      (error) {
-        emit(
-          current.copyWith(
-            isSaving: false,
-            mutationError: error.message,
-            mutationSerial: current.mutationSerial + 1,
-          ),
-        );
-        return false;
-      },
-      (_) => _refreshDetailsAfterCollaborationMutation(current),
-    );
-  }
-
-  Future<bool> _save(
-    TaskDetailsReady current,
-    UpdateProjectTaskPayload payload,
-  ) async {
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await repository.updateTask(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      payload: payload,
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        if (error.type == ApiErrorType.conflict) {
-          await _reloadAfterConflict(current, error);
-        } else {
-          emit(
-            current.copyWith(
-              isSaving: false,
-              mutationError: error.message,
-              mutationSerial: current.mutationSerial + 1,
-            ),
-          );
-        }
-        return false;
-      },
-      (response) async {
-        emit(
-          current.copyWith(
-            details: current.details.copyWith(task: response.data),
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
-    );
-  }
-
-  UpdateProjectTaskPayload _payloadFrom(
-    ProjectTaskResponse task, {
-    String? title,
-    ProjectTaskStatus? status,
-    TaskPriority? priority,
-    DateTime? startAtUtc,
-    DateTime? dueAtUtc,
-    int? estimatedMinutes,
-    String? description,
-    String? descriptionDeltaJson,
-  }) => UpdateProjectTaskPayload(
-    title: title ?? task.title,
-    description: description ?? task.description,
-    status: status ?? task.status,
-    priority: priority ?? task.priority,
-    startAtUtc: startAtUtc,
-    dueAtUtc: dueAtUtc,
-    position: task.position,
-    expectedVersion: task.version,
-    taskType: task.taskType,
-    size: task.size,
-    complexity: task.complexity,
-    risk: task.risk,
-    businessValue: task.businessValue,
-    estimatedMinutes: estimatedMinutes,
-    actualMinutes: task.actualMinutes,
-    descriptionDeltaJson: descriptionDeltaJson ?? task.descriptionDeltaJson,
-  );
-
-  Future<void> _reloadAfterConflict(
-    TaskDetailsReady previous,
-    ApiError conflict,
-  ) async {
-    final refreshed = await repository.getTask(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-    );
-    if (isClosed) return;
-    refreshed.fold(
-      (_) => emit(
-        previous.copyWith(
-          isSaving: false,
-          mutationError: conflict.message,
-          mutationSerial: previous.mutationSerial + 1,
-        ),
-      ),
-      (details) => emit(
-        previous.copyWith(
-          details: details,
-          isSaving: false,
-          mutationError: conflict.message,
-          mutationSerial: previous.mutationSerial + 1,
-        ),
       ),
     );
   }
 
-  Future<bool> addChecklistItem(String title) async {
-    final current = state;
-    final normalized = title.trim();
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        normalized.isEmpty) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await checklistRepository.addItem(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      payload: CreateTaskChecklistItemPayload(
-        title: normalized,
-        expectedVersion: current.details.task.version,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        final items = [...current.details.task.checklistItems, response.data]
-          ..sort((a, b) => a.position.compareTo(b.position));
-        emit(_withChecklistMutation(current, items, response));
-        return true;
-      },
-    );
-  }
+  Future<bool> addChecklistItem(String title) => _checklistCommands.add(title);
 
   Future<bool> toggleChecklistItem(TaskChecklistItemResponse item) =>
       updateChecklistItem(item, isCompleted: !item.isCompleted);
@@ -405,344 +288,51 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     TaskChecklistItemResponse item, {
     String? title,
     bool? isCompleted,
-  }) async {
-    final current = state;
-    final normalizedTitle = (title ?? item.title).trim();
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        normalizedTitle.isEmpty) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await checklistRepository.updateItem(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      itemId: item.id,
-      payload: UpdateTaskChecklistItemPayload(
-        title: normalizedTitle,
-        position: item.position,
-        isCompleted: isCompleted ?? item.isCompleted,
-        expectedVersion: current.details.task.version,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        final items = current.details.task.checklistItems
-            .map(
-              (candidate) =>
-                  candidate.id == item.id ? response.data : candidate,
-            )
-            .toList(growable: false);
-        emit(_withChecklistMutation(current, items, response));
-        return true;
-      },
-    );
-  }
-
-  Future<bool> deleteChecklistItem(TaskChecklistItemResponse item) async {
-    final current = state;
-    if (current is! TaskDetailsReady || current.isSaving) return false;
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await checklistRepository.deleteItem(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      itemId: item.id,
-      expectedVersion: current.details.task.version,
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        final items = current.details.task.checklistItems
-            .where((candidate) => candidate.id != item.id)
-            .toList(growable: false);
-        emit(_withChecklistMutation(current, items, response));
-        return true;
-      },
-    );
-  }
-
-  TaskDetailsReady _withChecklistMutation<T>(
-    TaskDetailsReady current,
-    List<TaskChecklistItemResponse> items,
-    TaskMutationResponse<T> response,
-  ) => current.copyWith(
-    details: current.details.copyWith(
-      task: current.details.task.copyWith(
-        checklistItems: items,
-        version: response.taskVersion,
-        updatedAtUtc: response.taskUpdatedAtUtc,
-      ),
-    ),
-    isSaving: false,
-    clearMutationError: true,
+  }) => _checklistCommands.update(
+    item,
+    title: title,
+    isCompleted: isCompleted,
   );
 
-  Future<void> _handleTaskMutationError(
-    TaskDetailsReady current,
-    ApiError error,
-  ) async {
-    if (error.type == ApiErrorType.conflict) {
-      await _reloadAfterConflict(current, error);
-      return;
-    }
-    emit(
-      current.copyWith(
-        isSaving: false,
-        mutationError: error.message,
-        mutationSerial: current.mutationSerial + 1,
-      ),
-    );
-  }
+  Future<bool> deleteChecklistItem(TaskChecklistItemResponse item) =>
+      _checklistCommands.delete(item);
 
   /// Przełącza obserwowanie przez bieżącego użytkownika i odświeża agregat.
   Future<bool> toggleWatching() async {
-    final current = state;
-    final repository = collaborationRepository;
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        repository == null) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = current.details.isWatchedByMe
-        ? await repository.unfollow(
-            workspaceId: workspaceId,
-            projectId: projectId,
-            taskId: taskId,
-            expectedVersion: current.details.task.version,
-          )
-        : await repository.follow(
-            workspaceId: workspaceId,
-            projectId: projectId,
-            taskId: taskId,
-            expectedVersion: current.details.task.version,
-          );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (_) => _refreshDetailsAfterCollaborationMutation(current),
-    );
+    return _collaborationCommands?.toggleWatching() ?? false;
   }
 
   /// Przełącza osobiste przypięcie bez zmieniania współdzielonego taska.
   Future<bool> togglePinned() async {
-    final current = state;
-    final repository = collaborationRepository;
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        repository == null) {
-      return false;
-    }
-    final isPinned = !current.details.isPinnedByMe;
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await repository.updatePinned(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      isPinned: isPinned,
-    );
-    if (isClosed) return false;
-    return result.fold(
-      (error) {
-        emit(
-          current.copyWith(
-            isSaving: false,
-            mutationError: error.message,
-            mutationSerial: current.mutationSerial + 1,
-          ),
-        );
-        return false;
-      },
-      (_) {
-        emit(
-          current.copyWith(
-            details: current.details.copyWith(isPinnedByMe: isPinned),
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
-    );
+    return _collaborationCommands?.togglePinned() ?? false;
   }
 
   /// Zapisuje pełną listę etykiet taska z kontrolą wersji agregatu.
   Future<bool> replaceLabels(Iterable<String> labelIds) async {
-    final current = state;
-    final repository = metadataRepository;
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        repository == null) {
-      return false;
-    }
-    final ids = labelIds.toSet().toList(growable: false);
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await repository.replaceLabels(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      payload: ReplaceTaskLabelsPayload(
-        labelIds: ids,
-        expectedVersion: current.details.task.version,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        emit(
-          current.copyWith(
-            details: current.details.copyWith(
-              labels: response.data,
-              task: current.details.task.copyWith(
-                version: response.taskVersion,
-                updatedAtUtc: response.taskUpdatedAtUtc,
-              ),
-            ),
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
-    );
+    return _metadataCommands?.replaceLabels(labelIds) ?? false;
   }
 
   /// Pobiera projektowe etykiety do selektora, bez utrwalania ich w stanie.
   Future<List<TaskLabelResponse>> loadProjectLabels() async {
-    final repository = metadataRepository;
-    if (repository == null) return const [];
-    final result = await repository.listLabels(
-      workspaceId: workspaceId,
-      projectId: projectId,
-    );
+    final commands = _metadataCommands;
+    if (commands == null) return const [];
+    final result = await commands.listLabels();
     if (isClosed) return const [];
-    return result.fold((_) => const [], (labels) => labels);
+    return result;
   }
 
   /// Zapisuje wartości pól własnych i scala odpowiedź z pełnym detailem.
   Future<bool> replaceCustomFieldValues(Map<String, dynamic> values) async {
-    final current = state;
-    final repository = metadataRepository;
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        repository == null) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await repository.replaceCustomFieldValues(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      payload: ReplaceTaskCustomFieldValuesPayload(
-        values: Map<String, dynamic>.unmodifiable(values),
-        expectedVersion: current.details.task.version,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        final updatedValues = {
-          for (final value in response.data) value.fieldId: value,
-        };
-        final fields = current.details.customFields
-            .map(
-              (field) {
-                final value = updatedValues[field.id];
-                return value == null
-                    ? field
-                    : field.copyWith(
-                        value: value.value,
-                        valueUpdatedAtUtc: value.updatedAtUtc,
-                      );
-              },
-            )
-            .toList(growable: false);
-        emit(
-          current.copyWith(
-            details: current.details.copyWith(
-              customFields: fields,
-              task: current.details.task.copyWith(
-                version: response.taskVersion,
-                updatedAtUtc: response.taskUpdatedAtUtc,
-              ),
-            ),
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
-    );
-  }
-
-  Future<bool> _refreshDetailsAfterCollaborationMutation(
-    TaskDetailsReady previous,
-  ) async {
-    final refreshed = await repository.getTask(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-    );
-    if (isClosed) return false;
-    return refreshed.fold(
-      (error) {
-        emit(
-          previous.copyWith(
-            isSaving: false,
-            mutationError: error.message,
-            mutationSerial: previous.mutationSerial + 1,
-          ),
-        );
-        return false;
-      },
-      (details) {
-        emit(
-          previous.copyWith(
-            details: details,
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
-    );
+    return _metadataCommands?.replaceCustomFieldValues(values) ?? false;
   }
 
   /// Wyszukuje zadania projektu do bezpiecznego wyboru relacji w UI.
   Future<List<ProjectTaskListItemResponse>> searchProjectTasks(
     String phrase,
   ) async {
-    final query = phrase.trim();
-    if (query.length < 2) return const [];
-    final result = await repository.listProjectTasks(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      query: ProjectTasksQuery(search: query, limit: 20),
-    );
+    final result = await _dependencyCommands.search(phrase);
     if (isClosed) return const [];
-    return result.fold((_) => const [], (page) => page.items);
+    return result;
   }
 
   Future<bool> createDependency({
@@ -751,63 +341,11 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     TaskDependencyKind dependencyKind = TaskDependencyKind.finishToStart,
     int lagDays = 0,
   }) async {
-    final current = state;
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        targetTaskId == taskId ||
-        lagDays < -365 ||
-        lagDays > 365) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await repository.createDependency(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      payload: CreateTaskDependencyPayload(
-        targetTaskId: targetTaskId,
-        type: type,
-        expectedVersion: current.details.task.version,
-        dependencyKind: dependencyKind,
-        lagDays: lagDays,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        final refreshed = await repository.getTask(
-          workspaceId: workspaceId,
-          projectId: projectId,
-          taskId: taskId,
-        );
-        if (isClosed) return false;
-        return refreshed.fold(
-          (error) {
-            emit(
-              current.copyWith(
-                isSaving: false,
-                mutationError: error.message,
-                mutationSerial: current.mutationSerial + 1,
-              ),
-            );
-            return false;
-          },
-          (details) {
-            emit(
-              current.copyWith(
-                details: details,
-                isSaving: false,
-                clearMutationError: true,
-              ),
-            );
-            return true;
-          },
-        );
-      },
+    return _dependencyCommands.create(
+      targetTaskId: targetTaskId,
+      type: type,
+      dependencyKind: dependencyKind,
+      lagDays: lagDays,
     );
   }
 
@@ -817,131 +355,21 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     required TaskDependencyKind dependencyKind,
     required int lagDays,
   }) async {
-    final current = state;
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        lagDays < -365 ||
-        lagDays > 365) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await repository.updateDependency(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      dependencyId: dependency.id,
-      payload: UpdateTaskDependencyPayload(
-        dependencyKind: dependencyKind,
-        lagDays: lagDays,
-        expectedVersion: current.details.task.version,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) {
-        emit(
-          current.copyWith(
-            details: current.details.copyWith(
-              dependencies: [
-                for (final item in current.details.dependencies)
-                  if (item.id == dependency.id)
-                    item.copyWith(
-                      dependencyKind: response.data.dependencyKind,
-                      lagDays: response.data.lagDays,
-                    )
-                  else
-                    item,
-              ],
-              task: current.details.task.copyWith(
-                version: response.taskVersion,
-                updatedAtUtc: response.taskUpdatedAtUtc,
-              ),
-            ),
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
+    return _dependencyCommands.update(
+      dependency: dependency,
+      dependencyKind: dependencyKind,
+      lagDays: lagDays,
     );
   }
 
   Future<bool> deleteDependency(
     TaskDependencyDetailsResponse dependency,
   ) async {
-    final current = state;
-    if (current is! TaskDetailsReady || current.isSaving) return false;
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await repository.deleteDependency(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      dependencyId: dependency.id,
-      expectedVersion: current.details.task.version,
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        emit(
-          current.copyWith(
-            details: current.details.copyWith(
-              dependencies: current.details.dependencies
-                  .where((candidate) => candidate.id != dependency.id)
-                  .toList(growable: false),
-              task: current.details.task.copyWith(
-                version: response.taskVersion,
-                updatedAtUtc: response.taskUpdatedAtUtc,
-              ),
-            ),
-            isSaving: false,
-            clearMutationError: true,
-          ),
-        );
-        return true;
-      },
-    );
+    return _dependencyCommands.delete(dependency);
   }
 
-  Future<bool> addAcceptanceCriterion(String text) async {
-    final current = state;
-    final normalized = text.trim();
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        normalized.isEmpty) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await acceptanceCriteriaRepository.create(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      payload: CreateTaskAcceptanceCriterionPayload(
-        text: normalized,
-        expectedVersion: current.details.task.version,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        final criteria = [...current.details.acceptanceCriteria, response.data]
-          ..sort((a, b) => a.position.compareTo(b.position));
-        emit(_withCriteriaMutation(current, criteria, response));
-        return true;
-      },
-    );
-  }
+  Future<bool> addAcceptanceCriterion(String text) =>
+      _acceptanceCommands.add(text);
 
   Future<bool> toggleAcceptanceCriterion(
     TaskAcceptanceCriterionResponse criterion,
@@ -954,88 +382,13 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     TaskAcceptanceCriterionResponse criterion, {
     String? text,
     bool? isAccepted,
-  }) async {
-    final current = state;
-    final normalizedText = (text ?? criterion.text).trim();
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        normalizedText.isEmpty) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await acceptanceCriteriaRepository.update(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      criterionId: criterion.id,
-      payload: UpdateTaskAcceptanceCriterionPayload(
-        text: normalizedText,
-        position: criterion.position,
-        isAccepted: isAccepted ?? criterion.isAccepted,
-        expectedVersion: current.details.task.version,
-      ),
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        final criteria = current.details.acceptanceCriteria
-            .map(
-              (candidate) =>
-                  candidate.id == criterion.id ? response.data : candidate,
-            )
-            .toList(growable: false);
-        emit(_withCriteriaMutation(current, criteria, response));
-        return true;
-      },
-    );
-  }
+  }) => _acceptanceCommands.update(
+    criterion,
+    text: text,
+    isAccepted: isAccepted,
+  );
 
   Future<bool> deleteAcceptanceCriterion(
     TaskAcceptanceCriterionResponse criterion,
-  ) async {
-    final current = state;
-    if (current is! TaskDetailsReady || current.isSaving) return false;
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final result = await acceptanceCriteriaRepository.delete(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      criterionId: criterion.id,
-      expectedVersion: current.details.task.version,
-    );
-    if (isClosed) return false;
-    return result.fold<Future<bool>>(
-      (error) async {
-        await _handleTaskMutationError(current, error);
-        return false;
-      },
-      (response) async {
-        final criteria = current.details.acceptanceCriteria
-            .where((candidate) => candidate.id != criterion.id)
-            .toList(growable: false);
-        emit(_withCriteriaMutation(current, criteria, response));
-        return true;
-      },
-    );
-  }
-
-  TaskDetailsReady _withCriteriaMutation<T>(
-    TaskDetailsReady current,
-    List<TaskAcceptanceCriterionResponse> criteria,
-    TaskMutationResponse<T> response,
-  ) => current.copyWith(
-    details: current.details.copyWith(
-      acceptanceCriteria: criteria,
-      task: current.details.task.copyWith(
-        version: response.taskVersion,
-        updatedAtUtc: response.taskUpdatedAtUtc,
-      ),
-    ),
-    isSaving: false,
-    clearMutationError: true,
-  );
+  ) => _acceptanceCommands.delete(criterion);
 }

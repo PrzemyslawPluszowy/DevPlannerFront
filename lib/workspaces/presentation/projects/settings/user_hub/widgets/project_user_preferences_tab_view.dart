@@ -1,9 +1,9 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/user_hub/cubit/project_user_hub_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/user_hub/cubit/project_user_hub_cubit.dart';
 
 /// Zakładka osobistych preferencji projektu użytkownika (przypinanie, ukrywanie, widok startowy).
 class ProjectUserPreferencesTabView extends StatelessWidget {

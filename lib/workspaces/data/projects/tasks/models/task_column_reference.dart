@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
 
 /// Jednolita referencja kolumny listy zadań (zarówno systemowej, jak i pola własnego).
 ///

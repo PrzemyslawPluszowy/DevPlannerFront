@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 
 import '../../support/chat_realtime_test_support.dart';
 
@@ -296,7 +296,7 @@ abstract final class _ChatFixture {
   }) => ChatMessage(
     id: id,
     conversationId: 'conversation-1',
-    authorCoreUserId: 'user-1',
+    authorUserId: 'user-1',
     clientMessageId: clientMessageId,
     text: text,
     payloadHash: payloadHash,

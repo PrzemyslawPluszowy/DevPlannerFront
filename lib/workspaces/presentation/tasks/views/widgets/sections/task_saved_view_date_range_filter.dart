@@ -1,7 +1,7 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_picker_host.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
 
 /// Podsekcja wyboru zakresu dat terminu wykonania (dueFrom / dueTo).
 class TaskSavedViewDateRangeFilter extends StatelessWidget {
@@ -42,7 +42,7 @@ class TaskSavedViewDateRangeFilter extends StatelessWidget {
                       ).formatCompactDate(dueFrom!.toLocal()),
               ),
               onPressed: () async {
-                final value = await AppModalPickerHost.showDate(
+                final value = await DevPlannerModalPickerHost.showDate(
                   context,
                   initialDate: dueFrom?.toLocal() ?? DateTime.now(),
                   firstDate: DateTime(2000),
@@ -71,7 +71,7 @@ class TaskSavedViewDateRangeFilter extends StatelessWidget {
                       ).formatCompactDate(dueTo!.toLocal()),
               ),
               onPressed: () async {
-                final value = await AppModalPickerHost.showDate(
+                final value = await DevPlannerModalPickerHost.showDate(
                   context,
                   initialDate: dueTo?.toLocal() ?? DateTime.now(),
                   firstDate: DateTime(2000),

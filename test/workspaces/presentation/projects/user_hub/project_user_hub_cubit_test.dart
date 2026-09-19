@@ -1,14 +1,14 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_member_response.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_user_preference_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/user_hub/cubit/project_user_hub_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_member_response.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_user_preference_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/projects_repository.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/user_hub/cubit/project_user_hub_cubit.dart';
 
 class _MockProjectsRepository extends Mock implements ProjectsRepository {}
 
@@ -173,7 +173,7 @@ void main() {
         ProjectMemberResponse(
           id: 'mem-1',
           workspaceMembershipId: 'ws-mem-1',
-          coreUserId: 'user-1',
+          userId: 'user-1',
           role: ProjectRole.member,
           createdAtUtc: DateTime.now(),
         ),

@@ -1,12 +1,12 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/chat/api/chat_api.dart';
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/chat_enums.dart'
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart'
     as transport;
-import 'package:ready_next/workspaces/domain/notifications/chat_notification_settings_repository.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/chat_notification_settings.dart';
+import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/chat_notification_settings.dart';
 
 /// Adapter ustawień dostarczania Chat, osobny od historii i composera rozmowy.
 final class ChatNotificationSettingsRepositoryImpl extends ApiRepository
@@ -74,7 +74,7 @@ final class ChatNotificationSettingsRepositoryImpl extends ApiRepository
   ChatNotificationSettings _toGlobalSettings(
     ChatUserNotificationPreferenceResponse response,
   ) => ChatNotificationSettings(
-    coreUserId: response.coreUserId,
+    userId: response.userId,
     inAppEnabled: response.inAppEnabled,
     emailEnabled: response.emailEnabled,
     pushEnabled: response.pushEnabled,
@@ -85,7 +85,7 @@ final class ChatNotificationSettingsRepositoryImpl extends ApiRepository
     ChatNotificationPreferenceResponse response,
   ) => ChatConversationNotificationSetting(
     conversationId: response.conversationId,
-    coreUserId: response.coreUserId,
+    userId: response.userId,
     mode: _fromTransportMode(response.preference),
   );
 

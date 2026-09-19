@@ -1,7 +1,7 @@
+import 'package:devplanner/features/settings/data/repositories/local_settings_repository.dart';
+import 'package:devplanner/features/settings/domain/local_settings_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/features/settings/data/repositories/local_settings_repository.dart';
-import 'package:ready_next/features/settings/domain/local_settings_model.dart';
 
 /// Cubit zarzadzajacy lokalnymi ustawieniami aplikacji.
 class LocalSettingsCubit extends Cubit<LocalSettingsModel> {

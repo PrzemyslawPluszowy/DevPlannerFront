@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_milestone_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_milestone_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Komórka kamienia milowego zadania w tabeli.
 ///

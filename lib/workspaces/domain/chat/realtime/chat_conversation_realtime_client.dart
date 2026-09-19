@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
 
 /// Klasyfikacja błędu lokalnej subskrypcji rozmowy Chat.
 enum ChatConversationRealtimeErrorKind { transport, accessRevoked, protocol }

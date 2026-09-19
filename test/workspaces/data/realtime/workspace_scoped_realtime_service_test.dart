@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 

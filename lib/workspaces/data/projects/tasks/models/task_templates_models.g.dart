@@ -86,7 +86,7 @@ _$CreateTaskTemplateDefinitionPayloadFromJson(Map<String, dynamic> json) =>
       risk: (json['risk'] as num?)?.toInt(),
       businessValue: (json['businessValue'] as num?)?.toInt(),
       estimatedMinutes: (json['estimatedMinutes'] as num?)?.toInt(),
-      assigneeCoreUserIds: (json['assigneeCoreUserIds'] as List<dynamic>?)
+      assigneeUserIds: (json['assigneeUserIds'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
       checklistItems: (json['checklistItems'] as List<dynamic>?)
@@ -132,7 +132,7 @@ Map<String, dynamic> _$CreateTaskTemplateDefinitionPayloadToJson(
   'risk': instance.risk,
   'businessValue': instance.businessValue,
   'estimatedMinutes': instance.estimatedMinutes,
-  'assigneeCoreUserIds': instance.assigneeCoreUserIds,
+  'assigneeUserIds': instance.assigneeUserIds,
   'checklistItems': instance.checklistItems,
   'acceptanceCriteria': instance.acceptanceCriteria,
   'labels': instance.labels,
@@ -256,7 +256,7 @@ _TaskTemplateDetailsResponse _$TaskTemplateDetailsResponseFromJson(
   risk: (json['risk'] as num?)?.toInt(),
   businessValue: (json['businessValue'] as num?)?.toInt(),
   estimatedMinutes: (json['estimatedMinutes'] as num?)?.toInt(),
-  assigneeCoreUserIds: (json['assigneeCoreUserIds'] as List<dynamic>)
+  assigneeUserIds: (json['assigneeUserIds'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
   checklistItems: (json['checklistItems'] as List<dynamic>)
@@ -302,7 +302,7 @@ Map<String, dynamic> _$TaskTemplateDetailsResponseToJson(
   'risk': instance.risk,
   'businessValue': instance.businessValue,
   'estimatedMinutes': instance.estimatedMinutes,
-  'assigneeCoreUserIds': instance.assigneeCoreUserIds,
+  'assigneeUserIds': instance.assigneeUserIds,
   'checklistItems': instance.checklistItems,
   'acceptanceCriteria': instance.acceptanceCriteria,
   'labels': instance.labels,
@@ -330,7 +330,7 @@ _UpdateTaskTemplatePayload _$UpdateTaskTemplatePayloadFromJson(
   risk: (json['risk'] as num?)?.toInt(),
   businessValue: (json['businessValue'] as num?)?.toInt(),
   estimatedMinutes: (json['estimatedMinutes'] as num?)?.toInt(),
-  assigneeCoreUserIds: (json['assigneeCoreUserIds'] as List<dynamic>?)
+  assigneeUserIds: (json['assigneeUserIds'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
   checklistItems: (json['checklistItems'] as List<dynamic>?)
@@ -377,7 +377,7 @@ Map<String, dynamic> _$UpdateTaskTemplatePayloadToJson(
   'risk': instance.risk,
   'businessValue': instance.businessValue,
   'estimatedMinutes': instance.estimatedMinutes,
-  'assigneeCoreUserIds': instance.assigneeCoreUserIds,
+  'assigneeUserIds': instance.assigneeUserIds,
   'checklistItems': instance.checklistItems,
   'acceptanceCriteria': instance.acceptanceCriteria,
   'labels': instance.labels,

@@ -1,14 +1,14 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_type_visual.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_header_cell.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_column_reference.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_type_visual.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/header/task_list_header_cell.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 part 'task_list_draggable_header.part.dart';
 
@@ -327,8 +327,8 @@ class TaskListTableHeader extends StatelessWidget {
     return TaskListHeaderCell(
       width: width,
       label: field.name,
-      icon: customFieldTypeVisual(field.type).icon,
-      iconColor: customFieldTypeVisual(field.type).color,
+      icon: CustomFieldTypeVisualCatalog.forType(field.type).icon,
+      iconColor: CustomFieldTypeVisualCatalog.forType(field.type).color,
       onResizeStart: () => onColumnResizeStart?.call(id),
       onResizeUpdate: (delta) => onColumnResizeUpdate?.call(id, delta),
       onResizeEnd: () => onColumnResizeEnd?.call(id),

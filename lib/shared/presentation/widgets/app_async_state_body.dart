@@ -1,7 +1,6 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_spinner.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_spinner.dart';
 
 /// Status zawartosci ekranu/modalu opartego o asynchroniczne ladowanie danych.
 enum AppAsyncViewStatus { initial, loading, loaded, error }

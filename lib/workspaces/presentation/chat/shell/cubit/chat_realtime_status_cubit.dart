@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 
 /// Prezentacyjny stan transportu realtime dla jednej otwartej rozmowy Chat.
 ///

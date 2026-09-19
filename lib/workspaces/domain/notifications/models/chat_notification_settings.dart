@@ -4,14 +4,14 @@ import 'package:equatable/equatable.dart';
 final class ChatNotificationSettings extends Equatable {
   /// Tworzy snapshot kanałów Chat.
   const ChatNotificationSettings({
-    required this.coreUserId,
+    required this.userId,
     required this.inAppEnabled,
     required this.emailEnabled,
     required this.pushEnabled,
     required this.digestEnabled,
   });
 
-  final String coreUserId;
+  final String userId;
   final bool inAppEnabled;
   final bool emailEnabled;
   final bool pushEnabled;
@@ -19,7 +19,7 @@ final class ChatNotificationSettings extends Equatable {
 
   @override
   List<Object?> get props => [
-    coreUserId,
+    userId,
     inAppEnabled,
     emailEnabled,
     pushEnabled,
@@ -59,14 +59,14 @@ final class ChatConversationNotificationSetting extends Equatable {
   /// Tworzy politykę rozmowy dla konkretnego użytkownika.
   const ChatConversationNotificationSetting({
     required this.conversationId,
-    required this.coreUserId,
+    required this.userId,
     required this.mode,
   });
 
   final String conversationId;
-  final String coreUserId;
+  final String userId;
   final ChatConversationNotificationMode mode;
 
   @override
-  List<Object?> get props => [conversationId, coreUserId, mode];
+  List<Object?> get props => [conversationId, userId, mode];
 }

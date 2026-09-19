@@ -44,7 +44,7 @@ class _DateField extends StatelessWidget {
 
   Future<void> _pick(BuildContext context) async {
     final localValue = value?.toLocal();
-    final selected = await AppModalPickerHost.showDate(
+    final selected = await DevPlannerModalPickerHost.showDate(
       context,
       initialDate: localValue ?? DateTime.now(),
       firstDate: DateTime(2000),
@@ -167,20 +167,25 @@ class _TaskDetailsFailureView extends StatelessWidget {
   );
 }
 
-String _statusLabel(BuildContext context, ProjectTaskStatus status) =>
-    switch (status) {
-      ProjectTaskStatus.backlog => context.l10n.taskStatusBacklog,
-      ProjectTaskStatus.todo => context.l10n.taskStatusTodo,
-      ProjectTaskStatus.inProgress => context.l10n.taskStatusInProgress,
-      ProjectTaskStatus.blocked => context.l10n.taskStatusBlocked,
-      ProjectTaskStatus.done => context.l10n.taskStatusDone,
-      ProjectTaskStatus.cancelled => context.l10n.taskStatusCanceled,
-    };
+/// Lokalizowane etykiety statusu i priorytetu szczegółów zadania.
+final class TaskDetailsLabeler {
+  const TaskDetailsLabeler._();
 
-String _priorityLabel(BuildContext context, TaskPriority priority) =>
-    switch (priority) {
-      TaskPriority.low => context.l10n.tasksPriorityLow,
-      TaskPriority.normal => context.l10n.tasksPriorityNormal,
-      TaskPriority.high => context.l10n.tasksPriorityHigh,
-      TaskPriority.critical => context.l10n.tasksPriorityCritical,
-    };
+  static String status(BuildContext context, ProjectTaskStatus value) =>
+      switch (value) {
+        ProjectTaskStatus.backlog => context.l10n.taskStatusBacklog,
+        ProjectTaskStatus.todo => context.l10n.taskStatusTodo,
+        ProjectTaskStatus.inProgress => context.l10n.taskStatusInProgress,
+        ProjectTaskStatus.blocked => context.l10n.taskStatusBlocked,
+        ProjectTaskStatus.done => context.l10n.taskStatusDone,
+        ProjectTaskStatus.cancelled => context.l10n.taskStatusCanceled,
+      };
+
+  static String priority(BuildContext context, TaskPriority value) =>
+      switch (value) {
+        TaskPriority.low => context.l10n.tasksPriorityLow,
+        TaskPriority.normal => context.l10n.tasksPriorityNormal,
+        TaskPriority.high => context.l10n.tasksPriorityHigh,
+        TaskPriority.critical => context.l10n.tasksPriorityCritical,
+      };
+}

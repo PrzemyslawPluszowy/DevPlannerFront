@@ -1,16 +1,18 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/task_list_grouping.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/task_list_grouping.dart';
 
 void main() {
   test('systemowy workflow ma stałą kolejność niezależną od enumu/API', () {
     final statuses = [...ProjectTaskStatus.values]
       ..sort(
         (left, right) =>
-            taskListStatusOrder(left).compareTo(taskListStatusOrder(right)),
+            TaskListGrouping.statusOrder(left).compareTo(
+              TaskListGrouping.statusOrder(right),
+            ),
       );
 
     expect(statuses, [
@@ -25,40 +27,43 @@ void main() {
 
   test('klucze grup statusu są czytane bez rozróżniania wielkości liter', () {
     expect(
-      taskListStatusForGroup('status:InProgress'),
+      TaskListGrouping.statusForGroup('status:InProgress'),
       ProjectTaskStatus.inProgress,
     );
     expect(
-      taskListStatusForGroup('status:inprogress'),
+      TaskListGrouping.statusForGroup('status:inprogress'),
       ProjectTaskStatus.inProgress,
     );
-    expect(taskListStatusForGroup('custom-status:workflow-1'), isNull);
+    expect(
+      TaskListGrouping.statusForGroup('custom-status:workflow-1'),
+      isNull,
+    );
   });
 
   test('tworzenie wiersza jest dozwolone tylko w grupie statusu, workflow lub bez grupowania', () {
     expect(
-      taskListCanCreateRootTaskInGroup(
+      TaskListGrouping.canCreateRootTaskInGroup(
         TaskSavedViewGroupBy.status,
         'status:Todo',
       ),
       isTrue,
     );
     expect(
-      taskListCanCreateRootTaskInGroup(
+      TaskListGrouping.canCreateRootTaskInGroup(
         TaskSavedViewGroupBy.customStatus,
         'custom-status:workflow-1',
       ),
       isTrue,
     );
     expect(
-      taskListCanCreateRootTaskInGroup(
+      TaskListGrouping.canCreateRootTaskInGroup(
         TaskSavedViewGroupBy.customStatus,
         'custom-status:none',
       ),
       isFalse,
     );
     expect(
-      taskListCanCreateRootTaskInGroup(
+      TaskListGrouping.canCreateRootTaskInGroup(
         TaskSavedViewGroupBy.none,
         'priority:High',
       ),
@@ -81,6 +86,6 @@ void main() {
       version: 1,
     );
 
-    expect(taskListGroupKeyForTask(task), 'status:Blocked');
+    expect(TaskListGrouping.groupKeyForTask(task), 'status:Blocked');
   });
 }

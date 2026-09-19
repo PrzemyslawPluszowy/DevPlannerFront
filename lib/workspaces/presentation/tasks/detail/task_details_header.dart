@@ -84,7 +84,8 @@ class _DetailHeader extends StatelessWidget {
                 ),
                 IconButton(
                   tooltip: context.l10n.taskDetailsHistory,
-                  onPressed: () => unawaited(_showTaskHistory(context)),
+                  onPressed: () =>
+                      unawaited(TaskHistoryDialogLauncher.show(context)),
                   icon: const Icon(Symbols.history_rounded),
                 ),
                 IconButton(
@@ -92,7 +93,7 @@ class _DetailHeader extends StatelessWidget {
                   onPressed: isSaving
                       ? null
                       : () => unawaited(
-                          _showCreateTaskTemplateDialog(
+                          TaskTemplateDialogLauncher.show(
                             context,
                             initialName: task.title,
                           ),
@@ -105,7 +106,7 @@ class _DetailHeader extends StatelessWidget {
                       : context.l10n.taskDetailsRestore,
                   onPressed: isSaving
                       ? null
-                      : () => _confirmArchive(
+                      : () => TaskArchiveConfirmation.show(
                           context,
                           task.archivedAtUtc == null,
                         ),
@@ -117,7 +118,7 @@ class _DetailHeader extends StatelessWidget {
                 ),
                 IconButton(
                   tooltip: context.l10n.taskDetailsClose,
-                  onPressed: context.router.maybePop,
+                  onPressed: () => Navigator.of(context).maybePop(),
                   icon: const Icon(Symbols.close_rounded),
                 ),
               ],
@@ -137,11 +138,11 @@ class _DetailHeader extends StatelessWidget {
               children: [
                 _Pill(
                   icon: Symbols.radio_button_checked_rounded,
-                  label: _statusLabel(context, task.status),
+                  label: TaskDetailsLabeler.status(context, task.status),
                 ),
                 _Pill(
                   icon: Symbols.flag,
-                  label: _priorityLabel(context, task.priority),
+                  label: TaskDetailsLabeler.priority(context, task.priority),
                 ),
                 if (task.archivedAtUtc != null)
                   _Pill(
@@ -157,20 +158,25 @@ class _DetailHeader extends StatelessWidget {
   }
 }
 
-Future<void> _confirmArchive(BuildContext context, bool archive) async {
-  final confirmed =
-      !archive ||
-      await AppConfirmDialog.show(
-        context,
-        title: context.l10n.taskDetailsArchiveConfirmTitle,
-        message: context.l10n.taskDetailsArchiveConfirmMessage,
-        confirmLabel: context.l10n.taskDetailsArchive,
-        cancelLabel: context.l10n.cancel,
-        tone: AppConfirmDialogTone.warning,
-      );
-  if (!confirmed) return;
-  if (!context.mounted) return;
-  await context.read<TaskDetailsCubit>().toggleArchive();
+/// Potwierdza archiwizację, a mutację deleguje do lokalnego Cubita szczegółów.
+final class TaskArchiveConfirmation {
+  const TaskArchiveConfirmation._();
+
+  static Future<void> show(BuildContext context, bool archive) async {
+    final confirmed =
+        !archive ||
+        await AppConfirmDialog.show(
+          context,
+          title: context.l10n.taskDetailsArchiveConfirmTitle,
+          message: context.l10n.taskDetailsArchiveConfirmMessage,
+          confirmLabel: context.l10n.taskDetailsArchive,
+          cancelLabel: context.l10n.cancel,
+          tone: AppConfirmDialogTone.warning,
+        );
+    if (!confirmed) return;
+    if (!context.mounted) return;
+    await context.read<TaskDetailsCubit>().toggleArchive();
+  }
 }
 
 class _EditBasicsDialog extends StatefulWidget {
@@ -184,22 +190,25 @@ class _EditBasicsDialog extends StatefulWidget {
 
 class _EditBasicsDialogState extends State<_EditBasicsDialog> {
   late final TextEditingController _titleController;
-  late ProjectTaskStatus _status;
-  late TaskPriority _priority;
-  var _saving = false;
+  late final ValueNotifier<ProjectTaskStatus> _status;
+  late final ValueNotifier<TaskPriority> _priority;
+  final ValueNotifier<bool> _saving = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
     final task = widget.details.task;
     _titleController = TextEditingController(text: task.title);
-    _status = task.status;
-    _priority = task.priority;
+    _status = ValueNotifier(task.status);
+    _priority = ValueNotifier(task.priority);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
+    _status.dispose();
+    _priority.dispose();
+    _saving.dispose();
     super.dispose();
   }
 
@@ -223,130 +232,133 @@ class _EditBasicsDialogState extends State<_EditBasicsDialog> {
     final l10n = context.l10n;
     final colors = context.colors;
 
-    return WorkspaceCreationModalWrapper(
-      title: l10n.taskDetailsEditBasics,
-      icon: Symbols.edit_note_rounded,
-      accentColor: colors.primary,
-      isSubmitting: _saving,
-      submitLabel: l10n.save,
-      cancelLabel: l10n.cancel,
-      maxWidth: 460,
-      onSubmit: _save,
-      body: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l10n.taskDetailsTitleField,
-            style: context.text.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          Gaps.h8,
-          TextField(
-            controller: _titleController,
-            autofocus: true,
-            maxLength: 300,
-            decoration: InputDecoration(
-              hintText: l10n.taskDetailsTitleField,
-              border: const OutlineInputBorder(
-                borderRadius: .all(.circular(10)),
-              ),
-              contentPadding: const .symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p12,
+    return AnimatedBuilder(
+      animation: Listenable.merge([_status, _priority, _saving]),
+      builder: (context, _) => WorkspaceCreationModalWrapper(
+        title: l10n.taskDetailsEditBasics,
+        icon: Symbols.edit_note_rounded,
+        accentColor: colors.primary,
+        isSubmitting: _saving.value,
+        submitLabel: l10n.save,
+        cancelLabel: l10n.cancel,
+        maxWidth: 460,
+        onSubmit: _save,
+        body: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.taskDetailsTitleField,
+              style: context.text.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: colors.onSurfaceVariant,
               ),
             ),
-            onSubmitted: (_) => _save(),
-          ),
-          Gaps.h12,
-          Text(
-            l10n.taskDetailsStatusField,
-            style: context.text.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          Gaps.h8,
-          DropdownButtonFormField<ProjectTaskStatus>(
-            initialValue: _status,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: .all(.circular(10)),
-              ),
-              contentPadding: .symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p8,
-              ),
-            ),
-            items: [
-              for (final status in statuses)
-                DropdownMenuItem(
-                  value: status,
-                  child: Text(_statusLabel(context, status)),
+            Gaps.h8,
+            TextField(
+              controller: _titleController,
+              autofocus: true,
+              maxLength: 300,
+              decoration: InputDecoration(
+                hintText: l10n.taskDetailsTitleField,
+                border: const OutlineInputBorder(
+                  borderRadius: .all(.circular(10)),
                 ),
-            ],
-            onChanged: _saving
-                ? null
-                : (value) {
-                    if (value != null) setState(() => _status = value);
-                  },
-          ),
-          Gaps.h12,
-          Text(
-            l10n.taskDetailsPriorityField,
-            style: context.text.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          Gaps.h8,
-          DropdownButtonFormField<TaskPriority>(
-            initialValue: _priority,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: .all(.circular(10)),
-              ),
-              contentPadding: .symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p8,
-              ),
-            ),
-            items: [
-              for (final priority in TaskPriority.values)
-                DropdownMenuItem(
-                  value: priority,
-                  child: Text(_priorityLabel(context, priority)),
+                contentPadding: const .symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p12,
                 ),
-            ],
-            onChanged: _saving
-                ? null
-                : (value) {
-                    if (value != null) setState(() => _priority = value);
-                  },
-          ),
-        ],
+              ),
+              onSubmitted: (_) => _save(),
+            ),
+            Gaps.h12,
+            Text(
+              l10n.taskDetailsStatusField,
+              style: context.text.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            Gaps.h8,
+            DropdownButtonFormField<ProjectTaskStatus>(
+              initialValue: _status.value,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: .all(.circular(10)),
+                ),
+                contentPadding: .symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p8,
+                ),
+              ),
+              items: [
+                for (final status in statuses)
+                  DropdownMenuItem(
+                    value: status,
+                    child: Text(TaskDetailsLabeler.status(context, status)),
+                  ),
+              ],
+              onChanged: _saving.value
+                  ? null
+                  : (value) {
+                      if (value != null) _status.value = value;
+                    },
+            ),
+            Gaps.h12,
+            Text(
+              l10n.taskDetailsPriorityField,
+              style: context.text.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            Gaps.h8,
+            DropdownButtonFormField<TaskPriority>(
+              initialValue: _priority.value,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: .all(.circular(10)),
+                ),
+                contentPadding: .symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p8,
+                ),
+              ),
+              items: [
+                for (final priority in TaskPriority.values)
+                  DropdownMenuItem(
+                    value: priority,
+                    child: Text(TaskDetailsLabeler.priority(context, priority)),
+                  ),
+              ],
+              onChanged: _saving.value
+                  ? null
+                  : (value) {
+                      if (value != null) _priority.value = value;
+                    },
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _save() async {
     if (_titleController.text.trim().isEmpty) return;
-    setState(() => _saving = true);
+    _saving.value = true;
     final saved = await context.read<TaskDetailsCubit>().updateBasics(
       title: _titleController.text,
-      status: _status,
-      priority: _priority,
+      status: _status.value,
+      priority: _priority.value,
     );
     if (!mounted) return;
     if (saved) {
       Navigator.of(context).pop();
     } else {
-      setState(() => _saving = false);
+      _saving.value = false;
     }
   }
 }

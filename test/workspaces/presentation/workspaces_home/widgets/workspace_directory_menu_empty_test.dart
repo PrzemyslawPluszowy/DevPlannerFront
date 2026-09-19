@@ -1,8 +1,8 @@
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/directory_menu/widgets/workspace_directory_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/directory_menu/widgets/workspace_directory_empty_state.dart';
 
 void main() {
   testWidgets('kompaktowy empty state pokazuje CTA utworzenia workspace’u', (

@@ -1,14 +1,14 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/chat_conversation_page.dart';
+import 'package:devplanner/workspaces/presentation/chat/discussion/cubit/chat_discussion_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/discussion/cubit/chat_discussion_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/chat_conversation_page.dart';
-import 'package:ready_next/workspaces/presentation/chat/discussion/cubit/chat_discussion_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/discussion/cubit/chat_discussion_state.dart';
 
 /// Prawy panel tworzenia albo odczytu nazwanej dyskusji wiadomości.
 class ChatDiscussionSidePanel extends StatefulWidget {

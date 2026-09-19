@@ -17,9 +17,8 @@ mixin _$ProjectMemberResponse {
 
 /// UUID członkostwa projektu.
  String get id;/// UUID członkostwa użytkownika w workspace.
- String get workspaceMembershipId;/// UUID użytkownika Core.
- String get coreUserId;/// Identyfikator użytkownika Ready albo null.
- int? get readyUserId;/// Rola użytkownika w projekcie.
+ String get workspaceMembershipId;/// UUID lokalnego użytkownika.
+ String get userId;/// Rola użytkownika w projekcie.
  ProjectRole get role;/// Czas utworzenia członkostwa.
  DateTime get createdAtUtc;/// Czas cofnięcia członkostwa albo null.
  DateTime? get revokedAtUtc;
@@ -35,16 +34,16 @@ $ProjectMemberResponseCopyWith<ProjectMemberResponse> get copyWith => _$ProjectM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectMemberResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceMembershipId, workspaceMembershipId) || other.workspaceMembershipId == workspaceMembershipId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.revokedAtUtc, revokedAtUtc) || other.revokedAtUtc == revokedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectMemberResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceMembershipId, workspaceMembershipId) || other.workspaceMembershipId == workspaceMembershipId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.revokedAtUtc, revokedAtUtc) || other.revokedAtUtc == revokedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceMembershipId,coreUserId,readyUserId,role,createdAtUtc,revokedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,workspaceMembershipId,userId,role,createdAtUtc,revokedAtUtc);
 
 @override
 String toString() {
-  return 'ProjectMemberResponse(id: $id, workspaceMembershipId: $workspaceMembershipId, coreUserId: $coreUserId, readyUserId: $readyUserId, role: $role, createdAtUtc: $createdAtUtc, revokedAtUtc: $revokedAtUtc)';
+  return 'ProjectMemberResponse(id: $id, workspaceMembershipId: $workspaceMembershipId, userId: $userId, role: $role, createdAtUtc: $createdAtUtc, revokedAtUtc: $revokedAtUtc)';
 }
 
 
@@ -55,7 +54,7 @@ abstract mixin class $ProjectMemberResponseCopyWith<$Res>  {
   factory $ProjectMemberResponseCopyWith(ProjectMemberResponse value, $Res Function(ProjectMemberResponse) _then) = _$ProjectMemberResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String workspaceMembershipId, String coreUserId, int? readyUserId, ProjectRole role, DateTime createdAtUtc, DateTime? revokedAtUtc
+ String id, String workspaceMembershipId, String userId, ProjectRole role, DateTime createdAtUtc, DateTime? revokedAtUtc
 });
 
 
@@ -72,13 +71,12 @@ class _$ProjectMemberResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectMemberResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceMembershipId = null,Object? coreUserId = null,Object? readyUserId = freezed,Object? role = null,Object? createdAtUtc = null,Object? revokedAtUtc = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceMembershipId = null,Object? userId = null,Object? role = null,Object? createdAtUtc = null,Object? revokedAtUtc = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceMembershipId: null == workspaceMembershipId ? _self.workspaceMembershipId : workspaceMembershipId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
-as String,readyUserId: freezed == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as ProjectRole,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,revokedAtUtc: freezed == revokedAtUtc ? _self.revokedAtUtc : revokedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,
@@ -166,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceMembershipId,  String coreUserId,  int? readyUserId,  ProjectRole role,  DateTime createdAtUtc,  DateTime? revokedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceMembershipId,  String userId,  ProjectRole role,  DateTime createdAtUtc,  DateTime? revokedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProjectMemberResponse() when $default != null:
-return $default(_that.id,_that.workspaceMembershipId,_that.coreUserId,_that.readyUserId,_that.role,_that.createdAtUtc,_that.revokedAtUtc);case _:
+return $default(_that.id,_that.workspaceMembershipId,_that.userId,_that.role,_that.createdAtUtc,_that.revokedAtUtc);case _:
   return orElse();
 
 }
@@ -187,10 +185,10 @@ return $default(_that.id,_that.workspaceMembershipId,_that.coreUserId,_that.read
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceMembershipId,  String coreUserId,  int? readyUserId,  ProjectRole role,  DateTime createdAtUtc,  DateTime? revokedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceMembershipId,  String userId,  ProjectRole role,  DateTime createdAtUtc,  DateTime? revokedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ProjectMemberResponse():
-return $default(_that.id,_that.workspaceMembershipId,_that.coreUserId,_that.readyUserId,_that.role,_that.createdAtUtc,_that.revokedAtUtc);case _:
+return $default(_that.id,_that.workspaceMembershipId,_that.userId,_that.role,_that.createdAtUtc,_that.revokedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -207,10 +205,10 @@ return $default(_that.id,_that.workspaceMembershipId,_that.coreUserId,_that.read
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceMembershipId,  String coreUserId,  int? readyUserId,  ProjectRole role,  DateTime createdAtUtc,  DateTime? revokedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceMembershipId,  String userId,  ProjectRole role,  DateTime createdAtUtc,  DateTime? revokedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ProjectMemberResponse() when $default != null:
-return $default(_that.id,_that.workspaceMembershipId,_that.coreUserId,_that.readyUserId,_that.role,_that.createdAtUtc,_that.revokedAtUtc);case _:
+return $default(_that.id,_that.workspaceMembershipId,_that.userId,_that.role,_that.createdAtUtc,_that.revokedAtUtc);case _:
   return null;
 
 }
@@ -222,17 +220,15 @@ return $default(_that.id,_that.workspaceMembershipId,_that.coreUserId,_that.read
 @JsonSerializable()
 
 class _ProjectMemberResponse implements ProjectMemberResponse {
-  const _ProjectMemberResponse({required this.id, required this.workspaceMembershipId, required this.coreUserId, this.readyUserId, required this.role, required this.createdAtUtc, this.revokedAtUtc});
+  const _ProjectMemberResponse({required this.id, required this.workspaceMembershipId, required this.userId, required this.role, required this.createdAtUtc, this.revokedAtUtc});
   factory _ProjectMemberResponse.fromJson(Map<String, dynamic> json) => _$ProjectMemberResponseFromJson(json);
 
 /// UUID członkostwa projektu.
 @override final  String id;
 /// UUID członkostwa użytkownika w workspace.
 @override final  String workspaceMembershipId;
-/// UUID użytkownika Core.
-@override final  String coreUserId;
-/// Identyfikator użytkownika Ready albo null.
-@override final  int? readyUserId;
+/// UUID lokalnego użytkownika.
+@override final  String userId;
 /// Rola użytkownika w projekcie.
 @override final  ProjectRole role;
 /// Czas utworzenia członkostwa.
@@ -253,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectMemberResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceMembershipId, workspaceMembershipId) || other.workspaceMembershipId == workspaceMembershipId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.revokedAtUtc, revokedAtUtc) || other.revokedAtUtc == revokedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectMemberResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceMembershipId, workspaceMembershipId) || other.workspaceMembershipId == workspaceMembershipId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.revokedAtUtc, revokedAtUtc) || other.revokedAtUtc == revokedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceMembershipId,coreUserId,readyUserId,role,createdAtUtc,revokedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,workspaceMembershipId,userId,role,createdAtUtc,revokedAtUtc);
 
 @override
 String toString() {
-  return 'ProjectMemberResponse(id: $id, workspaceMembershipId: $workspaceMembershipId, coreUserId: $coreUserId, readyUserId: $readyUserId, role: $role, createdAtUtc: $createdAtUtc, revokedAtUtc: $revokedAtUtc)';
+  return 'ProjectMemberResponse(id: $id, workspaceMembershipId: $workspaceMembershipId, userId: $userId, role: $role, createdAtUtc: $createdAtUtc, revokedAtUtc: $revokedAtUtc)';
 }
 
 
@@ -273,7 +269,7 @@ abstract mixin class _$ProjectMemberResponseCopyWith<$Res> implements $ProjectMe
   factory _$ProjectMemberResponseCopyWith(_ProjectMemberResponse value, $Res Function(_ProjectMemberResponse) _then) = __$ProjectMemberResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String workspaceMembershipId, String coreUserId, int? readyUserId, ProjectRole role, DateTime createdAtUtc, DateTime? revokedAtUtc
+ String id, String workspaceMembershipId, String userId, ProjectRole role, DateTime createdAtUtc, DateTime? revokedAtUtc
 });
 
 
@@ -290,13 +286,12 @@ class __$ProjectMemberResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectMemberResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceMembershipId = null,Object? coreUserId = null,Object? readyUserId = freezed,Object? role = null,Object? createdAtUtc = null,Object? revokedAtUtc = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceMembershipId = null,Object? userId = null,Object? role = null,Object? createdAtUtc = null,Object? revokedAtUtc = freezed,}) {
   return _then(_ProjectMemberResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceMembershipId: null == workspaceMembershipId ? _self.workspaceMembershipId : workspaceMembershipId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
-as String,readyUserId: freezed == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as ProjectRole,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,revokedAtUtc: freezed == revokedAtUtc ? _self.revokedAtUtc : revokedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,

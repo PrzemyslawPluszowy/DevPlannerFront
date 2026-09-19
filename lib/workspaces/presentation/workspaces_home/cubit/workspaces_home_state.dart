@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/models/workspace_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/workspace_list_item.dart';
 
 /// Bazowy stan ekranu startowego Workspaces.
 sealed class WorkspacesHomeState {

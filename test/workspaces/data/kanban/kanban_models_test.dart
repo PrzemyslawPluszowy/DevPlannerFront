@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/kanban_enums.dart';
 
 void main() {
   test('akceptuje kontrakt backendu z PascalCase dla swimlane None', () {
@@ -47,7 +47,7 @@ void main() {
       final preference = UserKanbanPreferenceResponse.fromJson({
         'workspaceId': 'workspace-1',
         'projectId': 'project-1',
-        'coreUserId': 'user-1',
+        'userId': 'user-1',
         'collapsedColumns': ['Done'],
         'collapsedCustomStatusIds': ['status-1'],
         'quickFilter': 'DueSoon',
@@ -58,6 +58,7 @@ void main() {
       expect(preference.quickFilter, KanbanQuickFilter.dueSoon);
       expect(preference.collapsedCustomStatusIds, ['status-1']);
       expect(preference.toJson()['quickFilter'], 'DueSoon');
+      expect(preference.toJson()['userId'], 'user-1');
     },
   );
 }

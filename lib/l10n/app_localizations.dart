@@ -104,6 +104,24 @@ abstract class AppLocalizations {
   /// **'New document'**
   String get storageNewDocument;
 
+  /// No description provided for @storageRouteUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Files unavailable'**
+  String get storageRouteUnavailableTitle;
+
+  /// No description provided for @storageRouteInvalidWorkspaceId.
+  ///
+  /// In en, this message translates to:
+  /// **'The workspace address is invalid.'**
+  String get storageRouteInvalidWorkspaceId;
+
+  /// No description provided for @storageRouteNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Files are not configured for this session.'**
+  String get storageRouteNotConfigured;
+
   /// No description provided for @storageCreateDocumentDialogTitle.
   ///
   /// In en, this message translates to:
@@ -185,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
-  /// **'Ready Custom'**
+  /// **'DevPlanner'**
   String get appName;
 
   /// No description provided for @loginSubtitle.
@@ -236,11 +254,299 @@ abstract class AppLocalizations {
   /// **'Signing in...'**
   String get loginSubmitting;
 
+  /// No description provided for @loginRedirecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Redirecting to secure sign-in...'**
+  String get loginRedirecting;
+
+  /// No description provided for @loginBffDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in takes place on the secure DevPlanner server page. Your password is not entered or stored in this application.'**
+  String get loginBffDescription;
+
+  /// No description provided for @loginBffSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to secure sign-in'**
+  String get loginBffSubmit;
+
+  /// No description provided for @loginDesktopUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop sign-in through the system browser is not configured yet.'**
+  String get loginDesktopUnavailable;
+
+  /// No description provided for @authContractPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication is waiting for the standalone backend contract.'**
+  String get authContractPending;
+
+  /// No description provided for @authActivationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate account'**
+  String get authActivationTitle;
+
+  /// No description provided for @authActivationTokenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation token'**
+  String get authActivationTokenLabel;
+
+  /// No description provided for @authActivationPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get authActivationPasswordLabel;
+
+  /// No description provided for @authResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get authResetTitle;
+
+  /// No description provided for @authResetLoginLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username or email'**
+  String get authResetLoginLabel;
+
+  /// No description provided for @authMfaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify MFA'**
+  String get authMfaTitle;
+
+  /// No description provided for @authMfaCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get authMfaCodeLabel;
+
+  /// No description provided for @authFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value.'**
+  String get authFieldRequired;
+
   /// No description provided for @globalUserFallback.
   ///
   /// In en, this message translates to:
   /// **'User'**
   String get globalUserFallback;
+
+  /// No description provided for @adminUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get adminUsersTitle;
+
+  /// No description provided for @adminUsersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage local DevPlanner accounts'**
+  String get adminUsersSubtitle;
+
+  /// No description provided for @adminUsersUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User administration unavailable'**
+  String get adminUsersUnavailableTitle;
+
+  /// No description provided for @adminUsersUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The administration transport is not configured yet. No substitute data is displayed.'**
+  String get adminUsersUnavailableMessage;
+
+  /// No description provided for @adminUsersAccessDeniedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Access denied'**
+  String get adminUsersAccessDeniedTitle;
+
+  /// No description provided for @adminUsersAccessDeniedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session does not have permission to read accounts.'**
+  String get adminUsersAccessDeniedMessage;
+
+  /// No description provided for @adminUsersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by login, email or display name'**
+  String get adminUsersSearchHint;
+
+  /// No description provided for @adminUsersRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get adminUsersRefresh;
+
+  /// No description provided for @adminUsersCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get adminUsersCreate;
+
+  /// No description provided for @adminUsersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts'**
+  String get adminUsersEmptyTitle;
+
+  /// No description provided for @adminUsersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts match the current filters.'**
+  String get adminUsersEmptyMessage;
+
+  /// No description provided for @adminUsersLoadFailureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load accounts'**
+  String get adminUsersLoadFailureTitle;
+
+  /// No description provided for @adminUsersRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get adminUsersRetry;
+
+  /// No description provided for @adminUsersLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get adminUsersLogin;
+
+  /// No description provided for @adminUsersEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get adminUsersEmail;
+
+  /// No description provided for @adminUsersDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get adminUsersDisplayName;
+
+  /// No description provided for @adminUsersRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles'**
+  String get adminUsersRoles;
+
+  /// No description provided for @adminUsersStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get adminUsersStatus;
+
+  /// No description provided for @adminUsersCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New account'**
+  String get adminUsersCreateTitle;
+
+  /// No description provided for @adminUsersEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account'**
+  String get adminUsersEditTitle;
+
+  /// No description provided for @adminUsersSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminUsersSave;
+
+  /// No description provided for @adminUsersCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminUsersCancel;
+
+  /// No description provided for @adminUsersRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the required fields.'**
+  String get adminUsersRequired;
+
+  /// No description provided for @adminUsersRoleSystemAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'System administrator'**
+  String get adminUsersRoleSystemAdmin;
+
+  /// No description provided for @adminUsersRoleUser.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get adminUsersRoleUser;
+
+  /// No description provided for @adminUsersRoleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save roles'**
+  String get adminUsersRoleSave;
+
+  /// No description provided for @adminUsersReactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get adminUsersReactivate;
+
+  /// No description provided for @adminUsersDeactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get adminUsersDeactivate;
+
+  /// No description provided for @adminUsersSelfRoleBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot grant yourself administrator privileges.'**
+  String get adminUsersSelfRoleBlocked;
+
+  /// No description provided for @adminUsersStatusPendingActivation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending activation'**
+  String get adminUsersStatusPendingActivation;
+
+  /// No description provided for @adminUsersStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminUsersStatusActive;
+
+  /// No description provided for @adminUsersStatusDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get adminUsersStatusDeactivated;
+
+  /// No description provided for @adminUsersStatusLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get adminUsersStatusLocked;
+
+  /// No description provided for @adminUsersConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm operation'**
+  String get adminUsersConfirmAction;
+
+  /// No description provided for @adminUsersConfirmActionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This operation changes the account state.'**
+  String get adminUsersConfirmActionMessage;
 
   /// No description provided for @globalModuleDashboard.
   ///
@@ -293,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @appShellBrandName.
   ///
   /// In en, this message translates to:
-  /// **'Ready Next'**
+  /// **'DevPlanner'**
   String get appShellBrandName;
 
   /// No description provided for @appShellCommandPaletteUnavailable.
@@ -403,6 +709,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expand menu'**
   String get workspaceShellExpandMenu;
+
+  /// No description provided for @workspaceNavigationCollapseBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse branch'**
+  String get workspaceNavigationCollapseBranch;
+
+  /// No description provided for @workspaceNavigationExpandBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand branch'**
+  String get workspaceNavigationExpandBranch;
 
   /// No description provided for @workspaceShellNavigationTitle.
   ///
@@ -529,6 +847,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your session requires sign-in again'**
   String get workspacesSessionTitle;
+
+  /// No description provided for @workspacesTransportUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace transport unavailable'**
+  String get workspacesTransportUnavailableTitle;
+
+  /// No description provided for @workspacesTransportUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The workspace transport is not configured yet.'**
+  String get workspacesTransportUnavailableMessage;
+
+  /// No description provided for @workspacesSessionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again to load your workspaces.'**
+  String get workspacesSessionMessage;
+
+  /// No description provided for @workspacesForbiddenMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to read workspaces.'**
+  String get workspacesForbiddenMessage;
+
+  /// No description provided for @workspacesRequestFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The server did not return the workspace list. Try again.'**
+  String get workspacesRequestFailedMessage;
+
+  /// No description provided for @workspacesInvalidResponseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The server returned invalid workspace data.'**
+  String get workspacesInvalidResponseMessage;
+
+  /// No description provided for @workspacesHttpStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP status: {statusCode}'**
+  String workspacesHttpStatus(int statusCode);
 
   /// No description provided for @workspacesRefresh.
   ///
@@ -12482,6 +12842,42 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get tasksListQuickCreateCancel;
 
+  /// No description provided for @tasksListCreateTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A task title is required.'**
+  String get tasksListCreateTitleRequired;
+
+  /// No description provided for @tasksListCreateForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to create a task.'**
+  String get tasksListCreateForbidden;
+
+  /// No description provided for @tasksListCreateConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The data changed. Refresh the list and try again.'**
+  String get tasksListCreateConflict;
+
+  /// No description provided for @tasksListCreateValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'The task data is invalid.'**
+  String get tasksListCreateValidation;
+
+  /// No description provided for @tasksListCreateDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Task creation is already in progress.'**
+  String get tasksListCreateDuplicate;
+
+  /// No description provided for @tasksListCreateUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The task list is not ready yet.'**
+  String get tasksListCreateUnavailable;
+
   /// No description provided for @tasksListRecurrenceSeriesBadge.
   ///
   /// In en, this message translates to:
@@ -13163,19 +13559,19 @@ abstract class AppLocalizations {
   /// No description provided for @workspaceSettingsInviteDialogTitle.
   ///
   /// In en, this message translates to:
-  /// **'Invite Ready user to workspace'**
+  /// **'Invite local user to workspace'**
   String get workspaceSettingsInviteDialogTitle;
 
   /// No description provided for @workspaceSettingsSearchReadyHint.
   ///
   /// In en, this message translates to:
-  /// **'Type name or email to search in Ready...'**
+  /// **'Type name, login, or email to search local users...'**
   String get workspaceSettingsSearchReadyHint;
 
   /// No description provided for @workspaceSettingsSearchReadyMinChars.
   ///
   /// In en, this message translates to:
-  /// **'Type at least 2 characters to search in Ready directory.'**
+  /// **'Type at least 2 characters to search the local directory.'**
   String get workspaceSettingsSearchReadyMinChars;
 
   /// No description provided for @workspaceSettingsInvitationsSentHeader.
@@ -14048,6 +14444,24 @@ abstract class AppLocalizations {
   /// **'Restore'**
   String get storageRestoreSelected;
 
+  /// No description provided for @storageRestoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore file?'**
+  String get storageRestoreConfirmTitle;
+
+  /// No description provided for @storageRestoreConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The file will be restored from the trash.'**
+  String get storageRestoreConfirmMessage;
+
+  /// No description provided for @storageRestoreSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'File restored.'**
+  String get storageRestoreSuccess;
+
   /// No description provided for @storageClearSelection.
   ///
   /// In en, this message translates to:
@@ -14138,11 +14552,59 @@ abstract class AppLocalizations {
   /// **'Create'**
   String get storageCreateFolderButton;
 
+  /// No description provided for @storageCreateFolderSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder created successfully.'**
+  String get storageCreateFolderSuccess;
+
+  /// No description provided for @storageCreateFolderConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A folder with this name already exists.'**
+  String get storageCreateFolderConflict;
+
+  /// No description provided for @storageCreateFolderValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid folder name.'**
+  String get storageCreateFolderValidation;
+
   /// No description provided for @storageRenameFolderDialogTitle.
   ///
   /// In en, this message translates to:
   /// **'Rename folder'**
   String get storageRenameFolderDialogTitle;
+
+  /// No description provided for @storageRenameFolderButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get storageRenameFolderButton;
+
+  /// No description provided for @storageRenameFolderSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder renamed successfully.'**
+  String get storageRenameFolderSuccess;
+
+  /// No description provided for @storageRenameFolderNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The folder no longer exists.'**
+  String get storageRenameFolderNotFound;
+
+  /// No description provided for @storageRenameFolderConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A folder with this name already exists.'**
+  String get storageRenameFolderConflict;
+
+  /// No description provided for @storageRenameFolderValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid folder name.'**
+  String get storageRenameFolderValidation;
 
   /// No description provided for @storageDeleteConfirmTitle.
   ///
@@ -14155,6 +14617,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to move selected items to trash?'**
   String get storageDeleteConfirmMessage;
+
+  /// No description provided for @storageDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Item moved to trash.'**
+  String get storageDeleteSuccess;
+
+  /// No description provided for @storageMutationNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The folder no longer exists.'**
+  String get storageMutationNotFound;
+
+  /// No description provided for @storageMutationConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A folder with this name already exists.'**
+  String get storageMutationConflict;
+
+  /// No description provided for @storageMutationValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid folder name.'**
+  String get storageMutationValidation;
 
   /// No description provided for @storageShareTitle.
   ///
@@ -14201,13 +14687,13 @@ abstract class AppLocalizations {
   /// No description provided for @storageUserSearchWorkspaceRequired.
   ///
   /// In en, this message translates to:
-  /// **'Ready directory search is available for workspace or project files.'**
+  /// **'Local directory search is available for workspace or project files.'**
   String get storageUserSearchWorkspaceRequired;
 
   /// No description provided for @storageUserSearchNoResults.
   ///
   /// In en, this message translates to:
-  /// **'No users with an active Core account were found.'**
+  /// **'No users with an active local account were found.'**
   String get storageUserSearchNoResults;
 
   /// No description provided for @storageAddShareButton.
@@ -14239,6 +14725,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download the file using a secure link. If the owner set a password, enter it below.'**
   String get storagePublicSharePageDescription;
+
+  /// No description provided for @storagePublicShareUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Public sharing is temporarily unavailable.'**
+  String get storagePublicShareUnavailable;
 
   /// No description provided for @storagePublicSharePassword.
   ///
@@ -14353,6 +14845,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download'**
   String get storageDownloadAction;
+
+  /// Confirmation that a desktop file was saved in Downloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded file: {fileName} to Downloads'**
+  String storageDownloadSuccess(String fileName);
 
   /// No description provided for @storageDeleteAction.
   ///
@@ -14881,6 +15379,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load notifications'**
   String get globalNotificationsLoadFailureTitle;
+
+  /// No description provided for @globalNotificationsTransportUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are not available yet'**
+  String get globalNotificationsTransportUnavailableTitle;
+
+  /// No description provided for @globalNotificationsTransportUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The standalone notifications transport is not configured yet.'**
+  String get globalNotificationsTransportUnavailableMessage;
 
   /// No description provided for @globalNotificationsMarkAllRead.
   ///
@@ -15485,6 +15995,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed'**
   String get chatAttachmentStatusFailed;
+
+  /// No description provided for @meProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get meProfileTitle;
+
+  /// No description provided for @meProfileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your profile, password and active sessions'**
+  String get meProfileSubtitle;
+
+  /// No description provided for @mePersonalSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Information'**
+  String get mePersonalSectionTitle;
+
+  /// No description provided for @mePersonalSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your basic identification details in the system'**
+  String get mePersonalSectionSubtitle;
+
+  /// No description provided for @meLoginLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get meLoginLabel;
+
+  /// No description provided for @meEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get meEmailLabel;
+
+  /// No description provided for @meDisplayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get meDisplayNameLabel;
+
+  /// No description provided for @meDisplayNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter display name'**
+  String get meDisplayNameHint;
+
+  /// No description provided for @meDisplayNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name cannot be empty'**
+  String get meDisplayNameRequired;
+
+  /// No description provided for @meRolesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned roles'**
+  String get meRolesLabel;
+
+  /// No description provided for @mePermissionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get mePermissionsLabel;
+
+  /// No description provided for @meSaveProfileButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save profile'**
+  String get meSaveProfileButton;
+
+  /// No description provided for @meProfileUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully.'**
+  String get meProfileUpdateSuccess;
+
+  /// No description provided for @mePasswordSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get mePasswordSectionTitle;
+
+  /// No description provided for @mePasswordSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum 15 characters required for account security'**
+  String get mePasswordSectionSubtitle;
+
+  /// No description provided for @meCurrentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get meCurrentPasswordLabel;
+
+  /// No description provided for @meCurrentPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter current password'**
+  String get meCurrentPasswordHint;
+
+  /// No description provided for @meCurrentPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is required'**
+  String get meCurrentPasswordRequired;
+
+  /// No description provided for @meNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get meNewPasswordLabel;
+
+  /// No description provided for @meNewPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 15 characters'**
+  String get meNewPasswordHint;
+
+  /// No description provided for @meNewPasswordMinLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'New password must be at least 15 characters long'**
+  String get meNewPasswordMinLengthError;
+
+  /// No description provided for @meNewPasswordMaxLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'New password can be at most 128 characters long'**
+  String get meNewPasswordMaxLengthError;
+
+  /// No description provided for @meNewPasswordSameAsCurrentError.
+  ///
+  /// In en, this message translates to:
+  /// **'New password must differ from current password'**
+  String get meNewPasswordSameAsCurrentError;
+
+  /// No description provided for @meConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get meConfirmPasswordLabel;
+
+  /// No description provided for @meConfirmPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat new password'**
+  String get meConfirmPasswordHint;
+
+  /// No description provided for @mePasswordsDoNotMatchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get mePasswordsDoNotMatchError;
+
+  /// No description provided for @meChangePasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get meChangePasswordButton;
+
+  /// No description provided for @mePasswordChangeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully.'**
+  String get mePasswordChangeSuccess;
+
+  /// No description provided for @meSessionsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Device Sessions'**
+  String get meSessionsSectionTitle;
+
+  /// No description provided for @meSessionsSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in devices and browsers linked to your account'**
+  String get meSessionsSectionSubtitle;
+
+  /// No description provided for @meSessionCurrentBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Current session'**
+  String get meSessionCurrentBadge;
+
+  /// No description provided for @meSessionCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created: {date}'**
+  String meSessionCreated(String date);
+
+  /// No description provided for @meSessionLastSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen: {date}'**
+  String meSessionLastSeen(String date);
+
+  /// No description provided for @meSessionRevokeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke session'**
+  String get meSessionRevokeButton;
+
+  /// No description provided for @meSessionRevokeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke this session?'**
+  String get meSessionRevokeConfirmTitle;
+
+  /// No description provided for @meSessionRevokeConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The session on \"{device}\" will be revoked and signed out.'**
+  String meSessionRevokeConfirmMessage(String device);
+
+  /// No description provided for @meSessionRevokeConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke session'**
+  String get meSessionRevokeConfirmAction;
+
+  /// No description provided for @meSessionRevokedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Session revoked successfully.'**
+  String get meSessionRevokedSuccess;
+
+  /// No description provided for @meSessionsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No active sessions to display.'**
+  String get meSessionsEmpty;
+
+  /// No description provided for @meSessionsRefreshTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh sessions'**
+  String get meSessionsRefreshTooltip;
+
+  /// No description provided for @meProfileRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get meProfileRetry;
+
+  /// No description provided for @meUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile unavailable'**
+  String get meUnavailableTitle;
+
+  /// No description provided for @meUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile service is not configured yet.'**
+  String get meUnavailableMessage;
 }
 
 class _AppLocalizationsDelegate

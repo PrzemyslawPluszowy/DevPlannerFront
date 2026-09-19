@@ -1,26 +1,26 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_project_realtime.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_workflow_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/kanban_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/task_project_realtime_update.dart';
-import 'package:ready_next/workspaces/domain/repositories/kanban_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_collaboration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_project_realtime.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_workflow_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 
 final class _KanbanRepository implements KanbanRepository {
   _KanbanRepository(this.board);
@@ -333,7 +333,7 @@ UserKanbanPreferenceResponse _preference() =>
     const UserKanbanPreferenceResponse(
       workspaceId: 'workspace-1',
       projectId: 'project-1',
-      coreUserId: 'user-1',
+      userId: 'user-1',
       collapsedColumns: [],
       collapsedCustomStatusIds: [],
       quickFilter: KanbanQuickFilter.all,
@@ -449,14 +449,14 @@ void main() {
         workspaceId: 'workspace-1',
         projectId: 'project-1',
         users: const [
-          TaskProjectPresenceUser(coreUserId: 'user-1', connectionCount: 2),
+          TaskProjectPresenceUser(userId: 'user-1', connectionCount: 2),
         ],
         updatedAtUtc: DateTime.utc(2026, 8, 26),
       ),
     );
     await Future<void>.delayed(Duration.zero);
     expect(
-      (cubit.state as TasksBoardReady).presence.single.coreUserId,
+      (cubit.state as TasksBoardReady).presence.single.userId,
       'user-1',
     );
 

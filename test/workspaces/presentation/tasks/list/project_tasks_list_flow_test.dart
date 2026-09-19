@@ -1,30 +1,30 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_project_realtime.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/data/shared/enums/kanban_enums.dart';
-import 'package:ready_next/workspaces/domain/models/task_project_realtime_update.dart';
-import 'package:ready_next/workspaces/domain/repositories/kanban_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_collaboration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_list_configuration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_project_realtime.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/project_tasks_list.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_table.dart';
 
 final class _MockTasksRepo implements TasksRepository {
   int listCalls = 0;
@@ -105,7 +105,7 @@ final class _MockConfigRepo implements TaskListConfigurationRepository {
       TaskListUserPreferenceResponse(
         workspaceId: workspaceId,
         projectId: projectId,
-        coreUserId: 'u-1',
+        userId: 'u-1',
         visibleColumns: payload.visibleColumns,
         columnWidths: payload.columnWidths,
         sortField: payload.sortField,

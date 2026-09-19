@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
 
 sealed class ChatDiscussionState {
   const ChatDiscussionState();

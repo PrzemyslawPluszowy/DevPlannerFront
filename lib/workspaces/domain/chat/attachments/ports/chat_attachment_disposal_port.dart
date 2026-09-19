@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/chat/attachments/models/chat_attachment.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment.dart';
 
 /// Przyszła brama usuwania tymczasowych danych załączników po revoke.
 ///

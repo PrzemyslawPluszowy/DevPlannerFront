@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_capacity_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_capacity_models.dart';
 
 /// Kontrakt pojemności workspace, override’ów projektu oraz jego workloadu.
 abstract interface class TaskCapacityRepository {

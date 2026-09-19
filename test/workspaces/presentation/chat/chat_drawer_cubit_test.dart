@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_drawer_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_drawer_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/chat_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/chat_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_drawer_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_drawer_state.dart';
 
 class _FakeChatRepository implements ChatRepository {
   const _FakeChatRepository(this.result);

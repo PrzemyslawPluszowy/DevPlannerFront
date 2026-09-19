@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 
 void main() {
   StorageUploadInput input() => StorageUploadInput(
@@ -68,7 +68,7 @@ void main() {
       final current = cubit.start('new', input());
       port.firstCreate!.complete(const ChatAttachmentUploadSession('stale'));
       await Future.wait([old, current]);
-    expect((cubit.state as ChatAttachmentUploadReady).sessionId, 'session-2');
+      expect((cubit.state as ChatAttachmentUploadReady).sessionId, 'session-2');
       expect(port.cancelled, contains(('old', 'stale')));
     },
   );
@@ -82,7 +82,9 @@ final class FakePort implements ChatAttachmentUploadPort {
   int creates = 0;
   int polls = 0;
   @override
-  Future<ChatAttachmentUploadSession> createSession(String conversationId) async {
+  Future<ChatAttachmentUploadSession> createSession(
+    String conversationId,
+  ) async {
     creates++;
     if (creates == 1 && firstCreate != null) return firstCreate!.future;
     return ChatAttachmentUploadSession('session-$creates');

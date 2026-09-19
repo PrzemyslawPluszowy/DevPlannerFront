@@ -1,24 +1,15 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:devplanner/core/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_coordinator.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 enum AppBubbleToastTone { info, success, warning, error }
 
 /// Sesyjny właściciel pojedynczego transient toastu.
 ///
-/// Toast nie jest route'em modalnym. Gdy [AppModalCoordinator] trzyma aktywną
-/// barierę, właściciel usuwa bieżący toast i kolejkuje nowe żądania do
-/// czasu zamknięcia modala. Dzięki temu transient nigdy nie renderuje się nad
-/// barierą rootowego modala.
 class AppBubbleToastController extends ChangeNotifier {
-  AppBubbleToastController(this._modalCoordinator) {
-    _modalCoordinator.addListener(_handleModalStateChanged);
-  }
-
-  final AppModalCoordinator _modalCoordinator;
+  AppBubbleToastController();
   OverlayEntry? _currentEntry;
   Timer? _currentTimer;
   final Queue<_AppBubbleToastRequest> _pendingRequests =
@@ -42,10 +33,6 @@ class AppBubbleToastController extends ChangeNotifier {
       alignment: alignment,
     );
     _removeCurrent();
-    if (_modalCoordinator.isPresenting) {
-      _pendingRequests.add(request);
-      return;
-    }
     _showRequest(request);
   }
 
@@ -55,21 +42,9 @@ class AppBubbleToastController extends ChangeNotifier {
     _removeCurrent();
   }
 
-  void _handleModalStateChanged() {
-    if (_modalCoordinator.isPresenting) {
-      _removeCurrent();
-      return;
-    }
-    _showNextPendingRequest();
-  }
-
   void _showRequest(_AppBubbleToastRequest request) {
-    if (!request.overlay.mounted || _modalCoordinator.isPresenting) {
-      if (_modalCoordinator.isPresenting) {
-        _pendingRequests.addFirst(request);
-      } else {
-        _showNextPendingRequest();
-      }
+    if (!request.overlay.mounted) {
+      _showNextPendingRequest();
       return;
     }
     late final OverlayEntry entry;
@@ -93,9 +68,6 @@ class AppBubbleToastController extends ChangeNotifier {
   }
 
   void _showNextPendingRequest() {
-    if (_modalCoordinator.isPresenting) {
-      return;
-    }
     while (_pendingRequests.isNotEmpty) {
       final request = _pendingRequests.removeFirst();
       if (request.overlay.mounted) {
@@ -114,7 +86,6 @@ class AppBubbleToastController extends ChangeNotifier {
 
   @override
   void dispose() {
-    _modalCoordinator.removeListener(_handleModalStateChanged);
     dismiss();
     super.dispose();
   }

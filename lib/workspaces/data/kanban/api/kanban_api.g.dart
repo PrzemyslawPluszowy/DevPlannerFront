@@ -86,7 +86,7 @@ class _KanbanApi implements KanbanApi {
     ProjectTaskStatus status, {
     String? cursor,
     int? limit,
-    String? assigneeCoreUserId,
+    String? assigneeUserId,
     TaskPriority? priority,
     String? milestoneId,
   }) async {
@@ -94,7 +94,7 @@ class _KanbanApi implements KanbanApi {
     final queryParameters = <String, dynamic>{
       r'cursor': cursor,
       r'limit': limit,
-      r'assigneeCoreUserId': assigneeCoreUserId,
+      r'assigneeUserId': assigneeUserId,
       r'priority': priority,
       r'milestoneId': milestoneId,
     };
@@ -132,7 +132,7 @@ class _KanbanApi implements KanbanApi {
     String customStatusId, {
     String? cursor,
     int? limit,
-    String? assigneeCoreUserId,
+    String? assigneeUserId,
     TaskPriority? priority,
     String? milestoneId,
   }) async {
@@ -140,7 +140,7 @@ class _KanbanApi implements KanbanApi {
     final queryParameters = <String, dynamic>{
       r'cursor': cursor,
       r'limit': limit,
-      r'assigneeCoreUserId': assigneeCoreUserId,
+      r'assigneeUserId': assigneeUserId,
       r'priority': priority,
       r'milestoneId': milestoneId,
     };

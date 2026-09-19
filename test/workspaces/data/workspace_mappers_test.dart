@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/workspaces/mappers/workspace_mappers.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/workspaces/mappers/workspace_mappers.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
 
 void main() {
   test('mapuje pełną odpowiedź listy do modelu domenowego', () {

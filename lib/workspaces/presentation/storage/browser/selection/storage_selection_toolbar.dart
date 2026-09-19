@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/selection/cubit/storage_selection_state.dart';
 
 /// Pasek akcji masowych (Bulk Toolbar) pojawiający się po zaznaczeniu plików lub folderów.
 class StorageSelectionToolbar extends StatelessWidget {

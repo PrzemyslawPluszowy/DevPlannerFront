@@ -1,48 +1,49 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/project_settings_modal.dart';
+import 'package:devplanner/workspaces/presentation/tasks/helpers/task_permission_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/custom_fields/task_cell_custom_field.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_business_value.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_complexity.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_duration.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_risk.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_size.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_assignees.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_checklist.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_dates.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_key.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_labels.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_milestone.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_priority.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_status.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_task_type.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_title.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_watchers.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_row_actions.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_column_reference.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/project_settings_modal.dart';
-import 'package:ready_next/workspaces/presentation/tasks/helpers/task_permission_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/custom_fields/task_cell_custom_field.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/metrics/task_cell_business_value.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/metrics/task_cell_complexity.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/metrics/task_cell_duration.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/metrics/task_cell_risk.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/metrics/task_cell_size.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_assignees.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_checklist.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_dates.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_labels.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_milestone.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_priority.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_status.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_task_type.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_title.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/task_cell_watchers.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/rows/task_list_row_actions.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 part 'task_list_cell.part.dart';
-part 'task_list_row_selection_cell.part.dart';
 part 'task_list_row_cells.part.dart';
+part 'task_list_row_selection_cell.part.dart';
 
 /// Pojedynczy wiersz zadania w tabeli listy zadań.
 ///
@@ -53,7 +54,7 @@ class TaskListRow extends StatelessWidget {
     required this.task,
     this.columns = defaultTaskListColumns,
     this.columnReferences,
-    required this.memberProfilesByCoreUserId,
+    required this.memberProfilesByUserId,
     super.key,
     this.onOpen,
     this.onDuplicate,
@@ -97,7 +98,7 @@ class TaskListRow extends StatelessWidget {
   final List<TaskSavedViewColumn> columns;
   final List<TaskColumnReference>? columnReferences;
   final Map<String, double> columnWidthsById;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final Future<bool> Function(String title)? onTitleChanged;
   final VoidCallback? onOpen;
   final Future<void> Function()? onDuplicate;
@@ -109,7 +110,7 @@ class TaskListRow extends StatelessWidget {
   final Future<bool> Function(String taskType)? onTaskTypeChanged;
   final Future<bool> Function(TaskSavedViewColumn column, int? value)?
   onSystemMetricChanged;
-  final Future<bool> Function(List<String> coreUserIds)? onAssigneesChanged;
+  final Future<bool> Function(List<String> userIds)? onAssigneesChanged;
   final Future<bool> Function(DateTime? dueAtUtc)? onDueDateChanged;
   final Future<bool> Function(DateTime? startAtUtc)? onStartDateChanged;
   final Future<bool> Function()? onArchive;
@@ -175,7 +176,7 @@ class TaskListRow extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onSecondaryTapDown: (details) => unawaited(
-        showTaskRowContextMenu(
+        TaskRowContextMenu.show(
           context,
           task: task,
           position: details.globalPosition,
@@ -191,7 +192,7 @@ class TaskListRow extends StatelessWidget {
           onWatchingToggled: onWatchingToggled,
           onRecurrenceToggled: onRecurrenceToggled,
           onRecurrenceConfigured: onRecurrenceConfigured,
-          profiles: memberProfilesByCoreUserId,
+          profiles: memberProfilesByUserId,
           customFields: customFields,
           onCustomFieldChanged: onCustomFieldChanged,
           searchEligibleProfiles: loadEligibleProfilesPage,
@@ -256,7 +257,7 @@ class TaskListRow extends StatelessWidget {
           final box = context.findRenderObject() as RenderBox?;
           if (box != null) {
             unawaited(
-              showTaskRowContextMenu(
+              TaskRowContextMenu.show(
                 context,
                 task: task,
                 position: box.localToGlobal(Offset(0, box.size.height)),
@@ -272,7 +273,7 @@ class TaskListRow extends StatelessWidget {
                 onWatchingToggled: onWatchingToggled,
                 onRecurrenceToggled: onRecurrenceToggled,
                 onRecurrenceConfigured: onRecurrenceConfigured,
-                profiles: memberProfilesByCoreUserId,
+                profiles: memberProfilesByUserId,
                 customFields: customFields,
                 onCustomFieldChanged: onCustomFieldChanged,
                 searchEligibleProfiles: loadEligibleProfilesPage,
@@ -298,7 +299,7 @@ class TaskListRow extends StatelessWidget {
           onTap: openTask,
           onSecondaryTapDown: (details) {
             unawaited(
-              showTaskRowContextMenu(
+              TaskRowContextMenu.show(
                 context,
                 task: task,
                 position: details.globalPosition,
@@ -314,7 +315,7 @@ class TaskListRow extends StatelessWidget {
                 onWatchingToggled: onWatchingToggled,
                 onRecurrenceToggled: onRecurrenceToggled,
                 onRecurrenceConfigured: onRecurrenceConfigured,
-                profiles: memberProfilesByCoreUserId,
+                profiles: memberProfilesByUserId,
                 customFields: customFields,
                 onCustomFieldChanged: onCustomFieldChanged,
                 searchEligibleProfiles: loadEligibleProfilesPage,
@@ -360,23 +361,28 @@ class _OpenTaskMenuIntent extends Intent {
   const _OpenTaskMenuIntent();
 }
 
-void _openProjectSettings(BuildContext context, ProjectSettingsTab tab) {
-  final pathParameters = GoRouterState.of(context).pathParameters;
-  final workspaceId = pathParameters['workspaceId'] ?? '';
-  final projectId = pathParameters['projectId'] ?? '';
-  if (workspaceId.isEmpty || projectId.isEmpty) return;
+/// Otwiera ustawienia projektu z identyfikatorami wyłącznie z aktywnej trasy.
+final class TaskListProjectSettingsLauncher {
+  const TaskListProjectSettingsLauncher._();
 
-  final project = ProjectListItem(
-    id: projectId,
-    workspaceId: workspaceId,
-    name: '',
-    sortPosition: 0,
-  );
-  unawaited(
-    showProjectSettingsModal(
-      context: context,
-      project: project,
-      initialTab: tab,
-    ),
-  );
+  static void show(BuildContext context, ProjectSettingsTab tab) {
+    final pathParameters = GoRouterState.of(context).pathParameters;
+    final workspaceId = pathParameters['workspaceId'] ?? '';
+    final projectId = pathParameters['projectId'] ?? '';
+    if (workspaceId.isEmpty || projectId.isEmpty) return;
+
+    final project = ProjectListItem(
+      id: projectId,
+      workspaceId: workspaceId,
+      name: '',
+      sortPosition: 0,
+    );
+    unawaited(
+      ProjectSettingsDialogs.show(
+        context: context,
+        project: project,
+        initialTab: tab,
+      ),
+    );
+  }
 }

@@ -1,6 +1,6 @@
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 /// Element linku nawigacyjnego w menu katalogu Workspaces.
 class DirectoryLink extends StatelessWidget {
@@ -27,7 +27,7 @@ class DirectoryLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final currentPath = context.router.currentPath;
+    final currentPath = context.plannerNavigation.currentPath;
     final isSelected = currentPath == path || currentPath.startsWith('$path/');
 
     return Material(
@@ -41,7 +41,7 @@ class DirectoryLink extends StatelessWidget {
         ),
       ),
       child: InkWell(
-        onTap: () => context.router.navigatePath(path),
+        onTap: () => context.plannerNavigation.go(path),
         borderRadius: const .all(.circular(6)),
         hoverColor: colors.primary.withValues(alpha: .06),
         child: Container(

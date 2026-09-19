@@ -363,7 +363,7 @@ _CreateTaskFromStickyNotePayload _$CreateTaskFromStickyNotePayloadFromJson(
   dueAtUtc: json['dueAtUtc'] == null
       ? null
       : DateTime.parse(json['dueAtUtc'] as String),
-  assigneeCoreUserIds: (json['assigneeCoreUserIds'] as List<dynamic>?)
+  assigneeUserIds: (json['assigneeUserIds'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
 );
@@ -375,7 +375,7 @@ Map<String, dynamic> _$CreateTaskFromStickyNotePayloadToJson(
   'description': instance.description,
   'priority': _$TaskPriorityEnumMap[instance.priority]!,
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
-  'assigneeCoreUserIds': instance.assigneeCoreUserIds,
+  'assigneeUserIds': instance.assigneeUserIds,
 };
 
 const _$TaskPriorityEnumMap = {
@@ -398,7 +398,7 @@ _$BulkCreateTasksFromStickyNotesPayloadFromJson(Map<String, dynamic> json) =>
       dueAtUtc: json['dueAtUtc'] == null
           ? null
           : DateTime.parse(json['dueAtUtc'] as String),
-      assigneeCoreUserIds: (json['assigneeCoreUserIds'] as List<dynamic>?)
+      assigneeUserIds: (json['assigneeUserIds'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
     );
@@ -410,7 +410,7 @@ Map<String, dynamic> _$BulkCreateTasksFromStickyNotesPayloadToJson(
   'description': instance.description,
   'priority': _$TaskPriorityEnumMap[instance.priority]!,
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
-  'assigneeCoreUserIds': instance.assigneeCoreUserIds,
+  'assigneeUserIds': instance.assigneeUserIds,
 };
 
 _BulkCreateTasksFromStickyNotesResponse

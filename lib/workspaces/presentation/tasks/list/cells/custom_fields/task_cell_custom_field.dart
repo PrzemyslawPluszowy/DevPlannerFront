@@ -1,9 +1,9 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/custom_fields/task_cell_custom_primitive.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/custom_fields/task_cell_custom_select.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/custom_fields/task_cell_custom_primitive.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/custom_fields/task_cell_custom_select.dart';
 
 /// Komponent rozdzielający renderowanie i edycję komórki pola niestandardowego.
 ///

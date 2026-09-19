@@ -1,9 +1,9 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/workspace_list_item.dart';
+import 'package:devplanner/workspaces/shared/helpers/workspace_icon_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
-import 'package:ready_next/workspaces/domain/models/workspace_list_item.dart';
-import 'package:ready_next/workspaces/shared/helpers/workspace_icon_helper.dart';
 
 /// Wspólne mapowanie danych wizualnych workspace'u z backendu i zasobów.
 ///

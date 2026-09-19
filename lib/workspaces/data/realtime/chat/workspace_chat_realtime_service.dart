@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/realtime/chat/chat_realtime_event_mapper.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/domain/chat/realtime/chat_realtime_export.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/realtime/chat/chat_realtime_event_mapper.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Surowe zdarzenie z Chat Huba. Payload pozostaje mapą, ponieważ backend

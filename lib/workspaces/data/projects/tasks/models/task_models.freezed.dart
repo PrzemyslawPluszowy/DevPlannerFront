@@ -1127,7 +1127,7 @@ as int,
 /// @nodoc
 mixin _$CreateProjectTaskPayload {
 
- String get title; String? get description; String? get parentTaskId; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; List<String>? get assigneeCoreUserIds; List<String>? get checklistItems; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; int? get actualMinutes; String? get descriptionDeltaJson; String? get milestoneId; ProjectTaskStatus? get targetStatus; String? get customStatusId; String? get previousTaskId; String? get nextTaskId;
+ String get title; String? get description; String? get parentTaskId; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; List<String>? get assigneeUserIds; List<String>? get checklistItems; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; int? get actualMinutes; String? get descriptionDeltaJson; String? get milestoneId; ProjectTaskStatus? get targetStatus; String? get customStatusId; String? get previousTaskId; String? get nextTaskId;
 /// Create a copy of CreateProjectTaskPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1140,16 +1140,16 @@ $CreateProjectTaskPayloadCopyWith<CreateProjectTaskPayload> get copyWith => _$Cr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateProjectTaskPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.targetStatus, targetStatus) || other.targetStatus == targetStatus)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.previousTaskId, previousTaskId) || other.previousTaskId == previousTaskId)&&(identical(other.nextTaskId, nextTaskId) || other.nextTaskId == nextTaskId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateProjectTaskPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.targetStatus, targetStatus) || other.targetStatus == targetStatus)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.previousTaskId, previousTaskId) || other.previousTaskId == previousTaskId)&&(identical(other.nextTaskId, nextTaskId) || other.nextTaskId == nextTaskId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,description,parentTaskId,status,priority,startAtUtc,dueAtUtc,const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(checklistItems),taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,descriptionDeltaJson,milestoneId,targetStatus,customStatusId,previousTaskId,nextTaskId]);
+int get hashCode => Object.hashAll([runtimeType,title,description,parentTaskId,status,priority,startAtUtc,dueAtUtc,const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(checklistItems),taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,descriptionDeltaJson,milestoneId,targetStatus,customStatusId,previousTaskId,nextTaskId]);
 
 @override
 String toString() {
-  return 'CreateProjectTaskPayload(title: $title, description: $description, parentTaskId: $parentTaskId, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, assigneeCoreUserIds: $assigneeCoreUserIds, checklistItems: $checklistItems, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, descriptionDeltaJson: $descriptionDeltaJson, milestoneId: $milestoneId, targetStatus: $targetStatus, customStatusId: $customStatusId, previousTaskId: $previousTaskId, nextTaskId: $nextTaskId)';
+  return 'CreateProjectTaskPayload(title: $title, description: $description, parentTaskId: $parentTaskId, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, assigneeUserIds: $assigneeUserIds, checklistItems: $checklistItems, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, descriptionDeltaJson: $descriptionDeltaJson, milestoneId: $milestoneId, targetStatus: $targetStatus, customStatusId: $customStatusId, previousTaskId: $previousTaskId, nextTaskId: $nextTaskId)';
 }
 
 
@@ -1160,7 +1160,7 @@ abstract mixin class $CreateProjectTaskPayloadCopyWith<$Res>  {
   factory $CreateProjectTaskPayloadCopyWith(CreateProjectTaskPayload value, $Res Function(CreateProjectTaskPayload) _then) = _$CreateProjectTaskPayloadCopyWithImpl;
 @useResult
 $Res call({
- String title, String? description, String? parentTaskId, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, List<String>? assigneeCoreUserIds, List<String>? checklistItems, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, String? descriptionDeltaJson, String? milestoneId, ProjectTaskStatus? targetStatus, String? customStatusId, String? previousTaskId, String? nextTaskId
+ String title, String? description, String? parentTaskId, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, List<String>? assigneeUserIds, List<String>? checklistItems, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, String? descriptionDeltaJson, String? milestoneId, ProjectTaskStatus? targetStatus, String? customStatusId, String? previousTaskId, String? nextTaskId
 });
 
 
@@ -1177,7 +1177,7 @@ class _$CreateProjectTaskPayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateProjectTaskPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = freezed,Object? parentTaskId = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? assigneeCoreUserIds = freezed,Object? checklistItems = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? descriptionDeltaJson = freezed,Object? milestoneId = freezed,Object? targetStatus = freezed,Object? customStatusId = freezed,Object? previousTaskId = freezed,Object? nextTaskId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = freezed,Object? parentTaskId = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? assigneeUserIds = freezed,Object? checklistItems = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? descriptionDeltaJson = freezed,Object? milestoneId = freezed,Object? targetStatus = freezed,Object? customStatusId = freezed,Object? previousTaskId = freezed,Object? nextTaskId = freezed,}) {
   return _then(_self.copyWith(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
@@ -1186,7 +1186,7 @@ as String?,status: null == status ? _self.status : status // ignore: cast_nullab
 as ProjectTaskStatus,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,startAtUtc: freezed == startAtUtc ? _self.startAtUtc : startAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as DateTime?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,checklistItems: freezed == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<String>?,taskType: freezed == taskType ? _self.taskType : taskType // ignore: cast_nullable_to_non_nullable
 as String?,size: freezed == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
@@ -1286,10 +1286,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String? description,  String? parentTaskId,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  ProjectTaskStatus? targetStatus,  String? customStatusId,  String? previousTaskId,  String? nextTaskId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String? description,  String? parentTaskId,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  List<String>? assigneeUserIds,  List<String>? checklistItems,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  ProjectTaskStatus? targetStatus,  String? customStatusId,  String? previousTaskId,  String? nextTaskId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreateProjectTaskPayload() when $default != null:
-return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.assigneeCoreUserIds,_that.checklistItems,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.targetStatus,_that.customStatusId,_that.previousTaskId,_that.nextTaskId);case _:
+return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.assigneeUserIds,_that.checklistItems,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.targetStatus,_that.customStatusId,_that.previousTaskId,_that.nextTaskId);case _:
   return orElse();
 
 }
@@ -1307,10 +1307,10 @@ return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String? description,  String? parentTaskId,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  ProjectTaskStatus? targetStatus,  String? customStatusId,  String? previousTaskId,  String? nextTaskId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String? description,  String? parentTaskId,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  List<String>? assigneeUserIds,  List<String>? checklistItems,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  ProjectTaskStatus? targetStatus,  String? customStatusId,  String? previousTaskId,  String? nextTaskId)  $default,) {final _that = this;
 switch (_that) {
 case _CreateProjectTaskPayload():
-return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.assigneeCoreUserIds,_that.checklistItems,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.targetStatus,_that.customStatusId,_that.previousTaskId,_that.nextTaskId);case _:
+return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.assigneeUserIds,_that.checklistItems,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.targetStatus,_that.customStatusId,_that.previousTaskId,_that.nextTaskId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1327,10 +1327,10 @@ return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String? description,  String? parentTaskId,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  ProjectTaskStatus? targetStatus,  String? customStatusId,  String? previousTaskId,  String? nextTaskId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String? description,  String? parentTaskId,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  List<String>? assigneeUserIds,  List<String>? checklistItems,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  ProjectTaskStatus? targetStatus,  String? customStatusId,  String? previousTaskId,  String? nextTaskId)?  $default,) {final _that = this;
 switch (_that) {
 case _CreateProjectTaskPayload() when $default != null:
-return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.assigneeCoreUserIds,_that.checklistItems,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.targetStatus,_that.customStatusId,_that.previousTaskId,_that.nextTaskId);case _:
+return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.assigneeUserIds,_that.checklistItems,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.targetStatus,_that.customStatusId,_that.previousTaskId,_that.nextTaskId);case _:
   return null;
 
 }
@@ -1342,7 +1342,7 @@ return $default(_that.title,_that.description,_that.parentTaskId,_that.status,_t
 @JsonSerializable()
 
 class _CreateProjectTaskPayload implements CreateProjectTaskPayload {
-  const _CreateProjectTaskPayload({required this.title, this.description, this.parentTaskId, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, this.assigneeCoreUserIds, this.checklistItems, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.actualMinutes, this.descriptionDeltaJson, this.milestoneId, this.targetStatus, this.customStatusId, this.previousTaskId, this.nextTaskId});
+  const _CreateProjectTaskPayload({required this.title, this.description, this.parentTaskId, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, this.assigneeUserIds, this.checklistItems, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.actualMinutes, this.descriptionDeltaJson, this.milestoneId, this.targetStatus, this.customStatusId, this.previousTaskId, this.nextTaskId});
   factory _CreateProjectTaskPayload.fromJson(Map<String, dynamic> json) => _$CreateProjectTaskPayloadFromJson(json);
 
 @override final  String title;
@@ -1352,7 +1352,7 @@ class _CreateProjectTaskPayload implements CreateProjectTaskPayload {
 @override final  TaskPriority priority;
 @override final  DateTime? startAtUtc;
 @override final  DateTime? dueAtUtc;
-@override final  List<String>? assigneeCoreUserIds;
+@override final  List<String>? assigneeUserIds;
 @override final  List<String>? checklistItems;
 @override final  String? taskType;
 @override final  int? size;
@@ -1381,16 +1381,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateProjectTaskPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.targetStatus, targetStatus) || other.targetStatus == targetStatus)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.previousTaskId, previousTaskId) || other.previousTaskId == previousTaskId)&&(identical(other.nextTaskId, nextTaskId) || other.nextTaskId == nextTaskId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateProjectTaskPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.targetStatus, targetStatus) || other.targetStatus == targetStatus)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.previousTaskId, previousTaskId) || other.previousTaskId == previousTaskId)&&(identical(other.nextTaskId, nextTaskId) || other.nextTaskId == nextTaskId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,description,parentTaskId,status,priority,startAtUtc,dueAtUtc,const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(checklistItems),taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,descriptionDeltaJson,milestoneId,targetStatus,customStatusId,previousTaskId,nextTaskId]);
+int get hashCode => Object.hashAll([runtimeType,title,description,parentTaskId,status,priority,startAtUtc,dueAtUtc,const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(checklistItems),taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,descriptionDeltaJson,milestoneId,targetStatus,customStatusId,previousTaskId,nextTaskId]);
 
 @override
 String toString() {
-  return 'CreateProjectTaskPayload(title: $title, description: $description, parentTaskId: $parentTaskId, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, assigneeCoreUserIds: $assigneeCoreUserIds, checklistItems: $checklistItems, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, descriptionDeltaJson: $descriptionDeltaJson, milestoneId: $milestoneId, targetStatus: $targetStatus, customStatusId: $customStatusId, previousTaskId: $previousTaskId, nextTaskId: $nextTaskId)';
+  return 'CreateProjectTaskPayload(title: $title, description: $description, parentTaskId: $parentTaskId, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, assigneeUserIds: $assigneeUserIds, checklistItems: $checklistItems, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, descriptionDeltaJson: $descriptionDeltaJson, milestoneId: $milestoneId, targetStatus: $targetStatus, customStatusId: $customStatusId, previousTaskId: $previousTaskId, nextTaskId: $nextTaskId)';
 }
 
 
@@ -1401,7 +1401,7 @@ abstract mixin class _$CreateProjectTaskPayloadCopyWith<$Res> implements $Create
   factory _$CreateProjectTaskPayloadCopyWith(_CreateProjectTaskPayload value, $Res Function(_CreateProjectTaskPayload) _then) = __$CreateProjectTaskPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String title, String? description, String? parentTaskId, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, List<String>? assigneeCoreUserIds, List<String>? checklistItems, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, String? descriptionDeltaJson, String? milestoneId, ProjectTaskStatus? targetStatus, String? customStatusId, String? previousTaskId, String? nextTaskId
+ String title, String? description, String? parentTaskId, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, List<String>? assigneeUserIds, List<String>? checklistItems, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, String? descriptionDeltaJson, String? milestoneId, ProjectTaskStatus? targetStatus, String? customStatusId, String? previousTaskId, String? nextTaskId
 });
 
 
@@ -1418,7 +1418,7 @@ class __$CreateProjectTaskPayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateProjectTaskPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = freezed,Object? parentTaskId = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? assigneeCoreUserIds = freezed,Object? checklistItems = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? descriptionDeltaJson = freezed,Object? milestoneId = freezed,Object? targetStatus = freezed,Object? customStatusId = freezed,Object? previousTaskId = freezed,Object? nextTaskId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = freezed,Object? parentTaskId = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? assigneeUserIds = freezed,Object? checklistItems = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? descriptionDeltaJson = freezed,Object? milestoneId = freezed,Object? targetStatus = freezed,Object? customStatusId = freezed,Object? previousTaskId = freezed,Object? nextTaskId = freezed,}) {
   return _then(_CreateProjectTaskPayload(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
@@ -1427,7 +1427,7 @@ as String?,status: null == status ? _self.status : status // ignore: cast_nullab
 as ProjectTaskStatus,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,startAtUtc: freezed == startAtUtc ? _self.startAtUtc : startAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as DateTime?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,checklistItems: freezed == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<String>?,taskType: freezed == taskType ? _self.taskType : taskType // ignore: cast_nullable_to_non_nullable
 as String?,size: freezed == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
@@ -2054,7 +2054,7 @@ as bool,
 /// @nodoc
 mixin _$TaskAssigneeResponse {
 
- String get coreUserId; bool get isPrimary; DateTime get createdAtUtc;
+ String get userId; bool get isPrimary; DateTime get createdAtUtc;
 /// Create a copy of TaskAssigneeResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2067,16 +2067,16 @@ $TaskAssigneeResponseCopyWith<TaskAssigneeResponse> get copyWith => _$TaskAssign
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskAssigneeResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.isPrimary, isPrimary) || other.isPrimary == isPrimary)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskAssigneeResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.isPrimary, isPrimary) || other.isPrimary == isPrimary)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,isPrimary,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,isPrimary,createdAtUtc);
 
 @override
 String toString() {
-  return 'TaskAssigneeResponse(coreUserId: $coreUserId, isPrimary: $isPrimary, createdAtUtc: $createdAtUtc)';
+  return 'TaskAssigneeResponse(userId: $userId, isPrimary: $isPrimary, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -2087,7 +2087,7 @@ abstract mixin class $TaskAssigneeResponseCopyWith<$Res>  {
   factory $TaskAssigneeResponseCopyWith(TaskAssigneeResponse value, $Res Function(TaskAssigneeResponse) _then) = _$TaskAssigneeResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, bool isPrimary, DateTime createdAtUtc
+ String userId, bool isPrimary, DateTime createdAtUtc
 });
 
 
@@ -2104,9 +2104,9 @@ class _$TaskAssigneeResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskAssigneeResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? isPrimary = null,Object? createdAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? isPrimary = null,Object? createdAtUtc = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,isPrimary: null == isPrimary ? _self.isPrimary : isPrimary // ignore: cast_nullable_to_non_nullable
 as bool,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -2194,10 +2194,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  bool isPrimary,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  bool isPrimary,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskAssigneeResponse() when $default != null:
-return $default(_that.coreUserId,_that.isPrimary,_that.createdAtUtc);case _:
+return $default(_that.userId,_that.isPrimary,_that.createdAtUtc);case _:
   return orElse();
 
 }
@@ -2215,10 +2215,10 @@ return $default(_that.coreUserId,_that.isPrimary,_that.createdAtUtc);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  bool isPrimary,  DateTime createdAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  bool isPrimary,  DateTime createdAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _TaskAssigneeResponse():
-return $default(_that.coreUserId,_that.isPrimary,_that.createdAtUtc);case _:
+return $default(_that.userId,_that.isPrimary,_that.createdAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2235,10 +2235,10 @@ return $default(_that.coreUserId,_that.isPrimary,_that.createdAtUtc);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  bool isPrimary,  DateTime createdAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  bool isPrimary,  DateTime createdAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskAssigneeResponse() when $default != null:
-return $default(_that.coreUserId,_that.isPrimary,_that.createdAtUtc);case _:
+return $default(_that.userId,_that.isPrimary,_that.createdAtUtc);case _:
   return null;
 
 }
@@ -2250,10 +2250,10 @@ return $default(_that.coreUserId,_that.isPrimary,_that.createdAtUtc);case _:
 @JsonSerializable()
 
 class _TaskAssigneeResponse implements TaskAssigneeResponse {
-  const _TaskAssigneeResponse({required this.coreUserId, required this.isPrimary, required this.createdAtUtc});
+  const _TaskAssigneeResponse({required this.userId, required this.isPrimary, required this.createdAtUtc});
   factory _TaskAssigneeResponse.fromJson(Map<String, dynamic> json) => _$TaskAssigneeResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  bool isPrimary;
 @override final  DateTime createdAtUtc;
 
@@ -2270,16 +2270,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskAssigneeResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.isPrimary, isPrimary) || other.isPrimary == isPrimary)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskAssigneeResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.isPrimary, isPrimary) || other.isPrimary == isPrimary)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,isPrimary,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,isPrimary,createdAtUtc);
 
 @override
 String toString() {
-  return 'TaskAssigneeResponse(coreUserId: $coreUserId, isPrimary: $isPrimary, createdAtUtc: $createdAtUtc)';
+  return 'TaskAssigneeResponse(userId: $userId, isPrimary: $isPrimary, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -2290,7 +2290,7 @@ abstract mixin class _$TaskAssigneeResponseCopyWith<$Res> implements $TaskAssign
   factory _$TaskAssigneeResponseCopyWith(_TaskAssigneeResponse value, $Res Function(_TaskAssigneeResponse) _then) = __$TaskAssigneeResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, bool isPrimary, DateTime createdAtUtc
+ String userId, bool isPrimary, DateTime createdAtUtc
 });
 
 
@@ -2307,9 +2307,9 @@ class __$TaskAssigneeResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskAssigneeResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? isPrimary = null,Object? createdAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? isPrimary = null,Object? createdAtUtc = null,}) {
   return _then(_TaskAssigneeResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,isPrimary: null == isPrimary ? _self.isPrimary : isPrimary // ignore: cast_nullable_to_non_nullable
 as bool,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -2323,7 +2323,7 @@ as DateTime,
 /// @nodoc
 mixin _$TaskChecklistItemResponse {
 
- String get id; String get title; int get position; bool get isCompleted; String? get completedByCoreUserId; DateTime? get completedAtUtc; DateTime get updatedAtUtc;
+ String get id; String get title; int get position; bool get isCompleted; String? get completedByUserId; DateTime? get completedAtUtc; DateTime get updatedAtUtc;
 /// Create a copy of TaskChecklistItemResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2336,16 +2336,16 @@ $TaskChecklistItemResponseCopyWith<TaskChecklistItemResponse> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskChecklistItemResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.position, position) || other.position == position)&&(identical(other.isCompleted, isCompleted) || other.isCompleted == isCompleted)&&(identical(other.completedByCoreUserId, completedByCoreUserId) || other.completedByCoreUserId == completedByCoreUserId)&&(identical(other.completedAtUtc, completedAtUtc) || other.completedAtUtc == completedAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskChecklistItemResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.position, position) || other.position == position)&&(identical(other.isCompleted, isCompleted) || other.isCompleted == isCompleted)&&(identical(other.completedByUserId, completedByUserId) || other.completedByUserId == completedByUserId)&&(identical(other.completedAtUtc, completedAtUtc) || other.completedAtUtc == completedAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,position,isCompleted,completedByCoreUserId,completedAtUtc,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,title,position,isCompleted,completedByUserId,completedAtUtc,updatedAtUtc);
 
 @override
 String toString() {
-  return 'TaskChecklistItemResponse(id: $id, title: $title, position: $position, isCompleted: $isCompleted, completedByCoreUserId: $completedByCoreUserId, completedAtUtc: $completedAtUtc, updatedAtUtc: $updatedAtUtc)';
+  return 'TaskChecklistItemResponse(id: $id, title: $title, position: $position, isCompleted: $isCompleted, completedByUserId: $completedByUserId, completedAtUtc: $completedAtUtc, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -2356,7 +2356,7 @@ abstract mixin class $TaskChecklistItemResponseCopyWith<$Res>  {
   factory $TaskChecklistItemResponseCopyWith(TaskChecklistItemResponse value, $Res Function(TaskChecklistItemResponse) _then) = _$TaskChecklistItemResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, int position, bool isCompleted, String? completedByCoreUserId, DateTime? completedAtUtc, DateTime updatedAtUtc
+ String id, String title, int position, bool isCompleted, String? completedByUserId, DateTime? completedAtUtc, DateTime updatedAtUtc
 });
 
 
@@ -2373,13 +2373,13 @@ class _$TaskChecklistItemResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskChecklistItemResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? position = null,Object? isCompleted = null,Object? completedByCoreUserId = freezed,Object? completedAtUtc = freezed,Object? updatedAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? position = null,Object? isCompleted = null,Object? completedByUserId = freezed,Object? completedAtUtc = freezed,Object? updatedAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,isCompleted: null == isCompleted ? _self.isCompleted : isCompleted // ignore: cast_nullable_to_non_nullable
-as bool,completedByCoreUserId: freezed == completedByCoreUserId ? _self.completedByCoreUserId : completedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as bool,completedByUserId: freezed == completedByUserId ? _self.completedByUserId : completedByUserId // ignore: cast_nullable_to_non_nullable
 as String?,completedAtUtc: freezed == completedAtUtc ? _self.completedAtUtc : completedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -2467,10 +2467,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  int position,  bool isCompleted,  String? completedByCoreUserId,  DateTime? completedAtUtc,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  int position,  bool isCompleted,  String? completedByUserId,  DateTime? completedAtUtc,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskChecklistItemResponse() when $default != null:
-return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.completedByCoreUserId,_that.completedAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.completedByUserId,_that.completedAtUtc,_that.updatedAtUtc);case _:
   return orElse();
 
 }
@@ -2488,10 +2488,10 @@ return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.comp
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  int position,  bool isCompleted,  String? completedByCoreUserId,  DateTime? completedAtUtc,  DateTime updatedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  int position,  bool isCompleted,  String? completedByUserId,  DateTime? completedAtUtc,  DateTime updatedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _TaskChecklistItemResponse():
-return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.completedByCoreUserId,_that.completedAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.completedByUserId,_that.completedAtUtc,_that.updatedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2508,10 +2508,10 @@ return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.comp
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  int position,  bool isCompleted,  String? completedByCoreUserId,  DateTime? completedAtUtc,  DateTime updatedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  int position,  bool isCompleted,  String? completedByUserId,  DateTime? completedAtUtc,  DateTime updatedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskChecklistItemResponse() when $default != null:
-return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.completedByCoreUserId,_that.completedAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.completedByUserId,_that.completedAtUtc,_that.updatedAtUtc);case _:
   return null;
 
 }
@@ -2523,14 +2523,14 @@ return $default(_that.id,_that.title,_that.position,_that.isCompleted,_that.comp
 @JsonSerializable()
 
 class _TaskChecklistItemResponse implements TaskChecklistItemResponse {
-  const _TaskChecklistItemResponse({required this.id, required this.title, required this.position, required this.isCompleted, this.completedByCoreUserId, this.completedAtUtc, required this.updatedAtUtc});
+  const _TaskChecklistItemResponse({required this.id, required this.title, required this.position, required this.isCompleted, this.completedByUserId, this.completedAtUtc, required this.updatedAtUtc});
   factory _TaskChecklistItemResponse.fromJson(Map<String, dynamic> json) => _$TaskChecklistItemResponseFromJson(json);
 
 @override final  String id;
 @override final  String title;
 @override final  int position;
 @override final  bool isCompleted;
-@override final  String? completedByCoreUserId;
+@override final  String? completedByUserId;
 @override final  DateTime? completedAtUtc;
 @override final  DateTime updatedAtUtc;
 
@@ -2547,16 +2547,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskChecklistItemResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.position, position) || other.position == position)&&(identical(other.isCompleted, isCompleted) || other.isCompleted == isCompleted)&&(identical(other.completedByCoreUserId, completedByCoreUserId) || other.completedByCoreUserId == completedByCoreUserId)&&(identical(other.completedAtUtc, completedAtUtc) || other.completedAtUtc == completedAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskChecklistItemResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.position, position) || other.position == position)&&(identical(other.isCompleted, isCompleted) || other.isCompleted == isCompleted)&&(identical(other.completedByUserId, completedByUserId) || other.completedByUserId == completedByUserId)&&(identical(other.completedAtUtc, completedAtUtc) || other.completedAtUtc == completedAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,position,isCompleted,completedByCoreUserId,completedAtUtc,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,title,position,isCompleted,completedByUserId,completedAtUtc,updatedAtUtc);
 
 @override
 String toString() {
-  return 'TaskChecklistItemResponse(id: $id, title: $title, position: $position, isCompleted: $isCompleted, completedByCoreUserId: $completedByCoreUserId, completedAtUtc: $completedAtUtc, updatedAtUtc: $updatedAtUtc)';
+  return 'TaskChecklistItemResponse(id: $id, title: $title, position: $position, isCompleted: $isCompleted, completedByUserId: $completedByUserId, completedAtUtc: $completedAtUtc, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -2567,7 +2567,7 @@ abstract mixin class _$TaskChecklistItemResponseCopyWith<$Res> implements $TaskC
   factory _$TaskChecklistItemResponseCopyWith(_TaskChecklistItemResponse value, $Res Function(_TaskChecklistItemResponse) _then) = __$TaskChecklistItemResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, int position, bool isCompleted, String? completedByCoreUserId, DateTime? completedAtUtc, DateTime updatedAtUtc
+ String id, String title, int position, bool isCompleted, String? completedByUserId, DateTime? completedAtUtc, DateTime updatedAtUtc
 });
 
 
@@ -2584,13 +2584,13 @@ class __$TaskChecklistItemResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskChecklistItemResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? position = null,Object? isCompleted = null,Object? completedByCoreUserId = freezed,Object? completedAtUtc = freezed,Object? updatedAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? position = null,Object? isCompleted = null,Object? completedByUserId = freezed,Object? completedAtUtc = freezed,Object? updatedAtUtc = null,}) {
   return _then(_TaskChecklistItemResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,isCompleted: null == isCompleted ? _self.isCompleted : isCompleted // ignore: cast_nullable_to_non_nullable
-as bool,completedByCoreUserId: freezed == completedByCoreUserId ? _self.completedByCoreUserId : completedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as bool,completedByUserId: freezed == completedByUserId ? _self.completedByUserId : completedByUserId // ignore: cast_nullable_to_non_nullable
 as String?,completedAtUtc: freezed == completedAtUtc ? _self.completedAtUtc : completedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -3818,7 +3818,7 @@ $TaskSelectionQueryPayloadCopyWith<$Res> get query {
 /// @nodoc
 mixin _$TaskSelectionQueryPayload {
 
- String? get savedViewId; String? get status; String? get priority; String? get assigneeCoreUserId; String? get myInvolvement; String? get search; DateTime? get dueFromUtc; DateTime? get dueToUtc; bool get includeArchived; bool get pinnedOnly; bool get unassignedOnly;
+ String? get savedViewId; String? get status; String? get priority; String? get assigneeUserId; String? get myInvolvement; String? get search; DateTime? get dueFromUtc; DateTime? get dueToUtc; bool get includeArchived; bool get pinnedOnly; bool get unassignedOnly;
 /// Create a copy of TaskSelectionQueryPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3831,16 +3831,16 @@ $TaskSelectionQueryPayloadCopyWith<TaskSelectionQueryPayload> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskSelectionQueryPayload&&(identical(other.savedViewId, savedViewId) || other.savedViewId == savedViewId)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assigneeCoreUserId, assigneeCoreUserId) || other.assigneeCoreUserId == assigneeCoreUserId)&&(identical(other.myInvolvement, myInvolvement) || other.myInvolvement == myInvolvement)&&(identical(other.search, search) || other.search == search)&&(identical(other.dueFromUtc, dueFromUtc) || other.dueFromUtc == dueFromUtc)&&(identical(other.dueToUtc, dueToUtc) || other.dueToUtc == dueToUtc)&&(identical(other.includeArchived, includeArchived) || other.includeArchived == includeArchived)&&(identical(other.pinnedOnly, pinnedOnly) || other.pinnedOnly == pinnedOnly)&&(identical(other.unassignedOnly, unassignedOnly) || other.unassignedOnly == unassignedOnly));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskSelectionQueryPayload&&(identical(other.savedViewId, savedViewId) || other.savedViewId == savedViewId)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assigneeUserId, assigneeUserId) || other.assigneeUserId == assigneeUserId)&&(identical(other.myInvolvement, myInvolvement) || other.myInvolvement == myInvolvement)&&(identical(other.search, search) || other.search == search)&&(identical(other.dueFromUtc, dueFromUtc) || other.dueFromUtc == dueFromUtc)&&(identical(other.dueToUtc, dueToUtc) || other.dueToUtc == dueToUtc)&&(identical(other.includeArchived, includeArchived) || other.includeArchived == includeArchived)&&(identical(other.pinnedOnly, pinnedOnly) || other.pinnedOnly == pinnedOnly)&&(identical(other.unassignedOnly, unassignedOnly) || other.unassignedOnly == unassignedOnly));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,savedViewId,status,priority,assigneeCoreUserId,myInvolvement,search,dueFromUtc,dueToUtc,includeArchived,pinnedOnly,unassignedOnly);
+int get hashCode => Object.hash(runtimeType,savedViewId,status,priority,assigneeUserId,myInvolvement,search,dueFromUtc,dueToUtc,includeArchived,pinnedOnly,unassignedOnly);
 
 @override
 String toString() {
-  return 'TaskSelectionQueryPayload(savedViewId: $savedViewId, status: $status, priority: $priority, assigneeCoreUserId: $assigneeCoreUserId, myInvolvement: $myInvolvement, search: $search, dueFromUtc: $dueFromUtc, dueToUtc: $dueToUtc, includeArchived: $includeArchived, pinnedOnly: $pinnedOnly, unassignedOnly: $unassignedOnly)';
+  return 'TaskSelectionQueryPayload(savedViewId: $savedViewId, status: $status, priority: $priority, assigneeUserId: $assigneeUserId, myInvolvement: $myInvolvement, search: $search, dueFromUtc: $dueFromUtc, dueToUtc: $dueToUtc, includeArchived: $includeArchived, pinnedOnly: $pinnedOnly, unassignedOnly: $unassignedOnly)';
 }
 
 
@@ -3851,7 +3851,7 @@ abstract mixin class $TaskSelectionQueryPayloadCopyWith<$Res>  {
   factory $TaskSelectionQueryPayloadCopyWith(TaskSelectionQueryPayload value, $Res Function(TaskSelectionQueryPayload) _then) = _$TaskSelectionQueryPayloadCopyWithImpl;
 @useResult
 $Res call({
- String? savedViewId, String? status, String? priority, String? assigneeCoreUserId, String? myInvolvement, String? search, DateTime? dueFromUtc, DateTime? dueToUtc, bool includeArchived, bool pinnedOnly, bool unassignedOnly
+ String? savedViewId, String? status, String? priority, String? assigneeUserId, String? myInvolvement, String? search, DateTime? dueFromUtc, DateTime? dueToUtc, bool includeArchived, bool pinnedOnly, bool unassignedOnly
 });
 
 
@@ -3868,12 +3868,12 @@ class _$TaskSelectionQueryPayloadCopyWithImpl<$Res>
 
 /// Create a copy of TaskSelectionQueryPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? savedViewId = freezed,Object? status = freezed,Object? priority = freezed,Object? assigneeCoreUserId = freezed,Object? myInvolvement = freezed,Object? search = freezed,Object? dueFromUtc = freezed,Object? dueToUtc = freezed,Object? includeArchived = null,Object? pinnedOnly = null,Object? unassignedOnly = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? savedViewId = freezed,Object? status = freezed,Object? priority = freezed,Object? assigneeUserId = freezed,Object? myInvolvement = freezed,Object? search = freezed,Object? dueFromUtc = freezed,Object? dueToUtc = freezed,Object? includeArchived = null,Object? pinnedOnly = null,Object? unassignedOnly = null,}) {
   return _then(_self.copyWith(
 savedViewId: freezed == savedViewId ? _self.savedViewId : savedViewId // ignore: cast_nullable_to_non_nullable
 as String?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String?,priority: freezed == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
-as String?,assigneeCoreUserId: freezed == assigneeCoreUserId ? _self.assigneeCoreUserId : assigneeCoreUserId // ignore: cast_nullable_to_non_nullable
+as String?,assigneeUserId: freezed == assigneeUserId ? _self.assigneeUserId : assigneeUserId // ignore: cast_nullable_to_non_nullable
 as String?,myInvolvement: freezed == myInvolvement ? _self.myInvolvement : myInvolvement // ignore: cast_nullable_to_non_nullable
 as String?,search: freezed == search ? _self.search : search // ignore: cast_nullable_to_non_nullable
 as String?,dueFromUtc: freezed == dueFromUtc ? _self.dueFromUtc : dueFromUtc // ignore: cast_nullable_to_non_nullable
@@ -3966,10 +3966,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? savedViewId,  String? status,  String? priority,  String? assigneeCoreUserId,  String? myInvolvement,  String? search,  DateTime? dueFromUtc,  DateTime? dueToUtc,  bool includeArchived,  bool pinnedOnly,  bool unassignedOnly)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? savedViewId,  String? status,  String? priority,  String? assigneeUserId,  String? myInvolvement,  String? search,  DateTime? dueFromUtc,  DateTime? dueToUtc,  bool includeArchived,  bool pinnedOnly,  bool unassignedOnly)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskSelectionQueryPayload() when $default != null:
-return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeCoreUserId,_that.myInvolvement,_that.search,_that.dueFromUtc,_that.dueToUtc,_that.includeArchived,_that.pinnedOnly,_that.unassignedOnly);case _:
+return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeUserId,_that.myInvolvement,_that.search,_that.dueFromUtc,_that.dueToUtc,_that.includeArchived,_that.pinnedOnly,_that.unassignedOnly);case _:
   return orElse();
 
 }
@@ -3987,10 +3987,10 @@ return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeCore
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? savedViewId,  String? status,  String? priority,  String? assigneeCoreUserId,  String? myInvolvement,  String? search,  DateTime? dueFromUtc,  DateTime? dueToUtc,  bool includeArchived,  bool pinnedOnly,  bool unassignedOnly)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? savedViewId,  String? status,  String? priority,  String? assigneeUserId,  String? myInvolvement,  String? search,  DateTime? dueFromUtc,  DateTime? dueToUtc,  bool includeArchived,  bool pinnedOnly,  bool unassignedOnly)  $default,) {final _that = this;
 switch (_that) {
 case _TaskSelectionQueryPayload():
-return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeCoreUserId,_that.myInvolvement,_that.search,_that.dueFromUtc,_that.dueToUtc,_that.includeArchived,_that.pinnedOnly,_that.unassignedOnly);case _:
+return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeUserId,_that.myInvolvement,_that.search,_that.dueFromUtc,_that.dueToUtc,_that.includeArchived,_that.pinnedOnly,_that.unassignedOnly);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4007,10 +4007,10 @@ return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeCore
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? savedViewId,  String? status,  String? priority,  String? assigneeCoreUserId,  String? myInvolvement,  String? search,  DateTime? dueFromUtc,  DateTime? dueToUtc,  bool includeArchived,  bool pinnedOnly,  bool unassignedOnly)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? savedViewId,  String? status,  String? priority,  String? assigneeUserId,  String? myInvolvement,  String? search,  DateTime? dueFromUtc,  DateTime? dueToUtc,  bool includeArchived,  bool pinnedOnly,  bool unassignedOnly)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskSelectionQueryPayload() when $default != null:
-return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeCoreUserId,_that.myInvolvement,_that.search,_that.dueFromUtc,_that.dueToUtc,_that.includeArchived,_that.pinnedOnly,_that.unassignedOnly);case _:
+return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeUserId,_that.myInvolvement,_that.search,_that.dueFromUtc,_that.dueToUtc,_that.includeArchived,_that.pinnedOnly,_that.unassignedOnly);case _:
   return null;
 
 }
@@ -4022,13 +4022,13 @@ return $default(_that.savedViewId,_that.status,_that.priority,_that.assigneeCore
 @JsonSerializable()
 
 class _TaskSelectionQueryPayload implements TaskSelectionQueryPayload {
-  const _TaskSelectionQueryPayload({this.savedViewId, this.status, this.priority, this.assigneeCoreUserId, this.myInvolvement, this.search, this.dueFromUtc, this.dueToUtc, this.includeArchived = false, this.pinnedOnly = false, this.unassignedOnly = false});
+  const _TaskSelectionQueryPayload({this.savedViewId, this.status, this.priority, this.assigneeUserId, this.myInvolvement, this.search, this.dueFromUtc, this.dueToUtc, this.includeArchived = false, this.pinnedOnly = false, this.unassignedOnly = false});
   factory _TaskSelectionQueryPayload.fromJson(Map<String, dynamic> json) => _$TaskSelectionQueryPayloadFromJson(json);
 
 @override final  String? savedViewId;
 @override final  String? status;
 @override final  String? priority;
-@override final  String? assigneeCoreUserId;
+@override final  String? assigneeUserId;
 @override final  String? myInvolvement;
 @override final  String? search;
 @override final  DateTime? dueFromUtc;
@@ -4050,16 +4050,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskSelectionQueryPayload&&(identical(other.savedViewId, savedViewId) || other.savedViewId == savedViewId)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assigneeCoreUserId, assigneeCoreUserId) || other.assigneeCoreUserId == assigneeCoreUserId)&&(identical(other.myInvolvement, myInvolvement) || other.myInvolvement == myInvolvement)&&(identical(other.search, search) || other.search == search)&&(identical(other.dueFromUtc, dueFromUtc) || other.dueFromUtc == dueFromUtc)&&(identical(other.dueToUtc, dueToUtc) || other.dueToUtc == dueToUtc)&&(identical(other.includeArchived, includeArchived) || other.includeArchived == includeArchived)&&(identical(other.pinnedOnly, pinnedOnly) || other.pinnedOnly == pinnedOnly)&&(identical(other.unassignedOnly, unassignedOnly) || other.unassignedOnly == unassignedOnly));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskSelectionQueryPayload&&(identical(other.savedViewId, savedViewId) || other.savedViewId == savedViewId)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assigneeUserId, assigneeUserId) || other.assigneeUserId == assigneeUserId)&&(identical(other.myInvolvement, myInvolvement) || other.myInvolvement == myInvolvement)&&(identical(other.search, search) || other.search == search)&&(identical(other.dueFromUtc, dueFromUtc) || other.dueFromUtc == dueFromUtc)&&(identical(other.dueToUtc, dueToUtc) || other.dueToUtc == dueToUtc)&&(identical(other.includeArchived, includeArchived) || other.includeArchived == includeArchived)&&(identical(other.pinnedOnly, pinnedOnly) || other.pinnedOnly == pinnedOnly)&&(identical(other.unassignedOnly, unassignedOnly) || other.unassignedOnly == unassignedOnly));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,savedViewId,status,priority,assigneeCoreUserId,myInvolvement,search,dueFromUtc,dueToUtc,includeArchived,pinnedOnly,unassignedOnly);
+int get hashCode => Object.hash(runtimeType,savedViewId,status,priority,assigneeUserId,myInvolvement,search,dueFromUtc,dueToUtc,includeArchived,pinnedOnly,unassignedOnly);
 
 @override
 String toString() {
-  return 'TaskSelectionQueryPayload(savedViewId: $savedViewId, status: $status, priority: $priority, assigneeCoreUserId: $assigneeCoreUserId, myInvolvement: $myInvolvement, search: $search, dueFromUtc: $dueFromUtc, dueToUtc: $dueToUtc, includeArchived: $includeArchived, pinnedOnly: $pinnedOnly, unassignedOnly: $unassignedOnly)';
+  return 'TaskSelectionQueryPayload(savedViewId: $savedViewId, status: $status, priority: $priority, assigneeUserId: $assigneeUserId, myInvolvement: $myInvolvement, search: $search, dueFromUtc: $dueFromUtc, dueToUtc: $dueToUtc, includeArchived: $includeArchived, pinnedOnly: $pinnedOnly, unassignedOnly: $unassignedOnly)';
 }
 
 
@@ -4070,7 +4070,7 @@ abstract mixin class _$TaskSelectionQueryPayloadCopyWith<$Res> implements $TaskS
   factory _$TaskSelectionQueryPayloadCopyWith(_TaskSelectionQueryPayload value, $Res Function(_TaskSelectionQueryPayload) _then) = __$TaskSelectionQueryPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String? savedViewId, String? status, String? priority, String? assigneeCoreUserId, String? myInvolvement, String? search, DateTime? dueFromUtc, DateTime? dueToUtc, bool includeArchived, bool pinnedOnly, bool unassignedOnly
+ String? savedViewId, String? status, String? priority, String? assigneeUserId, String? myInvolvement, String? search, DateTime? dueFromUtc, DateTime? dueToUtc, bool includeArchived, bool pinnedOnly, bool unassignedOnly
 });
 
 
@@ -4087,12 +4087,12 @@ class __$TaskSelectionQueryPayloadCopyWithImpl<$Res>
 
 /// Create a copy of TaskSelectionQueryPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? savedViewId = freezed,Object? status = freezed,Object? priority = freezed,Object? assigneeCoreUserId = freezed,Object? myInvolvement = freezed,Object? search = freezed,Object? dueFromUtc = freezed,Object? dueToUtc = freezed,Object? includeArchived = null,Object? pinnedOnly = null,Object? unassignedOnly = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? savedViewId = freezed,Object? status = freezed,Object? priority = freezed,Object? assigneeUserId = freezed,Object? myInvolvement = freezed,Object? search = freezed,Object? dueFromUtc = freezed,Object? dueToUtc = freezed,Object? includeArchived = null,Object? pinnedOnly = null,Object? unassignedOnly = null,}) {
   return _then(_TaskSelectionQueryPayload(
 savedViewId: freezed == savedViewId ? _self.savedViewId : savedViewId // ignore: cast_nullable_to_non_nullable
 as String?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String?,priority: freezed == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
-as String?,assigneeCoreUserId: freezed == assigneeCoreUserId ? _self.assigneeCoreUserId : assigneeCoreUserId // ignore: cast_nullable_to_non_nullable
+as String?,assigneeUserId: freezed == assigneeUserId ? _self.assigneeUserId : assigneeUserId // ignore: cast_nullable_to_non_nullable
 as String?,myInvolvement: freezed == myInvolvement ? _self.myInvolvement : myInvolvement // ignore: cast_nullable_to_non_nullable
 as String?,search: freezed == search ? _self.search : search // ignore: cast_nullable_to_non_nullable
 as String?,dueFromUtc: freezed == dueFromUtc ? _self.dueFromUtc : dueFromUtc // ignore: cast_nullable_to_non_nullable
@@ -6090,7 +6090,7 @@ as String?,
 /// @nodoc
 mixin _$ProjectTaskResponse {
 
- String get id; int get number; String get key; String get workspaceId; String get projectId; String? get parentTaskId; String get title; String? get description; String? get descriptionDeltaJson; ProjectTaskStatus get status; TaskPriority get priority; String get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; int? get actualMinutes; int get position; DateTime? get startAtUtc; DateTime? get dueAtUtc; String get createdByCoreUserId; List<TaskAssigneeResponse> get assignees; List<TaskChecklistItemResponse> get checklistItems; TaskRecurrenceSummaryResponse? get recurrence; DateTime get createdAtUtc; DateTime get updatedAtUtc; DateTime? get archivedAtUtc; int get version; String? get customStatusId;
+ String get id; int get number; String get key; String get workspaceId; String get projectId; String? get parentTaskId; String get title; String? get description; String? get descriptionDeltaJson; ProjectTaskStatus get status; TaskPriority get priority; String get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; int? get actualMinutes; int get position; DateTime? get startAtUtc; DateTime? get dueAtUtc; String get createdByUserId; List<TaskAssigneeResponse> get assignees; List<TaskChecklistItemResponse> get checklistItems; TaskRecurrenceSummaryResponse? get recurrence; DateTime get createdAtUtc; DateTime get updatedAtUtc; DateTime? get archivedAtUtc; int get version; String? get customStatusId;
 /// Create a copy of ProjectTaskResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -6103,16 +6103,16 @@ $ProjectTaskResponseCopyWith<ProjectTaskResponse> get copyWith => _$ProjectTaskR
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectTaskResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.key, key) || other.key == key)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.position, position) || other.position == position)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.createdByCoreUserId, createdByCoreUserId) || other.createdByCoreUserId == createdByCoreUserId)&&const DeepCollectionEquality().equals(other.assignees, assignees)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.archivedAtUtc, archivedAtUtc) || other.archivedAtUtc == archivedAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectTaskResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.key, key) || other.key == key)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.position, position) || other.position == position)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&const DeepCollectionEquality().equals(other.assignees, assignees)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.archivedAtUtc, archivedAtUtc) || other.archivedAtUtc == archivedAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,number,key,workspaceId,projectId,parentTaskId,title,description,descriptionDeltaJson,status,priority,taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,position,startAtUtc,dueAtUtc,createdByCoreUserId,const DeepCollectionEquality().hash(assignees),const DeepCollectionEquality().hash(checklistItems),recurrence,createdAtUtc,updatedAtUtc,archivedAtUtc,version,customStatusId]);
+int get hashCode => Object.hashAll([runtimeType,id,number,key,workspaceId,projectId,parentTaskId,title,description,descriptionDeltaJson,status,priority,taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,position,startAtUtc,dueAtUtc,createdByUserId,const DeepCollectionEquality().hash(assignees),const DeepCollectionEquality().hash(checklistItems),recurrence,createdAtUtc,updatedAtUtc,archivedAtUtc,version,customStatusId]);
 
 @override
 String toString() {
-  return 'ProjectTaskResponse(id: $id, number: $number, key: $key, workspaceId: $workspaceId, projectId: $projectId, parentTaskId: $parentTaskId, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson, status: $status, priority: $priority, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, position: $position, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, createdByCoreUserId: $createdByCoreUserId, assignees: $assignees, checklistItems: $checklistItems, recurrence: $recurrence, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, archivedAtUtc: $archivedAtUtc, version: $version, customStatusId: $customStatusId)';
+  return 'ProjectTaskResponse(id: $id, number: $number, key: $key, workspaceId: $workspaceId, projectId: $projectId, parentTaskId: $parentTaskId, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson, status: $status, priority: $priority, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, position: $position, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, createdByUserId: $createdByUserId, assignees: $assignees, checklistItems: $checklistItems, recurrence: $recurrence, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, archivedAtUtc: $archivedAtUtc, version: $version, customStatusId: $customStatusId)';
 }
 
 
@@ -6123,7 +6123,7 @@ abstract mixin class $ProjectTaskResponseCopyWith<$Res>  {
   factory $ProjectTaskResponseCopyWith(ProjectTaskResponse value, $Res Function(ProjectTaskResponse) _then) = _$ProjectTaskResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, int number, String key, String workspaceId, String projectId, String? parentTaskId, String title, String? description, String? descriptionDeltaJson, ProjectTaskStatus status, TaskPriority priority, String taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, int position, DateTime? startAtUtc, DateTime? dueAtUtc, String createdByCoreUserId, List<TaskAssigneeResponse> assignees, List<TaskChecklistItemResponse> checklistItems, TaskRecurrenceSummaryResponse? recurrence, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? archivedAtUtc, int version, String? customStatusId
+ String id, int number, String key, String workspaceId, String projectId, String? parentTaskId, String title, String? description, String? descriptionDeltaJson, ProjectTaskStatus status, TaskPriority priority, String taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, int position, DateTime? startAtUtc, DateTime? dueAtUtc, String createdByUserId, List<TaskAssigneeResponse> assignees, List<TaskChecklistItemResponse> checklistItems, TaskRecurrenceSummaryResponse? recurrence, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? archivedAtUtc, int version, String? customStatusId
 });
 
 
@@ -6140,7 +6140,7 @@ class _$ProjectTaskResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectTaskResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? number = null,Object? key = null,Object? workspaceId = null,Object? projectId = null,Object? parentTaskId = freezed,Object? title = null,Object? description = freezed,Object? descriptionDeltaJson = freezed,Object? status = null,Object? priority = null,Object? taskType = null,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? position = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? createdByCoreUserId = null,Object? assignees = null,Object? checklistItems = null,Object? recurrence = freezed,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? archivedAtUtc = freezed,Object? version = null,Object? customStatusId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? number = null,Object? key = null,Object? workspaceId = null,Object? projectId = null,Object? parentTaskId = freezed,Object? title = null,Object? description = freezed,Object? descriptionDeltaJson = freezed,Object? status = null,Object? priority = null,Object? taskType = null,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? position = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? createdByUserId = null,Object? assignees = null,Object? checklistItems = null,Object? recurrence = freezed,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? archivedAtUtc = freezed,Object? version = null,Object? customStatusId = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
@@ -6163,7 +6163,7 @@ as int?,actualMinutes: freezed == actualMinutes ? _self.actualMinutes : actualMi
 as int?,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,startAtUtc: freezed == startAtUtc ? _self.startAtUtc : startAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,createdByCoreUserId: null == createdByCoreUserId ? _self.createdByCoreUserId : createdByCoreUserId // ignore: cast_nullable_to_non_nullable
+as DateTime?,createdByUserId: null == createdByUserId ? _self.createdByUserId : createdByUserId // ignore: cast_nullable_to_non_nullable
 as String,assignees: null == assignees ? _self.assignees : assignees // ignore: cast_nullable_to_non_nullable
 as List<TaskAssigneeResponse>,checklistItems: null == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<TaskChecklistItemResponse>,recurrence: freezed == recurrence ? _self.recurrence : recurrence // ignore: cast_nullable_to_non_nullable
@@ -6269,10 +6269,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int number,  String key,  String workspaceId,  String projectId,  String? parentTaskId,  String title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  String taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  int position,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String createdByCoreUserId,  List<TaskAssigneeResponse> assignees,  List<TaskChecklistItemResponse> checklistItems,  TaskRecurrenceSummaryResponse? recurrence,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int version,  String? customStatusId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int number,  String key,  String workspaceId,  String projectId,  String? parentTaskId,  String title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  String taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  int position,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String createdByUserId,  List<TaskAssigneeResponse> assignees,  List<TaskChecklistItemResponse> checklistItems,  TaskRecurrenceSummaryResponse? recurrence,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int version,  String? customStatusId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProjectTaskResponse() when $default != null:
-return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectId,_that.parentTaskId,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.position,_that.startAtUtc,_that.dueAtUtc,_that.createdByCoreUserId,_that.assignees,_that.checklistItems,_that.recurrence,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.customStatusId);case _:
+return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectId,_that.parentTaskId,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.position,_that.startAtUtc,_that.dueAtUtc,_that.createdByUserId,_that.assignees,_that.checklistItems,_that.recurrence,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.customStatusId);case _:
   return orElse();
 
 }
@@ -6290,10 +6290,10 @@ return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectI
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int number,  String key,  String workspaceId,  String projectId,  String? parentTaskId,  String title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  String taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  int position,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String createdByCoreUserId,  List<TaskAssigneeResponse> assignees,  List<TaskChecklistItemResponse> checklistItems,  TaskRecurrenceSummaryResponse? recurrence,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int version,  String? customStatusId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int number,  String key,  String workspaceId,  String projectId,  String? parentTaskId,  String title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  String taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  int position,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String createdByUserId,  List<TaskAssigneeResponse> assignees,  List<TaskChecklistItemResponse> checklistItems,  TaskRecurrenceSummaryResponse? recurrence,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int version,  String? customStatusId)  $default,) {final _that = this;
 switch (_that) {
 case _ProjectTaskResponse():
-return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectId,_that.parentTaskId,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.position,_that.startAtUtc,_that.dueAtUtc,_that.createdByCoreUserId,_that.assignees,_that.checklistItems,_that.recurrence,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.customStatusId);case _:
+return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectId,_that.parentTaskId,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.position,_that.startAtUtc,_that.dueAtUtc,_that.createdByUserId,_that.assignees,_that.checklistItems,_that.recurrence,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.customStatusId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -6310,10 +6310,10 @@ return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectI
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int number,  String key,  String workspaceId,  String projectId,  String? parentTaskId,  String title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  String taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  int position,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String createdByCoreUserId,  List<TaskAssigneeResponse> assignees,  List<TaskChecklistItemResponse> checklistItems,  TaskRecurrenceSummaryResponse? recurrence,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int version,  String? customStatusId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int number,  String key,  String workspaceId,  String projectId,  String? parentTaskId,  String title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  String taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  int position,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String createdByUserId,  List<TaskAssigneeResponse> assignees,  List<TaskChecklistItemResponse> checklistItems,  TaskRecurrenceSummaryResponse? recurrence,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int version,  String? customStatusId)?  $default,) {final _that = this;
 switch (_that) {
 case _ProjectTaskResponse() when $default != null:
-return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectId,_that.parentTaskId,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.position,_that.startAtUtc,_that.dueAtUtc,_that.createdByCoreUserId,_that.assignees,_that.checklistItems,_that.recurrence,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.customStatusId);case _:
+return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectId,_that.parentTaskId,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.position,_that.startAtUtc,_that.dueAtUtc,_that.createdByUserId,_that.assignees,_that.checklistItems,_that.recurrence,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.customStatusId);case _:
   return null;
 
 }
@@ -6325,7 +6325,7 @@ return $default(_that.id,_that.number,_that.key,_that.workspaceId,_that.projectI
 @JsonSerializable()
 
 class _ProjectTaskResponse implements ProjectTaskResponse {
-  const _ProjectTaskResponse({required this.id, required this.number, required this.key, required this.workspaceId, required this.projectId, this.parentTaskId, required this.title, this.description, this.descriptionDeltaJson, required this.status, required this.priority, required this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.actualMinutes, required this.position, this.startAtUtc, this.dueAtUtc, required this.createdByCoreUserId, required this.assignees, required this.checklistItems, this.recurrence, required this.createdAtUtc, required this.updatedAtUtc, this.archivedAtUtc, required this.version, this.customStatusId});
+  const _ProjectTaskResponse({required this.id, required this.number, required this.key, required this.workspaceId, required this.projectId, this.parentTaskId, required this.title, this.description, this.descriptionDeltaJson, required this.status, required this.priority, required this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.actualMinutes, required this.position, this.startAtUtc, this.dueAtUtc, required this.createdByUserId, required this.assignees, required this.checklistItems, this.recurrence, required this.createdAtUtc, required this.updatedAtUtc, this.archivedAtUtc, required this.version, this.customStatusId});
   factory _ProjectTaskResponse.fromJson(Map<String, dynamic> json) => _$ProjectTaskResponseFromJson(json);
 
 @override final  String id;
@@ -6349,7 +6349,7 @@ class _ProjectTaskResponse implements ProjectTaskResponse {
 @override final  int position;
 @override final  DateTime? startAtUtc;
 @override final  DateTime? dueAtUtc;
-@override final  String createdByCoreUserId;
+@override final  String createdByUserId;
 @override final  List<TaskAssigneeResponse> assignees;
 @override final  List<TaskChecklistItemResponse> checklistItems;
 @override final  TaskRecurrenceSummaryResponse? recurrence;
@@ -6372,16 +6372,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectTaskResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.key, key) || other.key == key)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.position, position) || other.position == position)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.createdByCoreUserId, createdByCoreUserId) || other.createdByCoreUserId == createdByCoreUserId)&&const DeepCollectionEquality().equals(other.assignees, assignees)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.archivedAtUtc, archivedAtUtc) || other.archivedAtUtc == archivedAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectTaskResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.key, key) || other.key == key)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.position, position) || other.position == position)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&const DeepCollectionEquality().equals(other.assignees, assignees)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.archivedAtUtc, archivedAtUtc) || other.archivedAtUtc == archivedAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,number,key,workspaceId,projectId,parentTaskId,title,description,descriptionDeltaJson,status,priority,taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,position,startAtUtc,dueAtUtc,createdByCoreUserId,const DeepCollectionEquality().hash(assignees),const DeepCollectionEquality().hash(checklistItems),recurrence,createdAtUtc,updatedAtUtc,archivedAtUtc,version,customStatusId]);
+int get hashCode => Object.hashAll([runtimeType,id,number,key,workspaceId,projectId,parentTaskId,title,description,descriptionDeltaJson,status,priority,taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,position,startAtUtc,dueAtUtc,createdByUserId,const DeepCollectionEquality().hash(assignees),const DeepCollectionEquality().hash(checklistItems),recurrence,createdAtUtc,updatedAtUtc,archivedAtUtc,version,customStatusId]);
 
 @override
 String toString() {
-  return 'ProjectTaskResponse(id: $id, number: $number, key: $key, workspaceId: $workspaceId, projectId: $projectId, parentTaskId: $parentTaskId, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson, status: $status, priority: $priority, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, position: $position, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, createdByCoreUserId: $createdByCoreUserId, assignees: $assignees, checklistItems: $checklistItems, recurrence: $recurrence, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, archivedAtUtc: $archivedAtUtc, version: $version, customStatusId: $customStatusId)';
+  return 'ProjectTaskResponse(id: $id, number: $number, key: $key, workspaceId: $workspaceId, projectId: $projectId, parentTaskId: $parentTaskId, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson, status: $status, priority: $priority, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, position: $position, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, createdByUserId: $createdByUserId, assignees: $assignees, checklistItems: $checklistItems, recurrence: $recurrence, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, archivedAtUtc: $archivedAtUtc, version: $version, customStatusId: $customStatusId)';
 }
 
 
@@ -6392,7 +6392,7 @@ abstract mixin class _$ProjectTaskResponseCopyWith<$Res> implements $ProjectTask
   factory _$ProjectTaskResponseCopyWith(_ProjectTaskResponse value, $Res Function(_ProjectTaskResponse) _then) = __$ProjectTaskResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, int number, String key, String workspaceId, String projectId, String? parentTaskId, String title, String? description, String? descriptionDeltaJson, ProjectTaskStatus status, TaskPriority priority, String taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, int position, DateTime? startAtUtc, DateTime? dueAtUtc, String createdByCoreUserId, List<TaskAssigneeResponse> assignees, List<TaskChecklistItemResponse> checklistItems, TaskRecurrenceSummaryResponse? recurrence, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? archivedAtUtc, int version, String? customStatusId
+ String id, int number, String key, String workspaceId, String projectId, String? parentTaskId, String title, String? description, String? descriptionDeltaJson, ProjectTaskStatus status, TaskPriority priority, String taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, int position, DateTime? startAtUtc, DateTime? dueAtUtc, String createdByUserId, List<TaskAssigneeResponse> assignees, List<TaskChecklistItemResponse> checklistItems, TaskRecurrenceSummaryResponse? recurrence, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? archivedAtUtc, int version, String? customStatusId
 });
 
 
@@ -6409,7 +6409,7 @@ class __$ProjectTaskResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectTaskResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? number = null,Object? key = null,Object? workspaceId = null,Object? projectId = null,Object? parentTaskId = freezed,Object? title = null,Object? description = freezed,Object? descriptionDeltaJson = freezed,Object? status = null,Object? priority = null,Object? taskType = null,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? position = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? createdByCoreUserId = null,Object? assignees = null,Object? checklistItems = null,Object? recurrence = freezed,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? archivedAtUtc = freezed,Object? version = null,Object? customStatusId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? number = null,Object? key = null,Object? workspaceId = null,Object? projectId = null,Object? parentTaskId = freezed,Object? title = null,Object? description = freezed,Object? descriptionDeltaJson = freezed,Object? status = null,Object? priority = null,Object? taskType = null,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? position = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? createdByUserId = null,Object? assignees = null,Object? checklistItems = null,Object? recurrence = freezed,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? archivedAtUtc = freezed,Object? version = null,Object? customStatusId = freezed,}) {
   return _then(_ProjectTaskResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
@@ -6432,7 +6432,7 @@ as int?,actualMinutes: freezed == actualMinutes ? _self.actualMinutes : actualMi
 as int?,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,startAtUtc: freezed == startAtUtc ? _self.startAtUtc : startAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,createdByCoreUserId: null == createdByCoreUserId ? _self.createdByCoreUserId : createdByCoreUserId // ignore: cast_nullable_to_non_nullable
+as DateTime?,createdByUserId: null == createdByUserId ? _self.createdByUserId : createdByUserId // ignore: cast_nullable_to_non_nullable
 as String,assignees: null == assignees ? _self.assignees : assignees // ignore: cast_nullable_to_non_nullable
 as List<TaskAssigneeResponse>,checklistItems: null == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<TaskChecklistItemResponse>,recurrence: freezed == recurrence ? _self.recurrence : recurrence // ignore: cast_nullable_to_non_nullable
@@ -7558,7 +7558,7 @@ as DateTime,
 /// @nodoc
 mixin _$TaskAcceptanceCriterionResponse {
 
- String get id; String get text; int get position; bool get isAccepted; String? get acceptedByCoreUserId; DateTime? get acceptedAtUtc; DateTime get updatedAtUtc;
+ String get id; String get text; int get position; bool get isAccepted; String? get acceptedByUserId; DateTime? get acceptedAtUtc; DateTime get updatedAtUtc;
 /// Create a copy of TaskAcceptanceCriterionResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -7571,16 +7571,16 @@ $TaskAcceptanceCriterionResponseCopyWith<TaskAcceptanceCriterionResponse> get co
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskAcceptanceCriterionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.text, text) || other.text == text)&&(identical(other.position, position) || other.position == position)&&(identical(other.isAccepted, isAccepted) || other.isAccepted == isAccepted)&&(identical(other.acceptedByCoreUserId, acceptedByCoreUserId) || other.acceptedByCoreUserId == acceptedByCoreUserId)&&(identical(other.acceptedAtUtc, acceptedAtUtc) || other.acceptedAtUtc == acceptedAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskAcceptanceCriterionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.text, text) || other.text == text)&&(identical(other.position, position) || other.position == position)&&(identical(other.isAccepted, isAccepted) || other.isAccepted == isAccepted)&&(identical(other.acceptedByUserId, acceptedByUserId) || other.acceptedByUserId == acceptedByUserId)&&(identical(other.acceptedAtUtc, acceptedAtUtc) || other.acceptedAtUtc == acceptedAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,text,position,isAccepted,acceptedByCoreUserId,acceptedAtUtc,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,text,position,isAccepted,acceptedByUserId,acceptedAtUtc,updatedAtUtc);
 
 @override
 String toString() {
-  return 'TaskAcceptanceCriterionResponse(id: $id, text: $text, position: $position, isAccepted: $isAccepted, acceptedByCoreUserId: $acceptedByCoreUserId, acceptedAtUtc: $acceptedAtUtc, updatedAtUtc: $updatedAtUtc)';
+  return 'TaskAcceptanceCriterionResponse(id: $id, text: $text, position: $position, isAccepted: $isAccepted, acceptedByUserId: $acceptedByUserId, acceptedAtUtc: $acceptedAtUtc, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -7591,7 +7591,7 @@ abstract mixin class $TaskAcceptanceCriterionResponseCopyWith<$Res>  {
   factory $TaskAcceptanceCriterionResponseCopyWith(TaskAcceptanceCriterionResponse value, $Res Function(TaskAcceptanceCriterionResponse) _then) = _$TaskAcceptanceCriterionResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String text, int position, bool isAccepted, String? acceptedByCoreUserId, DateTime? acceptedAtUtc, DateTime updatedAtUtc
+ String id, String text, int position, bool isAccepted, String? acceptedByUserId, DateTime? acceptedAtUtc, DateTime updatedAtUtc
 });
 
 
@@ -7608,13 +7608,13 @@ class _$TaskAcceptanceCriterionResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskAcceptanceCriterionResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? text = null,Object? position = null,Object? isAccepted = null,Object? acceptedByCoreUserId = freezed,Object? acceptedAtUtc = freezed,Object? updatedAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? text = null,Object? position = null,Object? isAccepted = null,Object? acceptedByUserId = freezed,Object? acceptedAtUtc = freezed,Object? updatedAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,isAccepted: null == isAccepted ? _self.isAccepted : isAccepted // ignore: cast_nullable_to_non_nullable
-as bool,acceptedByCoreUserId: freezed == acceptedByCoreUserId ? _self.acceptedByCoreUserId : acceptedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as bool,acceptedByUserId: freezed == acceptedByUserId ? _self.acceptedByUserId : acceptedByUserId // ignore: cast_nullable_to_non_nullable
 as String?,acceptedAtUtc: freezed == acceptedAtUtc ? _self.acceptedAtUtc : acceptedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -7702,10 +7702,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String text,  int position,  bool isAccepted,  String? acceptedByCoreUserId,  DateTime? acceptedAtUtc,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String text,  int position,  bool isAccepted,  String? acceptedByUserId,  DateTime? acceptedAtUtc,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskAcceptanceCriterionResponse() when $default != null:
-return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.acceptedByCoreUserId,_that.acceptedAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.acceptedByUserId,_that.acceptedAtUtc,_that.updatedAtUtc);case _:
   return orElse();
 
 }
@@ -7723,10 +7723,10 @@ return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.accept
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String text,  int position,  bool isAccepted,  String? acceptedByCoreUserId,  DateTime? acceptedAtUtc,  DateTime updatedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String text,  int position,  bool isAccepted,  String? acceptedByUserId,  DateTime? acceptedAtUtc,  DateTime updatedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _TaskAcceptanceCriterionResponse():
-return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.acceptedByCoreUserId,_that.acceptedAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.acceptedByUserId,_that.acceptedAtUtc,_that.updatedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -7743,10 +7743,10 @@ return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.accept
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String text,  int position,  bool isAccepted,  String? acceptedByCoreUserId,  DateTime? acceptedAtUtc,  DateTime updatedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String text,  int position,  bool isAccepted,  String? acceptedByUserId,  DateTime? acceptedAtUtc,  DateTime updatedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskAcceptanceCriterionResponse() when $default != null:
-return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.acceptedByCoreUserId,_that.acceptedAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.acceptedByUserId,_that.acceptedAtUtc,_that.updatedAtUtc);case _:
   return null;
 
 }
@@ -7758,14 +7758,14 @@ return $default(_that.id,_that.text,_that.position,_that.isAccepted,_that.accept
 @JsonSerializable()
 
 class _TaskAcceptanceCriterionResponse implements TaskAcceptanceCriterionResponse {
-  const _TaskAcceptanceCriterionResponse({required this.id, required this.text, required this.position, required this.isAccepted, this.acceptedByCoreUserId, this.acceptedAtUtc, required this.updatedAtUtc});
+  const _TaskAcceptanceCriterionResponse({required this.id, required this.text, required this.position, required this.isAccepted, this.acceptedByUserId, this.acceptedAtUtc, required this.updatedAtUtc});
   factory _TaskAcceptanceCriterionResponse.fromJson(Map<String, dynamic> json) => _$TaskAcceptanceCriterionResponseFromJson(json);
 
 @override final  String id;
 @override final  String text;
 @override final  int position;
 @override final  bool isAccepted;
-@override final  String? acceptedByCoreUserId;
+@override final  String? acceptedByUserId;
 @override final  DateTime? acceptedAtUtc;
 @override final  DateTime updatedAtUtc;
 
@@ -7782,16 +7782,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskAcceptanceCriterionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.text, text) || other.text == text)&&(identical(other.position, position) || other.position == position)&&(identical(other.isAccepted, isAccepted) || other.isAccepted == isAccepted)&&(identical(other.acceptedByCoreUserId, acceptedByCoreUserId) || other.acceptedByCoreUserId == acceptedByCoreUserId)&&(identical(other.acceptedAtUtc, acceptedAtUtc) || other.acceptedAtUtc == acceptedAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskAcceptanceCriterionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.text, text) || other.text == text)&&(identical(other.position, position) || other.position == position)&&(identical(other.isAccepted, isAccepted) || other.isAccepted == isAccepted)&&(identical(other.acceptedByUserId, acceptedByUserId) || other.acceptedByUserId == acceptedByUserId)&&(identical(other.acceptedAtUtc, acceptedAtUtc) || other.acceptedAtUtc == acceptedAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,text,position,isAccepted,acceptedByCoreUserId,acceptedAtUtc,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,text,position,isAccepted,acceptedByUserId,acceptedAtUtc,updatedAtUtc);
 
 @override
 String toString() {
-  return 'TaskAcceptanceCriterionResponse(id: $id, text: $text, position: $position, isAccepted: $isAccepted, acceptedByCoreUserId: $acceptedByCoreUserId, acceptedAtUtc: $acceptedAtUtc, updatedAtUtc: $updatedAtUtc)';
+  return 'TaskAcceptanceCriterionResponse(id: $id, text: $text, position: $position, isAccepted: $isAccepted, acceptedByUserId: $acceptedByUserId, acceptedAtUtc: $acceptedAtUtc, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -7802,7 +7802,7 @@ abstract mixin class _$TaskAcceptanceCriterionResponseCopyWith<$Res> implements 
   factory _$TaskAcceptanceCriterionResponseCopyWith(_TaskAcceptanceCriterionResponse value, $Res Function(_TaskAcceptanceCriterionResponse) _then) = __$TaskAcceptanceCriterionResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String text, int position, bool isAccepted, String? acceptedByCoreUserId, DateTime? acceptedAtUtc, DateTime updatedAtUtc
+ String id, String text, int position, bool isAccepted, String? acceptedByUserId, DateTime? acceptedAtUtc, DateTime updatedAtUtc
 });
 
 
@@ -7819,13 +7819,13 @@ class __$TaskAcceptanceCriterionResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskAcceptanceCriterionResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? text = null,Object? position = null,Object? isAccepted = null,Object? acceptedByCoreUserId = freezed,Object? acceptedAtUtc = freezed,Object? updatedAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? text = null,Object? position = null,Object? isAccepted = null,Object? acceptedByUserId = freezed,Object? acceptedAtUtc = freezed,Object? updatedAtUtc = null,}) {
   return _then(_TaskAcceptanceCriterionResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,isAccepted: null == isAccepted ? _self.isAccepted : isAccepted // ignore: cast_nullable_to_non_nullable
-as bool,acceptedByCoreUserId: freezed == acceptedByCoreUserId ? _self.acceptedByCoreUserId : acceptedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as bool,acceptedByUserId: freezed == acceptedByUserId ? _self.acceptedByUserId : acceptedByUserId // ignore: cast_nullable_to_non_nullable
 as String?,acceptedAtUtc: freezed == acceptedAtUtc ? _self.acceptedAtUtc : acceptedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -7839,7 +7839,7 @@ as DateTime,
 /// @nodoc
 mixin _$TaskWatcherResponse {
 
- String get coreUserId; DateTime get createdAtUtc;
+ String get userId; DateTime get createdAtUtc;
 /// Create a copy of TaskWatcherResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -7852,16 +7852,16 @@ $TaskWatcherResponseCopyWith<TaskWatcherResponse> get copyWith => _$TaskWatcherR
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskWatcherResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskWatcherResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,createdAtUtc);
 
 @override
 String toString() {
-  return 'TaskWatcherResponse(coreUserId: $coreUserId, createdAtUtc: $createdAtUtc)';
+  return 'TaskWatcherResponse(userId: $userId, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -7872,7 +7872,7 @@ abstract mixin class $TaskWatcherResponseCopyWith<$Res>  {
   factory $TaskWatcherResponseCopyWith(TaskWatcherResponse value, $Res Function(TaskWatcherResponse) _then) = _$TaskWatcherResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, DateTime createdAtUtc
+ String userId, DateTime createdAtUtc
 });
 
 
@@ -7889,9 +7889,9 @@ class _$TaskWatcherResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskWatcherResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? createdAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? createdAtUtc = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -7978,10 +7978,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskWatcherResponse() when $default != null:
-return $default(_that.coreUserId,_that.createdAtUtc);case _:
+return $default(_that.userId,_that.createdAtUtc);case _:
   return orElse();
 
 }
@@ -7999,10 +7999,10 @@ return $default(_that.coreUserId,_that.createdAtUtc);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  DateTime createdAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  DateTime createdAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _TaskWatcherResponse():
-return $default(_that.coreUserId,_that.createdAtUtc);case _:
+return $default(_that.userId,_that.createdAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -8019,10 +8019,10 @@ return $default(_that.coreUserId,_that.createdAtUtc);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  DateTime createdAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  DateTime createdAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskWatcherResponse() when $default != null:
-return $default(_that.coreUserId,_that.createdAtUtc);case _:
+return $default(_that.userId,_that.createdAtUtc);case _:
   return null;
 
 }
@@ -8034,10 +8034,10 @@ return $default(_that.coreUserId,_that.createdAtUtc);case _:
 @JsonSerializable()
 
 class _TaskWatcherResponse implements TaskWatcherResponse {
-  const _TaskWatcherResponse({required this.coreUserId, required this.createdAtUtc});
+  const _TaskWatcherResponse({required this.userId, required this.createdAtUtc});
   factory _TaskWatcherResponse.fromJson(Map<String, dynamic> json) => _$TaskWatcherResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  DateTime createdAtUtc;
 
 /// Create a copy of TaskWatcherResponse
@@ -8053,16 +8053,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskWatcherResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskWatcherResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,createdAtUtc);
 
 @override
 String toString() {
-  return 'TaskWatcherResponse(coreUserId: $coreUserId, createdAtUtc: $createdAtUtc)';
+  return 'TaskWatcherResponse(userId: $userId, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -8073,7 +8073,7 @@ abstract mixin class _$TaskWatcherResponseCopyWith<$Res> implements $TaskWatcher
   factory _$TaskWatcherResponseCopyWith(_TaskWatcherResponse value, $Res Function(_TaskWatcherResponse) _then) = __$TaskWatcherResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, DateTime createdAtUtc
+ String userId, DateTime createdAtUtc
 });
 
 
@@ -8090,9 +8090,9 @@ class __$TaskWatcherResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskWatcherResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? createdAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? createdAtUtc = null,}) {
   return _then(_TaskWatcherResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -9498,7 +9498,7 @@ $ProjectTaskWorkflowResponseCopyWith<$Res> get workflow {
 /// @nodoc
 mixin _$UserReferenceResponse {
 
- String get coreUserId; String? get displayName; String? get avatarUrl; bool get isActive;
+ String get userId; String? get displayName; String? get avatarUrl; bool get isActive;
 /// Create a copy of UserReferenceResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -9511,16 +9511,16 @@ $UserReferenceResponseCopyWith<UserReferenceResponse> get copyWith => _$UserRefe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserReferenceResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isActive, isActive) || other.isActive == isActive));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserReferenceResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,displayName,avatarUrl,isActive);
+int get hashCode => Object.hash(runtimeType,userId,displayName,avatarUrl,isActive);
 
 @override
 String toString() {
-  return 'UserReferenceResponse(coreUserId: $coreUserId, displayName: $displayName, avatarUrl: $avatarUrl, isActive: $isActive)';
+  return 'UserReferenceResponse(userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, isActive: $isActive)';
 }
 
 
@@ -9531,7 +9531,7 @@ abstract mixin class $UserReferenceResponseCopyWith<$Res>  {
   factory $UserReferenceResponseCopyWith(UserReferenceResponse value, $Res Function(UserReferenceResponse) _then) = _$UserReferenceResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, String? displayName, String? avatarUrl, bool isActive
+ String userId, String? displayName, String? avatarUrl, bool isActive
 });
 
 
@@ -9548,9 +9548,9 @@ class _$UserReferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of UserReferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? displayName = freezed,Object? avatarUrl = freezed,Object? isActive = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? displayName = freezed,Object? avatarUrl = freezed,Object? isActive = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
@@ -9639,10 +9639,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  String? displayName,  String? avatarUrl,  bool isActive)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String? displayName,  String? avatarUrl,  bool isActive)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserReferenceResponse() when $default != null:
-return $default(_that.coreUserId,_that.displayName,_that.avatarUrl,_that.isActive);case _:
+return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.isActive);case _:
   return orElse();
 
 }
@@ -9660,10 +9660,10 @@ return $default(_that.coreUserId,_that.displayName,_that.avatarUrl,_that.isActiv
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  String? displayName,  String? avatarUrl,  bool isActive)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String? displayName,  String? avatarUrl,  bool isActive)  $default,) {final _that = this;
 switch (_that) {
 case _UserReferenceResponse():
-return $default(_that.coreUserId,_that.displayName,_that.avatarUrl,_that.isActive);case _:
+return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.isActive);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -9680,10 +9680,10 @@ return $default(_that.coreUserId,_that.displayName,_that.avatarUrl,_that.isActiv
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  String? displayName,  String? avatarUrl,  bool isActive)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String? displayName,  String? avatarUrl,  bool isActive)?  $default,) {final _that = this;
 switch (_that) {
 case _UserReferenceResponse() when $default != null:
-return $default(_that.coreUserId,_that.displayName,_that.avatarUrl,_that.isActive);case _:
+return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.isActive);case _:
   return null;
 
 }
@@ -9695,10 +9695,10 @@ return $default(_that.coreUserId,_that.displayName,_that.avatarUrl,_that.isActiv
 @JsonSerializable()
 
 class _UserReferenceResponse implements UserReferenceResponse {
-  const _UserReferenceResponse({required this.coreUserId, this.displayName, this.avatarUrl, required this.isActive});
+  const _UserReferenceResponse({required this.userId, this.displayName, this.avatarUrl, required this.isActive});
   factory _UserReferenceResponse.fromJson(Map<String, dynamic> json) => _$UserReferenceResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  String? displayName;
 @override final  String? avatarUrl;
 @override final  bool isActive;
@@ -9716,16 +9716,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserReferenceResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isActive, isActive) || other.isActive == isActive));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserReferenceResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,displayName,avatarUrl,isActive);
+int get hashCode => Object.hash(runtimeType,userId,displayName,avatarUrl,isActive);
 
 @override
 String toString() {
-  return 'UserReferenceResponse(coreUserId: $coreUserId, displayName: $displayName, avatarUrl: $avatarUrl, isActive: $isActive)';
+  return 'UserReferenceResponse(userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, isActive: $isActive)';
 }
 
 
@@ -9736,7 +9736,7 @@ abstract mixin class _$UserReferenceResponseCopyWith<$Res> implements $UserRefer
   factory _$UserReferenceResponseCopyWith(_UserReferenceResponse value, $Res Function(_UserReferenceResponse) _then) = __$UserReferenceResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, String? displayName, String? avatarUrl, bool isActive
+ String userId, String? displayName, String? avatarUrl, bool isActive
 });
 
 
@@ -9753,9 +9753,9 @@ class __$UserReferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of UserReferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? displayName = freezed,Object? avatarUrl = freezed,Object? isActive = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? displayName = freezed,Object? avatarUrl = freezed,Object? isActive = null,}) {
   return _then(_UserReferenceResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
@@ -11463,7 +11463,7 @@ as int,
 /// @nodoc
 mixin _$UpdateTaskAssigneesPayload {
 
- List<String> get coreUserIds; int get expectedVersion;
+ List<String> get userIds; int get expectedVersion;
 /// Create a copy of UpdateTaskAssigneesPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -11476,16 +11476,16 @@ $UpdateTaskAssigneesPayloadCopyWith<UpdateTaskAssigneesPayload> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateTaskAssigneesPayload&&const DeepCollectionEquality().equals(other.coreUserIds, coreUserIds)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateTaskAssigneesPayload&&const DeepCollectionEquality().equals(other.userIds, userIds)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(coreUserIds),expectedVersion);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(userIds),expectedVersion);
 
 @override
 String toString() {
-  return 'UpdateTaskAssigneesPayload(coreUserIds: $coreUserIds, expectedVersion: $expectedVersion)';
+  return 'UpdateTaskAssigneesPayload(userIds: $userIds, expectedVersion: $expectedVersion)';
 }
 
 
@@ -11496,7 +11496,7 @@ abstract mixin class $UpdateTaskAssigneesPayloadCopyWith<$Res>  {
   factory $UpdateTaskAssigneesPayloadCopyWith(UpdateTaskAssigneesPayload value, $Res Function(UpdateTaskAssigneesPayload) _then) = _$UpdateTaskAssigneesPayloadCopyWithImpl;
 @useResult
 $Res call({
- List<String> coreUserIds, int expectedVersion
+ List<String> userIds, int expectedVersion
 });
 
 
@@ -11513,9 +11513,9 @@ class _$UpdateTaskAssigneesPayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateTaskAssigneesPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserIds = null,Object? expectedVersion = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userIds = null,Object? expectedVersion = null,}) {
   return _then(_self.copyWith(
-coreUserIds: null == coreUserIds ? _self.coreUserIds : coreUserIds // ignore: cast_nullable_to_non_nullable
+userIds: null == userIds ? _self.userIds : userIds // ignore: cast_nullable_to_non_nullable
 as List<String>,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -11602,10 +11602,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> coreUserIds,  int expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> userIds,  int expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateTaskAssigneesPayload() when $default != null:
-return $default(_that.coreUserIds,_that.expectedVersion);case _:
+return $default(_that.userIds,_that.expectedVersion);case _:
   return orElse();
 
 }
@@ -11623,10 +11623,10 @@ return $default(_that.coreUserIds,_that.expectedVersion);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> coreUserIds,  int expectedVersion)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> userIds,  int expectedVersion)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateTaskAssigneesPayload():
-return $default(_that.coreUserIds,_that.expectedVersion);case _:
+return $default(_that.userIds,_that.expectedVersion);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -11643,10 +11643,10 @@ return $default(_that.coreUserIds,_that.expectedVersion);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> coreUserIds,  int expectedVersion)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> userIds,  int expectedVersion)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateTaskAssigneesPayload() when $default != null:
-return $default(_that.coreUserIds,_that.expectedVersion);case _:
+return $default(_that.userIds,_that.expectedVersion);case _:
   return null;
 
 }
@@ -11658,10 +11658,10 @@ return $default(_that.coreUserIds,_that.expectedVersion);case _:
 @JsonSerializable()
 
 class _UpdateTaskAssigneesPayload implements UpdateTaskAssigneesPayload {
-  const _UpdateTaskAssigneesPayload({required this.coreUserIds, required this.expectedVersion});
+  const _UpdateTaskAssigneesPayload({required this.userIds, required this.expectedVersion});
   factory _UpdateTaskAssigneesPayload.fromJson(Map<String, dynamic> json) => _$UpdateTaskAssigneesPayloadFromJson(json);
 
-@override final  List<String> coreUserIds;
+@override final  List<String> userIds;
 @override final  int expectedVersion;
 
 /// Create a copy of UpdateTaskAssigneesPayload
@@ -11677,16 +11677,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateTaskAssigneesPayload&&const DeepCollectionEquality().equals(other.coreUserIds, coreUserIds)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateTaskAssigneesPayload&&const DeepCollectionEquality().equals(other.userIds, userIds)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(coreUserIds),expectedVersion);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(userIds),expectedVersion);
 
 @override
 String toString() {
-  return 'UpdateTaskAssigneesPayload(coreUserIds: $coreUserIds, expectedVersion: $expectedVersion)';
+  return 'UpdateTaskAssigneesPayload(userIds: $userIds, expectedVersion: $expectedVersion)';
 }
 
 
@@ -11697,7 +11697,7 @@ abstract mixin class _$UpdateTaskAssigneesPayloadCopyWith<$Res> implements $Upda
   factory _$UpdateTaskAssigneesPayloadCopyWith(_UpdateTaskAssigneesPayload value, $Res Function(_UpdateTaskAssigneesPayload) _then) = __$UpdateTaskAssigneesPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- List<String> coreUserIds, int expectedVersion
+ List<String> userIds, int expectedVersion
 });
 
 
@@ -11714,9 +11714,9 @@ class __$UpdateTaskAssigneesPayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateTaskAssigneesPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserIds = null,Object? expectedVersion = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userIds = null,Object? expectedVersion = null,}) {
   return _then(_UpdateTaskAssigneesPayload(
-coreUserIds: null == coreUserIds ? _self.coreUserIds : coreUserIds // ignore: cast_nullable_to_non_nullable
+userIds: null == userIds ? _self.userIds : userIds // ignore: cast_nullable_to_non_nullable
 as List<String>,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
 as int,
   ));

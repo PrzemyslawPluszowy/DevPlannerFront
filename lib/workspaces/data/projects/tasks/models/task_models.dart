@@ -1,10 +1,10 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_status_category.dart';
 
 part 'task_models.freezed.dart';
 part 'task_models.g.dart';
@@ -98,7 +98,7 @@ abstract class CreateProjectTaskPayload with _$CreateProjectTaskPayload {
     required TaskPriority priority,
     DateTime? startAtUtc,
     DateTime? dueAtUtc,
-    List<String>? assigneeCoreUserIds,
+    List<String>? assigneeUserIds,
     List<String>? checklistItems,
     String? taskType,
     int? size,
@@ -180,7 +180,7 @@ abstract class UpdateProjectTaskPayload with _$UpdateProjectTaskPayload {
 abstract class TaskAssigneeResponse with _$TaskAssigneeResponse {
   /// Tworzy odpowiedź wykonawcy.
   const factory TaskAssigneeResponse({
-    required String coreUserId,
+    required String userId,
     required bool isPrimary,
     required DateTime createdAtUtc,
   }) = _TaskAssigneeResponse;
@@ -199,7 +199,7 @@ abstract class TaskChecklistItemResponse with _$TaskChecklistItemResponse {
     required String title,
     required int position,
     required bool isCompleted,
-    String? completedByCoreUserId,
+    String? completedByUserId,
     DateTime? completedAtUtc,
     required DateTime updatedAtUtc,
   }) = _TaskChecklistItemResponse;
@@ -303,7 +303,7 @@ abstract class TaskSelectionQueryPayload with _$TaskSelectionQueryPayload {
     String? savedViewId,
     String? status,
     String? priority,
-    String? assigneeCoreUserId,
+    String? assigneeUserId,
     String? myInvolvement,
     String? search,
     DateTime? dueFromUtc,
@@ -466,7 +466,7 @@ abstract class ProjectTaskResponse with _$ProjectTaskResponse {
     required int position,
     DateTime? startAtUtc,
     DateTime? dueAtUtc,
-    required String createdByCoreUserId,
+    required String createdByUserId,
     required List<TaskAssigneeResponse> assignees,
     required List<TaskChecklistItemResponse> checklistItems,
     TaskRecurrenceSummaryResponse? recurrence,
@@ -562,7 +562,7 @@ abstract class TaskAcceptanceCriterionResponse
     required String text,
     required int position,
     required bool isAccepted,
-    String? acceptedByCoreUserId,
+    String? acceptedByUserId,
     DateTime? acceptedAtUtc,
     required DateTime updatedAtUtc,
   }) = _TaskAcceptanceCriterionResponse;
@@ -577,7 +577,7 @@ abstract class TaskAcceptanceCriterionResponse
 abstract class TaskWatcherResponse with _$TaskWatcherResponse {
   /// Tworzy odpowiedź obserwatora.
   const factory TaskWatcherResponse({
-    required String coreUserId,
+    required String userId,
     required DateTime createdAtUtc,
   }) = _TaskWatcherResponse;
 
@@ -673,9 +673,9 @@ abstract class ProjectTaskDetailsResponse with _$ProjectTaskDetailsResponse {
 /// Wspólna referencja użytkownika zwracana przy szczegółach zadania.
 @freezed
 abstract class UserReferenceResponse with _$UserReferenceResponse {
-  /// Tworzy referencję użytkownika z katalogu Core.
+  /// Tworzy referencję lokalnego użytkownika workspace.
   const factory UserReferenceResponse({
-    required String coreUserId,
+    required String userId,
     String? displayName,
     String? avatarUrl,
     required bool isActive,
@@ -810,7 +810,7 @@ abstract class UpdateTaskDependencyPayload with _$UpdateTaskDependencyPayload {
 abstract class UpdateTaskAssigneesPayload with _$UpdateTaskAssigneesPayload {
   /// Tworzy listę wykonawców z kontrolą wersji zadania.
   const factory UpdateTaskAssigneesPayload({
-    required List<String> coreUserIds,
+    required List<String> userIds,
     required int expectedVersion,
   }) = _UpdateTaskAssigneesPayload;
 

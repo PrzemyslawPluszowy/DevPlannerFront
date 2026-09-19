@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/transport/onlyoffice_editor_html_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/data/storage/transport/onlyoffice_editor_html_builder.dart';
 
 void main() {
   test('buduje host DocsAPI z podpisaną konfiguracją backendu', () {

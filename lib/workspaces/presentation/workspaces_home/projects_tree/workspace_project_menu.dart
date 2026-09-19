@@ -1,21 +1,22 @@
 import 'dart:async';
 
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/shared/presentation/widgets/app_expansible_navigation_item.dart';
+import 'package:devplanner/shared/presentation/widgets/app_shimmer.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/project_resource_creation_dialogs.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/projects_tree/widgets/project_menu_groups.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/shared/presentation/widgets/app_expansible_navigation_item.dart';
-import 'package:ready_next/shared/presentation/widgets/app_shimmer.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_resources_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
-import 'package:ready_next/workspaces/presentation/projects/dialogs/project_resource_creation_dialogs.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/projects_tree/widgets/project_menu_groups.dart';
 
 /// Leniwie ładowane poddrzewo projektów dla danego workspace’u w menu bocznym.
 class WorkspaceProjectMenu extends StatelessWidget {
@@ -46,7 +47,7 @@ class WorkspaceProjectMenu extends StatelessWidget {
       case ProjectMenuAction.createWhiteboard:
         if (projectId != null) {
           unawaited(
-            showCreateWhiteboardDialog(
+            ProjectResourceCreationDialogs.showCreateWhiteboard(
               context,
               workspaceId: workspaceId,
               projectId: projectId,
@@ -57,7 +58,7 @@ class WorkspaceProjectMenu extends StatelessWidget {
       case ProjectMenuAction.createTask:
         if (projectId != null) {
           unawaited(
-            showCreateTaskDialog(
+            ProjectResourceCreationDialogs.showCreateTask(
               context,
               workspaceId: workspaceId,
               projectId: projectId,
@@ -66,7 +67,7 @@ class WorkspaceProjectMenu extends StatelessWidget {
         }
       case ProjectMenuAction.createProject:
         unawaited(
-          showCreateProjectDialog(
+          ProjectResourceCreationDialogs.showCreateProject(
             context,
             workspaceId: workspaceId,
             onCreated: onCreated,
@@ -75,7 +76,7 @@ class WorkspaceProjectMenu extends StatelessWidget {
       case ProjectMenuAction.createWikiPage:
         if (projectId != null) {
           unawaited(
-            showCreateWikiPageDialog(
+            ProjectResourceCreationDialogs.showCreateWikiPage(
               context,
               workspaceId: workspaceId,
               projectId: projectId,
@@ -85,7 +86,7 @@ class WorkspaceProjectMenu extends StatelessWidget {
       case ProjectMenuAction.addCorkboardCard:
         if (projectId != null) {
           unawaited(
-            showCreateCorkboardCardDialog(
+            ProjectResourceCreationDialogs.showCreateCorkboardCard(
               context,
               workspaceId: workspaceId,
               projectId: projectId,
@@ -95,7 +96,7 @@ class WorkspaceProjectMenu extends StatelessWidget {
       case ProjectMenuAction.createFolder || ProjectMenuAction.createFile:
         if (projectId != null) {
           unawaited(
-            showCreateFolderDialog(
+            ProjectResourceCreationDialogs.showCreateFolder(
               context,
               workspaceId: workspaceId,
               projectId: projectId,
@@ -135,43 +136,15 @@ class WorkspaceProjectMenu extends StatelessWidget {
                   ],
                 ),
               ),
-              WorkspaceProjectsFailure(:final message, :final backendCode) =>
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Symbols.error_outline_rounded,
-                        size: 13,
-                        color: context.colors.error,
-                      ),
-                      Gaps.w4,
-                      Expanded(
-                        child: Text(
-                          backendCode == null
-                              ? message
-                              : '$message (kod: $backendCode)',
-                          style: context.text.labelSmall?.copyWith(
-                            color: context.colors.error,
-                            fontSize: 11,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: context.l10n.workspacesRetry,
-                        onPressed: () => unawaited(
-                          context.read<WorkspaceProjectsCubit>().load(),
-                        ),
-                        icon: const Icon(Symbols.refresh_rounded, size: 15),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ],
-                  ),
+              WorkspaceProjectsFailure(
+                :final message,
+                :final backendCode,
+                :final statusCode,
+              ) =>
+                _WorkspaceProjectsFailureRow(
+                  message: message,
+                  backendCode: backendCode,
+                  statusCode: statusCode,
                 ),
               WorkspaceProjectsEmpty() => _CreateProjectMenuAction(
                 onPressed: () => _handleAction(
@@ -236,6 +209,58 @@ class _CreateProjectMenuAction extends StatelessWidget {
   );
 }
 
+class _WorkspaceProjectsFailureRow extends StatelessWidget {
+  const _WorkspaceProjectsFailureRow({
+    required this.message,
+    required this.backendCode,
+    required this.statusCode,
+  });
+
+  final String? message;
+  final String? backendCode;
+  final int? statusCode;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayCode = backendCode ?? statusCode?.toString();
+    final displayMessage = message ?? 'Nie udało się pobrać projektów.';
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Row(
+        children: [
+          Icon(
+            Symbols.error_outline_rounded,
+            size: 13,
+            color: context.colors.error,
+          ),
+          Gaps.w4,
+          Expanded(
+            child: Text(
+              displayCode == null
+                  ? displayMessage
+                  : '$displayMessage (kod: $displayCode)',
+              style: context.text.labelSmall?.copyWith(
+                color: context.colors.error,
+                fontSize: 11,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          IconButton(
+            tooltip: context.l10n.workspacesRetry,
+            onPressed: () => unawaited(
+              context.read<WorkspaceProjectsCubit>().load(),
+            ),
+            icon: const Icon(Symbols.refresh_rounded, size: 15),
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ProjectItemBranch extends StatelessWidget {
   const _ProjectItemBranch({
     required this.workspaceId,
@@ -254,10 +279,12 @@ class _ProjectItemBranch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: context.router,
+      listenable: GoRouter.of(context).routerDelegate,
       builder: (context, _) {
         final projectPath = '/workspaces/$workspaceId/projects/${project.id}';
-        final selected = context.router.currentPath.startsWith(projectPath);
+        final selected = context.plannerNavigation.currentPath.startsWith(
+          projectPath,
+        );
         final repo =
             resourcesRepository ?? context.read<ProjectResourcesRepository>();
 
@@ -332,7 +359,7 @@ class _ProjectDirectNavLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentPath = context.router.currentPath;
+    final currentPath = context.plannerNavigation.currentPath;
     final selected = currentPath == path || currentPath.startsWith('$path/');
 
     return AppExpansibleNavigationItem(
@@ -340,7 +367,7 @@ class _ProjectDirectNavLink extends StatelessWidget {
       icon: icon,
       depth: 2,
       selected: selected,
-      onTap: () => context.router.navigatePath(path),
+      onTap: () => context.plannerNavigation.go(path),
     );
   }
 }

@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart';
 
 final class _FakeTaskRecurrenceRepository implements TaskRecurrenceRepository {
   Either<ApiError, TaskRecurrenceResponse>? getResult;
@@ -20,6 +20,7 @@ final class _FakeTaskRecurrenceRepository implements TaskRecurrenceRepository {
   int updateCalls = 0;
   int pauseCalls = 0;
   int resumeCalls = 0;
+  CreateTaskRecurrencePayload? latestCreatePayload;
 
   @override
   Future<Either<ApiError, TaskRecurrenceResponse>> get({
@@ -37,6 +38,7 @@ final class _FakeTaskRecurrenceRepository implements TaskRecurrenceRepository {
     required CreateTaskRecurrencePayload payload,
   }) async {
     createCalls++;
+    latestCreatePayload = payload;
     return createResult!;
   }
 
@@ -226,6 +228,32 @@ void main() {
     final success = cubit.state as TaskRecurrenceEditorSuccess;
     expect(success.mutationResult.data.id, 'rule-1');
   });
+
+  test(
+    'zapis UTC używa niezależnego od Fluttera value object godziny',
+    () async {
+      repository.createResult = Right(_createDummyMutation());
+      final cubit = TaskRecurrenceEditorCubit(
+        repository: repository,
+        workspaceId: 'ws-1',
+        projectId: 'proj-1',
+        taskId: 'task-1',
+        taskVersion: 1,
+        hasRecurrence: false,
+      );
+
+      cubit.setScheduledDate(DateTime(2026, 9, 18));
+      cubit.setScheduledTime(
+        const TaskRecurrenceScheduledTime(hour: 14, minute: 35),
+      );
+      await cubit.save();
+
+      final payload = repository.latestCreatePayload;
+      expect(payload, isNotNull);
+      expect(payload!.firstOccurrenceAtUtc, DateTime.utc(2026, 9, 18, 14, 35));
+      await cubit.close();
+    },
+  );
 
   test('toggleActive wstrzymuje regułę i emituje Success', () async {
     final rec = _createDummyRecurrence();

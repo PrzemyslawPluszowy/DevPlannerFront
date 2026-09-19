@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/notifications_repository.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/notification_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/notifications_repository.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_state.dart';
 
 class _FakeNotificationsRepository implements NotificationsRepository {
   _FakeNotificationsRepository({

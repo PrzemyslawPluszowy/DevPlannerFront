@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/access_control/models/access_control_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/access_control/models/access_control_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'access_control_api.g.dart';

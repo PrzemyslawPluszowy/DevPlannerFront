@@ -1,18 +1,17 @@
 import 'dart:async';
 
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_state.dart';
+import 'package:devplanner/workspaces/presentation/notifications/reply/notification_reply_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/router/app_deep_link.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/notification_enums.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_state.dart';
-import 'package:ready_next/workspaces/presentation/notifications/reply/notification_reply_modal.dart';
 
 /// Listowa prezentacja cursorowego snapshotu; wszystkie intencje trafiają do Cubita.
 class NotificationsList extends StatelessWidget {
@@ -141,7 +140,9 @@ class _NotificationGroupTile extends StatelessWidget {
                     group.groupKey,
                   ),
                 );
-                AppDeepLink.navigate(context.router, latest.deepLink);
+                unawaited(
+                  context.plannerNavigation.goDeepLink(latest.deepLink),
+                );
               },
       ),
     );
@@ -223,7 +224,7 @@ class _NotificationItemTile extends StatelessWidget {
                   NotificationQuickActionKind.markRead,
                 ),
               );
-              AppDeepLink.navigate(context.router, item.deepLink);
+              unawaited(context.plannerNavigation.goDeepLink(item.deepLink));
             },
     ),
   );

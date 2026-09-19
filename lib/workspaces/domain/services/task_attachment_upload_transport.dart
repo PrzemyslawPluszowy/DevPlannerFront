@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 
 /// Wysyła bajty wyłącznie pod jednorazowy bilet wygenerowany przez backend.
 // ignore: one_member_abstracts

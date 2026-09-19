@@ -1,12 +1,11 @@
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_member_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/members/widgets/project_role_badge_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/auth/auth_cubit.dart';
-import 'package:ready_next/core/auth/auth_state.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_member_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/members/widgets/project_role_badge_selector.dart';
 
 /// Tabela listy członków projektu z możliwością zmiany ról oraz usuwania osób.
 class ProjectMembersTable extends StatelessWidget {
@@ -34,19 +33,13 @@ class ProjectMembersTable extends StatelessWidget {
     BuildContext context,
     ProjectMemberResponse member,
   ) {
-    final authUser = switch (context.watch<AuthCubit?>()?.state) {
-      AuthAuthenticated(:final user) => user,
-      _ => null,
-    };
-    if (authUser != null && authUser.coreUserId == member.coreUserId) {
+    final authUser = context.watch<AuthSessionPort?>()?.snapshot.user;
+    if (authUser != null && authUser.userId == member.userId) {
       if (authUser.displayName.isNotEmpty) {
         return '${authUser.displayName} (Ja)';
       }
     }
-    if (member.readyUserId != null) {
-      return 'Użytkownik #${member.readyUserId}';
-    }
-    return 'Użytkownik (${member.coreUserId.substring(0, 8)}...)';
+    return 'Użytkownik (${member.userId.substring(0, 8)}...)';
   }
 
   @override
@@ -123,9 +116,7 @@ class ProjectMembersTable extends StatelessWidget {
                     ),
                     Gaps.h2,
                     Text(
-                      member.readyUserId != null
-                          ? 'Ready ID: ${member.readyUserId}'
-                          : 'Core ID: ${member.coreUserId}',
+                      'User ID: ${member.userId}',
                       style: context.text.labelSmall?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),

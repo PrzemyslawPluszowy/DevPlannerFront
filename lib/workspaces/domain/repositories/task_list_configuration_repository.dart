@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
 
 /// Repozytorium konfiguracji polityki kolumn projektu i preferencji użytkownika listy zadań.
 abstract interface class TaskListConfigurationRepository {

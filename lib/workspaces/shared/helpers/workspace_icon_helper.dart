@@ -1,7 +1,7 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
 
 /// Pojedyncza opcja ikony dostępna do wyboru w UI i zapisu na backendzie.
 class WorkspaceIconEntry {

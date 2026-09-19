@@ -1,10 +1,10 @@
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/general/cubit/project_general_settings_cubit.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/general/widgets/project_details_form_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/general/cubit/project_general_settings_cubit.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/general/widgets/project_details_form_section.dart';
 
 /// Główny widok zakładki "Ogólne" w ustawieniach projektu.
 class ProjectGeneralTabView extends StatelessWidget {

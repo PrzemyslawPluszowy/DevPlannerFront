@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/core/network/app_api_factory.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/core/network/app_api_factory.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Bazowa klasa pomocnicza dla repository wywolujacych API.

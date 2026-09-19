@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/manage_workspace/create_workspace_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/manage_workspace/create_workspace_dialog.dart';
 
 /// Kompaktowy widok pustego stanu dla menu katalogu Workspaces.
 class WorkspaceDirectoryEmptyState extends StatelessWidget {
@@ -40,7 +40,7 @@ class WorkspaceDirectoryEmptyState extends StatelessWidget {
           ),
           Gaps.h12,
           OutlinedButton.icon(
-            onPressed: () => unawaited(showCreateWorkspaceDialog(context)),
+            onPressed: () => unawaited(CreateWorkspaceDialog.show(context)),
             icon: const Icon(Symbols.add_rounded, size: 14),
             label: Text(l10n.workspacesCreateWorkspace),
             style: OutlinedButton.styleFrom(

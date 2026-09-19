@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_type_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_type_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Komórka typu zadania w tabeli listy zadań.
 ///
@@ -54,7 +54,7 @@ class TaskCellTaskType extends StatelessWidget {
                 onTap: onChanged == null
                     ? null
                     : () => unawaited(
-                        showTaskTypePicker(
+                        TaskTypePicker.show(
                           cellContext,
                           currentType: taskType,
                           onSave: onChanged!,
@@ -78,7 +78,7 @@ class TaskCellTaskType extends StatelessWidget {
                 onTap: onChanged == null
                     ? null
                     : () => unawaited(
-                        showTaskTypePicker(
+                        TaskTypePicker.show(
                           cellContext,
                           currentType: taskType,
                           onSave: onChanged!,

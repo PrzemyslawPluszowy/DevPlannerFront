@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/presentation/chat/composer/cubit/chat_composer_state.dart';
 
 /// Mały owner draftu z sekwencyjną, wersjonowaną trwałością per rozmowa.
 final class ChatComposerCubit extends Cubit<ChatComposerState> {

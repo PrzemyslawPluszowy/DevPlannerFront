@@ -1,7 +1,7 @@
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_preferences.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_preferences_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_preferences.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_preferences_repository.dart';
 
 /// Właściciel wyłącznie osobistej preferencji powiadomień Storage.
 final class StorageNotificationPreferenceCubit
@@ -35,7 +35,7 @@ final class StorageNotificationPreferenceCubit
     final previous = current.preference;
     final requestGeneration = ++_requestGeneration;
     final optimistic = StorageNotificationPreference(
-      coreUserId: previous.coreUserId,
+      userId: previous.userId,
       mode: mode,
       isDefault: false,
       updatedAtUtc: previous.updatedAtUtc,

@@ -1,33 +1,36 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/shared/presentation/widgets/app_shimmer.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/projects_tree/widgets/project_menu_groups.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/projects_tree/workspace_project_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/shared/presentation/widgets/app_shimmer.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_resources_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/projects_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/projects_tree/widgets/project_menu_groups.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/projects_tree/workspace_project_menu.dart';
 
-class _FakeProjectsRepository implements ProjectsRepository {
-  _FakeProjectsRepository(this.result);
+class _FakeProjectsGateway implements ProjectsGateway {
+  _FakeProjectsGateway(this.result);
 
-  Either<ApiError, List<ProjectListItem>> result;
+  List<ProjectListItem> result;
+  ProjectsGatewayException? error;
   int calls = 0;
   String? requestedWorkspaceId;
 
   @override
-  Future<Either<ApiError, List<ProjectListItem>>> listProjects(
+  Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
     bool includeHidden = false,
   }) async {
     calls++;
     requestedWorkspaceId = workspaceId;
+    final failure = error;
+    if (failure != null) throw failure;
     return result;
   }
 
@@ -102,9 +105,9 @@ void main() {
   testWidgets('menu pokazuje ładowanie, a potem pusty katalog projektów', (
     tester,
   ) async {
-    final repository = _FakeProjectsRepository(const Right([]));
+    final repository = _FakeProjectsGateway(const []);
     final cubit = WorkspaceProjectsCubit(
-      repository: repository,
+      gateway: repository,
       workspaceId: 'workspace-1',
     );
     addTearDown(cubit.close);
@@ -123,17 +126,14 @@ void main() {
   testWidgets('menu pokazuje komunikat backendu przy błędzie lazy-loadingu', (
     tester,
   ) async {
-    final repository = _FakeProjectsRepository(
-      const Left(
-        ApiError(
-          type: ApiErrorType.server,
-          message: 'Nie udało się pobrać projektów.',
-          backendCode: 503,
-        ),
-      ),
-    );
+    final repository = _FakeProjectsGateway(const [])
+      ..error = const ProjectsGatewayException(
+        reason: ProjectsFailureReason.requestFailed,
+        statusCode: 503,
+        message: 'Nie udało się pobrać projektów.',
+      );
     final cubit = WorkspaceProjectsCubit(
-      repository: repository,
+      gateway: repository,
       workspaceId: 'workspace-1',
     );
     addTearDown(cubit.close);
@@ -149,7 +149,8 @@ void main() {
     expect(find.textContaining('(kod: 503)'), findsOneWidget);
     expect(repository.calls, 1);
 
-    repository.result = const Right([]);
+    repository.error = null;
+    repository.result = const [];
     await tester.tap(find.byTooltip('Spróbuj ponownie'));
     await tester.pump();
     expect(find.text('Utwórz pierwszy projekt'), findsOneWidget);
@@ -159,11 +160,11 @@ void main() {
   testWidgets('pusty stan projektu emituje intencję utworzenia projektu', (
     tester,
   ) async {
-    final repository = _FakeProjectsRepository(const Right([]));
+    final repository = _FakeProjectsGateway(const []);
     ProjectMenuAction? action;
     String? projectId;
     final cubit = WorkspaceProjectsCubit(
-      repository: repository,
+      gateway: repository,
       workspaceId: 'workspace-1',
     );
     addTearDown(cubit.close);

@@ -1,6 +1,6 @@
-import 'package:ready_next/workspaces/presentation/tasks/views/cubit/task_saved_views_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/models/task_list_view_snapshot.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/widgets/task_saved_views_menu.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/cubit/task_saved_views_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/models/task_list_view_snapshot.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/widgets/task_saved_views_menu.dart';
 
 /// Moduł prywatnych zapisanych widoków zadań (Saved Views).
 ///

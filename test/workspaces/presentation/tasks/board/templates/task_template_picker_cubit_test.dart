@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_templates_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_template_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/templates/cubit/task_template_picker_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_templates_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_template_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/templates/cubit/task_template_picker_cubit.dart';
 
 final class _TaskTemplateRepository implements TaskTemplateRepository {
   Either<ApiError, List<TaskTemplateResponse>>? listResult;
@@ -105,7 +105,7 @@ TaskTemplateDetailsResponse _details() => TaskTemplateDetailsResponse(
   title: 'Zadanie z szablonu',
   status: ProjectTaskStatus.todo,
   priority: TaskPriority.normal,
-  assigneeCoreUserIds: const ['user-1'],
+  assigneeUserIds: const ['user-1'],
   checklistItems: const ['Krok 1'],
   acceptanceCriteria: const ['Gotowe'],
   labels: const [],
@@ -223,7 +223,7 @@ void main() {
         risk: 8,
         businessValue: 89,
         estimatedMinutes: 240,
-        assigneeCoreUserIds: const ['user-1'],
+        assigneeUserIds: const ['user-1'],
         checklistItems: const ['Projekt', 'Wdrożenie'],
         acceptanceCriteria: const ['Testy przechodzą'],
         labels: const [

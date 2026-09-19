@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
 
 /// Bazowy stan jednej, lokalnej gałęzi zasobów projektu.
 sealed class ProjectResourcesState {

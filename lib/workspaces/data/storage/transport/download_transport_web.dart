@@ -2,8 +2,8 @@ import 'dart:js_interop';
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/core/error/api_error.dart';
 import 'package:web/web.dart' as web;
 
 /// Operacje pobierania przeznaczone dla Web/Wasm.

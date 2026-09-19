@@ -1,8 +1,8 @@
-import 'package:ready_next/workspaces/data/storage/transport/storage_upload_body_stub.dart'
-    if (dart.library.js_interop) 'package:ready_next/workspaces/data/storage/transport/storage_upload_body_web.dart'
-    if (dart.library.io) 'package:ready_next/workspaces/data/storage/transport/storage_upload_body_io.dart'
+import 'package:devplanner/workspaces/data/storage/transport/storage_upload_body_stub.dart'
+    if (dart.library.js_interop) 'package:devplanner/workspaces/data/storage/transport/storage_upload_body_web.dart'
+    if (dart.library.io) 'package:devplanner/workspaces/data/storage/transport/storage_upload_body_io.dart'
     as platform;
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 
 /// Wybiera strumieniowe źródło uploadu właściwe dla platformy.
 final class StorageUploadBody {

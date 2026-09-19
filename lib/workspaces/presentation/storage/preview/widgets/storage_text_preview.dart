@@ -1,7 +1,7 @@
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/storage/transport/text_preview_loader_impl.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/text_preview_loader.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/storage/transport/text_preview_loader_impl.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/text_preview_loader.dart';
 
 /// Bounded, selectable text preview that never buffers an unbounded file.
 class StorageTextPreview extends StatefulWidget {

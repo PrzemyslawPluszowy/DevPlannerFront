@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
 
 /// Przyczyna lokalnego odrzucenia jeszcze przed żądaniem uploadu.
 enum ChatAttachmentRejectionReason {

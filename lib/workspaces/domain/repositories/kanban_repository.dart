@@ -1,16 +1,16 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 
 /// Filtry jednej cursorowej kolumny Kanban.
 final class KanbanColumnQuery {
   const KanbanColumnQuery({
     this.cursor,
     this.limit = 25,
-    this.assigneeCoreUserId,
+    this.assigneeUserId,
     this.priority,
     this.milestoneId,
   }) : assert(
@@ -20,7 +20,7 @@ final class KanbanColumnQuery {
 
   final String? cursor;
   final int limit;
-  final String? assigneeCoreUserId;
+  final String? assigneeUserId;
   final TaskPriority? priority;
   final String? milestoneId;
 }

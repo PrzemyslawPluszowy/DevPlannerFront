@@ -83,11 +83,12 @@ class _TimelineReady extends StatelessWidget {
                 ),
               ),
               OutlinedButton.icon(
-                onPressed: () =>
-                    unawaited(_chooseTimelineRange(context, state)),
+                onPressed: () => unawaited(
+                  TaskBoardTimelineActions.chooseRange(context, state),
+                ),
                 icon: const Icon(Symbols.date_range, size: 16),
                 label: Text(
-                  '${_formatDate(state.fromUtc)} – ${_formatDate(state.toUtc)}',
+                  '${TaskBoardDateFormatter.format(state.fromUtc)} – ${TaskBoardDateFormatter.format(state.toUtc)}',
                   style: context.text.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -151,7 +152,10 @@ class _TimelineReady extends StatelessWidget {
                           const SizedBox(height: 16),
                           OutlinedButton.icon(
                             onPressed: () => unawaited(
-                              _chooseTimelineRange(context, state),
+                              TaskBoardTimelineActions.chooseRange(
+                                context,
+                                state,
+                              ),
                             ),
                             icon: const Icon(Symbols.calendar_month, size: 16),
                             label: const Text('Zmień zakres dat'),
@@ -270,9 +274,10 @@ class _TimelineRow extends StatelessWidget {
                                   height: 14,
                                   child: DecoratedBox(
                                     decoration: BoxDecoration(
-                                      color: _timelinePriorityColor(
-                                        item.priority,
-                                      ),
+                                      color:
+                                          TaskBoardTimelineActions.priorityColor(
+                                            item.priority,
+                                          ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
@@ -336,28 +341,35 @@ class _TimelineDependencyChip extends StatelessWidget {
   );
 }
 
-Future<void> _chooseTimelineRange(
-  BuildContext context,
-  TaskTimelineReady state,
-) async {
-  final range = await showDateRangePicker(
-    context: context,
-    firstDate: DateTime(2000),
-    lastDate: DateTime(2100),
-    initialDateRange: DateTimeRange(start: state.fromUtc, end: state.toUtc),
-    helpText: context.l10n.tasksTimelineRange,
-  );
-  if (range != null && context.mounted) {
-    await context.read<TaskTimelineCubit>().load(
-      fromUtc: range.start.toUtc(),
-      toUtc: range.end.add(const Duration(days: 1)).toUtc(),
-    );
-  }
-}
+final class TaskBoardTimelineActions {
+  const TaskBoardTimelineActions._();
 
-Color _timelinePriorityColor(TaskPriority priority) => switch (priority) {
-  TaskPriority.low => const Color(0xFF60A5FA),
-  TaskPriority.normal => const Color(0xFF10B981),
-  TaskPriority.high => const Color(0xFFF59E0B),
-  TaskPriority.critical => const Color(0xFFEF4444),
-};
+  static Future<void> chooseRange(
+    BuildContext context,
+    TaskTimelineReady state,
+  ) async {
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDateRange: DateTimeRange(
+        start: state.fromUtc,
+        end: state.toUtc,
+      ),
+      helpText: context.l10n.tasksTimelineRange,
+    );
+    if (range != null && context.mounted) {
+      await context.read<TaskTimelineCubit>().load(
+        fromUtc: range.start.toUtc(),
+        toUtc: range.end.add(const Duration(days: 1)).toUtc(),
+      );
+    }
+  }
+
+  static Color priorityColor(TaskPriority priority) => switch (priority) {
+    TaskPriority.low => const Color(0xFF60A5FA),
+    TaskPriority.normal => const Color(0xFF10B981),
+    TaskPriority.high => const Color(0xFFF59E0B),
+    TaskPriority.critical => const Color(0xFFEF4444),
+  };
+}

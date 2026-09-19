@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/workspaces/models/automation_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/workspaces/models/automation_models.dart';
 
 /// Pełny kontrakt reguł, katalogu i diagnostyki automatyzacji projektu.
 abstract interface class AutomationRepository {

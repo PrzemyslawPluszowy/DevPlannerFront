@@ -125,7 +125,7 @@ class _ColumnResizeGuideOverlay extends StatelessWidget {
 /// Metody obsługujące logikę zmiany rozmiaru kolumn (zarówno Ghost Guide jak i delta).
 extension _TaskListTableResizeExtension on _TaskListTableState {
   void _onColumnResizeStart(String columnId) {
-    final visibleColumns = taskListVisibleColumns(widget.columns);
+    final visibleColumns = TaskListGrid.visibleColumns(widget.columns);
     var baseX = TaskListGrid.selection;
     var initialWidth = TaskListGrid.customField;
     var minWidth = TaskListGrid.minResizableWidth;

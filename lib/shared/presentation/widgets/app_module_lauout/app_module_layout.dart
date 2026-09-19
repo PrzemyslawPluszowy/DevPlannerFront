@@ -1,7 +1,7 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_module_lauout/app_compact_module_layout.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_module_lauout/app_compact_module_layout.dart';
 
 /// Główny szablon strony modułu (sidebar + content) pod web/desktop.
 ///

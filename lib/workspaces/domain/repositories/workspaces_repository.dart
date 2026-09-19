@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_role.dart';
-import 'package:ready_next/workspaces/data/workspaces/payloads/workspace_payloads.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
-import 'package:ready_next/workspaces/domain/models/workspace_list_item.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_role.dart';
+import 'package:devplanner/workspaces/data/workspaces/payloads/workspace_payloads.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/domain/models/workspace_list_item.dart';
 
 /// Kontrakt odczytu i zmian głównej domeny Workspace.
 ///
@@ -76,13 +76,13 @@ abstract interface class WorkspacesRepository {
     required String memberId,
   });
 
-  /// Wyszukuje użytkowników Ready do zaproszenia.
-  Future<Either<ApiError, List<ReadyDirectoryUserResponse>>> searchReadyUsers({
+  /// Wyszukuje aktywnych, potwierdzonych użytkowników lokalnych do zaproszenia.
+  Future<Either<ApiError, List<LocalUserDirectoryResponse>>> searchLocalUsers({
     required String workspaceId,
     required String query,
   });
 
-  /// Tworzy zaproszenie dla użytkownika Ready.
+  /// Tworzy zaproszenie dla istniejącego lokalnego użytkownika.
   Future<Either<ApiError, WorkspaceInvitationResponse>> createInvitation({
     required String workspaceId,
     required CreateWorkspaceInvitationPayload payload,

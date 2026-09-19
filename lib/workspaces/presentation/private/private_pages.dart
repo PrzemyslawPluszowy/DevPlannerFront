@@ -1,18 +1,16 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/private/cubit/personal_section_cubit.dart';
+import 'package:devplanner/workspaces/presentation/private/my_tasks_filters.dart';
+import 'package:devplanner/workspaces/presentation/private/my_tasks_filters_dialog.dart';
+import 'package:devplanner/workspaces/presentation/private/private_section_view.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_view_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/presentation/private/cubit/personal_section_cubit.dart';
-import 'package:ready_next/workspaces/presentation/private/my_tasks_filters_dialog.dart';
-import 'package:ready_next/workspaces/presentation/private/private_section_view.dart';
-import 'package:ready_next/workspaces/presentation/storage/shell/storage_shell_page.dart';
 
 /// Globalna prywatna przestrzeń użytkownika niezależna od workspace’u.
 class PersonalSectionPage extends StatefulWidget {
@@ -34,11 +32,9 @@ class PersonalSectionPage extends StatefulWidget {
 }
 
 class _PersonalSectionPageState extends State<PersonalSectionPage> {
-  ProjectTaskStatus? _status;
-  TaskPriority? _priority;
-  TaskInvolvementFilter? _involvement;
-  DateTime? _dueFromUtc;
-  DateTime? _dueToUtc;
+  final ValueNotifier<MyTasksFilters> _filters = ValueNotifier(
+    const MyTasksFilters(),
+  );
 
   PersonalSectionKind get _kind => widget.section == 'files'
       ? PersonalSectionKind.files
@@ -50,115 +46,68 @@ class _PersonalSectionPageState extends State<PersonalSectionPage> {
     if (kind == PersonalSectionKind.files) {
       return StorageShellPage(initialScope: widget.initialStorageScope);
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(kind.title),
-        actions: [
-          if (kind == PersonalSectionKind.tasks)
-            IconButton(
-              tooltip: context.l10n.myTasksFilter,
-              onPressed: _showFilters,
-              icon: Badge(
-                isLabelVisible:
-                    _status != null ||
-                    _priority != null ||
-                    _involvement != null ||
-                    _dueFromUtc != null ||
-                    _dueToUtc != null,
-                child: const Icon(Symbols.filter_list_rounded),
+    return ValueListenableBuilder(
+      valueListenable: _filters,
+      builder: (context, filters, _) => Scaffold(
+        appBar: AppBar(
+          title: Text(kind.title),
+          actions: [
+            if (kind == PersonalSectionKind.tasks)
+              IconButton(
+                tooltip: context.l10n.myTasksFilter,
+                onPressed: _showFilters,
+                icon: Badge(
+                  isLabelVisible:
+                      filters.status != null ||
+                      filters.priority != null ||
+                      filters.involvement != null ||
+                      filters.dueFromUtc != null ||
+                      filters.dueToUtc != null,
+                  child: const Icon(Symbols.filter_list_rounded),
+                ),
               ),
-            ),
-        ],
-      ),
-      body: BlocProvider(
-        key: ValueKey([
-          _status,
-          _priority,
-          _involvement,
-          _dueFromUtc,
-          _dueToUtc,
-        ]),
-        create: (_) {
-          final cubit = PersonalSectionCubit(
-            loader: kind == PersonalSectionKind.tasks
-                ? (cursor) => _loadMyTasks(
-                    context.read<TaskViewRepository>(),
-                    cursor,
-                    status: _status,
-                    priority: _priority,
-                    involvement: _involvement,
-                    dueFromUtc: _dueFromUtc,
-                    dueToUtc: _dueToUtc,
-                  )
-                : _unavailableLoader,
-          );
-          unawaited(cubit.load());
-          return cubit;
-        },
-        child: PersonalSectionView(kind: kind),
+          ],
+        ),
+        body: BlocProvider(
+          key: ValueKey([
+            filters.status,
+            filters.priority,
+            filters.involvement,
+            filters.dueFromUtc,
+            filters.dueToUtc,
+          ]),
+          create: (_) {
+            final cubit = PersonalSectionCubit.myTasks(
+              repository: context.read<TaskViewRepository>(),
+              status: filters.status,
+              priority: filters.priority,
+              involvement: filters.involvement,
+              dueFromUtc: filters.dueFromUtc,
+              dueToUtc: filters.dueToUtc,
+            );
+            unawaited(cubit.load());
+            return cubit;
+          },
+          child: PersonalSectionView(kind: kind),
+        ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _filters.dispose();
+    super.dispose();
   }
 
   Future<void> _showFilters() async {
     final filters = await showDialog<MyTasksFilters>(
       context: context,
       builder: (_) => MyTasksFiltersDialog(
-        initial: MyTasksFilters(
-          status: _status,
-          priority: _priority,
-          involvement: _involvement,
-          dueFromUtc: _dueFromUtc,
-          dueToUtc: _dueToUtc,
-        ),
+        initial: _filters.value,
       ),
     );
     if (filters == null || !mounted) return;
-    setState(() {
-      _status = filters.status;
-      _priority = filters.priority;
-      _involvement = filters.involvement;
-      _dueFromUtc = filters.dueFromUtc;
-      _dueToUtc = filters.dueToUtc;
-    });
-  }
-
-  /// Pliki nie mają jeszcze globalnego endpointu prywatnej sekcji.
-  static Future<PersonalSectionLoadResult> _unavailableLoader(
-    String? cursor,
-  ) async => const PersonalSectionContractUnavailable(
-    message: 'Backend Workspaces udostępnia te dane wyłącznie w kontekście workspace’u. Globalny endpoint prywatny nie jest jeszcze dostępny.',
-  );
-
-  static Future<PersonalSectionLoadResult> _loadMyTasks(
-    TaskViewRepository repository,
-    String? cursor, {
-    ProjectTaskStatus? status,
-    TaskPriority? priority,
-    TaskInvolvementFilter? involvement,
-    DateTime? dueFromUtc,
-    DateTime? dueToUtc,
-  }) async {
-    final result = await repository.listMyTasks(
-      query: MyTasksQuery(
-        cursor: cursor,
-        status: myTasksStatusValue(status),
-        priority: myTasksPriorityValue(priority),
-        involvement: myTasksInvolvementValue(involvement),
-        dueFromUtc: dueFromUtc,
-        dueToUtc: dueToUtc,
-      ),
-    );
-    return result.fold(
-      (error) => PersonalSectionLoadFailure(
-        message: error.message,
-        code: error.backendCode?.toString(),
-      ),
-      (page) => PersonalSectionData(
-        itemCount: page.items.length,
-        tasks: page.items,
-        nextCursor: page.nextCursor,
-      ),
-    );
+    _filters.value = filters;
   }
 }

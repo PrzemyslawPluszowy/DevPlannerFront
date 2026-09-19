@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:ready_next/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
 
 /// Adapter keychain/keystore dla prywatnych draftów; nigdy nie używa Hive.
 final class SecureChatDraftRepository implements ChatDraftRepository {
@@ -75,5 +75,5 @@ final class SecureChatDraftRepository implements ChatDraftRepository {
   }
 
   String _key(String userId, String conversationId) =>
-      'ready_next.chat_draft.v1.${Uri.encodeComponent(userId)}.${Uri.encodeComponent(conversationId)}';
+      'devplanner.chat_draft.v1.${Uri.encodeComponent(userId)}.${Uri.encodeComponent(conversationId)}';
 }

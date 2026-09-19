@@ -1,10 +1,10 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_collapsible_navigation.dart';
+import 'package:devplanner/workspaces/presentation/workspace_shell/navigation/cubit/workspace_shell_navigation_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_collapsible_navigation.dart';
-import 'package:ready_next/workspaces/presentation/workspace_shell/navigation/cubit/workspace_shell_navigation_cubit.dart';
 
 /// Statyczne menu workspace’u używane do czasu potwierdzenia kontraktów API.
 ///

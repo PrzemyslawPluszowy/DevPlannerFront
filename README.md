@@ -1,8 +1,37 @@
-# ready_next
+# DevPlanner
 
-Aplikacja `Ready Next` w Flutterze dla Web i desktopu.
+Samodzielna aplikacja `DevPlanner` w Flutterze dla Web i desktopu.
 
 ## Lokalny build
+
+### Desktop macOS ze stagingiem
+
+Domyślna konfiguracja VS Code **DevPlanner macOS — staging** łączy aplikację
+z backendem wdrożonym pod `https://devnote.flutter-dev.pl`. Nie wymaga to
+uruchamiania lokalnego API, PostgreSQL ani MinIO:
+
+```bash
+flutter run -d macos --dart-define=DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl
+```
+
+Staging ma wspólny origin dla Flutter Web, BFF, API, OpenIddict i SignalR.
+Adres należy przekazywać przez `--dart-define`; plik `.env` nie jest ładowany
+przez `flutter run`.
+
+### Desktop macOS z lokalnym backendem
+
+Do logowania desktop używa lokalnego HTTPS backendu DevPlanner. Uruchom backend
+zgodnie z jego README, a następnie wystartuj Front z jednoznacznym originem:
+
+```bash
+flutter run -d macos --dart-define=DEVPLANNER_API_BASE_URL=https://localhost:5173
+```
+
+W VS Code wybierz konfigurację **DevPlanner macOS — lokalny HTTPS** z
+`.vscode/launch.json`; przekazuje ona tę samą flagę. Nie uruchamiaj desktopu
+bez `DEVPLANNER_API_BASE_URL`: domyślny adres `http://localhost:5072` jest
+celowo bezpieczny dla świeżego checkoutu, ale lokalny serwer autoryzacji wymaga
+HTTPS i odmówi żądania logowania po HTTP.
 
 Standardowy build release (rekomendowany):
 
@@ -33,7 +62,7 @@ build/web
 Skrypt kopiujący build na serwer:
 
 ```bash
-./deploy_ready_custom_flutter.sh
+./scripts/build_web_production.sh
 ```
 
 Skrypt wysyła pliki do:
@@ -42,7 +71,7 @@ Skrypt wysyła pliki do:
 root@192.168.170.20:/var/www/ready_custom_flutter
 ```
 
-## Produkcyjny build z Veloryn Core
+## Produkcyjny build DevPlanner
 
 Produkcja używa osobnego, ignorowanego przez Git pliku `.env.production`.
 Przygotuj go na podstawie bezpiecznego szablonu:
@@ -57,10 +86,10 @@ Następnie uruchom:
 ./scripts/build_web_production.sh
 ```
 
-Skrypt przekazuje produkcyjne adresy przez `--dart-define` i buduje Flutter Web
-z adresami `b2b8101`, `b2b8103` i `b2b8104`. Lokalny `.env` pozostaje bez zmian.
-Gotowy katalog `build/web` można wysłać dotychczasowym
-`deploy_ready_custom_flutter.sh`.
+Skrypt przekazuje jeden adres standalone API przez `--dart-define=
+DEVPLANNER_API_BASE_URL=...`. Lokalny `.env` pozostaje bez zmian; domyślny
+development origin to loopback, więc świeży checkout nie łączy się z dawnymi
+usługami.
 
 W buildzie desktopowym, który ma generować linki publiczne do plików, należy
 dodatkowo przekazać publiczny adres aplikacji webowej:
@@ -123,11 +152,11 @@ ss -tulpn | grep 8088
 
 Aplikacja uzywa path-based routingu Flutter Web, wiec Apache musi oddawac `index.html` dla tras typu:
 
-- `/inventory`
-- `/inventory/stock`
-- `/orders`
+- `/workspaces`
+- `/workspaces/:workspaceId`
+- `/storage/public/:shareToken`
 
-Fallback jest skonfigurowany w `ready-custom-flutter.conf`.
+Fallback musi zwracać `index.html` dla tras aplikacji DevPlanner.
 
 ## Typowy update
 
@@ -145,7 +174,7 @@ Wcześniej stosowany build z flagą `--wasm` generował błędy kompilacji ze wz
 
 - Upload sourcemapów działa dla release builda Web.
 - Wymagany build: `flutter build web --source-maps --no-tree-shake-icons`.
-- Aktualna konfiguracja release trafia do projektu Sentry `ready-next-web`.
+- Aktualna konfiguracja release trafia do projektu Sentry `devplanner-web`.
 
 ### Windows
 
@@ -159,9 +188,8 @@ Wcześniej stosowany build z flagą `--wasm` generował błędy kompilacji ze wz
 - Do raportowania błędów z Windows wymagany jest build `release`.
 - End-to-end upload symboli Windows wymaga wykonania `flutter build windows --release` na Windows i sprawdzenia wygenerowanych `.pdb`.
 
-## Bootstrap DevPlannerFront
+## Stan refaktoryzacji
 
-To repozytorium zostało utworzone jako pełny snapshot frontendu Ready Next, aby
-zachować punkt wyjścia do migracji. Kolejny etap obejmie wydzielenie
-samodzielnego modułu Workspaces/DevPlanner; ten commit celowo nie usuwa modułów
-ani nie przebudowuje uwierzytelniania.
+Pakiet 6A ustanowił standalone foundation, branding i fail-closed konfigurację
+jednego originu API. Legacy feature’y są jeszcze obecne jako przejściowy graf i
+zostaną odłączane pionowymi slice’ami zgodnie z planem w `docs/refactor/phase-6`.

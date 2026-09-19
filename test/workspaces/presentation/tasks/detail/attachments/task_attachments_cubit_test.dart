@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_attachment_repository.dart';
+import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/attachments/cubit/task_attachments_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_attachment_repository.dart';
-import 'package:ready_next/workspaces/domain/services/task_attachment_upload_transport.dart';
-import 'package:ready_next/workspaces/presentation/tasks/detail/attachments/cubit/task_attachments_cubit.dart';
 
 final class _Repository implements TaskAttachmentRepository {
   List<Either<ApiError, List<StorageFileResponse>>> lists = [const Right([])];

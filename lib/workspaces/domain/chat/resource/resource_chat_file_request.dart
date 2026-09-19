@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/chat/resource/resource_chat_file_context.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_context.dart';
 
 /// Świeży, autoryzowany kontekst pliku przekazywany do resolvera Resource Chat.
 ///

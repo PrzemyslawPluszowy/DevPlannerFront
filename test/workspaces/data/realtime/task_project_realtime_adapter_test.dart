@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/realtime/tasks/task_project_realtime_adapter.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/data/realtime/tasks/task_project_realtime_adapter.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/domain/models/task_project_realtime_update.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
@@ -61,6 +61,8 @@ void main() {
       'number': 42,
       'key': 'TASK-42',
       'version': 7,
+      'actorUserId': 'actor-1',
+      'correlationId': 'correlation-1',
       'occurredAtUtc': '2026-08-26T10:00:00Z',
       'status': 'Done',
       'previousStatus': 'InProgress',
@@ -71,7 +73,7 @@ void main() {
       'updatedAtUtc': '2026-08-26T10:01:00Z',
       'users': <Object?>[
         <String, dynamic>{
-          'coreUserId': 'user-1',
+          'userId': 'user-1',
           'connectionCount': 2,
         },
       ],
@@ -84,8 +86,10 @@ void main() {
     expect(mutation.status, ProjectTaskStatus.done);
     expect(mutation.previousStatus, ProjectTaskStatus.inProgress);
     expect(mutation.version, 7);
+    expect(mutation.actorUserId, 'actor-1');
+    expect(mutation.correlationId, 'correlation-1');
     final presence = updates.last as TaskProjectPresence;
-    expect(presence.users.single.coreUserId, 'user-1');
+    expect(presence.users.single.userId, 'user-1');
     expect(presence.users.single.connectionCount, 2);
 
     await subscription.cancel();

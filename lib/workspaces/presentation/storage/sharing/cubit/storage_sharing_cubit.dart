@@ -1,8 +1,11 @@
+import 'dart:async';
+
+import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_sharing_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/presentation/storage/sharing/cubit/storage_sharing_state.dart';
 
 /// Cubit zarządzający uprawnieniami i udostępnieniami pojedynczego pliku.
 class StorageSharingCubit extends Cubit<StorageSharingState> {
@@ -10,6 +13,7 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
   StorageSharingCubit({
     required this.fileId,
     required this.repository,
+    this.onMutationConfirmed,
   }) : super(const StorageSharingInitial());
 
   /// Identyfikator pliku, którego dotyczą uprawnienia.
@@ -17,6 +21,9 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
 
   /// Repozytorium operacji storage.
   final StorageRepository repository;
+
+  /// Odświeża właściciela listy Files dopiero po odpowiedzi 2xx mutacji.
+  final Future<void> Function()? onMutationConfirmed;
 
   /// Pobiera listę aktywnych udostępnień.
   Future<void> loadShares() async {
@@ -28,7 +35,7 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
       (error) => emit(
         StorageSharingFailure(
           message: error.message,
-          code: error.backendCode?.toString(),
+          code: _errorCode(error),
         ),
       ),
       (shares) => emit(StorageSharingReady(shares: shares)),
@@ -107,7 +114,7 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
         emit(
           StorageSharingFailure(
             message: error.message,
-            code: error.backendCode?.toString(),
+            code: _errorCode(error),
           ),
         );
         return null;
@@ -146,7 +153,7 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
         emit(
           StorageSharingFailure(
             message: error.message,
-            code: error.backendCode?.toString(),
+            code: _errorCode(error),
           ),
         );
         return false;
@@ -158,6 +165,7 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
               .toList(growable: false);
           emit(StorageSharingReady(shares: updated));
         }
+        _notifyMutationConfirmed();
         return true;
       },
     );
@@ -181,7 +189,7 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
         emit(
           StorageSharingFailure(
             message: error.message,
-            code: error.backendCode?.toString(),
+            code: _errorCode(error),
           ),
         );
         return false;
@@ -195,8 +203,17 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
             shares: [...currentShares, share],
           ),
         );
+        _notifyMutationConfirmed();
         return true;
       },
     );
   }
+
+  void _notifyMutationConfirmed() {
+    final callback = onMutationConfirmed;
+    if (callback != null) unawaited(callback());
+  }
+
+  String? _errorCode(ApiError error) =>
+      error.backendCode?.toString() ?? error.statusCode?.toString();
 }

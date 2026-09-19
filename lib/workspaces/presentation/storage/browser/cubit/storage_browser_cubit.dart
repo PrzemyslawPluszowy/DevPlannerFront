@@ -1,22 +1,24 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_breadcrumb_resolver.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/shared/storage_formatters.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_browser_filter.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_breadcrumb_resolver.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
-import 'package:ready_next/workspaces/presentation/storage/shared/storage_formatters.dart';
+
+part 'storage_browser_cubit_view_state.dart';
 
 /// Cubit zarządzający widokiem eksploratora plików, nawigacją po folderach,
 /// paginacją kursorową, filtrami i sortowaniem.
 final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
   /// Tworzy instancję cubita z początkowym zakresem.
   StorageBrowserCubit({
-    required this._repository,
+    required this.repository,
     StorageScope initialScope = const StorageScope.personal(),
     StorageViewMode initialViewMode = StorageViewMode.grid,
   }) : super(
@@ -26,50 +28,10 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
          ),
        );
 
-  final StorageRepository _repository;
+  final StorageRepository repository;
   int _requestGeneration = 0;
   String? _searchQuery;
   final Map<String, String?> _folderParents = {};
-
-  /// Pobiera aktualny zakres.
-  StorageScope get currentScope => switch (state) {
-    StorageBrowserInitial(:final scope) => scope,
-    StorageBrowserLoading(:final scope) => scope,
-    StorageBrowserReady(:final scope) => scope,
-    StorageBrowserEmpty(:final scope) => scope,
-    StorageBrowserFailure(:final scope) => scope,
-    StorageBrowserForbidden(:final scope) => scope,
-  };
-
-  /// Pobiera aktualny tryb widoku.
-  StorageViewMode get currentViewMode => switch (state) {
-    StorageBrowserInitial(:final viewMode) => viewMode,
-    StorageBrowserLoading(:final viewMode) => viewMode,
-    StorageBrowserReady(:final viewMode) => viewMode,
-    StorageBrowserEmpty(:final viewMode) => viewMode,
-    StorageBrowserFailure() => StorageViewMode.grid,
-    StorageBrowserForbidden() => StorageViewMode.grid,
-  };
-
-  /// Pobiera aktualne filtry.
-  StorageBrowserFilter get currentFilter => switch (state) {
-    StorageBrowserInitial(:final filter) => filter,
-    StorageBrowserLoading(:final filter) => filter,
-    StorageBrowserReady(:final filter) => filter,
-    StorageBrowserEmpty(:final filter) => filter,
-    StorageBrowserFailure() => const StorageBrowserFilter(),
-    StorageBrowserForbidden() => const StorageBrowserFilter(),
-  };
-
-  /// Pobiera aktualne sortowanie.
-  StorageSortCriteria get currentSort => switch (state) {
-    StorageBrowserInitial(:final sort) => sort,
-    StorageBrowserLoading(:final sort) => sort,
-    StorageBrowserReady(:final sort) => sort,
-    StorageBrowserEmpty(:final sort) => sort,
-    StorageBrowserFailure() => const StorageSortCriteria(),
-    StorageBrowserForbidden() => const StorageSortCriteria(),
-  };
 
   /// Ładuje dane dla bieżącego zakresu i folderu.
   Future<void> load({bool showLoading = true}) async {
@@ -93,12 +55,12 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
     StorageFolderResponse? folderDetails;
     var breadcrumbs = [
       StorageBreadcrumbItem(
-        name: StorageBreadcrumbResolver(_repository).rootName(scope),
+        name: StorageBreadcrumbResolver(repository).rootName(scope),
       ),
     ];
     if (scope.folderId != null) {
       try {
-        final resolved = await StorageBreadcrumbResolver(_repository)
+        final resolved = await StorageBreadcrumbResolver(repository)
             .resolve(scope);
         folderDetails = resolved.currentFolder;
         breadcrumbs = resolved.breadcrumbs;
@@ -108,13 +70,36 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
       if (isClosed || requestGeneration != _requestGeneration) return;
     }
 
-    final foldersResult = await _repository.listFolders(
+    final foldersResult = await repository.listFolders(
       scope: scope,
       parentFolderId: scope.folderId,
     );
     if (isClosed || requestGeneration != _requestGeneration) return;
 
-    final filesResult = await _repository.listFiles(
+    if (foldersResult.isLeft()) {
+      foldersResult.leftMap((err) {
+        if (err.statusCode == 403) {
+          emit(
+            StorageBrowserForbidden(
+              scope: scope,
+              message: err.message,
+            ),
+          );
+        } else {
+          emit(
+            StorageBrowserFailure(
+              scope: scope,
+              message: err.message,
+              statusCode: err.statusCode,
+              backendCode: err.backendCode,
+            ),
+          );
+        }
+      });
+      return;
+    }
+
+    final filesResult = await repository.listFiles(
       scope: scope,
       folderId: scope.folderId,
       filter: filter,
@@ -191,7 +176,7 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
 
     emit(currentState.copyWith(isLoadingMore: true));
 
-    final result = await _repository.listFiles(
+    final result = await repository.listFiles(
       scope: currentState.scope,
       folderId: currentState.scope.folderId,
       cursor: currentState.nextCursor,
@@ -345,7 +330,7 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
       ),
     );
 
-    final filesResult = await _repository.listFiles(
+    final filesResult = await repository.listFiles(
       scope: currentScope,
       folderId: currentScope.folderId,
       filter: currentFilter,
@@ -365,7 +350,7 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
         final files = page.items;
         final breadcrumbs = [
           StorageBreadcrumbItem(
-            name: StorageBreadcrumbResolver(_repository).rootName(currentScope),
+            name: StorageBreadcrumbResolver(repository).rootName(currentScope),
           ),
         ];
         if (files.isEmpty) {

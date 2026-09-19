@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cards/subtasks/cubit/kanban_subtasks_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cards/subtasks/cubit/kanban_subtasks_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cards/subtasks/cubit/kanban_subtasks_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cards/subtasks/cubit/kanban_subtasks_state.dart';
 
 final class _MockTasksRepo implements TasksRepository {
   _MockTasksRepo({
@@ -78,7 +78,7 @@ final class _MockTasksRepo implements TasksRepository {
             priority: TaskPriority.normal,
             taskType: 'Task',
             position: 1000,
-            createdByCoreUserId: 'u-1',
+            createdByUserId: 'u-1',
             assignees: const [],
             checklistItems: const [],
             createdAtUtc: DateTime.utc(2026, 9, 6),
@@ -113,7 +113,7 @@ final class _MockTasksRepo implements TasksRepository {
             priority: TaskPriority.normal,
             taskType: 'Task',
             position: 1000,
-            createdByCoreUserId: 'u-1',
+            createdByUserId: 'u-1',
             assignees: const [],
             checklistItems: const [],
             createdAtUtc: DateTime.utc(2026, 9, 6),

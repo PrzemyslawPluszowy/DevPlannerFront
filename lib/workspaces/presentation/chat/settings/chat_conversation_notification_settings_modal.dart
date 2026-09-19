@@ -1,14 +1,14 @@
 import 'dart:async';
 
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/chat_notification_settings.dart';
+import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_conversation_notification_settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/domain/notifications/chat_notification_settings_repository.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/chat_notification_settings.dart';
-import 'package:ready_next/workspaces/presentation/chat/settings/cubit/chat_conversation_notification_settings_cubit.dart';
 
 /// Rootowy modal polityki powiadomień pojedynczej rozmowy Chat.
 ///
@@ -21,7 +21,7 @@ abstract final class ChatConversationNotificationSettingsModal {
     required String conversationId,
   }) async {
     final repository = context.read<ChatNotificationSettingsRepository>();
-    await AppModalHost.showDialog<void>(
+    await DevPlannerModalHost.showDialog<void>(
       context,
       builder: (_) => BlocProvider(
         create: (_) {

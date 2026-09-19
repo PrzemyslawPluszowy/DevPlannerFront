@@ -1,17 +1,17 @@
 import 'dart:async';
 
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/features/settings/application/local_settings_cubit.dart';
+import 'package:devplanner/shared/presentation/widgets/app_module_lauout/app_module_layout.dart';
+import 'package:devplanner/shared/presentation/widgets/app_module_lauout/app_module_top_bar.dart';
+import 'package:devplanner/workspaces/presentation/workspace_shell/content/workspace_shell_content.dart';
+import 'package:devplanner/workspaces/presentation/workspace_shell/navigation/cubit/workspace_shell_navigation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspace_shell/navigation/workspace_static_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/features/settings/application/local_settings_cubit.dart';
-import 'package:ready_next/shared/presentation/widgets/app_module_lauout/app_module_layout.dart';
-import 'package:ready_next/shared/presentation/widgets/app_module_lauout/app_module_top_bar.dart';
-import 'package:ready_next/shared/presentation/widgets/app_navigation_preference_key.dart';
-import 'package:ready_next/workspaces/presentation/workspace_shell/content/workspace_shell_content.dart';
-import 'package:ready_next/workspaces/presentation/workspace_shell/navigation/cubit/workspace_shell_navigation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/workspace_shell/navigation/workspace_static_menu.dart';
 
 /// Statelessowy webowy shell aktywnego workspace’u.
 class WorkspaceShell extends StatelessWidget {
@@ -26,10 +26,7 @@ class WorkspaceShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final preferenceKey = appNavigationPreferenceKey(
-      context,
-      'workspaces.shell',
-    );
+    final preferenceKey = _preferenceKey(context);
 
     return BlocProvider(
       create: (_) => WorkspaceShellNavigationCubit(
@@ -41,6 +38,11 @@ class WorkspaceShell extends StatelessWidget {
       ),
       child: _WorkspaceShellLayout(workspaceId: workspaceId),
     );
+  }
+
+  String _preferenceKey(BuildContext context) {
+    final userId = context.read<AuthSessionPort?>()?.snapshot.user?.userId;
+    return 'workspaces.shell:${userId ?? 'anonymous'}';
   }
 }
 
@@ -76,9 +78,9 @@ class _WorkspaceShellLayout extends StatelessWidget {
       sidebarBuilder: (context, _, outerPadding) => RepaintBoundary(
         child: WorkspaceStaticMenu(
           outerPadding: outerPadding,
-          onBack: () => unawaited(context.router.navigatePath('/workspaces')),
+          onBack: () => unawaited(context.plannerNavigation.go('/workspaces')),
           onFiles: () => unawaited(
-            context.router.navigatePath('/workspaces/$workspaceId/files'),
+            context.plannerNavigation.go('/workspaces/$workspaceId/files'),
           ),
         ),
       ),

@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/templates/api/project_templates_api.dart';
-import 'package:ready_next/workspaces/data/projects/templates/models/project_template_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_templates_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/templates/api/project_templates_api.dart';
+import 'package:devplanner/workspaces/data/projects/templates/models/project_template_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_templates_repository.dart';
 
 /// Implementacja repozytorium szablonów projektów oparta o Retrofit API.
 final class ProjectTemplatesRepositoryImpl extends ApiRepository

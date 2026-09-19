@@ -1,7 +1,7 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
 
 /// Komponent wyboru widoczności projektu (Współdzielony / Prywatny).
 class ProjectVisibilitySelector extends StatelessWidget {

@@ -1,161 +1,5 @@
 part of 'tasks_board_page.dart';
 
-/// Poziomy viewport tablicy z kontrolerem przypisanym wyłącznie do Scrollbara.
-class _KanbanColumns extends StatefulWidget {
-  const _KanbanColumns({
-    required this.workspaceId,
-    required this.projectId,
-    required this.state,
-  });
-
-  final String workspaceId;
-  final String projectId;
-  final TasksBoardReady state;
-
-  @override
-  State<_KanbanColumns> createState() => _KanbanColumnsState();
-}
-
-class _KanbanColumnsState extends State<_KanbanColumns> {
-  final ScrollController _controller = ScrollController();
-  KanbanAutoScrollCoordinator? _coordinator;
-
-  static const _keyboardColumnStep = 318.0;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final coordinator = KanbanAutoScrollScope.maybeOf(context);
-    if (!identical(_coordinator, coordinator)) {
-      _coordinator?.unregisterBoardController(_controller);
-      _coordinator = coordinator;
-      _coordinator?.registerBoardController(_controller);
-    }
-  }
-
-  @override
-  void dispose() {
-    _coordinator?.unregisterBoardController(_controller);
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Shortcuts(
-    shortcuts: const {
-      SingleActivator(LogicalKeyboardKey.arrowLeft, alt: true):
-          _PreviousKanbanColumnIntent(),
-      SingleActivator(LogicalKeyboardKey.arrowRight, alt: true):
-          _NextKanbanColumnIntent(),
-    },
-    child: Actions(
-      actions: {
-        _PreviousKanbanColumnIntent:
-            CallbackAction<_PreviousKanbanColumnIntent>(
-              onInvoke: (_) => _scrollBy(-_keyboardColumnStep),
-            ),
-        _NextKanbanColumnIntent: CallbackAction<_NextKanbanColumnIntent>(
-          onInvoke: (_) => _scrollBy(_keyboardColumnStep),
-        ),
-      },
-      child: FocusTraversalGroup(
-        policy: OrderedTraversalPolicy(),
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: const {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-              PointerDeviceKind.stylus,
-              PointerDeviceKind.trackpad,
-            },
-          ),
-          child: Scrollbar(
-            controller: _controller,
-            thumbVisibility: true,
-            trackVisibility: true,
-            interactive: true,
-            child: ListView.separated(
-              controller: _controller,
-              primary: false,
-              padding: const .all(KanbanCardTokens.boardGutter),
-              scrollDirection: Axis.horizontal,
-              itemCount: widget.state.board.columns.length,
-              separatorBuilder: (_, _) =>
-                  const SizedBox(width: KanbanCardTokens.columnGap),
-              itemBuilder: (context, index) {
-                final column = widget.state.board.columns[index];
-                return FocusTraversalOrder(
-                  order: NumericFocusOrder(index.toDouble()),
-                  child: FocusTraversalGroup(
-                    policy: WidgetOrderTraversalPolicy(),
-                    child: _KanbanColumn(
-                      key: ValueKey(
-                        column.customStatusId ?? column.status.name,
-                      ),
-                      workspaceId: widget.workspaceId,
-                      projectId: widget.projectId,
-                      column: column,
-                      visibleCardFields: widget.state.board.visibleCardFields,
-                      density: widget.state.board.defaultCardDensity,
-                      selectedTaskIds: widget.state.selectedTaskIds,
-                      pendingTaskIds: widget.state.pendingTaskIds,
-                      memberProfilesByCoreUserId:
-                          widget.state.memberProfilesByCoreUserId,
-                      isCollapsed: _isCollapsed(column),
-                      onToggleCollapsed: () => unawaited(
-                        context.read<TasksBoardCubit>().toggleColumnCollapsed(
-                          column,
-                        ),
-                      ),
-                      isLoadingMore: widget.state.loadingColumnKeys.contains(
-                        column.customStatusId ?? column.status.name,
-                      ),
-                      loadError:
-                          widget.state.columnLoadErrors[column.customStatusId ??
-                              column.status.name],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  void _scrollBy(double delta) {
-    if (!_controller.hasClients) return;
-    final position = _controller.position;
-    final target = (_controller.offset + delta).clamp(
-      position.minScrollExtent,
-      position.maxScrollExtent,
-    );
-    _controller.animateTo(
-      target,
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  bool _isCollapsed(KanbanColumnResponse column) {
-    final preference = widget.state.userPreference;
-    if (preference == null) return false;
-    final customStatusId = column.customStatusId;
-    return customStatusId == null
-        ? preference.collapsedColumns.contains(column.status)
-        : preference.collapsedCustomStatusIds.contains(customStatusId);
-  }
-}
-
-class _PreviousKanbanColumnIntent extends Intent {
-  const _PreviousKanbanColumnIntent();
-}
-
-class _NextKanbanColumnIntent extends Intent {
-  const _NextKanbanColumnIntent();
-}
-
 class KanbanColumnWidget extends StatefulWidget {
   const KanbanColumnWidget({
     required this.workspaceId,
@@ -165,7 +9,7 @@ class KanbanColumnWidget extends StatefulWidget {
     required this.density,
     required this.selectedTaskIds,
     required this.pendingTaskIds,
-    required this.memberProfilesByCoreUserId,
+    required this.memberProfilesByUserId,
     required this.isCollapsed,
     required this.onToggleCollapsed,
     required this.isLoadingMore,
@@ -180,7 +24,7 @@ class KanbanColumnWidget extends StatefulWidget {
   final KanbanCardDensity density;
   final Set<String> selectedTaskIds;
   final Set<String> pendingTaskIds;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final bool isCollapsed;
   final VoidCallback onToggleCollapsed;
   final bool isLoadingMore;
@@ -189,8 +33,6 @@ class KanbanColumnWidget extends StatefulWidget {
   @override
   State<KanbanColumnWidget> createState() => _KanbanColumnWidgetState();
 }
-
-typedef _KanbanColumn = KanbanColumnWidget;
 
 class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
   late final ScrollController _controller;
@@ -256,7 +98,7 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
       );
     }
     final colors = context.colors;
-    final accent = _parseColor(widget.column.color);
+    final accent = TaskBoardColorParser.parse(widget.column.color);
     return Container(
       width: KanbanCardTokens.columnWidthStandard,
       decoration: BoxDecoration(
@@ -321,7 +163,7 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
   Widget _buildCards(BuildContext context) {
     final tasks = widget.column.tasks;
     if (tasks.isEmpty) {
-      return _TaskDropZone(
+      return TaskDropZone(
         column: widget.column,
         targetIndex: 0,
         expand: true,
@@ -419,7 +261,7 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
         }
         if (index.isEven) {
           final isEndDropZone = index == contentLength - 1;
-          return _TaskDropZone(
+          return TaskDropZone(
             column: widget.column,
             targetIndex: index ~/ 2,
             expand: isEndDropZone,
@@ -427,7 +269,7 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
           );
         }
         final task = tasks[index ~/ 2];
-        return _TaskAfterCardDropTarget(
+        return TaskAfterCardDropTarget(
           column: widget.column,
           targetIndex: index ~/ 2 + 1,
           child: _DraggableTaskCard(
@@ -438,131 +280,10 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
             density: widget.density,
             isSelected: widget.selectedTaskIds.contains(task.id),
             isPending: widget.pendingTaskIds.contains(task.id),
-            memberProfilesByCoreUserId: widget.memberProfilesByCoreUserId,
+            memberProfilesByUserId: widget.memberProfilesByUserId,
           ),
         );
       },
     );
   }
-}
-
-/// Upuszczenie na kartę oznacza wstawienie przeciąganego zadania bezpośrednio
-/// pod nią. Pozwala to zachować małe odstępy między kartami bez utraty wygody
-/// przeciągania.
-class _TaskAfterCardDropTarget extends StatelessWidget {
-  const _TaskAfterCardDropTarget({
-    required this.column,
-    required this.targetIndex,
-    required this.child,
-  });
-
-  final KanbanColumnResponse column;
-  final int targetIndex;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => DragTarget<KanbanTaskCardResponse>(
-    onWillAcceptWithDetails: (details) => context
-        .read<TasksBoardCubit>()
-        .canMoveTaskTo(task: details.data, targetColumn: column),
-    onAcceptWithDetails: (details) => unawaited(
-      context.read<TasksBoardCubit>().moveTask(
-        task: details.data,
-        targetColumn: column,
-        targetIndex: targetIndex,
-      ),
-    ),
-    builder: (context, candidates, _) => DecoratedBox(
-      decoration: BoxDecoration(
-        border: candidates.isEmpty
-            ? null
-            : Border(
-                bottom: BorderSide(
-                  color: context.colors.primary,
-                  width: 3,
-                ),
-              ),
-      ),
-      child: child,
-    ),
-  );
-}
-
-class _TaskDropZone extends StatelessWidget {
-  const _TaskDropZone({
-    required this.column,
-    required this.targetIndex,
-    this.expand = false,
-    this.child,
-  });
-
-  final KanbanColumnResponse column;
-  final int targetIndex;
-  final bool expand;
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) => DragTarget<KanbanTaskCardResponse>(
-    onWillAcceptWithDetails: (details) => context
-        .read<TasksBoardCubit>()
-        .canMoveTaskTo(task: details.data, targetColumn: column),
-    onAcceptWithDetails: (details) {
-      debugPrint(
-        '[Kanban] Drop ${details.data.id} → '
-        '${column.customStatusId ?? column.status.name} @ $targetIndex',
-      );
-      unawaited(
-        context.read<TasksBoardCubit>().moveTask(
-          task: details.data,
-          targetColumn: column,
-          targetIndex: targetIndex,
-        ),
-      );
-    },
-    builder: (context, candidates, _) {
-      final highlighted = candidates.isNotEmpty;
-      if (expand) {
-        return Container(
-          margin: const EdgeInsets.all(9),
-          decoration: BoxDecoration(
-            color: highlighted
-                ? context.colors.primary.withValues(alpha: .08)
-                : null,
-            borderRadius: BorderRadius.circular(10),
-            border: highlighted
-                ? Border.all(
-                    color: context.colors.primary.withValues(alpha: .45),
-                  )
-                : null,
-          ),
-          child: Semantics(
-            label: context.l10n.tasksDropAtEnd(column.displayName),
-            // To ma być niewidoczny, duży obszar końcowego dropu. Zostawiamy
-            // opis semantyczny dla czytników ekranu, ale nie dokładamy napisu
-            // do interfejsu ani podczas przeciągania.
-            child: child,
-          ),
-        );
-      }
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        // Zwykły rytm kart pozostaje zwarty. Strefa rozwija się dopiero po
-        // wejściu z przeciąganą kartą, a wygodny drop na końcu zapewnia duży
-        // dedykowany obszar na dole kolumny.
-        height: highlighted ? 40 : KanbanCardTokens.cardGap - 2,
-        margin: const .symmetric(vertical: 1),
-        decoration: BoxDecoration(
-          color: highlighted
-              ? context.colors.primary.withValues(alpha: .18)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: highlighted
-              ? Border.all(
-                  color: context.colors.primary.withValues(alpha: .5),
-                )
-              : null,
-        ),
-      );
-    },
-  );
 }

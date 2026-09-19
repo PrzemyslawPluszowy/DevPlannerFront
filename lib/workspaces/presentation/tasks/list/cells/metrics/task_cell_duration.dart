@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_duration_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_duration_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Komórka czasu zadania (estymata lub czas rzeczywisty) w tabeli.
 ///
@@ -53,7 +53,7 @@ class TaskCellDuration extends StatelessWidget {
                   onTap: onChanged == null
                       ? null
                       : () => unawaited(
-                          showTaskDurationPicker(
+                          TaskDurationEditor.show(
                             cellContext,
                             currentMinutes: minutes,
                             title: title,
@@ -98,7 +98,7 @@ class TaskCellDuration extends StatelessWidget {
                   onTap: onChanged == null
                       ? null
                       : () => unawaited(
-                          showTaskDurationPicker(
+                          TaskDurationEditor.show(
                             cellContext,
                             currentMinutes: minutes,
                             title: title,

@@ -1,7 +1,7 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
 
 /// Pozycja hierarchicznego menu oparta o [Expansible], bez stylu
 /// `ExpansionTile`.

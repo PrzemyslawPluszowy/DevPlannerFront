@@ -100,7 +100,7 @@ Map<String, dynamic> _$UpdateWorkspaceNotificationPreferencePayloadToJson(
 _CreateWorkspaceInvitationPayload _$CreateWorkspaceInvitationPayloadFromJson(
   Map<String, dynamic> json,
 ) => _CreateWorkspaceInvitationPayload(
-  readyUserId: (json['readyUserId'] as num).toInt(),
+  userId: json['userId'] as String,
   role: $enumDecode(_$WorkspaceRoleEnumMap, json['role']),
   message: json['message'] as String?,
 );
@@ -108,7 +108,7 @@ _CreateWorkspaceInvitationPayload _$CreateWorkspaceInvitationPayloadFromJson(
 Map<String, dynamic> _$CreateWorkspaceInvitationPayloadToJson(
   _CreateWorkspaceInvitationPayload instance,
 ) => <String, dynamic>{
-  'readyUserId': instance.readyUserId,
+  'userId': instance.userId,
   'role': _$WorkspaceRoleEnumMap[instance.role]!,
   'message': instance.message,
 };

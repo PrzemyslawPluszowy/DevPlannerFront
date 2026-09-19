@@ -1,7 +1,7 @@
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_preferences.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_preferences_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_preferences.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_preferences_repository.dart';
 
 /// Właściciel tylko globalnej macierzy dostarczania e-mail powiadomień.
 ///
@@ -40,7 +40,7 @@ final class NotificationDeliveryPreferencesCubit
     final previous = current.preferences;
     final requestGeneration = ++_requestGeneration;
     final optimistic = NotificationDeliveryPreferences(
-      coreUserId: previous.coreUserId,
+      userId: previous.userId,
       modes: {...previous.modes, category: mode},
       updatedAtUtc: previous.updatedAtUtc,
     );

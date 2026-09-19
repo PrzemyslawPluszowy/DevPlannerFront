@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_drawer_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/repositories/chat_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_drawer_state.dart';
 
 /// Lokalny Cubit listy rozmów; jego cykl życia należy do otwartego draweru.
 class ChatDrawerCubit extends Cubit<ChatDrawerState> {

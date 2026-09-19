@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 
 /// Definicja poziomu złożoności zadania (1..5).
 enum TaskComplexityLevel {
@@ -29,43 +29,47 @@ enum TaskComplexityLevel {
   };
 }
 
-/// Wyświetla zakotwiczone menu wyboru poziomu złożoności.
-Future<void> showTaskComplexityPicker(
-  BuildContext context, {
-  required int? currentComplexity,
-  required Future<bool> Function(int? value) onSave,
-  RelativeRect? menuPosition,
-}) async {
-  final position = menuPosition ?? TaskContextMenu.positionFor(context);
+/// Lokalny launcher menu wyboru poziomu złożoności.
+final class TaskComplexityPicker {
+  const TaskComplexityPicker._();
 
-  final selected = await TaskContextMenu.show<int?>(
-    context,
-    position: position,
-    items: [
-      for (final level in TaskComplexityLevel.values)
-        TaskContextMenuItem<int?>(
-          value: level.value,
-          title: level.label,
-          icon: Symbols.tune_rounded,
-          iconColor: level.color,
-          isSelected: currentComplexity == level.value,
-        ),
-      if (currentComplexity != null) ...[
-        const TaskContextMenuDivider(),
-        TaskContextMenuItem<int?>(
-          value: 0,
-          title: 'Wyczyść złożoność',
-          icon: Symbols.close_rounded,
-          iconColor: context.colors.error,
-        ),
+  static Future<void> show(
+    BuildContext context, {
+    required int? currentComplexity,
+    required Future<bool> Function(int? value) onSave,
+    RelativeRect? menuPosition,
+  }) async {
+    final position = menuPosition ?? TaskContextMenu.positionFor(context);
+
+    final selected = await TaskContextMenu.show<int?>(
+      context,
+      position: position,
+      items: [
+        for (final level in TaskComplexityLevel.values)
+          TaskContextMenuItem<int?>(
+            value: level.value,
+            title: level.label,
+            icon: Symbols.tune_rounded,
+            iconColor: level.color,
+            isSelected: currentComplexity == level.value,
+          ),
+        if (currentComplexity != null) ...[
+          const TaskContextMenuDivider(),
+          TaskContextMenuItem<int?>(
+            value: 0,
+            title: 'Wyczyść złożoność',
+            icon: Symbols.close_rounded,
+            iconColor: context.colors.error,
+          ),
+        ],
       ],
-    ],
-  );
+    );
 
-  if (selected == null) return;
-  if (selected == 0) {
-    await onSave(null);
-  } else {
-    await onSave(selected);
+    if (selected == null) return;
+    if (selected == 0) {
+      await onSave(null);
+    } else {
+      await onSave(selected);
+    }
   }
 }

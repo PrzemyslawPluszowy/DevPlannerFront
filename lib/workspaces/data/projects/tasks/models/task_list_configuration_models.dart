@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 
 TaskSavedViewSortField _parseSortField(String? value) {
   if (value == null) return TaskSavedViewSortField.position;
@@ -103,7 +103,7 @@ final class TaskListUserPreferenceResponse {
   const TaskListUserPreferenceResponse({
     required this.workspaceId,
     required this.projectId,
-    required this.coreUserId,
+    required this.userId,
     required this.visibleColumns,
     required this.columnWidths,
     this.sortField,
@@ -118,7 +118,7 @@ final class TaskListUserPreferenceResponse {
       TaskListUserPreferenceResponse(
         workspaceId: json['workspaceId'] as String,
         projectId: json['projectId'] as String,
-        coreUserId: json['coreUserId'] as String,
+        userId: json['userId'] as String,
         visibleColumns: (json['visibleColumns'] as List<dynamic>? ?? const [])
             .map((e) => e.toString())
             .toList(),
@@ -144,7 +144,7 @@ final class TaskListUserPreferenceResponse {
 
   final String workspaceId;
   final String projectId;
-  final String coreUserId;
+  final String userId;
   final List<String> visibleColumns;
   final Map<String, double> columnWidths;
   final TaskSavedViewSortField? sortField;
@@ -157,7 +157,7 @@ final class TaskListUserPreferenceResponse {
   Map<String, dynamic> toJson() => {
     'workspaceId': workspaceId,
     'projectId': projectId,
-    'coreUserId': coreUserId,
+    'userId': userId,
     'visibleColumns': visibleColumns,
     'columnWidths': columnWidths,
     if (sortField != null) 'sortField': _toPascal(sortField!.name),

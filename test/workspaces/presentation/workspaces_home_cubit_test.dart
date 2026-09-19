@@ -1,15 +1,15 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_role.dart';
+import 'package:devplanner/workspaces/data/workspaces/payloads/workspace_payloads.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/domain/models/workspace_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/cubit/workspaces_home_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/cubit/workspaces_home_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_role.dart';
-import 'package:ready_next/workspaces/data/workspaces/payloads/workspace_payloads.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
-import 'package:ready_next/workspaces/domain/models/workspace_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/cubit/workspaces_home_cubit.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/cubit/workspaces_home_state.dart';
 
 class _FakeWorkspacesRepository implements WorkspacesRepository {
   const _FakeWorkspacesRepository(this.result, {this.orderCalls = const []});
@@ -102,7 +102,7 @@ class _FakeWorkspacesRepository implements WorkspacesRepository {
   );
 
   @override
-  Future<Either<ApiError, List<ReadyDirectoryUserResponse>>> searchReadyUsers({
+  Future<Either<ApiError, List<LocalUserDirectoryResponse>>> searchLocalUsers({
     required String workspaceId,
     required String query,
   }) async => const Right([]);

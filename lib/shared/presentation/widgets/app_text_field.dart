@@ -1,8 +1,8 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_control_size.dart';
+import 'package:devplanner/shared/utils/validators/app_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_control_size.dart';
-import 'package:ready_next/shared/utils/validators/app_validators.dart';
 
 enum AppTextFieldVariant { outlined, filled }
 

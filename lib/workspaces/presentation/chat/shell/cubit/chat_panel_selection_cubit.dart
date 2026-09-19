@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
 
 /// Lokalny wybór rozmowy wyłącznie dla jednego egzemplarza panelu Chat.
 ///

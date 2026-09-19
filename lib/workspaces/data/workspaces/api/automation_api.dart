@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/workspaces/models/automation_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/workspaces/models/automation_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'automation_api.g.dart';

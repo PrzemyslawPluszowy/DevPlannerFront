@@ -310,14 +310,14 @@ _TaskHistoryActorResponse _$TaskHistoryActorResponseFromJson(
   Map<String, dynamic> json,
 ) => _TaskHistoryActorResponse(
   type: $enumDecode(_$TaskActorTypeEnumMap, json['type']),
-  coreUserId: json['coreUserId'] as String?,
+  userId: json['userId'] as String?,
 );
 
 Map<String, dynamic> _$TaskHistoryActorResponseToJson(
   _TaskHistoryActorResponse instance,
 ) => <String, dynamic>{
   'type': _$TaskActorTypeEnumMap[instance.type]!,
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
 };
 
 const _$TaskActorTypeEnumMap = {
@@ -513,7 +513,7 @@ _TaskTimeEntryResponse _$TaskTimeEntryResponseFromJson(
     _$TaskTimeEntryApprovalStatusEnumMap,
     json['approvalStatus'],
   ),
-  reviewedByCoreUserId: json['reviewedByCoreUserId'] as String?,
+  reviewedByUserId: json['reviewedByUserId'] as String?,
   reviewedAtUtc: json['reviewedAtUtc'] == null
       ? null
       : DateTime.parse(json['reviewedAtUtc'] as String),
@@ -536,7 +536,7 @@ Map<String, dynamic> _$TaskTimeEntryResponseToJson(
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
   'approvalStatus':
       _$TaskTimeEntryApprovalStatusEnumMap[instance.approvalStatus]!,
-  'reviewedByCoreUserId': instance.reviewedByCoreUserId,
+  'reviewedByUserId': instance.reviewedByUserId,
   'reviewedAtUtc': instance.reviewedAtUtc?.toIso8601String(),
   'reviewComment': instance.reviewComment,
   'version': instance.version,

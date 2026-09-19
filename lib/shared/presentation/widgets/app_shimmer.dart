@@ -1,6 +1,6 @@
+import 'package:devplanner/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 /// Nowoczesny komponent Shimmer oparty o `flutter_animate`.
 ///

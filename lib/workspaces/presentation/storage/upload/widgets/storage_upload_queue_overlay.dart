@@ -1,12 +1,12 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/shared/storage_formatters.dart';
+import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/shared/storage_formatters.dart';
-import 'package:ready_next/workspaces/presentation/storage/upload/cubit/storage_upload_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/upload/cubit/storage_upload_state.dart';
 
 /// Pływający panel (Overlay) w prawym dolnym rogu ekranu prezentujący kolejkę uploadu plików.
 class StorageUploadQueueOverlay extends StatelessWidget {

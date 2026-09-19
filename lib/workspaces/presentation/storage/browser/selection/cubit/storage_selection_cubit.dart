@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/selection/cubit/storage_selection_state.dart';
 
 /// Cubit zarządzający zaznaczeniem plików i folderów oraz wyliczaniem dostępnych akcji.
 final class StorageSelectionCubit extends Cubit<StorageSelectionState> {

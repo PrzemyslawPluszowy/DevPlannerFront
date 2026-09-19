@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
 
 part 'create_project_membership_payload.freezed.dart';
 part 'create_project_membership_payload.g.dart';

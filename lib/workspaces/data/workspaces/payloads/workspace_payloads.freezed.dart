@@ -1375,7 +1375,7 @@ as bool?,
 /// @nodoc
 mixin _$CreateWorkspaceInvitationPayload {
 
- int get readyUserId; WorkspaceRole get role; String? get message;
+ String get userId; WorkspaceRole get role; String? get message;
 /// Create a copy of CreateWorkspaceInvitationPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1388,16 +1388,16 @@ $CreateWorkspaceInvitationPayloadCopyWith<CreateWorkspaceInvitationPayload> get 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateWorkspaceInvitationPayload&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateWorkspaceInvitationPayload&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.message, message) || other.message == message));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,readyUserId,role,message);
+int get hashCode => Object.hash(runtimeType,userId,role,message);
 
 @override
 String toString() {
-  return 'CreateWorkspaceInvitationPayload(readyUserId: $readyUserId, role: $role, message: $message)';
+  return 'CreateWorkspaceInvitationPayload(userId: $userId, role: $role, message: $message)';
 }
 
 
@@ -1408,7 +1408,7 @@ abstract mixin class $CreateWorkspaceInvitationPayloadCopyWith<$Res>  {
   factory $CreateWorkspaceInvitationPayloadCopyWith(CreateWorkspaceInvitationPayload value, $Res Function(CreateWorkspaceInvitationPayload) _then) = _$CreateWorkspaceInvitationPayloadCopyWithImpl;
 @useResult
 $Res call({
- int readyUserId, WorkspaceRole role, String? message
+ String userId, WorkspaceRole role, String? message
 });
 
 
@@ -1425,10 +1425,10 @@ class _$CreateWorkspaceInvitationPayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateWorkspaceInvitationPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? readyUserId = null,Object? role = null,Object? message = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? role = null,Object? message = freezed,}) {
   return _then(_self.copyWith(
-readyUserId: null == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as WorkspaceRole,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -1515,10 +1515,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int readyUserId,  WorkspaceRole role,  String? message)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  WorkspaceRole role,  String? message)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreateWorkspaceInvitationPayload() when $default != null:
-return $default(_that.readyUserId,_that.role,_that.message);case _:
+return $default(_that.userId,_that.role,_that.message);case _:
   return orElse();
 
 }
@@ -1536,10 +1536,10 @@ return $default(_that.readyUserId,_that.role,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int readyUserId,  WorkspaceRole role,  String? message)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  WorkspaceRole role,  String? message)  $default,) {final _that = this;
 switch (_that) {
 case _CreateWorkspaceInvitationPayload():
-return $default(_that.readyUserId,_that.role,_that.message);case _:
+return $default(_that.userId,_that.role,_that.message);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1556,10 +1556,10 @@ return $default(_that.readyUserId,_that.role,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int readyUserId,  WorkspaceRole role,  String? message)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  WorkspaceRole role,  String? message)?  $default,) {final _that = this;
 switch (_that) {
 case _CreateWorkspaceInvitationPayload() when $default != null:
-return $default(_that.readyUserId,_that.role,_that.message);case _:
+return $default(_that.userId,_that.role,_that.message);case _:
   return null;
 
 }
@@ -1571,10 +1571,10 @@ return $default(_that.readyUserId,_that.role,_that.message);case _:
 @JsonSerializable()
 
 class _CreateWorkspaceInvitationPayload implements CreateWorkspaceInvitationPayload {
-  const _CreateWorkspaceInvitationPayload({required this.readyUserId, required this.role, this.message});
+  const _CreateWorkspaceInvitationPayload({required this.userId, required this.role, this.message});
   factory _CreateWorkspaceInvitationPayload.fromJson(Map<String, dynamic> json) => _$CreateWorkspaceInvitationPayloadFromJson(json);
 
-@override final  int readyUserId;
+@override final  String userId;
 @override final  WorkspaceRole role;
 @override final  String? message;
 
@@ -1591,16 +1591,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateWorkspaceInvitationPayload&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateWorkspaceInvitationPayload&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.message, message) || other.message == message));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,readyUserId,role,message);
+int get hashCode => Object.hash(runtimeType,userId,role,message);
 
 @override
 String toString() {
-  return 'CreateWorkspaceInvitationPayload(readyUserId: $readyUserId, role: $role, message: $message)';
+  return 'CreateWorkspaceInvitationPayload(userId: $userId, role: $role, message: $message)';
 }
 
 
@@ -1611,7 +1611,7 @@ abstract mixin class _$CreateWorkspaceInvitationPayloadCopyWith<$Res> implements
   factory _$CreateWorkspaceInvitationPayloadCopyWith(_CreateWorkspaceInvitationPayload value, $Res Function(_CreateWorkspaceInvitationPayload) _then) = __$CreateWorkspaceInvitationPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- int readyUserId, WorkspaceRole role, String? message
+ String userId, WorkspaceRole role, String? message
 });
 
 
@@ -1628,10 +1628,10 @@ class __$CreateWorkspaceInvitationPayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateWorkspaceInvitationPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? readyUserId = null,Object? role = null,Object? message = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? role = null,Object? message = freezed,}) {
   return _then(_CreateWorkspaceInvitationPayload(
-readyUserId: null == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as WorkspaceRole,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/api/task_schedule_api.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_schedule_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_schedule_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/api/task_schedule_api.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_schedule_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_schedule_repository.dart';
 
 /// Adapter API dla konfiguracji harmonogramu projektu.
 final class TaskScheduleRepositoryImpl extends ApiRepository

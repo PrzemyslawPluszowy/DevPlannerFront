@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_history_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_history_repository.dart';
 
 /// Stan lokalnego, cursorowego panelu historii pojedynczego zadania.
 sealed class TaskHistoryState {

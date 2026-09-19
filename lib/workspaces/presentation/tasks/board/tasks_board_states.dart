@@ -1,7 +1,7 @@
 part of 'tasks_board_page.dart';
 
-class _BoardSkeleton extends StatelessWidget {
-  const _BoardSkeleton();
+class TasksBoardSkeleton extends StatelessWidget {
+  const TasksBoardSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -26,8 +26,12 @@ class _BoardSkeleton extends StatelessWidget {
   );
 }
 
-class _BoardFailure extends StatelessWidget {
-  const _BoardFailure({required this.message, required this.kind});
+class TasksBoardFailureView extends StatelessWidget {
+  const TasksBoardFailureView({
+    required this.message,
+    required this.kind,
+    super.key,
+  });
 
   final String message;
   final TasksBoardFailureKind kind;
@@ -122,8 +126,14 @@ class _CountBadge extends StatelessWidget {
   }
 }
 
-Color _parseColor(String value) {
-  final normalized = value.replaceFirst('#', '');
-  final parsed = int.tryParse(normalized, radix: 16);
-  return parsed == null ? const Color(0xFF6C5CE7) : Color(0xFF000000 | parsed);
+final class TaskBoardColorParser {
+  const TaskBoardColorParser._();
+
+  static Color parse(String value) {
+    final normalized = value.replaceFirst('#', '');
+    final parsed = int.tryParse(normalized, radix: 16);
+    return parsed == null
+        ? const Color(0xFF6C5CE7)
+        : Color(0xFF000000 | parsed);
+  }
 }

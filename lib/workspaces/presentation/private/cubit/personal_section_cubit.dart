@@ -1,6 +1,10 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
+import 'package:devplanner/workspaces/presentation/private/cubit/personal_section_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/presentation/private/cubit/personal_section_state.dart';
 
 /// Wynik dostawcy prywatnej sekcji, przygotowany do podłączenia API bez
 /// przenoszenia transportu do widgetu.
@@ -46,6 +50,33 @@ typedef PersonalSectionLoader = Future<PersonalSectionLoadResult> Function(
 class PersonalSectionCubit extends Cubit<PersonalSectionState> {
   PersonalSectionCubit({required this._loader})
     : super(const PersonalSectionInitial());
+
+  /// Tworzy Cubit zadań prywatnych z filtrowaniem wykonywanym przy repository.
+  factory PersonalSectionCubit.myTasks({
+    required TaskViewRepository repository,
+    ProjectTaskStatus? status,
+    TaskPriority? priority,
+    TaskInvolvementFilter? involvement,
+    DateTime? dueFromUtc,
+    DateTime? dueToUtc,
+  }) => PersonalSectionCubit(
+    loader: (cursor) => _loadMyTasks(
+      repository,
+      cursor,
+      status: status,
+      priority: priority,
+      involvement: involvement,
+      dueFromUtc: dueFromUtc,
+      dueToUtc: dueToUtc,
+    ),
+  );
+
+  /// Tworzy jawny stan niedostępnego jeszcze prywatnego katalogu plików.
+  factory PersonalSectionCubit.unavailable() => PersonalSectionCubit(
+    loader: (_) async => const PersonalSectionContractUnavailable(
+      message: 'Prywatny katalog plików nie jest jeszcze dostępny.',
+    ),
+  );
 
   final PersonalSectionLoader _loader;
 
@@ -130,4 +161,64 @@ class PersonalSectionCubit extends Cubit<PersonalSectionState> {
         if (ids.add(task.id)) task,
     ];
   }
+
+  static Future<PersonalSectionLoadResult> _loadMyTasks(
+    TaskViewRepository repository,
+    String? cursor, {
+    ProjectTaskStatus? status,
+    TaskPriority? priority,
+    TaskInvolvementFilter? involvement,
+    DateTime? dueFromUtc,
+    DateTime? dueToUtc,
+  }) async {
+    final result = await repository.listMyTasks(
+      query: MyTasksQuery(
+        cursor: cursor,
+        status: _statusValue(status),
+        priority: _priorityValue(priority),
+        involvement: _involvementValue(involvement),
+        dueFromUtc: dueFromUtc,
+        dueToUtc: dueToUtc,
+      ),
+    );
+    return result.fold(
+      (error) => PersonalSectionLoadFailure(
+        message: error.message,
+        code: error.backendCode?.toString(),
+      ),
+      (page) => PersonalSectionData(
+        itemCount: page.items.length,
+        tasks: page.items,
+        nextCursor: page.nextCursor,
+      ),
+    );
+  }
+
+  static String? _statusValue(ProjectTaskStatus? value) => switch (value) {
+    ProjectTaskStatus.backlog => 'Backlog',
+    ProjectTaskStatus.todo => 'Todo',
+    ProjectTaskStatus.inProgress => 'InProgress',
+    ProjectTaskStatus.blocked => 'Blocked',
+    ProjectTaskStatus.done => 'Done',
+    ProjectTaskStatus.cancelled => 'Cancelled',
+    null => null,
+  };
+
+  static String? _priorityValue(TaskPriority? value) => switch (value) {
+    TaskPriority.low => 'Low',
+    TaskPriority.normal => 'Normal',
+    TaskPriority.high => 'High',
+    TaskPriority.critical => 'Critical',
+    null => null,
+  };
+
+  static String? _involvementValue(TaskInvolvementFilter? value) =>
+      switch (value) {
+        TaskInvolvementFilter.any => 'Any',
+        TaskInvolvementFilter.primaryAssignee => 'PrimaryAssignee',
+        TaskInvolvementFilter.collaborator => 'Collaborator',
+        TaskInvolvementFilter.assignee => 'Assignee',
+        TaskInvolvementFilter.watcher => 'Watcher',
+        null => null,
+      };
 }

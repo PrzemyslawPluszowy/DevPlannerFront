@@ -1,15 +1,15 @@
 import 'dart:async';
 
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/projects_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
 
 /// Lista projektów bieżącego workspace’u.
 ///
@@ -24,7 +24,7 @@ class WorkspaceProjectsPageView extends StatelessWidget {
   Widget build(BuildContext context) => BlocProvider(
     create: (context) {
       final cubit = WorkspaceProjectsCubit(
-        repository: context.read<ProjectsRepository>(),
+        gateway: context.read<ProjectsGateway>(),
         workspaceId: workspaceId,
       );
       unawaited(cubit.load());
@@ -65,7 +65,7 @@ class _ProjectsView extends StatelessWidget {
               WorkspaceProjectsFailure(:final message) => _ProjectsMessage(
                 icon: Symbols.error_outline,
                 title: 'Nie udało się pobrać projektów',
-                message: message,
+                message: message ?? 'Spróbuj ponownie za chwilę.',
               ),
               WorkspaceProjectsReady(:final items) => _ProjectList(items),
             },
@@ -114,7 +114,7 @@ class _ProjectList extends StatelessWidget {
                 )
               : null,
           onTap: () => unawaited(
-            context.router.navigatePath(
+            context.plannerNavigation.go(
               '/workspaces/${item.workspaceId}/projects/${item.id}',
             ),
           ),

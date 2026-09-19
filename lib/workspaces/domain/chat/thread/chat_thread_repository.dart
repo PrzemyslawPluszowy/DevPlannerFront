@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message_page.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_page.dart';
 
 /// Kontrakt historii jednego wątku, oddzielony od snapshotu całej rozmowy.
 // Kontrakt pozostaje punktem rozszerzenia dla mute i pagination wątku.

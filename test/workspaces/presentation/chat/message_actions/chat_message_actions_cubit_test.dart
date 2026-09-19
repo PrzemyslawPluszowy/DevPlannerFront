@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/message_actions/message_actions_export.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
-import 'package:ready_next/workspaces/presentation/chat/message_actions/message_actions_export.dart';
 
 void main() {
   test(
@@ -121,7 +121,7 @@ abstract final class _Fixture {
       ChatMessage(
         id: 'message-1',
         conversationId: 'conversation-1',
-        authorCoreUserId: 'user-1',
+        authorUserId: 'user-1',
         clientMessageId: 'client-1',
         text: text,
         payloadHash: 'hash',

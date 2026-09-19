@@ -1,21 +1,21 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/shared/presentation/widgets/app_confirm_dialog.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_templates_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_template_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/templates/cubit/task_template_picker_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/shared/presentation/widgets/app_confirm_dialog.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_templates_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_status_category.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_template_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/tasks_board_page.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/templates/cubit/task_template_picker_cubit.dart';
 
 final class _MockTaskTemplateRepository implements TaskTemplateRepository {
   Either<ApiError, List<TaskTemplateResponse>>? listResult;
@@ -80,7 +80,7 @@ final class _MockTaskTemplateRepository implements TaskTemplateRepository {
           title: payload.title,
           status: payload.status,
           priority: payload.priority,
-          assigneeCoreUserIds: const [],
+          assigneeUserIds: const [],
           checklistItems: const [],
           acceptanceCriteria: const [],
           labels: const [],
@@ -294,7 +294,7 @@ void main() {
             title: 'Wdrożenie na prod',
             status: ProjectTaskStatus.todo,
             priority: TaskPriority.high,
-            assigneeCoreUserIds: const [],
+            assigneeUserIds: const [],
             checklistItems: const ['Krok 1', 'Krok 2'],
             acceptanceCriteria: const ['Kryterium 1'],
             labels: const [],
@@ -382,7 +382,7 @@ void main() {
         title: 'Naprawiony tytuł',
         status: ProjectTaskStatus.todo,
         priority: TaskPriority.normal,
-        assigneeCoreUserIds: const [],
+        assigneeUserIds: const [],
         checklistItems: const [],
         acceptanceCriteria: const [],
         labels: const [],
@@ -593,12 +593,12 @@ void main() {
 
       final members = [
         const ProjectMemberProfile(
-          coreUserId: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+          userId: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
           displayName: 'Jan Kowalski',
           role: ProjectRole.member,
         ),
         const ProjectMemberProfile(
-          coreUserId: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
+          userId: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
           displayName: 'Anna Nowak',
           role: ProjectRole.member,
         ),

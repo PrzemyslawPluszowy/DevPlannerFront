@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/api/task_operations_api.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_collaboration_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/api/task_operations_api.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
 
 /// Adapter operacji obserwowania taska oparty na kontrakcie Tasks.
 final class TaskCollaborationRepositoryImpl extends ApiRepository
@@ -19,7 +19,7 @@ final class TaskCollaborationRepositoryImpl extends ApiRepository
     required String workspaceId,
     required String projectId,
     required String taskId,
-    required List<String> coreUserIds,
+    required List<String> userIds,
     required int expectedVersion,
   }) => guardApiCall(
     () => _api.replaceAssignees(
@@ -27,7 +27,7 @@ final class TaskCollaborationRepositoryImpl extends ApiRepository
       projectId,
       taskId,
       UpdateTaskAssigneesPayload(
-        coreUserIds: coreUserIds,
+        userIds: userIds,
         expectedVersion: expectedVersion,
       ),
     ),

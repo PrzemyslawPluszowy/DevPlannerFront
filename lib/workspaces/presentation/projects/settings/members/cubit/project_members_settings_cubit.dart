@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_member_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_member_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
-import 'package:ready_next/workspaces/domain/repositories/projects_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
 
 part 'project_members_settings_state.dart';
 

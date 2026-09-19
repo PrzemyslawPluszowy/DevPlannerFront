@@ -1,25 +1,25 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart'
+    show NotificationCategory, NotificationQuickActionKind;
+import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/chat_notification_settings.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_digest.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_preferences.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_digest_repository.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_preferences_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/notifications_repository.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
+import 'package:devplanner/workspaces/presentation/notifications/global_notifications_page.dart';
+import 'package:devplanner/workspaces/presentation/notifications/preferences/cubit/notification_delivery_preferences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/notifications/preferences/cubit/notification_digest_cubit.dart';
+import 'package:devplanner/workspaces/presentation/notifications/preferences/cubit/storage_notification_preference_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/notification_enums.dart'
-    show NotificationCategory, NotificationQuickActionKind;
-import 'package:ready_next/workspaces/domain/notifications/chat_notification_settings_repository.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/chat_notification_settings.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_digest.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_preferences.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_digest_repository.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_preferences_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/notifications_repository.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
-import 'package:ready_next/workspaces/presentation/notifications/global_notifications_page.dart';
-import 'package:ready_next/workspaces/presentation/notifications/preferences/cubit/notification_delivery_preferences_cubit.dart';
-import 'package:ready_next/workspaces/presentation/notifications/preferences/cubit/notification_digest_cubit.dart';
-import 'package:ready_next/workspaces/presentation/notifications/preferences/cubit/storage_notification_preference_cubit.dart';
 
 class _FakeNotificationPreferencesRepository
     implements NotificationPreferencesRepository {
@@ -76,7 +76,7 @@ class _FakeChatNotificationSettingsRepository
   getConversationSetting(String conversationId) async => const Right(
     ChatConversationNotificationSetting(
       conversationId: 'conversation-1',
-      coreUserId: 'user-1',
+      userId: 'user-1',
       mode: ChatConversationNotificationMode.all,
     ),
   );
@@ -85,7 +85,7 @@ class _FakeChatNotificationSettingsRepository
   Future<Either<ApiError, ChatNotificationSettings>>
   getGlobalSettings() async => const Right(
     ChatNotificationSettings(
-      coreUserId: 'user-1',
+      userId: 'user-1',
       inAppEnabled: true,
       emailEnabled: true,
       pushEnabled: false,
@@ -101,7 +101,7 @@ class _FakeChatNotificationSettingsRepository
   }) async => Right(
     ChatConversationNotificationSetting(
       conversationId: conversationId,
-      coreUserId: 'user-1',
+      userId: 'user-1',
       mode: mode,
     ),
   );
@@ -154,7 +154,7 @@ class _FakeNotificationsRepository implements NotificationsRepository {
 
 abstract final class _NotificationPreferencesFixture {
   static final delivery = NotificationDeliveryPreferences(
-    coreUserId: 'user-1',
+    userId: 'user-1',
     modes: {
       for (final category in NotificationDeliveryCategory.values)
         category: NotificationEmailDeliveryMode.immediate,
@@ -163,7 +163,7 @@ abstract final class _NotificationPreferencesFixture {
   );
 
   static const storage = StorageNotificationPreference(
-    coreUserId: 'user-1',
+    userId: 'user-1',
     mode: StorageNotificationMode.immediate,
     isDefault: false,
   );

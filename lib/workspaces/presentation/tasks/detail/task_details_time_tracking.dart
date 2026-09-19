@@ -71,7 +71,9 @@ class _TimeTrackingReady extends StatelessWidget {
     final minutes = state.entries.fold<int>(
       0,
       (sum, entry) =>
-          sum + (entry.durationMinutes ?? _timerMinutes(entry, state.nowUtc)),
+          sum +
+          (entry.durationMinutes ??
+              TaskTimeTrackingPresentation.timerMinutes(entry, state.nowUtc)),
     );
     final active = state.activeTimers.isNotEmpty;
     return DecoratedBox(
@@ -91,7 +93,9 @@ class _TimeTrackingReady extends StatelessWidget {
                 const SizedBox(width: 9),
                 Expanded(
                   child: Text(
-                    context.l10n.taskDetailsTimeTotal(_durationLabel(minutes)),
+                    context.l10n.taskDetailsTimeTotal(
+                      TaskTimeTrackingPresentation.durationLabel(minutes),
+                    ),
                     style: context.text.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -152,7 +156,7 @@ class _TimeEntryTile extends StatelessWidget {
           : context.l10n.taskDetailsTimeNoDescription,
     ),
     subtitle: Text(
-      '${_durationLabel(entry.durationMinutes ?? _timerMinutes(entry, DateTime.now().toUtc()))} · ${_approvalLabel(context, entry.approvalStatus)}',
+      '${TaskTimeTrackingPresentation.durationLabel(entry.durationMinutes ?? TaskTimeTrackingPresentation.timerMinutes(entry, DateTime.now().toUtc()))} · ${TaskTimeTrackingPresentation.approvalLabel(context, entry.approvalStatus)}',
     ),
     trailing: switch (entry.approvalStatus) {
       TaskTimeEntryApprovalStatus.draft => TextButton(
@@ -215,12 +219,14 @@ class _ManualTimeEntryDialog extends StatefulWidget {
 class _ManualTimeEntryDialogState extends State<_ManualTimeEntryDialog> {
   final _minutes = TextEditingController();
   final _description = TextEditingController();
-  var _billable = true;
-  var _saving = false;
+  final ValueNotifier<bool> _billable = ValueNotifier(true);
+  final ValueNotifier<bool> _saving = ValueNotifier(false);
   @override
   void dispose() {
     _minutes.dispose();
     _description.dispose();
+    _billable.dispose();
+    _saving.dispose();
     super.dispose();
   }
 
@@ -229,79 +235,82 @@ class _ManualTimeEntryDialogState extends State<_ManualTimeEntryDialog> {
     final l10n = context.l10n;
     final colors = context.colors;
 
-    return WorkspaceCreationModalWrapper(
-      title: l10n.taskDetailsTimeAdd,
-      icon: Symbols.timer_rounded,
-      accentColor: colors.primary,
-      isSubmitting: _saving,
-      submitLabel: l10n.save,
-      cancelLabel: l10n.cancel,
-      maxWidth: 440,
-      onSubmit: _save,
-      body: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l10n.taskDetailsTimeMinutes,
-            style: context.text.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          Gaps.h8,
-          TextField(
-            controller: _minutes,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            enabled: !_saving,
-            decoration: InputDecoration(
-              hintText: l10n.taskDetailsTimeMinutes,
-              border: const OutlineInputBorder(
-                borderRadius: .all(.circular(10)),
-              ),
-              contentPadding: const .symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p12,
+    return AnimatedBuilder(
+      animation: Listenable.merge([_billable, _saving]),
+      builder: (context, _) => WorkspaceCreationModalWrapper(
+        title: l10n.taskDetailsTimeAdd,
+        icon: Symbols.timer_rounded,
+        accentColor: colors.primary,
+        isSubmitting: _saving.value,
+        submitLabel: l10n.save,
+        cancelLabel: l10n.cancel,
+        maxWidth: 440,
+        onSubmit: _save,
+        body: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.taskDetailsTimeMinutes,
+              style: context.text.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: colors.onSurfaceVariant,
               ),
             ),
-          ),
-          Gaps.h12,
-          Text(
-            l10n.taskDetailsTimeDescription,
-            style: context.text.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          Gaps.h8,
-          TextField(
-            controller: _description,
-            maxLines: 2,
-            enabled: !_saving,
-            decoration: InputDecoration(
-              hintText: l10n.taskDetailsTimeDescription,
-              border: const OutlineInputBorder(
-                borderRadius: .all(.circular(10)),
-              ),
-              contentPadding: const .symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p12,
+            Gaps.h8,
+            TextField(
+              controller: _minutes,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              enabled: !_saving.value,
+              decoration: InputDecoration(
+                hintText: l10n.taskDetailsTimeMinutes,
+                border: const OutlineInputBorder(
+                  borderRadius: .all(.circular(10)),
+                ),
+                contentPadding: const .symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p12,
+                ),
               ),
             ),
-          ),
-          Gaps.h12,
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text(l10n.taskDetailsTimeBillable),
-            value: _billable,
-            onChanged: _saving
-                ? null
-                : (value) => setState(() => _billable = value),
-          ),
-        ],
+            Gaps.h12,
+            Text(
+              l10n.taskDetailsTimeDescription,
+              style: context.text.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            Gaps.h8,
+            TextField(
+              controller: _description,
+              maxLines: 2,
+              enabled: !_saving.value,
+              decoration: InputDecoration(
+                hintText: l10n.taskDetailsTimeDescription,
+                border: const OutlineInputBorder(
+                  borderRadius: .all(.circular(10)),
+                ),
+                contentPadding: const .symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p12,
+                ),
+              ),
+            ),
+            Gaps.h12,
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.taskDetailsTimeBillable),
+              value: _billable.value,
+              onChanged: _saving.value
+                  ? null
+                  : (value) => _billable.value = value,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -309,41 +318,54 @@ class _ManualTimeEntryDialogState extends State<_ManualTimeEntryDialog> {
   Future<void> _save() async {
     final duration = int.tryParse(_minutes.text.trim());
     if (duration == null || duration <= 0) return;
-    setState(() => _saving = true);
+    _saving.value = true;
     final saved = await context.read<TaskTimeTrackingCubit>().create(
       CreateTaskTimeEntryPayload(
         durationMinutes: duration,
         description: _description.text.trim().isEmpty
             ? null
             : _description.text.trim(),
-        isBillable: _billable,
+        isBillable: _billable.value,
       ),
     );
     if (mounted) {
       if (saved) {
         Navigator.of(context).pop();
       } else {
-        setState(() => _saving = false);
+        _saving.value = false;
       }
     }
   }
 }
 
-int _timerMinutes(TaskTimeEntryResponse entry, DateTime? nowUtc) =>
-    entry.stoppedAtUtc == null
-    ? (nowUtc ?? DateTime.now().toUtc())
-          .difference(entry.startedAtUtc)
-          .inMinutes
-          .clamp(0, 1 << 31)
-    : entry.stoppedAtUtc!.difference(entry.startedAtUtc).inMinutes;
-String _durationLabel(int minutes) => '${minutes ~/ 60}h ${minutes % 60}m';
-String _approvalLabel(
-  BuildContext context,
-  TaskTimeEntryApprovalStatus status,
-) => switch (status) {
-  TaskTimeEntryApprovalStatus.draft => context.l10n.taskDetailsTimeDraft,
-  TaskTimeEntryApprovalStatus.submitted =>
-    context.l10n.taskDetailsTimeSubmitted,
-  TaskTimeEntryApprovalStatus.approved => context.l10n.taskDetailsTimeApproved,
-  TaskTimeEntryApprovalStatus.rejected => context.l10n.taskDetailsTimeRejected,
-};
+/// Formatuje wartości czasu wyłącznie na potrzeby widoku szczegółu zadania.
+///
+/// Nie wykonuje I/O ani nie przechowuje stanu. Dzięki temu reguły prezentacji
+/// nie są rozproszone pomiędzy widgetami i pozostają łatwe do testowania.
+final class TaskTimeTrackingPresentation {
+  const TaskTimeTrackingPresentation._();
+
+  static int timerMinutes(TaskTimeEntryResponse entry, DateTime? nowUtc) =>
+      entry.stoppedAtUtc == null
+      ? (nowUtc ?? DateTime.now().toUtc())
+            .difference(entry.startedAtUtc)
+            .inMinutes
+            .clamp(0, 1 << 31)
+      : entry.stoppedAtUtc!.difference(entry.startedAtUtc).inMinutes;
+
+  static String durationLabel(int minutes) =>
+      '${minutes ~/ 60}h ${minutes % 60}m';
+
+  static String approvalLabel(
+    BuildContext context,
+    TaskTimeEntryApprovalStatus status,
+  ) => switch (status) {
+    TaskTimeEntryApprovalStatus.draft => context.l10n.taskDetailsTimeDraft,
+    TaskTimeEntryApprovalStatus.submitted =>
+      context.l10n.taskDetailsTimeSubmitted,
+    TaskTimeEntryApprovalStatus.approved =>
+      context.l10n.taskDetailsTimeApproved,
+    TaskTimeEntryApprovalStatus.rejected =>
+      context.l10n.taskDetailsTimeRejected,
+  };
+}

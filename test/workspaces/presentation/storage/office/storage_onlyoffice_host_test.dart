@@ -1,12 +1,12 @@
 import 'dart:convert';
 
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/transport/onlyoffice_bridge.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_onlyoffice_host.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/data/storage/transport/onlyoffice_bridge.dart';
-import 'package:ready_next/workspaces/presentation/storage/office/widgets/storage_onlyoffice_host.dart';
 
 void main() {
   testWidgets('pokazuje loading, błąd głównej ramki i ponawia ładowanie', (
@@ -255,8 +255,7 @@ final class _FakeStorageOnlyOfficeController
   void emitDownload(OnlyOfficeDownload download) =>
       _onDownloadRequested?.call(download);
 
-  void emitSaveAs(OnlyOfficeSaveAs saveAs) =>
-      _onSaveAsRequested?.call(saveAs);
+  void emitSaveAs(OnlyOfficeSaveAs saveAs) => _onSaveAsRequested?.call(saveAs);
 
   void emitPrint() => _onPrintRequested?.call();
 

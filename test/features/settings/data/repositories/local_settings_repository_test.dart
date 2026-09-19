@@ -1,11 +1,11 @@
 import 'dart:io';
 
+import 'package:devplanner/core/storage/hive_registrar.g.dart';
+import 'package:devplanner/features/settings/data/repositories/local_settings_repository.dart';
+import 'package:devplanner/features/settings/domain/local_settings_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:ready_next/core/storage/hive_registrar.g.dart';
-import 'package:ready_next/features/settings/data/repositories/local_settings_repository.dart';
-import 'package:ready_next/features/settings/domain/local_settings_model.dart';
 
 void main() {
   late Directory tempDirectory;
@@ -15,7 +15,7 @@ void main() {
 
   setUp(() async {
     tempDirectory = await Directory.systemTemp.createTemp(
-      'ready_next_local_settings_test_',
+      'devplanner_local_settings_test_',
     );
     Hive.init(tempDirectory.path);
     repository = HiveLocalSettingsRepository();

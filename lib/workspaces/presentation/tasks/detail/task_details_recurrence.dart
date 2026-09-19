@@ -11,7 +11,8 @@ class _TaskRecurrenceSection extends StatelessWidget {
     return _Section(
       title: context.l10n.taskDetailsRecurrence,
       action: TextButton.icon(
-        onPressed: () => unawaited(_showRecurrenceDialog(context, task)),
+        onPressed: () =>
+            unawaited(TaskRecurrenceDialogLauncher.show(context, task)),
         icon: const Icon(Symbols.repeat_rounded, size: 18),
         label: Text(context.l10n.taskDetailsConfigureRecurrence),
       ),
@@ -43,7 +44,7 @@ class _TaskRecurrenceSection extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        '${_recurrenceFrequencyLabel(context, recurrence.frequency)} '
+                        '${TaskRecurrenceFrequencyLabeler.label(context, recurrence.frequency)} '
                         '· ${context.l10n.taskDetailsRecurrenceEvery(recurrence.interval)}',
                       ),
                     ),
@@ -63,31 +64,35 @@ class _TaskRecurrenceSection extends StatelessWidget {
   }
 }
 
-Future<void> _showRecurrenceDialog(
-  BuildContext context,
-  ProjectTaskResponse task,
-) {
-  final detailsCubit = context.read<TaskDetailsCubit>();
-  final recurrenceRepository = context.read<TaskRecurrenceRepository>();
-  return showDialog<void>(
-    context: context,
-    builder: (_) => BlocProvider(
-      create: (_) {
-        final cubit = TaskRecurrenceCubit(
-          repository: recurrenceRepository,
-          workspaceId: detailsCubit.workspaceId,
-          projectId: detailsCubit.projectId,
-          taskId: detailsCubit.taskId,
-        );
-        unawaited(cubit.load(hasRecurrence: task.recurrence != null));
-        return cubit;
-      },
-      child: _TaskRecurrenceDialog(
-        task: task,
-        onChanged: detailsCubit.load,
+/// Składa dialog cykliczności z zależnościami bieżącego szczegółu zadania.
+///
+/// Launcher nie przechowuje stanu i nie przenosi logiki zapisu poza Cubit.
+final class TaskRecurrenceDialogLauncher {
+  const TaskRecurrenceDialogLauncher._();
+
+  static Future<void> show(BuildContext context, ProjectTaskResponse task) {
+    final detailsCubit = context.read<TaskDetailsCubit>();
+    final recurrenceRepository = context.read<TaskRecurrenceRepository>();
+    return showDialog<void>(
+      context: context,
+      builder: (_) => BlocProvider(
+        create: (_) {
+          final cubit = TaskRecurrenceCubit(
+            repository: recurrenceRepository,
+            workspaceId: detailsCubit.workspaceId,
+            projectId: detailsCubit.projectId,
+            taskId: detailsCubit.taskId,
+          );
+          unawaited(cubit.load(hasRecurrence: task.recurrence != null));
+          return cubit;
+        },
+        child: _TaskRecurrenceDialog(
+          task: task,
+          onChanged: detailsCubit.load,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _TaskRecurrenceDialog extends StatelessWidget {
@@ -134,14 +139,19 @@ class _TaskRecurrenceDialog extends StatelessWidget {
   );
 }
 
-String _recurrenceFrequencyLabel(
-  BuildContext context,
-  TaskRecurrenceFrequency frequency,
-) => switch (frequency) {
-  TaskRecurrenceFrequency.daily =>
-    context.l10n.taskDetailsRecurrenceFrequencyDaily,
-  TaskRecurrenceFrequency.weekly =>
-    context.l10n.taskDetailsRecurrenceFrequencyWeekly,
-  TaskRecurrenceFrequency.monthly =>
-    context.l10n.taskDetailsRecurrenceFrequencyMonthly,
-};
+/// Tłumaczy częstotliwość cykliczności wyłącznie dla warstwy prezentacji.
+final class TaskRecurrenceFrequencyLabeler {
+  const TaskRecurrenceFrequencyLabeler._();
+
+  static String label(
+    BuildContext context,
+    TaskRecurrenceFrequency frequency,
+  ) => switch (frequency) {
+    TaskRecurrenceFrequency.daily =>
+      context.l10n.taskDetailsRecurrenceFrequencyDaily,
+    TaskRecurrenceFrequency.weekly =>
+      context.l10n.taskDetailsRecurrenceFrequencyWeekly,
+    TaskRecurrenceFrequency.monthly =>
+      context.l10n.taskDetailsRecurrenceFrequencyMonthly,
+  };
+}

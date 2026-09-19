@@ -1,10 +1,10 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_bubble_toast.dart';
+import 'package:devplanner/shared/presentation/widgets/app_icon.dart';
+import 'package:devplanner/shared/presentation/widgets/app_text.dart';
+import 'package:devplanner/shared/presentation/widgets/app_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_bubble_toast.dart';
-import 'package:ready_next/shared/presentation/widgets/app_icon.dart';
-import 'package:ready_next/shared/presentation/widgets/app_text.dart';
-import 'package:ready_next/shared/presentation/widgets/app_tooltip.dart';
 
 class AppCopyField extends StatelessWidget {
   const AppCopyField({

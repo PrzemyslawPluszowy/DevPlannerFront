@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 
 void main() {
   group('ChatConversationRealtimeReducer', () {
@@ -246,7 +246,7 @@ abstract final class _ChatRealtimeFixture {
   }) => ChatMessage(
     id: id,
     conversationId: 'conversation-1',
-    authorCoreUserId: 'user-1',
+    authorUserId: 'user-1',
     clientMessageId: clientMessageId,
     text: text,
     payloadHash: 'hash-1',

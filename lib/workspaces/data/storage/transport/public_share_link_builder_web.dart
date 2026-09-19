@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
+import 'package:devplanner/foundation/error/error.dart';
 
 /// Web/Wasm link builder based on the current application origin.
 final class StoragePublicShareLinkPlatform {

@@ -1,12 +1,12 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/members/cubit/project_members_settings_cubit.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/members/widgets/add_project_member_dialog.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/members/widgets/project_members_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/members/cubit/project_members_settings_cubit.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/members/widgets/add_project_member_dialog.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/members/widgets/project_members_table.dart';
 
 /// Widok zakładki "Członkowie i dostęp" w ustawieniach projektu.
 class ProjectMembersTabView extends StatelessWidget {

@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/portfolios/models/portfolio_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/projects/portfolios/models/portfolio_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'portfolios_api.g.dart';

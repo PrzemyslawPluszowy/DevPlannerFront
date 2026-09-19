@@ -16,7 +16,7 @@ _ResolveChatConversationPayload _$ResolveChatConversationPayloadFromJson(
   projectId: json['projectId'] as String?,
   name: json['name'] as String?,
   directConversationKey: json['directConversationKey'] as String?,
-  coreUserIds: (json['coreUserIds'] as List<dynamic>?)
+  userIds: (json['userIds'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
   discussionRootMessageId: json['discussionRootMessageId'] as String?,
@@ -24,9 +24,6 @@ _ResolveChatConversationPayload _$ResolveChatConversationPayloadFromJson(
   scopeProvider: json['scopeProvider'] as String?,
   scopeResourceType: json['scopeResourceType'] as String?,
   scopeResourceId: json['scopeResourceId'] as String?,
-  readyUserIds: (json['readyUserIds'] as List<dynamic>?)
-      ?.map((e) => (e as num).toInt())
-      .toList(),
 );
 
 Map<String, dynamic> _$ResolveChatConversationPayloadToJson(
@@ -39,13 +36,12 @@ Map<String, dynamic> _$ResolveChatConversationPayloadToJson(
   'projectId': instance.projectId,
   'name': instance.name,
   'directConversationKey': instance.directConversationKey,
-  'coreUserIds': instance.coreUserIds,
+  'userIds': instance.userIds,
   'discussionRootMessageId': instance.discussionRootMessageId,
   'postingPermission': instance.postingPermission,
   'scopeProvider': instance.scopeProvider,
   'scopeResourceType': instance.scopeResourceType,
   'scopeResourceId': instance.scopeResourceId,
-  'readyUserIds': instance.readyUserIds,
 };
 
 const _$ChatConversationTypeEnumMap = {
@@ -114,20 +110,14 @@ Map<String, dynamic> _$ChatConversationResponseToJson(
 _AddChatMembersPayload _$AddChatMembersPayloadFromJson(
   Map<String, dynamic> json,
 ) => _AddChatMembersPayload(
-  coreUserIds: (json['coreUserIds'] as List<dynamic>?)
+  userIds: (json['userIds'] as List<dynamic>?)
       ?.map((e) => e as String)
-      .toList(),
-  readyUserIds: (json['readyUserIds'] as List<dynamic>?)
-      ?.map((e) => (e as num).toInt())
       .toList(),
 );
 
 Map<String, dynamic> _$AddChatMembersPayloadToJson(
   _AddChatMembersPayload instance,
-) => <String, dynamic>{
-  'coreUserIds': instance.coreUserIds,
-  'readyUserIds': instance.readyUserIds,
-};
+) => <String, dynamic>{'userIds': instance.userIds};
 
 _UpdateChatMemberRolePayload _$UpdateChatMemberRolePayloadFromJson(
   Map<String, dynamic> json,
@@ -139,14 +129,14 @@ Map<String, dynamic> _$UpdateChatMemberRolePayloadToJson(
 
 _ChatMemberResponse _$ChatMemberResponseFromJson(Map<String, dynamic> json) =>
     _ChatMemberResponse(
-      coreUserId: json['coreUserId'] as String,
+      userId: json['userId'] as String,
       role: json['role'] as String,
       joinedAtUtc: DateTime.parse(json['joinedAtUtc'] as String),
     );
 
 Map<String, dynamic> _$ChatMemberResponseToJson(_ChatMemberResponse instance) =>
     <String, dynamic>{
-      'coreUserId': instance.coreUserId,
+      'userId': instance.userId,
       'role': instance.role,
       'joinedAtUtc': instance.joinedAtUtc.toIso8601String(),
     };
@@ -154,7 +144,7 @@ Map<String, dynamic> _$ChatMemberResponseToJson(_ChatMemberResponse instance) =>
 _ChatMentionSuggestionResponse _$ChatMentionSuggestionResponseFromJson(
   Map<String, dynamic> json,
 ) => _ChatMentionSuggestionResponse(
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   login: json['login'] as String,
   displayName: json['displayName'] as String,
   avatarUrl: json['avatarUrl'] as String?,
@@ -163,7 +153,7 @@ _ChatMentionSuggestionResponse _$ChatMentionSuggestionResponseFromJson(
 Map<String, dynamic> _$ChatMentionSuggestionResponseToJson(
   _ChatMentionSuggestionResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'login': instance.login,
   'displayName': instance.displayName,
   'avatarUrl': instance.avatarUrl,
@@ -226,8 +216,8 @@ _ChatMessageRevisionResponse _$ChatMessageRevisionResponseFromJson(
 ) => _ChatMessageRevisionResponse(
   id: json['id'] as String,
   messageId: json['messageId'] as String,
-  authorCoreUserId: json['authorCoreUserId'] as String,
-  editedByCoreUserId: json['editedByCoreUserId'] as String,
+  authorUserId: json['authorUserId'] as String,
+  editedByUserId: json['editedByUserId'] as String,
   text: json['text'] as String,
   deltaJson: json['deltaJson'] as String?,
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
@@ -240,8 +230,8 @@ Map<String, dynamic> _$ChatMessageRevisionResponseToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'messageId': instance.messageId,
-  'authorCoreUserId': instance.authorCoreUserId,
-  'editedByCoreUserId': instance.editedByCoreUserId,
+  'authorUserId': instance.authorUserId,
+  'editedByUserId': instance.editedByUserId,
   'text': instance.text,
   'deltaJson': instance.deltaJson,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
@@ -369,7 +359,7 @@ _ChatMessageResponse _$ChatMessageResponseFromJson(Map<String, dynamic> json) =>
     _ChatMessageResponse(
       id: json['id'] as String,
       conversationId: json['conversationId'] as String,
-      authorCoreUserId: json['authorCoreUserId'] as String,
+      authorUserId: json['authorUserId'] as String,
       clientMessageId: json['clientMessageId'] as String,
       text: json['text'] as String,
       deltaJson: json['deltaJson'] as String?,
@@ -404,7 +394,7 @@ Map<String, dynamic> _$ChatMessageResponseToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'conversationId': instance.conversationId,
-  'authorCoreUserId': instance.authorCoreUserId,
+  'authorUserId': instance.authorUserId,
   'clientMessageId': instance.clientMessageId,
   'text': instance.text,
   'deltaJson': instance.deltaJson,
@@ -441,7 +431,7 @@ _ChatMessageDeliveryResponse _$ChatMessageDeliveryResponseFromJson(
   Map<String, dynamic> json,
 ) => _ChatMessageDeliveryResponse(
   messageId: json['messageId'] as String,
-  recipientCoreUserId: json['recipientCoreUserId'] as String,
+  recipientUserId: json['recipientUserId'] as String,
   deviceId: json['deviceId'] as String?,
   status: $enumDecode(_$ChatMessageDeliveryStatusEnumMap, json['status']),
   updatedAtUtc: DateTime.parse(json['updatedAtUtc'] as String),
@@ -452,7 +442,7 @@ Map<String, dynamic> _$ChatMessageDeliveryResponseToJson(
   _ChatMessageDeliveryResponse instance,
 ) => <String, dynamic>{
   'messageId': instance.messageId,
-  'recipientCoreUserId': instance.recipientCoreUserId,
+  'recipientUserId': instance.recipientUserId,
   'deviceId': instance.deviceId,
   'status': _$ChatMessageDeliveryStatusEnumMap[instance.status]!,
   'updatedAtUtc': instance.updatedAtUtc.toIso8601String(),
@@ -480,7 +470,7 @@ _ChatReactionResponse _$ChatReactionResponseFromJson(
 ) => _ChatReactionResponse(
   id: json['id'] as String,
   messageId: json['messageId'] as String,
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   emoji: json['emoji'] as String,
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
 );
@@ -490,7 +480,7 @@ Map<String, dynamic> _$ChatReactionResponseToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'messageId': instance.messageId,
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'emoji': instance.emoji,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
 };
@@ -547,7 +537,7 @@ _ChatPlacementResponse _$ChatPlacementResponseFromJson(
   resourceId: json['resourceId'] as String,
   label: json['label'] as String?,
   deepLink: json['deepLink'] as String?,
-  createdByCoreUserId: json['createdByCoreUserId'] as String,
+  createdByUserId: json['createdByUserId'] as String,
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
 );
 
@@ -561,7 +551,7 @@ Map<String, dynamic> _$ChatPlacementResponseToJson(
   'resourceId': instance.resourceId,
   'label': instance.label,
   'deepLink': instance.deepLink,
-  'createdByCoreUserId': instance.createdByCoreUserId,
+  'createdByUserId': instance.createdByUserId,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
 };
 
@@ -588,7 +578,7 @@ Map<String, dynamic> _$UpsertChatUserStatusPayloadToJson(
 _ChatUserStatusResponse _$ChatUserStatusResponseFromJson(
   Map<String, dynamic> json,
 ) => _ChatUserStatusResponse(
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   emoji: json['emoji'] as String?,
   text: json['text'] as String?,
   expiresAtUtc: json['expiresAtUtc'] == null
@@ -601,7 +591,7 @@ _ChatUserStatusResponse _$ChatUserStatusResponseFromJson(
 Map<String, dynamic> _$ChatUserStatusResponseToJson(
   _ChatUserStatusResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'emoji': instance.emoji,
   'text': instance.text,
   'expiresAtUtc': instance.expiresAtUtc?.toIso8601String(),
@@ -612,7 +602,7 @@ Map<String, dynamic> _$ChatUserStatusResponseToJson(
 _ChatUserNotificationPreferenceResponse
 _$ChatUserNotificationPreferenceResponseFromJson(Map<String, dynamic> json) =>
     _ChatUserNotificationPreferenceResponse(
-      coreUserId: json['coreUserId'] as String,
+      userId: json['userId'] as String,
       inAppEnabled: json['inAppEnabled'] as bool,
       emailEnabled: json['emailEnabled'] as bool,
       pushEnabled: json['pushEnabled'] as bool,
@@ -622,7 +612,7 @@ _$ChatUserNotificationPreferenceResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$ChatUserNotificationPreferenceResponseToJson(
   _ChatUserNotificationPreferenceResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'inAppEnabled': instance.inAppEnabled,
   'emailEnabled': instance.emailEnabled,
   'pushEnabled': instance.pushEnabled,
@@ -652,7 +642,7 @@ _ChatNotificationPreferenceResponse
 _$ChatNotificationPreferenceResponseFromJson(Map<String, dynamic> json) =>
     _ChatNotificationPreferenceResponse(
       conversationId: json['conversationId'] as String,
-      coreUserId: json['coreUserId'] as String,
+      userId: json['userId'] as String,
       preference: $enumDecode(
         _$ChatNotificationPreferenceEnumMap,
         json['preference'],
@@ -663,7 +653,7 @@ Map<String, dynamic> _$ChatNotificationPreferenceResponseToJson(
   _ChatNotificationPreferenceResponse instance,
 ) => <String, dynamic>{
   'conversationId': instance.conversationId,
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'preference': _$ChatNotificationPreferenceEnumMap[instance.preference]!,
 };
 
@@ -709,7 +699,7 @@ _ChatAttachmentResponse _$ChatAttachmentResponseFromJson(
   id: json['id'] as String,
   messageId: json['messageId'] as String,
   storageFileId: json['storageFileId'] as String,
-  attachedByCoreUserId: json['attachedByCoreUserId'] as String,
+  attachedByUserId: json['attachedByUserId'] as String,
   position: (json['position'] as num).toInt(),
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
 );
@@ -720,7 +710,7 @@ Map<String, dynamic> _$ChatAttachmentResponseToJson(
   'id': instance.id,
   'messageId': instance.messageId,
   'storageFileId': instance.storageFileId,
-  'attachedByCoreUserId': instance.attachedByCoreUserId,
+  'attachedByUserId': instance.attachedByUserId,
   'position': instance.position,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
 };
@@ -769,7 +759,7 @@ _ChatBookmarkResponse _$ChatBookmarkResponseFromJson(
   id: json['id'] as String,
   messageId: json['messageId'] as String,
   conversationId: json['conversationId'] as String,
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   note: json['note'] as String?,
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
 );
@@ -780,7 +770,7 @@ Map<String, dynamic> _$ChatBookmarkResponseToJson(
   'id': instance.id,
   'messageId': instance.messageId,
   'conversationId': instance.conversationId,
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'note': instance.note,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
 };
@@ -791,7 +781,7 @@ _ChatPinnedMessageResponse _$ChatPinnedMessageResponseFromJson(
   id: json['id'] as String,
   conversationId: json['conversationId'] as String,
   messageId: json['messageId'] as String,
-  pinnedByCoreUserId: json['pinnedByCoreUserId'] as String,
+  pinnedByUserId: json['pinnedByUserId'] as String,
   pinnedAtUtc: DateTime.parse(json['pinnedAtUtc'] as String),
 );
 
@@ -801,7 +791,7 @@ Map<String, dynamic> _$ChatPinnedMessageResponseToJson(
   'id': instance.id,
   'conversationId': instance.conversationId,
   'messageId': instance.messageId,
-  'pinnedByCoreUserId': instance.pinnedByCoreUserId,
+  'pinnedByUserId': instance.pinnedByUserId,
   'pinnedAtUtc': instance.pinnedAtUtc.toIso8601String(),
 };
 
@@ -929,7 +919,7 @@ _ChatSearchItemResponse _$ChatSearchItemResponseFromJson(
 ) => _ChatSearchItemResponse(
   messageId: json['messageId'] as String,
   conversationId: json['conversationId'] as String,
-  authorCoreUserId: json['authorCoreUserId'] as String,
+  authorUserId: json['authorUserId'] as String,
   conversationType: $enumDecode(
     _$ChatConversationTypeEnumMap,
     json['conversationType'],
@@ -949,7 +939,7 @@ Map<String, dynamic> _$ChatSearchItemResponseToJson(
 ) => <String, dynamic>{
   'messageId': instance.messageId,
   'conversationId': instance.conversationId,
-  'authorCoreUserId': instance.authorCoreUserId,
+  'authorUserId': instance.authorUserId,
   'conversationType': _$ChatConversationTypeEnumMap[instance.conversationType]!,
   'workspaceId': instance.workspaceId,
   'projectId': instance.projectId,

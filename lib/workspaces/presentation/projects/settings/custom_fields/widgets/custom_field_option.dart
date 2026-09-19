@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:devplanner/core/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
 
 /// Predefiniowana paleta kolorów dla opcji pól wyboru.
 const customFieldOptionColors = <(String hex, String name, Color color)>[
@@ -42,39 +42,43 @@ const customFieldOptionIcons = <(String name, String label, IconData icon)>[
   ('circle', 'Kropka', Symbols.circle),
 ];
 
-/// Pomocnik zamieniający kod szesnastkowy na obiekt [Color].
-Color? parseHexColor(String? hex) {
-  if (hex == null || hex.isEmpty) return null;
-  var clean = hex.replaceAll('#', '').trim();
-  if (clean.length == 6) clean = 'FF$clean';
-  final value = int.tryParse(clean, radix: 16);
-  return value != null ? Color(value) : null;
-}
+/// Konwersje używane wyłącznie przez reprezentację opcji pola niestandardowego.
+class CustomFieldOptionVisuals {
+  const CustomFieldOptionVisuals._();
 
-/// Pomocnik zamieniający identyfikator ikony na odpowiedni [IconData].
-IconData? customFieldOptionIcon(String? iconName) {
-  if (iconName == null || iconName.isEmpty) return null;
-  return switch (iconName) {
-    'flag' => Symbols.flag_rounded,
-    'star' => Symbols.star_rounded,
-    'check_circle' => Symbols.check_circle_rounded,
-    'schedule' => Symbols.schedule_rounded,
-    'bookmark' => Symbols.bookmark_rounded,
-    'bolt' => Symbols.bolt_rounded,
-    'warning' => Symbols.warning_amber_rounded,
-    'bug_report' => Symbols.bug_report_rounded,
-    'label' => Symbols.label_rounded,
-    'lightbulb' => Symbols.lightbulb_rounded,
-    'verified' => Symbols.verified_rounded,
-    'favorite' => Symbols.favorite_rounded,
-    'fire' || 'local_fire_department' => Symbols.local_fire_department_rounded,
-    'priority_high' => Symbols.priority_high_rounded,
-    'category' => Symbols.category_rounded,
-    'trending_up' => Symbols.trending_up_rounded,
-    'folder' => Symbols.folder_rounded,
-    'circle' => Symbols.circle,
-    _ => null,
-  };
+  static Color? parseHexColor(String? hex) {
+    if (hex == null || hex.isEmpty) return null;
+    var clean = hex.replaceAll('#', '').trim();
+    if (clean.length == 6) clean = 'FF$clean';
+    final value = int.tryParse(clean, radix: 16);
+    return value != null ? Color(value) : null;
+  }
+
+  static IconData? iconFor(String? iconName) {
+    if (iconName == null || iconName.isEmpty) return null;
+    return switch (iconName) {
+      'flag' => Symbols.flag_rounded,
+      'star' => Symbols.star_rounded,
+      'check_circle' => Symbols.check_circle_rounded,
+      'schedule' => Symbols.schedule_rounded,
+      'bookmark' => Symbols.bookmark_rounded,
+      'bolt' => Symbols.bolt_rounded,
+      'warning' => Symbols.warning_amber_rounded,
+      'bug_report' => Symbols.bug_report_rounded,
+      'label' => Symbols.label_rounded,
+      'lightbulb' => Symbols.lightbulb_rounded,
+      'verified' => Symbols.verified_rounded,
+      'favorite' => Symbols.favorite_rounded,
+      'fire' ||
+      'local_fire_department' => Symbols.local_fire_department_rounded,
+      'priority_high' => Symbols.priority_high_rounded,
+      'category' => Symbols.category_rounded,
+      'trending_up' => Symbols.trending_up_rounded,
+      'folder' => Symbols.folder_rounded,
+      'circle' => Symbols.circle,
+      _ => null,
+    };
+  }
 }
 
 /// Struktura i logika opcji pól wyboru (SingleSelect / MultiSelect).
@@ -163,10 +167,10 @@ class CustomFieldOption {
   final String? iconName;
 
   /// Obliczony obiekt [Color] lub null.
-  Color? get color => parseHexColor(colorHex);
+  Color? get color => CustomFieldOptionVisuals.parseHexColor(colorHex);
 
   /// Obliczony obiekt [IconData] lub null.
-  IconData? get icon => customFieldOptionIcon(iconName);
+  IconData? get icon => CustomFieldOptionVisuals.iconFor(iconName);
 
   CustomFieldOption copyWith({
     String? label,

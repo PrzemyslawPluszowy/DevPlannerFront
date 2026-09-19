@@ -1,7 +1,7 @@
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 
 /// Odtwarza pełną ścieżkę folderów bez przenoszenia nawigacji do Cubita.
 final class StorageBreadcrumbResolver {

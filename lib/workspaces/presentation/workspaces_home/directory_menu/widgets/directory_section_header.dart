@@ -1,6 +1,6 @@
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 /// Nagłówek sekcji w katalogu menu bocznego Workspaces.
 class DirectorySectionHeader extends StatelessWidget {

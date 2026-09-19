@@ -1,24 +1,24 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/filters/task_list_filters.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_table.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/task_saved_views_export.dart';
+import 'package:devplanner/workspaces/presentation/tasks/widgets/task_list_workflow_segmented_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_column_reference.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_collaboration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_list_configuration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/filters/task_list_filters.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_table.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/task_saved_views_export.dart';
-import 'package:ready_next/workspaces/presentation/tasks/widgets/task_list_workflow_segmented_switch.dart';
 
 /// Główny orkiestrator widoku listy zadań projektu.
 ///
@@ -35,8 +35,9 @@ class ProjectTasksList extends StatefulWidget {
     this.columns = defaultTaskListColumns,
     this.customFieldIds = const [],
     this.columnOrder,
-    this.memberProfilesByCoreUserId = const {},
+    this.memberProfilesByUserId = const {},
     this.onViewSnapshotChanged,
+    this.listenToBoardRealtime = true,
     super.key,
   });
 
@@ -48,8 +49,13 @@ class ProjectTasksList extends StatefulWidget {
   final List<TaskSavedViewColumn> columns;
   final List<String> customFieldIds;
   final List<String>? columnOrder;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final ValueChanged<TaskListViewSnapshot>? onViewSnapshotChanged;
+
+  /// Gdy lista jest uruchamiana jako samodzielna strona, nie ma obok niej
+  /// [TasksBoardCubit]. W takim trybie odświeżenia realtime są dostarczane
+  /// później przez dedykowaną kompozycję listy.
+  final bool listenToBoardRealtime;
 
   @override
   State<ProjectTasksList> createState() => _ProjectTasksListState();
@@ -117,8 +123,8 @@ class _ProjectTasksListState extends State<ProjectTasksList> {
       filter: TaskSavedViewFilter(
         statuses: listState.status != null ? [listState.status!] : null,
         priorities: listState.priority != null ? [listState.priority!] : null,
-        assigneeCoreUserIds: listState.assigneeCoreUserId != null
-            ? [listState.assigneeCoreUserId!]
+        assigneeUserIds: listState.assigneeUserId != null
+            ? [listState.assigneeUserId!]
             : null,
         myInvolvement: listState.myInvolvement,
         pinnedOnly: listState.pinnedOnly,
@@ -148,25 +154,26 @@ class _ProjectTasksListState extends State<ProjectTasksList> {
             _notifySnapshotIfNeeded();
           },
         ),
-        BlocListener<TasksBoardCubit, TasksBoardState>(
-          listenWhen: (previous, current) =>
-              (previous is! TasksBoardReady && current is TasksBoardReady) ||
-              (previous is TasksBoardReady &&
-                  current is TasksBoardReady &&
-                  (previous.realtimeRevision != current.realtimeRevision ||
-                      previous.mutationSerial != current.mutationSerial)),
-          listener: (context, boardState) {
-            if (!mounted) return;
-            unawaited(
-              boardState is TasksBoardReady &&
-                      boardState.latestRealtimeMutation != null
-                  ? _cubit.applyRealtimeMutation(
-                      boardState.latestRealtimeMutation!,
-                    )
-                  : _cubit.load(),
-            );
-          },
-        ),
+        if (widget.listenToBoardRealtime)
+          BlocListener<TasksBoardCubit, TasksBoardState>(
+            listenWhen: (previous, current) =>
+                (previous is! TasksBoardReady && current is TasksBoardReady) ||
+                (previous is TasksBoardReady &&
+                    current is TasksBoardReady &&
+                    (previous.realtimeRevision != current.realtimeRevision ||
+                        previous.mutationSerial != current.mutationSerial)),
+            listener: (context, boardState) {
+              if (!mounted) return;
+              unawaited(
+                boardState is TasksBoardReady &&
+                        boardState.latestRealtimeMutation != null
+                    ? _cubit.applyRealtimeMutation(
+                        boardState.latestRealtimeMutation!,
+                      )
+                    : _cubit.load(),
+              );
+            },
+          ),
         BlocListener<TaskListPreferencesCubit, TaskListPreferencesState>(
           listenWhen: (previous, current) =>
               current is TaskListPreferencesReady,
@@ -196,7 +203,7 @@ class _ProjectTasksListState extends State<ProjectTasksList> {
         columns: widget.columns,
         customFieldIds: widget.customFieldIds,
         columnOrder: widget.columnOrder,
-        memberProfilesByCoreUserId: widget.memberProfilesByCoreUserId,
+        memberProfilesByUserId: widget.memberProfilesByUserId,
         hasCustomWorkflow: widget.hasCustomWorkflow,
         savedViewId: widget.savedViewId,
       ),
@@ -210,7 +217,7 @@ class _ProjectTasksListView extends StatelessWidget {
     required this.columns,
     this.customFieldIds,
     this.columnOrder,
-    required this.memberProfilesByCoreUserId,
+    required this.memberProfilesByUserId,
     this.hasCustomWorkflow = false,
     this.savedViewId,
   });
@@ -219,7 +226,7 @@ class _ProjectTasksListView extends StatelessWidget {
   final List<TaskSavedViewColumn> columns;
   final List<String>? customFieldIds;
   final List<String>? columnOrder;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final bool hasCustomWorkflow;
   final String? savedViewId;
 
@@ -254,7 +261,7 @@ class _ProjectTasksListView extends StatelessWidget {
           columns: columns,
           columnReferences: effectiveRefs,
           customFieldIds: customFieldIds,
-          memberProfilesByCoreUserId: memberProfilesByCoreUserId,
+          memberProfilesByUserId: memberProfilesByUserId,
           preferencesCubit: preferencesCubit,
         ),
       },

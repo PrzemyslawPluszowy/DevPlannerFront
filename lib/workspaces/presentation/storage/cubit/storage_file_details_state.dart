@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 
 /// Jawne stany szczegółu pliku, bez ukrywania błędów backendu.
 sealed class StorageFileDetailsState {

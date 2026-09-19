@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/api/milestones_api.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/milestone_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/milestones/api/milestones_api.dart';
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
 
 /// Produkcyjna implementacja kontraktu kamieni milowych Workspaces.
 final class MilestoneRepositoryImpl extends ApiRepository

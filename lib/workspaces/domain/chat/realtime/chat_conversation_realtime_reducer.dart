@@ -1,5 +1,5 @@
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
 
 /// Decyzja reduktora po walidacji kolejności i aktualizacji historii.
 enum ChatConversationRealtimeDecision { applied, ignored, resyncRequired }

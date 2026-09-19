@@ -1,7 +1,7 @@
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
 
 /// Podsekcja wyboru przypisanych osób w filtrach zapisanego widoku.
 class TaskSavedViewPeopleFilter extends StatelessWidget {
@@ -44,7 +44,7 @@ class TaskSavedViewPeopleFilter extends StatelessWidget {
                   entry.value.displayName != null &&
                           entry.value.displayName!.isNotEmpty
                       ? entry.value.displayName!
-                      : entry.value.coreUserId,
+                      : entry.value.userId,
                 ),
                 selected: selectedAssigneeIds.contains(entry.key),
                 onSelected: (selected) {

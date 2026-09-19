@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 
 /// Informacja zwrotna dla interfejsu (toast/komunikat).
 sealed class ProjectRecurrenceFeedback extends Equatable {

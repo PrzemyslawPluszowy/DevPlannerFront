@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/okr/models/okr_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/okr/models/okr_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'okr_api.g.dart';

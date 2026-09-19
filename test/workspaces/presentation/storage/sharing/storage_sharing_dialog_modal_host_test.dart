@@ -1,30 +1,25 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
-import 'package:ready_next/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
 
 /// Atrapa kontraktu Storage używana wyłącznie do izolacji widgetowego testu
 /// polityki prezentacji modalu.
 class _MockStorageRepository extends Mock implements StorageRepository {}
-
-/// Atrapa katalogu Ready; dialog nie wyszukuje użytkownika w tym scenariuszu.
-class _MockWorkspacesRepository extends Mock implements WorkspacesRepository {}
 
 void main() {
   testWidgets(
     'dialog udostępniania używa rootowego hosta i blokuje tło nested route',
     (tester) async {
       final storageRepository = _MockStorageRepository();
-      final workspacesRepository = _MockWorkspacesRepository();
       final rootNavigatorKey = GlobalKey<NavigatorState>();
       final nestedNavigatorKey = GlobalKey<NavigatorState>();
       var underlayTaps = 0;
@@ -38,9 +33,6 @@ void main() {
           providers: [
             RepositoryProvider<StorageRepository>.value(
               value: storageRepository,
-            ),
-            RepositoryProvider<WorkspacesRepository>.value(
-              value: workspacesRepository,
             ),
           ],
           child: MaterialApp(

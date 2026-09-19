@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'milestones_api.g.dart';

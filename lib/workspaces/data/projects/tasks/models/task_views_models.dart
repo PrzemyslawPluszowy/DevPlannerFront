@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
 
 part 'task_views_models.freezed.dart';
 part 'task_views_models.g.dart';
@@ -97,13 +97,15 @@ enum TaskSavedViewColumn {
 }
 
 /// Typowany filtr zapisanego widoku Tasks.
+///
+/// Wykonawcy są identyfikowani lokalnym `userId` backendu.
 @Freezed(makeCollectionsUnmodifiable: false)
 abstract class TaskSavedViewFilter with _$TaskSavedViewFilter {
   /// Tworzy filtr listy zadań.
   const factory TaskSavedViewFilter({
     List<ProjectTaskStatus>? statuses,
     List<TaskPriority>? priorities,
-    List<String>? assigneeCoreUserIds,
+    List<String>? assigneeUserIds,
     List<String>? labelIds,
     String? parentTaskId,
     TaskInvolvementFilter? myInvolvement,

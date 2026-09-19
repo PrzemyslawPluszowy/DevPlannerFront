@@ -1,4 +1,5 @@
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 
 /// Jawne stany leniwie ładowanych projektów w węźle workspace’u.
 sealed class WorkspaceProjectsState {
@@ -24,8 +25,15 @@ final class WorkspaceProjectsEmpty extends WorkspaceProjectsState {
 }
 
 final class WorkspaceProjectsFailure extends WorkspaceProjectsState {
-  const WorkspaceProjectsFailure({required this.message, this.backendCode});
+  const WorkspaceProjectsFailure({
+    required this.reason,
+    this.statusCode,
+    this.backendCode,
+    this.message,
+  });
 
-  final String message;
+  final ProjectsFailureReason reason;
+  final int? statusCode;
   final String? backendCode;
+  final String? message;
 }

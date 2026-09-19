@@ -1,5 +1,5 @@
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
 
 /// Czyste przejścia stanu rozwiniętej gałęzi podzadań.
 abstract final class TaskListTreeSnapshot {

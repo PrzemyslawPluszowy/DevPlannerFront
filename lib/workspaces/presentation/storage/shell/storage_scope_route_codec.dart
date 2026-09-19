@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
 
 /// Koduje zakres Storage w stabilny URL i odtwarza prywatne widoki systemowe.
 final class StorageScopeRouteCodec {

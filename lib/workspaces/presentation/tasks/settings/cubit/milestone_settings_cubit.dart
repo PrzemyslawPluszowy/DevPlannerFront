@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/milestone_status.dart';
+import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/milestone_status.dart';
-import 'package:ready_next/workspaces/domain/repositories/milestone_repository.dart';
 
 sealed class MilestoneSettingsState {
   const MilestoneSettingsState();

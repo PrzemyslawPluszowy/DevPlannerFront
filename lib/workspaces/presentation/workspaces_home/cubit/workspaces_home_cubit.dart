@@ -1,8 +1,8 @@
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/models/workspace_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/cubit/workspaces_home_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/models/workspace_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/cubit/workspaces_home_state.dart';
 
 /// Cubit odpowiedzialny wyłącznie za pobranie listy workspace’ów.
 class WorkspacesHomeCubit extends Cubit<WorkspacesHomeState> {

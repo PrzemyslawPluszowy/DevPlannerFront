@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart';
 
 /// Cubit zarządzający stanem i logiką biznesową edytora powtarzania zadania.
 class TaskRecurrenceEditorCubit extends Cubit<TaskRecurrenceEditorState> {
@@ -47,7 +46,10 @@ class TaskRecurrenceEditorCubit extends Cubit<TaskRecurrenceEditorState> {
           occurrenceStatus: summary.occurrenceStatus,
           skipIfPreviousOpen: summary.skipIfPreviousOpen,
           scheduledDate: DateTime(next.year, next.month, next.day),
-          scheduledTime: TimeOfDay(hour: next.hour, minute: next.minute),
+          scheduledTime: TaskRecurrenceScheduledTime(
+            hour: next.hour,
+            minute: next.minute,
+          ),
           hasRecurrence: hasRecurrence,
           isSourceTask: summary.isSourceTask,
         ),
@@ -63,7 +65,7 @@ class TaskRecurrenceEditorCubit extends Cubit<TaskRecurrenceEditorState> {
           occurrenceStatus: ProjectTaskStatus.todo,
           skipIfPreviousOpen: true,
           scheduledDate: DateTime(tomorrow.year, tomorrow.month, tomorrow.day),
-          scheduledTime: const TimeOfDay(hour: 9, minute: 0),
+          scheduledTime: const TaskRecurrenceScheduledTime(hour: 9, minute: 0),
           hasRecurrence: false,
           isSourceTask: true,
         ),
@@ -118,7 +120,10 @@ class TaskRecurrenceEditorCubit extends Cubit<TaskRecurrenceEditorState> {
             occurrenceStatus: data.occurrenceStatus,
             skipIfPreviousOpen: data.skipIfPreviousOpen,
             scheduledDate: DateTime(next.year, next.month, next.day),
-            scheduledTime: TimeOfDay(hour: next.hour, minute: next.minute),
+            scheduledTime: TaskRecurrenceScheduledTime(
+              hour: next.hour,
+              minute: next.minute,
+            ),
             preset: _resolvePreset(data.frequency, data.interval),
             clearError: true,
           ),
@@ -193,7 +198,7 @@ class TaskRecurrenceEditorCubit extends Cubit<TaskRecurrenceEditorState> {
   }
 
   /// Zmienia godzinę najbliższego wykonania.
-  void setScheduledTime(TimeOfDay time) {
+  void setScheduledTime(TaskRecurrenceScheduledTime time) {
     final current = state;
     if (current is! TaskRecurrenceEditorLoaded) return;
     emit(current.copyWith(scheduledTime: time, clearError: true));

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CurrentUserResponse {
 
- String get coreUserId; int? get readyUserId; String? get login; List<String> get permissions;
+ String get userId; int? get readyUserId; String? get login; List<String> get permissions;
 /// Create a copy of CurrentUserResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CurrentUserResponseCopyWith<CurrentUserResponse> get copyWith => _$CurrentUserR
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CurrentUserResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.login, login) || other.login == login)&&const DeepCollectionEquality().equals(other.permissions, permissions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CurrentUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.login, login) || other.login == login)&&const DeepCollectionEquality().equals(other.permissions, permissions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,readyUserId,login,const DeepCollectionEquality().hash(permissions));
+int get hashCode => Object.hash(runtimeType,userId,readyUserId,login,const DeepCollectionEquality().hash(permissions));
 
 @override
 String toString() {
-  return 'CurrentUserResponse(coreUserId: $coreUserId, readyUserId: $readyUserId, login: $login, permissions: $permissions)';
+  return 'CurrentUserResponse(userId: $userId, readyUserId: $readyUserId, login: $login, permissions: $permissions)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CurrentUserResponseCopyWith<$Res>  {
   factory $CurrentUserResponseCopyWith(CurrentUserResponse value, $Res Function(CurrentUserResponse) _then) = _$CurrentUserResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, int? readyUserId, String? login, List<String> permissions
+ String userId, int? readyUserId, String? login, List<String> permissions
 });
 
 
@@ -65,9 +65,9 @@ class _$CurrentUserResponseCopyWithImpl<$Res>
 
 /// Create a copy of CurrentUserResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? readyUserId = freezed,Object? login = freezed,Object? permissions = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? readyUserId = freezed,Object? login = freezed,Object? permissions = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,readyUserId: freezed == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
 as int?,login: freezed == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String?,permissions: null == permissions ? _self.permissions : permissions // ignore: cast_nullable_to_non_nullable
@@ -156,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  int? readyUserId,  String? login,  List<String> permissions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  int? readyUserId,  String? login,  List<String> permissions)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CurrentUserResponse() when $default != null:
-return $default(_that.coreUserId,_that.readyUserId,_that.login,_that.permissions);case _:
+return $default(_that.userId,_that.readyUserId,_that.login,_that.permissions);case _:
   return orElse();
 
 }
@@ -177,10 +177,10 @@ return $default(_that.coreUserId,_that.readyUserId,_that.login,_that.permissions
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  int? readyUserId,  String? login,  List<String> permissions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  int? readyUserId,  String? login,  List<String> permissions)  $default,) {final _that = this;
 switch (_that) {
 case _CurrentUserResponse():
-return $default(_that.coreUserId,_that.readyUserId,_that.login,_that.permissions);case _:
+return $default(_that.userId,_that.readyUserId,_that.login,_that.permissions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +197,10 @@ return $default(_that.coreUserId,_that.readyUserId,_that.login,_that.permissions
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  int? readyUserId,  String? login,  List<String> permissions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  int? readyUserId,  String? login,  List<String> permissions)?  $default,) {final _that = this;
 switch (_that) {
 case _CurrentUserResponse() when $default != null:
-return $default(_that.coreUserId,_that.readyUserId,_that.login,_that.permissions);case _:
+return $default(_that.userId,_that.readyUserId,_that.login,_that.permissions);case _:
   return null;
 
 }
@@ -212,10 +212,10 @@ return $default(_that.coreUserId,_that.readyUserId,_that.login,_that.permissions
 @JsonSerializable()
 
 class _CurrentUserResponse implements CurrentUserResponse {
-  const _CurrentUserResponse({required this.coreUserId, this.readyUserId, this.login, required this.permissions});
+  const _CurrentUserResponse({required this.userId, this.readyUserId, this.login, required this.permissions});
   factory _CurrentUserResponse.fromJson(Map<String, dynamic> json) => _$CurrentUserResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  int? readyUserId;
 @override final  String? login;
 @override final  List<String> permissions;
@@ -233,16 +233,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CurrentUserResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.login, login) || other.login == login)&&const DeepCollectionEquality().equals(other.permissions, permissions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CurrentUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.login, login) || other.login == login)&&const DeepCollectionEquality().equals(other.permissions, permissions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,readyUserId,login,const DeepCollectionEquality().hash(permissions));
+int get hashCode => Object.hash(runtimeType,userId,readyUserId,login,const DeepCollectionEquality().hash(permissions));
 
 @override
 String toString() {
-  return 'CurrentUserResponse(coreUserId: $coreUserId, readyUserId: $readyUserId, login: $login, permissions: $permissions)';
+  return 'CurrentUserResponse(userId: $userId, readyUserId: $readyUserId, login: $login, permissions: $permissions)';
 }
 
 
@@ -253,7 +253,7 @@ abstract mixin class _$CurrentUserResponseCopyWith<$Res> implements $CurrentUser
   factory _$CurrentUserResponseCopyWith(_CurrentUserResponse value, $Res Function(_CurrentUserResponse) _then) = __$CurrentUserResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, int? readyUserId, String? login, List<String> permissions
+ String userId, int? readyUserId, String? login, List<String> permissions
 });
 
 
@@ -270,9 +270,9 @@ class __$CurrentUserResponseCopyWithImpl<$Res>
 
 /// Create a copy of CurrentUserResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? readyUserId = freezed,Object? login = freezed,Object? permissions = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? readyUserId = freezed,Object? login = freezed,Object? permissions = null,}) {
   return _then(_CurrentUserResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,readyUserId: freezed == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
 as int?,login: freezed == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String?,permissions: null == permissions ? _self.permissions : permissions // ignore: cast_nullable_to_non_nullable

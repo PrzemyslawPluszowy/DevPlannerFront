@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
 
 void main() {
   test('serializuje zakres, folder i allowlistowany format dokumentu', () {

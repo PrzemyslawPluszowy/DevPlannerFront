@@ -1,13 +1,13 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_invitation_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_role.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_settings/invitations/cubit/workspace_invitations_settings_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_settings/invitations/widgets/create_workspace_invitation_dialog.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_settings/members/cubit/workspace_members_settings_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_settings/members/widgets/workspace_members_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_invitation_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_role.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_settings/invitations/cubit/workspace_invitations_settings_cubit.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_settings/invitations/widgets/create_workspace_invitation_dialog.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_settings/members/cubit/workspace_members_settings_cubit.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_settings/members/widgets/workspace_members_table.dart';
 
 /// Widok zakładki "Członkowie i zaproszenia" w ustawieniach przestrzeni roboczej.
 class WorkspaceMembersTabView extends StatelessWidget {
@@ -313,16 +313,16 @@ class WorkspaceMembersTabView extends StatelessWidget {
 
   Future<void> _openInviteDialog(BuildContext context) async {
     final cubit = context.read<WorkspaceInvitationsSettingsCubit>();
-    final result = await showDialog<({int readyUserId, WorkspaceRole role})>(
+    final result = await showDialog<({String userId, WorkspaceRole role})>(
       context: context,
       builder: (_) => CreateWorkspaceInvitationDialog(
-        onSearch: cubit.searchReadyUsers,
+        onSearch: cubit.searchLocalUsers,
       ),
     );
 
     if (result != null) {
       await cubit.inviteUser(
-        readyUserId: result.readyUserId,
+        userId: result.userId,
         role: result.role,
       );
     }

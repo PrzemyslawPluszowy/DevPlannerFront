@@ -1,17 +1,17 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
 
 /// Pasek filtrów listy zadań (status, priorytet, przypisane osoby, udział, przypięte).
 class TaskListFilters extends StatelessWidget {
@@ -61,7 +61,7 @@ class TaskListFilters extends StatelessWidget {
         ),
       ),
       _PeopleFilter(
-        selectedCoreUserId: state.assigneeCoreUserId,
+        selectedUserId: state.assigneeUserId,
         unassignedOnly: state.unassignedOnly,
         profiles: memberProfiles,
       ),
@@ -141,7 +141,7 @@ class TaskListFilters extends StatelessWidget {
 
 class _PeopleFilter extends StatelessWidget {
   const _PeopleFilter({
-    required this.selectedCoreUserId,
+    required this.selectedUserId,
     required this.unassignedOnly,
     required this.profiles,
   });
@@ -149,15 +149,13 @@ class _PeopleFilter extends StatelessWidget {
   static const _all = '__tasks-filter-all__';
   static const _unassigned = '__tasks-filter-unassigned__';
 
-  final String? selectedCoreUserId;
+  final String? selectedUserId;
   final bool unassignedOnly;
   final Map<String, ProjectMemberProfile> profiles;
 
   @override
   Widget build(BuildContext context) {
-    final selected = selectedCoreUserId == null
-        ? null
-        : profiles[selectedCoreUserId];
+    final selected = selectedUserId == null ? null : profiles[selectedUserId];
     final entries = profiles.values.toList(
       growable: false,
     )..sort((left, right) => _profileName(left).compareTo(_profileName(right)));
@@ -174,21 +172,21 @@ class _PeopleFilter extends StatelessWidget {
         if (value == _all) {
           unawaited(
             cubit.load(
-              clearAssigneeCoreUserId: true,
+              clearAssigneeUserId: true,
               unassignedOnly: false,
             ),
           );
         } else if (value == _unassigned) {
           unawaited(
             cubit.load(
-              clearAssigneeCoreUserId: true,
+              clearAssigneeUserId: true,
               unassignedOnly: true,
             ),
           );
         } else {
           unawaited(
             cubit.load(
-              assigneeCoreUserId: value,
+              assigneeUserId: value,
               unassignedOnly: false,
             ),
           );
@@ -200,7 +198,7 @@ class _PeopleFilter extends StatelessWidget {
         if (entries.isNotEmpty) const PopupMenuDivider(),
         for (final profile in entries)
           PopupMenuItem(
-            value: profile.coreUserId,
+            value: profile.userId,
             child: Row(
               children: [
                 _FilterProfileAvatar(profile: profile),

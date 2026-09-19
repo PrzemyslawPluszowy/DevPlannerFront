@@ -1,6 +1,6 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 /// Drobny wskaźnik informujący o lokalnej modyfikacji aktywnego widoku.
 class TaskSavedViewDirtyBadge extends StatelessWidget {

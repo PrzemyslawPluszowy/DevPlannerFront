@@ -1,7 +1,6 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_bubble_toast.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_bubble_toast.dart';
 
 enum AppToastTone { info, success, warning, error }
 

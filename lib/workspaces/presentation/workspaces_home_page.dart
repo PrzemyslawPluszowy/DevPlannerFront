@@ -1,16 +1,16 @@
 import 'dart:async';
 
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/features/settings/application/local_settings_cubit.dart';
+import 'package:devplanner/shared/presentation/widgets/app_collapsible_navigation.dart';
+import 'package:devplanner/shared/presentation/widgets/app_module_lauout/app_module_layout.dart';
+import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/cubit/workspaces_home_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/cubit/workspaces_home_state.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/directory_menu/workspace_directory_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/features/settings/application/local_settings_cubit.dart';
-import 'package:ready_next/shared/presentation/widgets/app_collapsible_navigation.dart';
-import 'package:ready_next/shared/presentation/widgets/app_module_lauout/app_module_layout.dart';
-import 'package:ready_next/shared/presentation/widgets/app_navigation_preference_key.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/cubit/workspaces_home_cubit.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/cubit/workspaces_home_state.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/directory_menu/workspace_directory_menu.dart';
 
 /// Katalog workspace’ów użytkownika.
 ///
@@ -34,10 +34,7 @@ class _WorkspacesHomePageState extends State<WorkspacesHomePage> {
   void initState() {
     super.initState();
     final settings = context.read<LocalSettingsCubit>();
-    _panelPreferenceKey = appNavigationPreferenceKey(
-      context,
-      'workspaces.home',
-    );
+    _panelPreferenceKey = _preferenceKey();
     _panelController = AppCollapsibleNavigationController(
       expanded: settings.isNavigationPanelExpanded(_panelPreferenceKey),
       onChanged: (expanded) => unawaited(
@@ -47,6 +44,11 @@ class _WorkspacesHomePageState extends State<WorkspacesHomePage> {
         ),
       ),
     );
+  }
+
+  String _preferenceKey() {
+    final userId = context.read<AuthSessionPort?>()?.snapshot.user?.userId;
+    return 'workspaces.home:${userId ?? 'anonymous'}';
   }
 
   @override

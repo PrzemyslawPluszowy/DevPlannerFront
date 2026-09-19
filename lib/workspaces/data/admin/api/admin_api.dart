@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/admin/models/admin_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/admin/models/admin_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'admin_api.g.dart';

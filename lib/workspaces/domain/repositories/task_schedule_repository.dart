@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_schedule_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_schedule_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
 
 /// Udostępnia konfigurację i bezpieczne operacje harmonogramu projektu.
 abstract interface class TaskScheduleRepository {

@@ -1,14 +1,14 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/data/storage/payloads/storage_payloads.dart';
-import 'package:ready_next/workspaces/data/storage/responses/storage_responses.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_browser_filter.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/data/storage/payloads/storage_payloads.dart';
+import 'package:devplanner/workspaces/data/storage/responses/storage_responses.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 
 /// Kontrakt repozytorium plików i folderów dla modułu Workspaces.
 ///

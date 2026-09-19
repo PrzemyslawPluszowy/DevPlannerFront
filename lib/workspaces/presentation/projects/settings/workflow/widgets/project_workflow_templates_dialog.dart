@@ -1,8 +1,8 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
+import 'package:devplanner/workspaces/shared/presentation/widgets/workspace_creation_modal_wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
-import 'package:ready_next/workspaces/shared/presentation/widgets/workspace_creation_modal_wrapper.dart';
 
 /// Modal wyboru gotowych szablonów workflow (Standardowy, IT/Software, Marketing, HR, Produkcja).
 class ProjectWorkflowTemplatesDialog extends StatelessWidget {

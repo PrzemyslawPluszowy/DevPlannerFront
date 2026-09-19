@@ -44,7 +44,7 @@ class _TaskDescriptionPreviewState extends State<_TaskDescriptionPreview> {
   @override
   void initState() {
     super.initState();
-    _controller = _controllerForTask(widget.task);
+    _controller = TaskDetailsDescriptionControllerFactory.create(widget.task);
     _controller.readOnly = true;
   }
 
@@ -56,7 +56,7 @@ class _TaskDescriptionPreviewState extends State<_TaskDescriptionPreview> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isEmptyDocument(_controller.document)) {
+    if (TaskDetailsDescriptionControllerFactory.isEmpty(_controller.document)) {
       return Text(
         context.l10n.taskDetailsNoDescription,
         style: context.text.bodyMedium?.copyWith(
@@ -97,12 +97,12 @@ class _EditTaskDescriptionDialogState
   late final quill.QuillController _controller;
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
-  var _saving = false;
+  final ValueNotifier<bool> _saving = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
-    _controller = _controllerForTask(widget.task);
+    _controller = TaskDetailsDescriptionControllerFactory.create(widget.task);
   }
 
   @override
@@ -110,67 +110,71 @@ class _EditTaskDescriptionDialogState
     _focusNode.dispose();
     _scrollController.dispose();
     _controller.dispose();
+    _saving.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => WorkspaceCreationModalWrapper(
-    title: context.l10n.taskDetailsEditDescription,
-    icon: Symbols.description_rounded,
-    accentColor: context.colors.primary,
-    isSubmitting: _saving,
-    submitLabel: context.l10n.save,
-    cancelLabel: context.l10n.cancel,
-    maxWidth: 780,
-    onSubmit: _saving ? null : _save,
-    body: SizedBox(
-      height: 480,
-      child: Column(
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: context.colors.outlineVariant),
-              ),
-            ),
-            child: quill.QuillSimpleToolbar(
-              controller: _controller,
-              config: const quill.QuillSimpleToolbarConfig(
-                multiRowsDisplay: false,
-                showFontFamily: false,
-                showFontSize: false,
-                showCodeBlock: false,
-                showSearchButton: false,
-                showInlineCode: false,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: DecoratedBox(
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: _saving,
+    builder: (context, isSaving, _) => WorkspaceCreationModalWrapper(
+      title: context.l10n.taskDetailsEditDescription,
+      icon: Symbols.description_rounded,
+      accentColor: context.colors.primary,
+      isSubmitting: isSaving,
+      submitLabel: context.l10n.save,
+      cancelLabel: context.l10n.cancel,
+      maxWidth: 780,
+      onSubmit: isSaving ? null : _save,
+      body: SizedBox(
+        height: 480,
+        child: Column(
+          children: [
+            DecoratedBox(
               decoration: BoxDecoration(
-                border: Border.all(color: context.colors.outlineVariant),
-                borderRadius: BorderRadius.circular(12),
+                border: Border(
+                  bottom: BorderSide(color: context.colors.outlineVariant),
+                ),
               ),
-              child: quill.QuillEditor(
+              child: quill.QuillSimpleToolbar(
                 controller: _controller,
-                focusNode: _focusNode,
-                scrollController: _scrollController,
-                config: const quill.QuillEditorConfig(
-                  padding: EdgeInsets.all(14),
-                  autoFocus: true,
-                  expands: true,
+                config: const quill.QuillSimpleToolbarConfig(
+                  multiRowsDisplay: false,
+                  showFontFamily: false,
+                  showFontSize: false,
+                  showCodeBlock: false,
+                  showSearchButton: false,
+                  showInlineCode: false,
                 ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(color: context.colors.outlineVariant),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: quill.QuillEditor(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  scrollController: _scrollController,
+                  config: const quill.QuillEditorConfig(
+                    padding: EdgeInsets.all(14),
+                    autoFocus: true,
+                    expands: true,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
 
   Future<void> _save() async {
-    setState(() => _saving = true);
+    _saving.value = true;
     final document = _controller.document;
     final saved = await context.read<TaskDetailsCubit>().updateDescription(
       description: document.toPlainText(),
@@ -180,31 +184,36 @@ class _EditTaskDescriptionDialogState
     if (saved) {
       Navigator.of(context).pop();
     } else {
-      setState(() => _saving = false);
+      _saving.value = false;
     }
   }
 }
 
-quill.QuillController _controllerForTask(ProjectTaskResponse task) {
-  final delta = task.descriptionDeltaJson;
-  if (delta != null && delta.trim().isNotEmpty) {
-    try {
-      final decoded = jsonDecode(delta);
-      if (decoded is List) {
-        return quill.QuillController(
-          document: quill.Document.fromJson(decoded),
-          selection: const TextSelection.collapsed(offset: 0),
-        );
+/// Tworzy kontroler Quill z Delta albo bezpiecznym tekstowym fallbackiem.
+final class TaskDetailsDescriptionControllerFactory {
+  const TaskDetailsDescriptionControllerFactory._();
+
+  static quill.QuillController create(ProjectTaskResponse task) {
+    final delta = task.descriptionDeltaJson;
+    if (delta != null && delta.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(delta);
+        if (decoded is List) {
+          return quill.QuillController(
+            document: quill.Document.fromJson(decoded),
+            selection: const TextSelection.collapsed(offset: 0),
+          );
+        }
+      } on FormatException {
+        // Stary lub niepoprawny Delta nie może uniemożliwić odczytu zadania.
       }
-    } on FormatException {
-      // Stary lub niepoprawny Delta nie może uniemożliwić odczytu zadania.
     }
+    return quill.QuillController(
+      document: quill.Document()..insert(0, task.description ?? ''),
+      selection: const TextSelection.collapsed(offset: 0),
+    );
   }
-  return quill.QuillController(
-    document: quill.Document()..insert(0, task.description ?? ''),
-    selection: const TextSelection.collapsed(offset: 0),
-  );
-}
 
-bool _isEmptyDocument(quill.Document document) =>
-    document.toPlainText().trim().isEmpty;
+  static bool isEmpty(quill.Document document) =>
+      document.toPlainText().trim().isEmpty;
+}

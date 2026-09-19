@@ -1,8 +1,8 @@
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_browser_filter.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
 
 /// Tryb prezentacji elementów w eksploratorze plików.
 enum StorageViewMode {

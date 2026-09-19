@@ -1,9 +1,9 @@
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_column_reference.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
 
 /// Kafelek kolumny w puli dostępnych/nieużywanych kolumn tabeli.
 ///
@@ -25,7 +25,13 @@ class TaskColumnPoolChip extends StatefulWidget {
 }
 
 class _TaskColumnPoolChipState extends State<TaskColumnPoolChip> {
-  bool _isHovered = false;
+  final ValueNotifier<bool> _isHovered = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _isHovered.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,57 +46,60 @@ class _TaskColumnPoolChipState extends State<TaskColumnPoolChip> {
       customFields: widget.customFields,
     );
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: InkWell(
-        borderRadius: .circular(6),
-        onTap: widget.onAdd,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 140),
-          curve: Curves.easeOut,
-          padding: const .symmetric(horizontal: 8, vertical: 5),
-          decoration: BoxDecoration(
-            borderRadius: .circular(6),
-            color: _isHovered
-                ? colors.primary.withValues(alpha: 0.08)
-                : colors.surfaceContainerHigh.withValues(alpha: 0.6),
-            border: Border.all(
-              color: _isHovered
-                  ? colors.primary.withValues(alpha: 0.4)
-                  : colors.outlineVariant.withValues(alpha: 0.4),
-              width: 0.8,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: .min,
-            children: [
-              Icon(
-                icon,
-                size: 13,
-                color: _isHovered ? colors.primary : colors.onSurfaceVariant,
+    return ValueListenableBuilder<bool>(
+      valueListenable: _isHovered,
+      builder: (context, isHovered, _) => MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => _isHovered.value = true,
+        onExit: (_) => _isHovered.value = false,
+        child: InkWell(
+          borderRadius: .circular(6),
+          onTap: widget.onAdd,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOut,
+            padding: const .symmetric(horizontal: 8, vertical: 5),
+            decoration: BoxDecoration(
+              borderRadius: .circular(6),
+              color: isHovered
+                  ? colors.primary.withValues(alpha: 0.08)
+                  : colors.surfaceContainerHigh.withValues(alpha: 0.6),
+              border: Border.all(
+                color: isHovered
+                    ? colors.primary.withValues(alpha: 0.4)
+                    : colors.outlineVariant.withValues(alpha: 0.4),
+                width: 0.8,
               ),
-              const SizedBox(width: 5),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.text.labelSmall?.copyWith(
-                    color: _isHovered ? colors.primary : colors.onSurface,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 11,
+            ),
+            child: Row(
+              mainAxisSize: .min,
+              children: [
+                Icon(
+                  icon,
+                  size: 13,
+                  color: isHovered ? colors.primary : colors.onSurfaceVariant,
+                ),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.labelSmall?.copyWith(
+                      color: isHovered ? colors.primary : colors.onSurface,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              Icon(
-                Symbols.add_rounded,
-                size: 13,
-                color: _isHovered ? colors.primary : colors.onSurfaceVariant,
-              ),
-            ],
+                const SizedBox(width: 4),
+                Icon(
+                  Symbols.add_rounded,
+                  size: 13,
+                  color: isHovered ? colors.primary : colors.onSurfaceVariant,
+                ),
+              ],
+            ),
           ),
         ),
       ),

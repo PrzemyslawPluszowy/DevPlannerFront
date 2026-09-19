@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_reply_command.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_reply_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
+import 'package:devplanner/workspaces/presentation/notifications/reply/cubit/notification_reply_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_reply_command.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_reply_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
-import 'package:ready_next/workspaces/presentation/notifications/reply/cubit/notification_reply_cubit.dart';
 
 class _FakeNotificationReplyRepository implements NotificationReplyRepository {
   final List<NotificationReplyCommand> commands = <NotificationReplyCommand>[];
@@ -28,7 +28,7 @@ abstract final class _ReplyFixture {
       ChatMessage(
         id: 'message-id',
         conversationId: 'conversation-id',
-        authorCoreUserId: 'author-id',
+        authorUserId: 'author-id',
         clientMessageId: clientMessageId,
         text: 'Potwierdzona odpowiedź',
         payloadHash: 'payload-hash',

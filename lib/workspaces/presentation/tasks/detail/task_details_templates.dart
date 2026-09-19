@@ -1,22 +1,29 @@
 part of 'task_details_page.dart';
 
-Future<void> _showCreateTaskTemplateDialog(
-  BuildContext context, {
-  required String initialName,
-}) {
-  final detailsCubit = context.read<TaskDetailsCubit>();
-  final repository = context.read<TaskTemplateRepository>();
-  return showDialog<void>(
-    context: context,
-    builder: (_) => BlocProvider(
-      create: (_) => TaskTemplateCubit(
-        repository: repository,
-        workspaceId: detailsCubit.workspaceId,
-        taskId: detailsCubit.taskId,
+/// Składa modal utworzenia template z aktualnym zadaniem i jego Cubitem.
+///
+/// Dialog nie wykonuje zapisu bezpośrednio — deleguje go do `TaskTemplateCubit`.
+final class TaskTemplateDialogLauncher {
+  const TaskTemplateDialogLauncher._();
+
+  static Future<void> show(
+    BuildContext context, {
+    required String initialName,
+  }) {
+    final detailsCubit = context.read<TaskDetailsCubit>();
+    final repository = context.read<TaskTemplateRepository>();
+    return showDialog<void>(
+      context: context,
+      builder: (_) => BlocProvider(
+        create: (_) => TaskTemplateCubit(
+          repository: repository,
+          workspaceId: detailsCubit.workspaceId,
+          taskId: detailsCubit.taskId,
+        ),
+        child: _CreateTaskTemplateDialog(initialName: initialName),
       ),
-      child: _CreateTaskTemplateDialog(initialName: initialName),
-    ),
-  );
+    );
+  }
 }
 
 class _CreateTaskTemplateDialog extends StatefulWidget {

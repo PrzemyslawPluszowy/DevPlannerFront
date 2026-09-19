@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
+import 'package:devplanner/foundation/error/error.dart';
 
 /// Desktop link builder using an explicit public Web application address.
 final class StoragePublicShareLinkPlatform {

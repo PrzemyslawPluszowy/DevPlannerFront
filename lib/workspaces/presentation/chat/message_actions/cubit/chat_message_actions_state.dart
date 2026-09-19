@@ -1,5 +1,5 @@
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/chat/message_actions/models/chat_message_revision.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_revision.dart';
 
 /// Jawny stan krótkiego lifecycle akcji wykonanej na jednej wiadomości.
 sealed class ChatMessageActionsState {

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/domain/chat/realtime/chat_realtime_export.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 
 /// Dekoduje envelope SignalR Chat do kontraktu domenowego bez przecieku JSON.
 final class ChatRealtimeEventMapper {
@@ -110,7 +110,7 @@ final class ChatRealtimeEventMapper {
       return ChatMessage(
         id: response.id,
         conversationId: response.conversationId,
-        authorCoreUserId: response.authorCoreUserId,
+        authorUserId: response.authorUserId,
         clientMessageId: response.clientMessageId,
         text: response.text,
         deltaJson: response.deltaJson,

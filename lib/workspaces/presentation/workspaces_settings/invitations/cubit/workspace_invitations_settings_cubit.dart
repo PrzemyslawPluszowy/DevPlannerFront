@@ -1,13 +1,13 @@
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_role.dart';
+import 'package:devplanner/workspaces/data/workspaces/payloads/workspace_payloads.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_role.dart';
-import 'package:ready_next/workspaces/data/workspaces/payloads/workspace_payloads.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
 
 part 'workspace_invitations_settings_state.dart';
 
-/// Odpowiada za listę wysłanych zaproszeń, wyszukiwanie użytkowników Ready i operacje zaproszeń.
+/// Odpowiada za listę wysłanych zaproszeń, wyszukiwanie użytkowników i operacje zaproszeń.
 class WorkspaceInvitationsSettingsCubit
     extends Cubit<WorkspaceInvitationsSettingsState> {
   WorkspaceInvitationsSettingsCubit({
@@ -35,24 +35,24 @@ class WorkspaceInvitationsSettingsCubit
     );
   }
 
-  /// Wyszukuje użytkowników w katalogu Ready.
-  Future<List<ReadyDirectoryUserResponse>> searchReadyUsers(
+  /// Wyszukuje użytkowników w lokalnym katalogu.
+  Future<List<LocalUserDirectoryResponse>> searchLocalUsers(
     String query,
   ) async {
-    final result = await repository.searchReadyUsers(
+    final result = await repository.searchLocalUsers(
       workspaceId: workspaceId,
       query: query,
     );
 
     return result.fold(
-      (_) => <ReadyDirectoryUserResponse>[],
+      (_) => <LocalUserDirectoryResponse>[],
       (users) => users,
     );
   }
 
-  /// Tworzy nowe zaproszenie dla wybranego użytkownika Ready.
+  /// Tworzy nowe zaproszenie dla wybranego użytkownika.
   Future<bool> inviteUser({
-    required int readyUserId,
+    required String userId,
     required WorkspaceRole role,
   }) async {
     final currentState = state;
@@ -66,7 +66,7 @@ class WorkspaceInvitationsSettingsCubit
     final result = await repository.createInvitation(
       workspaceId: workspaceId,
       payload: CreateWorkspaceInvitationPayload(
-        readyUserId: readyUserId,
+        userId: userId,
         role: role,
       ),
     );

@@ -1,14 +1,14 @@
 import 'dart:async';
 
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/presentation/private/cubit/personal_section_cubit.dart';
+import 'package:devplanner/workspaces/presentation/private/cubit/personal_section_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/presentation/private/cubit/personal_section_cubit.dart';
-import 'package:ready_next/workspaces/presentation/private/cubit/personal_section_state.dart';
 
 /// Rodzaj prywatnego katalogu widocznego w menu użytkownika.
 enum PersonalSectionKind {
@@ -178,8 +178,10 @@ class _MyTaskTile extends StatelessWidget {
   Widget build(BuildContext context) => Card(
     clipBehavior: Clip.antiAlias,
     child: ListTile(
-      onTap: () => context.router.navigatePath(
-        '/workspaces/${task.workspaceId}/projects/${task.projectId}/tasks/${task.id}',
+      onTap: () => unawaited(
+        context.plannerNavigation.go(
+          '/workspaces/${task.workspaceId}/projects/${task.projectId}/tasks/${task.id}',
+        ),
       ),
       leading: CircleAvatar(
         backgroundColor: context.colors.primaryContainer,

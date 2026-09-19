@@ -1,13 +1,14 @@
-import 'package:ready_next/bootstrap/host_launch_context.dart';
+import 'package:devplanner/bootstrap/host_launch_context.dart';
 
-/// Kontrakt komunikacji miedzy hostem a aplikacja Flutter.
+/// Optional platform boundary retained for future native integrations.
 ///
-/// Hostem moze byc stare Ready osadzajace Flutter Web albo inna powloka,
-/// ktora przekazuje dane startowe i zarzadza sesja.
+/// The standalone web application does not use an embedded host or accept
+/// session/token hand-off from another application.
 abstract class HostBridge {
-  /// Zwraca komplet danych potrzebnych do uruchomienia modulu.
+  /// Returns local launch data for a platform integration.
   Future<HostLaunchContext> getLaunchContext();
 
-  /// Prosi hosta o odswiezenie access tokena.
+  /// Refresh is intentionally unavailable until a standalone auth contract
+  /// is introduced.
   Future<String?> refreshAccessToken();
 }

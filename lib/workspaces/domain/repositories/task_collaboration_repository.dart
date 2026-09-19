@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 
 /// Operacje współpracy wykonywane przez bieżącego użytkownika przy zadaniu.
 abstract interface class TaskCollaborationRepository {
@@ -10,7 +10,7 @@ abstract interface class TaskCollaborationRepository {
     required String workspaceId,
     required String projectId,
     required String taskId,
-    required List<String> coreUserIds,
+    required List<String> userIds,
     required int expectedVersion,
   });
 

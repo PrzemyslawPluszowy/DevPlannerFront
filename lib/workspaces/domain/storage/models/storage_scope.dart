@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
 
 /// Typowany zakres eksploratora plików w Workspaces.
 ///

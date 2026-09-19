@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:devplanner/shared/presentation/widgets/app_collapsible_navigation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/shared/presentation/widgets/app_collapsible_navigation.dart';
 
 /// Statyczne podzakładki dostępne w pierwszym szkielecie workspace’u.
 enum WorkspaceShellSection { dashboard, projects }

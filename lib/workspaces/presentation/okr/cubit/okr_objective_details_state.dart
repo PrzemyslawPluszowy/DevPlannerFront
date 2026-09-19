@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/data/okr/models/okr_models.dart';
+import 'package:devplanner/workspaces/data/okr/models/okr_models.dart';
 
 /// Stany szczegółu celu OKR z deep-linku.
 sealed class OkrObjectiveDetailsState {

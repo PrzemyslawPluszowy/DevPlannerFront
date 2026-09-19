@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/notifications/api/notifications_api.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_digest.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_digest_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/notifications/api/notifications_api.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_digest.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_digest_repository.dart';
 
 /// Adapter read-only snapshotu digestu, bez ujawniania DTO Retrofit UI.
 final class NotificationDigestRepositoryImpl extends ApiRepository

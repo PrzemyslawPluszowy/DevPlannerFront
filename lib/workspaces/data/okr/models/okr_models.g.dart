@@ -126,7 +126,7 @@ _ObjectiveResponse _$ObjectiveResponseFromJson(Map<String, dynamic> json) =>
     _ObjectiveResponse(
       id: json['id'] as String,
       workspaceId: json['workspaceId'] as String,
-      createdByCoreUserId: json['createdByCoreUserId'] as String,
+      createdByUserId: json['createdByUserId'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
       targetDate: json['targetDate'] == null
@@ -145,7 +145,7 @@ Map<String, dynamic> _$ObjectiveResponseToJson(_ObjectiveResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
       'workspaceId': instance.workspaceId,
-      'createdByCoreUserId': instance.createdByCoreUserId,
+      'createdByUserId': instance.createdByUserId,
       'name': instance.name,
       'description': instance.description,
       'targetDate': instance.targetDate?.toIso8601String(),

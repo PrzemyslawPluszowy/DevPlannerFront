@@ -1,8 +1,8 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/shared/presentation/widgets/workspace_creation_modal_wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/shared/presentation/widgets/workspace_creation_modal_wrapper.dart';
 
 /// Modal tworzenia lub edycji etykiety zadania z paletą kolorów.
 class ProjectLabelEditorDialog extends StatefulWidget {
@@ -21,7 +21,7 @@ class ProjectLabelEditorDialog extends StatefulWidget {
 
 class _ProjectLabelEditorDialogState extends State<ProjectLabelEditorDialog> {
   late final TextEditingController _nameController;
-  late String _selectedColor;
+  late final ValueNotifier<String> _selectedColor;
 
   static const _labelColors = [
     '#EF4444', // Red
@@ -41,12 +41,15 @@ class _ProjectLabelEditorDialogState extends State<ProjectLabelEditorDialog> {
     _nameController = TextEditingController(
       text: widget.initialLabel?.name ?? '',
     );
-    _selectedColor = widget.initialLabel?.color ?? _labelColors.first;
+    _selectedColor = ValueNotifier(
+      widget.initialLabel?.color ?? _labelColors.first,
+    );
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _selectedColor.dispose();
     super.dispose();
   }
 
@@ -61,92 +64,95 @@ class _ProjectLabelEditorDialogState extends State<ProjectLabelEditorDialog> {
     final colors = context.colors;
     final isEditing = widget.initialLabel != null;
 
-    return WorkspaceCreationModalWrapper(
-      title: isEditing ? 'Edytuj etykietę' : l10n.projectSettingsAddLabel,
-      subtitle: 'Skonfiguruj nazwę i kolor etykiety dla zadań projektu.',
-      icon: Icons.label_rounded,
-      accentColor: _parseHex(_selectedColor),
-      submitLabel: l10n.tasksListSaveButton,
-      cancelLabel: l10n.tasksListCancelButton,
-      maxWidth: 420,
-      onSubmit: _handleSubmit,
-      body: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .start,
-        children: [
-          Text(
-            l10n.projectSettingsLabelName,
-            style: context.text.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          Gaps.h6,
-          TextField(
-            controller: _nameController,
-            autofocus: true,
-            style: context.text.bodySmall?.copyWith(fontSize: 13),
-            decoration: InputDecoration(
-              hintText: 'np. Backend, Pilne, Frontend, UX...',
-              hintStyle: context.text.bodySmall?.copyWith(
-                fontSize: 12.5,
-                color: colors.onSurfaceVariant.withValues(alpha: .6),
+    return ValueListenableBuilder<String>(
+      valueListenable: _selectedColor,
+      builder: (context, selectedColor, _) => WorkspaceCreationModalWrapper(
+        title: isEditing ? 'Edytuj etykietę' : l10n.projectSettingsAddLabel,
+        subtitle: 'Skonfiguruj nazwę i kolor etykiety dla zadań projektu.',
+        icon: Icons.label_rounded,
+        accentColor: _parseHex(selectedColor),
+        submitLabel: l10n.tasksListSaveButton,
+        cancelLabel: l10n.tasksListCancelButton,
+        maxWidth: 420,
+        onSubmit: _handleSubmit,
+        body: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: .start,
+          children: [
+            Text(
+              l10n.projectSettingsLabelName,
+              style: context.text.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: colors.onSurfaceVariant,
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colors.outlineVariant.withValues(alpha: 0.7),
+            ),
+            Gaps.h6,
+            TextField(
+              controller: _nameController,
+              autofocus: true,
+              style: context.text.bodySmall?.copyWith(fontSize: 13),
+              decoration: InputDecoration(
+                hintText: 'np. Backend, Pilne, Frontend, UX...',
+                hintStyle: context.text.bodySmall?.copyWith(
+                  fontSize: 12.5,
+                  color: colors.onSurfaceVariant.withValues(alpha: .6),
                 ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-            ),
-          ),
-          Gaps.h16,
-          Text(
-            l10n.projectSettingsLabelColor,
-            style: context.text.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          Gaps.h8,
-          Wrap(
-            spacing: 8,
-            children: [
-              for (final hex in _labelColors)
-                InkWell(
-                  onTap: () => setState(() => _selectedColor = hex),
-                  borderRadius: BorderRadius.circular(999),
-                  child: Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      color: _parseHex(hex),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: _selectedColor == hex
-                            ? colors.onSurface
-                            : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
-                    child: _selectedColor == hex
-                        ? const Icon(
-                            Icons.check,
-                            size: 14,
-                            color: Colors.white,
-                          )
-                        : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: colors.outlineVariant.withValues(alpha: 0.7),
                   ),
                 ),
-            ],
-          ),
-        ],
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+              ),
+            ),
+            Gaps.h16,
+            Text(
+              l10n.projectSettingsLabelColor,
+              style: context.text.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            Gaps.h8,
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final hex in _labelColors)
+                  InkWell(
+                    onTap: () => _selectedColor.value = hex,
+                    borderRadius: BorderRadius.circular(999),
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: _parseHex(hex),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: selectedColor == hex
+                              ? colors.onSurface
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                      child: selectedColor == hex
+                          ? const Icon(
+                              Icons.check,
+                              size: 14,
+                              color: Colors.white,
+                            )
+                          : null,
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -157,7 +163,7 @@ class _ProjectLabelEditorDialogState extends State<ProjectLabelEditorDialog> {
 
     Navigator.of(context).pop((
       name: name,
-      color: _selectedColor,
+      color: _selectedColor.value,
     ));
   }
 }

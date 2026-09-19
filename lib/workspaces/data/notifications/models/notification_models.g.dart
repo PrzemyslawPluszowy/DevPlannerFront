@@ -81,14 +81,14 @@ const _$NotificationPriorityEnumMap = {
 _NotificationActorAvatarResponse _$NotificationActorAvatarResponseFromJson(
   Map<String, dynamic> json,
 ) => _NotificationActorAvatarResponse(
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   avatarUrl: json['avatarUrl'] as String?,
 );
 
 Map<String, dynamic> _$NotificationActorAvatarResponseToJson(
   _NotificationActorAvatarResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'avatarUrl': instance.avatarUrl,
 };
 
@@ -182,7 +182,7 @@ const _$NotificationEmailDeliveryModeEnumMap = {
 _NotificationDeliveryPreferenceResponse
 _$NotificationDeliveryPreferenceResponseFromJson(Map<String, dynamic> json) =>
     _NotificationDeliveryPreferenceResponse(
-      coreUserId: json['coreUserId'] as String,
+      userId: json['userId'] as String,
       invitation: NotificationEmailCategoryPreference.fromJson(
         json['invitation'] as Map<String, dynamic>,
       ),
@@ -216,7 +216,7 @@ _$NotificationDeliveryPreferenceResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$NotificationDeliveryPreferenceResponseToJson(
   _NotificationDeliveryPreferenceResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'invitation': instance.invitation,
   'membership': instance.membership,
   'workspace': instance.workspace,
@@ -288,7 +288,7 @@ Map<String, dynamic> _$UpdateNotificationDeliveryPreferencePayloadToJson(
 _StorageNotificationPreferenceResponse
 _$StorageNotificationPreferenceResponseFromJson(Map<String, dynamic> json) =>
     _StorageNotificationPreferenceResponse(
-      coreUserId: json['coreUserId'] as String,
+      userId: json['userId'] as String,
       mode: $enumDecode(
         _$StorageNotificationPreferenceModeEnumMap,
         json['mode'],
@@ -302,7 +302,7 @@ _$StorageNotificationPreferenceResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$StorageNotificationPreferenceResponseToJson(
   _StorageNotificationPreferenceResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'mode': _$StorageNotificationPreferenceModeEnumMap[instance.mode]!,
   'isDefault': instance.isDefault,
   'updatedAtUtc': instance.updatedAtUtc?.toIso8601String(),
@@ -384,7 +384,7 @@ Map<String, dynamic> _$NotificationReplyPayloadToJson(
 _CreateAdminNotificationPayload _$CreateAdminNotificationPayloadFromJson(
   Map<String, dynamic> json,
 ) => _CreateAdminNotificationPayload(
-  recipientCoreUserId: json['recipientCoreUserId'] as String,
+  recipientUserId: json['recipientUserId'] as String,
   title: json['title'] as String,
   body: json['body'] as String,
   deepLink: json['deepLink'] as String?,
@@ -394,7 +394,7 @@ _CreateAdminNotificationPayload _$CreateAdminNotificationPayloadFromJson(
 Map<String, dynamic> _$CreateAdminNotificationPayloadToJson(
   _CreateAdminNotificationPayload instance,
 ) => <String, dynamic>{
-  'recipientCoreUserId': instance.recipientCoreUserId,
+  'recipientUserId': instance.recipientUserId,
   'title': instance.title,
   'body': instance.body,
   'deepLink': instance.deepLink,

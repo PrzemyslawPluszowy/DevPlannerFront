@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
 
 /// Kryteria sortowania listy plików w eksploratorze.
 enum StorageSortField {

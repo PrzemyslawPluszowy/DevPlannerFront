@@ -4323,7 +4323,7 @@ as DateTime,
 /// @nodoc
 mixin _$CreateTaskFromStickyNotePayload {
 
- String? get title; String? get description; TaskPriority get priority; DateTime? get dueAtUtc; List<String>? get assigneeCoreUserIds;
+ String? get title; String? get description; TaskPriority get priority; DateTime? get dueAtUtc; List<String>? get assigneeUserIds;
 /// Create a copy of CreateTaskFromStickyNotePayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4336,16 +4336,16 @@ $CreateTaskFromStickyNotePayloadCopyWith<CreateTaskFromStickyNotePayload> get co
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateTaskFromStickyNotePayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateTaskFromStickyNotePayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,description,priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeCoreUserIds));
+int get hashCode => Object.hash(runtimeType,title,description,priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeUserIds));
 
 @override
 String toString() {
-  return 'CreateTaskFromStickyNotePayload(title: $title, description: $description, priority: $priority, dueAtUtc: $dueAtUtc, assigneeCoreUserIds: $assigneeCoreUserIds)';
+  return 'CreateTaskFromStickyNotePayload(title: $title, description: $description, priority: $priority, dueAtUtc: $dueAtUtc, assigneeUserIds: $assigneeUserIds)';
 }
 
 
@@ -4356,7 +4356,7 @@ abstract mixin class $CreateTaskFromStickyNotePayloadCopyWith<$Res>  {
   factory $CreateTaskFromStickyNotePayloadCopyWith(CreateTaskFromStickyNotePayload value, $Res Function(CreateTaskFromStickyNotePayload) _then) = _$CreateTaskFromStickyNotePayloadCopyWithImpl;
 @useResult
 $Res call({
- String? title, String? description, TaskPriority priority, DateTime? dueAtUtc, List<String>? assigneeCoreUserIds
+ String? title, String? description, TaskPriority priority, DateTime? dueAtUtc, List<String>? assigneeUserIds
 });
 
 
@@ -4373,13 +4373,13 @@ class _$CreateTaskFromStickyNotePayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateTaskFromStickyNotePayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = freezed,Object? description = freezed,Object? priority = null,Object? dueAtUtc = freezed,Object? assigneeCoreUserIds = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = freezed,Object? description = freezed,Object? priority = null,Object? dueAtUtc = freezed,Object? assigneeUserIds = freezed,}) {
   return _then(_self.copyWith(
 title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as DateTime?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,
   ));
 }
@@ -4465,10 +4465,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? title,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? title,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeUserIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreateTaskFromStickyNotePayload() when $default != null:
-return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeCoreUserIds);case _:
+return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeUserIds);case _:
   return orElse();
 
 }
@@ -4486,10 +4486,10 @@ return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? title,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? title,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeUserIds)  $default,) {final _that = this;
 switch (_that) {
 case _CreateTaskFromStickyNotePayload():
-return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeCoreUserIds);case _:
+return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeUserIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4506,10 +4506,10 @@ return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? title,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? title,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeUserIds)?  $default,) {final _that = this;
 switch (_that) {
 case _CreateTaskFromStickyNotePayload() when $default != null:
-return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeCoreUserIds);case _:
+return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeUserIds);case _:
   return null;
 
 }
@@ -4521,14 +4521,14 @@ return $default(_that.title,_that.description,_that.priority,_that.dueAtUtc,_tha
 @JsonSerializable()
 
 class _CreateTaskFromStickyNotePayload implements CreateTaskFromStickyNotePayload {
-  const _CreateTaskFromStickyNotePayload({this.title, this.description, this.priority = TaskPriority.normal, this.dueAtUtc, this.assigneeCoreUserIds});
+  const _CreateTaskFromStickyNotePayload({this.title, this.description, this.priority = TaskPriority.normal, this.dueAtUtc, this.assigneeUserIds});
   factory _CreateTaskFromStickyNotePayload.fromJson(Map<String, dynamic> json) => _$CreateTaskFromStickyNotePayloadFromJson(json);
 
 @override final  String? title;
 @override final  String? description;
 @override@JsonKey() final  TaskPriority priority;
 @override final  DateTime? dueAtUtc;
-@override final  List<String>? assigneeCoreUserIds;
+@override final  List<String>? assigneeUserIds;
 
 /// Create a copy of CreateTaskFromStickyNotePayload
 /// with the given fields replaced by the non-null parameter values.
@@ -4543,16 +4543,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateTaskFromStickyNotePayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateTaskFromStickyNotePayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,description,priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeCoreUserIds));
+int get hashCode => Object.hash(runtimeType,title,description,priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeUserIds));
 
 @override
 String toString() {
-  return 'CreateTaskFromStickyNotePayload(title: $title, description: $description, priority: $priority, dueAtUtc: $dueAtUtc, assigneeCoreUserIds: $assigneeCoreUserIds)';
+  return 'CreateTaskFromStickyNotePayload(title: $title, description: $description, priority: $priority, dueAtUtc: $dueAtUtc, assigneeUserIds: $assigneeUserIds)';
 }
 
 
@@ -4563,7 +4563,7 @@ abstract mixin class _$CreateTaskFromStickyNotePayloadCopyWith<$Res> implements 
   factory _$CreateTaskFromStickyNotePayloadCopyWith(_CreateTaskFromStickyNotePayload value, $Res Function(_CreateTaskFromStickyNotePayload) _then) = __$CreateTaskFromStickyNotePayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String? title, String? description, TaskPriority priority, DateTime? dueAtUtc, List<String>? assigneeCoreUserIds
+ String? title, String? description, TaskPriority priority, DateTime? dueAtUtc, List<String>? assigneeUserIds
 });
 
 
@@ -4580,13 +4580,13 @@ class __$CreateTaskFromStickyNotePayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateTaskFromStickyNotePayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = freezed,Object? description = freezed,Object? priority = null,Object? dueAtUtc = freezed,Object? assigneeCoreUserIds = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = freezed,Object? description = freezed,Object? priority = null,Object? dueAtUtc = freezed,Object? assigneeUserIds = freezed,}) {
   return _then(_CreateTaskFromStickyNotePayload(
 title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as DateTime?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,
   ));
 }
@@ -4598,7 +4598,7 @@ as List<String>?,
 /// @nodoc
 mixin _$BulkCreateTasksFromStickyNotesPayload {
 
- List<String> get objectIds; String? get description; TaskPriority get priority; DateTime? get dueAtUtc; List<String>? get assigneeCoreUserIds;
+ List<String> get objectIds; String? get description; TaskPriority get priority; DateTime? get dueAtUtc; List<String>? get assigneeUserIds;
 /// Create a copy of BulkCreateTasksFromStickyNotesPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4611,16 +4611,16 @@ $BulkCreateTasksFromStickyNotesPayloadCopyWith<BulkCreateTasksFromStickyNotesPay
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkCreateTasksFromStickyNotesPayload&&const DeepCollectionEquality().equals(other.objectIds, objectIds)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkCreateTasksFromStickyNotesPayload&&const DeepCollectionEquality().equals(other.objectIds, objectIds)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(objectIds),description,priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeCoreUserIds));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(objectIds),description,priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeUserIds));
 
 @override
 String toString() {
-  return 'BulkCreateTasksFromStickyNotesPayload(objectIds: $objectIds, description: $description, priority: $priority, dueAtUtc: $dueAtUtc, assigneeCoreUserIds: $assigneeCoreUserIds)';
+  return 'BulkCreateTasksFromStickyNotesPayload(objectIds: $objectIds, description: $description, priority: $priority, dueAtUtc: $dueAtUtc, assigneeUserIds: $assigneeUserIds)';
 }
 
 
@@ -4631,7 +4631,7 @@ abstract mixin class $BulkCreateTasksFromStickyNotesPayloadCopyWith<$Res>  {
   factory $BulkCreateTasksFromStickyNotesPayloadCopyWith(BulkCreateTasksFromStickyNotesPayload value, $Res Function(BulkCreateTasksFromStickyNotesPayload) _then) = _$BulkCreateTasksFromStickyNotesPayloadCopyWithImpl;
 @useResult
 $Res call({
- List<String> objectIds, String? description, TaskPriority priority, DateTime? dueAtUtc, List<String>? assigneeCoreUserIds
+ List<String> objectIds, String? description, TaskPriority priority, DateTime? dueAtUtc, List<String>? assigneeUserIds
 });
 
 
@@ -4648,13 +4648,13 @@ class _$BulkCreateTasksFromStickyNotesPayloadCopyWithImpl<$Res>
 
 /// Create a copy of BulkCreateTasksFromStickyNotesPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? objectIds = null,Object? description = freezed,Object? priority = null,Object? dueAtUtc = freezed,Object? assigneeCoreUserIds = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? objectIds = null,Object? description = freezed,Object? priority = null,Object? dueAtUtc = freezed,Object? assigneeUserIds = freezed,}) {
   return _then(_self.copyWith(
 objectIds: null == objectIds ? _self.objectIds : objectIds // ignore: cast_nullable_to_non_nullable
 as List<String>,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as DateTime?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,
   ));
 }
@@ -4740,10 +4740,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> objectIds,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> objectIds,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeUserIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BulkCreateTasksFromStickyNotesPayload() when $default != null:
-return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeCoreUserIds);case _:
+return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeUserIds);case _:
   return orElse();
 
 }
@@ -4761,10 +4761,10 @@ return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> objectIds,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> objectIds,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeUserIds)  $default,) {final _that = this;
 switch (_that) {
 case _BulkCreateTasksFromStickyNotesPayload():
-return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeCoreUserIds);case _:
+return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeUserIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4781,10 +4781,10 @@ return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> objectIds,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeCoreUserIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> objectIds,  String? description,  TaskPriority priority,  DateTime? dueAtUtc,  List<String>? assigneeUserIds)?  $default,) {final _that = this;
 switch (_that) {
 case _BulkCreateTasksFromStickyNotesPayload() when $default != null:
-return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeCoreUserIds);case _:
+return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,_that.assigneeUserIds);case _:
   return null;
 
 }
@@ -4796,14 +4796,14 @@ return $default(_that.objectIds,_that.description,_that.priority,_that.dueAtUtc,
 @JsonSerializable()
 
 class _BulkCreateTasksFromStickyNotesPayload implements BulkCreateTasksFromStickyNotesPayload {
-  const _BulkCreateTasksFromStickyNotesPayload({required this.objectIds, this.description, this.priority = TaskPriority.normal, this.dueAtUtc, this.assigneeCoreUserIds});
+  const _BulkCreateTasksFromStickyNotesPayload({required this.objectIds, this.description, this.priority = TaskPriority.normal, this.dueAtUtc, this.assigneeUserIds});
   factory _BulkCreateTasksFromStickyNotesPayload.fromJson(Map<String, dynamic> json) => _$BulkCreateTasksFromStickyNotesPayloadFromJson(json);
 
 @override final  List<String> objectIds;
 @override final  String? description;
 @override@JsonKey() final  TaskPriority priority;
 @override final  DateTime? dueAtUtc;
-@override final  List<String>? assigneeCoreUserIds;
+@override final  List<String>? assigneeUserIds;
 
 /// Create a copy of BulkCreateTasksFromStickyNotesPayload
 /// with the given fields replaced by the non-null parameter values.
@@ -4818,16 +4818,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkCreateTasksFromStickyNotesPayload&&const DeepCollectionEquality().equals(other.objectIds, objectIds)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkCreateTasksFromStickyNotesPayload&&const DeepCollectionEquality().equals(other.objectIds, objectIds)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(objectIds),description,priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeCoreUserIds));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(objectIds),description,priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeUserIds));
 
 @override
 String toString() {
-  return 'BulkCreateTasksFromStickyNotesPayload(objectIds: $objectIds, description: $description, priority: $priority, dueAtUtc: $dueAtUtc, assigneeCoreUserIds: $assigneeCoreUserIds)';
+  return 'BulkCreateTasksFromStickyNotesPayload(objectIds: $objectIds, description: $description, priority: $priority, dueAtUtc: $dueAtUtc, assigneeUserIds: $assigneeUserIds)';
 }
 
 
@@ -4838,7 +4838,7 @@ abstract mixin class _$BulkCreateTasksFromStickyNotesPayloadCopyWith<$Res> imple
   factory _$BulkCreateTasksFromStickyNotesPayloadCopyWith(_BulkCreateTasksFromStickyNotesPayload value, $Res Function(_BulkCreateTasksFromStickyNotesPayload) _then) = __$BulkCreateTasksFromStickyNotesPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- List<String> objectIds, String? description, TaskPriority priority, DateTime? dueAtUtc, List<String>? assigneeCoreUserIds
+ List<String> objectIds, String? description, TaskPriority priority, DateTime? dueAtUtc, List<String>? assigneeUserIds
 });
 
 
@@ -4855,13 +4855,13 @@ class __$BulkCreateTasksFromStickyNotesPayloadCopyWithImpl<$Res>
 
 /// Create a copy of BulkCreateTasksFromStickyNotesPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? objectIds = null,Object? description = freezed,Object? priority = null,Object? dueAtUtc = freezed,Object? assigneeCoreUserIds = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? objectIds = null,Object? description = freezed,Object? priority = null,Object? dueAtUtc = freezed,Object? assigneeUserIds = freezed,}) {
   return _then(_BulkCreateTasksFromStickyNotesPayload(
 objectIds: null == objectIds ? _self.objectIds : objectIds // ignore: cast_nullable_to_non_nullable
 as List<String>,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as DateTime?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,
   ));
 }

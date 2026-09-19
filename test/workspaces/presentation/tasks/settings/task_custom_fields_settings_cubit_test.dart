@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/task_custom_fields_settings_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/settings/cubit/task_custom_fields_settings_cubit.dart';
 
 final class _MetadataRepository implements TaskMetadataRepository {
   List<TaskCustomFieldResponse> fields = [_field('field-1', 'Faza', 3)];

@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/corkboard_enums.dart';
+import 'package:devplanner/workspaces/data/wiki/models/wiki_models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/corkboard_enums.dart';
-import 'package:ready_next/workspaces/data/wiki/models/wiki_models.dart';
 
 part 'corkboard_models.freezed.dart';
 part 'corkboard_models.g.dart';

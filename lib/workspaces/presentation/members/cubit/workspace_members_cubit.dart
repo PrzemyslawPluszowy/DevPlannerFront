@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
+import 'package:devplanner/workspaces/presentation/members/cubit/workspace_members_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
-import 'package:ready_next/workspaces/presentation/members/cubit/workspace_members_state.dart';
 
 /// Lokalny Cubit listy członków jednego workspace’u.
 final class WorkspaceMembersCubit extends Cubit<WorkspaceMembersState> {

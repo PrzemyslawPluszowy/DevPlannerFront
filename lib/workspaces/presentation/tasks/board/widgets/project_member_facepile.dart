@@ -3,15 +3,15 @@ part of '../tasks_board_page.dart';
 /// Zwarty komponent prezentacji składu projektu (ProjectMemberFacepile).
 ///
 /// Zgodnie ze specyfikacją naprawy UI (Etap D i sekcja 3.3):
-/// - Źródłem są wszyscy członkowie projektu (`memberProfilesByCoreUserId`).
+/// - Źródłem są wszyscy członkowie projektu (`memberProfilesByUserId`).
 /// - Prezentuje maksymalnie 3 awatary (24 px) + chip `+N` (24 px).
 /// - Porządek: aktualny użytkownik → osoby online → pozostali alfabetycznie.
 /// - Zielona kropka 6 px z obrysem powierzchni (2 px) dla osób aktualnie obecnych w realtime.
 /// - Dostępny hit-target i Semantics z liczbą członków i liczbą online.
-/// - Kliknięcie otwiera modal członków projektu (`showProjectUserHubModal`).
+/// - Kliknięcie otwiera modal członków projektu (`ProjectUserHubDialogs.show`).
 class ProjectMemberFacepile extends StatelessWidget {
   const ProjectMemberFacepile({
-    required this.memberProfilesByCoreUserId,
+    required this.memberProfilesByUserId,
     required this.presence,
     required this.currentUserId,
     required this.onTap,
@@ -19,7 +19,7 @@ class ProjectMemberFacepile extends StatelessWidget {
     super.key,
   });
 
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final List<TaskProjectPresenceUser> presence;
   final String? currentUserId;
   final VoidCallback onTap;
@@ -30,16 +30,16 @@ class ProjectMemberFacepile extends StatelessWidget {
     final colors = context.colors;
     final l10n = context.l10n;
 
-    final onlineUserIds = presence.map((p) => p.coreUserId).toSet();
-    final allMembers = memberProfilesByCoreUserId.values.toList();
+    final onlineUserIds = presence.map((p) => p.userId).toSet();
+    final allMembers = memberProfilesByUserId.values.toList();
 
     // Sortowanie: 1) aktualny użytkownik, 2) online, 3) alfabetycznie
     allMembers.sort((a, b) {
-      if (a.coreUserId == currentUserId) return -1;
-      if (b.coreUserId == currentUserId) return 1;
+      if (a.userId == currentUserId) return -1;
+      if (b.userId == currentUserId) return 1;
 
-      final aOnline = onlineUserIds.contains(a.coreUserId);
-      final bOnline = onlineUserIds.contains(b.coreUserId);
+      final aOnline = onlineUserIds.contains(a.userId);
+      final bOnline = onlineUserIds.contains(b.userId);
       if (aOnline != bOnline) return aOnline ? -1 : 1;
 
       final nameA = a.displayName ?? '';
@@ -49,7 +49,7 @@ class ProjectMemberFacepile extends StatelessWidget {
 
     final totalCount = allMembers.length;
     final onlineCount = allMembers
-        .where((m) => onlineUserIds.contains(m.coreUserId))
+        .where((m) => onlineUserIds.contains(m.userId))
         .length;
 
     if (totalCount == 0) {
@@ -111,7 +111,7 @@ class ProjectMemberFacepile extends StatelessWidget {
                       _FacepileAvatar(
                         member: visibleMembers[i],
                         isOnline: onlineUserIds.contains(
-                          visibleMembers[i].coreUserId,
+                          visibleMembers[i].userId,
                         ),
                       ),
                     ],
@@ -194,7 +194,7 @@ class _FacepileAvatar extends StatelessWidget {
               foregroundImage: avatarUrl?.isNotEmpty == true
                   ? NetworkImage(avatarUrl!)
                   : null,
-              backgroundColor: _facepileColor(member.coreUserId),
+              backgroundColor: _facepileColor(member.userId),
               child: avatarUrl?.isNotEmpty == true
                   ? null
                   : Text(

@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
 
 /// Stany listy członków workspace’u.
 sealed class WorkspaceMembersState {

@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/milestone_status.dart';
+import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/milestone_settings_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/milestone_status.dart';
-import 'package:ready_next/workspaces/domain/repositories/milestone_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/settings/cubit/milestone_settings_cubit.dart';
 
 final class _MilestoneRepository implements MilestoneRepository {
   List<MilestoneResponse> milestones = [_milestone('milestone-1', 'Wdrożenie')];

@@ -1,5 +1,5 @@
-import 'package:ready_next/workspaces/domain/chat/attachments/models/chat_attachment_prepared_file.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_prepared_file.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 
 /// Lifecycle jednego pliku należącego do kolejki composera.
 ///

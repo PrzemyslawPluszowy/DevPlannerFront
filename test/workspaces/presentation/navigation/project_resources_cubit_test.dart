@@ -1,11 +1,11 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/project_resources_cubit.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/project_resources_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_resources_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/project_resources_cubit.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/project_resources_state.dart';
 
 class _FakeProjectResourcesRepository implements ProjectResourcesRepository {
   _FakeProjectResourcesRepository({

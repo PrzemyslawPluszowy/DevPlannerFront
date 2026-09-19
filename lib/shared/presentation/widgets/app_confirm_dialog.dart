@@ -1,10 +1,9 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/shared/presentation/widgets/app_action_button.dart';
+import 'package:devplanner/shared/presentation/widgets/app_icon.dart';
+import 'package:devplanner/shared/presentation/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_action_button.dart';
-import 'package:ready_next/shared/presentation/widgets/app_icon.dart';
-import 'package:ready_next/shared/presentation/widgets/app_text.dart';
 
 enum AppConfirmDialogTone { info, warning, danger }
 
@@ -38,7 +37,7 @@ class AppConfirmDialog extends StatefulWidget {
     Future<bool> Function()? onConfirm,
     Widget? content,
   }) async {
-    final result = await AppModalHost.showDialog<bool>(
+    final result = await DevPlannerModalHost.showDialog<bool>(
       context,
       builder: (_) {
         return AppConfirmDialog(

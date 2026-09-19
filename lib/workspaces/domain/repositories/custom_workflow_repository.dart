@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
 
 /// Operacje własnych kolumn i szablonów workflow projektu.
 abstract interface class CustomWorkflowRepository {

@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/versions/cubit/storage_versions_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/download_transport.dart';
-import 'package:ready_next/workspaces/presentation/storage/versions/cubit/storage_versions_state.dart';
 
 /// Ładuje, pobiera i przywraca wersje jednego pliku.
 final class StorageVersionsCubit extends Cubit<StorageVersionsState> {

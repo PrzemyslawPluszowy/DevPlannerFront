@@ -1,48 +1,52 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_context_menu.dart';
 
-/// Wyświetla zakotwiczony panel edycji tekstu lub liczby.
-Future<String?> editAnchoredText(
-  BuildContext context, {
-  required String title,
-  required String initialValue,
-  required RelativeRect menuPosition,
-  bool isNumber = false,
-  bool allowClear = false,
-}) async {
-  final overlay = Navigator.of(context, rootNavigator: true).overlay;
-  final box = overlay?.context.findRenderObject() as RenderBox?;
-  if (box == null) return null;
-  final result = Completer<String?>();
-  await AppContextMenu.showCustom(
-    context,
-    globalPosition: box.localToGlobal(
-      Offset(menuPosition.left, menuPosition.top),
-    ),
-    maxWidth: 260,
-    maxHeight: allowClear ? 150 : 116,
-    contentBuilder: (_, dismiss) => _CustomTextFieldPanel(
-      title: title,
-      isNumber: isNumber,
-      initialValue: initialValue,
-      onCancel: dismiss,
-      onClear: allowClear
-          ? () {
-              if (!result.isCompleted) result.complete('');
-              dismiss();
-            }
-          : null,
-      onSubmit: (answer) {
-        if (!result.isCompleted) result.complete(answer);
-        dismiss();
-      },
-    ),
-  );
-  return result.isCompleted ? result.future : null;
+/// Lokalny launcher zakotwiczonego panelu edycji tekstu lub liczby.
+final class AnchoredTextEditor {
+  const AnchoredTextEditor._();
+
+  static Future<String?> edit(
+    BuildContext context, {
+    required String title,
+    required String initialValue,
+    required RelativeRect menuPosition,
+    bool isNumber = false,
+    bool allowClear = false,
+  }) async {
+    final overlay = Navigator.of(context, rootNavigator: true).overlay;
+    final box = overlay?.context.findRenderObject() as RenderBox?;
+    if (box == null) return null;
+    final result = Completer<String?>();
+    await AppContextMenu.showCustom(
+      context,
+      globalPosition: box.localToGlobal(
+        Offset(menuPosition.left, menuPosition.top),
+      ),
+      maxWidth: 260,
+      maxHeight: allowClear ? 150 : 116,
+      contentBuilder: (_, dismiss) => _CustomTextFieldPanel(
+        title: title,
+        isNumber: isNumber,
+        initialValue: initialValue,
+        onCancel: dismiss,
+        onClear: allowClear
+            ? () {
+                if (!result.isCompleted) result.complete('');
+                dismiss();
+              }
+            : null,
+        onSubmit: (answer) {
+          if (!result.isCompleted) result.complete(answer);
+          dismiss();
+        },
+      ),
+    );
+    return result.isCompleted ? result.future : null;
+  }
 }
 
 class _CancelInlineInputIntent extends Intent {

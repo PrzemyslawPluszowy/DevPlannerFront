@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
 
 /// Baza stanów dla zarządzania udostępnieniami pliku.
 sealed class StorageSharingState extends Equatable {

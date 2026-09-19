@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/projects/templates/models/project_template_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_templates_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/templates/models/project_template_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_templates_repository.dart';
 
 part 'project_templates_state.dart';
 

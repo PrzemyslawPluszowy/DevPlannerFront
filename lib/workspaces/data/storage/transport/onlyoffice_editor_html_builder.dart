@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 
 /// Buduje samodzielny host HTML dla podpisanej sesji OnlyOffice.
 final class OnlyOfficeEditorHtmlBuilder {

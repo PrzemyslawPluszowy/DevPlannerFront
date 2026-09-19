@@ -1,15 +1,15 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_option.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_custom_field_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_option.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_custom_field_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Komórka wyboru pojedynczego lub wielokrotnego pola niestandardowego w tabeli.
 ///

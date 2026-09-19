@@ -1402,7 +1402,7 @@ as int,
 /// @nodoc
 mixin _$ObjectiveResponse {
 
- String get id; String get workspaceId; String get createdByCoreUserId; String get name; String? get description; DateTime? get targetDate; double get progress; List<KeyResultResponse> get keyResults; DateTime get createdAtUtc; DateTime get updatedAtUtc; int get version;
+ String get id; String get workspaceId; String get createdByUserId; String get name; String? get description; DateTime? get targetDate; double get progress; List<KeyResultResponse> get keyResults; DateTime get createdAtUtc; DateTime get updatedAtUtc; int get version;
 /// Create a copy of ObjectiveResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1415,16 +1415,16 @@ $ObjectiveResponseCopyWith<ObjectiveResponse> get copyWith => _$ObjectiveRespons
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ObjectiveResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.createdByCoreUserId, createdByCoreUserId) || other.createdByCoreUserId == createdByCoreUserId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.progress, progress) || other.progress == progress)&&const DeepCollectionEquality().equals(other.keyResults, keyResults)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ObjectiveResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.progress, progress) || other.progress == progress)&&const DeepCollectionEquality().equals(other.keyResults, keyResults)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceId,createdByCoreUserId,name,description,targetDate,progress,const DeepCollectionEquality().hash(keyResults),createdAtUtc,updatedAtUtc,version);
+int get hashCode => Object.hash(runtimeType,id,workspaceId,createdByUserId,name,description,targetDate,progress,const DeepCollectionEquality().hash(keyResults),createdAtUtc,updatedAtUtc,version);
 
 @override
 String toString() {
-  return 'ObjectiveResponse(id: $id, workspaceId: $workspaceId, createdByCoreUserId: $createdByCoreUserId, name: $name, description: $description, targetDate: $targetDate, progress: $progress, keyResults: $keyResults, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, version: $version)';
+  return 'ObjectiveResponse(id: $id, workspaceId: $workspaceId, createdByUserId: $createdByUserId, name: $name, description: $description, targetDate: $targetDate, progress: $progress, keyResults: $keyResults, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, version: $version)';
 }
 
 
@@ -1435,7 +1435,7 @@ abstract mixin class $ObjectiveResponseCopyWith<$Res>  {
   factory $ObjectiveResponseCopyWith(ObjectiveResponse value, $Res Function(ObjectiveResponse) _then) = _$ObjectiveResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String workspaceId, String createdByCoreUserId, String name, String? description, DateTime? targetDate, double progress, List<KeyResultResponse> keyResults, DateTime createdAtUtc, DateTime updatedAtUtc, int version
+ String id, String workspaceId, String createdByUserId, String name, String? description, DateTime? targetDate, double progress, List<KeyResultResponse> keyResults, DateTime createdAtUtc, DateTime updatedAtUtc, int version
 });
 
 
@@ -1452,11 +1452,11 @@ class _$ObjectiveResponseCopyWithImpl<$Res>
 
 /// Create a copy of ObjectiveResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceId = null,Object? createdByCoreUserId = null,Object? name = null,Object? description = freezed,Object? targetDate = freezed,Object? progress = null,Object? keyResults = null,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? version = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceId = null,Object? createdByUserId = null,Object? name = null,Object? description = freezed,Object? targetDate = freezed,Object? progress = null,Object? keyResults = null,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? version = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
-as String,createdByCoreUserId: null == createdByCoreUserId ? _self.createdByCoreUserId : createdByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,createdByUserId: null == createdByUserId ? _self.createdByUserId : createdByUserId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,targetDate: freezed == targetDate ? _self.targetDate : targetDate // ignore: cast_nullable_to_non_nullable
@@ -1550,10 +1550,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String createdByCoreUserId,  String name,  String? description,  DateTime? targetDate,  double progress,  List<KeyResultResponse> keyResults,  DateTime createdAtUtc,  DateTime updatedAtUtc,  int version)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String createdByUserId,  String name,  String? description,  DateTime? targetDate,  double progress,  List<KeyResultResponse> keyResults,  DateTime createdAtUtc,  DateTime updatedAtUtc,  int version)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ObjectiveResponse() when $default != null:
-return $default(_that.id,_that.workspaceId,_that.createdByCoreUserId,_that.name,_that.description,_that.targetDate,_that.progress,_that.keyResults,_that.createdAtUtc,_that.updatedAtUtc,_that.version);case _:
+return $default(_that.id,_that.workspaceId,_that.createdByUserId,_that.name,_that.description,_that.targetDate,_that.progress,_that.keyResults,_that.createdAtUtc,_that.updatedAtUtc,_that.version);case _:
   return orElse();
 
 }
@@ -1571,10 +1571,10 @@ return $default(_that.id,_that.workspaceId,_that.createdByCoreUserId,_that.name,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String createdByCoreUserId,  String name,  String? description,  DateTime? targetDate,  double progress,  List<KeyResultResponse> keyResults,  DateTime createdAtUtc,  DateTime updatedAtUtc,  int version)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String createdByUserId,  String name,  String? description,  DateTime? targetDate,  double progress,  List<KeyResultResponse> keyResults,  DateTime createdAtUtc,  DateTime updatedAtUtc,  int version)  $default,) {final _that = this;
 switch (_that) {
 case _ObjectiveResponse():
-return $default(_that.id,_that.workspaceId,_that.createdByCoreUserId,_that.name,_that.description,_that.targetDate,_that.progress,_that.keyResults,_that.createdAtUtc,_that.updatedAtUtc,_that.version);case _:
+return $default(_that.id,_that.workspaceId,_that.createdByUserId,_that.name,_that.description,_that.targetDate,_that.progress,_that.keyResults,_that.createdAtUtc,_that.updatedAtUtc,_that.version);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1591,10 +1591,10 @@ return $default(_that.id,_that.workspaceId,_that.createdByCoreUserId,_that.name,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceId,  String createdByCoreUserId,  String name,  String? description,  DateTime? targetDate,  double progress,  List<KeyResultResponse> keyResults,  DateTime createdAtUtc,  DateTime updatedAtUtc,  int version)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceId,  String createdByUserId,  String name,  String? description,  DateTime? targetDate,  double progress,  List<KeyResultResponse> keyResults,  DateTime createdAtUtc,  DateTime updatedAtUtc,  int version)?  $default,) {final _that = this;
 switch (_that) {
 case _ObjectiveResponse() when $default != null:
-return $default(_that.id,_that.workspaceId,_that.createdByCoreUserId,_that.name,_that.description,_that.targetDate,_that.progress,_that.keyResults,_that.createdAtUtc,_that.updatedAtUtc,_that.version);case _:
+return $default(_that.id,_that.workspaceId,_that.createdByUserId,_that.name,_that.description,_that.targetDate,_that.progress,_that.keyResults,_that.createdAtUtc,_that.updatedAtUtc,_that.version);case _:
   return null;
 
 }
@@ -1606,12 +1606,12 @@ return $default(_that.id,_that.workspaceId,_that.createdByCoreUserId,_that.name,
 @JsonSerializable()
 
 class _ObjectiveResponse implements ObjectiveResponse {
-  const _ObjectiveResponse({required this.id, required this.workspaceId, required this.createdByCoreUserId, required this.name, this.description, this.targetDate, required this.progress, required this.keyResults, required this.createdAtUtc, required this.updatedAtUtc, required this.version});
+  const _ObjectiveResponse({required this.id, required this.workspaceId, required this.createdByUserId, required this.name, this.description, this.targetDate, required this.progress, required this.keyResults, required this.createdAtUtc, required this.updatedAtUtc, required this.version});
   factory _ObjectiveResponse.fromJson(Map<String, dynamic> json) => _$ObjectiveResponseFromJson(json);
 
 @override final  String id;
 @override final  String workspaceId;
-@override final  String createdByCoreUserId;
+@override final  String createdByUserId;
 @override final  String name;
 @override final  String? description;
 @override final  DateTime? targetDate;
@@ -1634,16 +1634,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ObjectiveResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.createdByCoreUserId, createdByCoreUserId) || other.createdByCoreUserId == createdByCoreUserId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.progress, progress) || other.progress == progress)&&const DeepCollectionEquality().equals(other.keyResults, keyResults)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ObjectiveResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.targetDate, targetDate) || other.targetDate == targetDate)&&(identical(other.progress, progress) || other.progress == progress)&&const DeepCollectionEquality().equals(other.keyResults, keyResults)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceId,createdByCoreUserId,name,description,targetDate,progress,const DeepCollectionEquality().hash(keyResults),createdAtUtc,updatedAtUtc,version);
+int get hashCode => Object.hash(runtimeType,id,workspaceId,createdByUserId,name,description,targetDate,progress,const DeepCollectionEquality().hash(keyResults),createdAtUtc,updatedAtUtc,version);
 
 @override
 String toString() {
-  return 'ObjectiveResponse(id: $id, workspaceId: $workspaceId, createdByCoreUserId: $createdByCoreUserId, name: $name, description: $description, targetDate: $targetDate, progress: $progress, keyResults: $keyResults, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, version: $version)';
+  return 'ObjectiveResponse(id: $id, workspaceId: $workspaceId, createdByUserId: $createdByUserId, name: $name, description: $description, targetDate: $targetDate, progress: $progress, keyResults: $keyResults, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, version: $version)';
 }
 
 
@@ -1654,7 +1654,7 @@ abstract mixin class _$ObjectiveResponseCopyWith<$Res> implements $ObjectiveResp
   factory _$ObjectiveResponseCopyWith(_ObjectiveResponse value, $Res Function(_ObjectiveResponse) _then) = __$ObjectiveResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String workspaceId, String createdByCoreUserId, String name, String? description, DateTime? targetDate, double progress, List<KeyResultResponse> keyResults, DateTime createdAtUtc, DateTime updatedAtUtc, int version
+ String id, String workspaceId, String createdByUserId, String name, String? description, DateTime? targetDate, double progress, List<KeyResultResponse> keyResults, DateTime createdAtUtc, DateTime updatedAtUtc, int version
 });
 
 
@@ -1671,11 +1671,11 @@ class __$ObjectiveResponseCopyWithImpl<$Res>
 
 /// Create a copy of ObjectiveResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceId = null,Object? createdByCoreUserId = null,Object? name = null,Object? description = freezed,Object? targetDate = freezed,Object? progress = null,Object? keyResults = null,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? version = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceId = null,Object? createdByUserId = null,Object? name = null,Object? description = freezed,Object? targetDate = freezed,Object? progress = null,Object? keyResults = null,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? version = null,}) {
   return _then(_ObjectiveResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
-as String,createdByCoreUserId: null == createdByCoreUserId ? _self.createdByCoreUserId : createdByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,createdByUserId: null == createdByUserId ? _self.createdByUserId : createdByUserId // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,targetDate: freezed == targetDate ? _self.targetDate : targetDate // ignore: cast_nullable_to_non_nullable

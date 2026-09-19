@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/api/task_time_tracking_api.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_time_tracking_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/api/task_time_tracking_api.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_repository.dart';
 
 /// Adapter operacji rejestracji czasu do kontraktu domenowego Tasks.
 final class TaskTimeTrackingRepositoryImpl extends ApiRepository

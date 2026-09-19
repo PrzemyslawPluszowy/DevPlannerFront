@@ -1,14 +1,14 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_role.dart';
-import 'package:ready_next/workspaces/data/workspaces/api/workspaces_api.dart';
-import 'package:ready_next/workspaces/data/workspaces/mappers/workspace_mappers.dart';
-import 'package:ready_next/workspaces/data/workspaces/payloads/workspace_payloads.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
-import 'package:ready_next/workspaces/domain/models/workspace_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_role.dart';
+import 'package:devplanner/workspaces/data/workspaces/api/workspaces_api.dart';
+import 'package:devplanner/workspaces/data/workspaces/mappers/workspace_mappers.dart';
+import 'package:devplanner/workspaces/data/workspaces/payloads/workspace_payloads.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/domain/models/workspace_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
 
 /// Implementacja repozytorium Workspaces oparta o typowany klient Retrofit.
 class WorkspacesRepositoryImpl extends ApiRepository
@@ -164,12 +164,12 @@ class WorkspacesRepositoryImpl extends ApiRepository
   );
 
   @override
-  Future<Either<ApiError, List<ReadyDirectoryUserResponse>>> searchReadyUsers({
+  Future<Either<ApiError, List<LocalUserDirectoryResponse>>> searchLocalUsers({
     required String workspaceId,
     required String query,
   }) => guardApiCall(
-    () => api.searchReadyUsers(workspaceId, query),
-    fallbackMessage: 'Nie udało się wyszukać użytkowników w katalogu Ready.',
+    () => api.searchLocalUsers(workspaceId, query),
+    fallbackMessage: 'Nie udało się wyszukać użytkowników w lokalnym katalogu.',
     parsingMessage: 'Backend zwrócił nieprawidłowe dane użytkowników.',
   );
 

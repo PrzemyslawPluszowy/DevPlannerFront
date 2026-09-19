@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/custom_workflow/api/custom_workflow_api.dart';
-import 'package:ready_next/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/custom_workflow_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/custom_workflow/api/custom_workflow_api.dart';
+import 'package:devplanner/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/custom_workflow_repository.dart';
 
 /// Implementacja kontraktu własnego workflow przez API Workspaces.
 final class CustomWorkflowRepositoryImpl extends ApiRepository

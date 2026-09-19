@@ -1,7 +1,7 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
 
 /// Pomocnik wizualny dla statusów zadań w widokach listy i tabeli.
 abstract final class TaskStatusVisualHelper {

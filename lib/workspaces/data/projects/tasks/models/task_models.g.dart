@@ -152,7 +152,7 @@ _CreateProjectTaskPayload _$CreateProjectTaskPayloadFromJson(
   dueAtUtc: json['dueAtUtc'] == null
       ? null
       : DateTime.parse(json['dueAtUtc'] as String),
-  assigneeCoreUserIds: (json['assigneeCoreUserIds'] as List<dynamic>?)
+  assigneeUserIds: (json['assigneeUserIds'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
   checklistItems: (json['checklistItems'] as List<dynamic>?)
@@ -186,7 +186,7 @@ Map<String, dynamic> _$CreateProjectTaskPayloadToJson(
   'priority': _$TaskPriorityEnumMap[instance.priority]!,
   'startAtUtc': instance.startAtUtc?.toIso8601String(),
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
-  'assigneeCoreUserIds': instance.assigneeCoreUserIds,
+  'assigneeUserIds': instance.assigneeUserIds,
   'checklistItems': instance.checklistItems,
   'taskType': instance.taskType,
   'size': instance.size,
@@ -294,7 +294,7 @@ Map<String, dynamic> _$UpdateProjectTaskPayloadToJson(
 _TaskAssigneeResponse _$TaskAssigneeResponseFromJson(
   Map<String, dynamic> json,
 ) => _TaskAssigneeResponse(
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   isPrimary: json['isPrimary'] as bool,
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
 );
@@ -302,7 +302,7 @@ _TaskAssigneeResponse _$TaskAssigneeResponseFromJson(
 Map<String, dynamic> _$TaskAssigneeResponseToJson(
   _TaskAssigneeResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'isPrimary': instance.isPrimary,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
 };
@@ -314,7 +314,7 @@ _TaskChecklistItemResponse _$TaskChecklistItemResponseFromJson(
   title: json['title'] as String,
   position: (json['position'] as num).toInt(),
   isCompleted: json['isCompleted'] as bool,
-  completedByCoreUserId: json['completedByCoreUserId'] as String?,
+  completedByUserId: json['completedByUserId'] as String?,
   completedAtUtc: json['completedAtUtc'] == null
       ? null
       : DateTime.parse(json['completedAtUtc'] as String),
@@ -328,7 +328,7 @@ Map<String, dynamic> _$TaskChecklistItemResponseToJson(
   'title': instance.title,
   'position': instance.position,
   'isCompleted': instance.isCompleted,
-  'completedByCoreUserId': instance.completedByCoreUserId,
+  'completedByUserId': instance.completedByUserId,
   'completedAtUtc': instance.completedAtUtc?.toIso8601String(),
   'updatedAtUtc': instance.updatedAtUtc.toIso8601String(),
 };
@@ -507,7 +507,7 @@ _TaskSelectionQueryPayload _$TaskSelectionQueryPayloadFromJson(
   savedViewId: json['savedViewId'] as String?,
   status: json['status'] as String?,
   priority: json['priority'] as String?,
-  assigneeCoreUserId: json['assigneeCoreUserId'] as String?,
+  assigneeUserId: json['assigneeUserId'] as String?,
   myInvolvement: json['myInvolvement'] as String?,
   search: json['search'] as String?,
   dueFromUtc: json['dueFromUtc'] == null
@@ -527,7 +527,7 @@ Map<String, dynamic> _$TaskSelectionQueryPayloadToJson(
   'savedViewId': instance.savedViewId,
   'status': instance.status,
   'priority': instance.priority,
-  'assigneeCoreUserId': instance.assigneeCoreUserId,
+  'assigneeUserId': instance.assigneeUserId,
   'myInvolvement': instance.myInvolvement,
   'search': instance.search,
   'dueFromUtc': instance.dueFromUtc?.toIso8601String(),
@@ -760,7 +760,7 @@ _ProjectTaskResponse _$ProjectTaskResponseFromJson(Map<String, dynamic> json) =>
       dueAtUtc: json['dueAtUtc'] == null
           ? null
           : DateTime.parse(json['dueAtUtc'] as String),
-      createdByCoreUserId: json['createdByCoreUserId'] as String,
+      createdByUserId: json['createdByUserId'] as String,
       assignees: (json['assignees'] as List<dynamic>)
           .map((e) => TaskAssigneeResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -808,7 +808,7 @@ Map<String, dynamic> _$ProjectTaskResponseToJson(
   'position': instance.position,
   'startAtUtc': instance.startAtUtc?.toIso8601String(),
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
-  'createdByCoreUserId': instance.createdByCoreUserId,
+  'createdByUserId': instance.createdByUserId,
   'assignees': instance.assignees,
   'checklistItems': instance.checklistItems,
   'recurrence': instance.recurrence,
@@ -920,7 +920,7 @@ _TaskAcceptanceCriterionResponse _$TaskAcceptanceCriterionResponseFromJson(
   text: json['text'] as String,
   position: (json['position'] as num).toInt(),
   isAccepted: json['isAccepted'] as bool,
-  acceptedByCoreUserId: json['acceptedByCoreUserId'] as String?,
+  acceptedByUserId: json['acceptedByUserId'] as String?,
   acceptedAtUtc: json['acceptedAtUtc'] == null
       ? null
       : DateTime.parse(json['acceptedAtUtc'] as String),
@@ -934,21 +934,21 @@ Map<String, dynamic> _$TaskAcceptanceCriterionResponseToJson(
   'text': instance.text,
   'position': instance.position,
   'isAccepted': instance.isAccepted,
-  'acceptedByCoreUserId': instance.acceptedByCoreUserId,
+  'acceptedByUserId': instance.acceptedByUserId,
   'acceptedAtUtc': instance.acceptedAtUtc?.toIso8601String(),
   'updatedAtUtc': instance.updatedAtUtc.toIso8601String(),
 };
 
 _TaskWatcherResponse _$TaskWatcherResponseFromJson(Map<String, dynamic> json) =>
     _TaskWatcherResponse(
-      coreUserId: json['coreUserId'] as String,
+      userId: json['userId'] as String,
       createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
     );
 
 Map<String, dynamic> _$TaskWatcherResponseToJson(
   _TaskWatcherResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
 };
 
@@ -1065,7 +1065,7 @@ Map<String, dynamic> _$ProjectTaskDetailsResponseToJson(
 _UserReferenceResponse _$UserReferenceResponseFromJson(
   Map<String, dynamic> json,
 ) => _UserReferenceResponse(
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   displayName: json['displayName'] as String?,
   avatarUrl: json['avatarUrl'] as String?,
   isActive: json['isActive'] as bool,
@@ -1074,7 +1074,7 @@ _UserReferenceResponse _$UserReferenceResponseFromJson(
 Map<String, dynamic> _$UserReferenceResponseToJson(
   _UserReferenceResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'displayName': instance.displayName,
   'avatarUrl': instance.avatarUrl,
   'isActive': instance.isActive,
@@ -1254,16 +1254,14 @@ Map<String, dynamic> _$UpdateTaskDependencyPayloadToJson(
 _UpdateTaskAssigneesPayload _$UpdateTaskAssigneesPayloadFromJson(
   Map<String, dynamic> json,
 ) => _UpdateTaskAssigneesPayload(
-  coreUserIds: (json['coreUserIds'] as List<dynamic>)
-      .map((e) => e as String)
-      .toList(),
+  userIds: (json['userIds'] as List<dynamic>).map((e) => e as String).toList(),
   expectedVersion: (json['expectedVersion'] as num).toInt(),
 );
 
 Map<String, dynamic> _$UpdateTaskAssigneesPayloadToJson(
   _UpdateTaskAssigneesPayload instance,
 ) => <String, dynamic>{
-  'coreUserIds': instance.coreUserIds,
+  'userIds': instance.userIds,
   'expectedVersion': instance.expectedVersion,
 };
 

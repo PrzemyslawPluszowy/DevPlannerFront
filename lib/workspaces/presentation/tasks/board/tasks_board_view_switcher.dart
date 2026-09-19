@@ -4,14 +4,14 @@ part of 'tasks_board_page.dart';
 class _TaskViewSwitcher extends StatelessWidget {
   const _TaskViewSwitcher({required this.view, required this.onChanged});
 
-  final _TasksProjectView view;
-  final ValueChanged<_TasksProjectView> onChanged;
+  final TasksProjectView view;
+  final ValueChanged<TasksProjectView> onChanged;
 
   @override
   Widget build(BuildContext context) => DefaultTabController(
     key: ValueKey(view),
-    initialIndex: _TasksProjectView.values.indexOf(view),
-    length: _TasksProjectView.values.length,
+    initialIndex: TasksProjectView.values.indexOf(view),
+    length: TasksProjectView.values.length,
     child: TabBar(
       isScrollable: true,
       tabAlignment: .start,
@@ -27,7 +27,7 @@ class _TaskViewSwitcher extends StatelessWidget {
       unselectedLabelStyle: context.text.labelMedium?.copyWith(
         fontWeight: .w500,
       ),
-      onTap: (index) => onChanged(_TasksProjectView.values[index]),
+      onTap: (index) => onChanged(TasksProjectView.values[index]),
       tabs: [
         _tab(context, Symbols.view_kanban, context.l10n.tasksViewBoard),
         _tab(context, Symbols.view_list, context.l10n.tasksViewList),

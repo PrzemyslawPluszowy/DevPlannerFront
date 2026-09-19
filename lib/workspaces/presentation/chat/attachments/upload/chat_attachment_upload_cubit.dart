@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_prepared_file.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/ports/chat_attachment_upload_owner.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/chat/attachments/models/chat_attachment_prepared_file.dart';
-import 'package:ready_next/workspaces/domain/chat/attachments/ports/chat_attachment_upload_owner.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
 
 /// Stan pojedynczego uploadu Chat; identyfikator pliku jest ujawniany wyłącznie po Clean+Ready.
 sealed class ChatAttachmentUploadState {

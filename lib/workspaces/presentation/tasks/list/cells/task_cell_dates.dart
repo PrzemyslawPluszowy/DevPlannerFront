@@ -1,9 +1,9 @@
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Edytowalna komórka daty zadania (np. termin realizacji, data rozpoczęcia).
 class TaskCellDate extends StatelessWidget {
@@ -48,13 +48,15 @@ class TaskCellDate extends StatelessWidget {
                 final pos = box != null
                     ? box.localToGlobal(Offset(0, box.size.height + 2))
                     : Offset.zero;
-                final selection = await pickAnchoredDate(
+                final selection = await TaskDatePicker.pick(
                   cellContext,
                   initialValue: dateTime,
                   globalPosition: pos,
                 );
                 if (selection == null) return;
-                await onChanged!(asUtcCalendarDate(selection.value));
+                await onChanged!(
+                  TaskDatePicker.asUtcCalendarDate(selection.value),
+                );
               },
         child: SizedBox(
           width: TaskListGrid.dueDate,

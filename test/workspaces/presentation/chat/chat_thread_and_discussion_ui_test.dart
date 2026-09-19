@@ -1,26 +1,27 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/auth/domain/models/auth_models.dart';
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
+import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/chat_conversation_page.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/thread/chat_thread_side_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ready_next/core/auth/auth_models.dart';
-import 'package:ready_next/core/auth/auth_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
-import 'package:ready_next/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
-import 'package:ready_next/workspaces/domain/chat/thread/chat_thread_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/file_picker_port.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/chat_conversation_page.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
-import 'package:ready_next/workspaces/presentation/chat/thread/chat_thread_side_panel.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   testWidgets(
@@ -101,7 +102,7 @@ void main() {
   testWidgets('dyskusja nie zmienia URI ani nie rzuca po odłączeniu rodzica', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(700, 900);
+    tester.view.physicalSize = const Size(1280, 1200);
     tester.view.devicePixelRatio = 1;
     addTearDown(() => tester.view.resetPhysicalSize());
     final conversations = _ConversationRepository();
@@ -130,7 +131,9 @@ void main() {
     await tester.tap(find.byTooltip('Open discussion'));
     await tester.pump();
     await tester.enterText(find.byType(TextField).first, 'Project discussion');
-    await tester.tap(find.widgetWithText(FilledButton, 'Open discussion'));
+    await tester.tap(
+      find.widgetWithText(FilledButton, 'Open discussion').first,
+    );
     await tester.pumpAndSettle();
     expect(
       router.routerDelegate.currentConfiguration.uri.toString(),
@@ -205,6 +208,17 @@ void main() {
 }
 
 abstract final class _ChatFixture {
+  static AuthSessionPort authSession() => AuthSessionController(
+    initial: const AuthSessionSnapshot(
+      status: AuthSessionStatus.signedIn,
+      user: AuthUser(
+        userId: 'user-1',
+        login: 'tester',
+        displayName: 'Tester',
+      ),
+    ),
+  );
+
   static Widget thread({
     required _ThreadRepository thread,
     required _ConversationRepository conversation,
@@ -216,7 +230,9 @@ abstract final class _ChatFixture {
     supportedLocales: AppLocalizations.supportedLocales,
     home: MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<AuthRepository>.value(value: _AuthRepository()),
+        ListenableProvider<AuthSessionPort>.value(
+          value: _ChatFixture.authSession(),
+        ),
         RepositoryProvider<ChatThreadRepository>.value(value: thread),
         RepositoryProvider<ChatConversationRepository>.value(
           value: conversation,
@@ -238,7 +254,9 @@ abstract final class _ChatFixture {
     _DraftRepository? drafts,
   }) => MultiRepositoryProvider(
     providers: [
-      RepositoryProvider<AuthRepository>.value(value: _AuthRepository()),
+      ListenableProvider<AuthSessionPort>.value(
+        value: _ChatFixture.authSession(),
+      ),
       RepositoryProvider<ChatConversationRepository>.value(value: conversation),
       RepositoryProvider<ChatMessageActionsRepository>.value(
         value: _MessageActionsRepository(),
@@ -294,7 +312,7 @@ abstract final class _ChatFixture {
 ChatMessage _message(String id) => ChatMessage(
   id: id,
   conversationId: 'parent',
-  authorCoreUserId: 'user-1',
+  authorUserId: 'user-1',
   clientMessageId: id,
   text: 'Message $id',
   payloadHash: 'hash',
@@ -474,31 +492,4 @@ final class _DraftRepository implements ChatDraftRepository {
     deletedKeys.add(key);
     values.remove(key);
   }
-}
-
-final class _AuthRepository implements AuthRepository {
-  @override
-  String? get accessToken => 'token';
-  @override
-  AuthUser? get currentUser => const AuthUser(
-    userId: 1,
-    login: 'tester',
-    displayName: 'Tester',
-    coreUserId: 'user-1',
-  );
-  @override
-  bool get isAuthenticated => true;
-  @override
-  int get sessionGeneration => 0;
-  @override
-  Future<void> login({
-    required String username,
-    required String password,
-  }) async {}
-  @override
-  Future<void> logout() async {}
-  @override
-  Future<void> restoreSession() async {}
-  @override
-  Future<bool> tryRefreshSession() async => false;
 }

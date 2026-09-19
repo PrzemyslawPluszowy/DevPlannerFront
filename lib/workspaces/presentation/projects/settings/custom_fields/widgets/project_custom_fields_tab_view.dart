@@ -1,14 +1,14 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_option.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_type_visual.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/project_custom_field_dialog_actions.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/project_custom_fields_empty_state.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/project_custom_fields_failure_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/task_custom_fields_settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/custom_fields/widgets/create_custom_field_dialog.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_option.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_type_visual.dart';
-import 'package:ready_next/workspaces/presentation/tasks/settings/cubit/task_custom_fields_settings_cubit.dart';
 
 /// Widok zakładki "Pola niestandardowe" w ustawieniach projektu.
 class ProjectCustomFieldsTabView extends StatelessWidget {
@@ -37,32 +37,12 @@ class ProjectCustomFieldsTabView extends StatelessWidget {
           TaskCustomFieldsSettingsLoading() => const Center(
             child: CircularProgressIndicator(),
           ),
-          TaskCustomFieldsSettingsFailure(:final message) => Center(
-            child: Column(
-              mainAxisSize: .min,
-              children: [
-                Icon(
-                  Icons.error_outline_rounded,
-                  size: Sizes.p40,
-                  color: colors.error,
-                ),
-                Gaps.h12,
-                Text(
-                  message,
-                  style: context.text.bodyMedium?.copyWith(
-                    color: colors.error,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                Gaps.h16,
-                OutlinedButton(
-                  onPressed: () =>
-                      context.read<TaskCustomFieldsSettingsCubit>().load(),
-                  child: const Text('Spróbuj ponownie'),
-                ),
-              ],
+          TaskCustomFieldsSettingsFailure(:final message) =>
+            ProjectCustomFieldsFailureState(
+              message: message,
+              onRetry: () =>
+                  context.read<TaskCustomFieldsSettingsCubit>().load(),
             ),
-          ),
           TaskCustomFieldsSettingsReady(
             :final fields,
             :final isSaving,
@@ -133,7 +113,10 @@ class ProjectCustomFieldsTabView extends StatelessWidget {
                         child: FilledButton.icon(
                           onPressed: !isOwnerOrAdmin || isSaving
                               ? null
-                              : () => _openCreateDialog(context),
+                              : () =>
+                                    ProjectCustomFieldDialogActions.openCreate(
+                                      context,
+                                    ),
                           icon: const Icon(Icons.add_rounded, size: Sizes.p18),
                           label: Text(l10n.projectSettingsAddCustomField),
                           style: FilledButton.styleFrom(
@@ -147,66 +130,11 @@ class ProjectCustomFieldsTabView extends StatelessWidget {
                   ),
                   Gaps.h16,
                   if (fields.isEmpty)
-                    Container(
-                      width: double.infinity,
-                      padding: const .all(Sizes.p32),
-                      decoration: BoxDecoration(
-                        color: colors.surfaceContainerLowest,
-                        borderRadius: .circular(Sizes.p16),
-                        border: Border.all(
-                          color: colors.outlineVariant.withValues(alpha: .6),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const .all(Sizes.p16),
-                            decoration: BoxDecoration(
-                              color: colors.primary.withValues(alpha: .12),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.data_object_rounded,
-                              size: Sizes.p36,
-                              color: colors.primary,
-                            ),
-                          ),
-                          Gaps.h16,
-                          Text(
-                            l10n.projectSettingsCustomFieldsEmpty,
-                            style: context.text.titleSmall?.copyWith(
-                              fontWeight: .w700,
-                              color: colors.onSurface,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          Gaps.h6,
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 480),
-                            child: Text(
-                              'Dodaj własne pola tekstowe, liczbowe, daty lub listy wyboru do zadań w tym projekcie.',
-                              style: context.text.bodySmall?.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          if (isOwnerOrAdmin) ...[
-                            Gaps.h20,
-                            FilledButton.icon(
-                              onPressed: isSaving
-                                  ? null
-                                  : () => _openCreateDialog(context),
-                              icon: const Icon(
-                                Icons.add_rounded,
-                                size: Sizes.p18,
-                              ),
-                              label: Text(l10n.projectSettingsAddCustomField),
-                            ),
-                          ],
-                        ],
-                      ),
+                    ProjectCustomFieldsEmptyState(
+                      canCreate: isOwnerOrAdmin,
+                      isSaving: isSaving,
+                      onCreate: () =>
+                          ProjectCustomFieldDialogActions.openCreate(context),
                     )
                   else
                     Container(
@@ -225,7 +153,9 @@ class ProjectCustomFieldsTabView extends StatelessWidget {
                         ),
                         itemBuilder: (ctx, index) {
                           final field = fields[index];
-                          final visual = customFieldTypeVisual(field.type);
+                          final visual = CustomFieldTypeVisualCatalog.forType(
+                            field.type,
+                          );
 
                           return Padding(
                             padding: const .symmetric(
@@ -420,7 +350,11 @@ class ProjectCustomFieldsTabView extends StatelessWidget {
                                     tooltip: 'Edytuj pole',
                                     onPressed: isSaving
                                         ? null
-                                        : () => _openEditDialog(context, field),
+                                        : () =>
+                                              ProjectCustomFieldDialogActions.openEdit(
+                                                context,
+                                                field,
+                                              ),
                                   ),
                                   IconButton(
                                     icon: Icon(
@@ -431,7 +365,11 @@ class ProjectCustomFieldsTabView extends StatelessWidget {
                                     tooltip: 'Usuń pole',
                                     onPressed: isSaving
                                         ? null
-                                        : () => _confirmDelete(context, field),
+                                        : () =>
+                                              ProjectCustomFieldDialogActions.confirmDelete(
+                                                context,
+                                                field,
+                                              ),
                                   ),
                                 ],
                               ],
@@ -446,93 +384,5 @@ class ProjectCustomFieldsTabView extends StatelessWidget {
         };
       },
     );
-  }
-
-  Future<void> _openCreateDialog(BuildContext context) async {
-    final cubit = context.read<TaskCustomFieldsSettingsCubit>();
-    final result =
-        await showDialog<
-          ({
-            String name,
-            TaskCustomFieldType type,
-            bool isRequired,
-            List<String> options,
-          })
-        >(
-          context: context,
-          builder: (_) => const CreateCustomFieldDialog(),
-        );
-
-    if (result != null) {
-      await cubit.save(
-        name: result.name,
-        type: result.type,
-        isRequired: result.isRequired,
-        options: result.options,
-      );
-    }
-  }
-
-  Future<void> _openEditDialog(
-    BuildContext context,
-    TaskCustomFieldResponse field,
-  ) async {
-    final cubit = context.read<TaskCustomFieldsSettingsCubit>();
-    final result =
-        await showDialog<
-          ({
-            String name,
-            TaskCustomFieldType type,
-            bool isRequired,
-            List<String> options,
-          })
-        >(
-          context: context,
-          builder: (_) => CreateCustomFieldDialog(initialField: field),
-        );
-
-    if (result != null) {
-      await cubit.save(
-        existing: field,
-        name: result.name,
-        type: result.type,
-        isRequired: result.isRequired,
-        options: result.options,
-      );
-    }
-  }
-
-  Future<void> _confirmDelete(
-    BuildContext context,
-    TaskCustomFieldResponse field,
-  ) async {
-    final cubit = context.read<TaskCustomFieldsSettingsCubit>();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Usuń pole niestandardowe'),
-        content: Text(
-          'Czy na pewno chcesz usunąć pole "${field.name}" z tego projektu?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Anuluj'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: ctx.colors.error,
-              foregroundColor: ctx.colors.onError,
-            ),
-            child: const Text('Usuń'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await cubit.archive(field);
-    }
   }
 }

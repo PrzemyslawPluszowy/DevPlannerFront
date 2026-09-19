@@ -1,9 +1,9 @@
+import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_queue_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/chat/attachments/chat_attachments_export.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_queue_cubit.dart';
 
 /// Stan ownera załączników należącego do pojedynczego composera.
 sealed class ChatAttachmentComposerCoordinatorState {

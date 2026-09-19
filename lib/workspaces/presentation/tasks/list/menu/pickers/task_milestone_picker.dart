@@ -1,10 +1,10 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/milestone_status.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/milestone_status.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 
 /// Standaryzowany picker wyboru kamienia milowego w tabeli zadań.
 abstract final class TaskMilestonePicker {

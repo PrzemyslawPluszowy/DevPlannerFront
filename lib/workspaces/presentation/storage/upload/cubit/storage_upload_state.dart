@@ -1,7 +1,7 @@
-import 'package:dio/dio.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
 
 /// Status pojedynczego elementu w kolejce uploadu.
 enum StorageUploadItemStatus {
@@ -80,7 +80,7 @@ class StorageUploadQueueItem extends Equatable {
   final StorageUploadMessage? errorCode;
 
   /// Token anulowania powiązany z transferem Dio.
-  final CancelToken? cancelToken;
+  final UploadCancellationToken? cancelToken;
 
   /// Czy element jest w trakcie aktywnej wysyłki.
   bool get isActive =>
@@ -97,7 +97,7 @@ class StorageUploadQueueItem extends Equatable {
     StorageFileResponse? uploadedFile,
     String? errorMessage,
     StorageUploadMessage? errorCode,
-    CancelToken? cancelToken,
+    UploadCancellationToken? cancelToken,
     bool clearCancelToken = false,
   }) => StorageUploadQueueItem(
     id: id,

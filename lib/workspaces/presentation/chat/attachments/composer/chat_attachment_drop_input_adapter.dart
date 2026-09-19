@@ -1,5 +1,5 @@
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 
 /// Cienka konwersja drop-platformy do neutralnego inputu composera.
 final class ChatAttachmentDropInputAdapter {

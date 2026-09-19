@@ -1,7 +1,6 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 /// Pozycja pozioma sheeta.
 ///
@@ -45,9 +44,9 @@ abstract final class AppDraggableSheet {
   }) {
     final viewportWidth = MediaQuery.sizeOf(context).width;
 
-    return AppModalHost.showBottomSheet<T>(
+    return DevPlannerModalHost.showBottomSheet<T>(
       context,
-      navigatorScope: AppModalHost.navigatorScopeFor(useRootNavigator),
+      navigatorScope: DevPlannerModalHost.navigatorScopeFor(useRootNavigator),
       barrierDismissible: barrierDismissible,
       constraints: BoxConstraints(maxWidth: viewportWidth),
       builder: (sheetContext) {

@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
 
 /// Nieprzezroczysta strona historii rozmowy wraz z kursorem kolejnego odczytu.
 final class ChatMessagePage extends Equatable {

@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/presentation/chat/message_actions/message_actions_export.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/presentation/chat/message_actions/message_actions_export.dart';
 
 /// Menu akcji wiadomości delegujące każdą intencję do lokalnego Cubita.
 class ChatMessageActionMenu extends StatelessWidget {
@@ -54,7 +54,7 @@ enum _ChatMessageMenuAction { edit, revisions, delete }
 /// Rootowy dialog zwykłej edycji, zamykany po potwierdzeniu backendu.
 abstract final class _ChatMessageEditDialog {
   static Future<void> show(BuildContext context, ChatMessage message) async {
-    await AppModalHost.showDialog<void>(
+    await DevPlannerModalHost.showDialog<void>(
       context,
       builder: (dialogContext) => BlocProvider.value(
         value: context.read<ChatMessageActionsCubit>(),
@@ -157,7 +157,7 @@ abstract final class _ChatMessageRevisionsDialog {
   static Future<void> show(BuildContext context, String messageId) async {
     final cubit = context.read<ChatMessageActionsCubit>();
     unawaited(cubit.loadRevisions(messageId));
-    await AppModalHost.showDialog<void>(
+    await DevPlannerModalHost.showDialog<void>(
       context,
       builder: (dialogContext) => BlocProvider.value(
         value: cubit,

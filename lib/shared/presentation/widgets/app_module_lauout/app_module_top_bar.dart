@@ -1,6 +1,5 @@
+import 'package:devplanner/core/theme/theme.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ready_next/core/theme/theme.dart';
 
 /// Reużywalny górny pasek modułu z miejscem na ikony i przyciski akcji.
 ///

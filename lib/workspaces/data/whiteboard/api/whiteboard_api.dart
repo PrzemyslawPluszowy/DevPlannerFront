@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/whiteboard/models/whiteboard_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/whiteboard/models/whiteboard_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'whiteboard_api.g.dart';

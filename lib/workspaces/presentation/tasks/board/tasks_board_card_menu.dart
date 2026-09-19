@@ -16,7 +16,7 @@ class KanbanCardContextMenuHelper {
     required KanbanTaskCardResponse task,
     required String workspaceId,
     required String projectId,
-    required Map<String, ProjectMemberProfile> memberProfilesByCoreUserId,
+    required Map<String, ProjectMemberProfile> memberProfilesByUserId,
     Offset? globalPosition,
   }) async {
     final cubit = context.read<TasksBoardCubit>();
@@ -105,8 +105,10 @@ class KanbanCardContextMenuHelper {
 
     switch (selectedAction) {
       case _KanbanCardMenuAction.open:
+        final router = GoRouter.maybeOf(context);
+        if (router == null) break;
         unawaited(
-          context.router.navigatePath(
+          DevPlannerNavigation(router).go(
             '/workspaces/$workspaceId/projects/$projectId/tasks/${task.id}',
           ),
         );
@@ -146,7 +148,8 @@ class KanbanCardContextMenuHelper {
         final availableColumns = [
           for (final column in ready.board.columns)
             if (cubit.canMoveTaskTo(task: task, targetColumn: column) &&
-                _kanbanColumnKey(column) != _kanbanColumnKey(currentColumn))
+                TaskBoardColumnIdentity.keyOf(column) !=
+                    TaskBoardColumnIdentity.keyOf(currentColumn))
               column,
         ];
         if (availableColumns.isEmpty) {
@@ -186,27 +189,27 @@ class KanbanCardContextMenuHelper {
         );
 
       case _KanbanCardMenuAction.assignee:
-        final currentAssignees = task.primaryAssigneeCoreUserId == null
+        final currentAssignees = task.primaryAssigneeUserId == null
             ? <TaskAssigneeResponse>[]
             : [
                 TaskAssigneeResponse(
-                  coreUserId: task.primaryAssigneeCoreUserId!,
+                  userId: task.primaryAssigneeUserId!,
                   isPrimary: true,
                   createdAtUtc: DateTime.now().toUtc(),
                 ),
               ];
-        await showTaskAssigneeEditor(
+        await TaskAssigneePicker.show(
           context,
           assignees: currentAssignees,
-          profiles: memberProfilesByCoreUserId,
+          profiles: memberProfilesByUserId,
           menuPosition: position,
-          onSave: (coreUserIds) async {
-            return cubit.replaceTaskAssignees(task.id, coreUserIds);
+          onSave: (userIds) async {
+            return cubit.replaceTaskAssignees(task.id, userIds);
           },
         );
 
       case _KanbanCardMenuAction.dueDate:
-        final pickResult = await pickAnchoredDate(
+        final pickResult = await TaskDatePicker.pick(
           context,
           initialValue: task.dueAtUtc?.toLocal(),
           globalPosition: globalPosition ?? Offset.zero,
@@ -236,5 +239,9 @@ enum _KanbanCardMenuAction {
   watch,
 }
 
-String _kanbanColumnKey(KanbanColumnResponse column) =>
-    column.customStatusId ?? column.status.name;
+final class TaskBoardColumnIdentity {
+  const TaskBoardColumnIdentity._();
+
+  static String keyOf(KanbanColumnResponse column) =>
+      column.customStatusId ?? column.status.name;
+}

@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_templates_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_templates_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'task_templates_api.g.dart';

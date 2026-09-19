@@ -1,6 +1,6 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_modal_accessibility_boundary.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_modal_accessibility_boundary.dart';
 
 /// Overlayowy wariant szablonu modułu dla małych szerokości.
 class AppCompactModuleLayout extends StatefulWidget {

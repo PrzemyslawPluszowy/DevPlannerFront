@@ -1,16 +1,16 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_custom_field_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_text_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_custom_field_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_text_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Komórka pól prostych (tekst, liczba, data, boolean, użytkownik) w tabeli.
 class TaskCellCustomPrimitive extends StatelessWidget {
@@ -185,12 +185,12 @@ class TaskCellCustomPrimitive extends StatelessWidget {
       final items = <PopupMenuEntry<Object?>>[
         for (final profile in profiles.values)
           TaskContextMenuItem<Object?>(
-            value: profile.coreUserId,
+            value: profile.userId,
             title: profile.displayName?.trim().isNotEmpty == true
                 ? profile.displayName!.trim()
-                : profile.coreUserId,
+                : profile.userId,
             icon: Symbols.person_rounded,
-            isSelected: value?.toString() == profile.coreUserId,
+            isSelected: value?.toString() == profile.userId,
           ),
         if (!field.isRequired && value != null) ...[
           const TaskContextMenuDivider(),
@@ -214,7 +214,7 @@ class TaskCellCustomPrimitive extends StatelessWidget {
     }
 
     // Dla pól tekstowych i liczbowych otwieramy modalny edytor
-    final answer = await editAnchoredText(
+    final answer = await AnchoredTextEditor.edit(
       context,
       title: field.name,
       isNumber: field.type == TaskCustomFieldType.number,

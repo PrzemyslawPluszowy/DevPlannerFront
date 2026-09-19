@@ -33,9 +33,9 @@ final class ProjectMembersSettingsLoaded extends ProjectMembersSettingsState {
 
   /// Lista członków workspace, którzy jeszcze nie są jawnymi członkami projektu.
   List<WorkspaceMemberResponse> get unassignedWorkspaceMembers {
-    final assignedCoreIds = members.map((m) => m.coreUserId).toSet();
+    final assignedUserIds = members.map((m) => m.userId).toSet();
     return availableWorkspaceMembers
-        .where((wm) => !assignedCoreIds.contains(wm.coreUserId))
+        .where((wm) => !assignedUserIds.contains(wm.userId))
         .toList(growable: false);
   }
 

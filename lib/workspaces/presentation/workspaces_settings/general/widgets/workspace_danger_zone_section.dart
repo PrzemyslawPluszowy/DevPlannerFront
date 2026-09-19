@@ -1,7 +1,7 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/domain/models/workspace_list_item.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/domain/models/workspace_list_item.dart';
 
 /// Sekcja Strefy Niebezpiecznej (Danger Zone) — archiwizacja i przywracanie przestrzeni roboczej.
 class WorkspaceDangerZoneSection extends StatelessWidget {

@@ -1,12 +1,12 @@
 import 'dart:ui';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_column_reference.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
 
 /// Horyzontalny pasek podglądu nagłówka tabeli w konfiguratorze kolumn.
 ///

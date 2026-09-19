@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 
 /// Kontrakt globalnego Chat używany przez overlay i ekran rozmowy.
 abstract interface class ChatRepository {

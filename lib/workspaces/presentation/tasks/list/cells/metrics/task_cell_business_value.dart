@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Komórka wartości biznesowej zadania w tabeli.
 class TaskCellBusinessValue extends StatelessWidget {
@@ -41,7 +41,7 @@ class TaskCellBusinessValue extends StatelessWidget {
                   onTap: onChanged == null
                       ? null
                       : () => unawaited(
-                          showTaskBusinessValuePicker(
+                          TaskBusinessValuePicker.show(
                             cellContext,
                             currentValue: value,
                             onSave: onChanged!,
@@ -60,7 +60,7 @@ class TaskCellBusinessValue extends StatelessWidget {
                   onTap: onChanged == null
                       ? null
                       : () => unawaited(
-                          showTaskBusinessValuePicker(
+                          TaskBusinessValuePicker.show(
                             cellContext,
                             currentValue: value,
                             onSave: onChanged!,
@@ -106,45 +106,49 @@ class TaskCellBusinessValue extends StatelessWidget {
   }
 }
 
-/// Wspólny picker wartości biznesowej używany przez listę i formularze zadań.
-Future<void> showTaskBusinessValuePicker(
-  BuildContext context, {
-  required int? currentValue,
-  required Future<bool> Function(int? value) onSave,
-  RelativeRect? menuPosition,
-}) async {
-  final position = menuPosition ?? TaskContextMenu.positionFor(context);
-  const presets = [10, 20, 50, 80, 100];
+/// Lokalny launcher wartości biznesowej używany przez listę i formularze.
+final class TaskBusinessValuePicker {
+  const TaskBusinessValuePicker._();
 
-  final selected = await TaskContextMenu.show<int?>(
-    context,
-    position: position,
-    items: [
-      const TaskContextMenuHeader(title: 'Wartość biznesowa'),
-      for (final val in presets)
-        TaskContextMenuItem<int?>(
-          value: val,
-          title: '$val pkt',
-          icon: Symbols.trending_up_rounded,
-          iconColor: context.colors.primary,
-          isSelected: currentValue == val,
-        ),
-      if (currentValue != null) ...[
-        const TaskContextMenuDivider(),
-        TaskContextMenuItem<int?>(
-          value: 0,
-          title: 'Wyczyść wartość',
-          icon: Symbols.close_rounded,
-          iconColor: context.colors.error,
-        ),
+  static Future<void> show(
+    BuildContext context, {
+    required int? currentValue,
+    required Future<bool> Function(int? value) onSave,
+    RelativeRect? menuPosition,
+  }) async {
+    final position = menuPosition ?? TaskContextMenu.positionFor(context);
+    const presets = [10, 20, 50, 80, 100];
+
+    final selected = await TaskContextMenu.show<int?>(
+      context,
+      position: position,
+      items: [
+        const TaskContextMenuHeader(title: 'Wartość biznesowa'),
+        for (final val in presets)
+          TaskContextMenuItem<int?>(
+            value: val,
+            title: '$val pkt',
+            icon: Symbols.trending_up_rounded,
+            iconColor: context.colors.primary,
+            isSelected: currentValue == val,
+          ),
+        if (currentValue != null) ...[
+          const TaskContextMenuDivider(),
+          TaskContextMenuItem<int?>(
+            value: 0,
+            title: 'Wyczyść wartość',
+            icon: Symbols.close_rounded,
+            iconColor: context.colors.error,
+          ),
+        ],
       ],
-    ],
-  );
+    );
 
-  if (selected == null) return;
-  if (selected == 0) {
-    await onSave(null);
-  } else {
-    await onSave(selected);
+    if (selected == null) return;
+    if (selected == 0) {
+      await onSave(null);
+    } else {
+      await onSave(selected);
+    }
   }
 }

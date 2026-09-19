@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_invitation_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_role.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_invitation_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_role.dart';
 
 part 'workspace_responses.freezed.dart';
 part 'workspace_responses.g.dart';
@@ -96,8 +96,7 @@ abstract class WorkspaceMemberResponse with _$WorkspaceMemberResponse {
   /// Tworzy odpowiedź członkostwa.
   const factory WorkspaceMemberResponse({
     required String id,
-    required String coreUserId,
-    int? readyUserId,
+    required String userId,
     required WorkspaceRole role,
     required DateTime createdAtUtc,
     required DateTime updatedAtUtc,
@@ -124,23 +123,22 @@ abstract class WorkspaceMemberRevocationResponse
   ) => _$WorkspaceMemberRevocationResponseFromJson(json);
 }
 
-/// Minimalny użytkownik Ready dostępny jako kandydat do zaproszenia.
+/// Minimalny lokalny użytkownik dostępny jako kandydat do zaproszenia.
 @freezed
-abstract class ReadyDirectoryUserResponse with _$ReadyDirectoryUserResponse {
-  /// Tworzy wynik wyszukiwania katalogu Ready.
-  const factory ReadyDirectoryUserResponse({
-    required int readyUserId,
-    String? coreUserId,
+abstract class LocalUserDirectoryResponse with _$LocalUserDirectoryResponse {
+  /// Tworzy wynik wyszukiwania lokalnego katalogu użytkowników.
+  const factory LocalUserDirectoryResponse({
+    required String userId,
     required String login,
     required String displayName,
     String? email,
     required bool emailVerified,
-    String? avatarUrl,
-  }) = _ReadyDirectoryUserResponse;
+    String? avatarFileId,
+  }) = _LocalUserDirectoryResponse;
 
   /// Odtwarza użytkownika z JSON.
-  factory ReadyDirectoryUserResponse.fromJson(Map<String, dynamic> json) =>
-      _$ReadyDirectoryUserResponseFromJson(json);
+  factory LocalUserDirectoryResponse.fromJson(Map<String, dynamic> json) =>
+      _$LocalUserDirectoryResponseFromJson(json);
 }
 
 /// Bezpieczny widok zaproszenia do workspace.
@@ -150,7 +148,7 @@ abstract class WorkspaceInvitationResponse with _$WorkspaceInvitationResponse {
   const factory WorkspaceInvitationResponse({
     required String id,
     required String workspaceId,
-    required int readyUserId,
+    required String userId,
     required WorkspaceRole role,
     required WorkspaceInvitationStatus status,
     required String login,

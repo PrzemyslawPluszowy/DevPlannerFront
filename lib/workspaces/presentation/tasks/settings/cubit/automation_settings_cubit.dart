@@ -1,100 +1,17 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/workspaces/models/automation_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/automation_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/automation_settings_dry_run_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/automation_settings_loader.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/automation_settings_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/workspaces/models/automation_models.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/automation_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
 
-sealed class AutomationSettingsState {
-  const AutomationSettingsState();
-}
-
-final class AutomationSettingsInitial extends AutomationSettingsState {
-  const AutomationSettingsInitial();
-}
-
-final class AutomationSettingsLoading extends AutomationSettingsState {
-  const AutomationSettingsLoading();
-}
-
-final class AutomationSettingsFailure extends AutomationSettingsState {
-  const AutomationSettingsFailure(this.message);
-
-  final String message;
-}
-
-final class AutomationSettingsReady extends AutomationSettingsState {
-  const AutomationSettingsReady({
-    required this.rules,
-    required this.catalog,
-    required this.recipes,
-    this.runsByRuleId = const {},
-    this.loadingRunRuleIds = const {},
-    this.memberProfiles = const [],
-    this.labels = const [],
-    this.tasks = const [],
-    this.isLoadingTasks = false,
-    this.dryRunResult,
-    this.isRunningDryRun = false,
-    this.busyRuleId,
-    this.isInstallingRecipe = false,
-    this.error,
-  });
-
-  final List<AutomationRuleResponse> rules;
-  final AutomationCatalogResponse catalog;
-  final List<AutomationRecipe> recipes;
-  final Map<String, List<AutomationRunResponse>> runsByRuleId;
-  final Set<String> loadingRunRuleIds;
-  final List<ProjectMemberProfile> memberProfiles;
-  final List<TaskLabelResponse> labels;
-  final List<ProjectTaskListItemResponse> tasks;
-  final bool isLoadingTasks;
-  final AutomationDryRunResponse? dryRunResult;
-  final bool isRunningDryRun;
-  final String? busyRuleId;
-  final bool isInstallingRecipe;
-  final String? error;
-
-  AutomationSettingsReady copyWith({
-    List<AutomationRuleResponse>? rules,
-    AutomationCatalogResponse? catalog,
-    List<AutomationRecipe>? recipes,
-    Map<String, List<AutomationRunResponse>>? runsByRuleId,
-    Set<String>? loadingRunRuleIds,
-    List<ProjectMemberProfile>? memberProfiles,
-    List<TaskLabelResponse>? labels,
-    List<ProjectTaskListItemResponse>? tasks,
-    bool? isLoadingTasks,
-    AutomationDryRunResponse? dryRunResult,
-    bool clearDryRunResult = false,
-    bool? isRunningDryRun,
-    String? busyRuleId,
-    bool clearBusyRule = false,
-    bool? isInstallingRecipe,
-    String? error,
-    bool clearError = false,
-  }) => AutomationSettingsReady(
-    rules: rules ?? this.rules,
-    catalog: catalog ?? this.catalog,
-    recipes: recipes ?? this.recipes,
-    runsByRuleId: runsByRuleId ?? this.runsByRuleId,
-    loadingRunRuleIds: loadingRunRuleIds ?? this.loadingRunRuleIds,
-    memberProfiles: memberProfiles ?? this.memberProfiles,
-    labels: labels ?? this.labels,
-    tasks: tasks ?? this.tasks,
-    isLoadingTasks: isLoadingTasks ?? this.isLoadingTasks,
-    dryRunResult: clearDryRunResult ? null : dryRunResult ?? this.dryRunResult,
-    isRunningDryRun: isRunningDryRun ?? this.isRunningDryRun,
-    busyRuleId: clearBusyRule ? null : busyRuleId ?? this.busyRuleId,
-    isInstallingRecipe: isInstallingRecipe ?? this.isInstallingRecipe,
-    error: clearError ? null : error ?? this.error,
-  );
-}
+export 'automation_settings_state.dart';
 
 /// Stan reguł projektu, gotowych przepisów i wersjonowanych mutacji.
 final class AutomationSettingsCubit extends Cubit<AutomationSettingsState> {
@@ -116,73 +33,57 @@ final class AutomationSettingsCubit extends Cubit<AutomationSettingsState> {
   final String workspaceId;
   final String projectId;
 
+  late final AutomationSettingsLoader _loader = AutomationSettingsLoader(
+    repository: repository,
+    workspaceId: workspaceId,
+    projectId: projectId,
+    memberProfilesRepository: memberProfilesRepository,
+    taskMetadataRepository: taskMetadataRepository,
+  );
+  late final AutomationSettingsDryRunService _dryRunService =
+      AutomationSettingsDryRunService(
+        repository: repository,
+        tasksRepository: tasksRepository,
+        workspaceId: workspaceId,
+        projectId: projectId,
+      );
+
   Future<void> load() async {
     emit(const AutomationSettingsLoading());
-    final rules = await repository.listRules(
-      workspaceId: workspaceId,
-      projectId: projectId,
-    );
+    final result = await _loader.load();
     if (isClosed) return;
-    await rules.fold(
-      (error) async => emit(AutomationSettingsFailure(error.message)),
-      (items) async {
-        final catalog = await repository.getCatalog(
-          workspaceId: workspaceId,
-          projectId: projectId,
+    switch (result) {
+      case AutomationSettingsLoadFailure(:final message):
+        emit(AutomationSettingsFailure(message));
+      case AutomationSettingsLoadSuccess(
+        :final rules,
+        :final catalog,
+        :final recipes,
+      ):
+        emit(
+          AutomationSettingsReady(
+            rules: rules,
+            catalog: catalog,
+            recipes: recipes,
+          ),
         );
-        if (isClosed) return;
-        await catalog.fold(
-          (error) async => emit(AutomationSettingsFailure(error.message)),
-          (catalog) async {
-            final recipes = await repository.listRecipes(
-              workspaceId: workspaceId,
-              projectId: projectId,
-            );
-            if (isClosed) return;
-            recipes.fold(
-              (error) => emit(AutomationSettingsFailure(error.message)),
-              (recipes) {
-                emit(
-                  AutomationSettingsReady(
-                    rules: _sortedRules(items),
-                    catalog: catalog,
-                    recipes: recipes,
-                  ),
-                );
-                unawaited(_loadBuilderOptions());
-              },
-            );
-          },
-        );
-      },
-    );
+        unawaited(_loadBuilderOptions());
+    }
   }
 
   /// Uzupełnia katalogi wykorzystywane przez kreator bez zatrzymywania
   /// podstawowego zarządzania regułami, gdy któryś poboczny odczyt zawiedzie.
   Future<void> _loadBuilderOptions() async {
-    final profilesRepository = memberProfilesRepository;
-    final metadataRepository = taskMetadataRepository;
-    if (profilesRepository == null && metadataRepository == null) return;
-    final profilesFuture = profilesRepository?.listProfiles(
-      workspaceId: workspaceId,
-      projectId: projectId,
-    );
-    final labelsFuture = metadataRepository?.listLabels(
-      workspaceId: workspaceId,
-      projectId: projectId,
-    );
-    final profiles = profilesFuture == null ? null : await profilesFuture;
-    final labels = labelsFuture == null ? null : await labelsFuture;
+    if (memberProfilesRepository == null && taskMetadataRepository == null) {
+      return;
+    }
+    final options = await _loader.loadBuilderOptions();
     if (isClosed || state is! AutomationSettingsReady) return;
     final current = state as AutomationSettingsReady;
     emit(
       current.copyWith(
-        memberProfiles: profiles?.fold(
-          (_) => current.memberProfiles,
-          (items) => items,
-        ),
-        labels: labels?.fold((_) => current.labels, (items) => items),
+        memberProfiles: options.memberProfiles ?? current.memberProfiles,
+        labels: options.labels ?? current.labels,
       ),
     );
   }
@@ -433,29 +334,24 @@ final class AutomationSettingsCubit extends Cubit<AutomationSettingsState> {
     final current = state;
     if (current is! AutomationSettingsReady || current.isLoadingTasks) return;
     emit(current.copyWith(isLoadingTasks: true, clearError: true));
-    final result = await tasksRepository.listProjectTasks(
-      workspaceId: workspaceId,
-      projectId: projectId,
-    );
+    final result = await _dryRunService.loadTasks();
     if (isClosed) return;
-    result.fold(
-      (error) {
+    switch (result) {
+      case AutomationDryRunTasksFailure(:final message):
         final latest = _readyState();
         if (latest == null) return;
-        emit(latest.copyWith(isLoadingTasks: false, error: error.message));
-      },
-      (page) {
+        emit(latest.copyWith(isLoadingTasks: false, error: message));
+      case AutomationDryRunTasksSuccess(:final tasks):
         final latest = _readyState();
         if (latest == null) return;
         emit(
           latest.copyWith(
-            tasks: page.items,
+            tasks: tasks,
             isLoadingTasks: false,
             clearError: true,
           ),
         );
-      },
-    );
+    }
   }
 
   /// Symuluje regułę dla zadania bez zapisywania zmian po stronie backendu.
@@ -472,20 +368,14 @@ final class AutomationSettingsCubit extends Cubit<AutomationSettingsState> {
         clearError: true,
       ),
     );
-    final result = await repository.dryRun(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      ruleId: rule.id,
-      payload: AutomationDryRunPayload(taskId: task.id, eventPayload: const {}),
-    );
+    final result = await _dryRunService.run(rule: rule, task: task);
     if (isClosed) return;
-    result.fold(
-      (error) {
+    switch (result) {
+      case AutomationDryRunFailure(:final message):
         final latest = _readyState();
         if (latest == null) return;
-        emit(latest.copyWith(isRunningDryRun: false, error: error.message));
-      },
-      (response) {
+        emit(latest.copyWith(isRunningDryRun: false, error: message));
+      case AutomationDryRunSuccess(:final response):
         final latest = _readyState();
         if (latest == null) return;
         emit(
@@ -495,8 +385,7 @@ final class AutomationSettingsCubit extends Cubit<AutomationSettingsState> {
             clearError: true,
           ),
         );
-      },
-    );
+    }
   }
 
   AutomationSettingsReady? _readyState() {

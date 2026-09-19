@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_context_menu.dart';
 
 /// Wynik wyboru zakotwiczonej daty.
 class AnchoredDateSelection {
@@ -14,42 +14,48 @@ class AnchoredDateSelection {
   final DateTime? value;
 }
 
-/// Konwertuje lokalną lub UTC datę na reprezentację daty UTC (początek dnia).
-DateTime? asUtcCalendarDate(DateTime? value) =>
-    value == null ? null : DateTime.utc(value.year, value.month, value.day);
+/// Otwiera zakotwiczony kalendarz i normalizuje daty do początku dnia UTC.
+///
+/// Klasa obsługuje wyłącznie lokalne UI; zapis wybranej daty należy do
+/// callbacku właściciela widoku/Cubita.
+final class TaskDatePicker {
+  const TaskDatePicker._();
 
-/// Otwiera zakotwiczony, nowoczesny kalendarz webowy.
-Future<AnchoredDateSelection?> pickAnchoredDate(
-  BuildContext context, {
-  required DateTime? initialValue,
-  required Offset globalPosition,
-  bool allowClear = true,
-}) async {
-  final result = Completer<AnchoredDateSelection?>();
-  await AppContextMenu.showCustom(
-    context,
-    globalPosition: globalPosition,
-    maxWidth: 350,
-    contentBuilder: (_, dismiss) => CompactWebDatePickerPanel(
-      initialValue: initialValue,
-      onSelected: (value) {
-        if (!result.isCompleted) {
-          result.complete(AnchoredDateSelection(value));
-        }
-        dismiss();
-      },
-      onCleared: allowClear
-          ? () {
-              if (!result.isCompleted) {
-                result.complete(const AnchoredDateSelection(null));
+  static DateTime? asUtcCalendarDate(DateTime? value) =>
+      value == null ? null : DateTime.utc(value.year, value.month, value.day);
+
+  static Future<AnchoredDateSelection?> pick(
+    BuildContext context, {
+    required DateTime? initialValue,
+    required Offset globalPosition,
+    bool allowClear = true,
+  }) async {
+    final result = Completer<AnchoredDateSelection?>();
+    await AppContextMenu.showCustom(
+      context,
+      globalPosition: globalPosition,
+      maxWidth: 350,
+      contentBuilder: (_, dismiss) => CompactWebDatePickerPanel(
+        initialValue: initialValue,
+        onSelected: (value) {
+          if (!result.isCompleted) {
+            result.complete(AnchoredDateSelection(value));
+          }
+          dismiss();
+        },
+        onCleared: allowClear
+            ? () {
+                if (!result.isCompleted) {
+                  result.complete(const AnchoredDateSelection(null));
+                }
+                dismiss();
               }
-              dismiss();
-            }
-          : null,
-      onCancelled: dismiss,
-    ),
-  );
-  return result.isCompleted ? result.future : null;
+            : null,
+        onCancelled: dismiss,
+      ),
+    );
+    return result.isCompleted ? result.future : null;
+  }
 }
 
 /// Kompaktowy panel wyboru daty zakotwiczony w menu kontekstowym wiersza.
@@ -73,66 +79,67 @@ class CompactWebDatePickerPanel extends StatefulWidget {
 }
 
 class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
-  late DateTime _selectedDay = widget.initialValue?.toLocal() ?? DateTime.now();
-  late DateTime _displayedMonth = DateTime(
-    _selectedDay.year,
-    _selectedDay.month,
+  late final ValueNotifier<DateTime> _selectedDay = ValueNotifier(
+    widget.initialValue?.toLocal() ?? DateTime.now(),
+  );
+  late final ValueNotifier<DateTime> _displayedMonth = ValueNotifier(
+    DateTime(_selectedDay.value.year, _selectedDay.value.month),
   );
 
+  @override
+  void dispose() {
+    _selectedDay.dispose();
+    _displayedMonth.dispose();
+    super.dispose();
+  }
+
   void _selectPreset(DateTime date) {
-    setState(() {
-      _selectedDay = date;
-      _displayedMonth = DateTime(date.year, date.month);
-    });
+    _selectedDay.value = date;
+    _displayedMonth.value = DateTime(date.year, date.month);
   }
 
   void _previousMonth() {
-    setState(() {
-      _displayedMonth = DateTime(
-        _displayedMonth.year,
-        _displayedMonth.month - 1,
-      );
-    });
+    final month = _displayedMonth.value;
+    _displayedMonth.value = DateTime(month.year, month.month - 1);
   }
 
   void _nextMonth() {
-    setState(() {
-      _displayedMonth = DateTime(
-        _displayedMonth.year,
-        _displayedMonth.month + 1,
-      );
-    });
+    final month = _displayedMonth.value;
+    _displayedMonth.value = DateTime(month.year, month.month + 1);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final monthName = DateFormat.yMMMM(locale).format(_displayedMonth);
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: Listenable.merge([_selectedDay, _displayedMonth]),
+    builder: (context, _) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final locale = Localizations.localeOf(context).toLanguageTag();
+      final monthName = DateFormat.yMMMM(locale).format(_displayedMonth.value);
 
-    return SizedBox(
-      width: 310,
-      child: Padding(
-        padding: const .all(Sizes.p8),
-        child: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildPresets(context, today),
-            const SizedBox(height: Sizes.p8),
-            _buildMonthHeader(context, monthName),
-            const SizedBox(height: Sizes.p4),
-            _buildWeekDaysHeader(context, locale),
-            const SizedBox(height: Sizes.p2),
-            _buildDaysGrid(context, today),
-            const SizedBox(height: Sizes.p8),
-            _buildActionFooter(context),
-          ],
+      return SizedBox(
+        width: 310,
+        child: Padding(
+          padding: const .all(Sizes.p8),
+          child: Column(
+            mainAxisSize: .min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildPresets(context, today),
+              const SizedBox(height: Sizes.p8),
+              _buildMonthHeader(context, monthName),
+              const SizedBox(height: Sizes.p4),
+              _buildWeekDaysHeader(context, locale),
+              const SizedBox(height: Sizes.p2),
+              _buildDaysGrid(context, today),
+              const SizedBox(height: Sizes.p8),
+              _buildActionFooter(context),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
 
   Widget _buildPresets(BuildContext context, DateTime today) {
     final presets = [
@@ -168,14 +175,14 @@ class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
                 vertical: Sizes.p2,
               ),
               decoration: BoxDecoration(
-                color: _isSameDay(_selectedDay, date)
+                color: _isSameDay(_selectedDay.value, date)
                     ? context.colors.primaryContainer
                     : context.colors.surfaceContainerHighest.withValues(
                         alpha: .5,
                       ),
                 borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
                 border: Border.all(
-                  color: _isSameDay(_selectedDay, date)
+                  color: _isSameDay(_selectedDay.value, date)
                       ? context.colors.primary.withValues(alpha: .4)
                       : context.colors.outlineVariant.withValues(alpha: .4),
                 ),
@@ -184,7 +191,7 @@ class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
                 label,
                 style: context.text.labelSmall?.copyWith(
                   fontSize: 11,
-                  fontWeight: _isSameDay(_selectedDay, date)
+                  fontWeight: _isSameDay(_selectedDay.value, date)
                       ? FontWeight.w700
                       : FontWeight.w500,
                 ),
@@ -252,12 +259,12 @@ class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
 
   Widget _buildDaysGrid(BuildContext context, DateTime today) {
     final firstDayOfMonth = DateTime(
-      _displayedMonth.year,
-      _displayedMonth.month,
+      _displayedMonth.value.year,
+      _displayedMonth.value.month,
     );
     final daysInMonth = DateTime(
-      _displayedMonth.year,
-      _displayedMonth.month + 1,
+      _displayedMonth.value.year,
+      _displayedMonth.value.month + 1,
       0,
     ).day;
     final firstDayOfWeek = MaterialLocalizations.of(context)
@@ -279,17 +286,17 @@ class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
                     return const Expanded(child: SizedBox(height: 28));
                   }
                   final cellDate = DateTime(
-                    _displayedMonth.year,
-                    _displayedMonth.month,
+                    _displayedMonth.value.year,
+                    _displayedMonth.value.month,
                     dayNumber,
                   );
-                  final isSelected = _isSameDay(_selectedDay, cellDate);
+                  final isSelected = _isSameDay(_selectedDay.value, cellDate);
                   final isToday = _isSameDay(today, cellDate);
 
                   return Expanded(
                     child: InkWell(
                       borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
-                      onTap: () => setState(() => _selectedDay = cellDate),
+                      onTap: () => _selectedDay.value = cellDate,
                       child: Container(
                         height: 28,
                         alignment: .center,
@@ -367,7 +374,7 @@ class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        onPressed: () => widget.onSelected(_selectedDay),
+        onPressed: () => widget.onSelected(_selectedDay.value),
         child: Text(
           context.l10n.tasksListSaveButton,
           style: context.text.labelSmall?.copyWith(color: Colors.white),

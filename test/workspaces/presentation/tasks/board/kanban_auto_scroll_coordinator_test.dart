@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/presentation/tasks/board/viewport/kanban_auto_scroll_coordinator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/viewport/kanban_auto_scroll_coordinator.dart';
 
 void main() {
   group('KanbanAutoScrollCoordinator', () {

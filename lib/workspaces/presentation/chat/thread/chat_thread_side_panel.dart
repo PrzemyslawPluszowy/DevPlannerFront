@@ -6,17 +6,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/auth/auth_repository.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/composer/chat_message_composer.dart';
-import 'package:ready_next/workspaces/domain/chat/thread/chat_thread_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/thread/cubit/chat_thread_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/thread/cubit/chat_thread_state.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_message_composer.dart';
+import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/thread/cubit/chat_thread_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/thread/cubit/chat_thread_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 
 /// Prawy, lokalny subpanel odpowiedzi jednego wątku bez zmiany trasy.
 class ChatThreadSidePanel extends StatefulWidget {
@@ -144,7 +144,7 @@ class _ChatThreadSidePanelState extends State<ChatThreadSidePanel> {
                 },
                 draftRepository: context.read<ChatDraftRepository>(),
                 userId:
-                    context.read<AuthRepository>().currentUser?.coreUserId ??
+                    context.read<AuthSessionPort?>()?.snapshot.user?.userId ??
                     '',
                 conversationId: 'thread:${widget.rootMessage.id}',
                 accessRevocation: _accessRevocation,

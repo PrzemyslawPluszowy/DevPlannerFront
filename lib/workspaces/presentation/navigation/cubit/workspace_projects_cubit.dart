@@ -1,11 +1,6 @@
-import 'package:dartz/dartz.dart';
+import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/projects_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
 
 /// Lokalny Cubit jednego rozwiniętego workspace’u.
 ///
@@ -14,11 +9,11 @@ import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_pr
 /// węzła menu.
 final class WorkspaceProjectsCubit extends Cubit<WorkspaceProjectsState> {
   WorkspaceProjectsCubit({
-    required this._repository,
+    required this._gateway,
     required this.workspaceId,
   }) : super(const WorkspaceProjectsInitial());
 
-  final ProjectsRepository _repository;
+  final ProjectsGateway _gateway;
   final String workspaceId;
 
   Future<void> load({bool force = false}) async {
@@ -29,79 +24,31 @@ final class WorkspaceProjectsCubit extends Cubit<WorkspaceProjectsState> {
       return;
     }
     emit(const WorkspaceProjectsLoading());
-    final result = await _repository.listProjects(workspaceId);
-    if (isClosed) return;
-    result.fold(
-      (error) => emit(
-        WorkspaceProjectsFailure(
-          message: error.message,
-          backendCode: error.backendCode?.toString(),
-        ),
-      ),
-      (items) => emit(
+    try {
+      final items = await _gateway.listProjects(workspaceId);
+      if (isClosed) return;
+      emit(
         items.isEmpty
             ? const WorkspaceProjectsEmpty()
             : WorkspaceProjectsReady(List.unmodifiable(items)),
-      ),
-    );
-  }
-
-  /// Tworzy projekt na backendzie i natychmiast odświeża listę projektów.
-  Future<Either<ApiError, ProjectListItem>> createProject({
-    required String name,
-    String? description,
-    String? icon,
-    String? primaryColor,
-    ProjectVisibility visibility = ProjectVisibility.shared,
-    ProjectStatus status = ProjectStatus.active,
-  }) async {
-    final result = await _repository.createProject(
-      workspaceId: workspaceId,
-      name: name,
-      description: description,
-      icon: icon,
-      primaryColor: primaryColor,
-      visibility: visibility,
-      status: status,
-    );
-    if (!isClosed) {
-      await load(force: true);
+      );
+    } on ProjectsGatewayException catch (error) {
+      if (isClosed) return;
+      emit(
+        WorkspaceProjectsFailure(
+          reason: error.reason,
+          statusCode: error.statusCode,
+          backendCode: error.backendCode,
+          message: error.message,
+        ),
+      );
+    } on Exception catch (_) {
+      if (isClosed) return;
+      emit(
+        const WorkspaceProjectsFailure(
+          reason: ProjectsFailureReason.requestFailed,
+        ),
+      );
     }
-    return result;
-  }
-
-  /// Zapisuje nową kolejność projektów użytkownika na backendzie z optymistyczną aktualizacją UI.
-  Future<void> reorderProjects(List<String> projectIds) async {
-    if (isClosed) return;
-    final current = state;
-    if (current is! WorkspaceProjectsReady) return;
-
-    final byId = {for (final p in current.items) p.id: p};
-    final reordered = [
-      for (final id in projectIds)
-        if (byId.containsKey(id)) byId[id]!,
-      for (final p in current.items)
-        if (!projectIds.contains(p.id)) p,
-    ];
-    emit(WorkspaceProjectsReady(List.unmodifiable(reordered)));
-
-    final result = await _repository.updateProjectOrder(
-      workspaceId: workspaceId,
-      projectIds: projectIds,
-    );
-    if (isClosed) return;
-    result.fold(
-      (error) => emit(
-        WorkspaceProjectsFailure(
-          message: error.message,
-          backendCode: error.backendCode?.toString(),
-        ),
-      ),
-      (items) => emit(
-        items.isEmpty
-            ? const WorkspaceProjectsEmpty()
-            : WorkspaceProjectsReady(List.unmodifiable(items)),
-      ),
-    );
   }
 }

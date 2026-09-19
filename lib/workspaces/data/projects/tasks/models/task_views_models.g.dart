@@ -14,7 +14,7 @@ _TaskSavedViewFilter _$TaskSavedViewFilterFromJson(Map<String, dynamic> json) =>
       priorities: (json['priorities'] as List<dynamic>?)
           ?.map((e) => $enumDecode(_$TaskPriorityEnumMap, e))
           .toList(),
-      assigneeCoreUserIds: (json['assigneeCoreUserIds'] as List<dynamic>?)
+      assigneeUserIds: (json['assigneeUserIds'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
       labelIds: (json['labelIds'] as List<dynamic>?)
@@ -45,7 +45,7 @@ Map<String, dynamic> _$TaskSavedViewFilterToJson(
   'priorities': instance.priorities
       ?.map((e) => _$TaskPriorityEnumMap[e]!)
       .toList(),
-  'assigneeCoreUserIds': instance.assigneeCoreUserIds,
+  'assigneeUserIds': instance.assigneeUserIds,
   'labelIds': instance.labelIds,
   'parentTaskId': instance.parentTaskId,
   'myInvolvement': _$TaskInvolvementFilterEnumMap[instance.myInvolvement],

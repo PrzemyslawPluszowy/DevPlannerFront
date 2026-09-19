@@ -1,10 +1,10 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/workspaces/domain/chat/attachments/chat_attachments_export.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
 
 /// Prezentuje wyłącznie lokalny lifecycle wyboru; nie inicjuje uploadu ani pickera.
 final class ChatAttachmentSelectionList extends StatelessWidget {

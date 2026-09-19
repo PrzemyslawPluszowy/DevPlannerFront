@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
+import 'package:devplanner/core/error/api_error.dart';
 import 'package:web/web.dart' as web;
 
 /// Otwieranie podglądu w nowej karcie Web/Wasm.

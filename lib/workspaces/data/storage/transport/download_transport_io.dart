@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:ready_next/core/error/api_error.dart';
 
 /// Operacje zapisu plików dla macOS, Windows i Linux.
 final class StorageDownloadPlatform {
@@ -104,7 +104,9 @@ final class StorageDownloadPlatform {
             ),
           );
         }
-        debugPrint('[storage.download] Pomyślnie pobrano ${data.length} bajtów');
+        debugPrint(
+          '[storage.download] Pomyślnie pobrano ${data.length} bajtów',
+        );
         return Right(Uint8List.fromList(data));
       } finally {
         dio.close(force: true);
@@ -138,7 +140,9 @@ final class StorageDownloadPlatform {
       debugPrint('[storage.download] Zapisywanie bajtów do $targetPath');
       final file = File(targetPath);
       await file.writeAsBytes(bytes, flush: true);
-      debugPrint('[storage.download] Pomyślnie zapisano ${bytes.length} bajtów');
+      debugPrint(
+        '[storage.download] Pomyślnie zapisano ${bytes.length} bajtów',
+      );
       return const Right(unit);
     } catch (e) {
       debugPrint('[storage.download] Błąd saveBytes: $e');

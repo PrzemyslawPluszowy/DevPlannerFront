@@ -85,7 +85,10 @@ class _ChecklistSectionState extends State<_ChecklistSection> {
                         tooltip: context.l10n.taskDetailsEditChecklistItem,
                         onPressed: widget.isSaving
                             ? null
-                            : () => _editChecklistItem(context, item),
+                            : () => TaskDetailsTextEditor.editChecklistItem(
+                                context,
+                                item,
+                              ),
                         icon: const Icon(Symbols.edit, size: 17),
                       ),
                       IconButton(

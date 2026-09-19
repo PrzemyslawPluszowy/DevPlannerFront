@@ -1,8 +1,8 @@
+import 'package:devplanner/core/config/app_api_module.dart';
+import 'package:devplanner/core/network/app_api_factory.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/config/app_api_module.dart';
-import 'package:ready_next/core/network/app_api_factory.dart';
 import 'package:talker/talker.dart';
 
 void main() {
@@ -10,7 +10,7 @@ void main() {
     test('createDio dokleja Authorization gdy token jest dostepny', () async {
       final dio = AppApiFactory.createDio(
         baseUrl: 'https://example.com',
-        module: AppApiModule.bhp,
+        module: AppApiModule.workspaces,
         accessTokenProvider: () => 'abc123token',
         enableLogging: false,
       );
@@ -30,11 +30,11 @@ void main() {
         ),
       );
 
-      await dio.get<void>('/inventory');
+      await dio.get<void>('/workspaces');
 
       expect(captured, isNotNull);
       expect(captured!.headers['Authorization'], 'Bearer abc123token');
-      expect(captured!.extra[AppApiFactory.requestModuleKey], 'bhp');
+      expect(captured!.extra[AppApiFactory.requestModuleKey], 'workspaces');
     });
 
     test('createAuthDio nie dokleja Authorization', () async {
@@ -71,7 +71,7 @@ void main() {
       final talker = Talker();
       final dio = AppApiFactory.createDio(
         baseUrl: 'https://example.com',
-        module: AppApiModule.bhp,
+        module: AppApiModule.workspaces,
         accessToken: accessToken,
         talker: talker,
       );
@@ -90,7 +90,7 @@ void main() {
           ),
         );
 
-        await dio.get<void>('/inventory');
+        await dio.get<void>('/workspaces');
 
         final loggedMessages = talker.history
             .map((entry) => entry.generateTextMessage())

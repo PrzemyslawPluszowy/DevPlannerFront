@@ -1,41 +1,47 @@
 part of 'tasks_board_page.dart';
 
-Future<void> _showTaskTemplatePicker(BuildContext context) {
-  final boardCubit = context.read<TasksBoardCubit>();
-  final pickerCubit = context.read<TaskTemplatePickerCubit>();
-  final customFieldsFuture = context
-      .read<TaskMetadataRepository>()
-      .listCustomFields(
-        workspaceId: boardCubit.workspaceId,
-        projectId: boardCubit.projectId,
-      )
-      .then(
-        (result) => result.getOrElse(() => const <TaskCustomFieldResponse>[]),
-      );
-  return AppExpandableSideSheet.show<void>(
-    context,
-    title: context.l10n.tasksTemplatesTitle,
-    subtitle: context.l10n.tasksTemplatesDescription,
-    leading: Icon(
-      Symbols.auto_awesome_mosaic,
-      color: context.colors.primary,
-    ),
-    collapsedWidth: 620,
-    expandedWidth: 900,
-    padding: EdgeInsets.zero,
-    scrollBody: false,
-    bodyBuilder: (_, _) => MultiBlocProvider(
-      providers: [
-        BlocProvider.value(value: boardCubit),
-        BlocProvider.value(value: pickerCubit),
-      ],
-      child: TaskTemplatePickerBody(
-        boardCubit: boardCubit,
-        pickerCubit: pickerCubit,
-        customFieldsFuture: customFieldsFuture,
+final class TaskTemplatePickerOverlay {
+  const TaskTemplatePickerOverlay._();
+
+  static Future<void> show(BuildContext context) {
+    final boardCubit = context.read<TasksBoardCubit>();
+    final pickerCubit = context.read<TaskTemplatePickerCubit>();
+    final customFieldsFuture = context
+        .read<TaskMetadataRepository>()
+        .listCustomFields(
+          workspaceId: boardCubit.workspaceId,
+          projectId: boardCubit.projectId,
+        )
+        .then(
+          (result) => result.getOrElse(
+            () => const <TaskCustomFieldResponse>[],
+          ),
+        );
+    return AppExpandableSideSheet.show<void>(
+      context,
+      title: context.l10n.tasksTemplatesTitle,
+      subtitle: context.l10n.tasksTemplatesDescription,
+      leading: Icon(
+        Symbols.auto_awesome_mosaic,
+        color: context.colors.primary,
       ),
-    ),
-  );
+      collapsedWidth: 620,
+      expandedWidth: 900,
+      padding: EdgeInsets.zero,
+      scrollBody: false,
+      bodyBuilder: (_, _) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: boardCubit),
+          BlocProvider.value(value: pickerCubit),
+        ],
+        child: TaskTemplatePickerBody(
+          boardCubit: boardCubit,
+          pickerCubit: pickerCubit,
+          customFieldsFuture: customFieldsFuture,
+        ),
+      ),
+    );
+  }
 }
 
 /// Główna zawartość panelu bocznego biblioteki szablonów zadań.
@@ -139,33 +145,43 @@ class _TaskTemplatePickerList extends StatefulWidget {
 }
 
 class _TaskTemplatePickerListState extends State<_TaskTemplatePickerList> {
-  String? _applyingTemplateId;
+  final ValueNotifier<String?> _applyingTemplateId = ValueNotifier(null);
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    _applyingTemplateId.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<String?>(
+    valueListenable: _applyingTemplateId,
+    builder: (context, applyingTemplateId, _) =>
+        _buildTemplateList(context, applyingTemplateId),
+  );
+
+  Widget _buildTemplateList(BuildContext context, String? applyingTemplateId) {
     final state = widget.state;
     final colors = context.colors;
     final l10n = context.l10n;
     final boardState = widget.boardCubit.state;
     final rawMembers = boardState is TasksBoardReady
-        ? boardState.memberProfilesByCoreUserId.values.toList(growable: false)
+        ? boardState.memberProfilesByUserId.values.toList(growable: false)
         : const <ProjectMemberProfile>[];
-    final authState = context.read<AuthCubit>().state;
-    final currentUser = authState is AuthAuthenticated ? authState.user : null;
+    final currentUser = context.read<AuthSessionPort?>()?.snapshot.user;
     final members = [
       for (final member in rawMembers)
         if (member.displayName?.trim().isNotEmpty == true ||
-            currentUser?.coreUserId?.toLowerCase() !=
-                member.coreUserId.toLowerCase())
+            currentUser?.userId.toLowerCase() != member.userId.toLowerCase())
           member
         else
           ProjectMemberProfile(
-            coreUserId: member.coreUserId,
+            userId: member.userId,
             role: member.role,
             displayName: currentUser?.displayName.trim().isNotEmpty == true
                 ? currentUser!.displayName.trim()
                 : currentUser?.login,
-            avatarUrl: currentUser?.avatarUrl ?? member.avatarUrl,
+            avatarUrl: member.avatarUrl,
           ),
     ];
     final columns = boardState is TasksBoardReady
@@ -189,7 +205,7 @@ class _TaskTemplatePickerListState extends State<_TaskTemplatePickerList> {
               if (state.templates.isNotEmpty)
                 FilledButton.icon(
                   onPressed: () => unawaited(
-                    _createTemplateFromDefinition(
+                    _TemplateManagementActions.createTemplateFromDefinition(
                       context,
                       members,
                       columns: columns,
@@ -240,7 +256,7 @@ class _TaskTemplatePickerListState extends State<_TaskTemplatePickerList> {
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: () => unawaited(
-                      _createTemplateFromDefinition(
+                      _TemplateManagementActions.createTemplateFromDefinition(
                         context,
                         members,
                         columns: columns,
@@ -264,7 +280,7 @@ class _TaskTemplatePickerListState extends State<_TaskTemplatePickerList> {
               itemBuilder: (context, index) {
                 final template = state.templates[index];
                 final isDefault = template.id == state.defaultTemplateId;
-                final applying = template.id == _applyingTemplateId;
+                final applying = template.id == applyingTemplateId;
                 final busy =
                     state.updatingTemplateId == template.id ||
                     state.deletingTemplateId == template.id;
@@ -291,7 +307,7 @@ class _TaskTemplatePickerListState extends State<_TaskTemplatePickerList> {
   }
 
   Future<void> _apply(String templateId) async {
-    if (_applyingTemplateId != null) return;
+    if (_applyingTemplateId.value != null) return;
     final titleController = TextEditingController();
     final title = await showDialog<String>(
       context: context,
@@ -325,143 +341,13 @@ class _TaskTemplatePickerListState extends State<_TaskTemplatePickerList> {
     );
     titleController.dispose();
     if (!mounted || title == null) return;
-    setState(() => _applyingTemplateId = templateId);
+    _applyingTemplateId.value = templateId;
     final created = await widget.boardCubit.applyTaskTemplate(
       templateId: templateId,
       title: title,
     );
     if (!mounted) return;
     if (created) Navigator.of(context).pop();
-    setState(() => _applyingTemplateId = null);
+    if (mounted) _applyingTemplateId.value = null;
   }
-}
-
-class _TaskTemplateTile extends StatelessWidget {
-  const _TaskTemplateTile({
-    required this.template,
-    required this.isDefault,
-    required this.applying,
-    required this.savingDefault,
-    required this.busy,
-    required this.members,
-    required this.columns,
-    required this.pickerCubit,
-    required this.customFields,
-    required this.onApply,
-    required this.onToggleDefault,
-  });
-
-  final TaskTemplateResponse template;
-  final bool isDefault;
-  final bool applying;
-  final bool savingDefault;
-  final bool busy;
-  final List<ProjectMemberProfile> members;
-  final List<KanbanColumnResponse> columns;
-  final TaskTemplatePickerCubit pickerCubit;
-  final List<TaskCustomFieldResponse> customFields;
-  final VoidCallback onApply;
-  final VoidCallback onToggleDefault;
-
-  @override
-  Widget build(BuildContext context) => Material(
-    color: context.colors.surfaceContainerLowest,
-    borderRadius: const .all(.circular(14)),
-    child: Padding(
-      padding: const .fromLTRB(16, 12, 8, 12),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: context.colors.primaryContainer,
-            foregroundColor: context.colors.onPrimaryContainer,
-            child: const Icon(Symbols.task_alt_rounded),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: .start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        template.name,
-                        style: context.text.titleSmall?.copyWith(
-                          fontWeight: .w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (isDefault) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const .symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: context.colors.primaryContainer,
-                          borderRadius: const .all(.circular(12)),
-                        ),
-                        child: Text(
-                          context.l10n.tasksTemplatesDefault,
-                          style: context.text.labelSmall?.copyWith(
-                            color: context.colors.onPrimaryContainer,
-                            fontWeight: .w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  context.l10n.tasksTemplatesApplyHint,
-                  style: context.text.bodySmall?.copyWith(
-                    color: context.colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          if (applying || busy)
-            const SizedBox.square(
-              dimension: 22,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          else ...[
-            FilledButton.tonal(
-              onPressed: onApply,
-              style: FilledButton.styleFrom(
-                visualDensity: .compact,
-                padding: const .symmetric(horizontal: Sizes.p12),
-                minimumSize: const Size(0, 32),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: .all(.circular(Sizes.p8)),
-                ),
-              ),
-              child: Text(context.l10n.tasksTemplatesUseTileAction),
-            ),
-            const SizedBox(width: 4),
-            IconButton(
-              tooltip: isDefault
-                  ? context.l10n.tasksTemplatesClearDefault
-                  : context.l10n.tasksTemplatesSetDefault,
-              onPressed: savingDefault ? null : onToggleDefault,
-              icon: Icon(
-                isDefault ? Symbols.star_rounded : Symbols.star_outline_rounded,
-                color: isDefault ? context.colors.primary : null,
-              ),
-            ),
-            _TemplateTileActions(
-              template: template,
-              disabled: applying || busy,
-              members: members,
-              columns: columns,
-              pickerCubit: pickerCubit,
-              customFields: customFields,
-            ),
-          ],
-        ],
-      ),
-    ),
-  );
 }

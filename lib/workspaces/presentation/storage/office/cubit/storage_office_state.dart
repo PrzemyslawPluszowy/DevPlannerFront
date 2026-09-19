@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
 
 /// Baza stanów sesji edytora OnlyOffice.
 sealed class StorageOfficeState extends Equatable {

@@ -1,7 +1,9 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/presentation/private/cubit/personal_section_cubit.dart';
+import 'package:devplanner/workspaces/presentation/private/cubit/personal_section_state.dart';
+import 'package:devplanner/workspaces/presentation/private/my_tasks_filters.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/presentation/private/cubit/personal_section_cubit.dart';
-import 'package:ready_next/workspaces/presentation/private/cubit/personal_section_state.dart';
 
 void main() {
   group('PersonalSectionCubit', () {
@@ -69,5 +71,15 @@ void main() {
       expect(state.hasMore, isFalse);
       await cubit.close();
     });
+  });
+
+  test('czyszczenie statusu filtra nie zmienia pozostałych kryteriów', () {
+    final filters = MyTasksFilters(
+      status: ProjectTaskStatus.todo,
+      dueFromUtc: DateTime(2026, 1, 2),
+    ).copyWith(clearStatus: true);
+
+    expect(filters.status, isNull);
+    expect(filters.dueFromUtc, DateTime(2026, 1, 2));
   });
 }

@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
+import 'package:devplanner/workspaces/data/storage/repositories/storage_repository_impl.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/storage/api/storage_api.dart';
-import 'package:ready_next/workspaces/data/storage/repositories/storage_repository_impl.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
 
 class _RecordingAdapter implements HttpClientAdapter {
   final requests = <RequestOptions>[];

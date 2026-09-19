@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 
 /// Odczyt i zatwierdzanie załączników należących do pojedynczego zadania.
 abstract interface class TaskAttachmentRepository {

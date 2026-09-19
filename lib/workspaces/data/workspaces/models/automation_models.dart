@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/shared/enums/automation_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/automation_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
 
 part 'automation_models.freezed.dart';
 part 'automation_models.g.dart';

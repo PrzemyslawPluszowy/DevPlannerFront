@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
 
 /// Trwały, prywatny magazyn draftów rozmów, rozdzielony per użytkownik i rozmowa.
 abstract interface class ChatDraftRepository {

@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/task_list_selection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/task_list_selection.dart';
 
 void main() {
   group('TaskListSelection', () {

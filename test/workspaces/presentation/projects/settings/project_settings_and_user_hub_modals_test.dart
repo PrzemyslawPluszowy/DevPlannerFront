@@ -1,25 +1,25 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/projects/templates/models/project_template_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/workspaces/models/automation_models.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/automation_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/custom_workflow_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_templates_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/project_settings_modal.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/user_hub/project_user_hub_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/projects/templates/models/project_template_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/workspaces/models/automation_models.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/automation_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/custom_workflow_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/milestone_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_templates_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/projects_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspaces_repository.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/project_settings_modal.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/user_hub/project_user_hub_modal.dart';
 
 class _MockProjectsRepository extends Mock implements ProjectsRepository {}
 
@@ -233,7 +233,7 @@ void main() {
         buildTestApp(
           Builder(
             builder: (ctx) => ElevatedButton(
-              onPressed: () => showProjectUserHubModal(
+              onPressed: () => ProjectUserHubDialogs.show(
                 context: ctx,
                 project: project,
                 userRole: ProjectRole.admin,
@@ -275,7 +275,7 @@ void main() {
         buildTestApp(
           Builder(
             builder: (ctx) => ElevatedButton(
-              onPressed: () => showProjectSettingsModal(
+              onPressed: () => ProjectSettingsDialogs.show(
                 context: ctx,
                 project: project,
                 userRole: ProjectRole.admin,
@@ -317,7 +317,7 @@ void main() {
         buildTestApp(
           Builder(
             builder: (ctx) => ElevatedButton(
-              onPressed: () => showProjectSettingsModal(
+              onPressed: () => ProjectSettingsDialogs.show(
                 context: ctx,
                 project: project,
                 userRole: ProjectRole.admin,
@@ -376,7 +376,7 @@ void main() {
         buildTestApp(
           Builder(
             builder: (ctx) => ElevatedButton(
-              onPressed: () => showProjectSettingsModal(
+              onPressed: () => ProjectSettingsDialogs.show(
                 context: ctx,
                 project: project,
                 userRole: ProjectRole.member,

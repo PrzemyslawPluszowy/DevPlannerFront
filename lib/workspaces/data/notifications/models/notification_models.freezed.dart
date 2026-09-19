@@ -335,7 +335,7 @@ as bool,
 /// @nodoc
 mixin _$NotificationActorAvatarResponse {
 
- String get coreUserId; String? get avatarUrl;
+ String get userId; String? get avatarUrl;
 /// Create a copy of NotificationActorAvatarResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -348,16 +348,16 @@ $NotificationActorAvatarResponseCopyWith<NotificationActorAvatarResponse> get co
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationActorAvatarResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationActorAvatarResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,avatarUrl);
+int get hashCode => Object.hash(runtimeType,userId,avatarUrl);
 
 @override
 String toString() {
-  return 'NotificationActorAvatarResponse(coreUserId: $coreUserId, avatarUrl: $avatarUrl)';
+  return 'NotificationActorAvatarResponse(userId: $userId, avatarUrl: $avatarUrl)';
 }
 
 
@@ -368,7 +368,7 @@ abstract mixin class $NotificationActorAvatarResponseCopyWith<$Res>  {
   factory $NotificationActorAvatarResponseCopyWith(NotificationActorAvatarResponse value, $Res Function(NotificationActorAvatarResponse) _then) = _$NotificationActorAvatarResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, String? avatarUrl
+ String userId, String? avatarUrl
 });
 
 
@@ -385,9 +385,9 @@ class _$NotificationActorAvatarResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationActorAvatarResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? avatarUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? avatarUrl = freezed,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -474,10 +474,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  String? avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String? avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationActorAvatarResponse() when $default != null:
-return $default(_that.coreUserId,_that.avatarUrl);case _:
+return $default(_that.userId,_that.avatarUrl);case _:
   return orElse();
 
 }
@@ -495,10 +495,10 @@ return $default(_that.coreUserId,_that.avatarUrl);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  String? avatarUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String? avatarUrl)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationActorAvatarResponse():
-return $default(_that.coreUserId,_that.avatarUrl);case _:
+return $default(_that.userId,_that.avatarUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -515,10 +515,10 @@ return $default(_that.coreUserId,_that.avatarUrl);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  String? avatarUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String? avatarUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationActorAvatarResponse() when $default != null:
-return $default(_that.coreUserId,_that.avatarUrl);case _:
+return $default(_that.userId,_that.avatarUrl);case _:
   return null;
 
 }
@@ -530,10 +530,10 @@ return $default(_that.coreUserId,_that.avatarUrl);case _:
 @JsonSerializable()
 
 class _NotificationActorAvatarResponse implements NotificationActorAvatarResponse {
-  const _NotificationActorAvatarResponse({required this.coreUserId, this.avatarUrl});
+  const _NotificationActorAvatarResponse({required this.userId, this.avatarUrl});
   factory _NotificationActorAvatarResponse.fromJson(Map<String, dynamic> json) => _$NotificationActorAvatarResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  String? avatarUrl;
 
 /// Create a copy of NotificationActorAvatarResponse
@@ -549,16 +549,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationActorAvatarResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationActorAvatarResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,avatarUrl);
+int get hashCode => Object.hash(runtimeType,userId,avatarUrl);
 
 @override
 String toString() {
-  return 'NotificationActorAvatarResponse(coreUserId: $coreUserId, avatarUrl: $avatarUrl)';
+  return 'NotificationActorAvatarResponse(userId: $userId, avatarUrl: $avatarUrl)';
 }
 
 
@@ -569,7 +569,7 @@ abstract mixin class _$NotificationActorAvatarResponseCopyWith<$Res> implements 
   factory _$NotificationActorAvatarResponseCopyWith(_NotificationActorAvatarResponse value, $Res Function(_NotificationActorAvatarResponse) _then) = __$NotificationActorAvatarResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, String? avatarUrl
+ String userId, String? avatarUrl
 });
 
 
@@ -586,9 +586,9 @@ class __$NotificationActorAvatarResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationActorAvatarResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? avatarUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? avatarUrl = freezed,}) {
   return _then(_NotificationActorAvatarResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -1704,7 +1704,7 @@ as NotificationEmailDeliveryMode,
 /// @nodoc
 mixin _$NotificationDeliveryPreferenceResponse {
 
- String get coreUserId; NotificationEmailCategoryPreference get invitation; NotificationEmailCategoryPreference get membership; NotificationEmailCategoryPreference get workspace; NotificationEmailCategoryPreference get project; NotificationEmailCategoryPreference get task; NotificationEmailCategoryPreference get comment; NotificationEmailCategoryPreference get chat; NotificationEmailCategoryPreference get storage; NotificationEmailCategoryPreference get system; DateTime get updatedAtUtc;
+ String get userId; NotificationEmailCategoryPreference get invitation; NotificationEmailCategoryPreference get membership; NotificationEmailCategoryPreference get workspace; NotificationEmailCategoryPreference get project; NotificationEmailCategoryPreference get task; NotificationEmailCategoryPreference get comment; NotificationEmailCategoryPreference get chat; NotificationEmailCategoryPreference get storage; NotificationEmailCategoryPreference get system; DateTime get updatedAtUtc;
 /// Create a copy of NotificationDeliveryPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1717,16 +1717,16 @@ $NotificationDeliveryPreferenceResponseCopyWith<NotificationDeliveryPreferenceRe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationDeliveryPreferenceResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.invitation, invitation) || other.invitation == invitation)&&(identical(other.membership, membership) || other.membership == membership)&&(identical(other.workspace, workspace) || other.workspace == workspace)&&(identical(other.project, project) || other.project == project)&&(identical(other.task, task) || other.task == task)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.chat, chat) || other.chat == chat)&&(identical(other.storage, storage) || other.storage == storage)&&(identical(other.system, system) || other.system == system)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationDeliveryPreferenceResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.invitation, invitation) || other.invitation == invitation)&&(identical(other.membership, membership) || other.membership == membership)&&(identical(other.workspace, workspace) || other.workspace == workspace)&&(identical(other.project, project) || other.project == project)&&(identical(other.task, task) || other.task == task)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.chat, chat) || other.chat == chat)&&(identical(other.storage, storage) || other.storage == storage)&&(identical(other.system, system) || other.system == system)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,invitation,membership,workspace,project,task,comment,chat,storage,system,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,invitation,membership,workspace,project,task,comment,chat,storage,system,updatedAtUtc);
 
 @override
 String toString() {
-  return 'NotificationDeliveryPreferenceResponse(coreUserId: $coreUserId, invitation: $invitation, membership: $membership, workspace: $workspace, project: $project, task: $task, comment: $comment, chat: $chat, storage: $storage, system: $system, updatedAtUtc: $updatedAtUtc)';
+  return 'NotificationDeliveryPreferenceResponse(userId: $userId, invitation: $invitation, membership: $membership, workspace: $workspace, project: $project, task: $task, comment: $comment, chat: $chat, storage: $storage, system: $system, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -1737,7 +1737,7 @@ abstract mixin class $NotificationDeliveryPreferenceResponseCopyWith<$Res>  {
   factory $NotificationDeliveryPreferenceResponseCopyWith(NotificationDeliveryPreferenceResponse value, $Res Function(NotificationDeliveryPreferenceResponse) _then) = _$NotificationDeliveryPreferenceResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, NotificationEmailCategoryPreference invitation, NotificationEmailCategoryPreference membership, NotificationEmailCategoryPreference workspace, NotificationEmailCategoryPreference project, NotificationEmailCategoryPreference task, NotificationEmailCategoryPreference comment, NotificationEmailCategoryPreference chat, NotificationEmailCategoryPreference storage, NotificationEmailCategoryPreference system, DateTime updatedAtUtc
+ String userId, NotificationEmailCategoryPreference invitation, NotificationEmailCategoryPreference membership, NotificationEmailCategoryPreference workspace, NotificationEmailCategoryPreference project, NotificationEmailCategoryPreference task, NotificationEmailCategoryPreference comment, NotificationEmailCategoryPreference chat, NotificationEmailCategoryPreference storage, NotificationEmailCategoryPreference system, DateTime updatedAtUtc
 });
 
 
@@ -1754,9 +1754,9 @@ class _$NotificationDeliveryPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationDeliveryPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? invitation = null,Object? membership = null,Object? workspace = null,Object? project = null,Object? task = null,Object? comment = null,Object? chat = null,Object? storage = null,Object? system = null,Object? updatedAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? invitation = null,Object? membership = null,Object? workspace = null,Object? project = null,Object? task = null,Object? comment = null,Object? chat = null,Object? storage = null,Object? system = null,Object? updatedAtUtc = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,invitation: null == invitation ? _self.invitation : invitation // ignore: cast_nullable_to_non_nullable
 as NotificationEmailCategoryPreference,membership: null == membership ? _self.membership : membership // ignore: cast_nullable_to_non_nullable
 as NotificationEmailCategoryPreference,workspace: null == workspace ? _self.workspace : workspace // ignore: cast_nullable_to_non_nullable
@@ -1933,10 +1933,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  NotificationEmailCategoryPreference invitation,  NotificationEmailCategoryPreference membership,  NotificationEmailCategoryPreference workspace,  NotificationEmailCategoryPreference project,  NotificationEmailCategoryPreference task,  NotificationEmailCategoryPreference comment,  NotificationEmailCategoryPreference chat,  NotificationEmailCategoryPreference storage,  NotificationEmailCategoryPreference system,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  NotificationEmailCategoryPreference invitation,  NotificationEmailCategoryPreference membership,  NotificationEmailCategoryPreference workspace,  NotificationEmailCategoryPreference project,  NotificationEmailCategoryPreference task,  NotificationEmailCategoryPreference comment,  NotificationEmailCategoryPreference chat,  NotificationEmailCategoryPreference storage,  NotificationEmailCategoryPreference system,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationDeliveryPreferenceResponse() when $default != null:
-return $default(_that.coreUserId,_that.invitation,_that.membership,_that.workspace,_that.project,_that.task,_that.comment,_that.chat,_that.storage,_that.system,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.invitation,_that.membership,_that.workspace,_that.project,_that.task,_that.comment,_that.chat,_that.storage,_that.system,_that.updatedAtUtc);case _:
   return orElse();
 
 }
@@ -1954,10 +1954,10 @@ return $default(_that.coreUserId,_that.invitation,_that.membership,_that.workspa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  NotificationEmailCategoryPreference invitation,  NotificationEmailCategoryPreference membership,  NotificationEmailCategoryPreference workspace,  NotificationEmailCategoryPreference project,  NotificationEmailCategoryPreference task,  NotificationEmailCategoryPreference comment,  NotificationEmailCategoryPreference chat,  NotificationEmailCategoryPreference storage,  NotificationEmailCategoryPreference system,  DateTime updatedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  NotificationEmailCategoryPreference invitation,  NotificationEmailCategoryPreference membership,  NotificationEmailCategoryPreference workspace,  NotificationEmailCategoryPreference project,  NotificationEmailCategoryPreference task,  NotificationEmailCategoryPreference comment,  NotificationEmailCategoryPreference chat,  NotificationEmailCategoryPreference storage,  NotificationEmailCategoryPreference system,  DateTime updatedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationDeliveryPreferenceResponse():
-return $default(_that.coreUserId,_that.invitation,_that.membership,_that.workspace,_that.project,_that.task,_that.comment,_that.chat,_that.storage,_that.system,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.invitation,_that.membership,_that.workspace,_that.project,_that.task,_that.comment,_that.chat,_that.storage,_that.system,_that.updatedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1974,10 +1974,10 @@ return $default(_that.coreUserId,_that.invitation,_that.membership,_that.workspa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  NotificationEmailCategoryPreference invitation,  NotificationEmailCategoryPreference membership,  NotificationEmailCategoryPreference workspace,  NotificationEmailCategoryPreference project,  NotificationEmailCategoryPreference task,  NotificationEmailCategoryPreference comment,  NotificationEmailCategoryPreference chat,  NotificationEmailCategoryPreference storage,  NotificationEmailCategoryPreference system,  DateTime updatedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  NotificationEmailCategoryPreference invitation,  NotificationEmailCategoryPreference membership,  NotificationEmailCategoryPreference workspace,  NotificationEmailCategoryPreference project,  NotificationEmailCategoryPreference task,  NotificationEmailCategoryPreference comment,  NotificationEmailCategoryPreference chat,  NotificationEmailCategoryPreference storage,  NotificationEmailCategoryPreference system,  DateTime updatedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationDeliveryPreferenceResponse() when $default != null:
-return $default(_that.coreUserId,_that.invitation,_that.membership,_that.workspace,_that.project,_that.task,_that.comment,_that.chat,_that.storage,_that.system,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.invitation,_that.membership,_that.workspace,_that.project,_that.task,_that.comment,_that.chat,_that.storage,_that.system,_that.updatedAtUtc);case _:
   return null;
 
 }
@@ -1989,10 +1989,10 @@ return $default(_that.coreUserId,_that.invitation,_that.membership,_that.workspa
 @JsonSerializable()
 
 class _NotificationDeliveryPreferenceResponse implements NotificationDeliveryPreferenceResponse {
-  const _NotificationDeliveryPreferenceResponse({required this.coreUserId, required this.invitation, required this.membership, required this.workspace, required this.project, required this.task, required this.comment, required this.chat, required this.storage, required this.system, required this.updatedAtUtc});
+  const _NotificationDeliveryPreferenceResponse({required this.userId, required this.invitation, required this.membership, required this.workspace, required this.project, required this.task, required this.comment, required this.chat, required this.storage, required this.system, required this.updatedAtUtc});
   factory _NotificationDeliveryPreferenceResponse.fromJson(Map<String, dynamic> json) => _$NotificationDeliveryPreferenceResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  NotificationEmailCategoryPreference invitation;
 @override final  NotificationEmailCategoryPreference membership;
 @override final  NotificationEmailCategoryPreference workspace;
@@ -2017,16 +2017,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationDeliveryPreferenceResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.invitation, invitation) || other.invitation == invitation)&&(identical(other.membership, membership) || other.membership == membership)&&(identical(other.workspace, workspace) || other.workspace == workspace)&&(identical(other.project, project) || other.project == project)&&(identical(other.task, task) || other.task == task)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.chat, chat) || other.chat == chat)&&(identical(other.storage, storage) || other.storage == storage)&&(identical(other.system, system) || other.system == system)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationDeliveryPreferenceResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.invitation, invitation) || other.invitation == invitation)&&(identical(other.membership, membership) || other.membership == membership)&&(identical(other.workspace, workspace) || other.workspace == workspace)&&(identical(other.project, project) || other.project == project)&&(identical(other.task, task) || other.task == task)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.chat, chat) || other.chat == chat)&&(identical(other.storage, storage) || other.storage == storage)&&(identical(other.system, system) || other.system == system)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,invitation,membership,workspace,project,task,comment,chat,storage,system,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,invitation,membership,workspace,project,task,comment,chat,storage,system,updatedAtUtc);
 
 @override
 String toString() {
-  return 'NotificationDeliveryPreferenceResponse(coreUserId: $coreUserId, invitation: $invitation, membership: $membership, workspace: $workspace, project: $project, task: $task, comment: $comment, chat: $chat, storage: $storage, system: $system, updatedAtUtc: $updatedAtUtc)';
+  return 'NotificationDeliveryPreferenceResponse(userId: $userId, invitation: $invitation, membership: $membership, workspace: $workspace, project: $project, task: $task, comment: $comment, chat: $chat, storage: $storage, system: $system, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -2037,7 +2037,7 @@ abstract mixin class _$NotificationDeliveryPreferenceResponseCopyWith<$Res> impl
   factory _$NotificationDeliveryPreferenceResponseCopyWith(_NotificationDeliveryPreferenceResponse value, $Res Function(_NotificationDeliveryPreferenceResponse) _then) = __$NotificationDeliveryPreferenceResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, NotificationEmailCategoryPreference invitation, NotificationEmailCategoryPreference membership, NotificationEmailCategoryPreference workspace, NotificationEmailCategoryPreference project, NotificationEmailCategoryPreference task, NotificationEmailCategoryPreference comment, NotificationEmailCategoryPreference chat, NotificationEmailCategoryPreference storage, NotificationEmailCategoryPreference system, DateTime updatedAtUtc
+ String userId, NotificationEmailCategoryPreference invitation, NotificationEmailCategoryPreference membership, NotificationEmailCategoryPreference workspace, NotificationEmailCategoryPreference project, NotificationEmailCategoryPreference task, NotificationEmailCategoryPreference comment, NotificationEmailCategoryPreference chat, NotificationEmailCategoryPreference storage, NotificationEmailCategoryPreference system, DateTime updatedAtUtc
 });
 
 
@@ -2054,9 +2054,9 @@ class __$NotificationDeliveryPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of NotificationDeliveryPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? invitation = null,Object? membership = null,Object? workspace = null,Object? project = null,Object? task = null,Object? comment = null,Object? chat = null,Object? storage = null,Object? system = null,Object? updatedAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? invitation = null,Object? membership = null,Object? workspace = null,Object? project = null,Object? task = null,Object? comment = null,Object? chat = null,Object? storage = null,Object? system = null,Object? updatedAtUtc = null,}) {
   return _then(_NotificationDeliveryPreferenceResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,invitation: null == invitation ? _self.invitation : invitation // ignore: cast_nullable_to_non_nullable
 as NotificationEmailCategoryPreference,membership: null == membership ? _self.membership : membership // ignore: cast_nullable_to_non_nullable
 as NotificationEmailCategoryPreference,workspace: null == workspace ? _self.workspace : workspace // ignore: cast_nullable_to_non_nullable
@@ -2446,7 +2446,7 @@ as NotificationEmailDeliveryMode?,
 /// @nodoc
 mixin _$StorageNotificationPreferenceResponse {
 
- String get coreUserId; StorageNotificationPreferenceMode get mode; bool get isDefault; DateTime? get updatedAtUtc;
+ String get userId; StorageNotificationPreferenceMode get mode; bool get isDefault; DateTime? get updatedAtUtc;
 /// Create a copy of StorageNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2459,16 +2459,16 @@ $StorageNotificationPreferenceResponseCopyWith<StorageNotificationPreferenceResp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageNotificationPreferenceResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageNotificationPreferenceResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,mode,isDefault,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,mode,isDefault,updatedAtUtc);
 
 @override
 String toString() {
-  return 'StorageNotificationPreferenceResponse(coreUserId: $coreUserId, mode: $mode, isDefault: $isDefault, updatedAtUtc: $updatedAtUtc)';
+  return 'StorageNotificationPreferenceResponse(userId: $userId, mode: $mode, isDefault: $isDefault, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -2479,7 +2479,7 @@ abstract mixin class $StorageNotificationPreferenceResponseCopyWith<$Res>  {
   factory $StorageNotificationPreferenceResponseCopyWith(StorageNotificationPreferenceResponse value, $Res Function(StorageNotificationPreferenceResponse) _then) = _$StorageNotificationPreferenceResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, StorageNotificationPreferenceMode mode, bool isDefault, DateTime? updatedAtUtc
+ String userId, StorageNotificationPreferenceMode mode, bool isDefault, DateTime? updatedAtUtc
 });
 
 
@@ -2496,9 +2496,9 @@ class _$StorageNotificationPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? mode = null,Object? isDefault = null,Object? updatedAtUtc = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? mode = null,Object? isDefault = null,Object? updatedAtUtc = freezed,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as StorageNotificationPreferenceMode,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
 as bool,updatedAtUtc: freezed == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
@@ -2587,10 +2587,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  StorageNotificationPreferenceMode mode,  bool isDefault,  DateTime? updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  StorageNotificationPreferenceMode mode,  bool isDefault,  DateTime? updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StorageNotificationPreferenceResponse() when $default != null:
-return $default(_that.coreUserId,_that.mode,_that.isDefault,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.mode,_that.isDefault,_that.updatedAtUtc);case _:
   return orElse();
 
 }
@@ -2608,10 +2608,10 @@ return $default(_that.coreUserId,_that.mode,_that.isDefault,_that.updatedAtUtc);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  StorageNotificationPreferenceMode mode,  bool isDefault,  DateTime? updatedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  StorageNotificationPreferenceMode mode,  bool isDefault,  DateTime? updatedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _StorageNotificationPreferenceResponse():
-return $default(_that.coreUserId,_that.mode,_that.isDefault,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.mode,_that.isDefault,_that.updatedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2628,10 +2628,10 @@ return $default(_that.coreUserId,_that.mode,_that.isDefault,_that.updatedAtUtc);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  StorageNotificationPreferenceMode mode,  bool isDefault,  DateTime? updatedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  StorageNotificationPreferenceMode mode,  bool isDefault,  DateTime? updatedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _StorageNotificationPreferenceResponse() when $default != null:
-return $default(_that.coreUserId,_that.mode,_that.isDefault,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.mode,_that.isDefault,_that.updatedAtUtc);case _:
   return null;
 
 }
@@ -2643,10 +2643,10 @@ return $default(_that.coreUserId,_that.mode,_that.isDefault,_that.updatedAtUtc);
 @JsonSerializable()
 
 class _StorageNotificationPreferenceResponse implements StorageNotificationPreferenceResponse {
-  const _StorageNotificationPreferenceResponse({required this.coreUserId, required this.mode, required this.isDefault, this.updatedAtUtc});
+  const _StorageNotificationPreferenceResponse({required this.userId, required this.mode, required this.isDefault, this.updatedAtUtc});
   factory _StorageNotificationPreferenceResponse.fromJson(Map<String, dynamic> json) => _$StorageNotificationPreferenceResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  StorageNotificationPreferenceMode mode;
 @override final  bool isDefault;
 @override final  DateTime? updatedAtUtc;
@@ -2664,16 +2664,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageNotificationPreferenceResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageNotificationPreferenceResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,mode,isDefault,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,mode,isDefault,updatedAtUtc);
 
 @override
 String toString() {
-  return 'StorageNotificationPreferenceResponse(coreUserId: $coreUserId, mode: $mode, isDefault: $isDefault, updatedAtUtc: $updatedAtUtc)';
+  return 'StorageNotificationPreferenceResponse(userId: $userId, mode: $mode, isDefault: $isDefault, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -2684,7 +2684,7 @@ abstract mixin class _$StorageNotificationPreferenceResponseCopyWith<$Res> imple
   factory _$StorageNotificationPreferenceResponseCopyWith(_StorageNotificationPreferenceResponse value, $Res Function(_StorageNotificationPreferenceResponse) _then) = __$StorageNotificationPreferenceResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, StorageNotificationPreferenceMode mode, bool isDefault, DateTime? updatedAtUtc
+ String userId, StorageNotificationPreferenceMode mode, bool isDefault, DateTime? updatedAtUtc
 });
 
 
@@ -2701,9 +2701,9 @@ class __$StorageNotificationPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? mode = null,Object? isDefault = null,Object? updatedAtUtc = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? mode = null,Object? isDefault = null,Object? updatedAtUtc = freezed,}) {
   return _then(_StorageNotificationPreferenceResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as StorageNotificationPreferenceMode,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
 as bool,updatedAtUtc: freezed == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
@@ -3782,7 +3782,7 @@ as String?,
 /// @nodoc
 mixin _$CreateAdminNotificationPayload {
 
- String get recipientCoreUserId; String get title; String get body; String? get deepLink; String? get workspaceId;
+ String get recipientUserId; String get title; String get body; String? get deepLink; String? get workspaceId;
 /// Create a copy of CreateAdminNotificationPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3795,16 +3795,16 @@ $CreateAdminNotificationPayloadCopyWith<CreateAdminNotificationPayload> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateAdminNotificationPayload&&(identical(other.recipientCoreUserId, recipientCoreUserId) || other.recipientCoreUserId == recipientCoreUserId)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateAdminNotificationPayload&&(identical(other.recipientUserId, recipientUserId) || other.recipientUserId == recipientUserId)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,recipientCoreUserId,title,body,deepLink,workspaceId);
+int get hashCode => Object.hash(runtimeType,recipientUserId,title,body,deepLink,workspaceId);
 
 @override
 String toString() {
-  return 'CreateAdminNotificationPayload(recipientCoreUserId: $recipientCoreUserId, title: $title, body: $body, deepLink: $deepLink, workspaceId: $workspaceId)';
+  return 'CreateAdminNotificationPayload(recipientUserId: $recipientUserId, title: $title, body: $body, deepLink: $deepLink, workspaceId: $workspaceId)';
 }
 
 
@@ -3815,7 +3815,7 @@ abstract mixin class $CreateAdminNotificationPayloadCopyWith<$Res>  {
   factory $CreateAdminNotificationPayloadCopyWith(CreateAdminNotificationPayload value, $Res Function(CreateAdminNotificationPayload) _then) = _$CreateAdminNotificationPayloadCopyWithImpl;
 @useResult
 $Res call({
- String recipientCoreUserId, String title, String body, String? deepLink, String? workspaceId
+ String recipientUserId, String title, String body, String? deepLink, String? workspaceId
 });
 
 
@@ -3832,9 +3832,9 @@ class _$CreateAdminNotificationPayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateAdminNotificationPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? recipientCoreUserId = null,Object? title = null,Object? body = null,Object? deepLink = freezed,Object? workspaceId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? recipientUserId = null,Object? title = null,Object? body = null,Object? deepLink = freezed,Object? workspaceId = freezed,}) {
   return _then(_self.copyWith(
-recipientCoreUserId: null == recipientCoreUserId ? _self.recipientCoreUserId : recipientCoreUserId // ignore: cast_nullable_to_non_nullable
+recipientUserId: null == recipientUserId ? _self.recipientUserId : recipientUserId // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,body: null == body ? _self.body : body // ignore: cast_nullable_to_non_nullable
 as String,deepLink: freezed == deepLink ? _self.deepLink : deepLink // ignore: cast_nullable_to_non_nullable
@@ -3924,10 +3924,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String recipientCoreUserId,  String title,  String body,  String? deepLink,  String? workspaceId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String recipientUserId,  String title,  String body,  String? deepLink,  String? workspaceId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreateAdminNotificationPayload() when $default != null:
-return $default(_that.recipientCoreUserId,_that.title,_that.body,_that.deepLink,_that.workspaceId);case _:
+return $default(_that.recipientUserId,_that.title,_that.body,_that.deepLink,_that.workspaceId);case _:
   return orElse();
 
 }
@@ -3945,10 +3945,10 @@ return $default(_that.recipientCoreUserId,_that.title,_that.body,_that.deepLink,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String recipientCoreUserId,  String title,  String body,  String? deepLink,  String? workspaceId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String recipientUserId,  String title,  String body,  String? deepLink,  String? workspaceId)  $default,) {final _that = this;
 switch (_that) {
 case _CreateAdminNotificationPayload():
-return $default(_that.recipientCoreUserId,_that.title,_that.body,_that.deepLink,_that.workspaceId);case _:
+return $default(_that.recipientUserId,_that.title,_that.body,_that.deepLink,_that.workspaceId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3965,10 +3965,10 @@ return $default(_that.recipientCoreUserId,_that.title,_that.body,_that.deepLink,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String recipientCoreUserId,  String title,  String body,  String? deepLink,  String? workspaceId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String recipientUserId,  String title,  String body,  String? deepLink,  String? workspaceId)?  $default,) {final _that = this;
 switch (_that) {
 case _CreateAdminNotificationPayload() when $default != null:
-return $default(_that.recipientCoreUserId,_that.title,_that.body,_that.deepLink,_that.workspaceId);case _:
+return $default(_that.recipientUserId,_that.title,_that.body,_that.deepLink,_that.workspaceId);case _:
   return null;
 
 }
@@ -3980,10 +3980,10 @@ return $default(_that.recipientCoreUserId,_that.title,_that.body,_that.deepLink,
 @JsonSerializable()
 
 class _CreateAdminNotificationPayload implements CreateAdminNotificationPayload {
-  const _CreateAdminNotificationPayload({required this.recipientCoreUserId, required this.title, required this.body, this.deepLink, this.workspaceId});
+  const _CreateAdminNotificationPayload({required this.recipientUserId, required this.title, required this.body, this.deepLink, this.workspaceId});
   factory _CreateAdminNotificationPayload.fromJson(Map<String, dynamic> json) => _$CreateAdminNotificationPayloadFromJson(json);
 
-@override final  String recipientCoreUserId;
+@override final  String recipientUserId;
 @override final  String title;
 @override final  String body;
 @override final  String? deepLink;
@@ -4002,16 +4002,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateAdminNotificationPayload&&(identical(other.recipientCoreUserId, recipientCoreUserId) || other.recipientCoreUserId == recipientCoreUserId)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateAdminNotificationPayload&&(identical(other.recipientUserId, recipientUserId) || other.recipientUserId == recipientUserId)&&(identical(other.title, title) || other.title == title)&&(identical(other.body, body) || other.body == body)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,recipientCoreUserId,title,body,deepLink,workspaceId);
+int get hashCode => Object.hash(runtimeType,recipientUserId,title,body,deepLink,workspaceId);
 
 @override
 String toString() {
-  return 'CreateAdminNotificationPayload(recipientCoreUserId: $recipientCoreUserId, title: $title, body: $body, deepLink: $deepLink, workspaceId: $workspaceId)';
+  return 'CreateAdminNotificationPayload(recipientUserId: $recipientUserId, title: $title, body: $body, deepLink: $deepLink, workspaceId: $workspaceId)';
 }
 
 
@@ -4022,7 +4022,7 @@ abstract mixin class _$CreateAdminNotificationPayloadCopyWith<$Res> implements $
   factory _$CreateAdminNotificationPayloadCopyWith(_CreateAdminNotificationPayload value, $Res Function(_CreateAdminNotificationPayload) _then) = __$CreateAdminNotificationPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String recipientCoreUserId, String title, String body, String? deepLink, String? workspaceId
+ String recipientUserId, String title, String body, String? deepLink, String? workspaceId
 });
 
 
@@ -4039,9 +4039,9 @@ class __$CreateAdminNotificationPayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateAdminNotificationPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? recipientCoreUserId = null,Object? title = null,Object? body = null,Object? deepLink = freezed,Object? workspaceId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? recipientUserId = null,Object? title = null,Object? body = null,Object? deepLink = freezed,Object? workspaceId = freezed,}) {
   return _then(_CreateAdminNotificationPayload(
-recipientCoreUserId: null == recipientCoreUserId ? _self.recipientCoreUserId : recipientCoreUserId // ignore: cast_nullable_to_non_nullable
+recipientUserId: null == recipientUserId ? _self.recipientUserId : recipientUserId // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,body: null == body ? _self.body : body // ignore: cast_nullable_to_non_nullable
 as String,deepLink: freezed == deepLink ? _self.deepLink : deepLink // ignore: cast_nullable_to_non_nullable

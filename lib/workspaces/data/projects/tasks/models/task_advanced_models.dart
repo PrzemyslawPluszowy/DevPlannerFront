@@ -1,10 +1,10 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_status_category.dart';
 
 part 'task_advanced_models.freezed.dart';
 part 'task_advanced_models.g.dart';
@@ -182,7 +182,7 @@ abstract class TaskHistoryActorResponse with _$TaskHistoryActorResponse {
   /// Tworzy aktora historii.
   const factory TaskHistoryActorResponse({
     required TaskActorType type,
-    String? coreUserId,
+    String? userId,
   }) = _TaskHistoryActorResponse;
 
   /// Odtwarza aktora z JSON.
@@ -304,7 +304,7 @@ abstract class TaskTimeEntryResponse with _$TaskTimeEntryResponse {
     required bool isBillable,
     required DateTime createdAtUtc,
     required TaskTimeEntryApprovalStatus approvalStatus,
-    String? reviewedByCoreUserId,
+    String? reviewedByUserId,
     DateTime? reviewedAtUtc,
     String? reviewComment,
     required int version,

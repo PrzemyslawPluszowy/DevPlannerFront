@@ -1,15 +1,15 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/chat_notification_settings.dart';
+import 'package:devplanner/workspaces/presentation/chat/settings/chat_conversation_notification_settings_modal.dart';
+import 'package:devplanner/workspaces/presentation/chat/settings/chat_global_notification_settings_section.dart';
+import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_conversation_notification_settings_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_global_notification_settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/domain/notifications/chat_notification_settings_repository.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/chat_notification_settings.dart';
-import 'package:ready_next/workspaces/presentation/chat/settings/chat_conversation_notification_settings_modal.dart';
-import 'package:ready_next/workspaces/presentation/chat/settings/chat_global_notification_settings_section.dart';
-import 'package:ready_next/workspaces/presentation/chat/settings/cubit/chat_conversation_notification_settings_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/settings/cubit/chat_global_notification_settings_cubit.dart';
 
 class _FakeChatNotificationSettingsRepository
     implements ChatNotificationSettingsRepository {
@@ -54,7 +54,7 @@ class _FakeChatNotificationSettingsRepository
 
 abstract final class _ChatNotificationSettingsFixture {
   static const global = ChatNotificationSettings(
-    coreUserId: 'user-1',
+    userId: 'user-1',
     inAppEnabled: true,
     emailEnabled: true,
     pushEnabled: false,
@@ -63,7 +63,7 @@ abstract final class _ChatNotificationSettingsFixture {
 
   static const conversation = ChatConversationNotificationSetting(
     conversationId: 'conversation-1',
-    coreUserId: 'user-1',
+    userId: 'user-1',
     mode: ChatConversationNotificationMode.all,
   );
 

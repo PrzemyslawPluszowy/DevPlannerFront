@@ -1,7 +1,7 @@
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/chat_notification_settings.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/notifications/chat_notification_settings_repository.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/chat_notification_settings.dart';
 
 /// Właściciel globalnych kanałów powiadomień Chat bieżącego użytkownika.
 ///
@@ -174,7 +174,7 @@ abstract final class ChatGlobalNotificationSettingsMapper {
     ChatNotificationChannel channel,
     bool enabled,
   ) => ChatNotificationSettings(
-    coreUserId: settings.coreUserId,
+    userId: settings.userId,
     inAppEnabled: channel == ChatNotificationChannel.inApp
         ? enabled
         : settings.inAppEnabled,

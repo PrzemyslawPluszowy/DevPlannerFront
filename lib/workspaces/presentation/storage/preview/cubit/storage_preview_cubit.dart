@@ -1,19 +1,17 @@
+import 'package:devplanner/foundation/config/app_api_module.dart';
+import 'package:devplanner/foundation/config/app_env.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/auth/auth_repository.dart';
-import 'package:ready_next/core/config/app_api_module.dart';
-import 'package:ready_next/core/config/app_env.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/cubit/storage_preview_state.dart';
 
 /// Cubit przygotowujący bezpieczny podgląd pliku (obraz, PDF, wideo, audio, tekst, OnlyOffice).
 final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
   /// Tworzy instancję cubita podglądu.
-  StoragePreviewCubit({required this._repository, this._authRepository})
+  StoragePreviewCubit({required this.repository})
     : super(const StoragePreviewInitial());
 
-  final StorageRepository _repository;
-  final AuthRepository? _authRepository;
+  final StorageRepository repository;
 
   /// Pobiera bilet pobrania i przygotowuje podgląd pliku.
   Future<void> preparePreview(StorageFileResponse file) async {
@@ -21,7 +19,7 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
 
     final kind = resolveKind(file);
 
-    final ticketResult = await _repository.getDownloadTicket(file.id);
+    final ticketResult = await repository.getDownloadTicket(file.id);
     if (isClosed) return;
 
     ticketResult.fold(
@@ -39,10 +37,6 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
                   .resolve(rawUrl)
                   .toString()
             : rawUrl;
-        final token = _authRepository?.accessToken?.trim() ?? '';
-        final previewHeaders = authenticated && token.isNotEmpty
-            ? {'Authorization': 'Bearer $token'}
-            : const <String, String>{};
         emit(
           StoragePreviewReady(
             file: file,
@@ -51,7 +45,6 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
             // inline. Starsze backendy nie zwracają previewUrl, więc zachowujemy
             // kompatybilny fallback do dotychczasowego biletu.
             previewUrl: previewUrl,
-            previewHeaders: previewHeaders,
           ),
         );
       },

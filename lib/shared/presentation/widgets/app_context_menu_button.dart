@@ -1,8 +1,8 @@
+import 'package:devplanner/shared/presentation/widgets/app_action_button.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/shared/presentation/widgets/app_action_button.dart';
-import 'package:ready_next/shared/presentation/widgets/app_context_menu.dart';
 
-export 'package:ready_next/shared/presentation/widgets/app_context_menu.dart';
+export 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 
 /// Wspolny przycisk z menu kontekstowym dla calej aplikacji.
 ///

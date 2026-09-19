@@ -1,23 +1,22 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_context.dart';
+import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_drawer_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_drawer_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_conversation.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/cubit/chat_panel_selection_cubit.dart';
+import 'package:devplanner/workspaces/shared/helpers/workspace_theme_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
-import 'package:ready_next/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/resource/resource_chat_file_context.dart';
-import 'package:ready_next/workspaces/domain/repositories/chat_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_drawer_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_drawer_state.dart';
-import 'package:ready_next/workspaces/presentation/chat/shell/chat_panel_conversation.dart';
-import 'package:ready_next/workspaces/presentation/chat/shell/cubit/chat_panel_selection_cubit.dart';
-import 'package:ready_next/workspaces/shared/helpers/workspace_theme_helpers.dart';
 
 /// Wejście do istniejącego drawera Chat przez wspólny host modalny.
 ///
@@ -27,20 +26,18 @@ abstract final class AppGlobalChatDrawer {
   static Future<void> show(
     BuildContext context, {
     required ChatRepository repository,
-    required AppRouter router,
     ValueChanged<String>? onConversationSelected,
     String? initialConversationId,
     String? resourceConversationId,
     ResourceChatFileContext? resourceContext,
     VoidCallback? onResourceContextDismissed,
   }) async {
-    await AppModalHost.showSideSheet<void>(
+    await DevPlannerModalHost.showSideSheet<void>(
       context,
       builder: (context) => Align(
         alignment: Alignment.centerRight,
         child: AppGlobalChatPanel(
           repository: repository,
-          router: router,
           onConversationSelected: onConversationSelected,
           initialConversationId: initialConversationId,
           resourceConversationId: resourceConversationId,
@@ -59,7 +56,6 @@ abstract final class AppGlobalChatDrawer {
 class AppGlobalChatPanel extends StatelessWidget {
   const AppGlobalChatPanel({
     required this.repository,
-    required this.router,
     this.onClose,
     this.onConversationSelected,
     this.onOpenFullView,
@@ -72,7 +68,6 @@ class AppGlobalChatPanel extends StatelessWidget {
   });
 
   final ChatRepository repository;
-  final AppRouter router;
   final VoidCallback? onClose;
   final ValueChanged<String>? onConversationSelected;
   final ValueChanged<String>? onOpenFullView;
@@ -117,7 +112,6 @@ class AppGlobalChatPanel extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: _ChatDrawerContent(
                 repository: repository,
-                router: router,
                 onClose: onClose,
                 onConversationSelected: onConversationSelected,
                 onOpenFullView: onOpenFullView,
@@ -137,7 +131,6 @@ class AppGlobalChatPanel extends StatelessWidget {
 class _ChatDrawerContent extends StatelessWidget {
   const _ChatDrawerContent({
     required this.repository,
-    required this.router,
     this.onClose,
     this.onConversationSelected,
     this.onOpenFullView,
@@ -148,7 +141,6 @@ class _ChatDrawerContent extends StatelessWidget {
   });
 
   final ChatRepository repository;
-  final AppRouter router;
   final VoidCallback? onClose;
   final ValueChanged<String>? onConversationSelected;
   final ValueChanged<String>? onOpenFullView;
@@ -177,7 +169,9 @@ class _ChatDrawerContent extends StatelessWidget {
           },
           onResourceAccessRevoked: onResourceContextDismissed,
           createRealtime: createRealtime,
-          onOpenFullView: () => _openFullView(context, conversation.id),
+          onOpenFullView: onOpenFullView == null
+              ? null
+              : () => onOpenFullView!(conversation.id),
         );
       }
       return Column(
@@ -226,16 +220,6 @@ class _ChatDrawerContent extends StatelessWidget {
       );
     },
   );
-
-  void _openFullView(BuildContext context, String conversationId) {
-    final callback = onOpenFullView;
-    if (callback != null) {
-      callback(conversationId);
-      return;
-    }
-    Navigator.of(context).pop();
-    unawaited(router.navigatePath('/chat/conversations/$conversationId'));
-  }
 }
 
 class _ChatDrawerHeader extends StatelessWidget {

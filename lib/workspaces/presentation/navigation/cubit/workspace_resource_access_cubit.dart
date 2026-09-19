@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_resource_access_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_resources_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_resource_access_state.dart';
 
 /// Lokalnie potwierdza, że zasób z URL należy do bieżącego projektu.
 ///

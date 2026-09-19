@@ -1,6 +1,6 @@
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
 
 /// Domena projektu używana przez katalog Workspace.
 ///

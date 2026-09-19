@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 
 /// Stałe wymiary i szerokości kolumn tabeli zadań.
 ///
@@ -79,6 +79,47 @@ abstract final class TaskListGrid {
     TaskSavedViewColumn.estimatedMinutes ||
     TaskSavedViewColumn.actualMinutes => metric,
   };
+
+  /// Filtruje widok do wspieranych kolumn i zawsze zachowuje tytuł zadania.
+  static List<TaskSavedViewColumn> visibleColumns(
+    List<TaskSavedViewColumn> columns,
+  ) {
+    const supported = <TaskSavedViewColumn>{
+      TaskSavedViewColumn.key,
+      TaskSavedViewColumn.title,
+      TaskSavedViewColumn.status,
+      TaskSavedViewColumn.customStatus,
+      TaskSavedViewColumn.priority,
+      TaskSavedViewColumn.assignees,
+      TaskSavedViewColumn.owner,
+      TaskSavedViewColumn.collaborators,
+      TaskSavedViewColumn.labels,
+      TaskSavedViewColumn.milestone,
+      TaskSavedViewColumn.watchers,
+      TaskSavedViewColumn.startAtUtc,
+      TaskSavedViewColumn.dueAtUtc,
+      TaskSavedViewColumn.checklistProgress,
+      TaskSavedViewColumn.updatedAtUtc,
+      TaskSavedViewColumn.createdAtUtc,
+      TaskSavedViewColumn.taskType,
+      TaskSavedViewColumn.size,
+      TaskSavedViewColumn.complexity,
+      TaskSavedViewColumn.risk,
+      TaskSavedViewColumn.businessValue,
+      TaskSavedViewColumn.estimatedMinutes,
+      TaskSavedViewColumn.actualMinutes,
+    };
+    final result = <TaskSavedViewColumn>[];
+    for (final column in columns) {
+      if (supported.contains(column) && !result.contains(column)) {
+        result.add(column);
+      }
+    }
+    if (!result.contains(TaskSavedViewColumn.title)) {
+      result.insert(0, TaskSavedViewColumn.title);
+    }
+    return result;
+  }
 }
 
 /// Domyślny zestaw pól, gdy użytkownik nie ma zapisanego widoku.
@@ -93,44 +134,3 @@ const defaultTaskListColumns = <TaskSavedViewColumn>[
   TaskSavedViewColumn.dueAtUtc,
   TaskSavedViewColumn.checklistProgress,
 ];
-
-/// Filtruje i waliduje listę widocznych kolumn, gwarantując obecność tytułu.
-List<TaskSavedViewColumn> taskListVisibleColumns(
-  List<TaskSavedViewColumn> columns,
-) {
-  const supported = <TaskSavedViewColumn>{
-    TaskSavedViewColumn.key,
-    TaskSavedViewColumn.title,
-    TaskSavedViewColumn.status,
-    TaskSavedViewColumn.customStatus,
-    TaskSavedViewColumn.priority,
-    TaskSavedViewColumn.assignees,
-    TaskSavedViewColumn.owner,
-    TaskSavedViewColumn.collaborators,
-    TaskSavedViewColumn.labels,
-    TaskSavedViewColumn.milestone,
-    TaskSavedViewColumn.watchers,
-    TaskSavedViewColumn.startAtUtc,
-    TaskSavedViewColumn.dueAtUtc,
-    TaskSavedViewColumn.checklistProgress,
-    TaskSavedViewColumn.updatedAtUtc,
-    TaskSavedViewColumn.createdAtUtc,
-    TaskSavedViewColumn.taskType,
-    TaskSavedViewColumn.size,
-    TaskSavedViewColumn.complexity,
-    TaskSavedViewColumn.risk,
-    TaskSavedViewColumn.businessValue,
-    TaskSavedViewColumn.estimatedMinutes,
-    TaskSavedViewColumn.actualMinutes,
-  };
-  final result = <TaskSavedViewColumn>[];
-  for (final column in columns) {
-    if (supported.contains(column) && !result.contains(column)) {
-      result.add(column);
-    }
-  }
-  if (!result.contains(TaskSavedViewColumn.title)) {
-    result.insert(0, TaskSavedViewColumn.title);
-  }
-  return result;
-}

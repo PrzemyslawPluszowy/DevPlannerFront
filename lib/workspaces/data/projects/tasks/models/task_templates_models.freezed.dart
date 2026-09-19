@@ -831,7 +831,7 @@ as bool,
 /// @nodoc
 mixin _$CreateTaskTemplateDefinitionPayload {
 
- String get name; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; List<String>? get assigneeCoreUserIds; List<String>? get checklistItems; List<String>? get acceptanceCriteria; List<TaskTemplateLabelResponse>? get labels; List<TaskTemplateCustomFieldValueResponse>? get customFieldValues; TaskTemplateCustomStatusResponse? get customStatus;@JsonKey(includeIfNull: false) String? get title;@JsonKey(includeIfNull: false) String? get description;@JsonKey(includeIfNull: false) String? get descriptionDeltaJson;
+ String get name; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; List<String>? get assigneeUserIds; List<String>? get checklistItems; List<String>? get acceptanceCriteria; List<TaskTemplateLabelResponse>? get labels; List<TaskTemplateCustomFieldValueResponse>? get customFieldValues; TaskTemplateCustomStatusResponse? get customStatus;@JsonKey(includeIfNull: false) String? get title;@JsonKey(includeIfNull: false) String? get description;@JsonKey(includeIfNull: false) String? get descriptionDeltaJson;
 /// Create a copy of CreateTaskTemplateDefinitionPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -844,16 +844,16 @@ $CreateTaskTemplateDefinitionPayloadCopyWith<CreateTaskTemplateDefinitionPayload
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateTaskTemplateDefinitionPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateTaskTemplateDefinitionPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,name,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,title,description,descriptionDeltaJson]);
+int get hashCode => Object.hashAll([runtimeType,name,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,title,description,descriptionDeltaJson]);
 
 @override
 String toString() {
-  return 'CreateTaskTemplateDefinitionPayload(name: $name, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeCoreUserIds: $assigneeCoreUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson)';
+  return 'CreateTaskTemplateDefinitionPayload(name: $name, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeUserIds: $assigneeUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson)';
 }
 
 
@@ -864,7 +864,7 @@ abstract mixin class $CreateTaskTemplateDefinitionPayloadCopyWith<$Res>  {
   factory $CreateTaskTemplateDefinitionPayloadCopyWith(CreateTaskTemplateDefinitionPayload value, $Res Function(CreateTaskTemplateDefinitionPayload) _then) = _$CreateTaskTemplateDefinitionPayloadCopyWithImpl;
 @useResult
 $Res call({
- String name, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String>? assigneeCoreUserIds, List<String>? checklistItems, List<String>? acceptanceCriteria, List<TaskTemplateLabelResponse>? labels, List<TaskTemplateCustomFieldValueResponse>? customFieldValues, TaskTemplateCustomStatusResponse? customStatus,@JsonKey(includeIfNull: false) String? title,@JsonKey(includeIfNull: false) String? description,@JsonKey(includeIfNull: false) String? descriptionDeltaJson
+ String name, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String>? assigneeUserIds, List<String>? checklistItems, List<String>? acceptanceCriteria, List<TaskTemplateLabelResponse>? labels, List<TaskTemplateCustomFieldValueResponse>? customFieldValues, TaskTemplateCustomStatusResponse? customStatus,@JsonKey(includeIfNull: false) String? title,@JsonKey(includeIfNull: false) String? description,@JsonKey(includeIfNull: false) String? descriptionDeltaJson
 });
 
 
@@ -881,7 +881,7 @@ class _$CreateTaskTemplateDefinitionPayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateTaskTemplateDefinitionPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeCoreUserIds = freezed,Object? checklistItems = freezed,Object? acceptanceCriteria = freezed,Object? labels = freezed,Object? customFieldValues = freezed,Object? customStatus = freezed,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeUserIds = freezed,Object? checklistItems = freezed,Object? acceptanceCriteria = freezed,Object? labels = freezed,Object? customFieldValues = freezed,Object? customStatus = freezed,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -894,7 +894,7 @@ as int?,complexity: freezed == complexity ? _self.complexity : complexity // ign
 as int?,risk: freezed == risk ? _self.risk : risk // ignore: cast_nullable_to_non_nullable
 as int?,businessValue: freezed == businessValue ? _self.businessValue : businessValue // ignore: cast_nullable_to_non_nullable
 as int?,estimatedMinutes: freezed == estimatedMinutes ? _self.estimatedMinutes : estimatedMinutes // ignore: cast_nullable_to_non_nullable
-as int?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as int?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,checklistItems: freezed == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<String>?,acceptanceCriteria: freezed == acceptanceCriteria ? _self.acceptanceCriteria : acceptanceCriteria // ignore: cast_nullable_to_non_nullable
 as List<String>?,labels: freezed == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable
@@ -1000,10 +1000,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreateTaskTemplateDefinitionPayload() when $default != null:
-return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.title,_that.description,_that.descriptionDeltaJson);case _:
+return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.title,_that.description,_that.descriptionDeltaJson);case _:
   return orElse();
 
 }
@@ -1021,10 +1021,10 @@ return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.du
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)  $default,) {final _that = this;
 switch (_that) {
 case _CreateTaskTemplateDefinitionPayload():
-return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.title,_that.description,_that.descriptionDeltaJson);case _:
+return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.title,_that.description,_that.descriptionDeltaJson);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1041,10 +1041,10 @@ return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.du
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)?  $default,) {final _that = this;
 switch (_that) {
 case _CreateTaskTemplateDefinitionPayload() when $default != null:
-return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.title,_that.description,_that.descriptionDeltaJson);case _:
+return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.title,_that.description,_that.descriptionDeltaJson);case _:
   return null;
 
 }
@@ -1056,7 +1056,7 @@ return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.du
 @JsonSerializable()
 
 class _CreateTaskTemplateDefinitionPayload implements CreateTaskTemplateDefinitionPayload {
-  const _CreateTaskTemplateDefinitionPayload({required this.name, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.assigneeCoreUserIds, this.checklistItems, this.acceptanceCriteria, this.labels, this.customFieldValues, this.customStatus, @JsonKey(includeIfNull: false) this.title, @JsonKey(includeIfNull: false) this.description, @JsonKey(includeIfNull: false) this.descriptionDeltaJson});
+  const _CreateTaskTemplateDefinitionPayload({required this.name, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.assigneeUserIds, this.checklistItems, this.acceptanceCriteria, this.labels, this.customFieldValues, this.customStatus, @JsonKey(includeIfNull: false) this.title, @JsonKey(includeIfNull: false) this.description, @JsonKey(includeIfNull: false) this.descriptionDeltaJson});
   factory _CreateTaskTemplateDefinitionPayload.fromJson(Map<String, dynamic> json) => _$CreateTaskTemplateDefinitionPayloadFromJson(json);
 
 @override final  String name;
@@ -1070,7 +1070,7 @@ class _CreateTaskTemplateDefinitionPayload implements CreateTaskTemplateDefiniti
 @override final  int? risk;
 @override final  int? businessValue;
 @override final  int? estimatedMinutes;
-@override final  List<String>? assigneeCoreUserIds;
+@override final  List<String>? assigneeUserIds;
 @override final  List<String>? checklistItems;
 @override final  List<String>? acceptanceCriteria;
 @override final  List<TaskTemplateLabelResponse>? labels;
@@ -1093,16 +1093,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateTaskTemplateDefinitionPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateTaskTemplateDefinitionPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,name,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,title,description,descriptionDeltaJson]);
+int get hashCode => Object.hashAll([runtimeType,name,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,title,description,descriptionDeltaJson]);
 
 @override
 String toString() {
-  return 'CreateTaskTemplateDefinitionPayload(name: $name, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeCoreUserIds: $assigneeCoreUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson)';
+  return 'CreateTaskTemplateDefinitionPayload(name: $name, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeUserIds: $assigneeUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson)';
 }
 
 
@@ -1113,7 +1113,7 @@ abstract mixin class _$CreateTaskTemplateDefinitionPayloadCopyWith<$Res> impleme
   factory _$CreateTaskTemplateDefinitionPayloadCopyWith(_CreateTaskTemplateDefinitionPayload value, $Res Function(_CreateTaskTemplateDefinitionPayload) _then) = __$CreateTaskTemplateDefinitionPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String name, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String>? assigneeCoreUserIds, List<String>? checklistItems, List<String>? acceptanceCriteria, List<TaskTemplateLabelResponse>? labels, List<TaskTemplateCustomFieldValueResponse>? customFieldValues, TaskTemplateCustomStatusResponse? customStatus,@JsonKey(includeIfNull: false) String? title,@JsonKey(includeIfNull: false) String? description,@JsonKey(includeIfNull: false) String? descriptionDeltaJson
+ String name, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String>? assigneeUserIds, List<String>? checklistItems, List<String>? acceptanceCriteria, List<TaskTemplateLabelResponse>? labels, List<TaskTemplateCustomFieldValueResponse>? customFieldValues, TaskTemplateCustomStatusResponse? customStatus,@JsonKey(includeIfNull: false) String? title,@JsonKey(includeIfNull: false) String? description,@JsonKey(includeIfNull: false) String? descriptionDeltaJson
 });
 
 
@@ -1130,7 +1130,7 @@ class __$CreateTaskTemplateDefinitionPayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateTaskTemplateDefinitionPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeCoreUserIds = freezed,Object? checklistItems = freezed,Object? acceptanceCriteria = freezed,Object? labels = freezed,Object? customFieldValues = freezed,Object? customStatus = freezed,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeUserIds = freezed,Object? checklistItems = freezed,Object? acceptanceCriteria = freezed,Object? labels = freezed,Object? customFieldValues = freezed,Object? customStatus = freezed,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,}) {
   return _then(_CreateTaskTemplateDefinitionPayload(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -1143,7 +1143,7 @@ as int?,complexity: freezed == complexity ? _self.complexity : complexity // ign
 as int?,risk: freezed == risk ? _self.risk : risk // ignore: cast_nullable_to_non_nullable
 as int?,businessValue: freezed == businessValue ? _self.businessValue : businessValue // ignore: cast_nullable_to_non_nullable
 as int?,estimatedMinutes: freezed == estimatedMinutes ? _self.estimatedMinutes : estimatedMinutes // ignore: cast_nullable_to_non_nullable
-as int?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as int?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,checklistItems: freezed == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<String>?,acceptanceCriteria: freezed == acceptanceCriteria ? _self.acceptanceCriteria : acceptanceCriteria // ignore: cast_nullable_to_non_nullable
 as List<String>?,labels: freezed == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable
@@ -2503,7 +2503,7 @@ as TaskStatusCategory,
 /// @nodoc
 mixin _$TaskTemplateDetailsResponse {
 
- String get id; String get name; String? get title; String? get description; String? get descriptionDeltaJson; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; List<String> get assigneeCoreUserIds; List<String> get checklistItems; List<String> get acceptanceCriteria; List<TaskTemplateLabelResponse> get labels; List<TaskTemplateCustomFieldValueResponse> get customFieldValues; TaskTemplateCustomStatusResponse? get customStatus; DateTime get updatedAtUtc; int get version;
+ String get id; String get name; String? get title; String? get description; String? get descriptionDeltaJson; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; List<String> get assigneeUserIds; List<String> get checklistItems; List<String> get acceptanceCriteria; List<TaskTemplateLabelResponse> get labels; List<TaskTemplateCustomFieldValueResponse> get customFieldValues; TaskTemplateCustomStatusResponse? get customStatus; DateTime get updatedAtUtc; int get version;
 /// Create a copy of TaskTemplateDetailsResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2516,16 +2516,16 @@ $TaskTemplateDetailsResponseCopyWith<TaskTemplateDetailsResponse> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskTemplateDetailsResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskTemplateDetailsResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,name,title,description,descriptionDeltaJson,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,updatedAtUtc,version]);
+int get hashCode => Object.hashAll([runtimeType,id,name,title,description,descriptionDeltaJson,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,updatedAtUtc,version]);
 
 @override
 String toString() {
-  return 'TaskTemplateDetailsResponse(id: $id, name: $name, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeCoreUserIds: $assigneeCoreUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, updatedAtUtc: $updatedAtUtc, version: $version)';
+  return 'TaskTemplateDetailsResponse(id: $id, name: $name, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeUserIds: $assigneeUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, updatedAtUtc: $updatedAtUtc, version: $version)';
 }
 
 
@@ -2536,7 +2536,7 @@ abstract mixin class $TaskTemplateDetailsResponseCopyWith<$Res>  {
   factory $TaskTemplateDetailsResponseCopyWith(TaskTemplateDetailsResponse value, $Res Function(TaskTemplateDetailsResponse) _then) = _$TaskTemplateDetailsResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String? title, String? description, String? descriptionDeltaJson, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String> assigneeCoreUserIds, List<String> checklistItems, List<String> acceptanceCriteria, List<TaskTemplateLabelResponse> labels, List<TaskTemplateCustomFieldValueResponse> customFieldValues, TaskTemplateCustomStatusResponse? customStatus, DateTime updatedAtUtc, int version
+ String id, String name, String? title, String? description, String? descriptionDeltaJson, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String> assigneeUserIds, List<String> checklistItems, List<String> acceptanceCriteria, List<TaskTemplateLabelResponse> labels, List<TaskTemplateCustomFieldValueResponse> customFieldValues, TaskTemplateCustomStatusResponse? customStatus, DateTime updatedAtUtc, int version
 });
 
 
@@ -2553,7 +2553,7 @@ class _$TaskTemplateDetailsResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskTemplateDetailsResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeCoreUserIds = null,Object? checklistItems = null,Object? acceptanceCriteria = null,Object? labels = null,Object? customFieldValues = null,Object? customStatus = freezed,Object? updatedAtUtc = null,Object? version = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeUserIds = null,Object? checklistItems = null,Object? acceptanceCriteria = null,Object? labels = null,Object? customFieldValues = null,Object? customStatus = freezed,Object? updatedAtUtc = null,Object? version = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -2570,7 +2570,7 @@ as int?,complexity: freezed == complexity ? _self.complexity : complexity // ign
 as int?,risk: freezed == risk ? _self.risk : risk // ignore: cast_nullable_to_non_nullable
 as int?,businessValue: freezed == businessValue ? _self.businessValue : businessValue // ignore: cast_nullable_to_non_nullable
 as int?,estimatedMinutes: freezed == estimatedMinutes ? _self.estimatedMinutes : estimatedMinutes // ignore: cast_nullable_to_non_nullable
-as int?,assigneeCoreUserIds: null == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as int?,assigneeUserIds: null == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>,checklistItems: null == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<String>,acceptanceCriteria: null == acceptanceCriteria ? _self.acceptanceCriteria : acceptanceCriteria // ignore: cast_nullable_to_non_nullable
 as List<String>,labels: null == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable
@@ -2675,10 +2675,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String> assigneeCoreUserIds,  List<String> checklistItems,  List<String> acceptanceCriteria,  List<TaskTemplateLabelResponse> labels,  List<TaskTemplateCustomFieldValueResponse> customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  DateTime updatedAtUtc,  int version)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String> assigneeUserIds,  List<String> checklistItems,  List<String> acceptanceCriteria,  List<TaskTemplateLabelResponse> labels,  List<TaskTemplateCustomFieldValueResponse> customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  DateTime updatedAtUtc,  int version)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskTemplateDetailsResponse() when $default != null:
-return $default(_that.id,_that.name,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.updatedAtUtc,_that.version);case _:
+return $default(_that.id,_that.name,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.updatedAtUtc,_that.version);case _:
   return orElse();
 
 }
@@ -2696,10 +2696,10 @@ return $default(_that.id,_that.name,_that.title,_that.description,_that.descript
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String> assigneeCoreUserIds,  List<String> checklistItems,  List<String> acceptanceCriteria,  List<TaskTemplateLabelResponse> labels,  List<TaskTemplateCustomFieldValueResponse> customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  DateTime updatedAtUtc,  int version)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String> assigneeUserIds,  List<String> checklistItems,  List<String> acceptanceCriteria,  List<TaskTemplateLabelResponse> labels,  List<TaskTemplateCustomFieldValueResponse> customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  DateTime updatedAtUtc,  int version)  $default,) {final _that = this;
 switch (_that) {
 case _TaskTemplateDetailsResponse():
-return $default(_that.id,_that.name,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.updatedAtUtc,_that.version);case _:
+return $default(_that.id,_that.name,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.updatedAtUtc,_that.version);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2716,10 +2716,10 @@ return $default(_that.id,_that.name,_that.title,_that.description,_that.descript
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String> assigneeCoreUserIds,  List<String> checklistItems,  List<String> acceptanceCriteria,  List<TaskTemplateLabelResponse> labels,  List<TaskTemplateCustomFieldValueResponse> customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  DateTime updatedAtUtc,  int version)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? title,  String? description,  String? descriptionDeltaJson,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String> assigneeUserIds,  List<String> checklistItems,  List<String> acceptanceCriteria,  List<TaskTemplateLabelResponse> labels,  List<TaskTemplateCustomFieldValueResponse> customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  DateTime updatedAtUtc,  int version)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskTemplateDetailsResponse() when $default != null:
-return $default(_that.id,_that.name,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.updatedAtUtc,_that.version);case _:
+return $default(_that.id,_that.name,_that.title,_that.description,_that.descriptionDeltaJson,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.updatedAtUtc,_that.version);case _:
   return null;
 
 }
@@ -2731,7 +2731,7 @@ return $default(_that.id,_that.name,_that.title,_that.description,_that.descript
 @JsonSerializable()
 
 class _TaskTemplateDetailsResponse implements TaskTemplateDetailsResponse {
-  const _TaskTemplateDetailsResponse({required this.id, required this.name, this.title, this.description, this.descriptionDeltaJson, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, required this.assigneeCoreUserIds, required this.checklistItems, required this.acceptanceCriteria, required this.labels, required this.customFieldValues, this.customStatus, required this.updatedAtUtc, required this.version});
+  const _TaskTemplateDetailsResponse({required this.id, required this.name, this.title, this.description, this.descriptionDeltaJson, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, required this.assigneeUserIds, required this.checklistItems, required this.acceptanceCriteria, required this.labels, required this.customFieldValues, this.customStatus, required this.updatedAtUtc, required this.version});
   factory _TaskTemplateDetailsResponse.fromJson(Map<String, dynamic> json) => _$TaskTemplateDetailsResponseFromJson(json);
 
 @override final  String id;
@@ -2749,7 +2749,7 @@ class _TaskTemplateDetailsResponse implements TaskTemplateDetailsResponse {
 @override final  int? risk;
 @override final  int? businessValue;
 @override final  int? estimatedMinutes;
-@override final  List<String> assigneeCoreUserIds;
+@override final  List<String> assigneeUserIds;
 @override final  List<String> checklistItems;
 @override final  List<String> acceptanceCriteria;
 @override final  List<TaskTemplateLabelResponse> labels;
@@ -2771,16 +2771,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskTemplateDetailsResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskTemplateDetailsResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,name,title,description,descriptionDeltaJson,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,updatedAtUtc,version]);
+int get hashCode => Object.hashAll([runtimeType,id,name,title,description,descriptionDeltaJson,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,updatedAtUtc,version]);
 
 @override
 String toString() {
-  return 'TaskTemplateDetailsResponse(id: $id, name: $name, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeCoreUserIds: $assigneeCoreUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, updatedAtUtc: $updatedAtUtc, version: $version)';
+  return 'TaskTemplateDetailsResponse(id: $id, name: $name, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeUserIds: $assigneeUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, updatedAtUtc: $updatedAtUtc, version: $version)';
 }
 
 
@@ -2791,7 +2791,7 @@ abstract mixin class _$TaskTemplateDetailsResponseCopyWith<$Res> implements $Tas
   factory _$TaskTemplateDetailsResponseCopyWith(_TaskTemplateDetailsResponse value, $Res Function(_TaskTemplateDetailsResponse) _then) = __$TaskTemplateDetailsResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String? title, String? description, String? descriptionDeltaJson, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String> assigneeCoreUserIds, List<String> checklistItems, List<String> acceptanceCriteria, List<TaskTemplateLabelResponse> labels, List<TaskTemplateCustomFieldValueResponse> customFieldValues, TaskTemplateCustomStatusResponse? customStatus, DateTime updatedAtUtc, int version
+ String id, String name, String? title, String? description, String? descriptionDeltaJson, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String> assigneeUserIds, List<String> checklistItems, List<String> acceptanceCriteria, List<TaskTemplateLabelResponse> labels, List<TaskTemplateCustomFieldValueResponse> customFieldValues, TaskTemplateCustomStatusResponse? customStatus, DateTime updatedAtUtc, int version
 });
 
 
@@ -2808,7 +2808,7 @@ class __$TaskTemplateDetailsResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskTemplateDetailsResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeCoreUserIds = null,Object? checklistItems = null,Object? acceptanceCriteria = null,Object? labels = null,Object? customFieldValues = null,Object? customStatus = freezed,Object? updatedAtUtc = null,Object? version = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeUserIds = null,Object? checklistItems = null,Object? acceptanceCriteria = null,Object? labels = null,Object? customFieldValues = null,Object? customStatus = freezed,Object? updatedAtUtc = null,Object? version = null,}) {
   return _then(_TaskTemplateDetailsResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -2825,7 +2825,7 @@ as int?,complexity: freezed == complexity ? _self.complexity : complexity // ign
 as int?,risk: freezed == risk ? _self.risk : risk // ignore: cast_nullable_to_non_nullable
 as int?,businessValue: freezed == businessValue ? _self.businessValue : businessValue // ignore: cast_nullable_to_non_nullable
 as int?,estimatedMinutes: freezed == estimatedMinutes ? _self.estimatedMinutes : estimatedMinutes // ignore: cast_nullable_to_non_nullable
-as int?,assigneeCoreUserIds: null == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as int?,assigneeUserIds: null == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>,checklistItems: null == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<String>,acceptanceCriteria: null == acceptanceCriteria ? _self.acceptanceCriteria : acceptanceCriteria // ignore: cast_nullable_to_non_nullable
 as List<String>,labels: null == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable
@@ -2856,7 +2856,7 @@ $TaskTemplateCustomStatusResponseCopyWith<$Res>? get customStatus {
 /// @nodoc
 mixin _$UpdateTaskTemplatePayload {
 
- String get name; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; List<String>? get assigneeCoreUserIds; List<String>? get checklistItems; List<String>? get acceptanceCriteria; List<TaskTemplateLabelResponse>? get labels; List<TaskTemplateCustomFieldValueResponse>? get customFieldValues; TaskTemplateCustomStatusResponse? get customStatus; bool get clearCustomStatus; int get expectedVersion;@JsonKey(includeIfNull: false) String? get title;@JsonKey(includeIfNull: false) String? get description;@JsonKey(includeIfNull: false) String? get descriptionDeltaJson;
+ String get name; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; List<String>? get assigneeUserIds; List<String>? get checklistItems; List<String>? get acceptanceCriteria; List<TaskTemplateLabelResponse>? get labels; List<TaskTemplateCustomFieldValueResponse>? get customFieldValues; TaskTemplateCustomStatusResponse? get customStatus; bool get clearCustomStatus; int get expectedVersion;@JsonKey(includeIfNull: false) String? get title;@JsonKey(includeIfNull: false) String? get description;@JsonKey(includeIfNull: false) String? get descriptionDeltaJson;
 /// Create a copy of UpdateTaskTemplatePayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2869,16 +2869,16 @@ $UpdateTaskTemplatePayloadCopyWith<UpdateTaskTemplatePayload> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateTaskTemplatePayload&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.clearCustomStatus, clearCustomStatus) || other.clearCustomStatus == clearCustomStatus)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateTaskTemplatePayload&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.clearCustomStatus, clearCustomStatus) || other.clearCustomStatus == clearCustomStatus)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,name,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,clearCustomStatus,expectedVersion,title,description,descriptionDeltaJson]);
+int get hashCode => Object.hashAll([runtimeType,name,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,clearCustomStatus,expectedVersion,title,description,descriptionDeltaJson]);
 
 @override
 String toString() {
-  return 'UpdateTaskTemplatePayload(name: $name, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeCoreUserIds: $assigneeCoreUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, clearCustomStatus: $clearCustomStatus, expectedVersion: $expectedVersion, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson)';
+  return 'UpdateTaskTemplatePayload(name: $name, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeUserIds: $assigneeUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, clearCustomStatus: $clearCustomStatus, expectedVersion: $expectedVersion, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson)';
 }
 
 
@@ -2889,7 +2889,7 @@ abstract mixin class $UpdateTaskTemplatePayloadCopyWith<$Res>  {
   factory $UpdateTaskTemplatePayloadCopyWith(UpdateTaskTemplatePayload value, $Res Function(UpdateTaskTemplatePayload) _then) = _$UpdateTaskTemplatePayloadCopyWithImpl;
 @useResult
 $Res call({
- String name, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String>? assigneeCoreUserIds, List<String>? checklistItems, List<String>? acceptanceCriteria, List<TaskTemplateLabelResponse>? labels, List<TaskTemplateCustomFieldValueResponse>? customFieldValues, TaskTemplateCustomStatusResponse? customStatus, bool clearCustomStatus, int expectedVersion,@JsonKey(includeIfNull: false) String? title,@JsonKey(includeIfNull: false) String? description,@JsonKey(includeIfNull: false) String? descriptionDeltaJson
+ String name, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String>? assigneeUserIds, List<String>? checklistItems, List<String>? acceptanceCriteria, List<TaskTemplateLabelResponse>? labels, List<TaskTemplateCustomFieldValueResponse>? customFieldValues, TaskTemplateCustomStatusResponse? customStatus, bool clearCustomStatus, int expectedVersion,@JsonKey(includeIfNull: false) String? title,@JsonKey(includeIfNull: false) String? description,@JsonKey(includeIfNull: false) String? descriptionDeltaJson
 });
 
 
@@ -2906,7 +2906,7 @@ class _$UpdateTaskTemplatePayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateTaskTemplatePayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeCoreUserIds = freezed,Object? checklistItems = freezed,Object? acceptanceCriteria = freezed,Object? labels = freezed,Object? customFieldValues = freezed,Object? customStatus = freezed,Object? clearCustomStatus = null,Object? expectedVersion = null,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeUserIds = freezed,Object? checklistItems = freezed,Object? acceptanceCriteria = freezed,Object? labels = freezed,Object? customFieldValues = freezed,Object? customStatus = freezed,Object? clearCustomStatus = null,Object? expectedVersion = null,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -2919,7 +2919,7 @@ as int?,complexity: freezed == complexity ? _self.complexity : complexity // ign
 as int?,risk: freezed == risk ? _self.risk : risk // ignore: cast_nullable_to_non_nullable
 as int?,businessValue: freezed == businessValue ? _self.businessValue : businessValue // ignore: cast_nullable_to_non_nullable
 as int?,estimatedMinutes: freezed == estimatedMinutes ? _self.estimatedMinutes : estimatedMinutes // ignore: cast_nullable_to_non_nullable
-as int?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as int?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,checklistItems: freezed == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<String>?,acceptanceCriteria: freezed == acceptanceCriteria ? _self.acceptanceCriteria : acceptanceCriteria // ignore: cast_nullable_to_non_nullable
 as List<String>?,labels: freezed == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable
@@ -3027,10 +3027,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  bool clearCustomStatus,  int expectedVersion, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  bool clearCustomStatus,  int expectedVersion, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateTaskTemplatePayload() when $default != null:
-return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.clearCustomStatus,_that.expectedVersion,_that.title,_that.description,_that.descriptionDeltaJson);case _:
+return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.clearCustomStatus,_that.expectedVersion,_that.title,_that.description,_that.descriptionDeltaJson);case _:
   return orElse();
 
 }
@@ -3048,10 +3048,10 @@ return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.du
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  bool clearCustomStatus,  int expectedVersion, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  bool clearCustomStatus,  int expectedVersion, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateTaskTemplatePayload():
-return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.clearCustomStatus,_that.expectedVersion,_that.title,_that.description,_that.descriptionDeltaJson);case _:
+return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.clearCustomStatus,_that.expectedVersion,_that.title,_that.description,_that.descriptionDeltaJson);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3068,10 +3068,10 @@ return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.du
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeCoreUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  bool clearCustomStatus,  int expectedVersion, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  List<String>? assigneeUserIds,  List<String>? checklistItems,  List<String>? acceptanceCriteria,  List<TaskTemplateLabelResponse>? labels,  List<TaskTemplateCustomFieldValueResponse>? customFieldValues,  TaskTemplateCustomStatusResponse? customStatus,  bool clearCustomStatus,  int expectedVersion, @JsonKey(includeIfNull: false)  String? title, @JsonKey(includeIfNull: false)  String? description, @JsonKey(includeIfNull: false)  String? descriptionDeltaJson)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateTaskTemplatePayload() when $default != null:
-return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeCoreUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.clearCustomStatus,_that.expectedVersion,_that.title,_that.description,_that.descriptionDeltaJson);case _:
+return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.assigneeUserIds,_that.checklistItems,_that.acceptanceCriteria,_that.labels,_that.customFieldValues,_that.customStatus,_that.clearCustomStatus,_that.expectedVersion,_that.title,_that.description,_that.descriptionDeltaJson);case _:
   return null;
 
 }
@@ -3083,7 +3083,7 @@ return $default(_that.name,_that.status,_that.priority,_that.startAtUtc,_that.du
 @JsonSerializable()
 
 class _UpdateTaskTemplatePayload implements UpdateTaskTemplatePayload {
-  const _UpdateTaskTemplatePayload({required this.name, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.assigneeCoreUserIds, this.checklistItems, this.acceptanceCriteria, this.labels, this.customFieldValues, this.customStatus, this.clearCustomStatus = false, required this.expectedVersion, @JsonKey(includeIfNull: false) this.title, @JsonKey(includeIfNull: false) this.description, @JsonKey(includeIfNull: false) this.descriptionDeltaJson});
+  const _UpdateTaskTemplatePayload({required this.name, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.assigneeUserIds, this.checklistItems, this.acceptanceCriteria, this.labels, this.customFieldValues, this.customStatus, this.clearCustomStatus = false, required this.expectedVersion, @JsonKey(includeIfNull: false) this.title, @JsonKey(includeIfNull: false) this.description, @JsonKey(includeIfNull: false) this.descriptionDeltaJson});
   factory _UpdateTaskTemplatePayload.fromJson(Map<String, dynamic> json) => _$UpdateTaskTemplatePayloadFromJson(json);
 
 @override final  String name;
@@ -3097,7 +3097,7 @@ class _UpdateTaskTemplatePayload implements UpdateTaskTemplatePayload {
 @override final  int? risk;
 @override final  int? businessValue;
 @override final  int? estimatedMinutes;
-@override final  List<String>? assigneeCoreUserIds;
+@override final  List<String>? assigneeUserIds;
 @override final  List<String>? checklistItems;
 @override final  List<String>? acceptanceCriteria;
 @override final  List<TaskTemplateLabelResponse>? labels;
@@ -3122,16 +3122,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateTaskTemplatePayload&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.clearCustomStatus, clearCustomStatus) || other.clearCustomStatus == clearCustomStatus)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateTaskTemplatePayload&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.checklistItems, checklistItems)&&const DeepCollectionEquality().equals(other.acceptanceCriteria, acceptanceCriteria)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldValues, customFieldValues)&&(identical(other.customStatus, customStatus) || other.customStatus == customStatus)&&(identical(other.clearCustomStatus, clearCustomStatus) || other.clearCustomStatus == clearCustomStatus)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,name,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,clearCustomStatus,expectedVersion,title,description,descriptionDeltaJson]);
+int get hashCode => Object.hashAll([runtimeType,name,status,priority,startAtUtc,dueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(checklistItems),const DeepCollectionEquality().hash(acceptanceCriteria),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldValues),customStatus,clearCustomStatus,expectedVersion,title,description,descriptionDeltaJson]);
 
 @override
 String toString() {
-  return 'UpdateTaskTemplatePayload(name: $name, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeCoreUserIds: $assigneeCoreUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, clearCustomStatus: $clearCustomStatus, expectedVersion: $expectedVersion, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson)';
+  return 'UpdateTaskTemplatePayload(name: $name, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, assigneeUserIds: $assigneeUserIds, checklistItems: $checklistItems, acceptanceCriteria: $acceptanceCriteria, labels: $labels, customFieldValues: $customFieldValues, customStatus: $customStatus, clearCustomStatus: $clearCustomStatus, expectedVersion: $expectedVersion, title: $title, description: $description, descriptionDeltaJson: $descriptionDeltaJson)';
 }
 
 
@@ -3142,7 +3142,7 @@ abstract mixin class _$UpdateTaskTemplatePayloadCopyWith<$Res> implements $Updat
   factory _$UpdateTaskTemplatePayloadCopyWith(_UpdateTaskTemplatePayload value, $Res Function(_UpdateTaskTemplatePayload) _then) = __$UpdateTaskTemplatePayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String name, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String>? assigneeCoreUserIds, List<String>? checklistItems, List<String>? acceptanceCriteria, List<TaskTemplateLabelResponse>? labels, List<TaskTemplateCustomFieldValueResponse>? customFieldValues, TaskTemplateCustomStatusResponse? customStatus, bool clearCustomStatus, int expectedVersion,@JsonKey(includeIfNull: false) String? title,@JsonKey(includeIfNull: false) String? description,@JsonKey(includeIfNull: false) String? descriptionDeltaJson
+ String name, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, List<String>? assigneeUserIds, List<String>? checklistItems, List<String>? acceptanceCriteria, List<TaskTemplateLabelResponse>? labels, List<TaskTemplateCustomFieldValueResponse>? customFieldValues, TaskTemplateCustomStatusResponse? customStatus, bool clearCustomStatus, int expectedVersion,@JsonKey(includeIfNull: false) String? title,@JsonKey(includeIfNull: false) String? description,@JsonKey(includeIfNull: false) String? descriptionDeltaJson
 });
 
 
@@ -3159,7 +3159,7 @@ class __$UpdateTaskTemplatePayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateTaskTemplatePayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeCoreUserIds = freezed,Object? checklistItems = freezed,Object? acceptanceCriteria = freezed,Object? labels = freezed,Object? customFieldValues = freezed,Object? customStatus = freezed,Object? clearCustomStatus = null,Object? expectedVersion = null,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? assigneeUserIds = freezed,Object? checklistItems = freezed,Object? acceptanceCriteria = freezed,Object? labels = freezed,Object? customFieldValues = freezed,Object? customStatus = freezed,Object? clearCustomStatus = null,Object? expectedVersion = null,Object? title = freezed,Object? description = freezed,Object? descriptionDeltaJson = freezed,}) {
   return _then(_UpdateTaskTemplatePayload(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -3172,7 +3172,7 @@ as int?,complexity: freezed == complexity ? _self.complexity : complexity // ign
 as int?,risk: freezed == risk ? _self.risk : risk // ignore: cast_nullable_to_non_nullable
 as int?,businessValue: freezed == businessValue ? _self.businessValue : businessValue // ignore: cast_nullable_to_non_nullable
 as int?,estimatedMinutes: freezed == estimatedMinutes ? _self.estimatedMinutes : estimatedMinutes // ignore: cast_nullable_to_non_nullable
-as int?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as int?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,checklistItems: freezed == checklistItems ? _self.checklistItems : checklistItems // ignore: cast_nullable_to_non_nullable
 as List<String>?,acceptanceCriteria: freezed == acceptanceCriteria ? _self.acceptanceCriteria : acceptanceCriteria // ignore: cast_nullable_to_non_nullable
 as List<String>?,labels: freezed == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable

@@ -1,22 +1,22 @@
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_notification_settings_repository_impl.dart';
+import 'package:devplanner/workspaces/data/notifications/api/notifications_api.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/data/notifications/repositories/notification_digest_repository_impl.dart';
+import 'package:devplanner/workspaces/data/notifications/repositories/notification_preferences_repository_impl.dart';
+import 'package:devplanner/workspaces/data/notifications/repositories/notification_reply_repository_impl.dart';
+import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart'
+    as transport_chat;
+import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart'
+    as transport_notification;
+import 'package:devplanner/workspaces/domain/notifications/models/chat_notification_settings.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_preferences.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_reply_command.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/chat/api/chat_api.dart';
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
-import 'package:ready_next/workspaces/data/chat/repositories/chat_notification_settings_repository_impl.dart';
-import 'package:ready_next/workspaces/data/notifications/api/notifications_api.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/data/notifications/repositories/notification_digest_repository_impl.dart';
-import 'package:ready_next/workspaces/data/notifications/repositories/notification_preferences_repository_impl.dart';
-import 'package:ready_next/workspaces/data/notifications/repositories/notification_reply_repository_impl.dart';
-import 'package:ready_next/workspaces/data/shared/enums/chat_enums.dart'
-    as transport_chat;
-import 'package:ready_next/workspaces/data/shared/enums/notification_enums.dart'
-    as transport_notification;
-import 'package:ready_next/workspaces/domain/notifications/models/chat_notification_settings.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_preferences.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_reply_command.dart';
 
 final class _MockNotificationsApi extends Mock implements NotificationsApi {}
 
@@ -54,7 +54,7 @@ void main() {
         () => throw StateError('Oczekiwano preferencji.'),
       );
 
-      expect(settings.coreUserId, 'user-1');
+      expect(settings.userId, 'user-1');
       expect(
         settings.modes[NotificationDeliveryCategory.chat],
         NotificationEmailDeliveryMode.dailyDigest,
@@ -258,7 +258,7 @@ void main() {
 abstract final class _NotificationFixtures {
   static NotificationDeliveryPreferenceResponse deliveryPreferences() =>
       NotificationDeliveryPreferenceResponse(
-        coreUserId: 'user-1',
+        userId: 'user-1',
         invitation: _email(
           transport_notification.NotificationEmailDeliveryMode.immediate,
         ),
@@ -295,7 +295,7 @@ abstract final class _NotificationFixtures {
 
   static StorageNotificationPreferenceResponse storagePreference() =>
       StorageNotificationPreferenceResponse(
-        coreUserId: 'user-1',
+        userId: 'user-1',
         mode: transport_notification
             .StorageNotificationPreferenceMode
             .mentionsOnly,
@@ -338,7 +338,7 @@ abstract final class _NotificationFixtures {
   static ChatMessageResponse chatMessage() => ChatMessageResponse(
     id: 'message-1',
     conversationId: 'conversation-1',
-    authorCoreUserId: 'user-1',
+    authorUserId: 'user-1',
     clientMessageId: 'client-1',
     text: 'Dziękuję',
     payloadHash: 'hash-1',
@@ -350,7 +350,7 @@ abstract final class _NotificationFixtures {
         id: 'attachment-1',
         messageId: 'message-1',
         storageFileId: 'file-1',
-        attachedByCoreUserId: 'user-1',
+        attachedByUserId: 'user-1',
         position: 0,
         createdAtUtc: DateTime.utc(2026, 9, 15, 11),
       ),
@@ -359,7 +359,7 @@ abstract final class _NotificationFixtures {
 
   static ChatUserNotificationPreferenceResponse chatSettings() =>
       const ChatUserNotificationPreferenceResponse(
-        coreUserId: 'user-1',
+        userId: 'user-1',
         inAppEnabled: true,
         emailEnabled: false,
         pushEnabled: true,
@@ -369,7 +369,7 @@ abstract final class _NotificationFixtures {
   static ChatNotificationPreferenceResponse conversationSetting() =>
       const ChatNotificationPreferenceResponse(
         conversationId: 'conversation-1',
-        coreUserId: 'user-1',
+        userId: 'user-1',
         preference: transport_chat.ChatNotificationPreference.highOnly,
       );
 

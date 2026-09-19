@@ -1,17 +1,17 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/inline_create/task_list_inline_create.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_header.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_column_reference.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/inline_create/task_list_inline_create.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/header/task_list_header.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 const List<TaskSavedViewColumn> subtaskTableColumns = [
   TaskSavedViewColumn.title,
@@ -68,14 +68,14 @@ class TaskListSubtaskTable extends StatefulWidget {
 }
 
 class _TaskListSubtaskTableState extends State<TaskListSubtaskTable> {
-  bool _isAdding = false;
+  final ValueNotifier<bool> _isAdding = ValueNotifier(false);
   final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     if (widget.startAdding) {
-      _isAdding = true;
+      _isAdding.value = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onStartAddingHandled?.call();
       });
@@ -85,8 +85,8 @@ class _TaskListSubtaskTableState extends State<TaskListSubtaskTable> {
   @override
   void didUpdateWidget(TaskListSubtaskTable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!oldWidget.startAdding && widget.startAdding && !_isAdding) {
-      setState(() => _isAdding = true);
+    if (!oldWidget.startAdding && widget.startAdding && !_isAdding.value) {
+      _isAdding.value = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onStartAddingHandled?.call();
       });
@@ -96,12 +96,13 @@ class _TaskListSubtaskTableState extends State<TaskListSubtaskTable> {
   @override
   void dispose() {
     _controller.dispose();
+    _isAdding.dispose();
     super.dispose();
   }
 
   void _cancelAdding() {
     _controller.clear();
-    setState(() => _isAdding = false);
+    _isAdding.value = false;
   }
 
   Future<void> _submit() async {
@@ -111,7 +112,7 @@ class _TaskListSubtaskTableState extends State<TaskListSubtaskTable> {
       return;
     }
     _controller.clear();
-    setState(() => _isAdding = false);
+    _isAdding.value = false;
     await context.read<ProjectTasksListCubit>().createSubtask(
       parent: widget.parent,
       title: title,
@@ -213,33 +214,35 @@ class _TaskListSubtaskTableState extends State<TaskListSubtaskTable> {
               ],
             ),
           ),
-        if (_isAdding)
-          TaskListInlineCreateRow(
-            controller: _controller,
-            hintText: 'Nazwa podzadania',
-            onCancel: _cancelAdding,
-            onSubmit: _submit,
-          )
-        else
-          SizedBox(
-            height: 36,
-            child: Align(
-              alignment: .centerLeft,
-              child: TextButton.icon(
-                onPressed: () => setState(() => _isAdding = true),
-                icon: const Icon(Symbols.add_rounded, size: 16),
-                label: const Text('Dodaj podzadanie'),
-                style: TextButton.styleFrom(
-                  foregroundColor: context.colors.onSurfaceVariant,
-                  visualDensity: .compact,
-                  padding: const .only(left: 12, right: 10),
-                  textStyle: context.text.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+        ValueListenableBuilder<bool>(
+          valueListenable: _isAdding,
+          builder: (context, isAdding, _) => isAdding
+              ? TaskListInlineCreateRow(
+                  controller: _controller,
+                  hintText: 'Nazwa podzadania',
+                  onCancel: _cancelAdding,
+                  onSubmit: _submit,
+                )
+              : SizedBox(
+                  height: 36,
+                  child: Align(
+                    alignment: .centerLeft,
+                    child: TextButton.icon(
+                      onPressed: () => _isAdding.value = true,
+                      icon: const Icon(Symbols.add_rounded, size: 16),
+                      label: const Text('Dodaj podzadanie'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: context.colors.onSurfaceVariant,
+                        visualDensity: .compact,
+                        padding: const .only(left: 12, right: 10),
+                        textStyle: context.text.labelMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
+        ),
       ],
     ),
   );

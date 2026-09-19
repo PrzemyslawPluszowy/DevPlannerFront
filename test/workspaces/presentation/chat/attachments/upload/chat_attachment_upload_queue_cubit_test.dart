@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_queue_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/domain/chat/attachments/chat_attachments_export.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_queue_cubit.dart';
 
 void main() {
   ChatAttachment attachment(String id) => ChatAttachment(

@@ -1,15 +1,15 @@
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list_rows.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/project_tasks_list_rows.dart';
 
 void main() {
   testWidgets('wiersz listy renderuje dane i opis semantyczny', (tester) async {
@@ -44,7 +44,7 @@ void main() {
               width: 2000,
               child: TaskListRow(
                 task: task,
-                memberProfilesByCoreUserId: const {},
+                memberProfilesByUserId: const {},
                 columns: const [
                   TaskSavedViewColumn.key,
                   TaskSavedViewColumn.title,
@@ -104,7 +104,7 @@ void main() {
             scrollDirection: Axis.horizontal,
             child: TaskListRow(
               task: task,
-              memberProfilesByCoreUserId: const {},
+              memberProfilesByUserId: const {},
               focusNode: focusNode,
               onOpen: () => opened++,
             ),
@@ -158,7 +158,7 @@ void main() {
             scrollDirection: Axis.horizontal,
             child: TaskListRow(
               task: task,
-              memberProfilesByCoreUserId: const {},
+              memberProfilesByUserId: const {},
               columns: const [TaskSavedViewColumn.title],
             ),
           ),
@@ -203,7 +203,7 @@ void main() {
           body: TaskListRow(
             task: task,
             columns: const [TaskSavedViewColumn.dueAtUtc],
-            memberProfilesByCoreUserId: const {},
+            memberProfilesByUserId: const {},
             onDueDateChanged: (value) async {
               savedDate = value;
               return true;
@@ -301,7 +301,7 @@ void main() {
   );
 
   test('widoczne kolumny usuwają duplikaty i zachowują tytuł', () {
-    final columns = taskListVisibleColumns([
+    final columns = TaskListGrid.visibleColumns([
       TaskSavedViewColumn.startAtUtc,
       TaskSavedViewColumn.key,
       TaskSavedViewColumn.key,
@@ -348,7 +348,7 @@ void main() {
           body: TaskListRow(
             task: task,
             columns: const [TaskSavedViewColumn.taskType],
-            memberProfilesByCoreUserId: const {},
+            memberProfilesByUserId: const {},
           ),
         ),
       ),
@@ -383,7 +383,7 @@ void main() {
           body: TaskListRow(
             task: task,
             columns: const [TaskSavedViewColumn.taskType],
-            memberProfilesByCoreUserId: const {},
+            memberProfilesByUserId: const {},
             onTaskTypeChanged: (value) async {
               savedType = value;
               return true;
@@ -431,7 +431,7 @@ void main() {
             body: TaskListRow(
               task: task,
               columns: const [TaskSavedViewColumn.size],
-              memberProfilesByCoreUserId: const {},
+              memberProfilesByUserId: const {},
               onSystemMetricChanged: (_, value) async {
                 savedValues.add(value);
                 return true;
@@ -497,7 +497,7 @@ void main() {
           body: TaskListRow(
             task: task,
             columns: const [TaskSavedViewColumn.risk],
-            memberProfilesByCoreUserId: const {},
+            memberProfilesByUserId: const {},
             onOpen: () {},
           ),
         ),
@@ -571,12 +571,12 @@ void main() {
                 TaskListRow(
                   task: emptyTask,
                   columns: const [TaskSavedViewColumn.checklistProgress],
-                  memberProfilesByCoreUserId: const {},
+                  memberProfilesByUserId: const {},
                 ),
                 TaskListRow(
                   task: withChecklistTask,
                   columns: const [TaskSavedViewColumn.checklistProgress],
-                  memberProfilesByCoreUserId: const {},
+                  memberProfilesByUserId: const {},
                 ),
               ],
             ),
@@ -619,7 +619,7 @@ void main() {
             body: TaskListRow(
               task: task,
               columns: const [TaskSavedViewColumn.status],
-              memberProfilesByCoreUserId: const {},
+              memberProfilesByUserId: const {},
               onStatusChanged: (val) async {
                 newStatus = val;
                 return true;
@@ -676,7 +676,7 @@ void main() {
           body: TaskListRow(
             task: task,
             columns: const [TaskSavedViewColumn.title],
-            memberProfilesByCoreUserId: const {},
+            memberProfilesByUserId: const {},
             onDuplicate: () async {
               duplicated = true;
             },

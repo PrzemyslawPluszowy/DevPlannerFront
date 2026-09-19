@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/api/storage_api.dart';
 
 class _RejectingRecordingAdapter implements HttpClientAdapter {
   final requests = <RequestOptions>[];

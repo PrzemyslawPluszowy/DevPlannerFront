@@ -1,21 +1,23 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/shared/storage_formatters.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/versions/storage_versions_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/shared/storage_file_context_menu.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
-import 'package:ready_next/workspaces/presentation/storage/shared/storage_formatters.dart';
-import 'package:ready_next/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
-import 'package:ready_next/workspaces/presentation/storage/versions/storage_versions_dialog.dart';
 
 /// Siatka plików w widoku kafelkowym eksploratora.
 class StorageFileGrid extends StatelessWidget {
@@ -176,7 +178,7 @@ class _FileGridCard extends StatelessWidget {
   void _openPreview(BuildContext context, StorageFileResponse file) {
     unawaited(context.read<StoragePreviewCubit>().preparePreview(file));
     unawaited(
-      AppModalHost.showDialog<void>(
+      DevPlannerModalHost.showDialog<void>(
         context,
         builder: (_) => BlocProvider.value(
           value: context.read<StoragePreviewCubit>(),
@@ -191,7 +193,7 @@ class _FileGridCard extends StatelessWidget {
     final l10n = context.l10n;
     final isTrash = context.read<StorageBrowserCubit>().currentScope.isTrash;
     unawaited(
-      AppModalHost.showBottomSheet<void>(
+      DevPlannerModalHost.showBottomSheet<void>(
         context,
         builder: (sheetCtx) => SafeArea(
           child: Column(
@@ -240,6 +242,8 @@ class _FileGridCard extends StatelessWidget {
                     final restored = await StorageVersionsDialog.show(
                       context,
                       file: file,
+                      repository: context.read<StorageRepository>(),
+                      downloadTransport: context.read<DownloadTransport>(),
                     );
                     if (restored == true && context.mounted) {
                       unawaited(

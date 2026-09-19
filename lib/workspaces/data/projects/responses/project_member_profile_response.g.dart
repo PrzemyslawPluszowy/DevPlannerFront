@@ -9,7 +9,7 @@ part of 'project_member_profile_response.dart';
 _ProjectMemberProfileResponse _$ProjectMemberProfileResponseFromJson(
   Map<String, dynamic> json,
 ) => _ProjectMemberProfileResponse(
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   displayName: json['displayName'] as String?,
   avatarUrl: json['avatarUrl'] as String?,
   role: $enumDecode(_$ProjectRoleEnumMap, json['role']),
@@ -18,7 +18,7 @@ _ProjectMemberProfileResponse _$ProjectMemberProfileResponseFromJson(
 Map<String, dynamic> _$ProjectMemberProfileResponseToJson(
   _ProjectMemberProfileResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'displayName': instance.displayName,
   'avatarUrl': instance.avatarUrl,
   'role': _$ProjectRoleEnumMap[instance.role]!,

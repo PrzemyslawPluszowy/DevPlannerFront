@@ -1,20 +1,21 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_confirm_dialog.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/cubit/task_saved_view_metadata_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/cubit/task_saved_views_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/models/task_list_view_snapshot.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/models/task_saved_view_draft.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/widgets/task_saved_view_dirty_badge.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/widgets/task_saved_view_editor_dialog.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/widgets/task_saved_view_name_dialog.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/widgets/task_saved_views_feedback_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_confirm_dialog.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/cubit/task_saved_view_metadata_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/cubit/task_saved_views_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/models/task_list_view_snapshot.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/models/task_saved_view_draft.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/widgets/task_saved_view_dirty_badge.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/widgets/task_saved_view_editor_dialog.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/widgets/task_saved_view_name_dialog.dart';
 
 /// Intencje użytkownika z menu zapisanych widoków.
 sealed class TaskSavedViewMenuAction {
@@ -81,31 +82,8 @@ class TaskSavedViewsMenu extends StatelessWidget {
 
     final isDefaultActive = ready != null && ready.activeViewId == null;
 
-    return BlocListener<TaskSavedViewsCubit, TaskSavedViewsState>(
-      listenWhen: (previous, current) =>
-          current is TaskSavedViewsReady &&
-          (current.error != null ||
-              (previous is TaskSavedViewsReady &&
-                  current.successSerial > previous.successSerial)),
-      listener: (context, state) {
-        if (state is! TaskSavedViewsReady) return;
-        final messenger = ScaffoldMessenger.of(context);
-        if (state.error != null) {
-          messenger
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(state.error!),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
-          cubit.clearError();
-        } else if (state.successMessage != null) {
-          messenger
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(state.successMessage!)));
-        }
-      },
+    return TaskSavedViewsFeedbackListener(
+      cubit: cubit,
       child: PopupMenuButton<TaskSavedViewMenuAction>(
         tooltip: context.l10n.tasksSavedViews,
         enabled: ready != null && !ready.busy,

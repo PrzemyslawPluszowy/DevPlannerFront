@@ -1,9 +1,9 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_role.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_settings/members/widgets/workspace_role_badge_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_role.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_settings/members/widgets/workspace_role_badge_selector.dart';
 
 /// Tabela listy członków przestrzeni roboczej z możliwością zarządzania rolami i usuwania osób.
 class WorkspaceMembersTable extends StatelessWidget {
@@ -28,10 +28,7 @@ class WorkspaceMembersTable extends StatelessWidget {
   final void Function(String memberId) onRemoveMember;
 
   String _formatMemberDisplayName(WorkspaceMemberResponse member) {
-    if (member.readyUserId != null) {
-      return 'Użytkownik Ready #${member.readyUserId}';
-    }
-    return 'Użytkownik Core (${member.coreUserId.substring(0, 8)}...)';
+    return 'Użytkownik (${member.userId})';
   }
 
   @override
@@ -96,9 +93,7 @@ class WorkspaceMembersTable extends StatelessWidget {
                     ),
                     Gaps.h2,
                     Text(
-                      member.readyUserId != null
-                          ? 'Ready ID: ${member.readyUserId}'
-                          : 'Core ID: ${member.coreUserId}',
+                      'ID użytkownika: ${member.userId}',
                       style: context.text.labelSmall?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),

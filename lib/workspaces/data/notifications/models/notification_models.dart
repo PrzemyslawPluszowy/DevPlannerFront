@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/notification_enums.dart';
 
 part 'notification_models.freezed.dart';
 part 'notification_models.g.dart';
@@ -37,13 +37,13 @@ abstract class WorkspaceNotificationResponse
       _$WorkspaceNotificationResponseFromJson(json);
 }
 
-/// Avatar aktora powiadomienia z katalogu Core.
+/// Avatar lokalnego aktora powiadomienia.
 @freezed
 abstract class NotificationActorAvatarResponse
     with _$NotificationActorAvatarResponse {
   /// Tworzy referencję aktora.
   const factory NotificationActorAvatarResponse({
-    required String coreUserId,
+    required String userId,
     String? avatarUrl,
   }) = _NotificationActorAvatarResponse;
 
@@ -123,7 +123,7 @@ abstract class NotificationDeliveryPreferenceResponse
     with _$NotificationDeliveryPreferenceResponse {
   /// Tworzy macierz preferencji wszystkich kategorii.
   const factory NotificationDeliveryPreferenceResponse({
-    required String coreUserId,
+    required String userId,
     required NotificationEmailCategoryPreference invitation,
     required NotificationEmailCategoryPreference membership,
     required NotificationEmailCategoryPreference workspace,
@@ -171,7 +171,7 @@ abstract class StorageNotificationPreferenceResponse
     with _$StorageNotificationPreferenceResponse {
   /// Tworzy skuteczną preferencję Storage.
   const factory StorageNotificationPreferenceResponse({
-    required String coreUserId,
+    required String userId,
     required StorageNotificationPreferenceMode mode,
     required bool isDefault,
     DateTime? updatedAtUtc,
@@ -247,9 +247,9 @@ abstract class NotificationReplyPayload with _$NotificationReplyPayload {
 @freezed
 abstract class CreateAdminNotificationPayload
     with _$CreateAdminNotificationPayload {
-  /// Tworzy komunikat dla użytkownika Core.
+  /// Tworzy komunikat dla lokalnego użytkownika.
   const factory CreateAdminNotificationPayload({
-    required String recipientCoreUserId,
+    required String recipientUserId,
     required String title,
     required String body,
     String? deepLink,

@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'custom_workflow_api.g.dart';

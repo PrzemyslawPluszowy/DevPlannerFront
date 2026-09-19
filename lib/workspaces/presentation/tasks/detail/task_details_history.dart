@@ -1,24 +1,33 @@
 part of 'task_details_page.dart';
 
-Future<void> _showTaskHistory(BuildContext context) {
-  final detailsCubit = context.read<TaskDetailsCubit>();
-  final historyRepository = context.read<TaskHistoryRepository>();
-  return showDialog<void>(
-    context: context,
-    builder: (_) => BlocProvider(
-      create: (_) {
-        final cubit = TaskHistoryCubit(
-          repository: historyRepository,
-          workspaceId: detailsCubit.workspaceId,
-          projectId: detailsCubit.projectId,
-          taskId: detailsCubit.taskId,
-        );
-        unawaited(cubit.load());
-        return cubit;
-      },
-      child: const _TaskHistoryDialog(),
-    ),
-  );
+/// Otwiera modal historii dla aktualnie złożonego szczegółu zadania.
+///
+/// Pobiera wyłącznie zależności z najbliższego drzewa widgetów i przekazuje je
+/// do lokalnego Cubita; nie przechowuje stanu ani nie wykonuje I/O poza tym
+/// Cubitem.
+final class TaskHistoryDialogLauncher {
+  const TaskHistoryDialogLauncher._();
+
+  static Future<void> show(BuildContext context) {
+    final detailsCubit = context.read<TaskDetailsCubit>();
+    final historyRepository = context.read<TaskHistoryRepository>();
+    return showDialog<void>(
+      context: context,
+      builder: (_) => BlocProvider(
+        create: (_) {
+          final cubit = TaskHistoryCubit(
+            repository: historyRepository,
+            workspaceId: detailsCubit.workspaceId,
+            projectId: detailsCubit.projectId,
+            taskId: detailsCubit.taskId,
+          );
+          unawaited(cubit.load());
+          return cubit;
+        },
+        child: const _TaskHistoryDialog(),
+      ),
+    );
+  }
 }
 
 class _TaskHistoryDialog extends StatelessWidget {
@@ -187,7 +196,10 @@ class _TaskHistoryEventTile extends StatelessWidget {
       leading: CircleAvatar(
         backgroundColor: context.colors.primaryContainer,
         foregroundColor: context.colors.onPrimaryContainer,
-        child: Icon(_eventIcon(event.eventType), size: 19),
+        child: Icon(
+          TaskHistoryPresentation.eventIcon(event.eventType),
+          size: 19,
+        ),
       ),
       title: Text(
         event.actionLabel,
@@ -198,12 +210,14 @@ class _TaskHistoryEventTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 3),
-          Text('${_actorLabel(context, event.actor)} · $date'),
+          Text(
+            '${TaskHistoryPresentation.actorLabel(context, event.actor)} · $date',
+          ),
           if (event.changes.isNotEmpty) ...[
             const SizedBox(height: 5),
             for (final change in event.changes.take(3))
               Text(
-                '${change.field}: ${_historyValue(change.before)} → ${_historyValue(change.after)}',
+                '${change.field}: ${TaskHistoryPresentation.value(change.before)} → ${TaskHistoryPresentation.value(change.after)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.text.bodySmall,
@@ -221,26 +235,32 @@ class _TaskHistoryEventTile extends StatelessWidget {
   }
 }
 
-IconData _eventIcon(TaskHistoryEventType type) => switch (type) {
-  TaskHistoryEventType.created => Symbols.add_task_rounded,
-  TaskHistoryEventType.statusChanged ||
-  TaskHistoryEventType.kanbanMoved => Symbols.swap_horiz_rounded,
-  TaskHistoryEventType.archived => Symbols.archive,
-  TaskHistoryEventType.restored => Symbols.unarchive,
-  _ => Symbols.edit_note_rounded,
-};
+/// Czyste mapowania i formatowanie dla elementów historii zadania.
+final class TaskHistoryPresentation {
+  const TaskHistoryPresentation._();
 
-String _actorLabel(BuildContext context, TaskHistoryActorResponse actor) =>
-    switch (actor.type) {
-      TaskActorType.system => context.l10n.taskDetailsHistoryActorSystem,
-      TaskActorType.automation =>
-        context.l10n.taskDetailsHistoryActorAutomation,
-      TaskActorType.user =>
-        actor.coreUserId ?? context.l10n.taskDetailsHistoryActorUser,
-    };
+  static IconData eventIcon(TaskHistoryEventType type) => switch (type) {
+    TaskHistoryEventType.created => Symbols.add_task_rounded,
+    TaskHistoryEventType.statusChanged ||
+    TaskHistoryEventType.kanbanMoved => Symbols.swap_horiz_rounded,
+    TaskHistoryEventType.archived => Symbols.archive,
+    TaskHistoryEventType.restored => Symbols.unarchive,
+    _ => Symbols.edit_note_rounded,
+  };
 
-String _historyValue(Object? value) {
-  if (value == null) return '—';
-  final text = value.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
-  return text.length <= 80 ? text : '${text.substring(0, 77)}…';
+  static String actorLabel(
+    BuildContext context,
+    TaskHistoryActorResponse actor,
+  ) => switch (actor.type) {
+    TaskActorType.system => context.l10n.taskDetailsHistoryActorSystem,
+    TaskActorType.automation => context.l10n.taskDetailsHistoryActorAutomation,
+    TaskActorType.user =>
+      actor.userId ?? context.l10n.taskDetailsHistoryActorUser,
+  };
+
+  static String value(Object? value) {
+    if (value == null) return '—';
+    final text = value.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
+    return text.length <= 80 ? text : '${text.substring(0, 77)}…';
+  }
 }

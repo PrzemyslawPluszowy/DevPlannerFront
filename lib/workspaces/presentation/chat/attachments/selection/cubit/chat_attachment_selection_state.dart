@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/chat/attachments/chat_attachments_export.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
 
 /// Niemutowalny snapshot lokalnego wyboru załączników composera.
 sealed class ChatAttachmentSelectionState {

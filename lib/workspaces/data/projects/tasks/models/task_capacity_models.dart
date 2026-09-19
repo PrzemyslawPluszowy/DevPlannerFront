@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
 
 part 'task_capacity_models.freezed.dart';
 part 'task_capacity_models.g.dart';
@@ -41,7 +41,7 @@ abstract class CreateUserCapacityOverridePayload
     with _$CreateUserCapacityOverridePayload {
   /// Tworzy zakresową dostępność użytkownika.
   const factory CreateUserCapacityOverridePayload({
-    required String coreUserId,
+    required String userId,
     required DateTime startDate,
     required DateTime endDate,
     required int availableMinutesPerDay,
@@ -82,7 +82,7 @@ abstract class UserCapacityOverrideResponse
     required String id,
     required String workspaceId,
     required String projectId,
-    required String coreUserId,
+    required String userId,
     required DateTime startDate,
     required DateTime endDate,
     required int availableMinutesPerDay,
@@ -101,7 +101,7 @@ abstract class UserCapacityOverrideResponse
 abstract class TaskWorkloadUserResponse with _$TaskWorkloadUserResponse {
   /// Tworzy agregaty workload.
   const factory TaskWorkloadUserResponse({
-    required String coreUserId,
+    required String userId,
     required int assignedTaskCount,
     required int estimatedMinutes,
     required int loggedMinutes,

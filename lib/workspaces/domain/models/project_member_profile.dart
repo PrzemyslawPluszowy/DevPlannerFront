@@ -1,16 +1,16 @@
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 
 /// Dane osoby, które można bezpiecznie pokazać w obrębie jednego projektu.
 final class ProjectMemberProfile {
   const ProjectMemberProfile({
-    required this.coreUserId,
+    required this.userId,
     required this.role,
     this.displayName,
     this.avatarUrl,
   });
 
   /// Stabilny identyfikator używany przez zdarzenia realtime.
-  final String coreUserId;
+  final String userId;
 
   /// Nazwa prezentowana użytkownikowi, jeśli katalog Core ją udostępnił.
   final String? displayName;

@@ -1,8 +1,8 @@
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/discussion/cubit/chat_discussion_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/discussion/cubit/chat_discussion_state.dart';
 
 /// Lokalny owner rozwiązania nazwanej dyskusji dla jednego prawego panelu.
 final class ChatDiscussionCubit extends Cubit<ChatDiscussionState> {

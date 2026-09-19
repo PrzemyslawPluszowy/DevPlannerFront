@@ -1,20 +1,20 @@
 import 'dart:async';
 
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_message_composer.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/file_picker_port.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/composer/chat_message_composer.dart';
-import 'package:ready_next/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 
 void main() {
   group('ChatMessageComposer keyboard', () {

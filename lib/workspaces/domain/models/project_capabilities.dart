@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/domain/models/project_settings_tab.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/domain/models/project_settings_tab.dart';
 
 /// Centralny model uprawnień i możliwości użytkownika w kontekście projektu.
 ///

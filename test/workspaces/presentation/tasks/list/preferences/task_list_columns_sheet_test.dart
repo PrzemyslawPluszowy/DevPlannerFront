@@ -1,16 +1,16 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/widgets/task_list_columns_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_list_configuration_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/preferences/widgets/task_list_columns_sheet.dart';
 
 final class _MockTaskListConfigurationRepository
     implements TaskListConfigurationRepository {
@@ -40,7 +40,7 @@ final class _MockTaskListConfigurationRepository
       TaskListUserPreferenceResponse(
         workspaceId: workspaceId,
         projectId: projectId,
-        coreUserId: 'user-1',
+        userId: 'user-1',
         visibleColumns: payload.visibleColumns,
         columnWidths: payload.columnWidths,
         version: payload.expectedVersion + 1,
@@ -58,7 +58,7 @@ final class _MockTaskListConfigurationRepository
       TaskListUserPreferenceResponse(
         workspaceId: 'ws-1',
         projectId: 'proj-1',
-        coreUserId: 'user-1',
+        userId: 'user-1',
         visibleColumns: [],
         columnWidths: {},
         version: 1,

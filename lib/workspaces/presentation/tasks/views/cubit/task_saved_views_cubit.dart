@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/cubit/task_saved_views_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_list_configuration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_view_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/cubit/task_saved_views_state.dart';
 
 export 'task_saved_views_state.dart';
 

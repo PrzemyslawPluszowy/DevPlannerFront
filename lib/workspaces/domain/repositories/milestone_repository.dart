@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
 
 /// Operacje na kamieniach milowych projektu i przypisaniach zadań.
 abstract interface class MilestoneRepository {

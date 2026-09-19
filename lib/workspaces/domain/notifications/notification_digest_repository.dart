@@ -3,8 +3,8 @@
 // ignore_for_file: one_member_abstracts
 
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_digest.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_digest.dart';
 
 /// Port read-only snapshotu digestu powiadomień użytkownika.
 abstract interface class NotificationDigestRepository {

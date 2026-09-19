@@ -1,7 +1,8 @@
-import 'package:ready_next/core/host/host_bridge.dart';
-import 'package:ready_next/core/host/host_bridge_stub.dart'
-    if (dart.library.html) 'host_bridge_web.dart'
-    as impl;
+import 'package:devplanner/core/host/host_bridge.dart';
+import 'package:devplanner/core/host/host_bridge_stub.dart';
 
-/// Tworzy implementacje mostu odpowiednia dla aktualnej platformy.
-HostBridge createHostBridge() => impl.createHostBridge();
+/// Creates the local, non-embedded platform boundary.
+///
+/// DevPlanner owns its own session lifecycle and does not connect to another
+/// product's host, token bridge or backend.
+HostBridge createHostBridge() => const StubHostBridge();

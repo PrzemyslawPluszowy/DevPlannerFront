@@ -1,29 +1,42 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/versions/cubit/storage_versions_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/versions/cubit/storage_versions_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/transport/download_transport_impl.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/presentation/storage/versions/cubit/storage_versions_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/versions/cubit/storage_versions_state.dart';
 
 /// Dialog historii wersji pliku.
 final class StorageVersionsDialog extends StatelessWidget {
-  const StorageVersionsDialog({required this.file, super.key});
+  const StorageVersionsDialog({
+    required this.file,
+    required this.repository,
+    required this.downloadTransport,
+    super.key,
+  });
 
   final StorageFileResponse file;
+  final StorageRepository repository;
+  final DownloadTransport downloadTransport;
 
   static Future<bool?> show(
     BuildContext context, {
     required StorageFileResponse file,
+    required StorageRepository repository,
+    required DownloadTransport downloadTransport,
   }) => showDialog<bool>(
     context: context,
-    builder: (_) => StorageVersionsDialog(file: file),
+    builder: (_) => StorageVersionsDialog(
+      file: file,
+      repository: repository,
+      downloadTransport: downloadTransport,
+    ),
   );
 
   @override
@@ -33,8 +46,8 @@ final class StorageVersionsDialog extends StatelessWidget {
         fileId: file.id,
         fileName: file.originalFileName,
         expectedVersion: file.version,
-        repository: context.read<StorageRepository>(),
-        downloadTransport: const DownloadTransportImpl(),
+        repository: repository,
+        downloadTransport: downloadTransport,
       );
       unawaited(cubit.load());
       return cubit;

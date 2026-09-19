@@ -13,6 +13,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageNewDocument => 'New document';
 
   @override
+  String get storageRouteUnavailableTitle => 'Files unavailable';
+
+  @override
+  String get storageRouteInvalidWorkspaceId =>
+      'The workspace address is invalid.';
+
+  @override
+  String get storageRouteNotConfigured =>
+      'Files are not configured for this session.';
+
+  @override
   String get storageCreateDocumentDialogTitle => 'Create document';
 
   @override
@@ -52,7 +63,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageFormatPptx => 'PowerPoint presentation (.pptx)';
 
   @override
-  String get appName => 'Ready Custom';
+  String get appName => 'DevPlanner';
 
   @override
   String get loginSubtitle => 'Sign in to access modules.';
@@ -79,7 +90,158 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSubmitting => 'Signing in...';
 
   @override
+  String get loginRedirecting => 'Redirecting to secure sign-in...';
+
+  @override
+  String get loginBffDescription =>
+      'Sign-in takes place on the secure DevPlanner server page. Your password is not entered or stored in this application.';
+
+  @override
+  String get loginBffSubmit => 'Continue to secure sign-in';
+
+  @override
+  String get loginDesktopUnavailable =>
+      'Desktop sign-in through the system browser is not configured yet.';
+
+  @override
+  String get authContractPending =>
+      'Authentication is waiting for the standalone backend contract.';
+
+  @override
+  String get authActivationTitle => 'Activate account';
+
+  @override
+  String get authActivationTokenLabel => 'Activation token';
+
+  @override
+  String get authActivationPasswordLabel => 'New password';
+
+  @override
+  String get authResetTitle => 'Reset password';
+
+  @override
+  String get authResetLoginLabel => 'Username or email';
+
+  @override
+  String get authMfaTitle => 'Verify MFA';
+
+  @override
+  String get authMfaCodeLabel => 'Verification code';
+
+  @override
+  String get authFieldRequired => 'Enter a value.';
+
+  @override
   String get globalUserFallback => 'User';
+
+  @override
+  String get adminUsersTitle => 'Users';
+
+  @override
+  String get adminUsersSubtitle => 'Manage local DevPlanner accounts';
+
+  @override
+  String get adminUsersUnavailableTitle => 'User administration unavailable';
+
+  @override
+  String get adminUsersUnavailableMessage =>
+      'The administration transport is not configured yet. No substitute data is displayed.';
+
+  @override
+  String get adminUsersAccessDeniedTitle => 'Access denied';
+
+  @override
+  String get adminUsersAccessDeniedMessage =>
+      'Your session does not have permission to read accounts.';
+
+  @override
+  String get adminUsersSearchHint => 'Search by login, email or display name';
+
+  @override
+  String get adminUsersRefresh => 'Refresh';
+
+  @override
+  String get adminUsersCreate => 'Create account';
+
+  @override
+  String get adminUsersEmptyTitle => 'No accounts';
+
+  @override
+  String get adminUsersEmptyMessage => 'No accounts match the current filters.';
+
+  @override
+  String get adminUsersLoadFailureTitle => 'Could not load accounts';
+
+  @override
+  String get adminUsersRetry => 'Try again';
+
+  @override
+  String get adminUsersLogin => 'Login';
+
+  @override
+  String get adminUsersEmail => 'Email';
+
+  @override
+  String get adminUsersDisplayName => 'Display name';
+
+  @override
+  String get adminUsersRoles => 'Roles';
+
+  @override
+  String get adminUsersStatus => 'Status';
+
+  @override
+  String get adminUsersCreateTitle => 'New account';
+
+  @override
+  String get adminUsersEditTitle => 'Edit account';
+
+  @override
+  String get adminUsersSave => 'Save';
+
+  @override
+  String get adminUsersCancel => 'Cancel';
+
+  @override
+  String get adminUsersRequired => 'Fill in the required fields.';
+
+  @override
+  String get adminUsersRoleSystemAdmin => 'System administrator';
+
+  @override
+  String get adminUsersRoleUser => 'User';
+
+  @override
+  String get adminUsersRoleSave => 'Save roles';
+
+  @override
+  String get adminUsersReactivate => 'Reactivate';
+
+  @override
+  String get adminUsersDeactivate => 'Deactivate';
+
+  @override
+  String get adminUsersSelfRoleBlocked =>
+      'You cannot grant yourself administrator privileges.';
+
+  @override
+  String get adminUsersStatusPendingActivation => 'Pending activation';
+
+  @override
+  String get adminUsersStatusActive => 'Active';
+
+  @override
+  String get adminUsersStatusDeactivated => 'Deactivated';
+
+  @override
+  String get adminUsersStatusLocked => 'Locked';
+
+  @override
+  String get adminUsersConfirmAction => 'Confirm operation';
+
+  @override
+  String get adminUsersConfirmActionMessage =>
+      'This operation changes the account state.';
 
   @override
   String get globalModuleDashboard => 'Dashboard';
@@ -106,7 +268,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appShellChangelogShowAll => 'Show all entries';
 
   @override
-  String get appShellBrandName => 'Ready Next';
+  String get appShellBrandName => 'DevPlanner';
 
   @override
   String get appShellCommandPaletteUnavailable =>
@@ -162,6 +324,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workspaceShellExpandMenu => 'Expand menu';
+
+  @override
+  String get workspaceNavigationCollapseBranch => 'Collapse branch';
+
+  @override
+  String get workspaceNavigationExpandBranch => 'Expand branch';
 
   @override
   String get workspaceShellNavigationTitle => 'Workspace';
@@ -229,6 +397,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workspacesSessionTitle => 'Your session requires sign-in again';
+
+  @override
+  String get workspacesTransportUnavailableTitle =>
+      'Workspace transport unavailable';
+
+  @override
+  String get workspacesTransportUnavailableMessage =>
+      'The workspace transport is not configured yet.';
+
+  @override
+  String get workspacesSessionMessage =>
+      'Sign in again to load your workspaces.';
+
+  @override
+  String get workspacesForbiddenMessage =>
+      'You do not have permission to read workspaces.';
+
+  @override
+  String get workspacesRequestFailedMessage =>
+      'The server did not return the workspace list. Try again.';
+
+  @override
+  String get workspacesInvalidResponseMessage =>
+      'The server returned invalid workspace data.';
+
+  @override
+  String workspacesHttpStatus(int statusCode) {
+    return 'HTTP status: $statusCode';
+  }
 
   @override
   String get workspacesRefresh => 'Refresh';
@@ -6913,6 +7110,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasksListQuickCreateCancel => 'Cancel';
 
   @override
+  String get tasksListCreateTitleRequired => 'A task title is required.';
+
+  @override
+  String get tasksListCreateForbidden =>
+      'You do not have permission to create a task.';
+
+  @override
+  String get tasksListCreateConflict =>
+      'The data changed. Refresh the list and try again.';
+
+  @override
+  String get tasksListCreateValidation => 'The task data is invalid.';
+
+  @override
+  String get tasksListCreateDuplicate =>
+      'Task creation is already in progress.';
+
+  @override
+  String get tasksListCreateUnavailable => 'The task list is not ready yet.';
+
+  @override
   String get tasksListRecurrenceSeriesBadge => 'Series';
 
   @override
@@ -7269,15 +7487,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workspaceSettingsInviteDialogTitle =>
-      'Invite Ready user to workspace';
+      'Invite local user to workspace';
 
   @override
   String get workspaceSettingsSearchReadyHint =>
-      'Type name or email to search in Ready...';
+      'Type name, login, or email to search local users...';
 
   @override
   String get workspaceSettingsSearchReadyMinChars =>
-      'Type at least 2 characters to search in Ready directory.';
+      'Type at least 2 characters to search the local directory.';
 
   @override
   String get workspaceSettingsInvitationsSentHeader => 'Pending invitations';
@@ -7774,6 +7992,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageRestoreSelected => 'Restore';
 
   @override
+  String get storageRestoreConfirmTitle => 'Restore file?';
+
+  @override
+  String get storageRestoreConfirmMessage =>
+      'The file will be restored from the trash.';
+
+  @override
+  String get storageRestoreSuccess => 'File restored.';
+
+  @override
   String get storageClearSelection => 'Clear selection';
 
   @override
@@ -7819,7 +8047,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageCreateFolderButton => 'Create';
 
   @override
+  String get storageCreateFolderSuccess => 'Folder created successfully.';
+
+  @override
+  String get storageCreateFolderConflict =>
+      'A folder with this name already exists.';
+
+  @override
+  String get storageCreateFolderValidation => 'Enter a valid folder name.';
+
+  @override
   String get storageRenameFolderDialogTitle => 'Rename folder';
+
+  @override
+  String get storageRenameFolderButton => 'Rename';
+
+  @override
+  String get storageRenameFolderSuccess => 'Folder renamed successfully.';
+
+  @override
+  String get storageRenameFolderNotFound => 'The folder no longer exists.';
+
+  @override
+  String get storageRenameFolderConflict =>
+      'A folder with this name already exists.';
+
+  @override
+  String get storageRenameFolderValidation => 'Enter a valid folder name.';
 
   @override
   String get storageDeleteConfirmTitle => 'Confirm deletion';
@@ -7827,6 +8081,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storageDeleteConfirmMessage =>
       'Are you sure you want to move selected items to trash?';
+
+  @override
+  String get storageDeleteSuccess => 'Item moved to trash.';
+
+  @override
+  String get storageMutationNotFound => 'The folder no longer exists.';
+
+  @override
+  String get storageMutationConflict =>
+      'A folder with this name already exists.';
+
+  @override
+  String get storageMutationValidation => 'Enter a valid folder name.';
 
   @override
   String storageShareTitle(String fileName) {
@@ -7859,11 +8126,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageUserSearchWorkspaceRequired =>
-      'Ready directory search is available for workspace or project files.';
+      'Local directory search is available for workspace or project files.';
 
   @override
   String get storageUserSearchNoResults =>
-      'No users with an active Core account were found.';
+      'No users with an active local account were found.';
 
   @override
   String get storageAddShareButton => 'Add';
@@ -7881,6 +8148,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storagePublicSharePageDescription =>
       'Download the file using a secure link. If the owner set a password, enter it below.';
+
+  @override
+  String get storagePublicShareUnavailable =>
+      'Public sharing is temporarily unavailable.';
 
   @override
   String get storagePublicSharePassword => 'Password';
@@ -7943,6 +8214,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageDownloadAction => 'Download';
+
+  @override
+  String storageDownloadSuccess(String fileName) {
+    return 'Downloaded file: $fileName to Downloads';
+  }
 
   @override
   String get storageDeleteAction => 'Delete';
@@ -8257,6 +8533,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get globalNotificationsLoadFailureTitle =>
       'Could not load notifications';
+
+  @override
+  String get globalNotificationsTransportUnavailableTitle =>
+      'Notifications are not available yet';
+
+  @override
+  String get globalNotificationsTransportUnavailableMessage =>
+      'The standalone notifications transport is not configured yet.';
 
   @override
   String get globalNotificationsMarkAllRead => 'Mark all as read';
@@ -8588,4 +8872,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatAttachmentStatusFailed => 'Failed';
+
+  @override
+  String get meProfileTitle => 'My Profile';
+
+  @override
+  String get meProfileSubtitle =>
+      'Manage your profile, password and active sessions';
+
+  @override
+  String get mePersonalSectionTitle => 'Profile Information';
+
+  @override
+  String get mePersonalSectionSubtitle =>
+      'Your basic identification details in the system';
+
+  @override
+  String get meLoginLabel => 'Username';
+
+  @override
+  String get meEmailLabel => 'Email address';
+
+  @override
+  String get meDisplayNameLabel => 'Display name';
+
+  @override
+  String get meDisplayNameHint => 'Enter display name';
+
+  @override
+  String get meDisplayNameRequired => 'Display name cannot be empty';
+
+  @override
+  String get meRolesLabel => 'Assigned roles';
+
+  @override
+  String get mePermissionsLabel => 'Permissions';
+
+  @override
+  String get meSaveProfileButton => 'Save profile';
+
+  @override
+  String get meProfileUpdateSuccess => 'Profile updated successfully.';
+
+  @override
+  String get mePasswordSectionTitle => 'Change Password';
+
+  @override
+  String get mePasswordSectionSubtitle =>
+      'Minimum 15 characters required for account security';
+
+  @override
+  String get meCurrentPasswordLabel => 'Current password';
+
+  @override
+  String get meCurrentPasswordHint => 'Enter current password';
+
+  @override
+  String get meCurrentPasswordRequired => 'Current password is required';
+
+  @override
+  String get meNewPasswordLabel => 'New password';
+
+  @override
+  String get meNewPasswordHint => 'At least 15 characters';
+
+  @override
+  String get meNewPasswordMinLengthError =>
+      'New password must be at least 15 characters long';
+
+  @override
+  String get meNewPasswordMaxLengthError =>
+      'New password can be at most 128 characters long';
+
+  @override
+  String get meNewPasswordSameAsCurrentError =>
+      'New password must differ from current password';
+
+  @override
+  String get meConfirmPasswordLabel => 'Confirm new password';
+
+  @override
+  String get meConfirmPasswordHint => 'Repeat new password';
+
+  @override
+  String get mePasswordsDoNotMatchError => 'Passwords do not match';
+
+  @override
+  String get meChangePasswordButton => 'Change password';
+
+  @override
+  String get mePasswordChangeSuccess => 'Password changed successfully.';
+
+  @override
+  String get meSessionsSectionTitle => 'Active Device Sessions';
+
+  @override
+  String get meSessionsSectionSubtitle =>
+      'Signed in devices and browsers linked to your account';
+
+  @override
+  String get meSessionCurrentBadge => 'Current session';
+
+  @override
+  String meSessionCreated(String date) {
+    return 'Created: $date';
+  }
+
+  @override
+  String meSessionLastSeen(String date) {
+    return 'Last seen: $date';
+  }
+
+  @override
+  String get meSessionRevokeButton => 'Revoke session';
+
+  @override
+  String get meSessionRevokeConfirmTitle => 'Revoke this session?';
+
+  @override
+  String meSessionRevokeConfirmMessage(String device) {
+    return 'The session on \"$device\" will be revoked and signed out.';
+  }
+
+  @override
+  String get meSessionRevokeConfirmAction => 'Revoke session';
+
+  @override
+  String get meSessionRevokedSuccess => 'Session revoked successfully.';
+
+  @override
+  String get meSessionsEmpty => 'No active sessions to display.';
+
+  @override
+  String get meSessionsRefreshTooltip => 'Refresh sessions';
+
+  @override
+  String get meProfileRetry => 'Try again';
+
+  @override
+  String get meUnavailableTitle => 'Profile unavailable';
+
+  @override
+  String get meUnavailableMessage => 'Profile service is not configured yet.';
 }

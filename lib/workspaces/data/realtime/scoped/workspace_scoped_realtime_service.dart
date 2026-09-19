@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Rodzaj zasobu, który ma własny pokój SignalR.
@@ -40,6 +40,11 @@ final class WorkspaceScopedRealtimeEvent {
   int? get sequence => _int(
     payload['realtimeSequence'] ?? payload['sequence'] ?? payload['revision'],
   );
+
+  static String? _string(Object? value) => value?.toString();
+
+  static int? _int(Object? value) =>
+      value is int ? value : int.tryParse(value?.toString() ?? '');
 }
 
 /// Błąd transportu lub niezgodności kontraktu huba.
@@ -266,11 +271,60 @@ final class WorkspaceScopedRealtimeService {
     'wiki.page.verified',
     'wiki.events.resync-required',
   ];
+
+  static _ReplayPage _decodePage(Object? value) {
+    final map = value is Map
+        ? Map<String, dynamic>.from(value)
+        : const <String, dynamic>{};
+    final raw = map['items'] ?? map['events'] ?? const <Object?>[];
+    final list = raw is List ? raw : const <Object?>[];
+    final events = <WorkspaceScopedRealtimeEvent>[];
+    for (final item in list) {
+      final decoded = item is Map ? Map<String, dynamic>.from(item) : null;
+      if (decoded == null) continue;
+      final method =
+          decoded['eventType']?.toString() ??
+          decoded['type']?.toString() ??
+          'realtime.event';
+      final payloadJson = decoded['payloadJson'];
+      final payload = payloadJson is String ? _jsonMap(payloadJson) : decoded;
+      events.add(
+        WorkspaceScopedRealtimeEvent(
+          method: method,
+          payload: payload,
+          isReplay: true,
+        ),
+      );
+    }
+    return _ReplayPage(events, map['nextCursor']?.toString());
+  }
+
+  static Map<String, dynamic>? _mapArgument(List<Object?>? arguments) {
+    final value = arguments == null || arguments.isEmpty
+        ? null
+        : arguments.first;
+    return value is Map ? Map<String, dynamic>.from(value) : null;
+  }
+
+  static Map<String, dynamic> _jsonMap(String value) {
+    try {
+      final decoded = jsonDecode(value);
+      return decoded is Map
+          ? Map<String, dynamic>.from(decoded)
+          : <String, dynamic>{'payload': decoded};
+    } catch (_) {
+      return <String, dynamic>{'payloadJson': value};
+    }
+  }
 }
 
 /// Fabryka lokalnych serwisów zakresowych; każdy ekran dostaje własny
 /// transport, więc zamknięcie jednego projektu nie zrywa innych subskrypcji.
-final class WorkspaceScopedRealtimeFactory {
+///
+/// Klasa pozostaje rozszerzalna, aby composition tests mogły podać lokalny,
+/// nietransportowy hub bez uruchamiania sieci. Produkcyjna kompozycja nadal
+/// korzysta z tej implementacji i nie zmienia zachowania runtime.
+class WorkspaceScopedRealtimeFactory {
   const WorkspaceScopedRealtimeFactory({
     required this.baseUrl,
     required this.accessTokenProvider,
@@ -299,52 +353,3 @@ final class _ReplayPage {
   final List<WorkspaceScopedRealtimeEvent> events;
   final String? nextCursor;
 }
-
-_ReplayPage _decodePage(Object? value) {
-  final map = value is Map
-      ? Map<String, dynamic>.from(value)
-      : const <String, dynamic>{};
-  final raw = map['items'] ?? map['events'] ?? const <Object?>[];
-  final list = raw is List ? raw : const <Object?>[];
-  final events = <WorkspaceScopedRealtimeEvent>[];
-  for (final item in list) {
-    final decoded = item is Map ? Map<String, dynamic>.from(item) : null;
-    if (decoded == null) {
-      continue;
-    }
-    final method =
-        decoded['eventType']?.toString() ??
-        decoded['type']?.toString() ??
-        'realtime.event';
-    final payloadJson = decoded['payloadJson'];
-    final payload = payloadJson is String ? _jsonMap(payloadJson) : decoded;
-    events.add(
-      WorkspaceScopedRealtimeEvent(
-        method: method,
-        payload: payload,
-        isReplay: true,
-      ),
-    );
-  }
-  return _ReplayPage(events, map['nextCursor']?.toString());
-}
-
-Map<String, dynamic>? _mapArgument(List<Object?>? arguments) {
-  final value = arguments == null || arguments.isEmpty ? null : arguments.first;
-  return value is Map ? Map<String, dynamic>.from(value) : null;
-}
-
-Map<String, dynamic> _jsonMap(String value) {
-  try {
-    final decoded = jsonDecode(value);
-    return decoded is Map
-        ? Map<String, dynamic>.from(decoded)
-        : <String, dynamic>{'payload': decoded};
-  } catch (_) {
-    return <String, dynamic>{'payloadJson': value};
-  }
-}
-
-String? _string(Object? value) => value?.toString();
-int? _int(Object? value) =>
-    value is int ? value : int.tryParse(value?.toString() ?? '');

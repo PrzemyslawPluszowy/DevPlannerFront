@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/file_picker_port.dart';
 
 /// Implementacja [FilePickerPort] oparta o pakiet `file_selector`.
 ///

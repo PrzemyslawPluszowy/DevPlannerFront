@@ -73,7 +73,10 @@ class _AcceptanceCriteriaSectionState
                     tooltip: context.l10n.taskDetailsEditAcceptanceCriterion,
                     onPressed: widget.isSaving
                         ? null
-                        : () => _editAcceptanceCriterion(context, criterion),
+                        : () => TaskDetailsTextEditor.editAcceptanceCriterion(
+                            context,
+                            criterion,
+                          ),
                     icon: const Icon(Symbols.edit, size: 17),
                   ),
                   IconButton(
@@ -133,98 +136,109 @@ class _AcceptanceCriteriaSectionState
   }
 }
 
-Future<void> _editChecklistItem(
-  BuildContext context,
-  TaskChecklistItemResponse item,
-) async {
-  final value = await _showTextEditDialog(
-    context,
-    title: context.l10n.taskDetailsEditChecklistItem,
-    initialValue: item.title,
-  );
-  if (value == null || !context.mounted) return;
-  await context.read<TaskDetailsCubit>().updateChecklistItem(
-    item,
-    title: value,
-  );
-}
+/// Otwiera edycję krótkiego tekstu i przekazuje mutacje do Cubita szczegółu.
+///
+/// Klasa zarządza tylko interakcją UI. Własność danych i I/O pozostają w
+/// `TaskDetailsCubit`.
+final class TaskDetailsTextEditor {
+  const TaskDetailsTextEditor._();
 
-Future<void> _editAcceptanceCriterion(
-  BuildContext context,
-  TaskAcceptanceCriterionResponse criterion,
-) async {
-  final value = await _showTextEditDialog(
-    context,
-    title: context.l10n.taskDetailsEditAcceptanceCriterion,
-    initialValue: criterion.text,
-  );
-  if (value == null || !context.mounted) return;
-  await context.read<TaskDetailsCubit>().updateAcceptanceCriterion(
-    criterion,
-    text: value,
-  );
-}
+  static Future<void> editChecklistItem(
+    BuildContext context,
+    TaskChecklistItemResponse item,
+  ) async {
+    final value = await _show(
+      context,
+      title: context.l10n.taskDetailsEditChecklistItem,
+      initialValue: item.title,
+    );
+    if (value == null || !context.mounted) return;
+    await context.read<TaskDetailsCubit>().updateChecklistItem(
+      item,
+      title: value,
+    );
+  }
 
-Future<String?> _showTextEditDialog(
-  BuildContext context, {
-  required String title,
-  required String initialValue,
-}) async {
-  final controller = TextEditingController(text: initialValue);
-  final result = await showDialog<String>(
-    context: context,
-    builder: (dialogContext) => WorkspaceCreationModalWrapper(
-      title: title,
-      icon: Symbols.check_circle_outline_rounded,
-      accentColor: dialogContext.colors.primary,
-      submitLabel: dialogContext.l10n.save,
-      cancelLabel: dialogContext.l10n.cancel,
-      maxWidth: 460,
-      onSubmit: () {
-        final normalized = controller.text.trim();
-        if (normalized.isNotEmpty) {
-          Navigator.of(dialogContext).pop(normalized);
-        }
-      },
-      body: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: controller,
-            autofocus: true,
-            maxLength: 500,
-            minLines: 1,
-            maxLines: 4,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: .all(.circular(10)),
+  static Future<void> editAcceptanceCriterion(
+    BuildContext context,
+    TaskAcceptanceCriterionResponse criterion,
+  ) async {
+    final value = await _show(
+      context,
+      title: context.l10n.taskDetailsEditAcceptanceCriterion,
+      initialValue: criterion.text,
+    );
+    if (value == null || !context.mounted) return;
+    await context.read<TaskDetailsCubit>().updateAcceptanceCriterion(
+      criterion,
+      text: value,
+    );
+  }
+
+  static Future<String?> _show(
+    BuildContext context, {
+    required String title,
+    required String initialValue,
+  }) async {
+    final controller = TextEditingController(text: initialValue);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => WorkspaceCreationModalWrapper(
+        title: title,
+        icon: Symbols.check_circle_outline_rounded,
+        accentColor: dialogContext.colors.primary,
+        submitLabel: dialogContext.l10n.save,
+        cancelLabel: dialogContext.l10n.cancel,
+        maxWidth: 460,
+        onSubmit: () {
+          final normalized = controller.text.trim();
+          if (normalized.isNotEmpty) {
+            Navigator.of(dialogContext).pop(normalized);
+          }
+        },
+        body: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: controller,
+              autofocus: true,
+              maxLength: 500,
+              minLines: 1,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: .all(.circular(10)),
+                ),
+                contentPadding: .symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p12,
+                ),
               ),
-              contentPadding: .symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p12,
-              ),
+              onSubmitted: (value) {
+                final normalized = value.trim();
+                if (normalized.isNotEmpty) {
+                  Navigator.of(dialogContext).pop(normalized);
+                }
+              },
             ),
-            onSubmitted: (value) {
-              final normalized = value.trim();
-              if (normalized.isNotEmpty) {
-                Navigator.of(dialogContext).pop(normalized);
-              }
-            },
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-  controller.dispose();
-  return result;
+    );
+    controller.dispose();
+    return result;
+  }
 }
 
-String _dependencyTypeLabel(
-  BuildContext context,
-  TaskDependencyType type,
-) => switch (type) {
-  TaskDependencyType.blocks => context.l10n.taskDependencyBlocks,
-  TaskDependencyType.relatedTo => context.l10n.taskDependencyRelated,
-  TaskDependencyType.duplicate => context.l10n.taskDependencyDuplicate,
-};
+/// Tłumaczy typ relacji zadania tylko dla widoku zależności.
+final class TaskDependencyTypeLabeler {
+  const TaskDependencyTypeLabeler._();
+
+  static String label(BuildContext context, TaskDependencyType type) =>
+      switch (type) {
+        TaskDependencyType.blocks => context.l10n.taskDependencyBlocks,
+        TaskDependencyType.relatedTo => context.l10n.taskDependencyRelated,
+        TaskDependencyType.duplicate => context.l10n.taskDependencyDuplicate,
+      };
+}

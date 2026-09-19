@@ -1,11 +1,11 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/task_list_snapshot.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/task_list_tree_snapshot.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/task_list_snapshot.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/task_list_tree_snapshot.dart';
 
 void main() {
   group('TaskListSnapshot.applyBulkMutation', () {
@@ -171,7 +171,7 @@ ProjectTasksListReady _ready({
   tasks: [for (final group in groups) ...group.items],
   status: null,
   priority: null,
-  assigneeCoreUserId: null,
+  assigneeUserId: null,
   myInvolvement: null,
   unassignedOnly: false,
   nextCursor: null,

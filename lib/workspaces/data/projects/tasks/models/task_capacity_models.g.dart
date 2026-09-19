@@ -45,7 +45,7 @@ Map<String, dynamic> _$WorkspaceCapacityResponseToJson(
 _CreateUserCapacityOverridePayload _$CreateUserCapacityOverridePayloadFromJson(
   Map<String, dynamic> json,
 ) => _CreateUserCapacityOverridePayload(
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   startDate: DateTime.parse(json['startDate'] as String),
   endDate: DateTime.parse(json['endDate'] as String),
   availableMinutesPerDay: (json['availableMinutesPerDay'] as num).toInt(),
@@ -55,7 +55,7 @@ _CreateUserCapacityOverridePayload _$CreateUserCapacityOverridePayloadFromJson(
 Map<String, dynamic> _$CreateUserCapacityOverridePayloadToJson(
   _CreateUserCapacityOverridePayload instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'startDate': instance.startDate.toIso8601String(),
   'endDate': instance.endDate.toIso8601String(),
   'availableMinutesPerDay': instance.availableMinutesPerDay,
@@ -88,7 +88,7 @@ _UserCapacityOverrideResponse _$UserCapacityOverrideResponseFromJson(
   id: json['id'] as String,
   workspaceId: json['workspaceId'] as String,
   projectId: json['projectId'] as String,
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   startDate: DateTime.parse(json['startDate'] as String),
   endDate: DateTime.parse(json['endDate'] as String),
   availableMinutesPerDay: (json['availableMinutesPerDay'] as num).toInt(),
@@ -103,7 +103,7 @@ Map<String, dynamic> _$UserCapacityOverrideResponseToJson(
   'id': instance.id,
   'workspaceId': instance.workspaceId,
   'projectId': instance.projectId,
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'startDate': instance.startDate.toIso8601String(),
   'endDate': instance.endDate.toIso8601String(),
   'availableMinutesPerDay': instance.availableMinutesPerDay,
@@ -115,7 +115,7 @@ Map<String, dynamic> _$UserCapacityOverrideResponseToJson(
 _TaskWorkloadUserResponse _$TaskWorkloadUserResponseFromJson(
   Map<String, dynamic> json,
 ) => _TaskWorkloadUserResponse(
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   assignedTaskCount: (json['assignedTaskCount'] as num).toInt(),
   estimatedMinutes: (json['estimatedMinutes'] as num).toInt(),
   loggedMinutes: (json['loggedMinutes'] as num).toInt(),
@@ -134,7 +134,7 @@ _TaskWorkloadUserResponse _$TaskWorkloadUserResponseFromJson(
 Map<String, dynamic> _$TaskWorkloadUserResponseToJson(
   _TaskWorkloadUserResponse instance,
 ) => <String, dynamic>{
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'assignedTaskCount': instance.assignedTaskCount,
   'estimatedMinutes': instance.estimatedMinutes,
   'loggedMinutes': instance.loggedMinutes,

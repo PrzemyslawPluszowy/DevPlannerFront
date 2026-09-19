@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cards/kanban_card_tokens.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/kanban_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cards/kanban_card_tokens.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 final class _DelayedMockTasksRepository implements TasksRepository {
   _DelayedMockTasksRepository({this.completer});
@@ -196,7 +196,7 @@ void main() {
                 visibleCardFields: const [
                   KanbanCardField.subtasks,
                 ],
-                memberProfilesByCoreUserId: const {},
+                memberProfilesByUserId: const {},
               ),
             ),
           ),
@@ -234,7 +234,7 @@ void main() {
                 task: task,
                 workspaceId: 'w-1',
                 projectId: 'p-1',
-                memberProfilesByCoreUserId: const {},
+                memberProfilesByUserId: const {},
               ),
             ),
           ),

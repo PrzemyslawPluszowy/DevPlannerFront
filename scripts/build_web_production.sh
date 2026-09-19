@@ -12,9 +12,7 @@ if [[ ! -f "$production_env" ]]; then
 fi
 
 production_variables=(
-  INVENTORY_API_BASE_URL
-  BHP_API_BASE_URL
-  CORE_API_BASE_URL
+  DEVPLANNER_API_BASE_URL
 )
 
 dart_defines=()

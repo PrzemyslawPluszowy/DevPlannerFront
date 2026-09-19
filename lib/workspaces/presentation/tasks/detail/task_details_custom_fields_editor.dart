@@ -62,7 +62,7 @@ class _CustomFieldEditor extends StatelessWidget {
       onChanged: onChanged,
     ),
     TaskCustomFieldType.user => DropdownButtonFormField<String>(
-      initialValue: memberProfiles.any((profile) => profile.coreUserId == value)
+      initialValue: memberProfiles.any((profile) => profile.userId == value)
           ? value as String
           : null,
       decoration: InputDecoration(labelText: field.name),
@@ -72,7 +72,7 @@ class _CustomFieldEditor extends StatelessWidget {
         ),
         for (final profile in memberProfiles)
           DropdownMenuItem(
-            value: profile.coreUserId,
+            value: profile.userId,
             child: Text(
               profile.displayName?.trim().isNotEmpty == true
                   ? profile.displayName!.trim()
@@ -133,7 +133,7 @@ class _DateCustomFieldEditor extends StatelessWidget {
         onPressed: !enabled
             ? null
             : () async {
-                final picked = await AppModalPickerHost.showDate(
+                final picked = await DevPlannerModalPickerHost.showDate(
                   context,
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
@@ -147,27 +147,36 @@ class _DateCustomFieldEditor extends StatelessWidget {
   }
 }
 
-IconData _customFieldIcon(TaskCustomFieldType type) => switch (type) {
-  TaskCustomFieldType.text => Symbols.text_fields_rounded,
-  TaskCustomFieldType.number => Symbols.numbers_rounded,
-  TaskCustomFieldType.date => Symbols.event,
-  TaskCustomFieldType.boolean => Symbols.toggle_on,
-  TaskCustomFieldType.singleSelect ||
-  TaskCustomFieldType.multiSelect => Symbols.list_alt_rounded,
-  TaskCustomFieldType.user => Symbols.person_outline_rounded,
-};
+/// Czyste mapowanie wartości pól własnych na elementy prezentacji.
+final class TaskCustomFieldPresentation {
+  const TaskCustomFieldPresentation._();
 
-String _customFieldDisplayValue(dynamic value) => switch (value) {
-  null => '—',
-  final List<Object?> values when values.isEmpty => '—',
-  final List<Object?> values =>
-    values
-        .map((item) => CustomFieldOption.fromRaw(item.toString()).label)
-        .join(', '),
-  true => 'Tak',
-  false => 'Nie',
-  _ => CustomFieldOption.fromRaw(value.toString()).label,
-};
+  static IconData icon(TaskCustomFieldType type) => switch (type) {
+    TaskCustomFieldType.text => Symbols.text_fields_rounded,
+    TaskCustomFieldType.number => Symbols.numbers_rounded,
+    TaskCustomFieldType.date => Symbols.event,
+    TaskCustomFieldType.boolean => Symbols.toggle_on,
+    TaskCustomFieldType.singleSelect ||
+    TaskCustomFieldType.multiSelect => Symbols.list_alt_rounded,
+    TaskCustomFieldType.user => Symbols.person_outline_rounded,
+  };
+
+  static String displayValue(dynamic value) => switch (value) {
+    null => '—',
+    final List<Object?> values when values.isEmpty => '—',
+    final List<Object?> values =>
+      values
+          .map((item) => CustomFieldOption.fromRaw(item.toString()).label)
+          .join(', '),
+    true => 'Tak',
+    false => 'Nie',
+    _ => CustomFieldOption.fromRaw(value.toString()).label,
+  };
+
+  static List<TaskCustomFieldDefinitionValueResponse> sorted(
+    List<TaskCustomFieldDefinitionValueResponse> fields,
+  ) => [...fields]..sort((a, b) => a.position.compareTo(b.position));
+}
 
 class _MultiSelectCustomFieldEditor extends StatelessWidget {
   const _MultiSelectCustomFieldEditor({
@@ -306,7 +315,3 @@ class _MultiSelectCustomFieldEditor extends StatelessWidget {
     );
   }
 }
-
-List<TaskCustomFieldDefinitionValueResponse> _sortedFields(
-  List<TaskCustomFieldDefinitionValueResponse> fields,
-) => [...fields]..sort((a, b) => a.position.compareTo(b.position));

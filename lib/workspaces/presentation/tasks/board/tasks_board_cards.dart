@@ -9,7 +9,7 @@ class _DraggableTaskCard extends StatefulWidget {
     required this.density,
     required this.isSelected,
     required this.isPending,
-    required this.memberProfilesByCoreUserId,
+    required this.memberProfilesByUserId,
   });
 
   final KanbanTaskCardResponse task;
@@ -19,7 +19,7 @@ class _DraggableTaskCard extends StatefulWidget {
   final KanbanCardDensity density;
   final bool isSelected;
   final bool isPending;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
 
   @override
   State<_DraggableTaskCard> createState() => _DraggableTaskCardState();
@@ -38,7 +38,7 @@ class _DraggableTaskCardState extends State<_DraggableTaskCard>
       visibleCardFields: widget.visibleCardFields,
       density: widget.density,
       isSelected: widget.isSelected,
-      memberProfilesByCoreUserId: widget.memberProfilesByCoreUserId,
+      memberProfilesByUserId: widget.memberProfilesByUserId,
     );
 
     final coordinator = KanbanAutoScrollScope.maybeOf(context);
@@ -76,7 +76,7 @@ class _DraggableTaskCardState extends State<_DraggableTaskCard>
             task: widget.task,
             density: widget.density,
             visibleCardFields: widget.visibleCardFields,
-            memberProfilesByCoreUserId: widget.memberProfilesByCoreUserId,
+            memberProfilesByUserId: widget.memberProfilesByUserId,
           ),
         ),
       ),
@@ -106,14 +106,14 @@ class KanbanCardDragPreview extends StatelessWidget {
     required this.task,
     required this.density,
     required this.visibleCardFields,
-    required this.memberProfilesByCoreUserId,
+    required this.memberProfilesByUserId,
     super.key,
   });
 
   final KanbanTaskCardResponse task;
   final KanbanCardDensity density;
   final List<KanbanCardField> visibleCardFields;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
 
   bool get _isCompact => density == KanbanCardDensity.compact;
   bool shows(KanbanCardField field) => visibleCardFields.contains(field);

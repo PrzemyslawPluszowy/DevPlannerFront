@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
 
 part 'project_member_profile_response.freezed.dart';
 part 'project_member_profile_response.g.dart';
@@ -13,8 +13,8 @@ abstract class ProjectMemberProfileResponse
     with _$ProjectMemberProfileResponse {
   /// Tworzy odpowiedź zgodną z kontraktem Workspaces.
   const factory ProjectMemberProfileResponse({
-    /// Stabilny identyfikator użytkownika Core.
-    required String coreUserId,
+    /// Kanoniczny lokalny identyfikator użytkownika DevPlanner.
+    required String userId,
 
     /// Nazwa do pokazania w presence i selektorach osób.
     String? displayName,

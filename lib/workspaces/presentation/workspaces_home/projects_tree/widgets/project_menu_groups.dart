@@ -1,18 +1,18 @@
 import 'dart:async';
 
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/shared/presentation/widgets/app_expansible_navigation_item.dart';
+import 'package:devplanner/shared/presentation/widgets/app_shimmer.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/project_resources_cubit.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/project_resources_state.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/projects_tree/widgets/project_resource_menu_branch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/shared/presentation/widgets/app_expansible_navigation_item.dart';
-import 'package:ready_next/shared/presentation/widgets/app_shimmer.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_resources_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/project_resources_cubit.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/project_resources_state.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/projects_tree/widgets/project_resource_menu_branch.dart';
 
 typedef ProjectMenuActionCallback = void Function(
   ProjectMenuAction action,
@@ -108,7 +108,7 @@ class ProjectWhiteboardMenuGroup extends StatelessWidget {
         };
 
         final path = '/workspaces/$workspaceId/projects/$projectId/whiteboards';
-        final selected = context.router.currentPath.startsWith(path);
+        final selected = context.plannerNavigation.currentPath.startsWith(path);
 
         return AppExpansibleNavigationItem(
           label: context.l10n.workspacesSectionWhiteboards,

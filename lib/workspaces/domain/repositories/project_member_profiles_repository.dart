@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 
 /// Odczyt ACL‑bezpiecznych danych prezentacyjnych członków projektu.
 abstract interface class ProjectMemberProfilesRepository {

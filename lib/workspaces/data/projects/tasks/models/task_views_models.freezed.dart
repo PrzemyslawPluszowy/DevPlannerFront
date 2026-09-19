@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TaskSavedViewFilter {
 
- List<ProjectTaskStatus>? get statuses; List<TaskPriority>? get priorities; List<String>? get assigneeCoreUserIds; List<String>? get labelIds; String? get parentTaskId; TaskInvolvementFilter? get myInvolvement; DateTime? get dueFromUtc; DateTime? get dueToUtc; String? get search; bool get includeArchived; bool get pinnedOnly;
+ List<ProjectTaskStatus>? get statuses; List<TaskPriority>? get priorities; List<String>? get assigneeUserIds; List<String>? get labelIds; String? get parentTaskId; TaskInvolvementFilter? get myInvolvement; DateTime? get dueFromUtc; DateTime? get dueToUtc; String? get search; bool get includeArchived; bool get pinnedOnly;
 /// Create a copy of TaskSavedViewFilter
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $TaskSavedViewFilterCopyWith<TaskSavedViewFilter> get copyWith => _$TaskSavedVie
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskSavedViewFilter&&const DeepCollectionEquality().equals(other.statuses, statuses)&&const DeepCollectionEquality().equals(other.priorities, priorities)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.labelIds, labelIds)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.myInvolvement, myInvolvement) || other.myInvolvement == myInvolvement)&&(identical(other.dueFromUtc, dueFromUtc) || other.dueFromUtc == dueFromUtc)&&(identical(other.dueToUtc, dueToUtc) || other.dueToUtc == dueToUtc)&&(identical(other.search, search) || other.search == search)&&(identical(other.includeArchived, includeArchived) || other.includeArchived == includeArchived)&&(identical(other.pinnedOnly, pinnedOnly) || other.pinnedOnly == pinnedOnly));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskSavedViewFilter&&const DeepCollectionEquality().equals(other.statuses, statuses)&&const DeepCollectionEquality().equals(other.priorities, priorities)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.labelIds, labelIds)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.myInvolvement, myInvolvement) || other.myInvolvement == myInvolvement)&&(identical(other.dueFromUtc, dueFromUtc) || other.dueFromUtc == dueFromUtc)&&(identical(other.dueToUtc, dueToUtc) || other.dueToUtc == dueToUtc)&&(identical(other.search, search) || other.search == search)&&(identical(other.includeArchived, includeArchived) || other.includeArchived == includeArchived)&&(identical(other.pinnedOnly, pinnedOnly) || other.pinnedOnly == pinnedOnly));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(statuses),const DeepCollectionEquality().hash(priorities),const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(labelIds),parentTaskId,myInvolvement,dueFromUtc,dueToUtc,search,includeArchived,pinnedOnly);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(statuses),const DeepCollectionEquality().hash(priorities),const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(labelIds),parentTaskId,myInvolvement,dueFromUtc,dueToUtc,search,includeArchived,pinnedOnly);
 
 @override
 String toString() {
-  return 'TaskSavedViewFilter(statuses: $statuses, priorities: $priorities, assigneeCoreUserIds: $assigneeCoreUserIds, labelIds: $labelIds, parentTaskId: $parentTaskId, myInvolvement: $myInvolvement, dueFromUtc: $dueFromUtc, dueToUtc: $dueToUtc, search: $search, includeArchived: $includeArchived, pinnedOnly: $pinnedOnly)';
+  return 'TaskSavedViewFilter(statuses: $statuses, priorities: $priorities, assigneeUserIds: $assigneeUserIds, labelIds: $labelIds, parentTaskId: $parentTaskId, myInvolvement: $myInvolvement, dueFromUtc: $dueFromUtc, dueToUtc: $dueToUtc, search: $search, includeArchived: $includeArchived, pinnedOnly: $pinnedOnly)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $TaskSavedViewFilterCopyWith<$Res>  {
   factory $TaskSavedViewFilterCopyWith(TaskSavedViewFilter value, $Res Function(TaskSavedViewFilter) _then) = _$TaskSavedViewFilterCopyWithImpl;
 @useResult
 $Res call({
- List<ProjectTaskStatus>? statuses, List<TaskPriority>? priorities, List<String>? assigneeCoreUserIds, List<String>? labelIds, String? parentTaskId, TaskInvolvementFilter? myInvolvement, DateTime? dueFromUtc, DateTime? dueToUtc, String? search, bool includeArchived, bool pinnedOnly
+ List<ProjectTaskStatus>? statuses, List<TaskPriority>? priorities, List<String>? assigneeUserIds, List<String>? labelIds, String? parentTaskId, TaskInvolvementFilter? myInvolvement, DateTime? dueFromUtc, DateTime? dueToUtc, String? search, bool includeArchived, bool pinnedOnly
 });
 
 
@@ -65,11 +65,11 @@ class _$TaskSavedViewFilterCopyWithImpl<$Res>
 
 /// Create a copy of TaskSavedViewFilter
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? statuses = freezed,Object? priorities = freezed,Object? assigneeCoreUserIds = freezed,Object? labelIds = freezed,Object? parentTaskId = freezed,Object? myInvolvement = freezed,Object? dueFromUtc = freezed,Object? dueToUtc = freezed,Object? search = freezed,Object? includeArchived = null,Object? pinnedOnly = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? statuses = freezed,Object? priorities = freezed,Object? assigneeUserIds = freezed,Object? labelIds = freezed,Object? parentTaskId = freezed,Object? myInvolvement = freezed,Object? dueFromUtc = freezed,Object? dueToUtc = freezed,Object? search = freezed,Object? includeArchived = null,Object? pinnedOnly = null,}) {
   return _then(_self.copyWith(
 statuses: freezed == statuses ? _self.statuses : statuses // ignore: cast_nullable_to_non_nullable
 as List<ProjectTaskStatus>?,priorities: freezed == priorities ? _self.priorities : priorities // ignore: cast_nullable_to_non_nullable
-as List<TaskPriority>?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as List<TaskPriority>?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,labelIds: freezed == labelIds ? _self.labelIds : labelIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,parentTaskId: freezed == parentTaskId ? _self.parentTaskId : parentTaskId // ignore: cast_nullable_to_non_nullable
 as String?,myInvolvement: freezed == myInvolvement ? _self.myInvolvement : myInvolvement // ignore: cast_nullable_to_non_nullable
@@ -163,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<ProjectTaskStatus>? statuses,  List<TaskPriority>? priorities,  List<String>? assigneeCoreUserIds,  List<String>? labelIds,  String? parentTaskId,  TaskInvolvementFilter? myInvolvement,  DateTime? dueFromUtc,  DateTime? dueToUtc,  String? search,  bool includeArchived,  bool pinnedOnly)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<ProjectTaskStatus>? statuses,  List<TaskPriority>? priorities,  List<String>? assigneeUserIds,  List<String>? labelIds,  String? parentTaskId,  TaskInvolvementFilter? myInvolvement,  DateTime? dueFromUtc,  DateTime? dueToUtc,  String? search,  bool includeArchived,  bool pinnedOnly)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskSavedViewFilter() when $default != null:
-return $default(_that.statuses,_that.priorities,_that.assigneeCoreUserIds,_that.labelIds,_that.parentTaskId,_that.myInvolvement,_that.dueFromUtc,_that.dueToUtc,_that.search,_that.includeArchived,_that.pinnedOnly);case _:
+return $default(_that.statuses,_that.priorities,_that.assigneeUserIds,_that.labelIds,_that.parentTaskId,_that.myInvolvement,_that.dueFromUtc,_that.dueToUtc,_that.search,_that.includeArchived,_that.pinnedOnly);case _:
   return orElse();
 
 }
@@ -184,10 +184,10 @@ return $default(_that.statuses,_that.priorities,_that.assigneeCoreUserIds,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<ProjectTaskStatus>? statuses,  List<TaskPriority>? priorities,  List<String>? assigneeCoreUserIds,  List<String>? labelIds,  String? parentTaskId,  TaskInvolvementFilter? myInvolvement,  DateTime? dueFromUtc,  DateTime? dueToUtc,  String? search,  bool includeArchived,  bool pinnedOnly)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<ProjectTaskStatus>? statuses,  List<TaskPriority>? priorities,  List<String>? assigneeUserIds,  List<String>? labelIds,  String? parentTaskId,  TaskInvolvementFilter? myInvolvement,  DateTime? dueFromUtc,  DateTime? dueToUtc,  String? search,  bool includeArchived,  bool pinnedOnly)  $default,) {final _that = this;
 switch (_that) {
 case _TaskSavedViewFilter():
-return $default(_that.statuses,_that.priorities,_that.assigneeCoreUserIds,_that.labelIds,_that.parentTaskId,_that.myInvolvement,_that.dueFromUtc,_that.dueToUtc,_that.search,_that.includeArchived,_that.pinnedOnly);case _:
+return $default(_that.statuses,_that.priorities,_that.assigneeUserIds,_that.labelIds,_that.parentTaskId,_that.myInvolvement,_that.dueFromUtc,_that.dueToUtc,_that.search,_that.includeArchived,_that.pinnedOnly);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +204,10 @@ return $default(_that.statuses,_that.priorities,_that.assigneeCoreUserIds,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<ProjectTaskStatus>? statuses,  List<TaskPriority>? priorities,  List<String>? assigneeCoreUserIds,  List<String>? labelIds,  String? parentTaskId,  TaskInvolvementFilter? myInvolvement,  DateTime? dueFromUtc,  DateTime? dueToUtc,  String? search,  bool includeArchived,  bool pinnedOnly)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<ProjectTaskStatus>? statuses,  List<TaskPriority>? priorities,  List<String>? assigneeUserIds,  List<String>? labelIds,  String? parentTaskId,  TaskInvolvementFilter? myInvolvement,  DateTime? dueFromUtc,  DateTime? dueToUtc,  String? search,  bool includeArchived,  bool pinnedOnly)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskSavedViewFilter() when $default != null:
-return $default(_that.statuses,_that.priorities,_that.assigneeCoreUserIds,_that.labelIds,_that.parentTaskId,_that.myInvolvement,_that.dueFromUtc,_that.dueToUtc,_that.search,_that.includeArchived,_that.pinnedOnly);case _:
+return $default(_that.statuses,_that.priorities,_that.assigneeUserIds,_that.labelIds,_that.parentTaskId,_that.myInvolvement,_that.dueFromUtc,_that.dueToUtc,_that.search,_that.includeArchived,_that.pinnedOnly);case _:
   return null;
 
 }
@@ -219,12 +219,12 @@ return $default(_that.statuses,_that.priorities,_that.assigneeCoreUserIds,_that.
 @JsonSerializable()
 
 class _TaskSavedViewFilter implements TaskSavedViewFilter {
-  const _TaskSavedViewFilter({this.statuses, this.priorities, this.assigneeCoreUserIds, this.labelIds, this.parentTaskId, this.myInvolvement, this.dueFromUtc, this.dueToUtc, this.search, this.includeArchived = false, this.pinnedOnly = false});
+  const _TaskSavedViewFilter({this.statuses, this.priorities, this.assigneeUserIds, this.labelIds, this.parentTaskId, this.myInvolvement, this.dueFromUtc, this.dueToUtc, this.search, this.includeArchived = false, this.pinnedOnly = false});
   factory _TaskSavedViewFilter.fromJson(Map<String, dynamic> json) => _$TaskSavedViewFilterFromJson(json);
 
 @override final  List<ProjectTaskStatus>? statuses;
 @override final  List<TaskPriority>? priorities;
-@override final  List<String>? assigneeCoreUserIds;
+@override final  List<String>? assigneeUserIds;
 @override final  List<String>? labelIds;
 @override final  String? parentTaskId;
 @override final  TaskInvolvementFilter? myInvolvement;
@@ -247,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskSavedViewFilter&&const DeepCollectionEquality().equals(other.statuses, statuses)&&const DeepCollectionEquality().equals(other.priorities, priorities)&&const DeepCollectionEquality().equals(other.assigneeCoreUserIds, assigneeCoreUserIds)&&const DeepCollectionEquality().equals(other.labelIds, labelIds)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.myInvolvement, myInvolvement) || other.myInvolvement == myInvolvement)&&(identical(other.dueFromUtc, dueFromUtc) || other.dueFromUtc == dueFromUtc)&&(identical(other.dueToUtc, dueToUtc) || other.dueToUtc == dueToUtc)&&(identical(other.search, search) || other.search == search)&&(identical(other.includeArchived, includeArchived) || other.includeArchived == includeArchived)&&(identical(other.pinnedOnly, pinnedOnly) || other.pinnedOnly == pinnedOnly));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskSavedViewFilter&&const DeepCollectionEquality().equals(other.statuses, statuses)&&const DeepCollectionEquality().equals(other.priorities, priorities)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds)&&const DeepCollectionEquality().equals(other.labelIds, labelIds)&&(identical(other.parentTaskId, parentTaskId) || other.parentTaskId == parentTaskId)&&(identical(other.myInvolvement, myInvolvement) || other.myInvolvement == myInvolvement)&&(identical(other.dueFromUtc, dueFromUtc) || other.dueFromUtc == dueFromUtc)&&(identical(other.dueToUtc, dueToUtc) || other.dueToUtc == dueToUtc)&&(identical(other.search, search) || other.search == search)&&(identical(other.includeArchived, includeArchived) || other.includeArchived == includeArchived)&&(identical(other.pinnedOnly, pinnedOnly) || other.pinnedOnly == pinnedOnly));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(statuses),const DeepCollectionEquality().hash(priorities),const DeepCollectionEquality().hash(assigneeCoreUserIds),const DeepCollectionEquality().hash(labelIds),parentTaskId,myInvolvement,dueFromUtc,dueToUtc,search,includeArchived,pinnedOnly);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(statuses),const DeepCollectionEquality().hash(priorities),const DeepCollectionEquality().hash(assigneeUserIds),const DeepCollectionEquality().hash(labelIds),parentTaskId,myInvolvement,dueFromUtc,dueToUtc,search,includeArchived,pinnedOnly);
 
 @override
 String toString() {
-  return 'TaskSavedViewFilter(statuses: $statuses, priorities: $priorities, assigneeCoreUserIds: $assigneeCoreUserIds, labelIds: $labelIds, parentTaskId: $parentTaskId, myInvolvement: $myInvolvement, dueFromUtc: $dueFromUtc, dueToUtc: $dueToUtc, search: $search, includeArchived: $includeArchived, pinnedOnly: $pinnedOnly)';
+  return 'TaskSavedViewFilter(statuses: $statuses, priorities: $priorities, assigneeUserIds: $assigneeUserIds, labelIds: $labelIds, parentTaskId: $parentTaskId, myInvolvement: $myInvolvement, dueFromUtc: $dueFromUtc, dueToUtc: $dueToUtc, search: $search, includeArchived: $includeArchived, pinnedOnly: $pinnedOnly)';
 }
 
 
@@ -267,7 +267,7 @@ abstract mixin class _$TaskSavedViewFilterCopyWith<$Res> implements $TaskSavedVi
   factory _$TaskSavedViewFilterCopyWith(_TaskSavedViewFilter value, $Res Function(_TaskSavedViewFilter) _then) = __$TaskSavedViewFilterCopyWithImpl;
 @override @useResult
 $Res call({
- List<ProjectTaskStatus>? statuses, List<TaskPriority>? priorities, List<String>? assigneeCoreUserIds, List<String>? labelIds, String? parentTaskId, TaskInvolvementFilter? myInvolvement, DateTime? dueFromUtc, DateTime? dueToUtc, String? search, bool includeArchived, bool pinnedOnly
+ List<ProjectTaskStatus>? statuses, List<TaskPriority>? priorities, List<String>? assigneeUserIds, List<String>? labelIds, String? parentTaskId, TaskInvolvementFilter? myInvolvement, DateTime? dueFromUtc, DateTime? dueToUtc, String? search, bool includeArchived, bool pinnedOnly
 });
 
 
@@ -284,11 +284,11 @@ class __$TaskSavedViewFilterCopyWithImpl<$Res>
 
 /// Create a copy of TaskSavedViewFilter
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? statuses = freezed,Object? priorities = freezed,Object? assigneeCoreUserIds = freezed,Object? labelIds = freezed,Object? parentTaskId = freezed,Object? myInvolvement = freezed,Object? dueFromUtc = freezed,Object? dueToUtc = freezed,Object? search = freezed,Object? includeArchived = null,Object? pinnedOnly = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? statuses = freezed,Object? priorities = freezed,Object? assigneeUserIds = freezed,Object? labelIds = freezed,Object? parentTaskId = freezed,Object? myInvolvement = freezed,Object? dueFromUtc = freezed,Object? dueToUtc = freezed,Object? search = freezed,Object? includeArchived = null,Object? pinnedOnly = null,}) {
   return _then(_TaskSavedViewFilter(
 statuses: freezed == statuses ? _self.statuses : statuses // ignore: cast_nullable_to_non_nullable
 as List<ProjectTaskStatus>?,priorities: freezed == priorities ? _self.priorities : priorities // ignore: cast_nullable_to_non_nullable
-as List<TaskPriority>?,assigneeCoreUserIds: freezed == assigneeCoreUserIds ? _self.assigneeCoreUserIds : assigneeCoreUserIds // ignore: cast_nullable_to_non_nullable
+as List<TaskPriority>?,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,labelIds: freezed == labelIds ? _self.labelIds : labelIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,parentTaskId: freezed == parentTaskId ? _self.parentTaskId : parentTaskId // ignore: cast_nullable_to_non_nullable
 as String?,myInvolvement: freezed == myInvolvement ? _self.myInvolvement : myInvolvement // ignore: cast_nullable_to_non_nullable

@@ -2,11 +2,11 @@
 // konstruktorów jest nieconst, bo test ma prezentować stany interaktywne.
 // ignore_for_file: unnecessary_const
 
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/shared/presentation/widgets/app_collapsible_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/shared/presentation/widgets/app_collapsible_navigation.dart';
 
 /// Wizualny smoke test shared menu.
 ///

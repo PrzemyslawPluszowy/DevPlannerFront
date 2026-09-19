@@ -1,21 +1,20 @@
 import 'package:dartz/dartz.dart' hide State;
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/foundation/presentation/devplanner_panels.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_request.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_file_details_page.dart';
+import 'package:devplanner/workspaces/presentation/storage/public_share/storage_public_share_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/app/shell/panels/app_global_panels_controller.dart';
-import 'package:ready_next/app/shell/panels/app_global_panels_scope.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation.dart';
-import 'package:ready_next/workspaces/domain/chat/resource/resource_chat_file_request.dart';
-import 'package:ready_next/workspaces/domain/chat/resource/resource_chat_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/presentation/routing/workspace_resource_pages.dart';
-import 'package:ready_next/workspaces/presentation/storage/public_share/storage_public_share_page.dart';
 
 void main() {
   testWidgets(
@@ -218,13 +217,16 @@ final class _ResourceChatFileHarness extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
-        body: AppGlobalPanelsScope(
-          controller: AppGlobalPanelsController(),
+        body: DevPlannerPanelsScope(
+          controller: DevPlannerPanelsController(),
           openConversation: onOpenConversation,
           openResourceConversation: (request) => onOpenConversation(
             request.conversationId,
           ),
-          child: const StorageFilePage(fileId: 'file-1'),
+          child: StorageFileDetailsPage(
+            repository: storageRepository,
+            fileId: 'file-1',
+          ),
         ),
       ),
     ),

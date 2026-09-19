@@ -1,16 +1,16 @@
 import 'dart:async';
 
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/project_resources_cubit.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/project_resources_state.dart';
+import 'package:devplanner/workspaces/shared/presentation/widgets/workspace_feature_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_resources_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/project_resources_cubit.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/project_resources_state.dart';
-import 'package:ready_next/workspaces/shared/presentation/widgets/workspace_feature_wrapper.dart';
 
 /// Backendowy katalog zasobu projektu używany przez sekcje menu.
 ///
@@ -147,7 +147,7 @@ class _ResourceRow extends StatelessWidget {
       item.isVerified ? '$collectionTitle · zweryfikowano' : collectionTitle,
     ),
     trailing: const Icon(Symbols.chevron_right),
-    onTap: () => context.router.navigatePath(
+    onTap: () => context.plannerNavigation.go(
       '/workspaces/$workspaceId/projects/$projectId/${item.kind.name}/${item.id}',
     ),
   );

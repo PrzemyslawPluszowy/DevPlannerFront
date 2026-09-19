@@ -1,1 +1,0 @@
-const inventoryArkuszNumerMaxLength = 50;

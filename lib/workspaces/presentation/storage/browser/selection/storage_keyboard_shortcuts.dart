@@ -1,15 +1,15 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/selection/storage_selection_toolbar.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_actions_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/selection/storage_selection_toolbar.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/shared/storage_folder_actions_menu.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
 
 /// Skróty klawiaturowe eksploratora, aktywne poza polami edycyjnymi.
 final class StorageKeyboardShortcuts extends StatelessWidget {

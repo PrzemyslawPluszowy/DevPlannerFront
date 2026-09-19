@@ -61,10 +61,11 @@ class _CreateSubtaskDialog extends StatefulWidget {
 
 class _CreateSubtaskDialogState extends State<_CreateSubtaskDialog> {
   final _controller = TextEditingController();
-  var _saving = false;
+  final ValueNotifier<bool> _saving = ValueNotifier(false);
   @override
   void dispose() {
     _controller.dispose();
+    _saving.dispose();
     super.dispose();
   }
 
@@ -73,52 +74,55 @@ class _CreateSubtaskDialogState extends State<_CreateSubtaskDialog> {
     final l10n = context.l10n;
     final colors = context.colors;
 
-    return WorkspaceCreationModalWrapper(
-      title: l10n.taskDetailsAddSubtask,
-      subtitle: l10n.taskDetailsTitleField,
-      icon: Symbols.account_tree_rounded,
-      accentColor: colors.primary,
-      isSubmitting: _saving,
-      submitLabel: l10n.save,
-      cancelLabel: l10n.cancel,
-      maxWidth: 440,
-      onSubmit: _save,
-      body: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            maxLength: 300,
-            enabled: !_saving,
-            decoration: InputDecoration(
-              hintText: l10n.taskDetailsTitleField,
-              border: const OutlineInputBorder(
-                borderRadius: .all(.circular(10)),
+    return ValueListenableBuilder<bool>(
+      valueListenable: _saving,
+      builder: (context, isSaving, _) => WorkspaceCreationModalWrapper(
+        title: l10n.taskDetailsAddSubtask,
+        subtitle: l10n.taskDetailsTitleField,
+        icon: Symbols.account_tree_rounded,
+        accentColor: colors.primary,
+        isSubmitting: isSaving,
+        submitLabel: l10n.save,
+        cancelLabel: l10n.cancel,
+        maxWidth: 440,
+        onSubmit: _save,
+        body: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              maxLength: 300,
+              enabled: !isSaving,
+              decoration: InputDecoration(
+                hintText: l10n.taskDetailsTitleField,
+                border: const OutlineInputBorder(
+                  borderRadius: .all(.circular(10)),
+                ),
+                contentPadding: const .symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p12,
+                ),
               ),
-              contentPadding: const .symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p12,
-              ),
+              onSubmitted: (_) => _save(),
             ),
-            onSubmitted: (_) => _save(),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _save() async {
     final text = _controller.text.trim();
-    if (_saving || text.isEmpty) return;
-    setState(() => _saving = true);
+    if (_saving.value || text.isEmpty) return;
+    _saving.value = true;
     final saved = await context.read<TaskDetailsCubit>().createSubtask(text);
     if (mounted) {
       if (saved) {
         Navigator.of(context).pop();
       } else {
-        setState(() => _saving = false);
+        _saving.value = false;
       }
     }
   }

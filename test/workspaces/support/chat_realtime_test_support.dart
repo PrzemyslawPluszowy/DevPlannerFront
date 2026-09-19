@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
@@ -70,7 +70,7 @@ abstract final class ChatRealtimeTestPayload {
     'sequence': sequence,
     'id': 'message-1',
     'conversationId': 'conversation-1',
-    'authorCoreUserId': 'user-1',
+    'authorUserId': 'user-1',
     'clientMessageId': 'client-1',
     'text': text,
     'payloadHash': 'HASH',
@@ -103,7 +103,7 @@ abstract final class ChatRealtimeTestPayload {
         'sequence': sequence,
         'conversationId': 'conversation-1',
         'eventType': 'chat.message.created',
-        'payloadJson': '{"id":"message-1","conversationId":"conversation-1","authorCoreUserId":"user-1","clientMessageId":"client-1","text":"Treść","payloadHash":"HASH","version":1,"createdAtUtc":"2026-09-13T10:00:00.000Z","isDeleted":false,"isEdited":false}',
+        'payloadJson': '{"id":"message-1","conversationId":"conversation-1","authorUserId":"user-1","clientMessageId":"client-1","text":"Treść","payloadHash":"HASH","version":1,"createdAtUtc":"2026-09-13T10:00:00.000Z","isDeleted":false,"isEdited":false}',
       },
     ],
   };

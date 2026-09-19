@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 
 enum TaskDetailsFailureKind { forbidden, notFound, conflict, offline, other }
 

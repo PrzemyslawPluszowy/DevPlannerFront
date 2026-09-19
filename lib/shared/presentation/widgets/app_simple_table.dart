@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_search_text_field.dart';
+import 'package:devplanner/shared/presentation/widgets/app_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:material_table_view/material_table_view.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_search_text_field.dart';
-import 'package:ready_next/shared/presentation/widgets/app_tooltip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 typedef AppSimpleTableCellBuilder<T> =

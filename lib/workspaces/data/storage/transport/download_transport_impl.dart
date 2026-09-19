@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/storage/transport/download_transport_stub.dart'
-    if (dart.library.js_interop) 'package:ready_next/workspaces/data/storage/transport/download_transport_web.dart'
-    if (dart.library.io) 'package:ready_next/workspaces/data/storage/transport/download_transport_io.dart'
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/storage/transport/download_transport_stub.dart'
+    if (dart.library.js_interop) 'package:devplanner/workspaces/data/storage/transport/download_transport_web.dart'
+    if (dart.library.io) 'package:devplanner/workspaces/data/storage/transport/download_transport_io.dart'
     as platform;
-import 'package:ready_next/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
 
 /// Implementacja [DownloadTransport] delegująca do adaptera właściwego dla platformy.
 final class DownloadTransportImpl implements DownloadTransport {

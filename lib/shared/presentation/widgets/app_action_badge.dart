@@ -1,8 +1,8 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_control_size.dart';
+import 'package:devplanner/shared/presentation/widgets/app_spinner.dart';
+import 'package:devplanner/shared/presentation/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_control_size.dart';
-import 'package:ready_next/shared/presentation/widgets/app_spinner.dart';
-import 'package:ready_next/shared/presentation/widgets/app_text.dart';
 
 enum AppActionBadgeTone { neutral, primary, info, success, warning, danger }
 

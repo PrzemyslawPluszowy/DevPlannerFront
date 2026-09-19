@@ -1,6 +1,6 @@
+import 'package:devplanner/foundation/error/error.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
 
 void main() {
   group('ApiError.fromDioException', () {

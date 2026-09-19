@@ -10,21 +10,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/file_picker_port.dart';
-import 'package:ready_next/workspaces/presentation/chat/composer/chat_composer_keyboard_policy.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_controls.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_queue_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/composer/cubit/chat_composer_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/composer/cubit/chat_composer_state.dart';
-import 'package:ready_next/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_composer_keyboard_policy.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_message_composer_fields.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_controls.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_queue_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 
 /// Lokalny composer plain text i Quill Delta dla jednej otwartej rozmowy.
 ///
@@ -321,7 +322,7 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (state.draft.replyToMessageId case final replyId?)
-              _ReplyTarget(
+              ChatComposerReplyTarget(
                 message: widget.replyTarget,
                 replyId: replyId,
                 onCancel: _cancelReply,
@@ -360,7 +361,7 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
                 ),
               )
             else
-              _RichComposerField(
+              ChatComposerRichTextField(
                 controller: _richController,
                 focusNode: _richFocusNode,
                 scrollController: _richScrollController,
@@ -373,29 +374,11 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
                 conversationId: widget.conversationId,
                 filePickerPort: widget.filePickerPort,
               ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: switch (_attachmentCoordinator) {
-                final coordinator? =>
-                  BlocBuilder<
-                    ChatAttachmentComposerCoordinatorCubit,
-                    ChatAttachmentComposerCoordinatorState
-                  >(
-                    bloc: coordinator,
-                    builder: (_, attachmentState) => IconButton.filled(
-                      tooltip: context.l10n.globalChatSendMessage,
-                      onPressed: _canSubmit(state, attachmentState)
-                          ? _submit
-                          : null,
-                      icon: const Icon(Symbols.send_rounded, size: 18),
-                    ),
-                  ),
-                null => IconButton.filled(
-                  tooltip: context.l10n.globalChatSendMessage,
-                  onPressed: _canSubmit(state, null) ? _submit : null,
-                  icon: const Icon(Symbols.send_rounded, size: 18),
-                ),
-              },
+            ChatComposerSubmitButton(
+              coordinator: _attachmentCoordinator,
+              canSubmit: (attachmentState) =>
+                  _canSubmit(state, attachmentState),
+              onSubmit: _submit,
             ),
           ],
         ),
@@ -409,89 +392,4 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
         attachmentState
             is! ChatAttachmentComposerCoordinatorAwaitingConfirmation;
   }
-}
-
-class _RichComposerField extends StatelessWidget {
-  const _RichComposerField({
-    required this.controller,
-    required this.focusNode,
-    required this.scrollController,
-    required this.onKeyEvent,
-    required this.compact,
-  });
-
-  final quill.QuillController controller;
-  final FocusNode focusNode;
-  final ScrollController scrollController;
-  final FocusOnKeyEventCallback onKeyEvent;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    height: compact ? 110 : 144,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: context.colors.outline),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Focus(
-        onKeyEvent: onKeyEvent,
-        child: quill.QuillEditor(
-          controller: controller,
-          focusNode: focusNode,
-          scrollController: scrollController,
-          config: const quill.QuillEditorConfig(
-            padding: EdgeInsets.all(Sizes.p12),
-            expands: true,
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-class _ReplyTarget extends StatelessWidget {
-  const _ReplyTarget({
-    required this.message,
-    required this.replyId,
-    required this.onCancel,
-  });
-
-  final ChatMessage? message;
-  final String replyId;
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: Sizes.p8),
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.secondaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: Sizes.p12),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                context.l10n.chatComposerReplyTo(
-                  message?.text.trim().isNotEmpty == true
-                      ? message!.text
-                      : replyId,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            IconButton(
-              tooltip: context.l10n.chatComposerCancelReply,
-              onPressed: onCancel,
-              icon: const Icon(Symbols.close_rounded, size: 18),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
 }

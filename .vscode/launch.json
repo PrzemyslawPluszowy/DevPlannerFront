@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "DevPlanner macOS — staging",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "macos",
+      "toolArgs": [
+        "--dart-define=DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl"
+      ]
+    },
+    {
+      "name": "DevPlanner macOS — lokalny HTTPS",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "macos",
+      "toolArgs": [
+        "--dart-define=DEVPLANNER_API_BASE_URL=https://localhost:5173"
+      ]
+    }
+  ]
+}

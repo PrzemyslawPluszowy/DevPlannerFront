@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:devplanner/core/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 typedef AppContextMenuActionTap = FutureOr<void> Function(BuildContext context);
 

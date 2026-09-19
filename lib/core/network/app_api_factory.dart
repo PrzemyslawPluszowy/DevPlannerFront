@@ -1,7 +1,6 @@
+import 'package:devplanner/foundation/config/app_api_module.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ready_next/core/config/app_api_module.dart';
-import 'package:ready_next/features/inventory/data/api/inventory_api.dart';
 import 'package:talker/talker.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
 
@@ -195,35 +194,6 @@ class AppApiFactory {
     );
 
     return dio;
-  }
-
-  /// Tworzy gotowy klient `InventoryApi`.
-  static InventoryApi create({
-    required String baseUrl,
-    required AppApiModule module,
-    String? accessToken,
-    String? Function()? accessTokenProvider,
-    CancelToken Function()? cancelTokenProvider,
-    int Function()? sessionGenerationProvider,
-    bool enableLogging = kDebugMode,
-    Talker? talker,
-    Duration connectTimeout = const Duration(seconds: 15),
-    Duration receiveTimeout = const Duration(seconds: 20),
-  }) {
-    final dio = createDio(
-      baseUrl: baseUrl,
-      module: module,
-      accessToken: accessToken,
-      accessTokenProvider: accessTokenProvider,
-      cancelTokenProvider: cancelTokenProvider,
-      sessionGenerationProvider: sessionGenerationProvider,
-      enableLogging: enableLogging,
-      talker: talker,
-      connectTimeout: connectTimeout,
-      receiveTimeout: receiveTimeout,
-    );
-
-    return InventoryApi(dio);
   }
 
   /// Normalizuje token tak, aby uniknac podwojnego prefiksu `Bearer `.

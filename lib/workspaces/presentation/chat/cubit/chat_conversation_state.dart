@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 
 /// Jawne stany historii i dostawy jednej rozmowy Chat.
 sealed class ChatConversationState {

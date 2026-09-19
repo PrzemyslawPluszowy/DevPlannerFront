@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/data/realtime/notifications/workspace_notifications_realtime_service.dart';
+import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/notifications_repository.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_inbox_mutation_reducer.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/data/realtime/notifications/workspace_notifications_realtime_service.dart';
-import 'package:ready_next/workspaces/data/shared/enums/notification_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/notifications_repository.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_state.dart';
 
 /// Sesyjny Cubit inboxa: scala strony cursora, ale nie zna widżetów ani routingu.
 class NotificationsCubit extends Cubit<NotificationsState> {
@@ -176,7 +177,10 @@ class NotificationsCubit extends Cubit<NotificationsState> {
         (typed) {
           if (!_isCurrent(generation)) return;
           inbox = inbox.copyWith(
-            items: _mergeItems(reset ? const [] : inbox.items, typed.items),
+            items: NotificationsInboxMutationReducer.mergeItems(
+              reset ? const [] : inbox.items,
+              typed.items,
+            ),
             itemNextCursor: typed.nextCursor,
             clearItemNextCursor: typed.nextCursor == null,
             unreadCount: unread,
@@ -189,19 +193,23 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     }
   }
 
-  Future<void> markAllRead() => _mutate(_repository.markAllRead, _markAllRead);
+  Future<void> markAllRead() => _mutate(
+    _repository.markAllRead,
+    NotificationsInboxMutationReducer.markAllRead,
+  );
   Future<void> markGroupRead(String key) => _mutate(
     () => _repository.markGroupRead(key),
-    (inbox) => _markGroupRead(inbox, key),
+    (inbox) => NotificationsInboxMutationReducer.markGroupRead(inbox, key),
   );
   Future<void> archiveGroup(String key) => _mutate(
     () => _repository.archiveGroup(key),
-    (inbox) => _archiveGroup(inbox, key),
+    (inbox) => NotificationsInboxMutationReducer.archiveGroup(inbox, key),
   );
   Future<void> quickAction(String id, NotificationQuickActionKind action) =>
       _mutate(
         () => _repository.quickAction(id, action),
-        (inbox) => _quickAction(inbox, id, action),
+        (inbox) =>
+            NotificationsInboxMutationReducer.quickAction(inbox, id, action),
       );
 
   Future<void> _mutate(
@@ -336,7 +344,10 @@ class NotificationsCubit extends Cubit<NotificationsState> {
         }
         _emitInbox(
           inbox.copyWith(
-            items: _mergeItems([notification], inbox.items),
+            items: NotificationsInboxMutationReducer.mergeItems(
+              [notification],
+              inbox.items,
+            ),
             unreadCount:
                 inbox.unreadCount + (notification.readAtUtc == null ? 1 : 0),
           ),
@@ -366,161 +377,6 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     }
     return List.unmodifiable(entries.values);
   }
-
-  List<WorkspaceNotificationResponse> _mergeItems(
-    List<WorkspaceNotificationResponse> old,
-    List<WorkspaceNotificationResponse> fresh,
-  ) {
-    final entries = <String, WorkspaceNotificationResponse>{
-      for (final item in old) item.id: item,
-    };
-    for (final item in fresh) {
-      entries[item.id] = item;
-    }
-    return List.unmodifiable(entries.values);
-  }
-
-  NotificationsInbox _markAllRead(NotificationsInbox inbox) => inbox.copyWith(
-    unreadCount: 0,
-    groups: [for (final group in inbox.groups) group.copyWith(unreadCount: 0)],
-    items: [
-      for (final item in inbox.items)
-        item.copyWith(readAtUtc: DateTime.now().toUtc()),
-    ],
-  );
-  NotificationsInbox _markGroupRead(NotificationsInbox inbox, String key) {
-    final removed = inbox.groups
-        .where((x) => x.groupKey == key)
-        .fold(0, (sum, x) => sum + x.unreadCount);
-    return inbox.copyWith(
-      unreadCount: (inbox.unreadCount - removed).clamp(0, inbox.unreadCount),
-      groups: [
-        for (final group in inbox.groups)
-          if (group.groupKey == key) group.copyWith(unreadCount: 0) else group,
-      ],
-      items: [
-        for (final item in inbox.items)
-          if (item.groupKey == key && item.readAtUtc == null)
-            item.copyWith(readAtUtc: DateTime.now().toUtc())
-          else
-            item,
-      ],
-    );
-  }
-
-  NotificationsInbox _archiveGroup(NotificationsInbox inbox, String key) {
-    final removed = inbox.groups
-        .where((x) => x.groupKey == key)
-        .fold(0, (sum, x) => sum + x.unreadCount);
-    return inbox.copyWith(
-      unreadCount: (inbox.unreadCount - removed).clamp(0, inbox.unreadCount),
-      groups: inbox.groups
-          .where((x) => x.groupKey != key)
-          .toList(growable: false),
-      items: inbox.items
-          .where((item) => item.groupKey != key)
-          .toList(growable: false),
-    );
-  }
-
-  NotificationsInbox _quickAction(
-    NotificationsInbox inbox,
-    String id,
-    NotificationQuickActionKind action,
-  ) {
-    final matchingGroup = inbox.groups
-        .where((group) => group.latest.id == id)
-        .firstOrNull;
-    final target =
-        inbox.items.where((item) => item.id == id).firstOrNull ??
-        matchingGroup?.latest;
-    final isUnread = target != null && target.readAtUtc == null;
-    final groupKey = target?.groupKey ?? matchingGroup?.groupKey;
-    return switch (action) {
-      NotificationQuickActionKind.markRead => inbox.copyWith(
-        unreadCount: isUnread
-            ? (inbox.unreadCount - 1).clamp(0, inbox.unreadCount)
-            : inbox.unreadCount,
-        items: [
-          for (final item in inbox.items)
-            if (item.id == id && item.readAtUtc == null)
-              item.copyWith(readAtUtc: DateTime.now().toUtc())
-            else
-              item,
-        ],
-        groups: [
-          for (final group in inbox.groups)
-            if (group.groupKey == groupKey && isUnread)
-              group.copyWith(
-                unreadCount: (group.unreadCount - 1).clamp(
-                  0,
-                  group.unreadCount,
-                ),
-                latest: group.latest.id == id
-                    ? group.latest.copyWith(readAtUtc: DateTime.now().toUtc())
-                    : group.latest,
-              )
-            else
-              group,
-        ],
-      ),
-      NotificationQuickActionKind.archive => _archiveNotification(inbox, id),
-      NotificationQuickActionKind.pin || NotificationQuickActionKind.unpin =>
-        _setPinned(inbox, id, action == NotificationQuickActionKind.pin),
-      _ => inbox,
-    };
-  }
-
-  NotificationsInbox _archiveNotification(NotificationsInbox inbox, String id) {
-    final matchingGroup = inbox.groups
-        .where((group) => group.latest.id == id)
-        .firstOrNull;
-    final target =
-        inbox.items.where((item) => item.id == id).firstOrNull ??
-        matchingGroup?.latest;
-    final isUnread = target != null && target.readAtUtc == null;
-    final groupKey = target?.groupKey ?? matchingGroup?.groupKey;
-    final groups = <NotificationGroupResponse>[
-      for (final group in inbox.groups)
-        if (!group.notificationIds.contains(id))
-          group
-        else if (group.count > 1)
-          group.copyWith(
-            count: group.count - 1,
-            unreadCount: groupKey == group.groupKey && isUnread
-                ? (group.unreadCount - 1).clamp(0, group.unreadCount)
-                : group.unreadCount,
-            notificationIds: group.notificationIds
-                .where((notificationId) => notificationId != id)
-                .toList(growable: false),
-          ),
-    ];
-    return inbox.copyWith(
-      unreadCount: isUnread
-          ? (inbox.unreadCount - 1).clamp(0, inbox.unreadCount)
-          : inbox.unreadCount,
-      items: inbox.items.where((item) => item.id != id).toList(growable: false),
-      groups: groups,
-    );
-  }
-
-  NotificationsInbox _setPinned(
-    NotificationsInbox inbox,
-    String id,
-    bool isPinned,
-  ) => inbox.copyWith(
-    items: [
-      for (final item in inbox.items)
-        if (item.id == id) item.copyWith(isPinned: isPinned) else item,
-    ],
-    groups: [
-      for (final group in inbox.groups)
-        if (group.latest.id == id)
-          group.copyWith(latest: group.latest.copyWith(isPinned: isPinned))
-        else
-          group,
-    ],
-  );
 
   bool _acceptGroup(NotificationGroupResponse group) {
     final sequence = group.realtimeSequence;

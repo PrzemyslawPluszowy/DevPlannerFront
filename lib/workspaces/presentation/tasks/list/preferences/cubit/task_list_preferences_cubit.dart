@@ -1,16 +1,17 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_loader.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_project_policy_controller.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_sort_controller.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_column_reference.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_list_configuration_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_state.dart';
 
 export 'task_list_preferences_state.dart';
 
-/// Zarządza stanem widoczności, kolejności, szerokości i sortowania kolumn
-/// listy zadań z automatycznym zapisem do backendu i obsługą współbieżności.
 final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
   TaskListPreferencesCubit({
     required this.repository,
@@ -21,146 +22,56 @@ final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
   final TaskListConfigurationRepository repository;
   final String workspaceId;
   final String projectId;
+  late final TaskListProjectPolicyController _projectPolicy =
+      TaskListProjectPolicyController(
+        repository: repository,
+        workspaceId: workspaceId,
+        projectId: projectId,
+      );
+  late final TaskListPreferencesLoader _loader = TaskListPreferencesLoader(
+    repository: repository,
+    workspaceId: workspaceId,
+    projectId: projectId,
+  );
 
   Timer? _autosaveTimer;
   static const Duration _autosaveDelay = Duration(milliseconds: 500);
   bool _isSaving = false;
   bool _hasPendingSave = false;
 
-  /// Pobiera efektywną konfigurację kolumn i sortowania z backendu.
   Future<void> load() async {
-    final result = await repository.getEffectiveConfiguration(
-      workspaceId: workspaceId,
-      projectId: projectId,
-    );
-
-    if (isClosed) return;
-
-    result.fold(
-      (error) => emit(TaskListPreferencesError(error.message)),
-      (config) => emit(
-        TaskListPreferencesReady(
-          workspaceId: workspaceId,
-          projectId: projectId,
-          effectiveVisibleColumns: config.effectiveVisibleColumns
-              .map(TaskColumnReference.fromId)
-              .toList(),
-          availableColumns: config.availableColumns.toSet(),
-          requiredColumns: config.requiredColumns.toSet(),
-          columnWidths: Map<String, double>.from(config.effectiveColumnWidths),
-          sortField: config.sortField,
-          sortDirection: config.sortDirection,
-          groupBy: config.groupBy,
-          activeSavedViewId: config.activeSavedViewId,
-          userPreferenceVersion: config.userPreferenceVersion,
-          policyVersion: config.policyVersion,
-        ),
-      ),
-    );
+    await _loader.load(isClosed: isClosed, emit: emit);
   }
 
-  /// Ładuje domyślne kolumny polityki projektu jako niezależny draft edycyjny.
   Future<void> loadProjectPolicyDraft() async {
     final current = state;
     if (current is! TaskListPreferencesReady) return;
-    if (current.projectDefaultColumnsDraft != null &&
-        !current.isLoadingProjectPolicy) {
-      return;
-    }
-
-    emit(
-      current.copyWith(
-        isLoadingProjectPolicy: true,
-        clearProjectPolicyError: true,
-      ),
-    );
-
-    final result = await repository.getPolicy(
-      workspaceId: workspaceId,
-      projectId: projectId,
-    );
-
-    if (isClosed) return;
-
-    final latest = state;
-    if (latest is! TaskListPreferencesReady) return;
-
-    result.fold(
-      (error) {
-        emit(
-          latest.copyWith(
-            isLoadingProjectPolicy: false,
-            projectPolicyError: error.message,
-            projectDefaultColumnsDraft:
-                latest.projectDefaultColumnsDraft ??
-                latest.effectiveVisibleColumns,
-          ),
-        );
-      },
-      (policy) {
-        emit(
-          latest.copyWith(
-            isLoadingProjectPolicy: false,
-            clearProjectPolicyError: true,
-            policyVersion: policy.version,
-            projectDefaultColumnsDraft: policy.defaultColumns
-                .map(TaskColumnReference.fromId)
-                .toList(),
-          ),
-        );
-      },
+    await _projectPolicy.loadDraft(
+      current: current,
+      isClosed: isClosed,
+      readReady: () => state is TaskListPreferencesReady
+          ? state as TaskListPreferencesReady
+          : null,
+      emit: emit,
     );
   }
 
-  /// Włącza lub wyłącza kolumnę w roboczym drafcie polityki projektu (NIE uruchamia autosave).
   void toggleProjectDefaultColumn(TaskColumnReference column) {
     final current = state;
     if (current is! TaskListPreferencesReady) return;
 
-    final draft = List<TaskColumnReference>.from(
-      current.effectiveProjectDefaultColumns,
-    );
-    final isVisible = draft.any(
-      (c) => c.id.toLowerCase() == column.id.toLowerCase(),
-    );
-
-    if (isVisible) {
-      if (current.isColumnRequired(column.id)) return;
-      draft.removeWhere(
-        (c) => c.id.toLowerCase() == column.id.toLowerCase(),
-      );
-    } else {
-      if (!current.isColumnAvailable(column.id)) return;
-      draft.add(column);
-    }
-
-    emit(current.copyWith(projectDefaultColumnsDraft: draft));
+    final next = _projectPolicy.toggleColumn(current, column);
+    if (next != null) emit(next);
   }
 
-  /// Zmienia kolejność kolumn w roboczym drafcie polityki projektu (NIE uruchamia autosave).
   void reorderProjectDefaultColumns(int oldIndex, int newIndex) {
     final current = state;
     if (current is! TaskListPreferencesReady) return;
 
-    final draft = List<TaskColumnReference>.from(
-      current.effectiveProjectDefaultColumns,
-    );
-    if (oldIndex < 0 ||
-        oldIndex >= draft.length ||
-        newIndex < 0 ||
-        newIndex >= draft.length ||
-        oldIndex == newIndex) {
-      return;
-    }
-
-    final moved = draft.removeAt(oldIndex);
-    draft.insert(newIndex, moved);
-
-    emit(current.copyWith(projectDefaultColumnsDraft: draft));
+    final next = _projectPolicy.reorderColumns(current, oldIndex, newIndex);
+    if (next != null) emit(next);
   }
 
-  /// Włącza lub wyłącza kolumnę. Kolumny wymagane nie mogą być wyłączone,
-  /// a kolumny zablokowane przez administratora nie mogą być włączone.
   void toggleColumn(TaskColumnReference column) {
     final current = state;
     if (current is! TaskListPreferencesReady) return;
@@ -181,7 +92,6 @@ final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
     }
   }
 
-  /// Zmienia kolejność kolumn (np. w wyniku przeciągnięcia Drag and Drop).
   void reorderColumns(int oldIndex, int newIndex) {
     final current = state;
     if (current is! TaskListPreferencesReady) return;
@@ -204,7 +114,6 @@ final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
     _scheduleAutosave();
   }
 
-  /// Aktualizuje szerokość pojedynczej kolumny po przesunięciu separatora.
   void resizeColumn(String columnId, double width) {
     final current = state;
     if (current is! TaskListPreferencesReady) return;
@@ -217,46 +126,13 @@ final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
     _scheduleAutosave();
   }
 
-  /// Przełącza cyklicznie sortowanie kolumny:
-  /// Brak sortowania -> Rosnąco -> Malejąco -> Domyślne (pozycja).
-  /// Zmiana sortowania zapisywana jest w backendzie przed emisją nowego stanu,
-  /// eliminując wyścig zapisu preferencji z odświeżeniem listy zadań.
   Future<void> cycleSort(TaskSavedViewSortField field) async {
     final current = state;
     if (current is! TaskListPreferencesReady || current.isSaving) return;
-
-    final initialDirection = switch (field) {
-      TaskSavedViewSortField.priority => TaskSavedViewSortDirection.descending,
-      TaskSavedViewSortField.updatedAtUtc =>
-        TaskSavedViewSortDirection.descending,
-      _ => TaskSavedViewSortDirection.ascending,
-    };
-
-    final TaskSavedViewSortField nextField;
-    final TaskSavedViewSortDirection nextDirection;
-
-    if (current.sortField != field) {
-      nextField = field;
-      nextDirection = initialDirection;
-    } else {
-      final oppositeDirection =
-          initialDirection == TaskSavedViewSortDirection.ascending
-          ? TaskSavedViewSortDirection.descending
-          : TaskSavedViewSortDirection.ascending;
-
-      if (current.sortDirection == initialDirection) {
-        nextField = field;
-        nextDirection = oppositeDirection;
-      } else {
-        nextField = TaskSavedViewSortField.position;
-        nextDirection = TaskSavedViewSortDirection.ascending;
-      }
-    }
-
-    await _saveSortExplicitly(nextField, nextDirection);
+    final next = TaskListSortController.next(current, field);
+    await _saveSortExplicitly(next.field, next.direction);
   }
 
-  /// Ustawia pole i kierunek sortowania z potwierdzonym zapisem w backendzie.
   Future<void> setSort(
     TaskSavedViewSortField field,
     TaskSavedViewSortDirection direction,
@@ -330,7 +206,6 @@ final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
     );
   }
 
-  /// Ustawia sposób grupowania listy zadań z potwierdzonym zapisem do backendu.
   Future<void> setGroupBy(TaskSavedViewGroupBy groupBy) async {
     final current = state;
     if (current is! TaskListPreferencesReady || current.isSaving) return;
@@ -390,7 +265,6 @@ final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
     );
   }
 
-  /// Ustawia aktywny zapisany widok i natychmiast zapisuje preferencje do backendu.
   Future<void> setActiveSavedViewId(String? viewId) async {
     final current = state;
     if (current is! TaskListPreferencesReady) return;
@@ -405,73 +279,27 @@ final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
     await _performAutosave();
   }
 
-  /// Natychmiastowo zapisuje oczekujące preferencje bez oczekiwania na timer.
   Future<void> saveNow() async {
     _autosaveTimer?.cancel();
     await _performAutosave();
   }
 
-  /// Przywraca domyślny układ kolumn z polityki projektu.
   Future<void> resetToProjectDefaults() async {
     _autosaveTimer?.cancel();
-    final result = await repository.resetUserPreference(
-      workspaceId: workspaceId,
-      projectId: projectId,
-    );
-
-    if (isClosed) return;
-
-    await result.fold(
-      (error) async => emit(TaskListPreferencesError(error.message)),
-      (_) async => load(),
+    await _projectPolicy.resetToDefaults(
+      isClosed: isClosed,
+      emit: emit,
+      reload: load,
     );
   }
 
-  /// Zapisuje aktualny układ kolumn jako domyślny dla całego projektu (dla administratora).
   Future<bool> saveAsProjectDefaults() async {
     final current = state;
     if (current is! TaskListPreferencesReady) return false;
-
-    emit(current.copyWith(isSaving: true, clearSaveError: true));
-
-    final targetColumns = current.effectiveProjectDefaultColumns;
-    final payload = UpdateProjectTaskListPolicyPayload(
-      availableColumns: current.availableColumns.toList(),
-      requiredColumns: current.requiredColumns.toList(),
-      defaultColumns: targetColumns.map((c) => c.id).toList(),
-      defaultColumnWidths: current.columnWidths,
-      defaultSortField: current.sortField,
-      defaultSortDirection: current.sortDirection,
-      defaultGroupBy: current.groupBy,
-      expectedVersion: current.policyVersion,
-    );
-
-    final result = await repository.updatePolicy(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      payload: payload,
-    );
-
-    if (isClosed) return false;
-
-    return result.fold(
-      (error) {
-        emit(current.copyWith(isSaving: false, saveError: error.message));
-        return false;
-      },
-      (policy) {
-        emit(
-          current.copyWith(
-            isSaving: false,
-            policyVersion: policy.version,
-            projectDefaultColumnsDraft: policy.defaultColumns
-                .map(TaskColumnReference.fromId)
-                .toList(),
-            clearSaveError: true,
-          ),
-        );
-        return true;
-      },
+    return _projectPolicy.saveDraft(
+      current: current,
+      isClosed: isClosed,
+      emit: emit,
     );
   }
 

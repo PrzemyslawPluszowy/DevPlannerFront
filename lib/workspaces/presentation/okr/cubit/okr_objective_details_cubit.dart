@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/domain/repositories/okr_repository.dart';
+import 'package:devplanner/workspaces/presentation/okr/cubit/okr_objective_details_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/repositories/okr_repository.dart';
-import 'package:ready_next/workspaces/presentation/okr/cubit/okr_objective_details_state.dart';
 
 /// Ładuje jeden cel OKR bez wywołań sieciowych w widgetach.
 final class OkrObjectiveDetailsCubit extends Cubit<OkrObjectiveDetailsState> {

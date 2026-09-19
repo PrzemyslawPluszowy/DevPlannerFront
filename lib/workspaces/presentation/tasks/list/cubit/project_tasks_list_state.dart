@@ -1,7 +1,8 @@
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 
 sealed class ProjectTasksListState {
   const ProjectTasksListState();
@@ -12,9 +13,23 @@ final class ProjectTasksListLoading extends ProjectTasksListState {
 }
 
 final class ProjectTasksListFailure extends ProjectTasksListState {
-  const ProjectTasksListFailure(this.message);
+  const ProjectTasksListFailure(
+    this.message, {
+    this.type,
+    this.statusCode,
+    this.backendCode,
+    this.apiCode,
+    this.traceId,
+  });
 
   final String message;
+  final ApiErrorType? type;
+  final int? statusCode;
+  final int? backendCode;
+  final String? apiCode;
+  final String? traceId;
+
+  bool get isForbidden => type == ApiErrorType.forbidden || statusCode == 403;
 }
 
 final class ProjectTasksListReady extends ProjectTasksListState {
@@ -22,7 +37,7 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     required this.tasks,
     required this.status,
     required this.priority,
-    required this.assigneeCoreUserId,
+    required this.assigneeUserId,
     required this.myInvolvement,
     required this.unassignedOnly,
     required this.nextCursor,
@@ -46,7 +61,7 @@ final class ProjectTasksListReady extends ProjectTasksListState {
   final List<ProjectTaskListItemResponse> tasks;
   final ProjectTaskStatus? status;
   final TaskPriority? priority;
-  final String? assigneeCoreUserId;
+  final String? assigneeUserId;
   final TaskInvolvementFilter? myInvolvement;
   final bool unassignedOnly;
   final bool pinnedOnly;
@@ -76,7 +91,7 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     List<ProjectTaskListItemResponse>? tasks,
     ProjectTaskStatus? status,
     TaskPriority? priority,
-    String? assigneeCoreUserId,
+    String? assigneeUserId,
     TaskInvolvementFilter? myInvolvement,
     bool? unassignedOnly,
     bool? pinnedOnly,
@@ -85,7 +100,7 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     int? totalCount,
     bool clearStatus = false,
     bool clearPriority = false,
-    bool clearAssigneeCoreUserId = false,
+    bool clearAssigneeUserId = false,
     bool clearMyInvolvement = false,
     bool clearCursor = false,
     bool? isLoadingMore,
@@ -107,9 +122,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     tasks: tasks ?? this.tasks,
     status: clearStatus ? null : status ?? this.status,
     priority: clearPriority ? null : priority ?? this.priority,
-    assigneeCoreUserId: clearAssigneeCoreUserId
+    assigneeUserId: clearAssigneeUserId
         ? null
-        : assigneeCoreUserId ?? this.assigneeCoreUserId,
+        : assigneeUserId ?? this.assigneeUserId,
     myInvolvement: clearMyInvolvement
         ? null
         : myInvolvement ?? this.myInvolvement,

@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/ai/models/storage_ai_models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/ai/models/storage_ai_models.dart';
 
 part 'storage_contract_models.freezed.dart';
 part 'storage_contract_models.g.dart';

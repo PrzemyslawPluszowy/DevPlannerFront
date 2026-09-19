@@ -1,5 +1,5 @@
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/notification_enums.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart';
 
 /// Aktywny, niezależnie stronicowany widok skrzynki.
 enum NotificationsInboxView { groups, items }

@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_project_realtime.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/domain/models/task_project_realtime_update.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_project_realtime.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_state.dart';
 
 /// Cubit zarządzający regułami cykliczności zadań i historią wykonań w projekcie.
 class ProjectRecurrencesCubit extends Cubit<ProjectRecurrencesState> {

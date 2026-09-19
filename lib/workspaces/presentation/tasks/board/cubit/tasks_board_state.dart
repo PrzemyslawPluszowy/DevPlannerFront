@@ -1,7 +1,7 @@
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
 
 sealed class TasksBoardState {
   const TasksBoardState();
@@ -35,7 +35,7 @@ final class TasksBoardReady extends TasksBoardState {
     required this.board,
     required this.connectionState,
     required this.presence,
-    this.memberProfilesByCoreUserId = const {},
+    this.memberProfilesByUserId = const {},
     this.loadingColumnKeys = const <String>{},
     this.columnLoadErrors = const <String, String>{},
     this.selectedTaskIds = const <String>{},
@@ -52,7 +52,7 @@ final class TasksBoardReady extends TasksBoardState {
   final KanbanBoardResponse board;
   final WorkspaceSignalRConnectionState connectionState;
   final List<TaskProjectPresenceUser> presence;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final Set<String> loadingColumnKeys;
   final Map<String, String> columnLoadErrors;
   final Set<String> selectedTaskIds;
@@ -76,7 +76,7 @@ final class TasksBoardReady extends TasksBoardState {
     KanbanBoardResponse? board,
     WorkspaceSignalRConnectionState? connectionState,
     List<TaskProjectPresenceUser>? presence,
-    Map<String, ProjectMemberProfile>? memberProfilesByCoreUserId,
+    Map<String, ProjectMemberProfile>? memberProfilesByUserId,
     Set<String>? loadingColumnKeys,
     Map<String, String>? columnLoadErrors,
     Set<String>? selectedTaskIds,
@@ -94,8 +94,8 @@ final class TasksBoardReady extends TasksBoardState {
     board: board ?? this.board,
     connectionState: connectionState ?? this.connectionState,
     presence: presence ?? this.presence,
-    memberProfilesByCoreUserId:
-        memberProfilesByCoreUserId ?? this.memberProfilesByCoreUserId,
+    memberProfilesByUserId:
+        memberProfilesByUserId ?? this.memberProfilesByUserId,
     loadingColumnKeys: loadingColumnKeys ?? this.loadingColumnKeys,
     columnLoadErrors: columnLoadErrors ?? this.columnLoadErrors,
     selectedTaskIds: selectedTaskIds ?? this.selectedTaskIds,

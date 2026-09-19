@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 
 /// Kontrakt wpisów czasu, timera i procesu akceptacji dla jednego zadania.
 abstract interface class TaskTimeTrackingRepository {

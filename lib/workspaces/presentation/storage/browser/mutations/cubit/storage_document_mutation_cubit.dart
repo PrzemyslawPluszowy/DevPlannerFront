@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_state.dart';
 
 /// Cubit tworzący nowy dokument w aktualnym zakresie eksploratora.
 final class StorageDocumentMutationCubit

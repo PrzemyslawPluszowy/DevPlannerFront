@@ -1,8 +1,8 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_shimmer.dart';
+import 'package:devplanner/workspaces/shared/helpers/workspace_visual_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_shimmer.dart';
-import 'package:ready_next/workspaces/shared/helpers/workspace_visual_helpers.dart';
 
 /// Nowoczesny, zunifikowany wrapper dla wszystkich ekranów i funkcji w module Workspaces.
 ///

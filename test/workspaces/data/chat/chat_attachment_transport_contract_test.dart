@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
 
 void main() {
   test(
@@ -33,7 +33,7 @@ void main() {
     final message = ChatMessageResponse.fromJson({
       'id': 'message-1',
       'conversationId': 'conversation-1',
-      'authorCoreUserId': 'user-1',
+      'authorUserId': 'user-1',
       'clientMessageId': 'client-1',
       'text': 'Treść',
       'payloadHash': 'HASH',
@@ -45,7 +45,7 @@ void main() {
           'id': 'attachment-1',
           'messageId': 'message-1',
           'storageFileId': 'file-a',
-          'attachedByCoreUserId': 'user-1',
+          'attachedByUserId': 'user-1',
           'position': 0,
           'createdAtUtc': '2026-09-14T12:00:00.000Z',
         },

@@ -1,8 +1,8 @@
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/models/workspace_list_item.dart';
+import 'package:devplanner/workspaces/shared/helpers/workspace_icon_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/domain/models/workspace_list_item.dart';
-import 'package:ready_next/workspaces/shared/helpers/workspace_icon_helper.dart';
 
 /// Link do ulubionej (przypiętej) przestrzeni roboczej w menu katalogu.
 class FavoriteWorkspaceLink extends StatelessWidget {
@@ -25,7 +25,7 @@ class FavoriteWorkspaceLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final currentPath = context.router.currentPath;
+    final currentPath = context.plannerNavigation.currentPath;
     final isSelected = currentPath == path || currentPath.startsWith('$path/');
     final accentColor = WorkspaceIconHelper.parseColor(item.accentColorHex);
 
@@ -40,7 +40,7 @@ class FavoriteWorkspaceLink extends StatelessWidget {
         ),
       ),
       child: InkWell(
-        onTap: () => context.router.navigatePath(path),
+        onTap: () => context.plannerNavigation.go(path),
         borderRadius: const .all(.circular(6)),
         hoverColor: colors.primary.withValues(alpha: .06),
         child: Container(

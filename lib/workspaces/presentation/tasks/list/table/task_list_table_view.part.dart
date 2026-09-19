@@ -36,7 +36,7 @@ extension _TaskListTableViewExtension on _TaskListTableState {
 
     final canManage = TaskPermissionHelper.canManageProject(
       context,
-      memberProfiles: widget.memberProfilesByCoreUserId,
+      memberProfiles: widget.memberProfilesByUserId,
     );
 
     void openColumnSettings({
@@ -79,7 +79,7 @@ extension _TaskListTableViewExtension on _TaskListTableState {
               children: [
                 TaskListFilters(
                   state: state,
-                  memberProfiles: widget.memberProfilesByCoreUserId,
+                  memberProfiles: widget.memberProfilesByUserId,
                   canManage: canManage,
                   onOpenColumnSettings: prefCubit != null
                       ? openColumnSettings
@@ -275,7 +275,7 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                 child: Center(
                   child: TaskListBulkBar(
                     selectedCount: state.selectedTaskIds.length,
-                    memberProfiles: widget.memberProfilesByCoreUserId,
+                    memberProfiles: widget.memberProfilesByUserId,
                     groups: state.groups,
                     groupBy: widget.groupBy,
                   ),

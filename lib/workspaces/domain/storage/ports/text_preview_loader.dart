@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
+import 'package:devplanner/core/error/api_error.dart';
 
 /// Loads a bounded UTF-8 text preview without exposing HTTP to presentation.
 // A port is intentionally a class despite exposing one operation: project

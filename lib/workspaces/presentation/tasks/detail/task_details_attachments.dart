@@ -31,38 +31,47 @@ class _TaskAttachmentsBody extends StatefulWidget {
 }
 
 class _TaskAttachmentsBodyState extends State<_TaskAttachmentsBody> {
-  var _isDragging = false;
+  final ValueNotifier<bool> _isDragging = ValueNotifier(false);
 
   @override
-  Widget build(BuildContext context) => DropTarget(
-    onDragEntered: (_) => setState(() => _isDragging = true),
-    onDragExited: (_) => setState(() => _isDragging = false),
-    onDragDone: (details) async {
-      setState(() => _isDragging = false);
-      await _uploadFiles(details.files);
-    },
-    child: _Section(
-      title: context.l10n.taskDetailsAttachments,
-      action: TextButton.icon(
-        onPressed: _pickFiles,
-        icon: const Icon(Symbols.upload_file_rounded, size: 18),
-        label: Text(context.l10n.taskDetailsAttachmentsAdd),
-      ),
-      child: BlocBuilder<TaskAttachmentsCubit, TaskAttachmentsState>(
-        builder: (context, state) => switch (state) {
-          TaskAttachmentsLoading() => const Padding(
-            padding: EdgeInsets.all(18),
-            child: Center(child: CircularProgressIndicator()),
-          ),
-          TaskAttachmentsFailure(:final message) => _AttachmentsError(
-            message: message,
-          ),
-          TaskAttachmentsReady() => _AttachmentsReady(
-            state: state,
-            onPickFiles: _pickFiles,
-            isDragging: _isDragging,
-          ),
-        },
+  void dispose() {
+    _isDragging.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: _isDragging,
+    builder: (context, isDragging, _) => DropTarget(
+      onDragEntered: (_) => _isDragging.value = true,
+      onDragExited: (_) => _isDragging.value = false,
+      onDragDone: (details) async {
+        _isDragging.value = false;
+        await _uploadFiles(details.files);
+      },
+      child: _Section(
+        title: context.l10n.taskDetailsAttachments,
+        action: TextButton.icon(
+          onPressed: _pickFiles,
+          icon: const Icon(Symbols.upload_file_rounded, size: 18),
+          label: Text(context.l10n.taskDetailsAttachmentsAdd),
+        ),
+        child: BlocBuilder<TaskAttachmentsCubit, TaskAttachmentsState>(
+          builder: (context, state) => switch (state) {
+            TaskAttachmentsLoading() => const Padding(
+              padding: EdgeInsets.all(18),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            TaskAttachmentsFailure(:final message) => _AttachmentsError(
+              message: message,
+            ),
+            TaskAttachmentsReady() => _AttachmentsReady(
+              state: state,
+              onPickFiles: _pickFiles,
+              isDragging: isDragging,
+            ),
+          },
+        ),
       ),
     ),
   );
@@ -130,7 +139,9 @@ class _AttachmentsReady extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              subtitle: Text(_fileSize(file.fileSizeBytes)),
+              subtitle: Text(
+                TaskAttachmentPresentation.fileSize(file.fileSizeBytes),
+              ),
               trailing: const Icon(Symbols.visibility_rounded, size: 18),
               onTap: () => _openPreview(context, file),
             ),
@@ -138,14 +149,21 @@ class _AttachmentsReady extends StatelessWidget {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Icon(_uploadIcon(upload.status)),
+              leading: Icon(
+                TaskAttachmentPresentation.uploadIcon(upload.status),
+              ),
               title: Text(
                 upload.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: upload.error == null
-                  ? Text(_uploadLabel(context, upload.status))
+                  ? Text(
+                      TaskAttachmentPresentation.uploadLabel(
+                        context,
+                        upload.status,
+                      ),
+                    )
                   : Text(
                       upload.error!,
                       style: TextStyle(color: context.colors.error),
@@ -163,7 +181,6 @@ class _AttachmentsReady extends StatelessWidget {
   void _openPreview(BuildContext context, StorageFileResponse file) {
     final previewCubit = StoragePreviewCubit(
       repository: context.read<StorageRepository>(),
-      authRepository: context.read<AuthRepository>(),
     );
     final mutationCubit = StorageFileMutationCubit(
       repository: context.read<StorageRepository>(),
@@ -244,25 +261,36 @@ class _AttachmentsError extends StatelessWidget {
   );
 }
 
-IconData _uploadIcon(TaskAttachmentUploadStatus status) => switch (status) {
-  TaskAttachmentUploadStatus.queued => Symbols.schedule_rounded,
-  TaskAttachmentUploadStatus.uploading => Symbols.upload_rounded,
-  TaskAttachmentUploadStatus.uploaded => Symbols.check_circle_outline_rounded,
-  TaskAttachmentUploadStatus.failed => Symbols.error_outline_rounded,
-};
-String _uploadLabel(BuildContext context, TaskAttachmentUploadStatus status) =>
-    switch (status) {
-      TaskAttachmentUploadStatus.queued =>
-        context.l10n.taskDetailsAttachmentsQueued,
-      TaskAttachmentUploadStatus.uploading =>
-        context.l10n.taskDetailsAttachmentsUploading,
-      TaskAttachmentUploadStatus.uploaded =>
-        context.l10n.taskDetailsAttachmentsUploaded,
-      TaskAttachmentUploadStatus.failed =>
-        context.l10n.taskDetailsAttachmentsFailed,
-    };
-String _fileSize(int bytes) => bytes < 1024
-    ? '$bytes B'
-    : bytes < 1024 * 1024
-    ? '${(bytes / 1024).toStringAsFixed(1)} KB'
-    : '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+/// Czyste mapowanie statusów i rozmiarów dla sekcji załączników zadania.
+final class TaskAttachmentPresentation {
+  const TaskAttachmentPresentation._();
+
+  static IconData uploadIcon(TaskAttachmentUploadStatus status) =>
+      switch (status) {
+        TaskAttachmentUploadStatus.queued => Symbols.schedule_rounded,
+        TaskAttachmentUploadStatus.uploading => Symbols.upload_rounded,
+        TaskAttachmentUploadStatus.uploaded =>
+          Symbols.check_circle_outline_rounded,
+        TaskAttachmentUploadStatus.failed => Symbols.error_outline_rounded,
+      };
+
+  static String uploadLabel(
+    BuildContext context,
+    TaskAttachmentUploadStatus status,
+  ) => switch (status) {
+    TaskAttachmentUploadStatus.queued =>
+      context.l10n.taskDetailsAttachmentsQueued,
+    TaskAttachmentUploadStatus.uploading =>
+      context.l10n.taskDetailsAttachmentsUploading,
+    TaskAttachmentUploadStatus.uploaded =>
+      context.l10n.taskDetailsAttachmentsUploaded,
+    TaskAttachmentUploadStatus.failed =>
+      context.l10n.taskDetailsAttachmentsFailed,
+  };
+
+  static String fileSize(int bytes) => bytes < 1024
+      ? '$bytes B'
+      : bytes < 1024 * 1024
+      ? '${(bytes / 1024).toStringAsFixed(1)} KB'
+      : '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+}

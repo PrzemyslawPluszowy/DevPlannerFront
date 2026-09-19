@@ -1,10 +1,10 @@
+import 'package:devplanner/workspaces/data/projects/api/projects_api.dart';
+import 'package:devplanner/workspaces/data/projects/repositories/project_member_profiles_repository_impl.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_member_profile_response.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/workspaces/data/projects/api/projects_api.dart';
-import 'package:ready_next/workspaces/data/projects/repositories/project_member_profiles_repository_impl.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_member_profile_response.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
 
 void main() {
   test('listProfiles zachowuje pełny katalog przez cursorowe strony', () async {
@@ -20,7 +20,7 @@ void main() {
       (_) async => const CursorPageResponse(
         items: [
           ProjectMemberProfileResponse(
-            coreUserId: 'user-1',
+            userId: 'user-1',
             displayName: 'Anna',
             role: ProjectRole.member,
           ),
@@ -40,7 +40,7 @@ void main() {
       (_) async => const CursorPageResponse(
         items: [
           ProjectMemberProfileResponse(
-            coreUserId: 'user-2',
+            userId: 'user-2',
             displayName: 'Bartek',
             role: ProjectRole.admin,
           ),
@@ -57,7 +57,7 @@ void main() {
     result.fold(
       (error) => fail('Nieoczekiwany błąd: $error'),
       (profiles) {
-        expect(profiles.map((profile) => profile.coreUserId), [
+        expect(profiles.map((profile) => profile.userId), [
           'user-1',
           'user-2',
         ]);

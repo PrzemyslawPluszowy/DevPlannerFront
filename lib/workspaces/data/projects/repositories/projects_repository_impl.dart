@@ -1,22 +1,22 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/api/projects_api.dart';
-import 'package:ready_next/workspaces/data/projects/payloads/change_project_member_role_payload.dart';
-import 'package:ready_next/workspaces/data/projects/payloads/create_project_membership_payload.dart';
-import 'package:ready_next/workspaces/data/projects/payloads/create_project_payload.dart';
-import 'package:ready_next/workspaces/data/projects/payloads/update_project_order_payload.dart';
-import 'package:ready_next/workspaces/data/projects/payloads/update_project_payload.dart';
-import 'package:ready_next/workspaces/data/projects/payloads/update_project_user_preference_payload.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_list_item_response.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_member_response.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_response.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_user_preference_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/projects_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/api/projects_api.dart';
+import 'package:devplanner/workspaces/data/projects/payloads/change_project_member_role_payload.dart';
+import 'package:devplanner/workspaces/data/projects/payloads/create_project_membership_payload.dart';
+import 'package:devplanner/workspaces/data/projects/payloads/create_project_payload.dart';
+import 'package:devplanner/workspaces/data/projects/payloads/update_project_order_payload.dart';
+import 'package:devplanner/workspaces/data/projects/payloads/update_project_payload.dart';
+import 'package:devplanner/workspaces/data/projects/payloads/update_project_user_preference_payload.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_list_item_response.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_member_response.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_response.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_user_preference_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 
 /// Implementacja repozytorium projektów oparta o uwierzytelniony Retrofit API.
 final class ProjectsRepositoryImpl extends ApiRepository

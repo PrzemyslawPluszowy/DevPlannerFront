@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/workspaces/payloads/workspace_payloads.dart';
+import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/workspaces/payloads/workspace_payloads.dart';
-import 'package:ready_next/workspaces/data/workspaces/responses/workspace_responses.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'workspaces_api.g.dart';
@@ -81,9 +81,9 @@ abstract class WorkspacesApi {
     @Path('workspaceId') String workspaceId,
   );
 
-  /// Wyszukuje użytkowników Ready możliwych do zaproszenia.
+  /// Wyszukuje aktywnych, potwierdzonych użytkowników lokalnego katalogu.
   @GET('/api/v1/workspaces/{workspaceId}/users/search')
-  Future<List<ReadyDirectoryUserResponse>> searchReadyUsers(
+  Future<List<LocalUserDirectoryResponse>> searchLocalUsers(
     @Path('workspaceId') String workspaceId,
     @Query('query') String query,
   );

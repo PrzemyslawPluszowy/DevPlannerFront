@@ -1,17 +1,17 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
 
 /// Pływający pasek akcji masowych (Bulk Toolbar).
 ///
@@ -176,13 +176,13 @@ class TaskListBulkBar extends StatelessWidget {
               PopupMenuButton<String>(
                 tooltip:
                     'Przypisz wykonawcę $selectedCount zaznaczonym zadaniom',
-                onSelected: (coreUserId) => unawaited(
-                  apply(assigneeIds: [coreUserId]),
+                onSelected: (userId) => unawaited(
+                  apply(assigneeIds: [userId]),
                 ),
                 itemBuilder: (context) => [
                   for (final profile in memberProfiles.values)
                     PopupMenuItem(
-                      value: profile.coreUserId,
+                      value: profile.userId,
                       height: 32,
                       child: Text(_profileName(profile)),
                     ),
@@ -262,13 +262,13 @@ class TaskListBulkBar extends StatelessWidget {
             if (memberProfiles.isNotEmpty)
               PopupMenuButton<String>(
                 tooltip: 'Przypisz wykonawcę całemu filtrowanemu wynikowi',
-                onSelected: (coreUserId) => unawaited(
-                  cubit.bulkUpdateEntireResult(assigneeIds: [coreUserId]),
+                onSelected: (userId) => unawaited(
+                  cubit.bulkUpdateEntireResult(assigneeIds: [userId]),
                 ),
                 itemBuilder: (context) => [
                   for (final profile in memberProfiles.values)
                     PopupMenuItem(
-                      value: profile.coreUserId,
+                      value: profile.userId,
                       height: 32,
                       child: Text(_profileName(profile)),
                     ),
@@ -300,7 +300,7 @@ class TaskListBulkBar extends StatelessWidget {
   static String _profileName(ProjectMemberProfile profile) =>
       profile.displayName?.trim().isNotEmpty == true
       ? profile.displayName!.trim()
-      : profile.coreUserId;
+      : profile.userId;
 }
 
 class _BulkToolbarButton extends StatelessWidget {

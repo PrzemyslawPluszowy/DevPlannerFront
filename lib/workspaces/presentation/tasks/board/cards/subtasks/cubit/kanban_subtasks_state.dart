@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
 
 /// Stan zarządzania podzadaniami pojedynczej karty Kanban.
 sealed class KanbanSubtasksState extends Equatable {

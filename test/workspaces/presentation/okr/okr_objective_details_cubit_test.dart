@@ -1,11 +1,11 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/okr/models/okr_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/okr_repository.dart';
+import 'package:devplanner/workspaces/presentation/okr/cubit/okr_objective_details_cubit.dart';
+import 'package:devplanner/workspaces/presentation/okr/cubit/okr_objective_details_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/okr/models/okr_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/okr_repository.dart';
-import 'package:ready_next/workspaces/presentation/okr/cubit/okr_objective_details_cubit.dart';
-import 'package:ready_next/workspaces/presentation/okr/cubit/okr_objective_details_state.dart';
 
 class _OkrRepository implements OkrRepository {
   _OkrRepository(this.result);
@@ -28,7 +28,7 @@ void main() {
           ObjectiveResponse(
             id: 'objective-1',
             workspaceId: 'workspace-1',
-            createdByCoreUserId: 'user-1',
+            createdByUserId: 'user-1',
             name: 'Stabilny produkt',
             progress: .5,
             keyResults: const [],

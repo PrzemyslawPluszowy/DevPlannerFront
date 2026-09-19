@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 
 /// Strumieniuje plik z dysku na Windows/macOS/Linux.
 final class StorageUploadBodyPlatform {

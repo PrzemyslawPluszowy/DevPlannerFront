@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/domain/notifications/models/notification_reply_target.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_reply_target.dart';
 
 void main() {
   group('NotificationReplyTarget', () {

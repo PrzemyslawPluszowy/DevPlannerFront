@@ -1,11 +1,11 @@
 {
-    "name": "Ready Next Custom",
-    "short_name": "Ready Next Custom",
+    "name": "DevPlanner",
+    "short_name": "DevPlanner",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Standalone workspace planning for teams.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

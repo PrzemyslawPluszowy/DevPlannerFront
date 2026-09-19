@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 
 /// Niemutowalny stan interakcji jednego composera rozmowy.
 final class ChatComposerState {

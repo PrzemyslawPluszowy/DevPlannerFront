@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ResolveChatConversationPayload {
 
- ChatConversationType get type; ChatScopeKind get scopeKind; String get scopeKey; String? get workspaceId; String? get projectId; String? get name; String? get directConversationKey; List<String>? get coreUserIds; String? get discussionRootMessageId; String get postingPermission; String? get scopeProvider; String? get scopeResourceType; String? get scopeResourceId; List<int>? get readyUserIds;
+ ChatConversationType get type; ChatScopeKind get scopeKind; String get scopeKey; String? get workspaceId; String? get projectId; String? get name; String? get directConversationKey; List<String>? get userIds; String? get discussionRootMessageId; String get postingPermission; String? get scopeProvider; String? get scopeResourceType; String? get scopeResourceId;
 /// Create a copy of ResolveChatConversationPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ResolveChatConversationPayloadCopyWith<ResolveChatConversationPayload> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolveChatConversationPayload&&(identical(other.type, type) || other.type == type)&&(identical(other.scopeKind, scopeKind) || other.scopeKind == scopeKind)&&(identical(other.scopeKey, scopeKey) || other.scopeKey == scopeKey)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.name, name) || other.name == name)&&(identical(other.directConversationKey, directConversationKey) || other.directConversationKey == directConversationKey)&&const DeepCollectionEquality().equals(other.coreUserIds, coreUserIds)&&(identical(other.discussionRootMessageId, discussionRootMessageId) || other.discussionRootMessageId == discussionRootMessageId)&&(identical(other.postingPermission, postingPermission) || other.postingPermission == postingPermission)&&(identical(other.scopeProvider, scopeProvider) || other.scopeProvider == scopeProvider)&&(identical(other.scopeResourceType, scopeResourceType) || other.scopeResourceType == scopeResourceType)&&(identical(other.scopeResourceId, scopeResourceId) || other.scopeResourceId == scopeResourceId)&&const DeepCollectionEquality().equals(other.readyUserIds, readyUserIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResolveChatConversationPayload&&(identical(other.type, type) || other.type == type)&&(identical(other.scopeKind, scopeKind) || other.scopeKind == scopeKind)&&(identical(other.scopeKey, scopeKey) || other.scopeKey == scopeKey)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.name, name) || other.name == name)&&(identical(other.directConversationKey, directConversationKey) || other.directConversationKey == directConversationKey)&&const DeepCollectionEquality().equals(other.userIds, userIds)&&(identical(other.discussionRootMessageId, discussionRootMessageId) || other.discussionRootMessageId == discussionRootMessageId)&&(identical(other.postingPermission, postingPermission) || other.postingPermission == postingPermission)&&(identical(other.scopeProvider, scopeProvider) || other.scopeProvider == scopeProvider)&&(identical(other.scopeResourceType, scopeResourceType) || other.scopeResourceType == scopeResourceType)&&(identical(other.scopeResourceId, scopeResourceId) || other.scopeResourceId == scopeResourceId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,type,scopeKind,scopeKey,workspaceId,projectId,name,directConversationKey,const DeepCollectionEquality().hash(coreUserIds),discussionRootMessageId,postingPermission,scopeProvider,scopeResourceType,scopeResourceId,const DeepCollectionEquality().hash(readyUserIds));
+int get hashCode => Object.hash(runtimeType,type,scopeKind,scopeKey,workspaceId,projectId,name,directConversationKey,const DeepCollectionEquality().hash(userIds),discussionRootMessageId,postingPermission,scopeProvider,scopeResourceType,scopeResourceId);
 
 @override
 String toString() {
-  return 'ResolveChatConversationPayload(type: $type, scopeKind: $scopeKind, scopeKey: $scopeKey, workspaceId: $workspaceId, projectId: $projectId, name: $name, directConversationKey: $directConversationKey, coreUserIds: $coreUserIds, discussionRootMessageId: $discussionRootMessageId, postingPermission: $postingPermission, scopeProvider: $scopeProvider, scopeResourceType: $scopeResourceType, scopeResourceId: $scopeResourceId, readyUserIds: $readyUserIds)';
+  return 'ResolveChatConversationPayload(type: $type, scopeKind: $scopeKind, scopeKey: $scopeKey, workspaceId: $workspaceId, projectId: $projectId, name: $name, directConversationKey: $directConversationKey, userIds: $userIds, discussionRootMessageId: $discussionRootMessageId, postingPermission: $postingPermission, scopeProvider: $scopeProvider, scopeResourceType: $scopeResourceType, scopeResourceId: $scopeResourceId)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ResolveChatConversationPayloadCopyWith<$Res>  {
   factory $ResolveChatConversationPayloadCopyWith(ResolveChatConversationPayload value, $Res Function(ResolveChatConversationPayload) _then) = _$ResolveChatConversationPayloadCopyWithImpl;
 @useResult
 $Res call({
- ChatConversationType type, ChatScopeKind scopeKind, String scopeKey, String? workspaceId, String? projectId, String? name, String? directConversationKey, List<String>? coreUserIds, String? discussionRootMessageId, String postingPermission, String? scopeProvider, String? scopeResourceType, String? scopeResourceId, List<int>? readyUserIds
+ ChatConversationType type, ChatScopeKind scopeKind, String scopeKey, String? workspaceId, String? projectId, String? name, String? directConversationKey, List<String>? userIds, String? discussionRootMessageId, String postingPermission, String? scopeProvider, String? scopeResourceType, String? scopeResourceId
 });
 
 
@@ -65,7 +65,7 @@ class _$ResolveChatConversationPayloadCopyWithImpl<$Res>
 
 /// Create a copy of ResolveChatConversationPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? scopeKind = null,Object? scopeKey = null,Object? workspaceId = freezed,Object? projectId = freezed,Object? name = freezed,Object? directConversationKey = freezed,Object? coreUserIds = freezed,Object? discussionRootMessageId = freezed,Object? postingPermission = null,Object? scopeProvider = freezed,Object? scopeResourceType = freezed,Object? scopeResourceId = freezed,Object? readyUserIds = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? scopeKind = null,Object? scopeKey = null,Object? workspaceId = freezed,Object? projectId = freezed,Object? name = freezed,Object? directConversationKey = freezed,Object? userIds = freezed,Object? discussionRootMessageId = freezed,Object? postingPermission = null,Object? scopeProvider = freezed,Object? scopeResourceType = freezed,Object? scopeResourceId = freezed,}) {
   return _then(_self.copyWith(
 type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ChatConversationType,scopeKind: null == scopeKind ? _self.scopeKind : scopeKind // ignore: cast_nullable_to_non_nullable
@@ -74,14 +74,13 @@ as String,workspaceId: freezed == workspaceId ? _self.workspaceId : workspaceId 
 as String?,projectId: freezed == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
 as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,directConversationKey: freezed == directConversationKey ? _self.directConversationKey : directConversationKey // ignore: cast_nullable_to_non_nullable
-as String?,coreUserIds: freezed == coreUserIds ? _self.coreUserIds : coreUserIds // ignore: cast_nullable_to_non_nullable
+as String?,userIds: freezed == userIds ? _self.userIds : userIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,discussionRootMessageId: freezed == discussionRootMessageId ? _self.discussionRootMessageId : discussionRootMessageId // ignore: cast_nullable_to_non_nullable
 as String?,postingPermission: null == postingPermission ? _self.postingPermission : postingPermission // ignore: cast_nullable_to_non_nullable
 as String,scopeProvider: freezed == scopeProvider ? _self.scopeProvider : scopeProvider // ignore: cast_nullable_to_non_nullable
 as String?,scopeResourceType: freezed == scopeResourceType ? _self.scopeResourceType : scopeResourceType // ignore: cast_nullable_to_non_nullable
 as String?,scopeResourceId: freezed == scopeResourceId ? _self.scopeResourceId : scopeResourceId // ignore: cast_nullable_to_non_nullable
-as String?,readyUserIds: freezed == readyUserIds ? _self.readyUserIds : readyUserIds // ignore: cast_nullable_to_non_nullable
-as List<int>?,
+as String?,
   ));
 }
 
@@ -166,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ChatConversationType type,  ChatScopeKind scopeKind,  String scopeKey,  String? workspaceId,  String? projectId,  String? name,  String? directConversationKey,  List<String>? coreUserIds,  String? discussionRootMessageId,  String postingPermission,  String? scopeProvider,  String? scopeResourceType,  String? scopeResourceId,  List<int>? readyUserIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ChatConversationType type,  ChatScopeKind scopeKind,  String scopeKey,  String? workspaceId,  String? projectId,  String? name,  String? directConversationKey,  List<String>? userIds,  String? discussionRootMessageId,  String postingPermission,  String? scopeProvider,  String? scopeResourceType,  String? scopeResourceId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ResolveChatConversationPayload() when $default != null:
-return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_that.projectId,_that.name,_that.directConversationKey,_that.coreUserIds,_that.discussionRootMessageId,_that.postingPermission,_that.scopeProvider,_that.scopeResourceType,_that.scopeResourceId,_that.readyUserIds);case _:
+return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_that.projectId,_that.name,_that.directConversationKey,_that.userIds,_that.discussionRootMessageId,_that.postingPermission,_that.scopeProvider,_that.scopeResourceType,_that.scopeResourceId);case _:
   return orElse();
 
 }
@@ -187,10 +186,10 @@ return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ChatConversationType type,  ChatScopeKind scopeKind,  String scopeKey,  String? workspaceId,  String? projectId,  String? name,  String? directConversationKey,  List<String>? coreUserIds,  String? discussionRootMessageId,  String postingPermission,  String? scopeProvider,  String? scopeResourceType,  String? scopeResourceId,  List<int>? readyUserIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ChatConversationType type,  ChatScopeKind scopeKind,  String scopeKey,  String? workspaceId,  String? projectId,  String? name,  String? directConversationKey,  List<String>? userIds,  String? discussionRootMessageId,  String postingPermission,  String? scopeProvider,  String? scopeResourceType,  String? scopeResourceId)  $default,) {final _that = this;
 switch (_that) {
 case _ResolveChatConversationPayload():
-return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_that.projectId,_that.name,_that.directConversationKey,_that.coreUserIds,_that.discussionRootMessageId,_that.postingPermission,_that.scopeProvider,_that.scopeResourceType,_that.scopeResourceId,_that.readyUserIds);case _:
+return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_that.projectId,_that.name,_that.directConversationKey,_that.userIds,_that.discussionRootMessageId,_that.postingPermission,_that.scopeProvider,_that.scopeResourceType,_that.scopeResourceId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -207,10 +206,10 @@ return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ChatConversationType type,  ChatScopeKind scopeKind,  String scopeKey,  String? workspaceId,  String? projectId,  String? name,  String? directConversationKey,  List<String>? coreUserIds,  String? discussionRootMessageId,  String postingPermission,  String? scopeProvider,  String? scopeResourceType,  String? scopeResourceId,  List<int>? readyUserIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ChatConversationType type,  ChatScopeKind scopeKind,  String scopeKey,  String? workspaceId,  String? projectId,  String? name,  String? directConversationKey,  List<String>? userIds,  String? discussionRootMessageId,  String postingPermission,  String? scopeProvider,  String? scopeResourceType,  String? scopeResourceId)?  $default,) {final _that = this;
 switch (_that) {
 case _ResolveChatConversationPayload() when $default != null:
-return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_that.projectId,_that.name,_that.directConversationKey,_that.coreUserIds,_that.discussionRootMessageId,_that.postingPermission,_that.scopeProvider,_that.scopeResourceType,_that.scopeResourceId,_that.readyUserIds);case _:
+return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_that.projectId,_that.name,_that.directConversationKey,_that.userIds,_that.discussionRootMessageId,_that.postingPermission,_that.scopeProvider,_that.scopeResourceType,_that.scopeResourceId);case _:
   return null;
 
 }
@@ -222,7 +221,7 @@ return $default(_that.type,_that.scopeKind,_that.scopeKey,_that.workspaceId,_tha
 @JsonSerializable()
 
 class _ResolveChatConversationPayload implements ResolveChatConversationPayload {
-  const _ResolveChatConversationPayload({required this.type, required this.scopeKind, required this.scopeKey, this.workspaceId, this.projectId, this.name, this.directConversationKey, this.coreUserIds, this.discussionRootMessageId, this.postingPermission = 'Everyone', this.scopeProvider, this.scopeResourceType, this.scopeResourceId, this.readyUserIds});
+  const _ResolveChatConversationPayload({required this.type, required this.scopeKind, required this.scopeKey, this.workspaceId, this.projectId, this.name, this.directConversationKey, this.userIds, this.discussionRootMessageId, this.postingPermission = 'Everyone', this.scopeProvider, this.scopeResourceType, this.scopeResourceId});
   factory _ResolveChatConversationPayload.fromJson(Map<String, dynamic> json) => _$ResolveChatConversationPayloadFromJson(json);
 
 @override final  ChatConversationType type;
@@ -232,13 +231,12 @@ class _ResolveChatConversationPayload implements ResolveChatConversationPayload 
 @override final  String? projectId;
 @override final  String? name;
 @override final  String? directConversationKey;
-@override final  List<String>? coreUserIds;
+@override final  List<String>? userIds;
 @override final  String? discussionRootMessageId;
 @override@JsonKey() final  String postingPermission;
 @override final  String? scopeProvider;
 @override final  String? scopeResourceType;
 @override final  String? scopeResourceId;
-@override final  List<int>? readyUserIds;
 
 /// Create a copy of ResolveChatConversationPayload
 /// with the given fields replaced by the non-null parameter values.
@@ -253,16 +251,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolveChatConversationPayload&&(identical(other.type, type) || other.type == type)&&(identical(other.scopeKind, scopeKind) || other.scopeKind == scopeKind)&&(identical(other.scopeKey, scopeKey) || other.scopeKey == scopeKey)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.name, name) || other.name == name)&&(identical(other.directConversationKey, directConversationKey) || other.directConversationKey == directConversationKey)&&const DeepCollectionEquality().equals(other.coreUserIds, coreUserIds)&&(identical(other.discussionRootMessageId, discussionRootMessageId) || other.discussionRootMessageId == discussionRootMessageId)&&(identical(other.postingPermission, postingPermission) || other.postingPermission == postingPermission)&&(identical(other.scopeProvider, scopeProvider) || other.scopeProvider == scopeProvider)&&(identical(other.scopeResourceType, scopeResourceType) || other.scopeResourceType == scopeResourceType)&&(identical(other.scopeResourceId, scopeResourceId) || other.scopeResourceId == scopeResourceId)&&const DeepCollectionEquality().equals(other.readyUserIds, readyUserIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResolveChatConversationPayload&&(identical(other.type, type) || other.type == type)&&(identical(other.scopeKind, scopeKind) || other.scopeKind == scopeKind)&&(identical(other.scopeKey, scopeKey) || other.scopeKey == scopeKey)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.name, name) || other.name == name)&&(identical(other.directConversationKey, directConversationKey) || other.directConversationKey == directConversationKey)&&const DeepCollectionEquality().equals(other.userIds, userIds)&&(identical(other.discussionRootMessageId, discussionRootMessageId) || other.discussionRootMessageId == discussionRootMessageId)&&(identical(other.postingPermission, postingPermission) || other.postingPermission == postingPermission)&&(identical(other.scopeProvider, scopeProvider) || other.scopeProvider == scopeProvider)&&(identical(other.scopeResourceType, scopeResourceType) || other.scopeResourceType == scopeResourceType)&&(identical(other.scopeResourceId, scopeResourceId) || other.scopeResourceId == scopeResourceId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,type,scopeKind,scopeKey,workspaceId,projectId,name,directConversationKey,const DeepCollectionEquality().hash(coreUserIds),discussionRootMessageId,postingPermission,scopeProvider,scopeResourceType,scopeResourceId,const DeepCollectionEquality().hash(readyUserIds));
+int get hashCode => Object.hash(runtimeType,type,scopeKind,scopeKey,workspaceId,projectId,name,directConversationKey,const DeepCollectionEquality().hash(userIds),discussionRootMessageId,postingPermission,scopeProvider,scopeResourceType,scopeResourceId);
 
 @override
 String toString() {
-  return 'ResolveChatConversationPayload(type: $type, scopeKind: $scopeKind, scopeKey: $scopeKey, workspaceId: $workspaceId, projectId: $projectId, name: $name, directConversationKey: $directConversationKey, coreUserIds: $coreUserIds, discussionRootMessageId: $discussionRootMessageId, postingPermission: $postingPermission, scopeProvider: $scopeProvider, scopeResourceType: $scopeResourceType, scopeResourceId: $scopeResourceId, readyUserIds: $readyUserIds)';
+  return 'ResolveChatConversationPayload(type: $type, scopeKind: $scopeKind, scopeKey: $scopeKey, workspaceId: $workspaceId, projectId: $projectId, name: $name, directConversationKey: $directConversationKey, userIds: $userIds, discussionRootMessageId: $discussionRootMessageId, postingPermission: $postingPermission, scopeProvider: $scopeProvider, scopeResourceType: $scopeResourceType, scopeResourceId: $scopeResourceId)';
 }
 
 
@@ -273,7 +271,7 @@ abstract mixin class _$ResolveChatConversationPayloadCopyWith<$Res> implements $
   factory _$ResolveChatConversationPayloadCopyWith(_ResolveChatConversationPayload value, $Res Function(_ResolveChatConversationPayload) _then) = __$ResolveChatConversationPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- ChatConversationType type, ChatScopeKind scopeKind, String scopeKey, String? workspaceId, String? projectId, String? name, String? directConversationKey, List<String>? coreUserIds, String? discussionRootMessageId, String postingPermission, String? scopeProvider, String? scopeResourceType, String? scopeResourceId, List<int>? readyUserIds
+ ChatConversationType type, ChatScopeKind scopeKind, String scopeKey, String? workspaceId, String? projectId, String? name, String? directConversationKey, List<String>? userIds, String? discussionRootMessageId, String postingPermission, String? scopeProvider, String? scopeResourceType, String? scopeResourceId
 });
 
 
@@ -290,7 +288,7 @@ class __$ResolveChatConversationPayloadCopyWithImpl<$Res>
 
 /// Create a copy of ResolveChatConversationPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? scopeKind = null,Object? scopeKey = null,Object? workspaceId = freezed,Object? projectId = freezed,Object? name = freezed,Object? directConversationKey = freezed,Object? coreUserIds = freezed,Object? discussionRootMessageId = freezed,Object? postingPermission = null,Object? scopeProvider = freezed,Object? scopeResourceType = freezed,Object? scopeResourceId = freezed,Object? readyUserIds = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? scopeKind = null,Object? scopeKey = null,Object? workspaceId = freezed,Object? projectId = freezed,Object? name = freezed,Object? directConversationKey = freezed,Object? userIds = freezed,Object? discussionRootMessageId = freezed,Object? postingPermission = null,Object? scopeProvider = freezed,Object? scopeResourceType = freezed,Object? scopeResourceId = freezed,}) {
   return _then(_ResolveChatConversationPayload(
 type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ChatConversationType,scopeKind: null == scopeKind ? _self.scopeKind : scopeKind // ignore: cast_nullable_to_non_nullable
@@ -299,14 +297,13 @@ as String,workspaceId: freezed == workspaceId ? _self.workspaceId : workspaceId 
 as String?,projectId: freezed == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
 as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,directConversationKey: freezed == directConversationKey ? _self.directConversationKey : directConversationKey // ignore: cast_nullable_to_non_nullable
-as String?,coreUserIds: freezed == coreUserIds ? _self.coreUserIds : coreUserIds // ignore: cast_nullable_to_non_nullable
+as String?,userIds: freezed == userIds ? _self.userIds : userIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,discussionRootMessageId: freezed == discussionRootMessageId ? _self.discussionRootMessageId : discussionRootMessageId // ignore: cast_nullable_to_non_nullable
 as String?,postingPermission: null == postingPermission ? _self.postingPermission : postingPermission // ignore: cast_nullable_to_non_nullable
 as String,scopeProvider: freezed == scopeProvider ? _self.scopeProvider : scopeProvider // ignore: cast_nullable_to_non_nullable
 as String?,scopeResourceType: freezed == scopeResourceType ? _self.scopeResourceType : scopeResourceType // ignore: cast_nullable_to_non_nullable
 as String?,scopeResourceId: freezed == scopeResourceId ? _self.scopeResourceId : scopeResourceId // ignore: cast_nullable_to_non_nullable
-as String?,readyUserIds: freezed == readyUserIds ? _self.readyUserIds : readyUserIds // ignore: cast_nullable_to_non_nullable
-as List<int>?,
+as String?,
   ));
 }
 
@@ -879,7 +876,7 @@ as bool,
 /// @nodoc
 mixin _$AddChatMembersPayload {
 
- List<String>? get coreUserIds; List<int>? get readyUserIds;
+ List<String>? get userIds;
 /// Create a copy of AddChatMembersPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -892,16 +889,16 @@ $AddChatMembersPayloadCopyWith<AddChatMembersPayload> get copyWith => _$AddChatM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddChatMembersPayload&&const DeepCollectionEquality().equals(other.coreUserIds, coreUserIds)&&const DeepCollectionEquality().equals(other.readyUserIds, readyUserIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddChatMembersPayload&&const DeepCollectionEquality().equals(other.userIds, userIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(coreUserIds),const DeepCollectionEquality().hash(readyUserIds));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(userIds));
 
 @override
 String toString() {
-  return 'AddChatMembersPayload(coreUserIds: $coreUserIds, readyUserIds: $readyUserIds)';
+  return 'AddChatMembersPayload(userIds: $userIds)';
 }
 
 
@@ -912,7 +909,7 @@ abstract mixin class $AddChatMembersPayloadCopyWith<$Res>  {
   factory $AddChatMembersPayloadCopyWith(AddChatMembersPayload value, $Res Function(AddChatMembersPayload) _then) = _$AddChatMembersPayloadCopyWithImpl;
 @useResult
 $Res call({
- List<String>? coreUserIds, List<int>? readyUserIds
+ List<String>? userIds
 });
 
 
@@ -929,11 +926,10 @@ class _$AddChatMembersPayloadCopyWithImpl<$Res>
 
 /// Create a copy of AddChatMembersPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserIds = freezed,Object? readyUserIds = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userIds = freezed,}) {
   return _then(_self.copyWith(
-coreUserIds: freezed == coreUserIds ? _self.coreUserIds : coreUserIds // ignore: cast_nullable_to_non_nullable
-as List<String>?,readyUserIds: freezed == readyUserIds ? _self.readyUserIds : readyUserIds // ignore: cast_nullable_to_non_nullable
-as List<int>?,
+userIds: freezed == userIds ? _self.userIds : userIds // ignore: cast_nullable_to_non_nullable
+as List<String>?,
   ));
 }
 
@@ -1018,10 +1014,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String>? coreUserIds,  List<int>? readyUserIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String>? userIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AddChatMembersPayload() when $default != null:
-return $default(_that.coreUserIds,_that.readyUserIds);case _:
+return $default(_that.userIds);case _:
   return orElse();
 
 }
@@ -1039,10 +1035,10 @@ return $default(_that.coreUserIds,_that.readyUserIds);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String>? coreUserIds,  List<int>? readyUserIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String>? userIds)  $default,) {final _that = this;
 switch (_that) {
 case _AddChatMembersPayload():
-return $default(_that.coreUserIds,_that.readyUserIds);case _:
+return $default(_that.userIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1059,10 +1055,10 @@ return $default(_that.coreUserIds,_that.readyUserIds);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String>? coreUserIds,  List<int>? readyUserIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String>? userIds)?  $default,) {final _that = this;
 switch (_that) {
 case _AddChatMembersPayload() when $default != null:
-return $default(_that.coreUserIds,_that.readyUserIds);case _:
+return $default(_that.userIds);case _:
   return null;
 
 }
@@ -1074,11 +1070,10 @@ return $default(_that.coreUserIds,_that.readyUserIds);case _:
 @JsonSerializable()
 
 class _AddChatMembersPayload implements AddChatMembersPayload {
-  const _AddChatMembersPayload({this.coreUserIds, this.readyUserIds});
+  const _AddChatMembersPayload({this.userIds});
   factory _AddChatMembersPayload.fromJson(Map<String, dynamic> json) => _$AddChatMembersPayloadFromJson(json);
 
-@override final  List<String>? coreUserIds;
-@override final  List<int>? readyUserIds;
+@override final  List<String>? userIds;
 
 /// Create a copy of AddChatMembersPayload
 /// with the given fields replaced by the non-null parameter values.
@@ -1093,16 +1088,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AddChatMembersPayload&&const DeepCollectionEquality().equals(other.coreUserIds, coreUserIds)&&const DeepCollectionEquality().equals(other.readyUserIds, readyUserIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AddChatMembersPayload&&const DeepCollectionEquality().equals(other.userIds, userIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(coreUserIds),const DeepCollectionEquality().hash(readyUserIds));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(userIds));
 
 @override
 String toString() {
-  return 'AddChatMembersPayload(coreUserIds: $coreUserIds, readyUserIds: $readyUserIds)';
+  return 'AddChatMembersPayload(userIds: $userIds)';
 }
 
 
@@ -1113,7 +1108,7 @@ abstract mixin class _$AddChatMembersPayloadCopyWith<$Res> implements $AddChatMe
   factory _$AddChatMembersPayloadCopyWith(_AddChatMembersPayload value, $Res Function(_AddChatMembersPayload) _then) = __$AddChatMembersPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- List<String>? coreUserIds, List<int>? readyUserIds
+ List<String>? userIds
 });
 
 
@@ -1130,11 +1125,10 @@ class __$AddChatMembersPayloadCopyWithImpl<$Res>
 
 /// Create a copy of AddChatMembersPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserIds = freezed,Object? readyUserIds = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userIds = freezed,}) {
   return _then(_AddChatMembersPayload(
-coreUserIds: freezed == coreUserIds ? _self.coreUserIds : coreUserIds // ignore: cast_nullable_to_non_nullable
-as List<String>?,readyUserIds: freezed == readyUserIds ? _self.readyUserIds : readyUserIds // ignore: cast_nullable_to_non_nullable
-as List<int>?,
+userIds: freezed == userIds ? _self.userIds : userIds // ignore: cast_nullable_to_non_nullable
+as List<String>?,
   ));
 }
 
@@ -1408,7 +1402,7 @@ as String,
 /// @nodoc
 mixin _$ChatMemberResponse {
 
- String get coreUserId; String get role; DateTime get joinedAtUtc;
+ String get userId; String get role; DateTime get joinedAtUtc;
 /// Create a copy of ChatMemberResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1421,16 +1415,16 @@ $ChatMemberResponseCopyWith<ChatMemberResponse> get copyWith => _$ChatMemberResp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMemberResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedAtUtc, joinedAtUtc) || other.joinedAtUtc == joinedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMemberResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedAtUtc, joinedAtUtc) || other.joinedAtUtc == joinedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,role,joinedAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,role,joinedAtUtc);
 
 @override
 String toString() {
-  return 'ChatMemberResponse(coreUserId: $coreUserId, role: $role, joinedAtUtc: $joinedAtUtc)';
+  return 'ChatMemberResponse(userId: $userId, role: $role, joinedAtUtc: $joinedAtUtc)';
 }
 
 
@@ -1441,7 +1435,7 @@ abstract mixin class $ChatMemberResponseCopyWith<$Res>  {
   factory $ChatMemberResponseCopyWith(ChatMemberResponse value, $Res Function(ChatMemberResponse) _then) = _$ChatMemberResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, String role, DateTime joinedAtUtc
+ String userId, String role, DateTime joinedAtUtc
 });
 
 
@@ -1458,9 +1452,9 @@ class _$ChatMemberResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMemberResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? role = null,Object? joinedAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? role = null,Object? joinedAtUtc = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String,joinedAtUtc: null == joinedAtUtc ? _self.joinedAtUtc : joinedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -1548,10 +1542,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  String role,  DateTime joinedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String role,  DateTime joinedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatMemberResponse() when $default != null:
-return $default(_that.coreUserId,_that.role,_that.joinedAtUtc);case _:
+return $default(_that.userId,_that.role,_that.joinedAtUtc);case _:
   return orElse();
 
 }
@@ -1569,10 +1563,10 @@ return $default(_that.coreUserId,_that.role,_that.joinedAtUtc);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  String role,  DateTime joinedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String role,  DateTime joinedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ChatMemberResponse():
-return $default(_that.coreUserId,_that.role,_that.joinedAtUtc);case _:
+return $default(_that.userId,_that.role,_that.joinedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1589,10 +1583,10 @@ return $default(_that.coreUserId,_that.role,_that.joinedAtUtc);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  String role,  DateTime joinedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String role,  DateTime joinedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatMemberResponse() when $default != null:
-return $default(_that.coreUserId,_that.role,_that.joinedAtUtc);case _:
+return $default(_that.userId,_that.role,_that.joinedAtUtc);case _:
   return null;
 
 }
@@ -1604,10 +1598,10 @@ return $default(_that.coreUserId,_that.role,_that.joinedAtUtc);case _:
 @JsonSerializable()
 
 class _ChatMemberResponse implements ChatMemberResponse {
-  const _ChatMemberResponse({required this.coreUserId, required this.role, required this.joinedAtUtc});
+  const _ChatMemberResponse({required this.userId, required this.role, required this.joinedAtUtc});
   factory _ChatMemberResponse.fromJson(Map<String, dynamic> json) => _$ChatMemberResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  String role;
 @override final  DateTime joinedAtUtc;
 
@@ -1624,16 +1618,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMemberResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedAtUtc, joinedAtUtc) || other.joinedAtUtc == joinedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMemberResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedAtUtc, joinedAtUtc) || other.joinedAtUtc == joinedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,role,joinedAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,role,joinedAtUtc);
 
 @override
 String toString() {
-  return 'ChatMemberResponse(coreUserId: $coreUserId, role: $role, joinedAtUtc: $joinedAtUtc)';
+  return 'ChatMemberResponse(userId: $userId, role: $role, joinedAtUtc: $joinedAtUtc)';
 }
 
 
@@ -1644,7 +1638,7 @@ abstract mixin class _$ChatMemberResponseCopyWith<$Res> implements $ChatMemberRe
   factory _$ChatMemberResponseCopyWith(_ChatMemberResponse value, $Res Function(_ChatMemberResponse) _then) = __$ChatMemberResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, String role, DateTime joinedAtUtc
+ String userId, String role, DateTime joinedAtUtc
 });
 
 
@@ -1661,9 +1655,9 @@ class __$ChatMemberResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMemberResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? role = null,Object? joinedAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? role = null,Object? joinedAtUtc = null,}) {
   return _then(_ChatMemberResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String,joinedAtUtc: null == joinedAtUtc ? _self.joinedAtUtc : joinedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -1677,7 +1671,7 @@ as DateTime,
 /// @nodoc
 mixin _$ChatMentionSuggestionResponse {
 
- String get coreUserId; String get login; String get displayName; String? get avatarUrl;
+ String get userId; String get login; String get displayName; String? get avatarUrl;
 /// Create a copy of ChatMentionSuggestionResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1690,16 +1684,16 @@ $ChatMentionSuggestionResponseCopyWith<ChatMentionSuggestionResponse> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMentionSuggestionResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMentionSuggestionResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,login,displayName,avatarUrl);
+int get hashCode => Object.hash(runtimeType,userId,login,displayName,avatarUrl);
 
 @override
 String toString() {
-  return 'ChatMentionSuggestionResponse(coreUserId: $coreUserId, login: $login, displayName: $displayName, avatarUrl: $avatarUrl)';
+  return 'ChatMentionSuggestionResponse(userId: $userId, login: $login, displayName: $displayName, avatarUrl: $avatarUrl)';
 }
 
 
@@ -1710,7 +1704,7 @@ abstract mixin class $ChatMentionSuggestionResponseCopyWith<$Res>  {
   factory $ChatMentionSuggestionResponseCopyWith(ChatMentionSuggestionResponse value, $Res Function(ChatMentionSuggestionResponse) _then) = _$ChatMentionSuggestionResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, String login, String displayName, String? avatarUrl
+ String userId, String login, String displayName, String? avatarUrl
 });
 
 
@@ -1727,9 +1721,9 @@ class _$ChatMentionSuggestionResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMentionSuggestionResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? login = null,Object? displayName = null,Object? avatarUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? login = null,Object? displayName = null,Object? avatarUrl = freezed,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
@@ -1818,10 +1812,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  String login,  String displayName,  String? avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String login,  String displayName,  String? avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatMentionSuggestionResponse() when $default != null:
-return $default(_that.coreUserId,_that.login,_that.displayName,_that.avatarUrl);case _:
+return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case _:
   return orElse();
 
 }
@@ -1839,10 +1833,10 @@ return $default(_that.coreUserId,_that.login,_that.displayName,_that.avatarUrl);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  String login,  String displayName,  String? avatarUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String login,  String displayName,  String? avatarUrl)  $default,) {final _that = this;
 switch (_that) {
 case _ChatMentionSuggestionResponse():
-return $default(_that.coreUserId,_that.login,_that.displayName,_that.avatarUrl);case _:
+return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1859,10 +1853,10 @@ return $default(_that.coreUserId,_that.login,_that.displayName,_that.avatarUrl);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  String login,  String displayName,  String? avatarUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String login,  String displayName,  String? avatarUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatMentionSuggestionResponse() when $default != null:
-return $default(_that.coreUserId,_that.login,_that.displayName,_that.avatarUrl);case _:
+return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case _:
   return null;
 
 }
@@ -1874,10 +1868,10 @@ return $default(_that.coreUserId,_that.login,_that.displayName,_that.avatarUrl);
 @JsonSerializable()
 
 class _ChatMentionSuggestionResponse implements ChatMentionSuggestionResponse {
-  const _ChatMentionSuggestionResponse({required this.coreUserId, required this.login, required this.displayName, this.avatarUrl});
+  const _ChatMentionSuggestionResponse({required this.userId, required this.login, required this.displayName, this.avatarUrl});
   factory _ChatMentionSuggestionResponse.fromJson(Map<String, dynamic> json) => _$ChatMentionSuggestionResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  String login;
 @override final  String displayName;
 @override final  String? avatarUrl;
@@ -1895,16 +1889,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMentionSuggestionResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMentionSuggestionResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,login,displayName,avatarUrl);
+int get hashCode => Object.hash(runtimeType,userId,login,displayName,avatarUrl);
 
 @override
 String toString() {
-  return 'ChatMentionSuggestionResponse(coreUserId: $coreUserId, login: $login, displayName: $displayName, avatarUrl: $avatarUrl)';
+  return 'ChatMentionSuggestionResponse(userId: $userId, login: $login, displayName: $displayName, avatarUrl: $avatarUrl)';
 }
 
 
@@ -1915,7 +1909,7 @@ abstract mixin class _$ChatMentionSuggestionResponseCopyWith<$Res> implements $C
   factory _$ChatMentionSuggestionResponseCopyWith(_ChatMentionSuggestionResponse value, $Res Function(_ChatMentionSuggestionResponse) _then) = __$ChatMentionSuggestionResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, String login, String displayName, String? avatarUrl
+ String userId, String login, String displayName, String? avatarUrl
 });
 
 
@@ -1932,9 +1926,9 @@ class __$ChatMentionSuggestionResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMentionSuggestionResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? login = null,Object? displayName = null,Object? avatarUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? login = null,Object? displayName = null,Object? avatarUrl = freezed,}) {
   return _then(_ChatMentionSuggestionResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
@@ -2759,7 +2753,7 @@ as String,
 /// @nodoc
 mixin _$ChatMessageRevisionResponse {
 
- String get id; String get messageId; String get authorCoreUserId; String get editedByCoreUserId; String get text; String? get deltaJson; DateTime get createdAtUtc; int get version; int get newVersion;
+ String get id; String get messageId; String get authorUserId; String get editedByUserId; String get text; String? get deltaJson; DateTime get createdAtUtc; int get version; int get newVersion;
 /// Create a copy of ChatMessageRevisionResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2772,16 +2766,16 @@ $ChatMessageRevisionResponseCopyWith<ChatMessageRevisionResponse> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMessageRevisionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.authorCoreUserId, authorCoreUserId) || other.authorCoreUserId == authorCoreUserId)&&(identical(other.editedByCoreUserId, editedByCoreUserId) || other.editedByCoreUserId == editedByCoreUserId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.newVersion, newVersion) || other.newVersion == newVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMessageRevisionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.editedByUserId, editedByUserId) || other.editedByUserId == editedByUserId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.newVersion, newVersion) || other.newVersion == newVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,authorCoreUserId,editedByCoreUserId,text,deltaJson,createdAtUtc,version,newVersion);
+int get hashCode => Object.hash(runtimeType,id,messageId,authorUserId,editedByUserId,text,deltaJson,createdAtUtc,version,newVersion);
 
 @override
 String toString() {
-  return 'ChatMessageRevisionResponse(id: $id, messageId: $messageId, authorCoreUserId: $authorCoreUserId, editedByCoreUserId: $editedByCoreUserId, text: $text, deltaJson: $deltaJson, createdAtUtc: $createdAtUtc, version: $version, newVersion: $newVersion)';
+  return 'ChatMessageRevisionResponse(id: $id, messageId: $messageId, authorUserId: $authorUserId, editedByUserId: $editedByUserId, text: $text, deltaJson: $deltaJson, createdAtUtc: $createdAtUtc, version: $version, newVersion: $newVersion)';
 }
 
 
@@ -2792,7 +2786,7 @@ abstract mixin class $ChatMessageRevisionResponseCopyWith<$Res>  {
   factory $ChatMessageRevisionResponseCopyWith(ChatMessageRevisionResponse value, $Res Function(ChatMessageRevisionResponse) _then) = _$ChatMessageRevisionResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String messageId, String authorCoreUserId, String editedByCoreUserId, String text, String? deltaJson, DateTime createdAtUtc, int version, int newVersion
+ String id, String messageId, String authorUserId, String editedByUserId, String text, String? deltaJson, DateTime createdAtUtc, int version, int newVersion
 });
 
 
@@ -2809,12 +2803,12 @@ class _$ChatMessageRevisionResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMessageRevisionResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? authorCoreUserId = null,Object? editedByCoreUserId = null,Object? text = null,Object? deltaJson = freezed,Object? createdAtUtc = null,Object? version = null,Object? newVersion = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? authorUserId = null,Object? editedByUserId = null,Object? text = null,Object? deltaJson = freezed,Object? createdAtUtc = null,Object? version = null,Object? newVersion = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
-as String,authorCoreUserId: null == authorCoreUserId ? _self.authorCoreUserId : authorCoreUserId // ignore: cast_nullable_to_non_nullable
-as String,editedByCoreUserId: null == editedByCoreUserId ? _self.editedByCoreUserId : editedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,authorUserId: null == authorUserId ? _self.authorUserId : authorUserId // ignore: cast_nullable_to_non_nullable
+as String,editedByUserId: null == editedByUserId ? _self.editedByUserId : editedByUserId // ignore: cast_nullable_to_non_nullable
 as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,deltaJson: freezed == deltaJson ? _self.deltaJson : deltaJson // ignore: cast_nullable_to_non_nullable
 as String?,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
@@ -2905,10 +2899,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String authorCoreUserId,  String editedByCoreUserId,  String text,  String? deltaJson,  DateTime createdAtUtc,  int version,  int newVersion)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String authorUserId,  String editedByUserId,  String text,  String? deltaJson,  DateTime createdAtUtc,  int version,  int newVersion)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatMessageRevisionResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.authorCoreUserId,_that.editedByCoreUserId,_that.text,_that.deltaJson,_that.createdAtUtc,_that.version,_that.newVersion);case _:
+return $default(_that.id,_that.messageId,_that.authorUserId,_that.editedByUserId,_that.text,_that.deltaJson,_that.createdAtUtc,_that.version,_that.newVersion);case _:
   return orElse();
 
 }
@@ -2926,10 +2920,10 @@ return $default(_that.id,_that.messageId,_that.authorCoreUserId,_that.editedByCo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String authorCoreUserId,  String editedByCoreUserId,  String text,  String? deltaJson,  DateTime createdAtUtc,  int version,  int newVersion)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String authorUserId,  String editedByUserId,  String text,  String? deltaJson,  DateTime createdAtUtc,  int version,  int newVersion)  $default,) {final _that = this;
 switch (_that) {
 case _ChatMessageRevisionResponse():
-return $default(_that.id,_that.messageId,_that.authorCoreUserId,_that.editedByCoreUserId,_that.text,_that.deltaJson,_that.createdAtUtc,_that.version,_that.newVersion);case _:
+return $default(_that.id,_that.messageId,_that.authorUserId,_that.editedByUserId,_that.text,_that.deltaJson,_that.createdAtUtc,_that.version,_that.newVersion);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2946,10 +2940,10 @@ return $default(_that.id,_that.messageId,_that.authorCoreUserId,_that.editedByCo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String authorCoreUserId,  String editedByCoreUserId,  String text,  String? deltaJson,  DateTime createdAtUtc,  int version,  int newVersion)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String authorUserId,  String editedByUserId,  String text,  String? deltaJson,  DateTime createdAtUtc,  int version,  int newVersion)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatMessageRevisionResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.authorCoreUserId,_that.editedByCoreUserId,_that.text,_that.deltaJson,_that.createdAtUtc,_that.version,_that.newVersion);case _:
+return $default(_that.id,_that.messageId,_that.authorUserId,_that.editedByUserId,_that.text,_that.deltaJson,_that.createdAtUtc,_that.version,_that.newVersion);case _:
   return null;
 
 }
@@ -2961,13 +2955,13 @@ return $default(_that.id,_that.messageId,_that.authorCoreUserId,_that.editedByCo
 @JsonSerializable()
 
 class _ChatMessageRevisionResponse implements ChatMessageRevisionResponse {
-  const _ChatMessageRevisionResponse({required this.id, required this.messageId, required this.authorCoreUserId, required this.editedByCoreUserId, required this.text, this.deltaJson, required this.createdAtUtc, required this.version, required this.newVersion});
+  const _ChatMessageRevisionResponse({required this.id, required this.messageId, required this.authorUserId, required this.editedByUserId, required this.text, this.deltaJson, required this.createdAtUtc, required this.version, required this.newVersion});
   factory _ChatMessageRevisionResponse.fromJson(Map<String, dynamic> json) => _$ChatMessageRevisionResponseFromJson(json);
 
 @override final  String id;
 @override final  String messageId;
-@override final  String authorCoreUserId;
-@override final  String editedByCoreUserId;
+@override final  String authorUserId;
+@override final  String editedByUserId;
 @override final  String text;
 @override final  String? deltaJson;
 @override final  DateTime createdAtUtc;
@@ -2987,16 +2981,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMessageRevisionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.authorCoreUserId, authorCoreUserId) || other.authorCoreUserId == authorCoreUserId)&&(identical(other.editedByCoreUserId, editedByCoreUserId) || other.editedByCoreUserId == editedByCoreUserId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.newVersion, newVersion) || other.newVersion == newVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMessageRevisionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.editedByUserId, editedByUserId) || other.editedByUserId == editedByUserId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.newVersion, newVersion) || other.newVersion == newVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,authorCoreUserId,editedByCoreUserId,text,deltaJson,createdAtUtc,version,newVersion);
+int get hashCode => Object.hash(runtimeType,id,messageId,authorUserId,editedByUserId,text,deltaJson,createdAtUtc,version,newVersion);
 
 @override
 String toString() {
-  return 'ChatMessageRevisionResponse(id: $id, messageId: $messageId, authorCoreUserId: $authorCoreUserId, editedByCoreUserId: $editedByCoreUserId, text: $text, deltaJson: $deltaJson, createdAtUtc: $createdAtUtc, version: $version, newVersion: $newVersion)';
+  return 'ChatMessageRevisionResponse(id: $id, messageId: $messageId, authorUserId: $authorUserId, editedByUserId: $editedByUserId, text: $text, deltaJson: $deltaJson, createdAtUtc: $createdAtUtc, version: $version, newVersion: $newVersion)';
 }
 
 
@@ -3007,7 +3001,7 @@ abstract mixin class _$ChatMessageRevisionResponseCopyWith<$Res> implements $Cha
   factory _$ChatMessageRevisionResponseCopyWith(_ChatMessageRevisionResponse value, $Res Function(_ChatMessageRevisionResponse) _then) = __$ChatMessageRevisionResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String messageId, String authorCoreUserId, String editedByCoreUserId, String text, String? deltaJson, DateTime createdAtUtc, int version, int newVersion
+ String id, String messageId, String authorUserId, String editedByUserId, String text, String? deltaJson, DateTime createdAtUtc, int version, int newVersion
 });
 
 
@@ -3024,12 +3018,12 @@ class __$ChatMessageRevisionResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMessageRevisionResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? authorCoreUserId = null,Object? editedByCoreUserId = null,Object? text = null,Object? deltaJson = freezed,Object? createdAtUtc = null,Object? version = null,Object? newVersion = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? authorUserId = null,Object? editedByUserId = null,Object? text = null,Object? deltaJson = freezed,Object? createdAtUtc = null,Object? version = null,Object? newVersion = null,}) {
   return _then(_ChatMessageRevisionResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
-as String,authorCoreUserId: null == authorCoreUserId ? _self.authorCoreUserId : authorCoreUserId // ignore: cast_nullable_to_non_nullable
-as String,editedByCoreUserId: null == editedByCoreUserId ? _self.editedByCoreUserId : editedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,authorUserId: null == authorUserId ? _self.authorUserId : authorUserId // ignore: cast_nullable_to_non_nullable
+as String,editedByUserId: null == editedByUserId ? _self.editedByUserId : editedByUserId // ignore: cast_nullable_to_non_nullable
 as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,deltaJson: freezed == deltaJson ? _self.deltaJson : deltaJson // ignore: cast_nullable_to_non_nullable
 as String?,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
@@ -4702,7 +4696,7 @@ as bool,
 /// @nodoc
 mixin _$ChatMessageResponse {
 
- String get id; String get conversationId; String get authorCoreUserId; String get clientMessageId; String get text; String? get deltaJson; String? get replyToMessageId; String get payloadHash; int get version; DateTime get createdAtUtc; bool get isDeleted; List<ChatLinkResponse>? get links; List<ChatReactionSummaryResponse>? get reactions; List<ChatAttachmentResponse>? get attachments; String? get threadRootMessageId; bool get isEdited; DateTime? get deletedAtUtc;
+ String get id; String get conversationId; String get authorUserId; String get clientMessageId; String get text; String? get deltaJson; String? get replyToMessageId; String get payloadHash; int get version; DateTime get createdAtUtc; bool get isDeleted; List<ChatLinkResponse>? get links; List<ChatReactionSummaryResponse>? get reactions; List<ChatAttachmentResponse>? get attachments; String? get threadRootMessageId; bool get isEdited; DateTime? get deletedAtUtc;
 /// Create a copy of ChatMessageResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4715,16 +4709,16 @@ $ChatMessageResponseCopyWith<ChatMessageResponse> get copyWith => _$ChatMessageR
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorCoreUserId, authorCoreUserId) || other.authorCoreUserId == authorCoreUserId)&&(identical(other.clientMessageId, clientMessageId) || other.clientMessageId == clientMessageId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.payloadHash, payloadHash) || other.payloadHash == payloadHash)&&(identical(other.version, version) || other.version == version)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.links, links)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.threadRootMessageId, threadRootMessageId) || other.threadRootMessageId == threadRootMessageId)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.clientMessageId, clientMessageId) || other.clientMessageId == clientMessageId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.payloadHash, payloadHash) || other.payloadHash == payloadHash)&&(identical(other.version, version) || other.version == version)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.links, links)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.threadRootMessageId, threadRootMessageId) || other.threadRootMessageId == threadRootMessageId)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,conversationId,authorCoreUserId,clientMessageId,text,deltaJson,replyToMessageId,payloadHash,version,createdAtUtc,isDeleted,const DeepCollectionEquality().hash(links),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(attachments),threadRootMessageId,isEdited,deletedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,conversationId,authorUserId,clientMessageId,text,deltaJson,replyToMessageId,payloadHash,version,createdAtUtc,isDeleted,const DeepCollectionEquality().hash(links),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(attachments),threadRootMessageId,isEdited,deletedAtUtc);
 
 @override
 String toString() {
-  return 'ChatMessageResponse(id: $id, conversationId: $conversationId, authorCoreUserId: $authorCoreUserId, clientMessageId: $clientMessageId, text: $text, deltaJson: $deltaJson, replyToMessageId: $replyToMessageId, payloadHash: $payloadHash, version: $version, createdAtUtc: $createdAtUtc, isDeleted: $isDeleted, links: $links, reactions: $reactions, attachments: $attachments, threadRootMessageId: $threadRootMessageId, isEdited: $isEdited, deletedAtUtc: $deletedAtUtc)';
+  return 'ChatMessageResponse(id: $id, conversationId: $conversationId, authorUserId: $authorUserId, clientMessageId: $clientMessageId, text: $text, deltaJson: $deltaJson, replyToMessageId: $replyToMessageId, payloadHash: $payloadHash, version: $version, createdAtUtc: $createdAtUtc, isDeleted: $isDeleted, links: $links, reactions: $reactions, attachments: $attachments, threadRootMessageId: $threadRootMessageId, isEdited: $isEdited, deletedAtUtc: $deletedAtUtc)';
 }
 
 
@@ -4735,7 +4729,7 @@ abstract mixin class $ChatMessageResponseCopyWith<$Res>  {
   factory $ChatMessageResponseCopyWith(ChatMessageResponse value, $Res Function(ChatMessageResponse) _then) = _$ChatMessageResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String conversationId, String authorCoreUserId, String clientMessageId, String text, String? deltaJson, String? replyToMessageId, String payloadHash, int version, DateTime createdAtUtc, bool isDeleted, List<ChatLinkResponse>? links, List<ChatReactionSummaryResponse>? reactions, List<ChatAttachmentResponse>? attachments, String? threadRootMessageId, bool isEdited, DateTime? deletedAtUtc
+ String id, String conversationId, String authorUserId, String clientMessageId, String text, String? deltaJson, String? replyToMessageId, String payloadHash, int version, DateTime createdAtUtc, bool isDeleted, List<ChatLinkResponse>? links, List<ChatReactionSummaryResponse>? reactions, List<ChatAttachmentResponse>? attachments, String? threadRootMessageId, bool isEdited, DateTime? deletedAtUtc
 });
 
 
@@ -4752,11 +4746,11 @@ class _$ChatMessageResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMessageResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? authorCoreUserId = null,Object? clientMessageId = null,Object? text = null,Object? deltaJson = freezed,Object? replyToMessageId = freezed,Object? payloadHash = null,Object? version = null,Object? createdAtUtc = null,Object? isDeleted = null,Object? links = freezed,Object? reactions = freezed,Object? attachments = freezed,Object? threadRootMessageId = freezed,Object? isEdited = null,Object? deletedAtUtc = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? authorUserId = null,Object? clientMessageId = null,Object? text = null,Object? deltaJson = freezed,Object? replyToMessageId = freezed,Object? payloadHash = null,Object? version = null,Object? createdAtUtc = null,Object? isDeleted = null,Object? links = freezed,Object? reactions = freezed,Object? attachments = freezed,Object? threadRootMessageId = freezed,Object? isEdited = null,Object? deletedAtUtc = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,authorCoreUserId: null == authorCoreUserId ? _self.authorCoreUserId : authorCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,authorUserId: null == authorUserId ? _self.authorUserId : authorUserId // ignore: cast_nullable_to_non_nullable
 as String,clientMessageId: null == clientMessageId ? _self.clientMessageId : clientMessageId // ignore: cast_nullable_to_non_nullable
 as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,deltaJson: freezed == deltaJson ? _self.deltaJson : deltaJson // ignore: cast_nullable_to_non_nullable
@@ -4856,10 +4850,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String conversationId,  String authorCoreUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatMessageResponse() when $default != null:
-return $default(_that.id,_that.conversationId,_that.authorCoreUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
   return orElse();
 
 }
@@ -4877,10 +4871,10 @@ return $default(_that.id,_that.conversationId,_that.authorCoreUserId,_that.clien
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String conversationId,  String authorCoreUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ChatMessageResponse():
-return $default(_that.id,_that.conversationId,_that.authorCoreUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4897,10 +4891,10 @@ return $default(_that.id,_that.conversationId,_that.authorCoreUserId,_that.clien
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String conversationId,  String authorCoreUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatMessageResponse() when $default != null:
-return $default(_that.id,_that.conversationId,_that.authorCoreUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
   return null;
 
 }
@@ -4912,12 +4906,12 @@ return $default(_that.id,_that.conversationId,_that.authorCoreUserId,_that.clien
 @JsonSerializable()
 
 class _ChatMessageResponse implements ChatMessageResponse {
-  const _ChatMessageResponse({required this.id, required this.conversationId, required this.authorCoreUserId, required this.clientMessageId, required this.text, this.deltaJson, this.replyToMessageId, required this.payloadHash, required this.version, required this.createdAtUtc, required this.isDeleted, this.links, this.reactions, this.attachments, this.threadRootMessageId, this.isEdited = false, this.deletedAtUtc});
+  const _ChatMessageResponse({required this.id, required this.conversationId, required this.authorUserId, required this.clientMessageId, required this.text, this.deltaJson, this.replyToMessageId, required this.payloadHash, required this.version, required this.createdAtUtc, required this.isDeleted, this.links, this.reactions, this.attachments, this.threadRootMessageId, this.isEdited = false, this.deletedAtUtc});
   factory _ChatMessageResponse.fromJson(Map<String, dynamic> json) => _$ChatMessageResponseFromJson(json);
 
 @override final  String id;
 @override final  String conversationId;
-@override final  String authorCoreUserId;
+@override final  String authorUserId;
 @override final  String clientMessageId;
 @override final  String text;
 @override final  String? deltaJson;
@@ -4946,16 +4940,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorCoreUserId, authorCoreUserId) || other.authorCoreUserId == authorCoreUserId)&&(identical(other.clientMessageId, clientMessageId) || other.clientMessageId == clientMessageId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.payloadHash, payloadHash) || other.payloadHash == payloadHash)&&(identical(other.version, version) || other.version == version)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.links, links)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.threadRootMessageId, threadRootMessageId) || other.threadRootMessageId == threadRootMessageId)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.clientMessageId, clientMessageId) || other.clientMessageId == clientMessageId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.payloadHash, payloadHash) || other.payloadHash == payloadHash)&&(identical(other.version, version) || other.version == version)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.links, links)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.threadRootMessageId, threadRootMessageId) || other.threadRootMessageId == threadRootMessageId)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,conversationId,authorCoreUserId,clientMessageId,text,deltaJson,replyToMessageId,payloadHash,version,createdAtUtc,isDeleted,const DeepCollectionEquality().hash(links),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(attachments),threadRootMessageId,isEdited,deletedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,conversationId,authorUserId,clientMessageId,text,deltaJson,replyToMessageId,payloadHash,version,createdAtUtc,isDeleted,const DeepCollectionEquality().hash(links),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(attachments),threadRootMessageId,isEdited,deletedAtUtc);
 
 @override
 String toString() {
-  return 'ChatMessageResponse(id: $id, conversationId: $conversationId, authorCoreUserId: $authorCoreUserId, clientMessageId: $clientMessageId, text: $text, deltaJson: $deltaJson, replyToMessageId: $replyToMessageId, payloadHash: $payloadHash, version: $version, createdAtUtc: $createdAtUtc, isDeleted: $isDeleted, links: $links, reactions: $reactions, attachments: $attachments, threadRootMessageId: $threadRootMessageId, isEdited: $isEdited, deletedAtUtc: $deletedAtUtc)';
+  return 'ChatMessageResponse(id: $id, conversationId: $conversationId, authorUserId: $authorUserId, clientMessageId: $clientMessageId, text: $text, deltaJson: $deltaJson, replyToMessageId: $replyToMessageId, payloadHash: $payloadHash, version: $version, createdAtUtc: $createdAtUtc, isDeleted: $isDeleted, links: $links, reactions: $reactions, attachments: $attachments, threadRootMessageId: $threadRootMessageId, isEdited: $isEdited, deletedAtUtc: $deletedAtUtc)';
 }
 
 
@@ -4966,7 +4960,7 @@ abstract mixin class _$ChatMessageResponseCopyWith<$Res> implements $ChatMessage
   factory _$ChatMessageResponseCopyWith(_ChatMessageResponse value, $Res Function(_ChatMessageResponse) _then) = __$ChatMessageResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String conversationId, String authorCoreUserId, String clientMessageId, String text, String? deltaJson, String? replyToMessageId, String payloadHash, int version, DateTime createdAtUtc, bool isDeleted, List<ChatLinkResponse>? links, List<ChatReactionSummaryResponse>? reactions, List<ChatAttachmentResponse>? attachments, String? threadRootMessageId, bool isEdited, DateTime? deletedAtUtc
+ String id, String conversationId, String authorUserId, String clientMessageId, String text, String? deltaJson, String? replyToMessageId, String payloadHash, int version, DateTime createdAtUtc, bool isDeleted, List<ChatLinkResponse>? links, List<ChatReactionSummaryResponse>? reactions, List<ChatAttachmentResponse>? attachments, String? threadRootMessageId, bool isEdited, DateTime? deletedAtUtc
 });
 
 
@@ -4983,11 +4977,11 @@ class __$ChatMessageResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMessageResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? authorCoreUserId = null,Object? clientMessageId = null,Object? text = null,Object? deltaJson = freezed,Object? replyToMessageId = freezed,Object? payloadHash = null,Object? version = null,Object? createdAtUtc = null,Object? isDeleted = null,Object? links = freezed,Object? reactions = freezed,Object? attachments = freezed,Object? threadRootMessageId = freezed,Object? isEdited = null,Object? deletedAtUtc = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? authorUserId = null,Object? clientMessageId = null,Object? text = null,Object? deltaJson = freezed,Object? replyToMessageId = freezed,Object? payloadHash = null,Object? version = null,Object? createdAtUtc = null,Object? isDeleted = null,Object? links = freezed,Object? reactions = freezed,Object? attachments = freezed,Object? threadRootMessageId = freezed,Object? isEdited = null,Object? deletedAtUtc = freezed,}) {
   return _then(_ChatMessageResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,authorCoreUserId: null == authorCoreUserId ? _self.authorCoreUserId : authorCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,authorUserId: null == authorUserId ? _self.authorUserId : authorUserId // ignore: cast_nullable_to_non_nullable
 as String,clientMessageId: null == clientMessageId ? _self.clientMessageId : clientMessageId // ignore: cast_nullable_to_non_nullable
 as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,deltaJson: freezed == deltaJson ? _self.deltaJson : deltaJson // ignore: cast_nullable_to_non_nullable
@@ -5282,7 +5276,7 @@ as DateTime,
 /// @nodoc
 mixin _$ChatMessageDeliveryResponse {
 
- String get messageId; String get recipientCoreUserId; String? get deviceId; ChatMessageDeliveryStatus get status; DateTime get updatedAtUtc; String? get lastError;
+ String get messageId; String get recipientUserId; String? get deviceId; ChatMessageDeliveryStatus get status; DateTime get updatedAtUtc; String? get lastError;
 /// Create a copy of ChatMessageDeliveryResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -5295,16 +5289,16 @@ $ChatMessageDeliveryResponseCopyWith<ChatMessageDeliveryResponse> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMessageDeliveryResponse&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.recipientCoreUserId, recipientCoreUserId) || other.recipientCoreUserId == recipientCoreUserId)&&(identical(other.deviceId, deviceId) || other.deviceId == deviceId)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.lastError, lastError) || other.lastError == lastError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMessageDeliveryResponse&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.recipientUserId, recipientUserId) || other.recipientUserId == recipientUserId)&&(identical(other.deviceId, deviceId) || other.deviceId == deviceId)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.lastError, lastError) || other.lastError == lastError));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,messageId,recipientCoreUserId,deviceId,status,updatedAtUtc,lastError);
+int get hashCode => Object.hash(runtimeType,messageId,recipientUserId,deviceId,status,updatedAtUtc,lastError);
 
 @override
 String toString() {
-  return 'ChatMessageDeliveryResponse(messageId: $messageId, recipientCoreUserId: $recipientCoreUserId, deviceId: $deviceId, status: $status, updatedAtUtc: $updatedAtUtc, lastError: $lastError)';
+  return 'ChatMessageDeliveryResponse(messageId: $messageId, recipientUserId: $recipientUserId, deviceId: $deviceId, status: $status, updatedAtUtc: $updatedAtUtc, lastError: $lastError)';
 }
 
 
@@ -5315,7 +5309,7 @@ abstract mixin class $ChatMessageDeliveryResponseCopyWith<$Res>  {
   factory $ChatMessageDeliveryResponseCopyWith(ChatMessageDeliveryResponse value, $Res Function(ChatMessageDeliveryResponse) _then) = _$ChatMessageDeliveryResponseCopyWithImpl;
 @useResult
 $Res call({
- String messageId, String recipientCoreUserId, String? deviceId, ChatMessageDeliveryStatus status, DateTime updatedAtUtc, String? lastError
+ String messageId, String recipientUserId, String? deviceId, ChatMessageDeliveryStatus status, DateTime updatedAtUtc, String? lastError
 });
 
 
@@ -5332,10 +5326,10 @@ class _$ChatMessageDeliveryResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMessageDeliveryResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? messageId = null,Object? recipientCoreUserId = null,Object? deviceId = freezed,Object? status = null,Object? updatedAtUtc = null,Object? lastError = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? messageId = null,Object? recipientUserId = null,Object? deviceId = freezed,Object? status = null,Object? updatedAtUtc = null,Object? lastError = freezed,}) {
   return _then(_self.copyWith(
 messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
-as String,recipientCoreUserId: null == recipientCoreUserId ? _self.recipientCoreUserId : recipientCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,recipientUserId: null == recipientUserId ? _self.recipientUserId : recipientUserId // ignore: cast_nullable_to_non_nullable
 as String,deviceId: freezed == deviceId ? _self.deviceId : deviceId // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ChatMessageDeliveryStatus,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
@@ -5425,10 +5419,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String messageId,  String recipientCoreUserId,  String? deviceId,  ChatMessageDeliveryStatus status,  DateTime updatedAtUtc,  String? lastError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String messageId,  String recipientUserId,  String? deviceId,  ChatMessageDeliveryStatus status,  DateTime updatedAtUtc,  String? lastError)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatMessageDeliveryResponse() when $default != null:
-return $default(_that.messageId,_that.recipientCoreUserId,_that.deviceId,_that.status,_that.updatedAtUtc,_that.lastError);case _:
+return $default(_that.messageId,_that.recipientUserId,_that.deviceId,_that.status,_that.updatedAtUtc,_that.lastError);case _:
   return orElse();
 
 }
@@ -5446,10 +5440,10 @@ return $default(_that.messageId,_that.recipientCoreUserId,_that.deviceId,_that.s
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String messageId,  String recipientCoreUserId,  String? deviceId,  ChatMessageDeliveryStatus status,  DateTime updatedAtUtc,  String? lastError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String messageId,  String recipientUserId,  String? deviceId,  ChatMessageDeliveryStatus status,  DateTime updatedAtUtc,  String? lastError)  $default,) {final _that = this;
 switch (_that) {
 case _ChatMessageDeliveryResponse():
-return $default(_that.messageId,_that.recipientCoreUserId,_that.deviceId,_that.status,_that.updatedAtUtc,_that.lastError);case _:
+return $default(_that.messageId,_that.recipientUserId,_that.deviceId,_that.status,_that.updatedAtUtc,_that.lastError);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -5466,10 +5460,10 @@ return $default(_that.messageId,_that.recipientCoreUserId,_that.deviceId,_that.s
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String messageId,  String recipientCoreUserId,  String? deviceId,  ChatMessageDeliveryStatus status,  DateTime updatedAtUtc,  String? lastError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String messageId,  String recipientUserId,  String? deviceId,  ChatMessageDeliveryStatus status,  DateTime updatedAtUtc,  String? lastError)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatMessageDeliveryResponse() when $default != null:
-return $default(_that.messageId,_that.recipientCoreUserId,_that.deviceId,_that.status,_that.updatedAtUtc,_that.lastError);case _:
+return $default(_that.messageId,_that.recipientUserId,_that.deviceId,_that.status,_that.updatedAtUtc,_that.lastError);case _:
   return null;
 
 }
@@ -5481,11 +5475,11 @@ return $default(_that.messageId,_that.recipientCoreUserId,_that.deviceId,_that.s
 @JsonSerializable()
 
 class _ChatMessageDeliveryResponse implements ChatMessageDeliveryResponse {
-  const _ChatMessageDeliveryResponse({required this.messageId, required this.recipientCoreUserId, this.deviceId, required this.status, required this.updatedAtUtc, this.lastError});
+  const _ChatMessageDeliveryResponse({required this.messageId, required this.recipientUserId, this.deviceId, required this.status, required this.updatedAtUtc, this.lastError});
   factory _ChatMessageDeliveryResponse.fromJson(Map<String, dynamic> json) => _$ChatMessageDeliveryResponseFromJson(json);
 
 @override final  String messageId;
-@override final  String recipientCoreUserId;
+@override final  String recipientUserId;
 @override final  String? deviceId;
 @override final  ChatMessageDeliveryStatus status;
 @override final  DateTime updatedAtUtc;
@@ -5504,16 +5498,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMessageDeliveryResponse&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.recipientCoreUserId, recipientCoreUserId) || other.recipientCoreUserId == recipientCoreUserId)&&(identical(other.deviceId, deviceId) || other.deviceId == deviceId)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.lastError, lastError) || other.lastError == lastError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMessageDeliveryResponse&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.recipientUserId, recipientUserId) || other.recipientUserId == recipientUserId)&&(identical(other.deviceId, deviceId) || other.deviceId == deviceId)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.lastError, lastError) || other.lastError == lastError));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,messageId,recipientCoreUserId,deviceId,status,updatedAtUtc,lastError);
+int get hashCode => Object.hash(runtimeType,messageId,recipientUserId,deviceId,status,updatedAtUtc,lastError);
 
 @override
 String toString() {
-  return 'ChatMessageDeliveryResponse(messageId: $messageId, recipientCoreUserId: $recipientCoreUserId, deviceId: $deviceId, status: $status, updatedAtUtc: $updatedAtUtc, lastError: $lastError)';
+  return 'ChatMessageDeliveryResponse(messageId: $messageId, recipientUserId: $recipientUserId, deviceId: $deviceId, status: $status, updatedAtUtc: $updatedAtUtc, lastError: $lastError)';
 }
 
 
@@ -5524,7 +5518,7 @@ abstract mixin class _$ChatMessageDeliveryResponseCopyWith<$Res> implements $Cha
   factory _$ChatMessageDeliveryResponseCopyWith(_ChatMessageDeliveryResponse value, $Res Function(_ChatMessageDeliveryResponse) _then) = __$ChatMessageDeliveryResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String messageId, String recipientCoreUserId, String? deviceId, ChatMessageDeliveryStatus status, DateTime updatedAtUtc, String? lastError
+ String messageId, String recipientUserId, String? deviceId, ChatMessageDeliveryStatus status, DateTime updatedAtUtc, String? lastError
 });
 
 
@@ -5541,10 +5535,10 @@ class __$ChatMessageDeliveryResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMessageDeliveryResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? messageId = null,Object? recipientCoreUserId = null,Object? deviceId = freezed,Object? status = null,Object? updatedAtUtc = null,Object? lastError = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? messageId = null,Object? recipientUserId = null,Object? deviceId = freezed,Object? status = null,Object? updatedAtUtc = null,Object? lastError = freezed,}) {
   return _then(_ChatMessageDeliveryResponse(
 messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
-as String,recipientCoreUserId: null == recipientCoreUserId ? _self.recipientCoreUserId : recipientCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,recipientUserId: null == recipientUserId ? _self.recipientUserId : recipientUserId // ignore: cast_nullable_to_non_nullable
 as String,deviceId: freezed == deviceId ? _self.deviceId : deviceId // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ChatMessageDeliveryStatus,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
@@ -5823,7 +5817,7 @@ as String,
 /// @nodoc
 mixin _$ChatReactionResponse {
 
- String get id; String get messageId; String get coreUserId; String get emoji; DateTime get createdAtUtc;
+ String get id; String get messageId; String get userId; String get emoji; DateTime get createdAtUtc;
 /// Create a copy of ChatReactionResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -5836,16 +5830,16 @@ $ChatReactionResponseCopyWith<ChatReactionResponse> get copyWith => _$ChatReacti
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatReactionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatReactionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,coreUserId,emoji,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,messageId,userId,emoji,createdAtUtc);
 
 @override
 String toString() {
-  return 'ChatReactionResponse(id: $id, messageId: $messageId, coreUserId: $coreUserId, emoji: $emoji, createdAtUtc: $createdAtUtc)';
+  return 'ChatReactionResponse(id: $id, messageId: $messageId, userId: $userId, emoji: $emoji, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -5856,7 +5850,7 @@ abstract mixin class $ChatReactionResponseCopyWith<$Res>  {
   factory $ChatReactionResponseCopyWith(ChatReactionResponse value, $Res Function(ChatReactionResponse) _then) = _$ChatReactionResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String messageId, String coreUserId, String emoji, DateTime createdAtUtc
+ String id, String messageId, String userId, String emoji, DateTime createdAtUtc
 });
 
 
@@ -5873,11 +5867,11 @@ class _$ChatReactionResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatReactionResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? coreUserId = null,Object? emoji = null,Object? createdAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? userId = null,Object? emoji = null,Object? createdAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,emoji: null == emoji ? _self.emoji : emoji // ignore: cast_nullable_to_non_nullable
 as String,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -5965,10 +5959,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String coreUserId,  String emoji,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String userId,  String emoji,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatReactionResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.coreUserId,_that.emoji,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.userId,_that.emoji,_that.createdAtUtc);case _:
   return orElse();
 
 }
@@ -5986,10 +5980,10 @@ return $default(_that.id,_that.messageId,_that.coreUserId,_that.emoji,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String coreUserId,  String emoji,  DateTime createdAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String userId,  String emoji,  DateTime createdAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ChatReactionResponse():
-return $default(_that.id,_that.messageId,_that.coreUserId,_that.emoji,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.userId,_that.emoji,_that.createdAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -6006,10 +6000,10 @@ return $default(_that.id,_that.messageId,_that.coreUserId,_that.emoji,_that.crea
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String coreUserId,  String emoji,  DateTime createdAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String userId,  String emoji,  DateTime createdAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatReactionResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.coreUserId,_that.emoji,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.userId,_that.emoji,_that.createdAtUtc);case _:
   return null;
 
 }
@@ -6021,12 +6015,12 @@ return $default(_that.id,_that.messageId,_that.coreUserId,_that.emoji,_that.crea
 @JsonSerializable()
 
 class _ChatReactionResponse implements ChatReactionResponse {
-  const _ChatReactionResponse({required this.id, required this.messageId, required this.coreUserId, required this.emoji, required this.createdAtUtc});
+  const _ChatReactionResponse({required this.id, required this.messageId, required this.userId, required this.emoji, required this.createdAtUtc});
   factory _ChatReactionResponse.fromJson(Map<String, dynamic> json) => _$ChatReactionResponseFromJson(json);
 
 @override final  String id;
 @override final  String messageId;
-@override final  String coreUserId;
+@override final  String userId;
 @override final  String emoji;
 @override final  DateTime createdAtUtc;
 
@@ -6043,16 +6037,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatReactionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatReactionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,coreUserId,emoji,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,messageId,userId,emoji,createdAtUtc);
 
 @override
 String toString() {
-  return 'ChatReactionResponse(id: $id, messageId: $messageId, coreUserId: $coreUserId, emoji: $emoji, createdAtUtc: $createdAtUtc)';
+  return 'ChatReactionResponse(id: $id, messageId: $messageId, userId: $userId, emoji: $emoji, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -6063,7 +6057,7 @@ abstract mixin class _$ChatReactionResponseCopyWith<$Res> implements $ChatReacti
   factory _$ChatReactionResponseCopyWith(_ChatReactionResponse value, $Res Function(_ChatReactionResponse) _then) = __$ChatReactionResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String messageId, String coreUserId, String emoji, DateTime createdAtUtc
+ String id, String messageId, String userId, String emoji, DateTime createdAtUtc
 });
 
 
@@ -6080,11 +6074,11 @@ class __$ChatReactionResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatReactionResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? coreUserId = null,Object? emoji = null,Object? createdAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? userId = null,Object? emoji = null,Object? createdAtUtc = null,}) {
   return _then(_ChatReactionResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,emoji: null == emoji ? _self.emoji : emoji // ignore: cast_nullable_to_non_nullable
 as String,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -6899,7 +6893,7 @@ as String?,
 /// @nodoc
 mixin _$ChatPlacementResponse {
 
- String get id; String get conversationId; String get provider; String get resourceType; String get resourceId; String? get label; String? get deepLink; String get createdByCoreUserId; DateTime get createdAtUtc;
+ String get id; String get conversationId; String get provider; String get resourceType; String get resourceId; String? get label; String? get deepLink; String get createdByUserId; DateTime get createdAtUtc;
 /// Create a copy of ChatPlacementResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -6912,16 +6906,16 @@ $ChatPlacementResponseCopyWith<ChatPlacementResponse> get copyWith => _$ChatPlac
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatPlacementResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.resourceType, resourceType) || other.resourceType == resourceType)&&(identical(other.resourceId, resourceId) || other.resourceId == resourceId)&&(identical(other.label, label) || other.label == label)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.createdByCoreUserId, createdByCoreUserId) || other.createdByCoreUserId == createdByCoreUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatPlacementResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.resourceType, resourceType) || other.resourceType == resourceType)&&(identical(other.resourceId, resourceId) || other.resourceId == resourceId)&&(identical(other.label, label) || other.label == label)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,conversationId,provider,resourceType,resourceId,label,deepLink,createdByCoreUserId,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,conversationId,provider,resourceType,resourceId,label,deepLink,createdByUserId,createdAtUtc);
 
 @override
 String toString() {
-  return 'ChatPlacementResponse(id: $id, conversationId: $conversationId, provider: $provider, resourceType: $resourceType, resourceId: $resourceId, label: $label, deepLink: $deepLink, createdByCoreUserId: $createdByCoreUserId, createdAtUtc: $createdAtUtc)';
+  return 'ChatPlacementResponse(id: $id, conversationId: $conversationId, provider: $provider, resourceType: $resourceType, resourceId: $resourceId, label: $label, deepLink: $deepLink, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -6932,7 +6926,7 @@ abstract mixin class $ChatPlacementResponseCopyWith<$Res>  {
   factory $ChatPlacementResponseCopyWith(ChatPlacementResponse value, $Res Function(ChatPlacementResponse) _then) = _$ChatPlacementResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String conversationId, String provider, String resourceType, String resourceId, String? label, String? deepLink, String createdByCoreUserId, DateTime createdAtUtc
+ String id, String conversationId, String provider, String resourceType, String resourceId, String? label, String? deepLink, String createdByUserId, DateTime createdAtUtc
 });
 
 
@@ -6949,7 +6943,7 @@ class _$ChatPlacementResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatPlacementResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? provider = null,Object? resourceType = null,Object? resourceId = null,Object? label = freezed,Object? deepLink = freezed,Object? createdByCoreUserId = null,Object? createdAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? provider = null,Object? resourceType = null,Object? resourceId = null,Object? label = freezed,Object? deepLink = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
@@ -6958,7 +6952,7 @@ as String,resourceType: null == resourceType ? _self.resourceType : resourceType
 as String,resourceId: null == resourceId ? _self.resourceId : resourceId // ignore: cast_nullable_to_non_nullable
 as String,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String?,deepLink: freezed == deepLink ? _self.deepLink : deepLink // ignore: cast_nullable_to_non_nullable
-as String?,createdByCoreUserId: null == createdByCoreUserId ? _self.createdByCoreUserId : createdByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String?,createdByUserId: null == createdByUserId ? _self.createdByUserId : createdByUserId // ignore: cast_nullable_to_non_nullable
 as String,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -7045,10 +7039,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String conversationId,  String provider,  String resourceType,  String resourceId,  String? label,  String? deepLink,  String createdByCoreUserId,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String conversationId,  String provider,  String resourceType,  String resourceId,  String? label,  String? deepLink,  String createdByUserId,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatPlacementResponse() when $default != null:
-return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,_that.resourceId,_that.label,_that.deepLink,_that.createdByCoreUserId,_that.createdAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,_that.resourceId,_that.label,_that.deepLink,_that.createdByUserId,_that.createdAtUtc);case _:
   return orElse();
 
 }
@@ -7066,10 +7060,10 @@ return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String conversationId,  String provider,  String resourceType,  String resourceId,  String? label,  String? deepLink,  String createdByCoreUserId,  DateTime createdAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String conversationId,  String provider,  String resourceType,  String resourceId,  String? label,  String? deepLink,  String createdByUserId,  DateTime createdAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ChatPlacementResponse():
-return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,_that.resourceId,_that.label,_that.deepLink,_that.createdByCoreUserId,_that.createdAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,_that.resourceId,_that.label,_that.deepLink,_that.createdByUserId,_that.createdAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -7086,10 +7080,10 @@ return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String conversationId,  String provider,  String resourceType,  String resourceId,  String? label,  String? deepLink,  String createdByCoreUserId,  DateTime createdAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String conversationId,  String provider,  String resourceType,  String resourceId,  String? label,  String? deepLink,  String createdByUserId,  DateTime createdAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatPlacementResponse() when $default != null:
-return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,_that.resourceId,_that.label,_that.deepLink,_that.createdByCoreUserId,_that.createdAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,_that.resourceId,_that.label,_that.deepLink,_that.createdByUserId,_that.createdAtUtc);case _:
   return null;
 
 }
@@ -7101,7 +7095,7 @@ return $default(_that.id,_that.conversationId,_that.provider,_that.resourceType,
 @JsonSerializable()
 
 class _ChatPlacementResponse implements ChatPlacementResponse {
-  const _ChatPlacementResponse({required this.id, required this.conversationId, required this.provider, required this.resourceType, required this.resourceId, this.label, this.deepLink, required this.createdByCoreUserId, required this.createdAtUtc});
+  const _ChatPlacementResponse({required this.id, required this.conversationId, required this.provider, required this.resourceType, required this.resourceId, this.label, this.deepLink, required this.createdByUserId, required this.createdAtUtc});
   factory _ChatPlacementResponse.fromJson(Map<String, dynamic> json) => _$ChatPlacementResponseFromJson(json);
 
 @override final  String id;
@@ -7111,7 +7105,7 @@ class _ChatPlacementResponse implements ChatPlacementResponse {
 @override final  String resourceId;
 @override final  String? label;
 @override final  String? deepLink;
-@override final  String createdByCoreUserId;
+@override final  String createdByUserId;
 @override final  DateTime createdAtUtc;
 
 /// Create a copy of ChatPlacementResponse
@@ -7127,16 +7121,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatPlacementResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.resourceType, resourceType) || other.resourceType == resourceType)&&(identical(other.resourceId, resourceId) || other.resourceId == resourceId)&&(identical(other.label, label) || other.label == label)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.createdByCoreUserId, createdByCoreUserId) || other.createdByCoreUserId == createdByCoreUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatPlacementResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.resourceType, resourceType) || other.resourceType == resourceType)&&(identical(other.resourceId, resourceId) || other.resourceId == resourceId)&&(identical(other.label, label) || other.label == label)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,conversationId,provider,resourceType,resourceId,label,deepLink,createdByCoreUserId,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,conversationId,provider,resourceType,resourceId,label,deepLink,createdByUserId,createdAtUtc);
 
 @override
 String toString() {
-  return 'ChatPlacementResponse(id: $id, conversationId: $conversationId, provider: $provider, resourceType: $resourceType, resourceId: $resourceId, label: $label, deepLink: $deepLink, createdByCoreUserId: $createdByCoreUserId, createdAtUtc: $createdAtUtc)';
+  return 'ChatPlacementResponse(id: $id, conversationId: $conversationId, provider: $provider, resourceType: $resourceType, resourceId: $resourceId, label: $label, deepLink: $deepLink, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -7147,7 +7141,7 @@ abstract mixin class _$ChatPlacementResponseCopyWith<$Res> implements $ChatPlace
   factory _$ChatPlacementResponseCopyWith(_ChatPlacementResponse value, $Res Function(_ChatPlacementResponse) _then) = __$ChatPlacementResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String conversationId, String provider, String resourceType, String resourceId, String? label, String? deepLink, String createdByCoreUserId, DateTime createdAtUtc
+ String id, String conversationId, String provider, String resourceType, String resourceId, String? label, String? deepLink, String createdByUserId, DateTime createdAtUtc
 });
 
 
@@ -7164,7 +7158,7 @@ class __$ChatPlacementResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatPlacementResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? provider = null,Object? resourceType = null,Object? resourceId = null,Object? label = freezed,Object? deepLink = freezed,Object? createdByCoreUserId = null,Object? createdAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? provider = null,Object? resourceType = null,Object? resourceId = null,Object? label = freezed,Object? deepLink = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,}) {
   return _then(_ChatPlacementResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
@@ -7173,7 +7167,7 @@ as String,resourceType: null == resourceType ? _self.resourceType : resourceType
 as String,resourceId: null == resourceId ? _self.resourceId : resourceId // ignore: cast_nullable_to_non_nullable
 as String,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String?,deepLink: freezed == deepLink ? _self.deepLink : deepLink // ignore: cast_nullable_to_non_nullable
-as String?,createdByCoreUserId: null == createdByCoreUserId ? _self.createdByCoreUserId : createdByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String?,createdByUserId: null == createdByUserId ? _self.createdByUserId : createdByUserId // ignore: cast_nullable_to_non_nullable
 as String,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -7458,7 +7452,7 @@ as bool,
 /// @nodoc
 mixin _$ChatUserStatusResponse {
 
- String get coreUserId; String? get emoji; String? get text; DateTime? get expiresAtUtc; bool get isDnd; DateTime get updatedAtUtc;
+ String get userId; String? get emoji; String? get text; DateTime? get expiresAtUtc; bool get isDnd; DateTime get updatedAtUtc;
 /// Create a copy of ChatUserStatusResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -7471,16 +7465,16 @@ $ChatUserStatusResponseCopyWith<ChatUserStatusResponse> get copyWith => _$ChatUs
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatUserStatusResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.text, text) || other.text == text)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.isDnd, isDnd) || other.isDnd == isDnd)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatUserStatusResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.text, text) || other.text == text)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.isDnd, isDnd) || other.isDnd == isDnd)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,emoji,text,expiresAtUtc,isDnd,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,emoji,text,expiresAtUtc,isDnd,updatedAtUtc);
 
 @override
 String toString() {
-  return 'ChatUserStatusResponse(coreUserId: $coreUserId, emoji: $emoji, text: $text, expiresAtUtc: $expiresAtUtc, isDnd: $isDnd, updatedAtUtc: $updatedAtUtc)';
+  return 'ChatUserStatusResponse(userId: $userId, emoji: $emoji, text: $text, expiresAtUtc: $expiresAtUtc, isDnd: $isDnd, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -7491,7 +7485,7 @@ abstract mixin class $ChatUserStatusResponseCopyWith<$Res>  {
   factory $ChatUserStatusResponseCopyWith(ChatUserStatusResponse value, $Res Function(ChatUserStatusResponse) _then) = _$ChatUserStatusResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, String? emoji, String? text, DateTime? expiresAtUtc, bool isDnd, DateTime updatedAtUtc
+ String userId, String? emoji, String? text, DateTime? expiresAtUtc, bool isDnd, DateTime updatedAtUtc
 });
 
 
@@ -7508,9 +7502,9 @@ class _$ChatUserStatusResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatUserStatusResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? emoji = freezed,Object? text = freezed,Object? expiresAtUtc = freezed,Object? isDnd = null,Object? updatedAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? emoji = freezed,Object? text = freezed,Object? expiresAtUtc = freezed,Object? isDnd = null,Object? updatedAtUtc = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,emoji: freezed == emoji ? _self.emoji : emoji // ignore: cast_nullable_to_non_nullable
 as String?,text: freezed == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String?,expiresAtUtc: freezed == expiresAtUtc ? _self.expiresAtUtc : expiresAtUtc // ignore: cast_nullable_to_non_nullable
@@ -7601,10 +7595,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  String? emoji,  String? text,  DateTime? expiresAtUtc,  bool isDnd,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String? emoji,  String? text,  DateTime? expiresAtUtc,  bool isDnd,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatUserStatusResponse() when $default != null:
-return $default(_that.coreUserId,_that.emoji,_that.text,_that.expiresAtUtc,_that.isDnd,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.emoji,_that.text,_that.expiresAtUtc,_that.isDnd,_that.updatedAtUtc);case _:
   return orElse();
 
 }
@@ -7622,10 +7616,10 @@ return $default(_that.coreUserId,_that.emoji,_that.text,_that.expiresAtUtc,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  String? emoji,  String? text,  DateTime? expiresAtUtc,  bool isDnd,  DateTime updatedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String? emoji,  String? text,  DateTime? expiresAtUtc,  bool isDnd,  DateTime updatedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ChatUserStatusResponse():
-return $default(_that.coreUserId,_that.emoji,_that.text,_that.expiresAtUtc,_that.isDnd,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.emoji,_that.text,_that.expiresAtUtc,_that.isDnd,_that.updatedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -7642,10 +7636,10 @@ return $default(_that.coreUserId,_that.emoji,_that.text,_that.expiresAtUtc,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  String? emoji,  String? text,  DateTime? expiresAtUtc,  bool isDnd,  DateTime updatedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String? emoji,  String? text,  DateTime? expiresAtUtc,  bool isDnd,  DateTime updatedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatUserStatusResponse() when $default != null:
-return $default(_that.coreUserId,_that.emoji,_that.text,_that.expiresAtUtc,_that.isDnd,_that.updatedAtUtc);case _:
+return $default(_that.userId,_that.emoji,_that.text,_that.expiresAtUtc,_that.isDnd,_that.updatedAtUtc);case _:
   return null;
 
 }
@@ -7657,10 +7651,10 @@ return $default(_that.coreUserId,_that.emoji,_that.text,_that.expiresAtUtc,_that
 @JsonSerializable()
 
 class _ChatUserStatusResponse implements ChatUserStatusResponse {
-  const _ChatUserStatusResponse({required this.coreUserId, this.emoji, this.text, this.expiresAtUtc, required this.isDnd, required this.updatedAtUtc});
+  const _ChatUserStatusResponse({required this.userId, this.emoji, this.text, this.expiresAtUtc, required this.isDnd, required this.updatedAtUtc});
   factory _ChatUserStatusResponse.fromJson(Map<String, dynamic> json) => _$ChatUserStatusResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  String? emoji;
 @override final  String? text;
 @override final  DateTime? expiresAtUtc;
@@ -7680,16 +7674,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatUserStatusResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.text, text) || other.text == text)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.isDnd, isDnd) || other.isDnd == isDnd)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatUserStatusResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.text, text) || other.text == text)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.isDnd, isDnd) || other.isDnd == isDnd)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,emoji,text,expiresAtUtc,isDnd,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,userId,emoji,text,expiresAtUtc,isDnd,updatedAtUtc);
 
 @override
 String toString() {
-  return 'ChatUserStatusResponse(coreUserId: $coreUserId, emoji: $emoji, text: $text, expiresAtUtc: $expiresAtUtc, isDnd: $isDnd, updatedAtUtc: $updatedAtUtc)';
+  return 'ChatUserStatusResponse(userId: $userId, emoji: $emoji, text: $text, expiresAtUtc: $expiresAtUtc, isDnd: $isDnd, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -7700,7 +7694,7 @@ abstract mixin class _$ChatUserStatusResponseCopyWith<$Res> implements $ChatUser
   factory _$ChatUserStatusResponseCopyWith(_ChatUserStatusResponse value, $Res Function(_ChatUserStatusResponse) _then) = __$ChatUserStatusResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, String? emoji, String? text, DateTime? expiresAtUtc, bool isDnd, DateTime updatedAtUtc
+ String userId, String? emoji, String? text, DateTime? expiresAtUtc, bool isDnd, DateTime updatedAtUtc
 });
 
 
@@ -7717,9 +7711,9 @@ class __$ChatUserStatusResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatUserStatusResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? emoji = freezed,Object? text = freezed,Object? expiresAtUtc = freezed,Object? isDnd = null,Object? updatedAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? emoji = freezed,Object? text = freezed,Object? expiresAtUtc = freezed,Object? isDnd = null,Object? updatedAtUtc = null,}) {
   return _then(_ChatUserStatusResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,emoji: freezed == emoji ? _self.emoji : emoji // ignore: cast_nullable_to_non_nullable
 as String?,text: freezed == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String?,expiresAtUtc: freezed == expiresAtUtc ? _self.expiresAtUtc : expiresAtUtc // ignore: cast_nullable_to_non_nullable
@@ -7736,7 +7730,7 @@ as DateTime,
 /// @nodoc
 mixin _$ChatUserNotificationPreferenceResponse {
 
- String get coreUserId; bool get inAppEnabled; bool get emailEnabled; bool get pushEnabled; bool get digestEnabled;
+ String get userId; bool get inAppEnabled; bool get emailEnabled; bool get pushEnabled; bool get digestEnabled;
 /// Create a copy of ChatUserNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -7749,16 +7743,16 @@ $ChatUserNotificationPreferenceResponseCopyWith<ChatUserNotificationPreferenceRe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatUserNotificationPreferenceResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.inAppEnabled, inAppEnabled) || other.inAppEnabled == inAppEnabled)&&(identical(other.emailEnabled, emailEnabled) || other.emailEnabled == emailEnabled)&&(identical(other.pushEnabled, pushEnabled) || other.pushEnabled == pushEnabled)&&(identical(other.digestEnabled, digestEnabled) || other.digestEnabled == digestEnabled));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatUserNotificationPreferenceResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.inAppEnabled, inAppEnabled) || other.inAppEnabled == inAppEnabled)&&(identical(other.emailEnabled, emailEnabled) || other.emailEnabled == emailEnabled)&&(identical(other.pushEnabled, pushEnabled) || other.pushEnabled == pushEnabled)&&(identical(other.digestEnabled, digestEnabled) || other.digestEnabled == digestEnabled));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,inAppEnabled,emailEnabled,pushEnabled,digestEnabled);
+int get hashCode => Object.hash(runtimeType,userId,inAppEnabled,emailEnabled,pushEnabled,digestEnabled);
 
 @override
 String toString() {
-  return 'ChatUserNotificationPreferenceResponse(coreUserId: $coreUserId, inAppEnabled: $inAppEnabled, emailEnabled: $emailEnabled, pushEnabled: $pushEnabled, digestEnabled: $digestEnabled)';
+  return 'ChatUserNotificationPreferenceResponse(userId: $userId, inAppEnabled: $inAppEnabled, emailEnabled: $emailEnabled, pushEnabled: $pushEnabled, digestEnabled: $digestEnabled)';
 }
 
 
@@ -7769,7 +7763,7 @@ abstract mixin class $ChatUserNotificationPreferenceResponseCopyWith<$Res>  {
   factory $ChatUserNotificationPreferenceResponseCopyWith(ChatUserNotificationPreferenceResponse value, $Res Function(ChatUserNotificationPreferenceResponse) _then) = _$ChatUserNotificationPreferenceResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, bool inAppEnabled, bool emailEnabled, bool pushEnabled, bool digestEnabled
+ String userId, bool inAppEnabled, bool emailEnabled, bool pushEnabled, bool digestEnabled
 });
 
 
@@ -7786,9 +7780,9 @@ class _$ChatUserNotificationPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatUserNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? inAppEnabled = null,Object? emailEnabled = null,Object? pushEnabled = null,Object? digestEnabled = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? inAppEnabled = null,Object? emailEnabled = null,Object? pushEnabled = null,Object? digestEnabled = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,inAppEnabled: null == inAppEnabled ? _self.inAppEnabled : inAppEnabled // ignore: cast_nullable_to_non_nullable
 as bool,emailEnabled: null == emailEnabled ? _self.emailEnabled : emailEnabled // ignore: cast_nullable_to_non_nullable
 as bool,pushEnabled: null == pushEnabled ? _self.pushEnabled : pushEnabled // ignore: cast_nullable_to_non_nullable
@@ -7878,10 +7872,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  bool inAppEnabled,  bool emailEnabled,  bool pushEnabled,  bool digestEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  bool inAppEnabled,  bool emailEnabled,  bool pushEnabled,  bool digestEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatUserNotificationPreferenceResponse() when $default != null:
-return $default(_that.coreUserId,_that.inAppEnabled,_that.emailEnabled,_that.pushEnabled,_that.digestEnabled);case _:
+return $default(_that.userId,_that.inAppEnabled,_that.emailEnabled,_that.pushEnabled,_that.digestEnabled);case _:
   return orElse();
 
 }
@@ -7899,10 +7893,10 @@ return $default(_that.coreUserId,_that.inAppEnabled,_that.emailEnabled,_that.pus
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  bool inAppEnabled,  bool emailEnabled,  bool pushEnabled,  bool digestEnabled)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  bool inAppEnabled,  bool emailEnabled,  bool pushEnabled,  bool digestEnabled)  $default,) {final _that = this;
 switch (_that) {
 case _ChatUserNotificationPreferenceResponse():
-return $default(_that.coreUserId,_that.inAppEnabled,_that.emailEnabled,_that.pushEnabled,_that.digestEnabled);case _:
+return $default(_that.userId,_that.inAppEnabled,_that.emailEnabled,_that.pushEnabled,_that.digestEnabled);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -7919,10 +7913,10 @@ return $default(_that.coreUserId,_that.inAppEnabled,_that.emailEnabled,_that.pus
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  bool inAppEnabled,  bool emailEnabled,  bool pushEnabled,  bool digestEnabled)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  bool inAppEnabled,  bool emailEnabled,  bool pushEnabled,  bool digestEnabled)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatUserNotificationPreferenceResponse() when $default != null:
-return $default(_that.coreUserId,_that.inAppEnabled,_that.emailEnabled,_that.pushEnabled,_that.digestEnabled);case _:
+return $default(_that.userId,_that.inAppEnabled,_that.emailEnabled,_that.pushEnabled,_that.digestEnabled);case _:
   return null;
 
 }
@@ -7934,10 +7928,10 @@ return $default(_that.coreUserId,_that.inAppEnabled,_that.emailEnabled,_that.pus
 @JsonSerializable()
 
 class _ChatUserNotificationPreferenceResponse implements ChatUserNotificationPreferenceResponse {
-  const _ChatUserNotificationPreferenceResponse({required this.coreUserId, required this.inAppEnabled, required this.emailEnabled, required this.pushEnabled, required this.digestEnabled});
+  const _ChatUserNotificationPreferenceResponse({required this.userId, required this.inAppEnabled, required this.emailEnabled, required this.pushEnabled, required this.digestEnabled});
   factory _ChatUserNotificationPreferenceResponse.fromJson(Map<String, dynamic> json) => _$ChatUserNotificationPreferenceResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  bool inAppEnabled;
 @override final  bool emailEnabled;
 @override final  bool pushEnabled;
@@ -7956,16 +7950,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatUserNotificationPreferenceResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.inAppEnabled, inAppEnabled) || other.inAppEnabled == inAppEnabled)&&(identical(other.emailEnabled, emailEnabled) || other.emailEnabled == emailEnabled)&&(identical(other.pushEnabled, pushEnabled) || other.pushEnabled == pushEnabled)&&(identical(other.digestEnabled, digestEnabled) || other.digestEnabled == digestEnabled));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatUserNotificationPreferenceResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.inAppEnabled, inAppEnabled) || other.inAppEnabled == inAppEnabled)&&(identical(other.emailEnabled, emailEnabled) || other.emailEnabled == emailEnabled)&&(identical(other.pushEnabled, pushEnabled) || other.pushEnabled == pushEnabled)&&(identical(other.digestEnabled, digestEnabled) || other.digestEnabled == digestEnabled));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,inAppEnabled,emailEnabled,pushEnabled,digestEnabled);
+int get hashCode => Object.hash(runtimeType,userId,inAppEnabled,emailEnabled,pushEnabled,digestEnabled);
 
 @override
 String toString() {
-  return 'ChatUserNotificationPreferenceResponse(coreUserId: $coreUserId, inAppEnabled: $inAppEnabled, emailEnabled: $emailEnabled, pushEnabled: $pushEnabled, digestEnabled: $digestEnabled)';
+  return 'ChatUserNotificationPreferenceResponse(userId: $userId, inAppEnabled: $inAppEnabled, emailEnabled: $emailEnabled, pushEnabled: $pushEnabled, digestEnabled: $digestEnabled)';
 }
 
 
@@ -7976,7 +7970,7 @@ abstract mixin class _$ChatUserNotificationPreferenceResponseCopyWith<$Res> impl
   factory _$ChatUserNotificationPreferenceResponseCopyWith(_ChatUserNotificationPreferenceResponse value, $Res Function(_ChatUserNotificationPreferenceResponse) _then) = __$ChatUserNotificationPreferenceResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, bool inAppEnabled, bool emailEnabled, bool pushEnabled, bool digestEnabled
+ String userId, bool inAppEnabled, bool emailEnabled, bool pushEnabled, bool digestEnabled
 });
 
 
@@ -7993,9 +7987,9 @@ class __$ChatUserNotificationPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatUserNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? inAppEnabled = null,Object? emailEnabled = null,Object? pushEnabled = null,Object? digestEnabled = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? inAppEnabled = null,Object? emailEnabled = null,Object? pushEnabled = null,Object? digestEnabled = null,}) {
   return _then(_ChatUserNotificationPreferenceResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,inAppEnabled: null == inAppEnabled ? _self.inAppEnabled : inAppEnabled // ignore: cast_nullable_to_non_nullable
 as bool,emailEnabled: null == emailEnabled ? _self.emailEnabled : emailEnabled // ignore: cast_nullable_to_non_nullable
 as bool,pushEnabled: null == pushEnabled ? _self.pushEnabled : pushEnabled // ignore: cast_nullable_to_non_nullable
@@ -8283,7 +8277,7 @@ as bool?,
 /// @nodoc
 mixin _$ChatNotificationPreferenceResponse {
 
- String get conversationId; String get coreUserId; ChatNotificationPreference get preference;
+ String get conversationId; String get userId; ChatNotificationPreference get preference;
 /// Create a copy of ChatNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -8296,16 +8290,16 @@ $ChatNotificationPreferenceResponseCopyWith<ChatNotificationPreferenceResponse> 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatNotificationPreferenceResponse&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.preference, preference) || other.preference == preference));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatNotificationPreferenceResponse&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.preference, preference) || other.preference == preference));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,conversationId,coreUserId,preference);
+int get hashCode => Object.hash(runtimeType,conversationId,userId,preference);
 
 @override
 String toString() {
-  return 'ChatNotificationPreferenceResponse(conversationId: $conversationId, coreUserId: $coreUserId, preference: $preference)';
+  return 'ChatNotificationPreferenceResponse(conversationId: $conversationId, userId: $userId, preference: $preference)';
 }
 
 
@@ -8316,7 +8310,7 @@ abstract mixin class $ChatNotificationPreferenceResponseCopyWith<$Res>  {
   factory $ChatNotificationPreferenceResponseCopyWith(ChatNotificationPreferenceResponse value, $Res Function(ChatNotificationPreferenceResponse) _then) = _$ChatNotificationPreferenceResponseCopyWithImpl;
 @useResult
 $Res call({
- String conversationId, String coreUserId, ChatNotificationPreference preference
+ String conversationId, String userId, ChatNotificationPreference preference
 });
 
 
@@ -8333,10 +8327,10 @@ class _$ChatNotificationPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? conversationId = null,Object? coreUserId = null,Object? preference = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? conversationId = null,Object? userId = null,Object? preference = null,}) {
   return _then(_self.copyWith(
 conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,preference: null == preference ? _self.preference : preference // ignore: cast_nullable_to_non_nullable
 as ChatNotificationPreference,
   ));
@@ -8423,10 +8417,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String conversationId,  String coreUserId,  ChatNotificationPreference preference)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String conversationId,  String userId,  ChatNotificationPreference preference)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatNotificationPreferenceResponse() when $default != null:
-return $default(_that.conversationId,_that.coreUserId,_that.preference);case _:
+return $default(_that.conversationId,_that.userId,_that.preference);case _:
   return orElse();
 
 }
@@ -8444,10 +8438,10 @@ return $default(_that.conversationId,_that.coreUserId,_that.preference);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String conversationId,  String coreUserId,  ChatNotificationPreference preference)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String conversationId,  String userId,  ChatNotificationPreference preference)  $default,) {final _that = this;
 switch (_that) {
 case _ChatNotificationPreferenceResponse():
-return $default(_that.conversationId,_that.coreUserId,_that.preference);case _:
+return $default(_that.conversationId,_that.userId,_that.preference);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -8464,10 +8458,10 @@ return $default(_that.conversationId,_that.coreUserId,_that.preference);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String conversationId,  String coreUserId,  ChatNotificationPreference preference)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String conversationId,  String userId,  ChatNotificationPreference preference)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatNotificationPreferenceResponse() when $default != null:
-return $default(_that.conversationId,_that.coreUserId,_that.preference);case _:
+return $default(_that.conversationId,_that.userId,_that.preference);case _:
   return null;
 
 }
@@ -8479,11 +8473,11 @@ return $default(_that.conversationId,_that.coreUserId,_that.preference);case _:
 @JsonSerializable()
 
 class _ChatNotificationPreferenceResponse implements ChatNotificationPreferenceResponse {
-  const _ChatNotificationPreferenceResponse({required this.conversationId, required this.coreUserId, required this.preference});
+  const _ChatNotificationPreferenceResponse({required this.conversationId, required this.userId, required this.preference});
   factory _ChatNotificationPreferenceResponse.fromJson(Map<String, dynamic> json) => _$ChatNotificationPreferenceResponseFromJson(json);
 
 @override final  String conversationId;
-@override final  String coreUserId;
+@override final  String userId;
 @override final  ChatNotificationPreference preference;
 
 /// Create a copy of ChatNotificationPreferenceResponse
@@ -8499,16 +8493,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatNotificationPreferenceResponse&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.preference, preference) || other.preference == preference));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatNotificationPreferenceResponse&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.preference, preference) || other.preference == preference));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,conversationId,coreUserId,preference);
+int get hashCode => Object.hash(runtimeType,conversationId,userId,preference);
 
 @override
 String toString() {
-  return 'ChatNotificationPreferenceResponse(conversationId: $conversationId, coreUserId: $coreUserId, preference: $preference)';
+  return 'ChatNotificationPreferenceResponse(conversationId: $conversationId, userId: $userId, preference: $preference)';
 }
 
 
@@ -8519,7 +8513,7 @@ abstract mixin class _$ChatNotificationPreferenceResponseCopyWith<$Res> implemen
   factory _$ChatNotificationPreferenceResponseCopyWith(_ChatNotificationPreferenceResponse value, $Res Function(_ChatNotificationPreferenceResponse) _then) = __$ChatNotificationPreferenceResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String conversationId, String coreUserId, ChatNotificationPreference preference
+ String conversationId, String userId, ChatNotificationPreference preference
 });
 
 
@@ -8536,10 +8530,10 @@ class __$ChatNotificationPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatNotificationPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? conversationId = null,Object? coreUserId = null,Object? preference = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? conversationId = null,Object? userId = null,Object? preference = null,}) {
   return _then(_ChatNotificationPreferenceResponse(
 conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,preference: null == preference ? _self.preference : preference // ignore: cast_nullable_to_non_nullable
 as ChatNotificationPreference,
   ));
@@ -9081,7 +9075,7 @@ as int,
 /// @nodoc
 mixin _$ChatAttachmentResponse {
 
- String get id; String get messageId; String get storageFileId; String get attachedByCoreUserId; int get position; DateTime get createdAtUtc;
+ String get id; String get messageId; String get storageFileId; String get attachedByUserId; int get position; DateTime get createdAtUtc;
 /// Create a copy of ChatAttachmentResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -9094,16 +9088,16 @@ $ChatAttachmentResponseCopyWith<ChatAttachmentResponse> get copyWith => _$ChatAt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatAttachmentResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.storageFileId, storageFileId) || other.storageFileId == storageFileId)&&(identical(other.attachedByCoreUserId, attachedByCoreUserId) || other.attachedByCoreUserId == attachedByCoreUserId)&&(identical(other.position, position) || other.position == position)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatAttachmentResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.storageFileId, storageFileId) || other.storageFileId == storageFileId)&&(identical(other.attachedByUserId, attachedByUserId) || other.attachedByUserId == attachedByUserId)&&(identical(other.position, position) || other.position == position)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,storageFileId,attachedByCoreUserId,position,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,messageId,storageFileId,attachedByUserId,position,createdAtUtc);
 
 @override
 String toString() {
-  return 'ChatAttachmentResponse(id: $id, messageId: $messageId, storageFileId: $storageFileId, attachedByCoreUserId: $attachedByCoreUserId, position: $position, createdAtUtc: $createdAtUtc)';
+  return 'ChatAttachmentResponse(id: $id, messageId: $messageId, storageFileId: $storageFileId, attachedByUserId: $attachedByUserId, position: $position, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -9114,7 +9108,7 @@ abstract mixin class $ChatAttachmentResponseCopyWith<$Res>  {
   factory $ChatAttachmentResponseCopyWith(ChatAttachmentResponse value, $Res Function(ChatAttachmentResponse) _then) = _$ChatAttachmentResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String messageId, String storageFileId, String attachedByCoreUserId, int position, DateTime createdAtUtc
+ String id, String messageId, String storageFileId, String attachedByUserId, int position, DateTime createdAtUtc
 });
 
 
@@ -9131,12 +9125,12 @@ class _$ChatAttachmentResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatAttachmentResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? storageFileId = null,Object? attachedByCoreUserId = null,Object? position = null,Object? createdAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? storageFileId = null,Object? attachedByUserId = null,Object? position = null,Object? createdAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
 as String,storageFileId: null == storageFileId ? _self.storageFileId : storageFileId // ignore: cast_nullable_to_non_nullable
-as String,attachedByCoreUserId: null == attachedByCoreUserId ? _self.attachedByCoreUserId : attachedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,attachedByUserId: null == attachedByUserId ? _self.attachedByUserId : attachedByUserId // ignore: cast_nullable_to_non_nullable
 as String,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -9224,10 +9218,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String storageFileId,  String attachedByCoreUserId,  int position,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatAttachmentResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByCoreUserId,_that.position,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc);case _:
   return orElse();
 
 }
@@ -9245,10 +9239,10 @@ return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByCor
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String storageFileId,  String attachedByCoreUserId,  int position,  DateTime createdAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ChatAttachmentResponse():
-return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByCoreUserId,_that.position,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -9265,10 +9259,10 @@ return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByCor
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String storageFileId,  String attachedByCoreUserId,  int position,  DateTime createdAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatAttachmentResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByCoreUserId,_that.position,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc);case _:
   return null;
 
 }
@@ -9280,13 +9274,13 @@ return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByCor
 @JsonSerializable()
 
 class _ChatAttachmentResponse implements ChatAttachmentResponse {
-  const _ChatAttachmentResponse({required this.id, required this.messageId, required this.storageFileId, required this.attachedByCoreUserId, required this.position, required this.createdAtUtc});
+  const _ChatAttachmentResponse({required this.id, required this.messageId, required this.storageFileId, required this.attachedByUserId, required this.position, required this.createdAtUtc});
   factory _ChatAttachmentResponse.fromJson(Map<String, dynamic> json) => _$ChatAttachmentResponseFromJson(json);
 
 @override final  String id;
 @override final  String messageId;
 @override final  String storageFileId;
-@override final  String attachedByCoreUserId;
+@override final  String attachedByUserId;
 @override final  int position;
 @override final  DateTime createdAtUtc;
 
@@ -9303,16 +9297,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatAttachmentResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.storageFileId, storageFileId) || other.storageFileId == storageFileId)&&(identical(other.attachedByCoreUserId, attachedByCoreUserId) || other.attachedByCoreUserId == attachedByCoreUserId)&&(identical(other.position, position) || other.position == position)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatAttachmentResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.storageFileId, storageFileId) || other.storageFileId == storageFileId)&&(identical(other.attachedByUserId, attachedByUserId) || other.attachedByUserId == attachedByUserId)&&(identical(other.position, position) || other.position == position)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,storageFileId,attachedByCoreUserId,position,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,messageId,storageFileId,attachedByUserId,position,createdAtUtc);
 
 @override
 String toString() {
-  return 'ChatAttachmentResponse(id: $id, messageId: $messageId, storageFileId: $storageFileId, attachedByCoreUserId: $attachedByCoreUserId, position: $position, createdAtUtc: $createdAtUtc)';
+  return 'ChatAttachmentResponse(id: $id, messageId: $messageId, storageFileId: $storageFileId, attachedByUserId: $attachedByUserId, position: $position, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -9323,7 +9317,7 @@ abstract mixin class _$ChatAttachmentResponseCopyWith<$Res> implements $ChatAtta
   factory _$ChatAttachmentResponseCopyWith(_ChatAttachmentResponse value, $Res Function(_ChatAttachmentResponse) _then) = __$ChatAttachmentResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String messageId, String storageFileId, String attachedByCoreUserId, int position, DateTime createdAtUtc
+ String id, String messageId, String storageFileId, String attachedByUserId, int position, DateTime createdAtUtc
 });
 
 
@@ -9340,12 +9334,12 @@ class __$ChatAttachmentResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatAttachmentResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? storageFileId = null,Object? attachedByCoreUserId = null,Object? position = null,Object? createdAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? storageFileId = null,Object? attachedByUserId = null,Object? position = null,Object? createdAtUtc = null,}) {
   return _then(_ChatAttachmentResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
 as String,storageFileId: null == storageFileId ? _self.storageFileId : storageFileId // ignore: cast_nullable_to_non_nullable
-as String,attachedByCoreUserId: null == attachedByCoreUserId ? _self.attachedByCoreUserId : attachedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,attachedByUserId: null == attachedByUserId ? _self.attachedByUserId : attachedByUserId // ignore: cast_nullable_to_non_nullable
 as String,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -9903,7 +9897,7 @@ as String?,
 /// @nodoc
 mixin _$ChatBookmarkResponse {
 
- String get id; String get messageId; String get conversationId; String get coreUserId; String? get note; DateTime get createdAtUtc;
+ String get id; String get messageId; String get conversationId; String get userId; String? get note; DateTime get createdAtUtc;
 /// Create a copy of ChatBookmarkResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -9916,16 +9910,16 @@ $ChatBookmarkResponseCopyWith<ChatBookmarkResponse> get copyWith => _$ChatBookma
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatBookmarkResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.note, note) || other.note == note)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatBookmarkResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.note, note) || other.note == note)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,conversationId,coreUserId,note,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,messageId,conversationId,userId,note,createdAtUtc);
 
 @override
 String toString() {
-  return 'ChatBookmarkResponse(id: $id, messageId: $messageId, conversationId: $conversationId, coreUserId: $coreUserId, note: $note, createdAtUtc: $createdAtUtc)';
+  return 'ChatBookmarkResponse(id: $id, messageId: $messageId, conversationId: $conversationId, userId: $userId, note: $note, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -9936,7 +9930,7 @@ abstract mixin class $ChatBookmarkResponseCopyWith<$Res>  {
   factory $ChatBookmarkResponseCopyWith(ChatBookmarkResponse value, $Res Function(ChatBookmarkResponse) _then) = _$ChatBookmarkResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String messageId, String conversationId, String coreUserId, String? note, DateTime createdAtUtc
+ String id, String messageId, String conversationId, String userId, String? note, DateTime createdAtUtc
 });
 
 
@@ -9953,12 +9947,12 @@ class _$ChatBookmarkResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatBookmarkResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? conversationId = null,Object? coreUserId = null,Object? note = freezed,Object? createdAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? conversationId = null,Object? userId = null,Object? note = freezed,Object? createdAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,note: freezed == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
 as String?,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -10046,10 +10040,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String conversationId,  String coreUserId,  String? note,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String conversationId,  String userId,  String? note,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatBookmarkResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.conversationId,_that.coreUserId,_that.note,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.conversationId,_that.userId,_that.note,_that.createdAtUtc);case _:
   return orElse();
 
 }
@@ -10067,10 +10061,10 @@ return $default(_that.id,_that.messageId,_that.conversationId,_that.coreUserId,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String conversationId,  String coreUserId,  String? note,  DateTime createdAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String conversationId,  String userId,  String? note,  DateTime createdAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ChatBookmarkResponse():
-return $default(_that.id,_that.messageId,_that.conversationId,_that.coreUserId,_that.note,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.conversationId,_that.userId,_that.note,_that.createdAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -10087,10 +10081,10 @@ return $default(_that.id,_that.messageId,_that.conversationId,_that.coreUserId,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String conversationId,  String coreUserId,  String? note,  DateTime createdAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String conversationId,  String userId,  String? note,  DateTime createdAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatBookmarkResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.conversationId,_that.coreUserId,_that.note,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.conversationId,_that.userId,_that.note,_that.createdAtUtc);case _:
   return null;
 
 }
@@ -10102,13 +10096,13 @@ return $default(_that.id,_that.messageId,_that.conversationId,_that.coreUserId,_
 @JsonSerializable()
 
 class _ChatBookmarkResponse implements ChatBookmarkResponse {
-  const _ChatBookmarkResponse({required this.id, required this.messageId, required this.conversationId, required this.coreUserId, this.note, required this.createdAtUtc});
+  const _ChatBookmarkResponse({required this.id, required this.messageId, required this.conversationId, required this.userId, this.note, required this.createdAtUtc});
   factory _ChatBookmarkResponse.fromJson(Map<String, dynamic> json) => _$ChatBookmarkResponseFromJson(json);
 
 @override final  String id;
 @override final  String messageId;
 @override final  String conversationId;
-@override final  String coreUserId;
+@override final  String userId;
 @override final  String? note;
 @override final  DateTime createdAtUtc;
 
@@ -10125,16 +10119,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatBookmarkResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.note, note) || other.note == note)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatBookmarkResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.note, note) || other.note == note)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,conversationId,coreUserId,note,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,messageId,conversationId,userId,note,createdAtUtc);
 
 @override
 String toString() {
-  return 'ChatBookmarkResponse(id: $id, messageId: $messageId, conversationId: $conversationId, coreUserId: $coreUserId, note: $note, createdAtUtc: $createdAtUtc)';
+  return 'ChatBookmarkResponse(id: $id, messageId: $messageId, conversationId: $conversationId, userId: $userId, note: $note, createdAtUtc: $createdAtUtc)';
 }
 
 
@@ -10145,7 +10139,7 @@ abstract mixin class _$ChatBookmarkResponseCopyWith<$Res> implements $ChatBookma
   factory _$ChatBookmarkResponseCopyWith(_ChatBookmarkResponse value, $Res Function(_ChatBookmarkResponse) _then) = __$ChatBookmarkResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String messageId, String conversationId, String coreUserId, String? note, DateTime createdAtUtc
+ String id, String messageId, String conversationId, String userId, String? note, DateTime createdAtUtc
 });
 
 
@@ -10162,12 +10156,12 @@ class __$ChatBookmarkResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatBookmarkResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? conversationId = null,Object? coreUserId = null,Object? note = freezed,Object? createdAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? conversationId = null,Object? userId = null,Object? note = freezed,Object? createdAtUtc = null,}) {
   return _then(_ChatBookmarkResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,note: freezed == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
 as String?,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -10181,7 +10175,7 @@ as DateTime,
 /// @nodoc
 mixin _$ChatPinnedMessageResponse {
 
- String get id; String get conversationId; String get messageId; String get pinnedByCoreUserId; DateTime get pinnedAtUtc;
+ String get id; String get conversationId; String get messageId; String get pinnedByUserId; DateTime get pinnedAtUtc;
 /// Create a copy of ChatPinnedMessageResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -10194,16 +10188,16 @@ $ChatPinnedMessageResponseCopyWith<ChatPinnedMessageResponse> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatPinnedMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.pinnedByCoreUserId, pinnedByCoreUserId) || other.pinnedByCoreUserId == pinnedByCoreUserId)&&(identical(other.pinnedAtUtc, pinnedAtUtc) || other.pinnedAtUtc == pinnedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatPinnedMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.pinnedByUserId, pinnedByUserId) || other.pinnedByUserId == pinnedByUserId)&&(identical(other.pinnedAtUtc, pinnedAtUtc) || other.pinnedAtUtc == pinnedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,conversationId,messageId,pinnedByCoreUserId,pinnedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,conversationId,messageId,pinnedByUserId,pinnedAtUtc);
 
 @override
 String toString() {
-  return 'ChatPinnedMessageResponse(id: $id, conversationId: $conversationId, messageId: $messageId, pinnedByCoreUserId: $pinnedByCoreUserId, pinnedAtUtc: $pinnedAtUtc)';
+  return 'ChatPinnedMessageResponse(id: $id, conversationId: $conversationId, messageId: $messageId, pinnedByUserId: $pinnedByUserId, pinnedAtUtc: $pinnedAtUtc)';
 }
 
 
@@ -10214,7 +10208,7 @@ abstract mixin class $ChatPinnedMessageResponseCopyWith<$Res>  {
   factory $ChatPinnedMessageResponseCopyWith(ChatPinnedMessageResponse value, $Res Function(ChatPinnedMessageResponse) _then) = _$ChatPinnedMessageResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String conversationId, String messageId, String pinnedByCoreUserId, DateTime pinnedAtUtc
+ String id, String conversationId, String messageId, String pinnedByUserId, DateTime pinnedAtUtc
 });
 
 
@@ -10231,12 +10225,12 @@ class _$ChatPinnedMessageResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatPinnedMessageResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? messageId = null,Object? pinnedByCoreUserId = null,Object? pinnedAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? messageId = null,Object? pinnedByUserId = null,Object? pinnedAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
-as String,pinnedByCoreUserId: null == pinnedByCoreUserId ? _self.pinnedByCoreUserId : pinnedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,pinnedByUserId: null == pinnedByUserId ? _self.pinnedByUserId : pinnedByUserId // ignore: cast_nullable_to_non_nullable
 as String,pinnedAtUtc: null == pinnedAtUtc ? _self.pinnedAtUtc : pinnedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -10323,10 +10317,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String conversationId,  String messageId,  String pinnedByCoreUserId,  DateTime pinnedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String conversationId,  String messageId,  String pinnedByUserId,  DateTime pinnedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatPinnedMessageResponse() when $default != null:
-return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByCoreUserId,_that.pinnedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByUserId,_that.pinnedAtUtc);case _:
   return orElse();
 
 }
@@ -10344,10 +10338,10 @@ return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByCore
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String conversationId,  String messageId,  String pinnedByCoreUserId,  DateTime pinnedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String conversationId,  String messageId,  String pinnedByUserId,  DateTime pinnedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _ChatPinnedMessageResponse():
-return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByCoreUserId,_that.pinnedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByUserId,_that.pinnedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -10364,10 +10358,10 @@ return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByCore
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String conversationId,  String messageId,  String pinnedByCoreUserId,  DateTime pinnedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String conversationId,  String messageId,  String pinnedByUserId,  DateTime pinnedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatPinnedMessageResponse() when $default != null:
-return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByCoreUserId,_that.pinnedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByUserId,_that.pinnedAtUtc);case _:
   return null;
 
 }
@@ -10379,13 +10373,13 @@ return $default(_that.id,_that.conversationId,_that.messageId,_that.pinnedByCore
 @JsonSerializable()
 
 class _ChatPinnedMessageResponse implements ChatPinnedMessageResponse {
-  const _ChatPinnedMessageResponse({required this.id, required this.conversationId, required this.messageId, required this.pinnedByCoreUserId, required this.pinnedAtUtc});
+  const _ChatPinnedMessageResponse({required this.id, required this.conversationId, required this.messageId, required this.pinnedByUserId, required this.pinnedAtUtc});
   factory _ChatPinnedMessageResponse.fromJson(Map<String, dynamic> json) => _$ChatPinnedMessageResponseFromJson(json);
 
 @override final  String id;
 @override final  String conversationId;
 @override final  String messageId;
-@override final  String pinnedByCoreUserId;
+@override final  String pinnedByUserId;
 @override final  DateTime pinnedAtUtc;
 
 /// Create a copy of ChatPinnedMessageResponse
@@ -10401,16 +10395,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatPinnedMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.pinnedByCoreUserId, pinnedByCoreUserId) || other.pinnedByCoreUserId == pinnedByCoreUserId)&&(identical(other.pinnedAtUtc, pinnedAtUtc) || other.pinnedAtUtc == pinnedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatPinnedMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.pinnedByUserId, pinnedByUserId) || other.pinnedByUserId == pinnedByUserId)&&(identical(other.pinnedAtUtc, pinnedAtUtc) || other.pinnedAtUtc == pinnedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,conversationId,messageId,pinnedByCoreUserId,pinnedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,conversationId,messageId,pinnedByUserId,pinnedAtUtc);
 
 @override
 String toString() {
-  return 'ChatPinnedMessageResponse(id: $id, conversationId: $conversationId, messageId: $messageId, pinnedByCoreUserId: $pinnedByCoreUserId, pinnedAtUtc: $pinnedAtUtc)';
+  return 'ChatPinnedMessageResponse(id: $id, conversationId: $conversationId, messageId: $messageId, pinnedByUserId: $pinnedByUserId, pinnedAtUtc: $pinnedAtUtc)';
 }
 
 
@@ -10421,7 +10415,7 @@ abstract mixin class _$ChatPinnedMessageResponseCopyWith<$Res> implements $ChatP
   factory _$ChatPinnedMessageResponseCopyWith(_ChatPinnedMessageResponse value, $Res Function(_ChatPinnedMessageResponse) _then) = __$ChatPinnedMessageResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String conversationId, String messageId, String pinnedByCoreUserId, DateTime pinnedAtUtc
+ String id, String conversationId, String messageId, String pinnedByUserId, DateTime pinnedAtUtc
 });
 
 
@@ -10438,12 +10432,12 @@ class __$ChatPinnedMessageResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatPinnedMessageResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? messageId = null,Object? pinnedByCoreUserId = null,Object? pinnedAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? messageId = null,Object? pinnedByUserId = null,Object? pinnedAtUtc = null,}) {
   return _then(_ChatPinnedMessageResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
-as String,pinnedByCoreUserId: null == pinnedByCoreUserId ? _self.pinnedByCoreUserId : pinnedByCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,pinnedByUserId: null == pinnedByUserId ? _self.pinnedByUserId : pinnedByUserId // ignore: cast_nullable_to_non_nullable
 as String,pinnedAtUtc: null == pinnedAtUtc ? _self.pinnedAtUtc : pinnedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -12100,7 +12094,7 @@ as DateTime,
 /// @nodoc
 mixin _$ChatSearchItemResponse {
 
- String get messageId; String get conversationId; String get authorCoreUserId; ChatConversationType get conversationType; String? get workspaceId; String? get projectId; String? get conversationName; String get text; String? get highlight; double get score; DateTime get createdAtUtc; bool get hasMention;
+ String get messageId; String get conversationId; String get authorUserId; ChatConversationType get conversationType; String? get workspaceId; String? get projectId; String? get conversationName; String get text; String? get highlight; double get score; DateTime get createdAtUtc; bool get hasMention;
 /// Create a copy of ChatSearchItemResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -12113,16 +12107,16 @@ $ChatSearchItemResponseCopyWith<ChatSearchItemResponse> get copyWith => _$ChatSe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatSearchItemResponse&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorCoreUserId, authorCoreUserId) || other.authorCoreUserId == authorCoreUserId)&&(identical(other.conversationType, conversationType) || other.conversationType == conversationType)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.conversationName, conversationName) || other.conversationName == conversationName)&&(identical(other.text, text) || other.text == text)&&(identical(other.highlight, highlight) || other.highlight == highlight)&&(identical(other.score, score) || other.score == score)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.hasMention, hasMention) || other.hasMention == hasMention));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatSearchItemResponse&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.conversationType, conversationType) || other.conversationType == conversationType)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.conversationName, conversationName) || other.conversationName == conversationName)&&(identical(other.text, text) || other.text == text)&&(identical(other.highlight, highlight) || other.highlight == highlight)&&(identical(other.score, score) || other.score == score)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.hasMention, hasMention) || other.hasMention == hasMention));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,messageId,conversationId,authorCoreUserId,conversationType,workspaceId,projectId,conversationName,text,highlight,score,createdAtUtc,hasMention);
+int get hashCode => Object.hash(runtimeType,messageId,conversationId,authorUserId,conversationType,workspaceId,projectId,conversationName,text,highlight,score,createdAtUtc,hasMention);
 
 @override
 String toString() {
-  return 'ChatSearchItemResponse(messageId: $messageId, conversationId: $conversationId, authorCoreUserId: $authorCoreUserId, conversationType: $conversationType, workspaceId: $workspaceId, projectId: $projectId, conversationName: $conversationName, text: $text, highlight: $highlight, score: $score, createdAtUtc: $createdAtUtc, hasMention: $hasMention)';
+  return 'ChatSearchItemResponse(messageId: $messageId, conversationId: $conversationId, authorUserId: $authorUserId, conversationType: $conversationType, workspaceId: $workspaceId, projectId: $projectId, conversationName: $conversationName, text: $text, highlight: $highlight, score: $score, createdAtUtc: $createdAtUtc, hasMention: $hasMention)';
 }
 
 
@@ -12133,7 +12127,7 @@ abstract mixin class $ChatSearchItemResponseCopyWith<$Res>  {
   factory $ChatSearchItemResponseCopyWith(ChatSearchItemResponse value, $Res Function(ChatSearchItemResponse) _then) = _$ChatSearchItemResponseCopyWithImpl;
 @useResult
 $Res call({
- String messageId, String conversationId, String authorCoreUserId, ChatConversationType conversationType, String? workspaceId, String? projectId, String? conversationName, String text, String? highlight, double score, DateTime createdAtUtc, bool hasMention
+ String messageId, String conversationId, String authorUserId, ChatConversationType conversationType, String? workspaceId, String? projectId, String? conversationName, String text, String? highlight, double score, DateTime createdAtUtc, bool hasMention
 });
 
 
@@ -12150,11 +12144,11 @@ class _$ChatSearchItemResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatSearchItemResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? messageId = null,Object? conversationId = null,Object? authorCoreUserId = null,Object? conversationType = null,Object? workspaceId = freezed,Object? projectId = freezed,Object? conversationName = freezed,Object? text = null,Object? highlight = freezed,Object? score = null,Object? createdAtUtc = null,Object? hasMention = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? messageId = null,Object? conversationId = null,Object? authorUserId = null,Object? conversationType = null,Object? workspaceId = freezed,Object? projectId = freezed,Object? conversationName = freezed,Object? text = null,Object? highlight = freezed,Object? score = null,Object? createdAtUtc = null,Object? hasMention = null,}) {
   return _then(_self.copyWith(
 messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,authorCoreUserId: null == authorCoreUserId ? _self.authorCoreUserId : authorCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,authorUserId: null == authorUserId ? _self.authorUserId : authorUserId // ignore: cast_nullable_to_non_nullable
 as String,conversationType: null == conversationType ? _self.conversationType : conversationType // ignore: cast_nullable_to_non_nullable
 as ChatConversationType,workspaceId: freezed == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
 as String?,projectId: freezed == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
@@ -12249,10 +12243,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String messageId,  String conversationId,  String authorCoreUserId,  ChatConversationType conversationType,  String? workspaceId,  String? projectId,  String? conversationName,  String text,  String? highlight,  double score,  DateTime createdAtUtc,  bool hasMention)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String messageId,  String conversationId,  String authorUserId,  ChatConversationType conversationType,  String? workspaceId,  String? projectId,  String? conversationName,  String text,  String? highlight,  double score,  DateTime createdAtUtc,  bool hasMention)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatSearchItemResponse() when $default != null:
-return $default(_that.messageId,_that.conversationId,_that.authorCoreUserId,_that.conversationType,_that.workspaceId,_that.projectId,_that.conversationName,_that.text,_that.highlight,_that.score,_that.createdAtUtc,_that.hasMention);case _:
+return $default(_that.messageId,_that.conversationId,_that.authorUserId,_that.conversationType,_that.workspaceId,_that.projectId,_that.conversationName,_that.text,_that.highlight,_that.score,_that.createdAtUtc,_that.hasMention);case _:
   return orElse();
 
 }
@@ -12270,10 +12264,10 @@ return $default(_that.messageId,_that.conversationId,_that.authorCoreUserId,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String messageId,  String conversationId,  String authorCoreUserId,  ChatConversationType conversationType,  String? workspaceId,  String? projectId,  String? conversationName,  String text,  String? highlight,  double score,  DateTime createdAtUtc,  bool hasMention)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String messageId,  String conversationId,  String authorUserId,  ChatConversationType conversationType,  String? workspaceId,  String? projectId,  String? conversationName,  String text,  String? highlight,  double score,  DateTime createdAtUtc,  bool hasMention)  $default,) {final _that = this;
 switch (_that) {
 case _ChatSearchItemResponse():
-return $default(_that.messageId,_that.conversationId,_that.authorCoreUserId,_that.conversationType,_that.workspaceId,_that.projectId,_that.conversationName,_that.text,_that.highlight,_that.score,_that.createdAtUtc,_that.hasMention);case _:
+return $default(_that.messageId,_that.conversationId,_that.authorUserId,_that.conversationType,_that.workspaceId,_that.projectId,_that.conversationName,_that.text,_that.highlight,_that.score,_that.createdAtUtc,_that.hasMention);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -12290,10 +12284,10 @@ return $default(_that.messageId,_that.conversationId,_that.authorCoreUserId,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String messageId,  String conversationId,  String authorCoreUserId,  ChatConversationType conversationType,  String? workspaceId,  String? projectId,  String? conversationName,  String text,  String? highlight,  double score,  DateTime createdAtUtc,  bool hasMention)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String messageId,  String conversationId,  String authorUserId,  ChatConversationType conversationType,  String? workspaceId,  String? projectId,  String? conversationName,  String text,  String? highlight,  double score,  DateTime createdAtUtc,  bool hasMention)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatSearchItemResponse() when $default != null:
-return $default(_that.messageId,_that.conversationId,_that.authorCoreUserId,_that.conversationType,_that.workspaceId,_that.projectId,_that.conversationName,_that.text,_that.highlight,_that.score,_that.createdAtUtc,_that.hasMention);case _:
+return $default(_that.messageId,_that.conversationId,_that.authorUserId,_that.conversationType,_that.workspaceId,_that.projectId,_that.conversationName,_that.text,_that.highlight,_that.score,_that.createdAtUtc,_that.hasMention);case _:
   return null;
 
 }
@@ -12305,12 +12299,12 @@ return $default(_that.messageId,_that.conversationId,_that.authorCoreUserId,_tha
 @JsonSerializable()
 
 class _ChatSearchItemResponse implements ChatSearchItemResponse {
-  const _ChatSearchItemResponse({required this.messageId, required this.conversationId, required this.authorCoreUserId, required this.conversationType, this.workspaceId, this.projectId, this.conversationName, required this.text, this.highlight, required this.score, required this.createdAtUtc, required this.hasMention});
+  const _ChatSearchItemResponse({required this.messageId, required this.conversationId, required this.authorUserId, required this.conversationType, this.workspaceId, this.projectId, this.conversationName, required this.text, this.highlight, required this.score, required this.createdAtUtc, required this.hasMention});
   factory _ChatSearchItemResponse.fromJson(Map<String, dynamic> json) => _$ChatSearchItemResponseFromJson(json);
 
 @override final  String messageId;
 @override final  String conversationId;
-@override final  String authorCoreUserId;
+@override final  String authorUserId;
 @override final  ChatConversationType conversationType;
 @override final  String? workspaceId;
 @override final  String? projectId;
@@ -12334,16 +12328,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatSearchItemResponse&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorCoreUserId, authorCoreUserId) || other.authorCoreUserId == authorCoreUserId)&&(identical(other.conversationType, conversationType) || other.conversationType == conversationType)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.conversationName, conversationName) || other.conversationName == conversationName)&&(identical(other.text, text) || other.text == text)&&(identical(other.highlight, highlight) || other.highlight == highlight)&&(identical(other.score, score) || other.score == score)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.hasMention, hasMention) || other.hasMention == hasMention));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatSearchItemResponse&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.conversationType, conversationType) || other.conversationType == conversationType)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.conversationName, conversationName) || other.conversationName == conversationName)&&(identical(other.text, text) || other.text == text)&&(identical(other.highlight, highlight) || other.highlight == highlight)&&(identical(other.score, score) || other.score == score)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.hasMention, hasMention) || other.hasMention == hasMention));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,messageId,conversationId,authorCoreUserId,conversationType,workspaceId,projectId,conversationName,text,highlight,score,createdAtUtc,hasMention);
+int get hashCode => Object.hash(runtimeType,messageId,conversationId,authorUserId,conversationType,workspaceId,projectId,conversationName,text,highlight,score,createdAtUtc,hasMention);
 
 @override
 String toString() {
-  return 'ChatSearchItemResponse(messageId: $messageId, conversationId: $conversationId, authorCoreUserId: $authorCoreUserId, conversationType: $conversationType, workspaceId: $workspaceId, projectId: $projectId, conversationName: $conversationName, text: $text, highlight: $highlight, score: $score, createdAtUtc: $createdAtUtc, hasMention: $hasMention)';
+  return 'ChatSearchItemResponse(messageId: $messageId, conversationId: $conversationId, authorUserId: $authorUserId, conversationType: $conversationType, workspaceId: $workspaceId, projectId: $projectId, conversationName: $conversationName, text: $text, highlight: $highlight, score: $score, createdAtUtc: $createdAtUtc, hasMention: $hasMention)';
 }
 
 
@@ -12354,7 +12348,7 @@ abstract mixin class _$ChatSearchItemResponseCopyWith<$Res> implements $ChatSear
   factory _$ChatSearchItemResponseCopyWith(_ChatSearchItemResponse value, $Res Function(_ChatSearchItemResponse) _then) = __$ChatSearchItemResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String messageId, String conversationId, String authorCoreUserId, ChatConversationType conversationType, String? workspaceId, String? projectId, String? conversationName, String text, String? highlight, double score, DateTime createdAtUtc, bool hasMention
+ String messageId, String conversationId, String authorUserId, ChatConversationType conversationType, String? workspaceId, String? projectId, String? conversationName, String text, String? highlight, double score, DateTime createdAtUtc, bool hasMention
 });
 
 
@@ -12371,11 +12365,11 @@ class __$ChatSearchItemResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatSearchItemResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? messageId = null,Object? conversationId = null,Object? authorCoreUserId = null,Object? conversationType = null,Object? workspaceId = freezed,Object? projectId = freezed,Object? conversationName = freezed,Object? text = null,Object? highlight = freezed,Object? score = null,Object? createdAtUtc = null,Object? hasMention = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? messageId = null,Object? conversationId = null,Object? authorUserId = null,Object? conversationType = null,Object? workspaceId = freezed,Object? projectId = freezed,Object? conversationName = freezed,Object? text = null,Object? highlight = freezed,Object? score = null,Object? createdAtUtc = null,Object? hasMention = null,}) {
   return _then(_ChatSearchItemResponse(
 messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
-as String,authorCoreUserId: null == authorCoreUserId ? _self.authorCoreUserId : authorCoreUserId // ignore: cast_nullable_to_non_nullable
+as String,authorUserId: null == authorUserId ? _self.authorUserId : authorUserId // ignore: cast_nullable_to_non_nullable
 as String,conversationType: null == conversationType ? _self.conversationType : conversationType // ignore: cast_nullable_to_non_nullable
 as ChatConversationType,workspaceId: freezed == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
 as String?,projectId: freezed == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable

@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_member_response.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_user_preference_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_member_response.dart';
+import 'package:devplanner/workspaces/data/projects/responses/project_user_preference_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
 
 /// Kontrakt repozytorium projektów workspace’u.
 abstract interface class ProjectsRepository {

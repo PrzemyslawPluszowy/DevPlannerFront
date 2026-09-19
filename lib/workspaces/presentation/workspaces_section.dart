@@ -1,6 +1,6 @@
+import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
 
 /// Sekcje nawigacyjne modułu Workspaces.
 enum WorkspacesSection {

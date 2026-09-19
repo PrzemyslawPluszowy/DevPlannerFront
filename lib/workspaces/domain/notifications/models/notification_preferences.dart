@@ -20,18 +20,18 @@ enum NotificationDeliveryCategory {
 final class NotificationDeliveryPreferences extends Equatable {
   /// Tworzy snapshot globalnych preferencji dostarczania.
   NotificationDeliveryPreferences({
-    required this.coreUserId,
+    required this.userId,
     required Map<NotificationDeliveryCategory, NotificationEmailDeliveryMode>
     modes,
     required this.updatedAtUtc,
   }) : modes = Map.unmodifiable(modes);
 
-  final String coreUserId;
+  final String userId;
   final Map<NotificationDeliveryCategory, NotificationEmailDeliveryMode> modes;
   final DateTime updatedAtUtc;
 
   @override
-  List<Object?> get props => [coreUserId, modes, updatedAtUtc];
+  List<Object?> get props => [userId, modes, updatedAtUtc];
 }
 
 /// Zmiana wybranych preferencji dostarczania; null oznacza brak zmiany.
@@ -80,17 +80,17 @@ enum StorageNotificationMode { immediate, digest, mentionsOnly, disabled }
 final class StorageNotificationPreference extends Equatable {
   /// Tworzy skuteczną preferencję Storage wraz z jej źródłem.
   const StorageNotificationPreference({
-    required this.coreUserId,
+    required this.userId,
     required this.mode,
     required this.isDefault,
     this.updatedAtUtc,
   });
 
-  final String coreUserId;
+  final String userId;
   final StorageNotificationMode mode;
   final bool isDefault;
   final DateTime? updatedAtUtc;
 
   @override
-  List<Object?> get props => [coreUserId, mode, isDefault, updatedAtUtc];
+  List<Object?> get props => [userId, mode, isDefault, updatedAtUtc];
 }

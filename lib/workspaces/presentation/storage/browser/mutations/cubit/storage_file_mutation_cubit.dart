@@ -1,9 +1,9 @@
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/download_transport.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_state.dart';
 
 /// Cubit realizujący mutacje pojedynczych i wielu plików (favorite, rename, delete, restore, ZIP).
 final class StorageFileMutationCubit extends Cubit<StorageFileMutationState> {

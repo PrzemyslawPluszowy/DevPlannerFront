@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/api/tasks_api.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/api/tasks_api.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 
 /// Implementacja podstawowych operacji Tasks oparta na kontrakcie OpenAPI.
 final class TasksRepositoryImpl extends ApiRepository
@@ -31,7 +31,7 @@ final class TasksRepositoryImpl extends ApiRepository
       savedViewId: query.savedViewId,
       status: query.status,
       priority: query.priority,
-      assigneeCoreUserId: query.assigneeCoreUserId,
+      assigneeUserId: query.assigneeUserId,
       myInvolvement: query.myInvolvement,
       unassignedOnly: query.unassignedOnly,
       search: query.search,
@@ -62,7 +62,7 @@ final class TasksRepositoryImpl extends ApiRepository
       savedViewId: query.savedViewId,
       status: query.status,
       priority: query.priority,
-      assigneeCoreUserId: query.assigneeCoreUserId,
+      assigneeUserId: query.assigneeUserId,
       myInvolvement: query.myInvolvement,
       unassignedOnly: query.unassignedOnly,
       search: query.search,

@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/automation_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/data/workspaces/models/automation_models.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/automation_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/automation_settings_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/automation_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/data/workspaces/models/automation_models.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/automation_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/settings/cubit/automation_settings_cubit.dart';
 
 final class _AutomationRepository implements AutomationRepository {
   List<AutomationRuleResponse> rules = [_rule()];
@@ -189,7 +189,7 @@ final class _MemberProfilesRepository
     bool forceRefresh = false,
   }) async => const Right([
     ProjectMemberProfile(
-      coreUserId: 'member-1',
+      userId: 'member-1',
       displayName: 'Anna Kowalska',
       role: ProjectRole.member,
     ),
@@ -206,7 +206,7 @@ final class _MemberProfilesRepository
     ProjectMemberProfilePage(
       items: [
         ProjectMemberProfile(
-          coreUserId: 'member-1',
+          userId: 'member-1',
           displayName: 'Anna Kowalska',
           role: ProjectRole.member,
         ),

@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
 
 /// Typ zdarzenia Chat, który ma znaczenie dla lokalnej historii rozmowy.
 enum ChatConversationRealtimeEventKind {

@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
-
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_control_size.dart';
-import 'package:ready_next/shared/presentation/widgets/app_date_picker_field.dart'
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_control_size.dart';
+import 'package:devplanner/shared/presentation/widgets/app_date_picker_field.dart'
     show AppDatePickerField;
-import 'package:ready_next/shared/presentation/widgets/app_text_field.dart'
+import 'package:devplanner/shared/presentation/widgets/app_text_field.dart'
     show AppTextField;
+import 'package:flutter/material.dart';
 
 enum AppDropdownVariant { outlined, filled }
 

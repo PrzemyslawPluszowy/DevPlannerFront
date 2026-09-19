@@ -1,25 +1,19 @@
-import 'package:dartz/dartz.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
+import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/projects_repository.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
-import 'package:ready_next/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
 
-class _FakeProjectsRepository implements ProjectsRepository {
-  const _FakeProjectsRepository(this.result);
+final class _Gateway implements ProjectsGateway {
+  _Gateway(this.result);
 
-  final Either<ApiError, List<ProjectListItem>> result;
+  final Future<List<ProjectListItem>> result;
 
   @override
-  Future<Either<ApiError, List<ProjectListItem>>> listProjects(
+  Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
     bool includeHidden = false,
-  }) async => result;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  }) => result;
 }
 
 void main() {
@@ -27,37 +21,45 @@ void main() {
     id: 'project-1',
     workspaceId: 'workspace-1',
     name: 'Alpha',
-    myRole: ProjectRole.member,
     isPinned: true,
     sortPosition: 0,
   );
 
   test('ładuje projekty dopiero na żądanie i emituje gotowy stan', () async {
     final cubit = WorkspaceProjectsCubit(
-      repository: const _FakeProjectsRepository(Right([project])),
+      gateway: _Gateway(Future.value([project])),
       workspaceId: 'workspace-1',
     );
+    addTearDown(cubit.close);
 
     expect(cubit.state, isA<WorkspaceProjectsInitial>());
     await cubit.load();
 
     expect(cubit.state, isA<WorkspaceProjectsReady>());
     expect((cubit.state as WorkspaceProjectsReady).items.single.name, 'Alpha');
-    await cubit.close();
   });
 
-  test('nie ukrywa błędu backendu w gałęzi menu', () async {
+  test('zachowuje typed forbidden i nie zamienia go na pustą listę', () async {
     final cubit = WorkspaceProjectsCubit(
-      repository: const _FakeProjectsRepository(
-        Left(ApiError(type: ApiErrorType.forbidden, message: 'Brak dostępu.')),
+      gateway: _Gateway(
+        Future<List<ProjectListItem>>.error(
+          const ProjectsGatewayException(
+            reason: ProjectsFailureReason.forbidden,
+            statusCode: 403,
+            backendCode: 'workspace.forbidden',
+          ),
+        ),
       ),
       workspaceId: 'workspace-1',
     );
+    addTearDown(cubit.close);
 
     await cubit.load();
 
     expect(cubit.state, isA<WorkspaceProjectsFailure>());
-    expect((cubit.state as WorkspaceProjectsFailure).message, 'Brak dostępu.');
-    await cubit.close();
+    final failure = cubit.state as WorkspaceProjectsFailure;
+    expect(failure.reason, ProjectsFailureReason.forbidden);
+    expect(failure.statusCode, 403);
+    expect(failure.backendCode, 'workspace.forbidden');
   });
 }

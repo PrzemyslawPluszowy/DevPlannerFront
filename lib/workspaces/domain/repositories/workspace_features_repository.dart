@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_feature_enums.dart';
-import 'package:ready_next/workspaces/data/workspaces/models/workspace_feature_models.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_feature_enums.dart';
+import 'package:devplanner/workspaces/data/workspaces/models/workspace_feature_models.dart';
 
 /// Kontrakt repozytorium dodatkowych funkcji workspace (dashboardy, wyszukiwanie, aktywność).
 abstract interface class WorkspaceFeaturesRepository {

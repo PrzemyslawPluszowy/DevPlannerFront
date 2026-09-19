@@ -1,16 +1,16 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/helpers/task_saved_view_labels.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/widgets/sections/task_saved_view_date_range_filter.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/widgets/sections/task_saved_view_people_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/helpers/task_saved_view_labels.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/widgets/sections/task_saved_view_date_range_filter.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/widgets/sections/task_saved_view_people_filter.dart';
 
 /// Kompletna sekcja wyboru filtrów zapisanego widoku.
 ///
@@ -39,7 +39,7 @@ class TaskSavedViewFiltersSection extends StatelessWidget {
     final l10n = context.l10n;
     final statuses = filter.statuses ?? const [];
     final priorities = filter.priorities ?? const [];
-    final assigneeIds = filter.assigneeCoreUserIds ?? const [];
+    final assigneeIds = filter.assigneeUserIds ?? const [];
     final labelIds = filter.labelIds ?? const [];
 
     return Column(
@@ -208,7 +208,7 @@ class TaskSavedViewFiltersSection extends StatelessWidget {
             onAssigneesChanged: (updated) {
               onFilterChanged(
                 filter.copyWith(
-                  assigneeCoreUserIds: updated.isEmpty ? null : updated,
+                  assigneeUserIds: updated.isEmpty ? null : updated,
                 ),
               );
             },

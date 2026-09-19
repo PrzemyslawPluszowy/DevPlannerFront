@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_scope_route_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/presentation/storage/shell/storage_scope_route_codec.dart';
 
 void main() {
   test('odtwarza widok Shared i folder z deep linku', () {

@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/transport/onlyoffice_bridge.dart';
+import 'package:devplanner/workspaces/data/storage/transport/onlyoffice_editor_html_builder.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/data/storage/transport/onlyoffice_bridge.dart';
-import 'package:ready_next/workspaces/data/storage/transport/onlyoffice_editor_html_builder.dart';
 import 'package:webview_all/webview_all.dart';
 
 part 'storage_onlyoffice_controller.dart';
@@ -54,9 +54,9 @@ class StorageOnlyOfficeHost extends StatefulWidget {
 }
 
 class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
-  StorageOnlyOfficeController? _controller;
-  Object? _initializationError;
-  bool _isLoading = true;
+  final _viewState = ValueNotifier<_StorageOnlyOfficeHostViewState>(
+    const _StorageOnlyOfficeHostViewState(),
+  );
   Timer? _loadTimeout;
 
   @override
@@ -103,34 +103,38 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
               widget.onDownloadRequested?.call(url);
             },
             onPageFinished: () {
-              if (mounted && identical(_controller, controller)) {
+              if (mounted &&
+                  identical(_viewState.value.controller, controller)) {
                 widget.hostController?._documentReady = true;
                 _loadTimeout?.cancel();
                 developer.log(
                   'Dokument zakończył ładowanie.',
                   name: 'storage.onlyoffice',
                 );
-                setState(() => _isLoading = false);
+                _viewState.value = _viewState.value.copyWith(
+                  isLoading: false,
+                );
               }
             },
             onMainFrameError: (description) {
-              if (mounted && identical(_controller, controller)) {
+              if (mounted &&
+                  identical(_viewState.value.controller, controller)) {
                 _loadTimeout?.cancel();
                 developer.log(
                   'Błąd głównej ramki: $description',
                   name: 'storage.onlyoffice',
                   level: 1000,
                 );
-                setState(() {
-                  _initializationError = description;
-                  _isLoading = false;
-                });
+                _viewState.value = _viewState.value.copyWith(
+                  initializationError: description,
+                  isLoading: false,
+                );
               }
             },
           )
           .timeout(const Duration(seconds: 30));
       if (!mounted) return;
-      setState(() => _controller = controller);
+      _viewState.value = _viewState.value.copyWith(controller: controller);
       await _loadSession();
     } on Object catch (error) {
       developer.log(
@@ -140,44 +144,45 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
         level: 1000,
       );
       if (!mounted) return;
-      setState(() {
-        _initializationError = error;
-        _isLoading = false;
-      });
+      _viewState.value = _viewState.value.copyWith(
+        initializationError: error,
+        isLoading: false,
+      );
     }
   }
 
   @override
   void dispose() {
     _loadTimeout?.cancel();
-    widget.hostController?._detach(_controller);
+    widget.hostController?._detach(_viewState.value.controller);
+    _viewState.dispose();
     super.dispose();
   }
 
   Future<void> _loadSession() async {
-    final controller = _controller;
+    final controller = _viewState.value.controller;
     if (controller == null) return;
     widget.hostController?._documentReady = false;
     if (mounted) {
-      setState(() {
-        _initializationError = null;
-        _isLoading = true;
-      });
+      _viewState.value = _viewState.value.copyWith(
+        clearInitializationError: true,
+        isLoading: true,
+      );
     }
     _loadTimeout?.cancel();
     _loadTimeout = Timer(const Duration(seconds: 30), () {
-      if (!mounted || !_isLoading) return;
+      if (!mounted || !_viewState.value.isLoading) return;
       developer.log(
         'Przekroczono 30 s oczekiwania na dokument.',
         name: 'storage.onlyoffice',
         level: 1000,
       );
-      setState(() {
-        _initializationError = TimeoutException(
+      _viewState.value = _viewState.value.copyWith(
+        initializationError: TimeoutException(
           'OnlyOffice nie zakończył ładowania w ciągu 30 sekund.',
-        );
-        _isLoading = false;
-      });
+        ),
+        isLoading: false,
+      );
     });
     debugPrint('[storage.onlyoffice] Ładowanie dokumentu.');
     try {
@@ -194,63 +199,114 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
         level: 1000,
       );
       if (!mounted) return;
-      setState(() {
-        _initializationError = error;
-        _isLoading = false;
-      });
+      _viewState.value = _viewState.value.copyWith(
+        initializationError: error,
+        isLoading: false,
+      );
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (_initializationError case final error?) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(AppIcons.alertCircle, size: 48, color: context.colors.error),
-              const SizedBox(height: 12),
-              Text(
-                context.l10n.storageOfficeHostFailure,
-                style: context.text.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              SelectableText(error.toString(), textAlign: TextAlign.center),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: _loadSession,
-                icon: const Icon(AppIcons.refresh, size: 16),
-                label: Text(context.l10n.retry),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<_StorageOnlyOfficeHostViewState>(
+        valueListenable: _viewState,
+        builder: (context, state, _) {
+          if (state.initializationError case final error?) {
+            return _StorageOnlyOfficeHostError(
+              error: error,
+              onRetry: _loadSession,
+            );
+          }
 
-    final controller = _controller;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        if (controller != null) controller.buildWidget(),
-        if (_isLoading)
-          ColoredBox(
-            color: context.colors.surface,
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator.adaptive(),
-                  const SizedBox(height: 12),
-                  Text(context.l10n.storageOfficeHostLoading),
-                ],
-              ),
-            ),
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              if (state.controller case final controller?)
+                controller.buildWidget(),
+              if (state.isLoading) const _StorageOnlyOfficeHostLoading(),
+            ],
+          );
+        },
+      );
+}
+
+final class _StorageOnlyOfficeHostViewState {
+  const _StorageOnlyOfficeHostViewState({
+    this.controller,
+    this.initializationError,
+    this.isLoading = true,
+  });
+
+  final StorageOnlyOfficeController? controller;
+  final Object? initializationError;
+  final bool isLoading;
+
+  _StorageOnlyOfficeHostViewState copyWith({
+    StorageOnlyOfficeController? controller,
+    Object? initializationError,
+    bool? isLoading,
+    bool clearInitializationError = false,
+  }) => _StorageOnlyOfficeHostViewState(
+    controller: controller ?? this.controller,
+    initializationError: clearInitializationError
+        ? null
+        : initializationError ?? this.initializationError,
+    isLoading: isLoading ?? this.isLoading,
+  );
+}
+
+final class _StorageOnlyOfficeHostError extends StatelessWidget {
+  const _StorageOnlyOfficeHostError({
+    required this.error,
+    required this.onRetry,
+  });
+
+  final Object error;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(AppIcons.alertCircle, size: 48, color: context.colors.error),
+          const SizedBox(height: 12),
+          Text(
+            context.l10n.storageOfficeHostFailure,
+            style: context.text.titleMedium,
+            textAlign: TextAlign.center,
           ),
-      ],
-    );
-  }
+          const SizedBox(height: 8),
+          SelectableText(error.toString(), textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(AppIcons.refresh, size: 16),
+            label: Text(context.l10n.retry),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+final class _StorageOnlyOfficeHostLoading extends StatelessWidget {
+  const _StorageOnlyOfficeHostLoading();
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    color: context.colors.surface,
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator.adaptive(),
+          const SizedBox(height: 12),
+          Text(context.l10n.storageOfficeHostLoading),
+        ],
+      ),
+    ),
+  );
 }

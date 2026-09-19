@@ -44,7 +44,7 @@ class _TaskRecurrenceFields extends StatelessWidget {
           for (final item in TaskRecurrenceMode.values)
             DropdownMenuItem(
               value: item,
-              child: Text(_recurrenceModeLabel(context, item)),
+              child: Text(TaskRecurrenceModeLabeler.label(context, item)),
             ),
         ],
         onChanged: enabled
@@ -63,7 +63,7 @@ class _TaskRecurrenceFields extends StatelessWidget {
           for (final item in TaskRecurrenceFrequency.values)
             DropdownMenuItem(
               value: item,
-              child: Text(_recurrenceFrequencyLabel(context, item)),
+              child: Text(TaskRecurrenceFrequencyLabeler.label(context, item)),
             ),
         ],
         onChanged: enabled
@@ -99,7 +99,7 @@ class _TaskRecurrenceFields extends StatelessWidget {
           for (final item in ProjectTaskStatus.values)
             DropdownMenuItem(
               value: item,
-              child: Text(_statusLabel(context, item)),
+              child: Text(TaskDetailsLabeler.status(context, item)),
             ),
         ],
         onChanged: enabled

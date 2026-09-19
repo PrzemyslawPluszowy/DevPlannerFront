@@ -553,7 +553,7 @@ as DateTime?,
 /// @nodoc
 mixin _$CreateUserCapacityOverridePayload {
 
- String get coreUserId; DateTime get startDate; DateTime get endDate; int get availableMinutesPerDay; String? get reason;
+ String get userId; DateTime get startDate; DateTime get endDate; int get availableMinutesPerDay; String? get reason;
 /// Create a copy of CreateUserCapacityOverridePayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -566,16 +566,16 @@ $CreateUserCapacityOverridePayloadCopyWith<CreateUserCapacityOverridePayload> ge
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateUserCapacityOverridePayload&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.availableMinutesPerDay, availableMinutesPerDay) || other.availableMinutesPerDay == availableMinutesPerDay)&&(identical(other.reason, reason) || other.reason == reason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateUserCapacityOverridePayload&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.availableMinutesPerDay, availableMinutesPerDay) || other.availableMinutesPerDay == availableMinutesPerDay)&&(identical(other.reason, reason) || other.reason == reason));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,startDate,endDate,availableMinutesPerDay,reason);
+int get hashCode => Object.hash(runtimeType,userId,startDate,endDate,availableMinutesPerDay,reason);
 
 @override
 String toString() {
-  return 'CreateUserCapacityOverridePayload(coreUserId: $coreUserId, startDate: $startDate, endDate: $endDate, availableMinutesPerDay: $availableMinutesPerDay, reason: $reason)';
+  return 'CreateUserCapacityOverridePayload(userId: $userId, startDate: $startDate, endDate: $endDate, availableMinutesPerDay: $availableMinutesPerDay, reason: $reason)';
 }
 
 
@@ -586,7 +586,7 @@ abstract mixin class $CreateUserCapacityOverridePayloadCopyWith<$Res>  {
   factory $CreateUserCapacityOverridePayloadCopyWith(CreateUserCapacityOverridePayload value, $Res Function(CreateUserCapacityOverridePayload) _then) = _$CreateUserCapacityOverridePayloadCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, DateTime startDate, DateTime endDate, int availableMinutesPerDay, String? reason
+ String userId, DateTime startDate, DateTime endDate, int availableMinutesPerDay, String? reason
 });
 
 
@@ -603,9 +603,9 @@ class _$CreateUserCapacityOverridePayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateUserCapacityOverridePayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? startDate = null,Object? endDate = null,Object? availableMinutesPerDay = null,Object? reason = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? startDate = null,Object? endDate = null,Object? availableMinutesPerDay = null,Object? reason = freezed,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as DateTime,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as DateTime,availableMinutesPerDay: null == availableMinutesPerDay ? _self.availableMinutesPerDay : availableMinutesPerDay // ignore: cast_nullable_to_non_nullable
@@ -695,10 +695,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreateUserCapacityOverridePayload() when $default != null:
-return $default(_that.coreUserId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason);case _:
+return $default(_that.userId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason);case _:
   return orElse();
 
 }
@@ -716,10 +716,10 @@ return $default(_that.coreUserId,_that.startDate,_that.endDate,_that.availableMi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason)  $default,) {final _that = this;
 switch (_that) {
 case _CreateUserCapacityOverridePayload():
-return $default(_that.coreUserId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason);case _:
+return $default(_that.userId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -736,10 +736,10 @@ return $default(_that.coreUserId,_that.startDate,_that.endDate,_that.availableMi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason)?  $default,) {final _that = this;
 switch (_that) {
 case _CreateUserCapacityOverridePayload() when $default != null:
-return $default(_that.coreUserId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason);case _:
+return $default(_that.userId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason);case _:
   return null;
 
 }
@@ -751,10 +751,10 @@ return $default(_that.coreUserId,_that.startDate,_that.endDate,_that.availableMi
 @JsonSerializable()
 
 class _CreateUserCapacityOverridePayload implements CreateUserCapacityOverridePayload {
-  const _CreateUserCapacityOverridePayload({required this.coreUserId, required this.startDate, required this.endDate, required this.availableMinutesPerDay, this.reason});
+  const _CreateUserCapacityOverridePayload({required this.userId, required this.startDate, required this.endDate, required this.availableMinutesPerDay, this.reason});
   factory _CreateUserCapacityOverridePayload.fromJson(Map<String, dynamic> json) => _$CreateUserCapacityOverridePayloadFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  DateTime startDate;
 @override final  DateTime endDate;
 @override final  int availableMinutesPerDay;
@@ -773,16 +773,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateUserCapacityOverridePayload&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.availableMinutesPerDay, availableMinutesPerDay) || other.availableMinutesPerDay == availableMinutesPerDay)&&(identical(other.reason, reason) || other.reason == reason));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateUserCapacityOverridePayload&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.availableMinutesPerDay, availableMinutesPerDay) || other.availableMinutesPerDay == availableMinutesPerDay)&&(identical(other.reason, reason) || other.reason == reason));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,startDate,endDate,availableMinutesPerDay,reason);
+int get hashCode => Object.hash(runtimeType,userId,startDate,endDate,availableMinutesPerDay,reason);
 
 @override
 String toString() {
-  return 'CreateUserCapacityOverridePayload(coreUserId: $coreUserId, startDate: $startDate, endDate: $endDate, availableMinutesPerDay: $availableMinutesPerDay, reason: $reason)';
+  return 'CreateUserCapacityOverridePayload(userId: $userId, startDate: $startDate, endDate: $endDate, availableMinutesPerDay: $availableMinutesPerDay, reason: $reason)';
 }
 
 
@@ -793,7 +793,7 @@ abstract mixin class _$CreateUserCapacityOverridePayloadCopyWith<$Res> implement
   factory _$CreateUserCapacityOverridePayloadCopyWith(_CreateUserCapacityOverridePayload value, $Res Function(_CreateUserCapacityOverridePayload) _then) = __$CreateUserCapacityOverridePayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, DateTime startDate, DateTime endDate, int availableMinutesPerDay, String? reason
+ String userId, DateTime startDate, DateTime endDate, int availableMinutesPerDay, String? reason
 });
 
 
@@ -810,9 +810,9 @@ class __$CreateUserCapacityOverridePayloadCopyWithImpl<$Res>
 
 /// Create a copy of CreateUserCapacityOverridePayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? startDate = null,Object? endDate = null,Object? availableMinutesPerDay = null,Object? reason = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? startDate = null,Object? endDate = null,Object? availableMinutesPerDay = null,Object? reason = freezed,}) {
   return _then(_CreateUserCapacityOverridePayload(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as DateTime,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as DateTime,availableMinutesPerDay: null == availableMinutesPerDay ? _self.availableMinutesPerDay : availableMinutesPerDay // ignore: cast_nullable_to_non_nullable
@@ -1103,7 +1103,7 @@ as int,
 /// @nodoc
 mixin _$UserCapacityOverrideResponse {
 
- String get id; String get workspaceId; String get projectId; String get coreUserId; DateTime get startDate; DateTime get endDate; int get availableMinutesPerDay; String? get reason; int get version; DateTime get updatedAtUtc;
+ String get id; String get workspaceId; String get projectId; String get userId; DateTime get startDate; DateTime get endDate; int get availableMinutesPerDay; String? get reason; int get version; DateTime get updatedAtUtc;
 /// Create a copy of UserCapacityOverrideResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1116,16 +1116,16 @@ $UserCapacityOverrideResponseCopyWith<UserCapacityOverrideResponse> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserCapacityOverrideResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.availableMinutesPerDay, availableMinutesPerDay) || other.availableMinutesPerDay == availableMinutesPerDay)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.version, version) || other.version == version)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserCapacityOverrideResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.availableMinutesPerDay, availableMinutesPerDay) || other.availableMinutesPerDay == availableMinutesPerDay)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.version, version) || other.version == version)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceId,projectId,coreUserId,startDate,endDate,availableMinutesPerDay,reason,version,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,workspaceId,projectId,userId,startDate,endDate,availableMinutesPerDay,reason,version,updatedAtUtc);
 
 @override
 String toString() {
-  return 'UserCapacityOverrideResponse(id: $id, workspaceId: $workspaceId, projectId: $projectId, coreUserId: $coreUserId, startDate: $startDate, endDate: $endDate, availableMinutesPerDay: $availableMinutesPerDay, reason: $reason, version: $version, updatedAtUtc: $updatedAtUtc)';
+  return 'UserCapacityOverrideResponse(id: $id, workspaceId: $workspaceId, projectId: $projectId, userId: $userId, startDate: $startDate, endDate: $endDate, availableMinutesPerDay: $availableMinutesPerDay, reason: $reason, version: $version, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -1136,7 +1136,7 @@ abstract mixin class $UserCapacityOverrideResponseCopyWith<$Res>  {
   factory $UserCapacityOverrideResponseCopyWith(UserCapacityOverrideResponse value, $Res Function(UserCapacityOverrideResponse) _then) = _$UserCapacityOverrideResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String workspaceId, String projectId, String coreUserId, DateTime startDate, DateTime endDate, int availableMinutesPerDay, String? reason, int version, DateTime updatedAtUtc
+ String id, String workspaceId, String projectId, String userId, DateTime startDate, DateTime endDate, int availableMinutesPerDay, String? reason, int version, DateTime updatedAtUtc
 });
 
 
@@ -1153,12 +1153,12 @@ class _$UserCapacityOverrideResponseCopyWithImpl<$Res>
 
 /// Create a copy of UserCapacityOverrideResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceId = null,Object? projectId = null,Object? coreUserId = null,Object? startDate = null,Object? endDate = null,Object? availableMinutesPerDay = null,Object? reason = freezed,Object? version = null,Object? updatedAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceId = null,Object? projectId = null,Object? userId = null,Object? startDate = null,Object? endDate = null,Object? availableMinutesPerDay = null,Object? reason = freezed,Object? version = null,Object? updatedAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
 as String,projectId: null == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as DateTime,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as DateTime,availableMinutesPerDay: null == availableMinutesPerDay ? _self.availableMinutesPerDay : availableMinutesPerDay // ignore: cast_nullable_to_non_nullable
@@ -1250,10 +1250,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String projectId,  String coreUserId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason,  int version,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String projectId,  String userId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason,  int version,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserCapacityOverrideResponse() when $default != null:
-return $default(_that.id,_that.workspaceId,_that.projectId,_that.coreUserId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason,_that.version,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.projectId,_that.userId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason,_that.version,_that.updatedAtUtc);case _:
   return orElse();
 
 }
@@ -1271,10 +1271,10 @@ return $default(_that.id,_that.workspaceId,_that.projectId,_that.coreUserId,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String projectId,  String coreUserId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason,  int version,  DateTime updatedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String projectId,  String userId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason,  int version,  DateTime updatedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _UserCapacityOverrideResponse():
-return $default(_that.id,_that.workspaceId,_that.projectId,_that.coreUserId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason,_that.version,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.projectId,_that.userId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason,_that.version,_that.updatedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1291,10 +1291,10 @@ return $default(_that.id,_that.workspaceId,_that.projectId,_that.coreUserId,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceId,  String projectId,  String coreUserId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason,  int version,  DateTime updatedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceId,  String projectId,  String userId,  DateTime startDate,  DateTime endDate,  int availableMinutesPerDay,  String? reason,  int version,  DateTime updatedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _UserCapacityOverrideResponse() when $default != null:
-return $default(_that.id,_that.workspaceId,_that.projectId,_that.coreUserId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason,_that.version,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.projectId,_that.userId,_that.startDate,_that.endDate,_that.availableMinutesPerDay,_that.reason,_that.version,_that.updatedAtUtc);case _:
   return null;
 
 }
@@ -1306,13 +1306,13 @@ return $default(_that.id,_that.workspaceId,_that.projectId,_that.coreUserId,_tha
 @JsonSerializable()
 
 class _UserCapacityOverrideResponse implements UserCapacityOverrideResponse {
-  const _UserCapacityOverrideResponse({required this.id, required this.workspaceId, required this.projectId, required this.coreUserId, required this.startDate, required this.endDate, required this.availableMinutesPerDay, this.reason, required this.version, required this.updatedAtUtc});
+  const _UserCapacityOverrideResponse({required this.id, required this.workspaceId, required this.projectId, required this.userId, required this.startDate, required this.endDate, required this.availableMinutesPerDay, this.reason, required this.version, required this.updatedAtUtc});
   factory _UserCapacityOverrideResponse.fromJson(Map<String, dynamic> json) => _$UserCapacityOverrideResponseFromJson(json);
 
 @override final  String id;
 @override final  String workspaceId;
 @override final  String projectId;
-@override final  String coreUserId;
+@override final  String userId;
 @override final  DateTime startDate;
 @override final  DateTime endDate;
 @override final  int availableMinutesPerDay;
@@ -1333,16 +1333,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserCapacityOverrideResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.availableMinutesPerDay, availableMinutesPerDay) || other.availableMinutesPerDay == availableMinutesPerDay)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.version, version) || other.version == version)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserCapacityOverrideResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.availableMinutesPerDay, availableMinutesPerDay) || other.availableMinutesPerDay == availableMinutesPerDay)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.version, version) || other.version == version)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceId,projectId,coreUserId,startDate,endDate,availableMinutesPerDay,reason,version,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,workspaceId,projectId,userId,startDate,endDate,availableMinutesPerDay,reason,version,updatedAtUtc);
 
 @override
 String toString() {
-  return 'UserCapacityOverrideResponse(id: $id, workspaceId: $workspaceId, projectId: $projectId, coreUserId: $coreUserId, startDate: $startDate, endDate: $endDate, availableMinutesPerDay: $availableMinutesPerDay, reason: $reason, version: $version, updatedAtUtc: $updatedAtUtc)';
+  return 'UserCapacityOverrideResponse(id: $id, workspaceId: $workspaceId, projectId: $projectId, userId: $userId, startDate: $startDate, endDate: $endDate, availableMinutesPerDay: $availableMinutesPerDay, reason: $reason, version: $version, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -1353,7 +1353,7 @@ abstract mixin class _$UserCapacityOverrideResponseCopyWith<$Res> implements $Us
   factory _$UserCapacityOverrideResponseCopyWith(_UserCapacityOverrideResponse value, $Res Function(_UserCapacityOverrideResponse) _then) = __$UserCapacityOverrideResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String workspaceId, String projectId, String coreUserId, DateTime startDate, DateTime endDate, int availableMinutesPerDay, String? reason, int version, DateTime updatedAtUtc
+ String id, String workspaceId, String projectId, String userId, DateTime startDate, DateTime endDate, int availableMinutesPerDay, String? reason, int version, DateTime updatedAtUtc
 });
 
 
@@ -1370,12 +1370,12 @@ class __$UserCapacityOverrideResponseCopyWithImpl<$Res>
 
 /// Create a copy of UserCapacityOverrideResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceId = null,Object? projectId = null,Object? coreUserId = null,Object? startDate = null,Object? endDate = null,Object? availableMinutesPerDay = null,Object? reason = freezed,Object? version = null,Object? updatedAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceId = null,Object? projectId = null,Object? userId = null,Object? startDate = null,Object? endDate = null,Object? availableMinutesPerDay = null,Object? reason = freezed,Object? version = null,Object? updatedAtUtc = null,}) {
   return _then(_UserCapacityOverrideResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
 as String,projectId: null == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as DateTime,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as DateTime,availableMinutesPerDay: null == availableMinutesPerDay ? _self.availableMinutesPerDay : availableMinutesPerDay // ignore: cast_nullable_to_non_nullable
@@ -1393,7 +1393,7 @@ as DateTime,
 /// @nodoc
 mixin _$TaskWorkloadUserResponse {
 
- String get coreUserId; int get assignedTaskCount; int get estimatedMinutes; int get loggedMinutes; int get unplannedEstimatedMinutes; int get availableCapacityMinutes; int get remainingCapacityMinutes; bool get isOverCapacity; CapacitySource get capacitySource;
+ String get userId; int get assignedTaskCount; int get estimatedMinutes; int get loggedMinutes; int get unplannedEstimatedMinutes; int get availableCapacityMinutes; int get remainingCapacityMinutes; bool get isOverCapacity; CapacitySource get capacitySource;
 /// Create a copy of TaskWorkloadUserResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1406,16 +1406,16 @@ $TaskWorkloadUserResponseCopyWith<TaskWorkloadUserResponse> get copyWith => _$Ta
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskWorkloadUserResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.assignedTaskCount, assignedTaskCount) || other.assignedTaskCount == assignedTaskCount)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.unplannedEstimatedMinutes, unplannedEstimatedMinutes) || other.unplannedEstimatedMinutes == unplannedEstimatedMinutes)&&(identical(other.availableCapacityMinutes, availableCapacityMinutes) || other.availableCapacityMinutes == availableCapacityMinutes)&&(identical(other.remainingCapacityMinutes, remainingCapacityMinutes) || other.remainingCapacityMinutes == remainingCapacityMinutes)&&(identical(other.isOverCapacity, isOverCapacity) || other.isOverCapacity == isOverCapacity)&&(identical(other.capacitySource, capacitySource) || other.capacitySource == capacitySource));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskWorkloadUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.assignedTaskCount, assignedTaskCount) || other.assignedTaskCount == assignedTaskCount)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.unplannedEstimatedMinutes, unplannedEstimatedMinutes) || other.unplannedEstimatedMinutes == unplannedEstimatedMinutes)&&(identical(other.availableCapacityMinutes, availableCapacityMinutes) || other.availableCapacityMinutes == availableCapacityMinutes)&&(identical(other.remainingCapacityMinutes, remainingCapacityMinutes) || other.remainingCapacityMinutes == remainingCapacityMinutes)&&(identical(other.isOverCapacity, isOverCapacity) || other.isOverCapacity == isOverCapacity)&&(identical(other.capacitySource, capacitySource) || other.capacitySource == capacitySource));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,assignedTaskCount,estimatedMinutes,loggedMinutes,unplannedEstimatedMinutes,availableCapacityMinutes,remainingCapacityMinutes,isOverCapacity,capacitySource);
+int get hashCode => Object.hash(runtimeType,userId,assignedTaskCount,estimatedMinutes,loggedMinutes,unplannedEstimatedMinutes,availableCapacityMinutes,remainingCapacityMinutes,isOverCapacity,capacitySource);
 
 @override
 String toString() {
-  return 'TaskWorkloadUserResponse(coreUserId: $coreUserId, assignedTaskCount: $assignedTaskCount, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, unplannedEstimatedMinutes: $unplannedEstimatedMinutes, availableCapacityMinutes: $availableCapacityMinutes, remainingCapacityMinutes: $remainingCapacityMinutes, isOverCapacity: $isOverCapacity, capacitySource: $capacitySource)';
+  return 'TaskWorkloadUserResponse(userId: $userId, assignedTaskCount: $assignedTaskCount, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, unplannedEstimatedMinutes: $unplannedEstimatedMinutes, availableCapacityMinutes: $availableCapacityMinutes, remainingCapacityMinutes: $remainingCapacityMinutes, isOverCapacity: $isOverCapacity, capacitySource: $capacitySource)';
 }
 
 
@@ -1426,7 +1426,7 @@ abstract mixin class $TaskWorkloadUserResponseCopyWith<$Res>  {
   factory $TaskWorkloadUserResponseCopyWith(TaskWorkloadUserResponse value, $Res Function(TaskWorkloadUserResponse) _then) = _$TaskWorkloadUserResponseCopyWithImpl;
 @useResult
 $Res call({
- String coreUserId, int assignedTaskCount, int estimatedMinutes, int loggedMinutes, int unplannedEstimatedMinutes, int availableCapacityMinutes, int remainingCapacityMinutes, bool isOverCapacity, CapacitySource capacitySource
+ String userId, int assignedTaskCount, int estimatedMinutes, int loggedMinutes, int unplannedEstimatedMinutes, int availableCapacityMinutes, int remainingCapacityMinutes, bool isOverCapacity, CapacitySource capacitySource
 });
 
 
@@ -1443,9 +1443,9 @@ class _$TaskWorkloadUserResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskWorkloadUserResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? coreUserId = null,Object? assignedTaskCount = null,Object? estimatedMinutes = null,Object? loggedMinutes = null,Object? unplannedEstimatedMinutes = null,Object? availableCapacityMinutes = null,Object? remainingCapacityMinutes = null,Object? isOverCapacity = null,Object? capacitySource = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? assignedTaskCount = null,Object? estimatedMinutes = null,Object? loggedMinutes = null,Object? unplannedEstimatedMinutes = null,Object? availableCapacityMinutes = null,Object? remainingCapacityMinutes = null,Object? isOverCapacity = null,Object? capacitySource = null,}) {
   return _then(_self.copyWith(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,assignedTaskCount: null == assignedTaskCount ? _self.assignedTaskCount : assignedTaskCount // ignore: cast_nullable_to_non_nullable
 as int,estimatedMinutes: null == estimatedMinutes ? _self.estimatedMinutes : estimatedMinutes // ignore: cast_nullable_to_non_nullable
 as int,loggedMinutes: null == loggedMinutes ? _self.loggedMinutes : loggedMinutes // ignore: cast_nullable_to_non_nullable
@@ -1539,10 +1539,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String coreUserId,  int assignedTaskCount,  int estimatedMinutes,  int loggedMinutes,  int unplannedEstimatedMinutes,  int availableCapacityMinutes,  int remainingCapacityMinutes,  bool isOverCapacity,  CapacitySource capacitySource)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  int assignedTaskCount,  int estimatedMinutes,  int loggedMinutes,  int unplannedEstimatedMinutes,  int availableCapacityMinutes,  int remainingCapacityMinutes,  bool isOverCapacity,  CapacitySource capacitySource)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskWorkloadUserResponse() when $default != null:
-return $default(_that.coreUserId,_that.assignedTaskCount,_that.estimatedMinutes,_that.loggedMinutes,_that.unplannedEstimatedMinutes,_that.availableCapacityMinutes,_that.remainingCapacityMinutes,_that.isOverCapacity,_that.capacitySource);case _:
+return $default(_that.userId,_that.assignedTaskCount,_that.estimatedMinutes,_that.loggedMinutes,_that.unplannedEstimatedMinutes,_that.availableCapacityMinutes,_that.remainingCapacityMinutes,_that.isOverCapacity,_that.capacitySource);case _:
   return orElse();
 
 }
@@ -1560,10 +1560,10 @@ return $default(_that.coreUserId,_that.assignedTaskCount,_that.estimatedMinutes,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String coreUserId,  int assignedTaskCount,  int estimatedMinutes,  int loggedMinutes,  int unplannedEstimatedMinutes,  int availableCapacityMinutes,  int remainingCapacityMinutes,  bool isOverCapacity,  CapacitySource capacitySource)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  int assignedTaskCount,  int estimatedMinutes,  int loggedMinutes,  int unplannedEstimatedMinutes,  int availableCapacityMinutes,  int remainingCapacityMinutes,  bool isOverCapacity,  CapacitySource capacitySource)  $default,) {final _that = this;
 switch (_that) {
 case _TaskWorkloadUserResponse():
-return $default(_that.coreUserId,_that.assignedTaskCount,_that.estimatedMinutes,_that.loggedMinutes,_that.unplannedEstimatedMinutes,_that.availableCapacityMinutes,_that.remainingCapacityMinutes,_that.isOverCapacity,_that.capacitySource);case _:
+return $default(_that.userId,_that.assignedTaskCount,_that.estimatedMinutes,_that.loggedMinutes,_that.unplannedEstimatedMinutes,_that.availableCapacityMinutes,_that.remainingCapacityMinutes,_that.isOverCapacity,_that.capacitySource);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1580,10 +1580,10 @@ return $default(_that.coreUserId,_that.assignedTaskCount,_that.estimatedMinutes,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String coreUserId,  int assignedTaskCount,  int estimatedMinutes,  int loggedMinutes,  int unplannedEstimatedMinutes,  int availableCapacityMinutes,  int remainingCapacityMinutes,  bool isOverCapacity,  CapacitySource capacitySource)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  int assignedTaskCount,  int estimatedMinutes,  int loggedMinutes,  int unplannedEstimatedMinutes,  int availableCapacityMinutes,  int remainingCapacityMinutes,  bool isOverCapacity,  CapacitySource capacitySource)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskWorkloadUserResponse() when $default != null:
-return $default(_that.coreUserId,_that.assignedTaskCount,_that.estimatedMinutes,_that.loggedMinutes,_that.unplannedEstimatedMinutes,_that.availableCapacityMinutes,_that.remainingCapacityMinutes,_that.isOverCapacity,_that.capacitySource);case _:
+return $default(_that.userId,_that.assignedTaskCount,_that.estimatedMinutes,_that.loggedMinutes,_that.unplannedEstimatedMinutes,_that.availableCapacityMinutes,_that.remainingCapacityMinutes,_that.isOverCapacity,_that.capacitySource);case _:
   return null;
 
 }
@@ -1595,10 +1595,10 @@ return $default(_that.coreUserId,_that.assignedTaskCount,_that.estimatedMinutes,
 @JsonSerializable()
 
 class _TaskWorkloadUserResponse implements TaskWorkloadUserResponse {
-  const _TaskWorkloadUserResponse({required this.coreUserId, required this.assignedTaskCount, required this.estimatedMinutes, required this.loggedMinutes, this.unplannedEstimatedMinutes = 0, this.availableCapacityMinutes = 0, this.remainingCapacityMinutes = 0, this.isOverCapacity = false, this.capacitySource = CapacitySource.workspaceDefault});
+  const _TaskWorkloadUserResponse({required this.userId, required this.assignedTaskCount, required this.estimatedMinutes, required this.loggedMinutes, this.unplannedEstimatedMinutes = 0, this.availableCapacityMinutes = 0, this.remainingCapacityMinutes = 0, this.isOverCapacity = false, this.capacitySource = CapacitySource.workspaceDefault});
   factory _TaskWorkloadUserResponse.fromJson(Map<String, dynamic> json) => _$TaskWorkloadUserResponseFromJson(json);
 
-@override final  String coreUserId;
+@override final  String userId;
 @override final  int assignedTaskCount;
 @override final  int estimatedMinutes;
 @override final  int loggedMinutes;
@@ -1621,16 +1621,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskWorkloadUserResponse&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.assignedTaskCount, assignedTaskCount) || other.assignedTaskCount == assignedTaskCount)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.unplannedEstimatedMinutes, unplannedEstimatedMinutes) || other.unplannedEstimatedMinutes == unplannedEstimatedMinutes)&&(identical(other.availableCapacityMinutes, availableCapacityMinutes) || other.availableCapacityMinutes == availableCapacityMinutes)&&(identical(other.remainingCapacityMinutes, remainingCapacityMinutes) || other.remainingCapacityMinutes == remainingCapacityMinutes)&&(identical(other.isOverCapacity, isOverCapacity) || other.isOverCapacity == isOverCapacity)&&(identical(other.capacitySource, capacitySource) || other.capacitySource == capacitySource));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskWorkloadUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.assignedTaskCount, assignedTaskCount) || other.assignedTaskCount == assignedTaskCount)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.unplannedEstimatedMinutes, unplannedEstimatedMinutes) || other.unplannedEstimatedMinutes == unplannedEstimatedMinutes)&&(identical(other.availableCapacityMinutes, availableCapacityMinutes) || other.availableCapacityMinutes == availableCapacityMinutes)&&(identical(other.remainingCapacityMinutes, remainingCapacityMinutes) || other.remainingCapacityMinutes == remainingCapacityMinutes)&&(identical(other.isOverCapacity, isOverCapacity) || other.isOverCapacity == isOverCapacity)&&(identical(other.capacitySource, capacitySource) || other.capacitySource == capacitySource));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,coreUserId,assignedTaskCount,estimatedMinutes,loggedMinutes,unplannedEstimatedMinutes,availableCapacityMinutes,remainingCapacityMinutes,isOverCapacity,capacitySource);
+int get hashCode => Object.hash(runtimeType,userId,assignedTaskCount,estimatedMinutes,loggedMinutes,unplannedEstimatedMinutes,availableCapacityMinutes,remainingCapacityMinutes,isOverCapacity,capacitySource);
 
 @override
 String toString() {
-  return 'TaskWorkloadUserResponse(coreUserId: $coreUserId, assignedTaskCount: $assignedTaskCount, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, unplannedEstimatedMinutes: $unplannedEstimatedMinutes, availableCapacityMinutes: $availableCapacityMinutes, remainingCapacityMinutes: $remainingCapacityMinutes, isOverCapacity: $isOverCapacity, capacitySource: $capacitySource)';
+  return 'TaskWorkloadUserResponse(userId: $userId, assignedTaskCount: $assignedTaskCount, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, unplannedEstimatedMinutes: $unplannedEstimatedMinutes, availableCapacityMinutes: $availableCapacityMinutes, remainingCapacityMinutes: $remainingCapacityMinutes, isOverCapacity: $isOverCapacity, capacitySource: $capacitySource)';
 }
 
 
@@ -1641,7 +1641,7 @@ abstract mixin class _$TaskWorkloadUserResponseCopyWith<$Res> implements $TaskWo
   factory _$TaskWorkloadUserResponseCopyWith(_TaskWorkloadUserResponse value, $Res Function(_TaskWorkloadUserResponse) _then) = __$TaskWorkloadUserResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String coreUserId, int assignedTaskCount, int estimatedMinutes, int loggedMinutes, int unplannedEstimatedMinutes, int availableCapacityMinutes, int remainingCapacityMinutes, bool isOverCapacity, CapacitySource capacitySource
+ String userId, int assignedTaskCount, int estimatedMinutes, int loggedMinutes, int unplannedEstimatedMinutes, int availableCapacityMinutes, int remainingCapacityMinutes, bool isOverCapacity, CapacitySource capacitySource
 });
 
 
@@ -1658,9 +1658,9 @@ class __$TaskWorkloadUserResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskWorkloadUserResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? coreUserId = null,Object? assignedTaskCount = null,Object? estimatedMinutes = null,Object? loggedMinutes = null,Object? unplannedEstimatedMinutes = null,Object? availableCapacityMinutes = null,Object? remainingCapacityMinutes = null,Object? isOverCapacity = null,Object? capacitySource = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? assignedTaskCount = null,Object? estimatedMinutes = null,Object? loggedMinutes = null,Object? unplannedEstimatedMinutes = null,Object? availableCapacityMinutes = null,Object? remainingCapacityMinutes = null,Object? isOverCapacity = null,Object? capacitySource = null,}) {
   return _then(_TaskWorkloadUserResponse(
-coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,assignedTaskCount: null == assignedTaskCount ? _self.assignedTaskCount : assignedTaskCount // ignore: cast_nullable_to_non_nullable
 as int,estimatedMinutes: null == estimatedMinutes ? _self.estimatedMinutes : estimatedMinutes // ignore: cast_nullable_to_non_nullable
 as int,loggedMinutes: null == loggedMinutes ? _self.loggedMinutes : loggedMinutes // ignore: cast_nullable_to_non_nullable

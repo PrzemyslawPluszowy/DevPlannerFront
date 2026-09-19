@@ -1,6 +1,6 @@
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/workspace_context_menu.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/workspace_context_menu.dart';
 
 /// Zunifikowane pozycje i style menu kontekstowego tabeli zadań.
 ///

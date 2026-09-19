@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/okr_enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/okr_enums.dart';
 
 part 'okr_models.freezed.dart';
 part 'okr_models.g.dart';
@@ -100,7 +100,7 @@ abstract class ObjectiveResponse with _$ObjectiveResponse {
   const factory ObjectiveResponse({
     required String id,
     required String workspaceId,
-    required String createdByCoreUserId,
+    required String createdByUserId,
     required String name,
     String? description,
     DateTime? targetDate,

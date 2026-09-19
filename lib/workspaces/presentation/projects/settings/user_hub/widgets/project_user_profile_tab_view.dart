@@ -1,13 +1,12 @@
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/user_hub/cubit/project_user_hub_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/auth/auth_cubit.dart';
-import 'package:ready_next/core/auth/auth_state.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/user_hub/cubit/project_user_hub_cubit.dart';
 
 /// Zakładka profilu użytkownika w projekcie z informacją o roli i opcją opuszczenia projektu.
 class ProjectUserProfileTabView extends StatelessWidget {
@@ -61,10 +60,7 @@ class ProjectUserProfileTabView extends StatelessWidget {
     final roleColor = _roleColor(context, role);
     final isShared = project.visibility == ProjectVisibility.shared;
 
-    final authUser = switch (context.watch<AuthCubit?>()?.state) {
-      AuthAuthenticated(:final user) => user,
-      _ => null,
-    };
+    final authUser = context.watch<AuthSessionPort?>()?.snapshot.user;
 
     return BlocBuilder<ProjectUserHubCubit, ProjectUserHubState>(
       builder: (context, state) {
@@ -105,26 +101,17 @@ class ProjectUserProfileTabView extends StatelessWidget {
                       CircleAvatar(
                         radius: Sizes.p24,
                         backgroundColor: colors.primaryContainer,
-                        backgroundImage:
-                            authUser.avatarUrl != null &&
-                                authUser.avatarUrl!.isNotEmpty
-                            ? NetworkImage(authUser.avatarUrl!)
-                            : null,
-                        child:
-                            authUser.avatarUrl == null ||
-                                authUser.avatarUrl!.isEmpty
-                            ? Text(
-                                authUser.displayName.isNotEmpty
-                                    ? authUser.displayName
-                                          .substring(0, 1)
-                                          .toUpperCase()
-                                    : 'U',
-                                style: context.text.titleMedium?.copyWith(
-                                  fontWeight: .w700,
-                                  color: colors.onPrimaryContainer,
-                                ),
-                              )
-                            : null,
+                        child: Text(
+                          authUser.displayName.isNotEmpty
+                              ? authUser.displayName
+                                    .substring(0, 1)
+                                    .toUpperCase()
+                              : 'U',
+                          style: context.text.titleMedium?.copyWith(
+                            fontWeight: .w700,
+                            color: colors.onPrimaryContainer,
+                          ),
+                        ),
                       ),
                       Gaps.w16,
                       Expanded(
@@ -140,10 +127,10 @@ class ProjectUserProfileTabView extends StatelessWidget {
                                 color: colors.onSurface,
                               ),
                             ),
-                            if (authUser.email.isNotEmpty) ...[
+                            if (authUser.login.isNotEmpty) ...[
                               Gaps.h2,
                               Text(
-                                authUser.email,
+                                authUser.login,
                                 style: context.text.bodySmall?.copyWith(
                                   color: colors.onSurfaceVariant,
                                 ),

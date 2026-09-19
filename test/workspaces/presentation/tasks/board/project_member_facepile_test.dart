@@ -1,12 +1,12 @@
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/models/task_project_realtime_update.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 Widget _buildTestApp({
   required Map<String, ProjectMemberProfile> memberProfiles,
@@ -26,7 +26,7 @@ Widget _buildTestApp({
   home: Scaffold(
     body: Center(
       child: ProjectMemberFacepile(
-        memberProfilesByCoreUserId: memberProfiles,
+        memberProfilesByUserId: memberProfiles,
         presence: presence,
         currentUserId: currentUserId,
         onTap: onTap,
@@ -66,7 +66,7 @@ void main() {
       var tapped = false;
       final members = {
         'user-1': const ProjectMemberProfile(
-          coreUserId: 'user-1',
+          userId: 'user-1',
           displayName: 'Adam Kowalski',
           role: ProjectRole.admin,
         ),
@@ -77,7 +77,7 @@ void main() {
           memberProfiles: members,
           presence: const [
             TaskProjectPresenceUser(
-              coreUserId: 'user-1',
+              userId: 'user-1',
               connectionCount: 1,
             ),
           ],
@@ -105,17 +105,17 @@ void main() {
       (tester) async {
         final members = {
           'user-c': const ProjectMemberProfile(
-            coreUserId: 'user-c',
+            userId: 'user-c',
             displayName: 'Celina Nowak',
             role: ProjectRole.member,
           ),
           'user-b': const ProjectMemberProfile(
-            coreUserId: 'user-b',
+            userId: 'user-b',
             displayName: 'Bartosz Zając',
             role: ProjectRole.member,
           ),
           'user-a': const ProjectMemberProfile(
-            coreUserId: 'user-a',
+            userId: 'user-a',
             displayName: 'Anna Kowalska',
             role: ProjectRole.member,
           ),
@@ -127,7 +127,7 @@ void main() {
             memberProfiles: members,
             presence: const [
               TaskProjectPresenceUser(
-                coreUserId: 'user-b',
+                userId: 'user-b',
                 connectionCount: 1,
               ),
             ],
@@ -151,7 +151,7 @@ void main() {
         final members = <String, ProjectMemberProfile>{};
         for (var i = 1; i <= 8; i++) {
           members['user-$i'] = ProjectMemberProfile(
-            coreUserId: 'user-$i',
+            userId: 'user-$i',
             displayName: 'Osoba $i',
             role: ProjectRole.member,
           );
@@ -176,7 +176,7 @@ void main() {
     ) async {
       final members = {
         'user-1': const ProjectMemberProfile(
-          coreUserId: 'user-1',
+          userId: 'user-1',
           displayName: 'Jan Kowalski',
           role: ProjectRole.admin,
         ),

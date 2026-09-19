@@ -1,4 +1,4 @@
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 
 /// Stany listy rozmów prezentowanej w globalnym drawerze.
 sealed class ChatDrawerState {

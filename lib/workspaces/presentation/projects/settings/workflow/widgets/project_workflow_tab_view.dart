@@ -1,15 +1,13 @@
 import 'dart:async';
 
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/workflow/widgets/project_workflow_dialog_actions.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/workflow/widgets/project_workflow_header.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/custom_workflow_settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_status_category.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/workflow/widgets/project_custom_status_editor_dialog.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/workflow/widgets/project_workflow_templates_dialog.dart';
-import 'package:ready_next/workspaces/presentation/tasks/settings/cubit/custom_workflow_settings_cubit.dart';
 
 /// Widok zakładki "Statusy i Workflow" w ustawieniach projektu.
 class ProjectWorkflowTabView extends StatelessWidget {
@@ -108,106 +106,17 @@ class ProjectWorkflowTabView extends StatelessWidget {
                     ),
                     Gaps.h16,
                   ],
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isNarrow = constraints.maxWidth < 600;
-                      final headerTitle = Column(
-                        crossAxisAlignment: .start,
-                        children: [
-                          Text(
-                            l10n.projectSettingsWorkflowColumnsHeader,
-                            style: context.text.titleMedium?.copyWith(
-                              fontWeight: .w700,
-                              color: colors.onSurface,
-                            ),
-                          ),
-                          Gaps.h4,
-                          Text(
-                            'Liczba kolumn: ${statuses.length}',
-                            style: context.text.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      );
-
-                      final actionButtons = Wrap(
-                        spacing: Sizes.p8,
-                        runSpacing: Sizes.p8,
-                        children: [
-                          Tooltip(
-                            message: !isOwnerOrAdmin
-                                ? 'Brak uprawnień do edycji workflow (wymagana rola Właściciel lub Administrator)'
-                                : isSaving
-                                ? 'Trwa zapisywanie zmian...'
-                                : 'Wybierz gotowy szablon etapów workflow',
-                            child: OutlinedButton.icon(
-                              onPressed: !isOwnerOrAdmin || isSaving
-                                  ? null
-                                  : () => _openTemplates(context, templates),
-                              icon: const Icon(
-                                Icons.auto_awesome_rounded,
-                                size: Sizes.p16,
-                              ),
-                              label: Text(
-                                l10n.projectSettingsWorkflowTemplatesButton,
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: .circular(Sizes.p8),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Tooltip(
-                            message: !isOwnerOrAdmin
-                                ? 'Brak uprawnień do dodawania statusów (wymagana rola Właściciel lub Administrator)'
-                                : isSaving
-                                ? 'Trwa zapisywanie zmian...'
-                                : 'Utwórz nowy status/kolumnę w projekcie',
-                            child: FilledButton.icon(
-                              onPressed: !isOwnerOrAdmin || isSaving
-                                  ? null
-                                  : () => _openCreateStatus(context),
-                              icon: const Icon(
-                                Icons.add_rounded,
-                                size: Sizes.p18,
-                              ),
-                              label: Text(
-                                l10n.projectSettingsWorkflowAddStatus,
-                              ),
-                              style: FilledButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: .circular(Sizes.p8),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-
-                      if (isNarrow) {
-                        return Column(
-                          crossAxisAlignment: .start,
-                          children: [
-                            headerTitle,
-                            if (isOwnerOrAdmin) ...[
-                              Gaps.h12,
-                              actionButtons,
-                            ],
-                          ],
-                        );
-                      }
-
-                      return Row(
-                        mainAxisAlignment: .spaceBetween,
-                        children: [
-                          Expanded(child: headerTitle),
-                          Gaps.w16,
-                          actionButtons,
-                        ],
-                      );
-                    },
+                  ProjectWorkflowHeader(
+                    statusesCount: statuses.length,
+                    canManage: isOwnerOrAdmin,
+                    isSaving: isSaving,
+                    onOpenTemplates: () =>
+                        ProjectWorkflowDialogActions.openTemplates(
+                          context,
+                          templates,
+                        ),
+                    onCreateStatus: () =>
+                        ProjectWorkflowDialogActions.openCreateStatus(context),
                   ),
                   Gaps.h16,
                   if (statuses.isEmpty)
@@ -267,7 +176,10 @@ class ProjectWorkflowTabView extends StatelessWidget {
                                   onPressed: isSaving
                                       ? null
                                       : () =>
-                                            _openTemplates(context, templates),
+                                            ProjectWorkflowDialogActions.openTemplates(
+                                              context,
+                                              templates,
+                                            ),
                                   icon: const Icon(
                                     Icons.auto_awesome_rounded,
                                     size: Sizes.p18,
@@ -279,7 +191,10 @@ class ProjectWorkflowTabView extends StatelessWidget {
                                 OutlinedButton.icon(
                                   onPressed: isSaving
                                       ? null
-                                      : () => _openCreateStatus(context),
+                                      : () =>
+                                            ProjectWorkflowDialogActions.openCreateStatus(
+                                              context,
+                                            ),
                                   icon: const Icon(
                                     Icons.add_rounded,
                                     size: Sizes.p18,
@@ -384,7 +299,11 @@ class ProjectWorkflowTabView extends StatelessWidget {
                                       l10n.projectSettingsWorkflowEditStatus,
                                   onPressed: isSaving
                                       ? null
-                                      : () => _openEditStatus(context, status),
+                                      : () =>
+                                            ProjectWorkflowDialogActions.openEditStatus(
+                                              context,
+                                              status,
+                                            ),
                                 ),
                                 IconButton(
                                   icon: Icon(
@@ -396,11 +315,12 @@ class ProjectWorkflowTabView extends StatelessWidget {
                                       l10n.projectSettingsWorkflowDeleteStatus,
                                   onPressed: isSaving || statuses.length <= 1
                                       ? null
-                                      : () => _confirmDeleteStatus(
-                                          context,
-                                          status,
-                                          statuses,
-                                        ),
+                                      : () =>
+                                            ProjectWorkflowDialogActions.confirmDeleteStatus(
+                                              context,
+                                              status,
+                                              statuses,
+                                            ),
                                 ),
                               ],
                             ],
@@ -414,151 +334,5 @@ class ProjectWorkflowTabView extends StatelessWidget {
         };
       },
     );
-  }
-
-  Future<void> _openCreateStatus(BuildContext context) async {
-    final cubit = context.read<CustomWorkflowSettingsCubit>();
-    final result =
-        await showDialog<
-          ({
-            String name,
-            String colorHex,
-            TaskStatusCategory category,
-            int? wipLimit,
-          })
-        >(
-          context: context,
-          builder: (_) => const ProjectCustomStatusEditorDialog(),
-        );
-
-    if (result != null) {
-      await cubit.create(
-        name: result.name,
-        colorHex: result.colorHex,
-        category: result.category,
-        wipLimit: result.wipLimit,
-      );
-    }
-  }
-
-  Future<void> _openEditStatus(
-    BuildContext context,
-    ProjectCustomStatusResponse status,
-  ) async {
-    final cubit = context.read<CustomWorkflowSettingsCubit>();
-    final result =
-        await showDialog<
-          ({
-            String name,
-            String colorHex,
-            TaskStatusCategory category,
-            int? wipLimit,
-          })
-        >(
-          context: context,
-          builder: (_) =>
-              ProjectCustomStatusEditorDialog(initialStatus: status),
-        );
-
-    if (result != null) {
-      await cubit.update(
-        status: status,
-        name: result.name,
-        colorHex: result.colorHex,
-        category: result.category,
-        wipLimit: result.wipLimit,
-        isDefault: status.isDefault,
-      );
-    }
-  }
-
-  Future<void> _confirmDeleteStatus(
-    BuildContext context,
-    ProjectCustomStatusResponse status,
-    List<ProjectCustomStatusResponse> allStatuses,
-  ) async {
-    final l10n = context.l10n;
-    final cubit = context.read<CustomWorkflowSettingsCubit>();
-    final fallbackCandidates = allStatuses
-        .where((s) => s.id != status.id)
-        .toList();
-
-    var fallbackId = fallbackCandidates.first.id;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(l10n.projectSettingsWorkflowDeleteStatus),
-          content: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .start,
-            children: [
-              Text(
-                'Czy na pewno chcesz usunąć status "${status.name}"? Zadania zostaną przeniesione do wybranego statusu zastępczego.',
-              ),
-              Gaps.h16,
-              Text(
-                'Status zastępczy:',
-                style: ctx.text.labelMedium?.copyWith(fontWeight: .w700),
-              ),
-              Gaps.h6,
-              DropdownButtonFormField<String>(
-                initialValue: fallbackId,
-                isExpanded: true,
-                items: [
-                  for (final fallback in fallbackCandidates)
-                    DropdownMenuItem(
-                      value: fallback.id,
-                      child: Text(fallback.name),
-                    ),
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    setDialogState(() => fallbackId = val);
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(l10n.tasksListCancelButton),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: ctx.colors.error,
-                foregroundColor: ctx.colors.onError,
-              ),
-              child: Text(l10n.projectSettingsWorkflowDeleteStatus),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (confirmed == true) {
-      await cubit.delete(
-        status,
-        fallbackId,
-      );
-    }
-  }
-
-  Future<void> _openTemplates(
-    BuildContext context,
-    List<WorkflowTemplateSummary> templates,
-  ) async {
-    final cubit = context.read<CustomWorkflowSettingsCubit>();
-    final template = await showDialog<WorkflowTemplateSummary>(
-      context: context,
-      builder: (_) => ProjectWorkflowTemplatesDialog(templates: templates),
-    );
-
-    if (template != null) {
-      await cubit.applyTemplate(template.key);
-    }
   }
 }

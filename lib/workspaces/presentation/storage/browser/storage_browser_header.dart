@@ -1,21 +1,21 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/transport/file_picker_port_impl.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_scope_route_codec.dart';
+import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/transport/file_picker_port_impl.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/shell/storage_scope_route_codec.dart';
-import 'package:ready_next/workspaces/presentation/storage/upload/cubit/storage_upload_cubit.dart';
 
 /// Górny nagłówek sekcji eksploratora plików: tytuł bieżącego zakresu oraz akcje nadrzędne (Nowy folder, Prześlij pliki).
 class StorageBrowserHeader extends StatelessWidget {
@@ -128,62 +128,11 @@ class StorageBrowserHeader extends StatelessWidget {
   ) async {
     final l10n = context.l10n;
     final nameController = TextEditingController();
-    var format = StorageDocumentFormat.docx;
     final result = await showDialog<(String, StorageDocumentFormat)>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(l10n.storageCreateDocumentDialogTitle),
-          content: SizedBox(
-            width: 360,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.storageDocumentName,
-                    hintText: l10n.storageDocumentNameHint,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<StorageDocumentFormat>(
-                  initialValue: format,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.storageDocumentFormat,
-                  ),
-                  items: StorageDocumentFormat.values
-                      .map(
-                        (item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(_formatLabel(item, l10n)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) =>
-                      setState(() => format = value ?? format),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(l10n.cancel),
-            ),
-            FilledButton(
-              onPressed: () {
-                final name = nameController.text.trim();
-                if (name.isNotEmpty) {
-                  Navigator.pop(dialogContext, (name, format));
-                }
-              },
-              child: Text(l10n.storageCreateDocumentButton),
-            ),
-          ],
-        ),
+      builder: (_) => _StorageCreateDocumentDialog(
+        controller: nameController,
+        l10n: l10n,
       ),
     );
     nameController.dispose();
@@ -195,17 +144,6 @@ class StorageBrowserHeader extends StatelessWidget {
       );
     }
   }
-
-  String _formatLabel(StorageDocumentFormat format, AppLocalizations l10n) =>
-      switch (format) {
-        StorageDocumentFormat.txt => l10n.storageFormatTxt,
-        StorageDocumentFormat.odt => l10n.storageFormatOdt,
-        StorageDocumentFormat.ods => l10n.storageFormatOds,
-        StorageDocumentFormat.odp => l10n.storageFormatOdp,
-        StorageDocumentFormat.docx => l10n.storageFormatDocx,
-        StorageDocumentFormat.xlsx => l10n.storageFormatXlsx,
-        StorageDocumentFormat.pptx => l10n.storageFormatPptx,
-      };
 
   String _resolveScopeTitle(StorageScope scope, AppLocalizations l10n) {
     if (scope.folderId != null) return l10n.storageFolderTitle;
@@ -276,4 +214,100 @@ class StorageBrowserHeader extends StatelessWidget {
 
     context.read<StorageUploadCubit>().enqueue(pickedFiles, scope);
   }
+}
+
+/// Dialog tworzenia dokumentu z lokalnym, zwalnianym wyborem formatu.
+final class _StorageCreateDocumentDialog extends StatefulWidget {
+  const _StorageCreateDocumentDialog({
+    required this.controller,
+    required this.l10n,
+  });
+
+  final TextEditingController controller;
+  final AppLocalizations l10n;
+
+  @override
+  State<_StorageCreateDocumentDialog> createState() =>
+      _StorageCreateDocumentDialogState();
+}
+
+final class _StorageCreateDocumentDialogState
+    extends State<_StorageCreateDocumentDialog> {
+  final ValueNotifier<StorageDocumentFormat> _format = ValueNotifier(
+    StorageDocumentFormat.docx,
+  );
+
+  @override
+  void dispose() {
+    _format.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<StorageDocumentFormat>(
+        valueListenable: _format,
+        builder: (context, format, _) => AlertDialog(
+          title: Text(widget.l10n.storageCreateDocumentDialogTitle),
+          content: SizedBox(
+            width: 360,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: widget.controller,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: widget.l10n.storageDocumentName,
+                    hintText: widget.l10n.storageDocumentNameHint,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<StorageDocumentFormat>(
+                  initialValue: format,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: widget.l10n.storageDocumentFormat,
+                  ),
+                  items: StorageDocumentFormat.values
+                      .map(
+                        (item) => DropdownMenuItem(
+                          value: item,
+                          child: Text(_formatLabel(item, widget.l10n)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) _format.value = value;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(widget.l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final name = widget.controller.text.trim();
+                if (name.isNotEmpty) Navigator.pop(context, (name, format));
+              },
+              child: Text(widget.l10n.storageCreateDocumentButton),
+            ),
+          ],
+        ),
+      );
+
+  String _formatLabel(StorageDocumentFormat format, AppLocalizations l10n) =>
+      switch (format) {
+        StorageDocumentFormat.txt => l10n.storageFormatTxt,
+        StorageDocumentFormat.odt => l10n.storageFormatOdt,
+        StorageDocumentFormat.ods => l10n.storageFormatOds,
+        StorageDocumentFormat.odp => l10n.storageFormatOdp,
+        StorageDocumentFormat.docx => l10n.storageFormatDocx,
+        StorageDocumentFormat.xlsx => l10n.storageFormatXlsx,
+        StorageDocumentFormat.pptx => l10n.storageFormatPptx,
+      };
 }

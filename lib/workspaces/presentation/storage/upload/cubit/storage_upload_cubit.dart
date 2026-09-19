@@ -1,15 +1,14 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
+import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/payloads/storage_payloads.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/payloads/storage_payloads.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/upload_transport.dart';
-import 'package:ready_next/workspaces/presentation/storage/upload/cubit/storage_upload_state.dart';
 
 /// Cubit zarządzający asynchroniczną kolejką uploadu plików z limitem równoległości.
 final class StorageUploadCubit extends Cubit<StorageUploadState> {
@@ -17,12 +16,16 @@ final class StorageUploadCubit extends Cubit<StorageUploadState> {
   StorageUploadCubit({
     required this._repository,
     required this._uploadTransport,
+    this.onUploadCompleted,
     this.maxParallelUploads = 3,
     this.maxFileSizeBytes = 20 * 1024 * 1024, // 20 MB domyślnie
   }) : super(const StorageUploadState());
 
   final StorageRepository _repository;
   final UploadTransport _uploadTransport;
+
+  /// Presentation callback fired after backend confirmation of one upload.
+  final Future<void> Function()? onUploadCompleted;
 
   /// Maksymalna liczba plików przesyłanych równolegle.
   final int maxParallelUploads;
@@ -56,7 +59,7 @@ final class StorageUploadCubit extends Cubit<StorageUploadState> {
           StorageUploadQueueItem(
             id: id,
             input: input,
-            cancelToken: CancelToken(),
+            cancelToken: UploadCancellationToken(),
           ),
         );
       }
@@ -76,7 +79,7 @@ final class StorageUploadCubit extends Cubit<StorageUploadState> {
     final updated = [...state.items];
     updated[index] = updated[index].copyWith(
       status: StorageUploadItemStatus.queued,
-      cancelToken: CancelToken(),
+      cancelToken: UploadCancellationToken(),
     );
 
     emit(state.copyWith(items: updated));
@@ -89,7 +92,7 @@ final class StorageUploadCubit extends Cubit<StorageUploadState> {
     if (index == -1) return;
 
     final item = state.items[index];
-    item.cancelToken?.cancel('upload_cancelled_by_user');
+    item.cancelToken?.cancel();
 
     _updateItem(
       itemId,
@@ -104,7 +107,7 @@ final class StorageUploadCubit extends Cubit<StorageUploadState> {
   void cancelAll() {
     for (final item in state.items) {
       if (item.isActive) {
-        item.cancelToken?.cancel('upload_cancelled_all');
+        item.cancelToken?.cancel();
       }
     }
 
@@ -331,6 +334,15 @@ final class StorageUploadCubit extends Cubit<StorageUploadState> {
     StorageScope scope,
   ) {
     _updateItem(id, update);
+    final completed =
+        !isClosed &&
+        state.items.any(
+          (item) =>
+              item.id == id && item.status == StorageUploadItemStatus.done,
+        );
+    if (completed) {
+      unawaited(onUploadCompleted?.call() ?? Future<void>.value());
+    }
     _activeJobs--;
     if (_activeJobs < 0) _activeJobs = 0;
     _processQueue(scope);

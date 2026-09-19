@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 /// Uniwersalny komponent szybkiego wprowadzania tytułu zadania / podzadania (inline create input).
 ///

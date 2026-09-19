@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_visibility.dart';
 
 part 'project_list_item_response.freezed.dart';
 part 'project_list_item_response.g.dart';

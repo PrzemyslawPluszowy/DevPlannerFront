@@ -1,7 +1,7 @@
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_digest.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_digest_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_digest.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_digest_repository.dart';
 
 /// Właściciel read-only snapshotu digestu bez mutacji inboxa.
 final class NotificationDigestCubit extends Cubit<NotificationDigestState> {

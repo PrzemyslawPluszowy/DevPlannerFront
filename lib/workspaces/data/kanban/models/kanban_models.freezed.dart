@@ -553,7 +553,7 @@ as String,
 /// @nodoc
 mixin _$KanbanTaskCardResponse {
 
- String get id; int get number; String get taskCode; String get title; ProjectTaskStatus get status; TaskPriority get priority; int get position; String? get primaryAssigneeCoreUserId; String? get milestoneId; DateTime? get dueAtUtc; int get checklistTotal; int get checklistCompleted; int get attachmentCount; int get version; int? get estimatedMinutes; int? get loggedMinutes; int get subtaskTotal; int get subtaskCompleted; bool get isBlocked; List<String>? get blockedByTaskIds; List<KanbanCardLabelResponse>? get labels; List<KanbanCardCustomFieldResponse>? get customFieldsSummary; String? get coverAttachmentId; String? get customStatusId; TaskRecurrenceSummaryResponse? get recurrence; bool get isPinned; int get watcherCount; bool get isWatchedByMe;
+ String get id; int get number; String get taskCode; String get title; ProjectTaskStatus get status; TaskPriority get priority; int get position; String? get primaryAssigneeUserId; String? get milestoneId; DateTime? get dueAtUtc; int get checklistTotal; int get checklistCompleted; int get attachmentCount; int get version; int? get estimatedMinutes; int? get loggedMinutes; int get subtaskTotal; int get subtaskCompleted; bool get isBlocked; List<String>? get blockedByTaskIds; List<KanbanCardLabelResponse>? get labels; List<KanbanCardCustomFieldResponse>? get customFieldsSummary; String? get coverAttachmentId; String? get customStatusId; TaskRecurrenceSummaryResponse? get recurrence; bool get isPinned; int get watcherCount; bool get isWatchedByMe;
 /// Create a copy of KanbanTaskCardResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -566,16 +566,16 @@ $KanbanTaskCardResponseCopyWith<KanbanTaskCardResponse> get copyWith => _$Kanban
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is KanbanTaskCardResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.taskCode, taskCode) || other.taskCode == taskCode)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.position, position) || other.position == position)&&(identical(other.primaryAssigneeCoreUserId, primaryAssigneeCoreUserId) || other.primaryAssigneeCoreUserId == primaryAssigneeCoreUserId)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.checklistTotal, checklistTotal) || other.checklistTotal == checklistTotal)&&(identical(other.checklistCompleted, checklistCompleted) || other.checklistCompleted == checklistCompleted)&&(identical(other.attachmentCount, attachmentCount) || other.attachmentCount == attachmentCount)&&(identical(other.version, version) || other.version == version)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.subtaskTotal, subtaskTotal) || other.subtaskTotal == subtaskTotal)&&(identical(other.subtaskCompleted, subtaskCompleted) || other.subtaskCompleted == subtaskCompleted)&&(identical(other.isBlocked, isBlocked) || other.isBlocked == isBlocked)&&const DeepCollectionEquality().equals(other.blockedByTaskIds, blockedByTaskIds)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldsSummary, customFieldsSummary)&&(identical(other.coverAttachmentId, coverAttachmentId) || other.coverAttachmentId == coverAttachmentId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.watcherCount, watcherCount) || other.watcherCount == watcherCount)&&(identical(other.isWatchedByMe, isWatchedByMe) || other.isWatchedByMe == isWatchedByMe));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is KanbanTaskCardResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.taskCode, taskCode) || other.taskCode == taskCode)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.position, position) || other.position == position)&&(identical(other.primaryAssigneeUserId, primaryAssigneeUserId) || other.primaryAssigneeUserId == primaryAssigneeUserId)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.checklistTotal, checklistTotal) || other.checklistTotal == checklistTotal)&&(identical(other.checklistCompleted, checklistCompleted) || other.checklistCompleted == checklistCompleted)&&(identical(other.attachmentCount, attachmentCount) || other.attachmentCount == attachmentCount)&&(identical(other.version, version) || other.version == version)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.subtaskTotal, subtaskTotal) || other.subtaskTotal == subtaskTotal)&&(identical(other.subtaskCompleted, subtaskCompleted) || other.subtaskCompleted == subtaskCompleted)&&(identical(other.isBlocked, isBlocked) || other.isBlocked == isBlocked)&&const DeepCollectionEquality().equals(other.blockedByTaskIds, blockedByTaskIds)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldsSummary, customFieldsSummary)&&(identical(other.coverAttachmentId, coverAttachmentId) || other.coverAttachmentId == coverAttachmentId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.watcherCount, watcherCount) || other.watcherCount == watcherCount)&&(identical(other.isWatchedByMe, isWatchedByMe) || other.isWatchedByMe == isWatchedByMe));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,number,taskCode,title,status,priority,position,primaryAssigneeCoreUserId,milestoneId,dueAtUtc,checklistTotal,checklistCompleted,attachmentCount,version,estimatedMinutes,loggedMinutes,subtaskTotal,subtaskCompleted,isBlocked,const DeepCollectionEquality().hash(blockedByTaskIds),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldsSummary),coverAttachmentId,customStatusId,recurrence,isPinned,watcherCount,isWatchedByMe]);
+int get hashCode => Object.hashAll([runtimeType,id,number,taskCode,title,status,priority,position,primaryAssigneeUserId,milestoneId,dueAtUtc,checklistTotal,checklistCompleted,attachmentCount,version,estimatedMinutes,loggedMinutes,subtaskTotal,subtaskCompleted,isBlocked,const DeepCollectionEquality().hash(blockedByTaskIds),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldsSummary),coverAttachmentId,customStatusId,recurrence,isPinned,watcherCount,isWatchedByMe]);
 
 @override
 String toString() {
-  return 'KanbanTaskCardResponse(id: $id, number: $number, taskCode: $taskCode, title: $title, status: $status, priority: $priority, position: $position, primaryAssigneeCoreUserId: $primaryAssigneeCoreUserId, milestoneId: $milestoneId, dueAtUtc: $dueAtUtc, checklistTotal: $checklistTotal, checklistCompleted: $checklistCompleted, attachmentCount: $attachmentCount, version: $version, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, subtaskTotal: $subtaskTotal, subtaskCompleted: $subtaskCompleted, isBlocked: $isBlocked, blockedByTaskIds: $blockedByTaskIds, labels: $labels, customFieldsSummary: $customFieldsSummary, coverAttachmentId: $coverAttachmentId, customStatusId: $customStatusId, recurrence: $recurrence, isPinned: $isPinned, watcherCount: $watcherCount, isWatchedByMe: $isWatchedByMe)';
+  return 'KanbanTaskCardResponse(id: $id, number: $number, taskCode: $taskCode, title: $title, status: $status, priority: $priority, position: $position, primaryAssigneeUserId: $primaryAssigneeUserId, milestoneId: $milestoneId, dueAtUtc: $dueAtUtc, checklistTotal: $checklistTotal, checklistCompleted: $checklistCompleted, attachmentCount: $attachmentCount, version: $version, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, subtaskTotal: $subtaskTotal, subtaskCompleted: $subtaskCompleted, isBlocked: $isBlocked, blockedByTaskIds: $blockedByTaskIds, labels: $labels, customFieldsSummary: $customFieldsSummary, coverAttachmentId: $coverAttachmentId, customStatusId: $customStatusId, recurrence: $recurrence, isPinned: $isPinned, watcherCount: $watcherCount, isWatchedByMe: $isWatchedByMe)';
 }
 
 
@@ -586,7 +586,7 @@ abstract mixin class $KanbanTaskCardResponseCopyWith<$Res>  {
   factory $KanbanTaskCardResponseCopyWith(KanbanTaskCardResponse value, $Res Function(KanbanTaskCardResponse) _then) = _$KanbanTaskCardResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, int number, String taskCode, String title, ProjectTaskStatus status, TaskPriority priority, int position, String? primaryAssigneeCoreUserId, String? milestoneId, DateTime? dueAtUtc, int checklistTotal, int checklistCompleted, int attachmentCount, int version, int? estimatedMinutes, int? loggedMinutes, int subtaskTotal, int subtaskCompleted, bool isBlocked, List<String>? blockedByTaskIds, List<KanbanCardLabelResponse>? labels, List<KanbanCardCustomFieldResponse>? customFieldsSummary, String? coverAttachmentId, String? customStatusId, TaskRecurrenceSummaryResponse? recurrence, bool isPinned, int watcherCount, bool isWatchedByMe
+ String id, int number, String taskCode, String title, ProjectTaskStatus status, TaskPriority priority, int position, String? primaryAssigneeUserId, String? milestoneId, DateTime? dueAtUtc, int checklistTotal, int checklistCompleted, int attachmentCount, int version, int? estimatedMinutes, int? loggedMinutes, int subtaskTotal, int subtaskCompleted, bool isBlocked, List<String>? blockedByTaskIds, List<KanbanCardLabelResponse>? labels, List<KanbanCardCustomFieldResponse>? customFieldsSummary, String? coverAttachmentId, String? customStatusId, TaskRecurrenceSummaryResponse? recurrence, bool isPinned, int watcherCount, bool isWatchedByMe
 });
 
 
@@ -603,7 +603,7 @@ class _$KanbanTaskCardResponseCopyWithImpl<$Res>
 
 /// Create a copy of KanbanTaskCardResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? number = null,Object? taskCode = null,Object? title = null,Object? status = null,Object? priority = null,Object? position = null,Object? primaryAssigneeCoreUserId = freezed,Object? milestoneId = freezed,Object? dueAtUtc = freezed,Object? checklistTotal = null,Object? checklistCompleted = null,Object? attachmentCount = null,Object? version = null,Object? estimatedMinutes = freezed,Object? loggedMinutes = freezed,Object? subtaskTotal = null,Object? subtaskCompleted = null,Object? isBlocked = null,Object? blockedByTaskIds = freezed,Object? labels = freezed,Object? customFieldsSummary = freezed,Object? coverAttachmentId = freezed,Object? customStatusId = freezed,Object? recurrence = freezed,Object? isPinned = null,Object? watcherCount = null,Object? isWatchedByMe = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? number = null,Object? taskCode = null,Object? title = null,Object? status = null,Object? priority = null,Object? position = null,Object? primaryAssigneeUserId = freezed,Object? milestoneId = freezed,Object? dueAtUtc = freezed,Object? checklistTotal = null,Object? checklistCompleted = null,Object? attachmentCount = null,Object? version = null,Object? estimatedMinutes = freezed,Object? loggedMinutes = freezed,Object? subtaskTotal = null,Object? subtaskCompleted = null,Object? isBlocked = null,Object? blockedByTaskIds = freezed,Object? labels = freezed,Object? customFieldsSummary = freezed,Object? coverAttachmentId = freezed,Object? customStatusId = freezed,Object? recurrence = freezed,Object? isPinned = null,Object? watcherCount = null,Object? isWatchedByMe = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
@@ -612,7 +612,7 @@ as String,title: null == title ? _self.title : title // ignore: cast_nullable_to
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ProjectTaskStatus,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
-as int,primaryAssigneeCoreUserId: freezed == primaryAssigneeCoreUserId ? _self.primaryAssigneeCoreUserId : primaryAssigneeCoreUserId // ignore: cast_nullable_to_non_nullable
+as int,primaryAssigneeUserId: freezed == primaryAssigneeUserId ? _self.primaryAssigneeUserId : primaryAssigneeUserId // ignore: cast_nullable_to_non_nullable
 as String?,milestoneId: freezed == milestoneId ? _self.milestoneId : milestoneId // ignore: cast_nullable_to_non_nullable
 as String?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,checklistTotal: null == checklistTotal ? _self.checklistTotal : checklistTotal // ignore: cast_nullable_to_non_nullable
@@ -730,10 +730,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeCoreUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _KanbanTaskCardResponse() when $default != null:
-return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeCoreUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
+return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
   return orElse();
 
 }
@@ -751,10 +751,10 @@ return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeCoreUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)  $default,) {final _that = this;
 switch (_that) {
 case _KanbanTaskCardResponse():
-return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeCoreUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
+return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -771,10 +771,10 @@ return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeCoreUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)?  $default,) {final _that = this;
 switch (_that) {
 case _KanbanTaskCardResponse() when $default != null:
-return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeCoreUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
+return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
   return null;
 
 }
@@ -786,7 +786,7 @@ return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_t
 @JsonSerializable()
 
 class _KanbanTaskCardResponse implements KanbanTaskCardResponse {
-  const _KanbanTaskCardResponse({required this.id, required this.number, required this.taskCode, required this.title, required this.status, required this.priority, required this.position, this.primaryAssigneeCoreUserId, this.milestoneId, this.dueAtUtc, required this.checklistTotal, required this.checklistCompleted, required this.attachmentCount, required this.version, this.estimatedMinutes, this.loggedMinutes, this.subtaskTotal = 0, this.subtaskCompleted = 0, this.isBlocked = false, this.blockedByTaskIds, this.labels, this.customFieldsSummary, this.coverAttachmentId, this.customStatusId, this.recurrence, this.isPinned = false, this.watcherCount = 0, this.isWatchedByMe = false});
+  const _KanbanTaskCardResponse({required this.id, required this.number, required this.taskCode, required this.title, required this.status, required this.priority, required this.position, this.primaryAssigneeUserId, this.milestoneId, this.dueAtUtc, required this.checklistTotal, required this.checklistCompleted, required this.attachmentCount, required this.version, this.estimatedMinutes, this.loggedMinutes, this.subtaskTotal = 0, this.subtaskCompleted = 0, this.isBlocked = false, this.blockedByTaskIds, this.labels, this.customFieldsSummary, this.coverAttachmentId, this.customStatusId, this.recurrence, this.isPinned = false, this.watcherCount = 0, this.isWatchedByMe = false});
   factory _KanbanTaskCardResponse.fromJson(Map<String, dynamic> json) => _$KanbanTaskCardResponseFromJson(json);
 
 @override final  String id;
@@ -796,7 +796,7 @@ class _KanbanTaskCardResponse implements KanbanTaskCardResponse {
 @override final  ProjectTaskStatus status;
 @override final  TaskPriority priority;
 @override final  int position;
-@override final  String? primaryAssigneeCoreUserId;
+@override final  String? primaryAssigneeUserId;
 @override final  String? milestoneId;
 @override final  DateTime? dueAtUtc;
 @override final  int checklistTotal;
@@ -831,16 +831,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KanbanTaskCardResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.taskCode, taskCode) || other.taskCode == taskCode)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.position, position) || other.position == position)&&(identical(other.primaryAssigneeCoreUserId, primaryAssigneeCoreUserId) || other.primaryAssigneeCoreUserId == primaryAssigneeCoreUserId)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.checklistTotal, checklistTotal) || other.checklistTotal == checklistTotal)&&(identical(other.checklistCompleted, checklistCompleted) || other.checklistCompleted == checklistCompleted)&&(identical(other.attachmentCount, attachmentCount) || other.attachmentCount == attachmentCount)&&(identical(other.version, version) || other.version == version)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.subtaskTotal, subtaskTotal) || other.subtaskTotal == subtaskTotal)&&(identical(other.subtaskCompleted, subtaskCompleted) || other.subtaskCompleted == subtaskCompleted)&&(identical(other.isBlocked, isBlocked) || other.isBlocked == isBlocked)&&const DeepCollectionEquality().equals(other.blockedByTaskIds, blockedByTaskIds)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldsSummary, customFieldsSummary)&&(identical(other.coverAttachmentId, coverAttachmentId) || other.coverAttachmentId == coverAttachmentId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.watcherCount, watcherCount) || other.watcherCount == watcherCount)&&(identical(other.isWatchedByMe, isWatchedByMe) || other.isWatchedByMe == isWatchedByMe));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KanbanTaskCardResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.taskCode, taskCode) || other.taskCode == taskCode)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.position, position) || other.position == position)&&(identical(other.primaryAssigneeUserId, primaryAssigneeUserId) || other.primaryAssigneeUserId == primaryAssigneeUserId)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.checklistTotal, checklistTotal) || other.checklistTotal == checklistTotal)&&(identical(other.checklistCompleted, checklistCompleted) || other.checklistCompleted == checklistCompleted)&&(identical(other.attachmentCount, attachmentCount) || other.attachmentCount == attachmentCount)&&(identical(other.version, version) || other.version == version)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.subtaskTotal, subtaskTotal) || other.subtaskTotal == subtaskTotal)&&(identical(other.subtaskCompleted, subtaskCompleted) || other.subtaskCompleted == subtaskCompleted)&&(identical(other.isBlocked, isBlocked) || other.isBlocked == isBlocked)&&const DeepCollectionEquality().equals(other.blockedByTaskIds, blockedByTaskIds)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldsSummary, customFieldsSummary)&&(identical(other.coverAttachmentId, coverAttachmentId) || other.coverAttachmentId == coverAttachmentId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.watcherCount, watcherCount) || other.watcherCount == watcherCount)&&(identical(other.isWatchedByMe, isWatchedByMe) || other.isWatchedByMe == isWatchedByMe));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,number,taskCode,title,status,priority,position,primaryAssigneeCoreUserId,milestoneId,dueAtUtc,checklistTotal,checklistCompleted,attachmentCount,version,estimatedMinutes,loggedMinutes,subtaskTotal,subtaskCompleted,isBlocked,const DeepCollectionEquality().hash(blockedByTaskIds),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldsSummary),coverAttachmentId,customStatusId,recurrence,isPinned,watcherCount,isWatchedByMe]);
+int get hashCode => Object.hashAll([runtimeType,id,number,taskCode,title,status,priority,position,primaryAssigneeUserId,milestoneId,dueAtUtc,checklistTotal,checklistCompleted,attachmentCount,version,estimatedMinutes,loggedMinutes,subtaskTotal,subtaskCompleted,isBlocked,const DeepCollectionEquality().hash(blockedByTaskIds),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldsSummary),coverAttachmentId,customStatusId,recurrence,isPinned,watcherCount,isWatchedByMe]);
 
 @override
 String toString() {
-  return 'KanbanTaskCardResponse(id: $id, number: $number, taskCode: $taskCode, title: $title, status: $status, priority: $priority, position: $position, primaryAssigneeCoreUserId: $primaryAssigneeCoreUserId, milestoneId: $milestoneId, dueAtUtc: $dueAtUtc, checklistTotal: $checklistTotal, checklistCompleted: $checklistCompleted, attachmentCount: $attachmentCount, version: $version, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, subtaskTotal: $subtaskTotal, subtaskCompleted: $subtaskCompleted, isBlocked: $isBlocked, blockedByTaskIds: $blockedByTaskIds, labels: $labels, customFieldsSummary: $customFieldsSummary, coverAttachmentId: $coverAttachmentId, customStatusId: $customStatusId, recurrence: $recurrence, isPinned: $isPinned, watcherCount: $watcherCount, isWatchedByMe: $isWatchedByMe)';
+  return 'KanbanTaskCardResponse(id: $id, number: $number, taskCode: $taskCode, title: $title, status: $status, priority: $priority, position: $position, primaryAssigneeUserId: $primaryAssigneeUserId, milestoneId: $milestoneId, dueAtUtc: $dueAtUtc, checklistTotal: $checklistTotal, checklistCompleted: $checklistCompleted, attachmentCount: $attachmentCount, version: $version, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, subtaskTotal: $subtaskTotal, subtaskCompleted: $subtaskCompleted, isBlocked: $isBlocked, blockedByTaskIds: $blockedByTaskIds, labels: $labels, customFieldsSummary: $customFieldsSummary, coverAttachmentId: $coverAttachmentId, customStatusId: $customStatusId, recurrence: $recurrence, isPinned: $isPinned, watcherCount: $watcherCount, isWatchedByMe: $isWatchedByMe)';
 }
 
 
@@ -851,7 +851,7 @@ abstract mixin class _$KanbanTaskCardResponseCopyWith<$Res> implements $KanbanTa
   factory _$KanbanTaskCardResponseCopyWith(_KanbanTaskCardResponse value, $Res Function(_KanbanTaskCardResponse) _then) = __$KanbanTaskCardResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, int number, String taskCode, String title, ProjectTaskStatus status, TaskPriority priority, int position, String? primaryAssigneeCoreUserId, String? milestoneId, DateTime? dueAtUtc, int checklistTotal, int checklistCompleted, int attachmentCount, int version, int? estimatedMinutes, int? loggedMinutes, int subtaskTotal, int subtaskCompleted, bool isBlocked, List<String>? blockedByTaskIds, List<KanbanCardLabelResponse>? labels, List<KanbanCardCustomFieldResponse>? customFieldsSummary, String? coverAttachmentId, String? customStatusId, TaskRecurrenceSummaryResponse? recurrence, bool isPinned, int watcherCount, bool isWatchedByMe
+ String id, int number, String taskCode, String title, ProjectTaskStatus status, TaskPriority priority, int position, String? primaryAssigneeUserId, String? milestoneId, DateTime? dueAtUtc, int checklistTotal, int checklistCompleted, int attachmentCount, int version, int? estimatedMinutes, int? loggedMinutes, int subtaskTotal, int subtaskCompleted, bool isBlocked, List<String>? blockedByTaskIds, List<KanbanCardLabelResponse>? labels, List<KanbanCardCustomFieldResponse>? customFieldsSummary, String? coverAttachmentId, String? customStatusId, TaskRecurrenceSummaryResponse? recurrence, bool isPinned, int watcherCount, bool isWatchedByMe
 });
 
 
@@ -868,7 +868,7 @@ class __$KanbanTaskCardResponseCopyWithImpl<$Res>
 
 /// Create a copy of KanbanTaskCardResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? number = null,Object? taskCode = null,Object? title = null,Object? status = null,Object? priority = null,Object? position = null,Object? primaryAssigneeCoreUserId = freezed,Object? milestoneId = freezed,Object? dueAtUtc = freezed,Object? checklistTotal = null,Object? checklistCompleted = null,Object? attachmentCount = null,Object? version = null,Object? estimatedMinutes = freezed,Object? loggedMinutes = freezed,Object? subtaskTotal = null,Object? subtaskCompleted = null,Object? isBlocked = null,Object? blockedByTaskIds = freezed,Object? labels = freezed,Object? customFieldsSummary = freezed,Object? coverAttachmentId = freezed,Object? customStatusId = freezed,Object? recurrence = freezed,Object? isPinned = null,Object? watcherCount = null,Object? isWatchedByMe = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? number = null,Object? taskCode = null,Object? title = null,Object? status = null,Object? priority = null,Object? position = null,Object? primaryAssigneeUserId = freezed,Object? milestoneId = freezed,Object? dueAtUtc = freezed,Object? checklistTotal = null,Object? checklistCompleted = null,Object? attachmentCount = null,Object? version = null,Object? estimatedMinutes = freezed,Object? loggedMinutes = freezed,Object? subtaskTotal = null,Object? subtaskCompleted = null,Object? isBlocked = null,Object? blockedByTaskIds = freezed,Object? labels = freezed,Object? customFieldsSummary = freezed,Object? coverAttachmentId = freezed,Object? customStatusId = freezed,Object? recurrence = freezed,Object? isPinned = null,Object? watcherCount = null,Object? isWatchedByMe = null,}) {
   return _then(_KanbanTaskCardResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
@@ -877,7 +877,7 @@ as String,title: null == title ? _self.title : title // ignore: cast_nullable_to
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ProjectTaskStatus,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
-as int,primaryAssigneeCoreUserId: freezed == primaryAssigneeCoreUserId ? _self.primaryAssigneeCoreUserId : primaryAssigneeCoreUserId // ignore: cast_nullable_to_non_nullable
+as int,primaryAssigneeUserId: freezed == primaryAssigneeUserId ? _self.primaryAssigneeUserId : primaryAssigneeUserId // ignore: cast_nullable_to_non_nullable
 as String?,milestoneId: freezed == milestoneId ? _self.milestoneId : milestoneId // ignore: cast_nullable_to_non_nullable
 as String?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,checklistTotal: null == checklistTotal ? _self.checklistTotal : checklistTotal // ignore: cast_nullable_to_non_nullable
@@ -4502,7 +4502,7 @@ as List<String>?,
 /// @nodoc
 mixin _$UserKanbanPreferenceResponse {
 
- String get workspaceId; String get projectId; String get coreUserId; List<ProjectTaskStatus> get collapsedColumns; KanbanQuickFilter get quickFilter; DateTime? get updatedAtUtc; int get version; List<String> get collapsedCustomStatusIds;
+ String get workspaceId; String get projectId; String get userId; List<ProjectTaskStatus> get collapsedColumns; KanbanQuickFilter get quickFilter; DateTime? get updatedAtUtc; int get version; List<String> get collapsedCustomStatusIds;
 /// Create a copy of UserKanbanPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4515,16 +4515,16 @@ $UserKanbanPreferenceResponseCopyWith<UserKanbanPreferenceResponse> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserKanbanPreferenceResponse&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&const DeepCollectionEquality().equals(other.collapsedColumns, collapsedColumns)&&(identical(other.quickFilter, quickFilter) || other.quickFilter == quickFilter)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other.collapsedCustomStatusIds, collapsedCustomStatusIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserKanbanPreferenceResponse&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.userId, userId) || other.userId == userId)&&const DeepCollectionEquality().equals(other.collapsedColumns, collapsedColumns)&&(identical(other.quickFilter, quickFilter) || other.quickFilter == quickFilter)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other.collapsedCustomStatusIds, collapsedCustomStatusIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,workspaceId,projectId,coreUserId,const DeepCollectionEquality().hash(collapsedColumns),quickFilter,updatedAtUtc,version,const DeepCollectionEquality().hash(collapsedCustomStatusIds));
+int get hashCode => Object.hash(runtimeType,workspaceId,projectId,userId,const DeepCollectionEquality().hash(collapsedColumns),quickFilter,updatedAtUtc,version,const DeepCollectionEquality().hash(collapsedCustomStatusIds));
 
 @override
 String toString() {
-  return 'UserKanbanPreferenceResponse(workspaceId: $workspaceId, projectId: $projectId, coreUserId: $coreUserId, collapsedColumns: $collapsedColumns, quickFilter: $quickFilter, updatedAtUtc: $updatedAtUtc, version: $version, collapsedCustomStatusIds: $collapsedCustomStatusIds)';
+  return 'UserKanbanPreferenceResponse(workspaceId: $workspaceId, projectId: $projectId, userId: $userId, collapsedColumns: $collapsedColumns, quickFilter: $quickFilter, updatedAtUtc: $updatedAtUtc, version: $version, collapsedCustomStatusIds: $collapsedCustomStatusIds)';
 }
 
 
@@ -4535,7 +4535,7 @@ abstract mixin class $UserKanbanPreferenceResponseCopyWith<$Res>  {
   factory $UserKanbanPreferenceResponseCopyWith(UserKanbanPreferenceResponse value, $Res Function(UserKanbanPreferenceResponse) _then) = _$UserKanbanPreferenceResponseCopyWithImpl;
 @useResult
 $Res call({
- String workspaceId, String projectId, String coreUserId, List<ProjectTaskStatus> collapsedColumns, KanbanQuickFilter quickFilter, DateTime? updatedAtUtc, int version, List<String> collapsedCustomStatusIds
+ String workspaceId, String projectId, String userId, List<ProjectTaskStatus> collapsedColumns, KanbanQuickFilter quickFilter, DateTime? updatedAtUtc, int version, List<String> collapsedCustomStatusIds
 });
 
 
@@ -4552,11 +4552,11 @@ class _$UserKanbanPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of UserKanbanPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? workspaceId = null,Object? projectId = null,Object? coreUserId = null,Object? collapsedColumns = null,Object? quickFilter = null,Object? updatedAtUtc = freezed,Object? version = null,Object? collapsedCustomStatusIds = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? workspaceId = null,Object? projectId = null,Object? userId = null,Object? collapsedColumns = null,Object? quickFilter = null,Object? updatedAtUtc = freezed,Object? version = null,Object? collapsedCustomStatusIds = null,}) {
   return _then(_self.copyWith(
 workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
 as String,projectId: null == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,collapsedColumns: null == collapsedColumns ? _self.collapsedColumns : collapsedColumns // ignore: cast_nullable_to_non_nullable
 as List<ProjectTaskStatus>,quickFilter: null == quickFilter ? _self.quickFilter : quickFilter // ignore: cast_nullable_to_non_nullable
 as KanbanQuickFilter,updatedAtUtc: freezed == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
@@ -4647,10 +4647,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String workspaceId,  String projectId,  String coreUserId,  List<ProjectTaskStatus> collapsedColumns,  KanbanQuickFilter quickFilter,  DateTime? updatedAtUtc,  int version,  List<String> collapsedCustomStatusIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String workspaceId,  String projectId,  String userId,  List<ProjectTaskStatus> collapsedColumns,  KanbanQuickFilter quickFilter,  DateTime? updatedAtUtc,  int version,  List<String> collapsedCustomStatusIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserKanbanPreferenceResponse() when $default != null:
-return $default(_that.workspaceId,_that.projectId,_that.coreUserId,_that.collapsedColumns,_that.quickFilter,_that.updatedAtUtc,_that.version,_that.collapsedCustomStatusIds);case _:
+return $default(_that.workspaceId,_that.projectId,_that.userId,_that.collapsedColumns,_that.quickFilter,_that.updatedAtUtc,_that.version,_that.collapsedCustomStatusIds);case _:
   return orElse();
 
 }
@@ -4668,10 +4668,10 @@ return $default(_that.workspaceId,_that.projectId,_that.coreUserId,_that.collaps
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String workspaceId,  String projectId,  String coreUserId,  List<ProjectTaskStatus> collapsedColumns,  KanbanQuickFilter quickFilter,  DateTime? updatedAtUtc,  int version,  List<String> collapsedCustomStatusIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String workspaceId,  String projectId,  String userId,  List<ProjectTaskStatus> collapsedColumns,  KanbanQuickFilter quickFilter,  DateTime? updatedAtUtc,  int version,  List<String> collapsedCustomStatusIds)  $default,) {final _that = this;
 switch (_that) {
 case _UserKanbanPreferenceResponse():
-return $default(_that.workspaceId,_that.projectId,_that.coreUserId,_that.collapsedColumns,_that.quickFilter,_that.updatedAtUtc,_that.version,_that.collapsedCustomStatusIds);case _:
+return $default(_that.workspaceId,_that.projectId,_that.userId,_that.collapsedColumns,_that.quickFilter,_that.updatedAtUtc,_that.version,_that.collapsedCustomStatusIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4688,10 +4688,10 @@ return $default(_that.workspaceId,_that.projectId,_that.coreUserId,_that.collaps
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String workspaceId,  String projectId,  String coreUserId,  List<ProjectTaskStatus> collapsedColumns,  KanbanQuickFilter quickFilter,  DateTime? updatedAtUtc,  int version,  List<String> collapsedCustomStatusIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String workspaceId,  String projectId,  String userId,  List<ProjectTaskStatus> collapsedColumns,  KanbanQuickFilter quickFilter,  DateTime? updatedAtUtc,  int version,  List<String> collapsedCustomStatusIds)?  $default,) {final _that = this;
 switch (_that) {
 case _UserKanbanPreferenceResponse() when $default != null:
-return $default(_that.workspaceId,_that.projectId,_that.coreUserId,_that.collapsedColumns,_that.quickFilter,_that.updatedAtUtc,_that.version,_that.collapsedCustomStatusIds);case _:
+return $default(_that.workspaceId,_that.projectId,_that.userId,_that.collapsedColumns,_that.quickFilter,_that.updatedAtUtc,_that.version,_that.collapsedCustomStatusIds);case _:
   return null;
 
 }
@@ -4703,12 +4703,12 @@ return $default(_that.workspaceId,_that.projectId,_that.coreUserId,_that.collaps
 @JsonSerializable()
 
 class _UserKanbanPreferenceResponse implements UserKanbanPreferenceResponse {
-  const _UserKanbanPreferenceResponse({required this.workspaceId, required this.projectId, required this.coreUserId, required this.collapsedColumns, required this.quickFilter, this.updatedAtUtc, required this.version, required this.collapsedCustomStatusIds});
+  const _UserKanbanPreferenceResponse({required this.workspaceId, required this.projectId, required this.userId, required this.collapsedColumns, required this.quickFilter, this.updatedAtUtc, required this.version, required this.collapsedCustomStatusIds});
   factory _UserKanbanPreferenceResponse.fromJson(Map<String, dynamic> json) => _$UserKanbanPreferenceResponseFromJson(json);
 
 @override final  String workspaceId;
 @override final  String projectId;
-@override final  String coreUserId;
+@override final  String userId;
 @override final  List<ProjectTaskStatus> collapsedColumns;
 @override final  KanbanQuickFilter quickFilter;
 @override final  DateTime? updatedAtUtc;
@@ -4728,16 +4728,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserKanbanPreferenceResponse&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&const DeepCollectionEquality().equals(other.collapsedColumns, collapsedColumns)&&(identical(other.quickFilter, quickFilter) || other.quickFilter == quickFilter)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other.collapsedCustomStatusIds, collapsedCustomStatusIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserKanbanPreferenceResponse&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.userId, userId) || other.userId == userId)&&const DeepCollectionEquality().equals(other.collapsedColumns, collapsedColumns)&&(identical(other.quickFilter, quickFilter) || other.quickFilter == quickFilter)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other.collapsedCustomStatusIds, collapsedCustomStatusIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,workspaceId,projectId,coreUserId,const DeepCollectionEquality().hash(collapsedColumns),quickFilter,updatedAtUtc,version,const DeepCollectionEquality().hash(collapsedCustomStatusIds));
+int get hashCode => Object.hash(runtimeType,workspaceId,projectId,userId,const DeepCollectionEquality().hash(collapsedColumns),quickFilter,updatedAtUtc,version,const DeepCollectionEquality().hash(collapsedCustomStatusIds));
 
 @override
 String toString() {
-  return 'UserKanbanPreferenceResponse(workspaceId: $workspaceId, projectId: $projectId, coreUserId: $coreUserId, collapsedColumns: $collapsedColumns, quickFilter: $quickFilter, updatedAtUtc: $updatedAtUtc, version: $version, collapsedCustomStatusIds: $collapsedCustomStatusIds)';
+  return 'UserKanbanPreferenceResponse(workspaceId: $workspaceId, projectId: $projectId, userId: $userId, collapsedColumns: $collapsedColumns, quickFilter: $quickFilter, updatedAtUtc: $updatedAtUtc, version: $version, collapsedCustomStatusIds: $collapsedCustomStatusIds)';
 }
 
 
@@ -4748,7 +4748,7 @@ abstract mixin class _$UserKanbanPreferenceResponseCopyWith<$Res> implements $Us
   factory _$UserKanbanPreferenceResponseCopyWith(_UserKanbanPreferenceResponse value, $Res Function(_UserKanbanPreferenceResponse) _then) = __$UserKanbanPreferenceResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String workspaceId, String projectId, String coreUserId, List<ProjectTaskStatus> collapsedColumns, KanbanQuickFilter quickFilter, DateTime? updatedAtUtc, int version, List<String> collapsedCustomStatusIds
+ String workspaceId, String projectId, String userId, List<ProjectTaskStatus> collapsedColumns, KanbanQuickFilter quickFilter, DateTime? updatedAtUtc, int version, List<String> collapsedCustomStatusIds
 });
 
 
@@ -4765,11 +4765,11 @@ class __$UserKanbanPreferenceResponseCopyWithImpl<$Res>
 
 /// Create a copy of UserKanbanPreferenceResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? workspaceId = null,Object? projectId = null,Object? coreUserId = null,Object? collapsedColumns = null,Object? quickFilter = null,Object? updatedAtUtc = freezed,Object? version = null,Object? collapsedCustomStatusIds = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? workspaceId = null,Object? projectId = null,Object? userId = null,Object? collapsedColumns = null,Object? quickFilter = null,Object? updatedAtUtc = freezed,Object? version = null,Object? collapsedCustomStatusIds = null,}) {
   return _then(_UserKanbanPreferenceResponse(
 workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
 as String,projectId: null == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,collapsedColumns: null == collapsedColumns ? _self.collapsedColumns : collapsedColumns // ignore: cast_nullable_to_non_nullable
 as List<ProjectTaskStatus>,quickFilter: null == quickFilter ? _self.quickFilter : quickFilter // ignore: cast_nullable_to_non_nullable
 as KanbanQuickFilter,updatedAtUtc: freezed == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable

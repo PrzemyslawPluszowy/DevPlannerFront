@@ -1,25 +1,19 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_action_pill.dart';
+import 'package:devplanner/shared/presentation/widgets/app_bubble_toast.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/project_recurrences_empty_view.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/project_recurrences_header.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/project_recurrences_rule_card.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/project_recurrences_run_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/shared/presentation/widgets/app_action_pill.dart';
-import 'package:ready_next/shared/presentation/widgets/app_bubble_toast.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_state.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/task_recurrence_context_editor.dart';
-
-part 'widgets/project_recurrences_empty_view.part.dart';
-part 'widgets/project_recurrences_header.part.dart';
-part 'widgets/project_recurrences_rule_card.part.dart';
-part 'widgets/project_recurrences_run_card.part.dart';
 
 /// Nowoczesny arkusz / widok zarządzania zadaniami cyklicznymi w projekcie.
 class ProjectRecurrencesSheet extends StatefulWidget {
@@ -39,7 +33,13 @@ class ProjectRecurrencesSheet extends StatefulWidget {
 }
 
 class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
-  int _selectedTab = 0; // 0 = harmonogram reguł, 1 = historia wykonań
+  final _selectedTab = ValueNotifier<int>(0);
+
+  @override
+  void dispose() {
+    _selectedTab.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => ColoredBox(
@@ -73,8 +73,15 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
       builder: (context, state) => Column(
         crossAxisAlignment: .stretch,
         children: [
-          const _ProjectRecurrencesHeader(),
-          _buildSubNav(context, state),
+          const ProjectRecurrencesHeader(),
+          ValueListenableBuilder<int>(
+            valueListenable: _selectedTab,
+            builder: (context, selectedTab, _) => _buildSubNav(
+              context,
+              state,
+              selectedTab,
+            ),
+          ),
           const Divider(height: 1),
           Expanded(
             child: switch (state) {
@@ -96,12 +103,30 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
                 :final runs,
                 :final isActionInProgress,
               ) =>
-                _buildTabContent(context, rules, runs, isActionInProgress),
+                ValueListenableBuilder<int>(
+                  valueListenable: _selectedTab,
+                  builder: (context, selectedTab, _) => _buildTabContent(
+                    context,
+                    selectedTab,
+                    rules,
+                    runs,
+                    isActionInProgress,
+                  ),
+                ),
               ProjectRecurrencesLoading(
                 :final previousRules?,
                 :final previousRuns?,
               ) =>
-                _buildTabContent(context, previousRules, previousRuns, true),
+                ValueListenableBuilder<int>(
+                  valueListenable: _selectedTab,
+                  builder: (context, selectedTab, _) => _buildTabContent(
+                    context,
+                    selectedTab,
+                    previousRules,
+                    previousRuns,
+                    true,
+                  ),
+                ),
             },
           ),
         ],
@@ -109,7 +134,11 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
     ),
   );
 
-  Widget _buildSubNav(BuildContext context, ProjectRecurrencesState state) {
+  Widget _buildSubNav(
+    BuildContext context,
+    ProjectRecurrencesState state,
+    int selectedTab,
+  ) {
     final rulesCount = switch (state) {
       ProjectRecurrencesLoaded(:final rules) => rules.length,
       ProjectRecurrencesLoading(:final previousRules?) => previousRules.length,
@@ -131,15 +160,15 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
           AppActionPill(
             label: '${context.l10n.tasksRecurrenceTabSchedule} ($rulesCount)',
             icon: Symbols.schedule_rounded,
-            selected: _selectedTab == 0,
-            onPressed: () => setState(() => _selectedTab = 0),
+            selected: selectedTab == 0,
+            onPressed: () => _selectedTab.value = 0,
           ),
           Gaps.w8,
           AppActionPill(
             label: '${context.l10n.tasksRecurrenceTabRuns} ($runsCount)',
             icon: Symbols.history_rounded,
-            selected: _selectedTab == 1,
-            onPressed: () => setState(() => _selectedTab = 1),
+            selected: selectedTab == 1,
+            onPressed: () => _selectedTab.value = 1,
           ),
         ],
       ),
@@ -148,13 +177,14 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
 
   Widget _buildTabContent(
     BuildContext context,
+    int selectedTab,
     List<ProjectTaskRecurrenceItemResponse> rules,
     List<ProjectTaskRecurrenceRunResponse> runs,
     bool isActionInProgress,
   ) {
-    if (_selectedTab == 0) {
+    if (selectedTab == 0) {
       if (rules.isEmpty) {
-        return _ProjectRecurrencesEmptyView(
+        return ProjectRecurrencesEmptyView(
           icon: Symbols.repeat_on,
           title: context.l10n.tasksRecurrenceEmptyTitle,
           description: context.l10n.tasksRecurrenceEmptyDescription,
@@ -175,7 +205,7 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
           Expanded(
             child: ListView.builder(
               itemCount: rules.length,
-              itemBuilder: (context, index) => _ProjectRecurrencesRuleCard(
+              itemBuilder: (context, index) => ProjectRecurrencesRuleCard(
                 rule: rules[index],
                 isActionInProgress: isActionInProgress,
                 workspaceId: widget.workspaceId,
@@ -187,7 +217,7 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
       );
     } else {
       if (runs.isEmpty) {
-        return _ProjectRecurrencesEmptyView(
+        return ProjectRecurrencesEmptyView(
           icon: Symbols.history_rounded,
           title: context.l10n.tasksRecurrenceRunsEmptyTitle,
           description: context.l10n.tasksRecurrenceRunsEmptyDescription,
@@ -207,7 +237,7 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
           Expanded(
             child: ListView.builder(
               itemCount: runs.length,
-              itemBuilder: (context, index) => _ProjectRecurrencesRunCard(
+              itemBuilder: (context, index) => ProjectRecurrencesRunCard(
                 run: runs[index],
               ),
             ),
@@ -266,33 +296,4 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
       ],
     ),
   );
-}
-
-/// Rozszerzenia ułatwiające formatowanie opisów cykliczności w kontekście lokalizacji.
-extension TaskRecurrenceDisplayX on BuildContext {
-  /// Zwraca zlokalizowaną etykietę interwału powtarzania.
-  String recurrenceIntervalLabel(
-    TaskRecurrenceFrequency frequency,
-    int interval,
-  ) => switch (frequency) {
-    TaskRecurrenceFrequency.daily =>
-      interval == 1
-          ? l10n.taskRecurrenceIntervalDaily
-          : l10n.taskRecurrenceIntervalDays(interval),
-    TaskRecurrenceFrequency.weekly =>
-      interval == 1
-          ? l10n.taskRecurrenceIntervalWeekly
-          : l10n.taskRecurrenceIntervalWeeks(interval),
-    TaskRecurrenceFrequency.monthly =>
-      interval == 1
-          ? l10n.taskRecurrenceIntervalMonthly
-          : l10n.taskRecurrenceIntervalMonths(interval),
-  };
-
-  /// Zwraca zlokalizowaną etykietę trybu serii.
-  String recurrenceModeLabel(TaskRecurrenceMode mode) => switch (mode) {
-    TaskRecurrenceMode.scheduled => l10n.tasksRecurrenceModeScheduled,
-    TaskRecurrenceMode.afterCompletion =>
-      l10n.tasksRecurrenceModeAfterCompletion,
-  };
 }

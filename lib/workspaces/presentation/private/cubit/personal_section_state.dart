@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
 
 /// Stany lokalnego ekranu prywatnego użytkownika.
 sealed class PersonalSectionState extends Equatable {

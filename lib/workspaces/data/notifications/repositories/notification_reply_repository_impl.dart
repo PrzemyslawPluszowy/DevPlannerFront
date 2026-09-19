@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/chat/models/chat_models.dart';
-import 'package:ready_next/workspaces/data/notifications/api/notifications_api.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message_attachment.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_reply_command.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_reply_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/data/notifications/api/notifications_api.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_attachment.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_reply_command.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_reply_repository.dart';
 
 /// Adapter odpowiedzi z powiadomienia, który izoluje kontrakt Chat od UI.
 final class NotificationReplyRepositoryImpl extends ApiRepository
@@ -38,7 +38,7 @@ final class NotificationReplyRepositoryImpl extends ApiRepository
   ChatMessage _toMessage(ChatMessageResponse response) => ChatMessage(
     id: response.id,
     conversationId: response.conversationId,
-    authorCoreUserId: response.authorCoreUserId,
+    authorUserId: response.authorUserId,
     clientMessageId: response.clientMessageId,
     text: response.text,
     deltaJson: response.deltaJson,
@@ -58,7 +58,7 @@ final class NotificationReplyRepositoryImpl extends ApiRepository
                 id: attachment.id,
                 messageId: attachment.messageId,
                 storageFileId: attachment.storageFileId,
-                attachedByCoreUserId: attachment.attachedByCoreUserId,
+                attachedByUserId: attachment.attachedByUserId,
                 position: attachment.position,
                 createdAtUtc: attachment.createdAtUtc,
               ),

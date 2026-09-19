@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
+import 'package:devplanner/workspaces/presentation/chat/thread/cubit/chat_thread_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/domain/chat/thread/chat_thread_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
-import 'package:ready_next/workspaces/presentation/chat/thread/cubit/chat_thread_state.dart';
 
 /// Mały owner historii jednego wątku, bez stanu całej rozmowy.
 final class ChatThreadCubit extends Cubit<ChatThreadState> {

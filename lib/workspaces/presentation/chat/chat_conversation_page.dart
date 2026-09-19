@@ -6,25 +6,25 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/auth/auth_repository.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/message_actions/chat_message_actions_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/composer/chat_message_composer.dart';
-import 'package:ready_next/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/file_picker_port.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
-import 'package:ready_next/workspaces/presentation/chat/discussion/chat_discussion_side_panel.dart';
-import 'package:ready_next/workspaces/presentation/chat/message_actions/message_actions_export.dart';
-import 'package:ready_next/workspaces/presentation/chat/message_actions/message_actions_widgets.dart';
-import 'package:ready_next/workspaces/presentation/chat/settings/chat_conversation_notification_settings_modal.dart';
-import 'package:ready_next/workspaces/presentation/chat/thread/chat_thread_side_panel.dart';
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_message_composer.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/chat_conversation_message_list.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/discussion/chat_discussion_side_panel.dart';
+import 'package:devplanner/workspaces/presentation/chat/message_actions/message_actions_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/settings/chat_conversation_notification_settings_modal.dart';
+import 'package:devplanner/workspaces/presentation/chat/thread/chat_thread_side_panel.dart';
 
 /// Pełny ekran rozmowy używany przez deep link oraz wejście z drawera.
 class ChatConversationPageView extends StatelessWidget {
@@ -75,15 +75,21 @@ class _ChatConversationView extends StatefulWidget {
 }
 
 class _ChatConversationViewState extends State<_ChatConversationView> {
-  ChatMessage? _replyTarget;
-  ChatMessage? _threadRoot;
-  ChatMessage? _discussionRoot;
+  final ValueNotifier<_ChatConversationPanels> _panels = ValueNotifier(
+    const _ChatConversationPanels(),
+  );
+
+  @override
+  void dispose() {
+    _panels.dispose();
+    super.dispose();
+  }
 
   String? _send(ChatComposerDraft draft) {
     final clientMessageId = context.read<ChatConversationCubit>().sendDraft(
       draft,
     );
-    setState(() => _replyTarget = null);
+    _updatePanels(_panels.value.clearReply());
     return clientMessageId;
   }
 
@@ -95,11 +101,9 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
       BlocListener<ChatConversationCubit, ChatConversationState>(
         listenWhen: (_, state) =>
             state is! ChatConversationReady &&
-            (_discussionRoot != null || _threadRoot != null),
-        listener: (_, _) => setState(() {
-          _discussionRoot = null;
-          _threadRoot = null;
-        }),
+            (_panels.value.discussionRoot != null ||
+                _panels.value.threadRoot != null),
+        listener: (_, _) => _updatePanels(_panels.value.clearPanels()),
       ),
       BlocListener<ChatMessageActionsCubit, ChatMessageActionsState>(
         listener: (context, state) => switch (state) {
@@ -117,41 +121,71 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
         },
       ),
     ],
-    child: Padding(
-      padding: const EdgeInsets.all(Sizes.p24),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(WorkspaceIcons.chat, size: 22),
-              Gaps.w8,
-              Expanded(child: Text('Czat', style: context.text.headlineSmall)),
-              IconButton(
-                tooltip: context.l10n.chatConversationNotificationSettingsOpen,
-                onPressed: () => ChatConversationNotificationSettingsModal.show(
-                  context,
-                  conversationId: context
-                      .read<ChatConversationCubit>()
-                      .conversationId,
+    child: ValueListenableBuilder<_ChatConversationPanels>(
+      valueListenable: _panels,
+      builder: (context, panels, _) => Padding(
+        padding: const EdgeInsets.all(Sizes.p24),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const Icon(WorkspaceIcons.chat, size: 22),
+                Gaps.w8,
+                Expanded(
+                  child: Text('Czat', style: context.text.headlineSmall),
                 ),
-                icon: const Icon(Symbols.notifications_rounded),
-              ),
-            ],
-          ),
-          Gaps.h16,
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) => Row(
-                children: [
-                  Expanded(
-                    child: switch ((_threadRoot, _discussionRoot)) {
-                      (_, final root?) => _DiscussionPanelOrConversation(
-                        rootMessage: root,
-                        onClose: () => setState(() => _discussionRoot = null),
-                        conversationBody: _conversationBody,
+                IconButton(
+                  tooltip:
+                      context.l10n.chatConversationNotificationSettingsOpen,
+                  onPressed: () =>
+                      ChatConversationNotificationSettingsModal.show(
+                        context,
+                        conversationId: context
+                            .read<ChatConversationCubit>()
+                            .conversationId,
                       ),
-                      (final root?, _) when constraints.maxWidth < 900 =>
-                        ChatThreadSidePanel(
+                  icon: const Icon(Symbols.notifications_rounded),
+                ),
+              ],
+            ),
+            Gaps.h16,
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) => Row(
+                  children: [
+                    Expanded(
+                      child: switch ((
+                        panels.threadRoot,
+                        panels.discussionRoot,
+                      )) {
+                        (_, final root?) => _DiscussionPanelOrConversation(
+                          rootMessage: root,
+                          onClose: () => _updatePanels(
+                            panels.copyWith(clearDiscussionRoot: true),
+                          ),
+                          conversationBody: _conversationBody,
+                        ),
+                        (final root?, _) when constraints.maxWidth < 900 =>
+                          ChatThreadSidePanel(
+                            conversationId: context
+                                .read<ChatConversationCubit>()
+                                .conversationId,
+                            rootMessage: root,
+                            parentConversationStates: context
+                                .read<ChatConversationCubit>()
+                                .stream,
+                            onClose: () => _updatePanels(
+                              panels.copyWith(clearThreadRoot: true),
+                            ),
+                          ),
+                        _ => _conversationBody(context),
+                      },
+                    ),
+                    if (panels.threadRoot case final root?
+                        when constraints.maxWidth >= 900)
+                      SizedBox(
+                        width: 340,
+                        child: ChatThreadSidePanel(
                           conversationId: context
                               .read<ChatConversationCubit>()
                               .conversationId,
@@ -159,61 +193,49 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
                           parentConversationStates: context
                               .read<ChatConversationCubit>()
                               .stream,
-                          onClose: () => setState(() => _threadRoot = null),
+                          onClose: () => _updatePanels(
+                            panels.copyWith(clearThreadRoot: true),
+                          ),
                         ),
-                      _ => _conversationBody(context),
-                    },
-                  ),
-                  if (_threadRoot case final root?
-                      when constraints.maxWidth >= 900)
-                    SizedBox(
-                      width: 340,
-                      child: ChatThreadSidePanel(
-                        conversationId: context
-                            .read<ChatConversationCubit>()
-                            .conversationId,
-                        rootMessage: root,
-                        parentConversationStates: context
-                            .read<ChatConversationCubit>()
-                            .stream,
-                        onClose: () => setState(() => _threadRoot = null),
                       ),
-                    ),
-                  if (_discussionRoot case final root?
-                      when constraints.maxWidth >= 900)
-                    SizedBox(
-                      width: 340,
-                      child: _DiscussionPanelOrConversation(
-                        rootMessage: root,
-                        onClose: () => setState(() => _discussionRoot = null),
-                        conversationBody: _conversationBody,
+                    if (panels.discussionRoot case final root?
+                        when constraints.maxWidth >= 900)
+                      SizedBox(
+                        width: 340,
+                        child: _DiscussionPanelOrConversation(
+                          rootMessage: root,
+                          onClose: () => _updatePanels(
+                            panels.copyWith(clearDiscussionRoot: true),
+                          ),
+                          conversationBody: _conversationBody,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          Gaps.h12,
-          ChatMessageComposer(
-            onSubmit: _send,
-            draftRepository: context.read<ChatDraftRepository>(),
-            userId:
-                context.read<AuthRepository>().currentUser?.coreUserId ??
-                context.read<AuthRepository>().currentUser?.userId.toString() ??
-                '',
-            conversationId: context
-                .read<ChatConversationCubit>()
-                .conversationId,
-            conversationStates: context.read<ChatConversationCubit>().stream,
-            deliveryConfirmations: context
-                .read<ChatConversationCubit>()
-                .deliveryConfirmations,
-            attachmentUploadPort: context.read<ChatAttachmentUploadPort>(),
-            filePickerPort: context.read<FilePickerPort>(),
-            replyTarget: _replyTarget,
-            onCancelReply: () => setState(() => _replyTarget = null),
-          ),
-        ],
+            Gaps.h12,
+            ChatMessageComposer(
+              onSubmit: _send,
+              draftRepository: context.read<ChatDraftRepository>(),
+              userId:
+                  context.read<AuthSessionPort?>()?.snapshot.user?.userId ?? '',
+              conversationId: context
+                  .read<ChatConversationCubit>()
+                  .conversationId,
+              conversationStates: context.read<ChatConversationCubit>().stream,
+              deliveryConfirmations: context
+                  .read<ChatConversationCubit>()
+                  .deliveryConfirmations,
+              attachmentUploadPort: context.read<ChatAttachmentUploadPort>(),
+              filePickerPort: context.read<FilePickerPort>(),
+              replyTarget: panels.replyTarget,
+              onCancelReply: () => _updatePanels(
+                panels.copyWith(clearReplyTarget: true),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
@@ -230,18 +252,72 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
             :final isSending,
             :final realtimeError,
           ) =>
-            _MessageList(
+            ChatConversationMessageList(
               messages: messages,
               isSending: isSending,
               realtimeError: realtimeError,
               targetMessageId: widget.targetMessageId,
-              onReply: (message) => setState(() => _replyTarget = message),
-              onThread: (message) => setState(() => _threadRoot = message),
-              onDiscussion: (message) =>
-                  setState(() => _discussionRoot = message),
+              onReply: (message) => _updatePanels(
+                _panels.value.copyWith(replyTarget: message),
+              ),
+              onThread: (message) => _updatePanels(
+                _panels.value.copyWith(threadRoot: message),
+              ),
+              onDiscussion: (message) => _updatePanels(
+                _panels.value.copyWith(discussionRoot: message),
+              ),
             ),
         },
       );
+
+  void _updatePanels(_ChatConversationPanels next) {
+    if (_panels.value == next) return;
+    _panels.value = next;
+  }
+}
+
+/// Lokalny, niemutowalny wybór paneli rozmowy; nie należy do logiki Cubita.
+@immutable
+final class _ChatConversationPanels {
+  const _ChatConversationPanels({
+    this.replyTarget,
+    this.threadRoot,
+    this.discussionRoot,
+  });
+
+  final ChatMessage? replyTarget;
+  final ChatMessage? threadRoot;
+  final ChatMessage? discussionRoot;
+
+  _ChatConversationPanels clearReply() => copyWith(clearReplyTarget: true);
+
+  _ChatConversationPanels clearPanels() =>
+      copyWith(clearThreadRoot: true, clearDiscussionRoot: true);
+
+  _ChatConversationPanels copyWith({
+    ChatMessage? replyTarget,
+    ChatMessage? threadRoot,
+    ChatMessage? discussionRoot,
+    bool clearReplyTarget = false,
+    bool clearThreadRoot = false,
+    bool clearDiscussionRoot = false,
+  }) => _ChatConversationPanels(
+    replyTarget: clearReplyTarget ? null : replyTarget ?? this.replyTarget,
+    threadRoot: clearThreadRoot ? null : threadRoot ?? this.threadRoot,
+    discussionRoot: clearDiscussionRoot
+        ? null
+        : discussionRoot ?? this.discussionRoot,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is _ChatConversationPanels &&
+      other.replyTarget == replyTarget &&
+      other.threadRoot == threadRoot &&
+      other.discussionRoot == discussionRoot;
+
+  @override
+  int get hashCode => Object.hash(replyTarget, threadRoot, discussionRoot);
 }
 
 /// Chroni panel dyskusji przed użyciem rozmowy nadrzędnej po jej odłączeniu.
@@ -268,147 +344,6 @@ class _DiscussionPanelOrConversation extends StatelessWidget {
           _ => conversationBody(context),
         },
       );
-}
-
-class _MessageList extends StatefulWidget {
-  const _MessageList({
-    required this.messages,
-    required this.isSending,
-    this.realtimeError,
-    this.targetMessageId,
-    required this.onReply,
-    required this.onThread,
-    required this.onDiscussion,
-  });
-
-  final List<ChatMessage> messages;
-  final bool isSending;
-  final String? realtimeError;
-  final String? targetMessageId;
-  final ValueChanged<ChatMessage> onReply;
-  final ValueChanged<ChatMessage> onThread;
-  final ValueChanged<ChatMessage> onDiscussion;
-
-  @override
-  State<_MessageList> createState() => _MessageListState();
-}
-
-class _MessageListState extends State<_MessageList> {
-  final GlobalKey _targetKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollToTarget();
-  }
-
-  @override
-  void didUpdateWidget(covariant _MessageList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.targetMessageId != oldWidget.targetMessageId ||
-        widget.messages != oldWidget.messages) {
-      _scrollToTarget();
-    }
-  }
-
-  void _scrollToTarget() {
-    if (widget.targetMessageId == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final targetContext = _targetKey.currentContext;
-      if (targetContext != null && mounted) {
-        Scrollable.ensureVisible(
-          targetContext,
-          alignment: .45,
-          duration: const Duration(milliseconds: 260),
-          curve: Curves.easeOutCubic,
-        );
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      if (widget.realtimeError case final error?)
-        MaterialBanner(
-          content: Text('Realtime Chat: $error'),
-          actions: const <Widget>[SizedBox.shrink()],
-        ),
-      Expanded(
-        child: ListView.separated(
-          reverse: true,
-          itemCount: widget.messages.length + (widget.isSending ? 1 : 0),
-          separatorBuilder: (context, index) =>
-              const SizedBox(height: Sizes.p8),
-          itemBuilder: (context, index) {
-            if (widget.isSending && index == 0) {
-              return const Align(
-                alignment: Alignment.centerLeft,
-                child: SizedBox.square(
-                  dimension: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              );
-            }
-            final message =
-                widget.messages[widget.messages.length -
-                    1 -
-                    (widget.isSending ? index - 1 : index)];
-            final isTarget = message.id == widget.targetMessageId;
-            return Align(
-              key: isTarget ? _targetKey : null,
-              alignment: Alignment.centerLeft,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: isTarget
-                      ? context.colors.primaryContainer
-                      : context.colors.surfaceContainerHighest,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  border: isTarget
-                      ? Border.all(color: context.colors.primary, width: 1.2)
-                      : null,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(Sizes.p12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          message.isDeleted
-                              ? context.l10n.globalChatDeletedMessage
-                              : message.text,
-                        ),
-                      ),
-                      if (!message.isDeleted)
-                        IconButton(
-                          tooltip: context.l10n.chatComposerReplyAction,
-                          onPressed: () => widget.onReply(message),
-                          icon: const Icon(Symbols.reply_rounded, size: 18),
-                        ),
-                      if (!message.isDeleted)
-                        IconButton(
-                          tooltip: context.l10n.chatThreadOpen,
-                          onPressed: () => widget.onThread(message),
-                          icon: const Icon(Symbols.forum_rounded, size: 18),
-                        ),
-                      if (!message.isDeleted)
-                        IconButton(
-                          tooltip: context.l10n.chatDiscussionOpen,
-                          onPressed: () => widget.onDiscussion(message),
-                          icon: const Icon(Symbols.topic_rounded, size: 18),
-                        ),
-                      if (!message.isDeleted)
-                        ChatMessageActionMenu(message: message),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    ],
-  );
 }
 
 class _ChatFailure extends StatelessWidget {

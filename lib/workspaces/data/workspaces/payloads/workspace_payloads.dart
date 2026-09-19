@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/workspace_role.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_role.dart';
 
 part 'workspace_payloads.freezed.dart';
 part 'workspace_payloads.g.dart';
@@ -88,13 +88,13 @@ abstract class UpdateWorkspaceNotificationPreferencePayload
   ) => _$UpdateWorkspaceNotificationPreferencePayloadFromJson(json);
 }
 
-/// Payload utworzenia zaproszenia dla użytkownika Ready.
+/// Payload utworzenia zaproszenia dla lokalnego użytkownika.
 @freezed
 abstract class CreateWorkspaceInvitationPayload
     with _$CreateWorkspaceInvitationPayload {
   /// Tworzy zaproszenie z rolą nadawaną po akceptacji.
   const factory CreateWorkspaceInvitationPayload({
-    required int readyUserId,
+    required String userId,
     required WorkspaceRole role,
     String? message,
   }) = _CreateWorkspaceInvitationPayload;

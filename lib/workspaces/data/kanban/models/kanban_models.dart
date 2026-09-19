@@ -1,8 +1,8 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/kanban_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
 
 part 'kanban_models.freezed.dart';
 part 'kanban_models.g.dart';
@@ -50,7 +50,7 @@ abstract class KanbanTaskCardResponse with _$KanbanTaskCardResponse {
     required ProjectTaskStatus status,
     required TaskPriority priority,
     required int position,
-    String? primaryAssigneeCoreUserId,
+    String? primaryAssigneeUserId,
     String? milestoneId,
     DateTime? dueAtUtc,
     required int checklistTotal,
@@ -313,7 +313,7 @@ abstract class UserKanbanPreferenceResponse
   const factory UserKanbanPreferenceResponse({
     required String workspaceId,
     required String projectId,
-    required String coreUserId,
+    required String userId,
     required List<ProjectTaskStatus> collapsedColumns,
     required KanbanQuickFilter quickFilter,
     DateTime? updatedAtUtc,

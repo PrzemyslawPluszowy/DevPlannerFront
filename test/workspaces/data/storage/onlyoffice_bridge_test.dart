@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/storage/transport/onlyoffice_bridge.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/storage/transport/onlyoffice_bridge.dart';
 
 void main() {
   final server = Uri.parse('https://office.example');

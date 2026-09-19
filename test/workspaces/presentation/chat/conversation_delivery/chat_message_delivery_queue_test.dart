@@ -1,12 +1,12 @@
 import 'dart:math';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
-import 'package:ready_next/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
 
 void main() {
   test(
@@ -110,7 +110,7 @@ final class _ComposerDeliveryRepository implements ChatConversationRepository {
       ChatMessage(
         id: 'message-1',
         conversationId: command.conversationId,
-        authorCoreUserId: 'user-1',
+        authorUserId: 'user-1',
         clientMessageId: command.clientMessageId,
         text: command.text,
         deltaJson: command.deltaJson,

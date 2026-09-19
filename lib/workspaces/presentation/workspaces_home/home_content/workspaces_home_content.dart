@@ -1,17 +1,17 @@
 import 'dart:async';
 
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/app/router/devplanner_router.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/shared/presentation/widgets/app_shimmer.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/cubit/workspaces_home_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/cubit/workspaces_home_state.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/manage_workspace/create_workspace_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/router/app_route_paths.dart';
-import 'package:ready_next/app/router/app_router.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/shared/presentation/widgets/app_shimmer.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/cubit/workspaces_home_cubit.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/cubit/workspaces_home_state.dart';
-import 'package:ready_next/workspaces/presentation/workspaces_home/manage_workspace/create_workspace_dialog.dart';
 
 /// Treść sekcji przeglądu workspace’ów wraz z pełną obsługą stanów API.
 class WorkspacesHomeContent extends StatelessWidget {
@@ -25,7 +25,7 @@ class WorkspacesHomeContent extends StatelessWidget {
         WorkspacesHomeInitial() ||
         WorkspacesHomeLoading() => const AppShimmerContent(),
         WorkspacesHomeEmpty() => _EmptyView(
-          onCreate: () => showCreateWorkspaceDialog(context),
+          onCreate: () => CreateWorkspaceDialog.show(context),
           onRetry: context.read<WorkspacesHomeCubit>().load,
         ),
         WorkspacesHomeForbidden(:final message, :final backendCode) =>
@@ -116,7 +116,7 @@ class _WorkspaceOverviewHub extends StatelessWidget {
                 children: [
                   FilledButton.icon(
                     onPressed: () =>
-                        unawaited(showCreateWorkspaceDialog(context)),
+                        unawaited(CreateWorkspaceDialog.show(context)),
                     icon: const Icon(Symbols.add_rounded, size: 18),
                     label: const Text('Nowy workspace'),
                     style: FilledButton.styleFrom(
@@ -130,8 +130,8 @@ class _WorkspaceOverviewHub extends StatelessWidget {
                     ),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () => context.router.navigatePath(
-                      AppRoutePaths.meTasks,
+                    onPressed: () => context.plannerNavigation.go(
+                      DevPlannerRouteCatalog.myTasks,
                     ),
                     icon: const Icon(Symbols.task_alt_rounded, size: 18),
                     label: const Text('Moje zadania'),

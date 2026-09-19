@@ -1,6 +1,5 @@
-import 'package:ready_next/app/router/app_route_paths.dart';
-import 'package:ready_next/bootstrap/host_launch_context.dart';
-import 'package:ready_next/core/host/host_bridge.dart';
+import 'package:devplanner/bootstrap/host_launch_context.dart';
+import 'package:devplanner/core/host/host_bridge.dart';
 
 HostBridge createHostBridge() => const StubHostBridge();
 
@@ -14,7 +13,7 @@ class StubHostBridge implements HostBridge {
   @override
   Future<HostLaunchContext> getLaunchContext() async {
     return const HostLaunchContext(
-      initialRoute: AppRoutePaths.dashboard,
+      initialRoute: '/workspaces',
       userId: null,
       userDisplayName: null,
     );

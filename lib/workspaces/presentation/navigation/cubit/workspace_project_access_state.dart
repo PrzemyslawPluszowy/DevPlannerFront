@@ -1,4 +1,5 @@
-import 'package:ready_next/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 
 /// Stany weryfikacji projektu otwartego z bezpośredniego URL-a.
 sealed class WorkspaceProjectAccessState {
@@ -20,18 +21,29 @@ final class WorkspaceProjectAccessGranted extends WorkspaceProjectAccessState {
 }
 
 final class WorkspaceProjectAccessDenied extends WorkspaceProjectAccessState {
-  const WorkspaceProjectAccessDenied({required this.message, this.backendCode});
+  const WorkspaceProjectAccessDenied({
+    required this.reason,
+    this.statusCode,
+    this.backendCode,
+    this.message,
+  });
 
-  final String message;
+  final ProjectsFailureReason reason;
+  final int? statusCode;
   final String? backendCode;
+  final String? message;
 }
 
 final class WorkspaceProjectAccessFailure extends WorkspaceProjectAccessState {
   const WorkspaceProjectAccessFailure({
-    required this.message,
+    required this.reason,
+    this.statusCode,
     this.backendCode,
+    this.message,
   });
 
-  final String message;
+  final ProjectsFailureReason reason;
+  final int? statusCode;
   final String? backendCode;
+  final String? message;
 }

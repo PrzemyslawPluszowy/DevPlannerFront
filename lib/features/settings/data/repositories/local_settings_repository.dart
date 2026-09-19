@@ -1,5 +1,5 @@
-import 'package:ready_next/core/storage/hive_helper.dart';
-import 'package:ready_next/features/settings/domain/local_settings_model.dart';
+import 'package:devplanner/core/storage/hive_helper.dart';
+import 'package:devplanner/features/settings/domain/local_settings_model.dart';
 
 /// Repozytorium lokalnych ustawień aplikacji.
 abstract class LocalSettingsRepository {

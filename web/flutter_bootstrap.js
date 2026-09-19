@@ -2,7 +2,7 @@
 {{flutter_build_config}}
 
 (async function () {
-  const buildVersionStorageKey = 'ready_next.web.build_version';
+  const buildVersionStorageKey = 'devplanner.web.build_version';
 
   function withVersion(url, version) {
     if (!url || !version) {

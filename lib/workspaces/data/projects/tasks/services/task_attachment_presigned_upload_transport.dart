@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/domain/services/task_attachment_upload_transport.dart';
 
 /// Minimalny klient PUT dla presigned URL, bez tokenów aplikacji i bez logowania URL.
 final class TaskAttachmentPresignedUploadTransport

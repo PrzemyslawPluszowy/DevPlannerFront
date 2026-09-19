@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_control_size.dart';
+import 'package:devplanner/shared/presentation/widgets/app_overlay_route_lifecycle.dart';
+import 'package:devplanner/shared/presentation/widgets/app_spinner.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_control_size.dart';
-import 'package:ready_next/shared/presentation/widgets/app_overlay_route_lifecycle.dart';
-import 'package:ready_next/shared/presentation/widgets/app_spinner.dart';
 
 /// Pojedyncza opcja dla [AppSearchDropdown].
 class AppSearchDropdownOption<T> {

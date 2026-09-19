@@ -1,7 +1,7 @@
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_state.dart';
 
 /// Cubit obsługujący tworzenie, zmianę nazwy, przenoszenie i usuwanie folderów.
 final class StorageFolderMutationCubit

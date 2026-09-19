@@ -1,22 +1,22 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/kanban_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 final class _DummyTasksRepository implements TasksRepository {
   @override
@@ -69,7 +69,7 @@ TasksBoardReady _createGoldenState() => const TasksBoardReady(
   userPreference: UserKanbanPreferenceResponse(
     workspaceId: 'w-1',
     projectId: 'p-1',
-    coreUserId: 'user-1',
+    userId: 'user-1',
     version: 1,
     collapsedColumns: [],
     collapsedCustomStatusIds: [],
@@ -77,14 +77,14 @@ TasksBoardReady _createGoldenState() => const TasksBoardReady(
   ),
   presence: [],
   connectionState: WorkspaceSignalRConnectionState.connected,
-  memberProfilesByCoreUserId: {
+  memberProfilesByUserId: {
     'user-1': ProjectMemberProfile(
-      coreUserId: 'user-1',
+      userId: 'user-1',
       displayName: 'Jan Kowalski',
       role: ProjectRole.admin,
     ),
     'user-2': ProjectMemberProfile(
-      coreUserId: 'user-2',
+      userId: 'user-2',
       displayName: 'Anna Nowak',
       role: ProjectRole.member,
     ),
@@ -99,7 +99,7 @@ KanbanTaskCardResponse _createGoldenTask() => const KanbanTaskCardResponse(
   status: ProjectTaskStatus.inProgress,
   priority: TaskPriority.high,
   position: 1000,
-  primaryAssigneeCoreUserId: 'user-1',
+  primaryAssigneeUserId: 'user-1',
   checklistTotal: 4,
   checklistCompleted: 2,
   attachmentCount: 1,
@@ -179,7 +179,7 @@ Widget _buildGoldenCardApp({
                 ],
                 density: KanbanCardDensity.comfortable,
                 isSelected: false,
-                memberProfilesByCoreUserId: const {},
+                memberProfilesByUserId: const {},
               ),
             ),
           ),

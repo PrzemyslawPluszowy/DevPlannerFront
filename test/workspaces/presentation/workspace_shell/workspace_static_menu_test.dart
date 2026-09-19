@@ -1,10 +1,10 @@
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/presentation/workspace_shell/navigation/cubit/workspace_shell_navigation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspace_shell/navigation/workspace_static_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/presentation/workspace_shell/navigation/cubit/workspace_shell_navigation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/workspace_shell/navigation/workspace_static_menu.dart';
 
 Widget _harness({required bool expanded, required VoidCallback onFiles}) {
   final cubit = WorkspaceShellNavigationCubit(

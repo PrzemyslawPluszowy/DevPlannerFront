@@ -1,5 +1,5 @@
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 
 /// Typ zdarzenia domenowego przesyłanego przez hub Tasks.
 enum TaskRealtimeMutationType {
@@ -32,7 +32,7 @@ final class TaskRealtimeMutation extends TaskProjectRealtimeUpdate {
     required this.version,
     required this.occurredAtUtc,
     required this.isReplay,
-    this.actorCoreUserId,
+    this.actorUserId,
     this.correlationId,
     this.status,
     this.previousStatus,
@@ -55,7 +55,7 @@ final class TaskRealtimeMutation extends TaskProjectRealtimeUpdate {
   final int number;
   final String key;
   final int version;
-  final String? actorCoreUserId;
+  final String? actorUserId;
   final String? correlationId;
   final DateTime occurredAtUtc;
   final ProjectTaskStatus? status;
@@ -75,11 +75,11 @@ final class TaskRealtimeMutation extends TaskProjectRealtimeUpdate {
 /// Obecność jednego użytkownika, zagregowana po kartach i urządzeniach.
 final class TaskProjectPresenceUser {
   const TaskProjectPresenceUser({
-    required this.coreUserId,
+    required this.userId,
     required this.connectionCount,
   });
 
-  final String coreUserId;
+  final String userId;
   final int connectionCount;
 }
 

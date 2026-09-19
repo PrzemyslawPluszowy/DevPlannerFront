@@ -66,3 +66,6 @@ app.*.map.json
 /android/app/release
 
 sentry.properties
+
+# Private visual references supplied by the owner; never publish originals.
+/docs/design/reference-local/

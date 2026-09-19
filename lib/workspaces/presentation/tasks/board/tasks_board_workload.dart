@@ -73,10 +73,12 @@ class _TaskWorkloadReady extends StatelessWidget {
                   ),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () => unawaited(_pickRange(context, state)),
+                  onPressed: () => unawaited(
+                    TaskBoardWorkloadActions.pickRange(context, state),
+                  ),
                   icon: const Icon(Symbols.date_range, size: 18),
                   label: Text(
-                    '${_formatDate(state.fromDate)} – ${_formatDate(state.toDate)}',
+                    '${TaskBoardDateFormatter.format(state.fromDate)} – ${TaskBoardDateFormatter.format(state.toDate)}',
                   ),
                 ),
               ],
@@ -92,10 +94,10 @@ class _TaskWorkloadReady extends StatelessWidget {
                         value: state.workload.users[index],
                         name:
                             state
-                                .profilesByCoreUserId[state
+                                .profilesByUserId[state
                                     .workload
                                     .users[index]
-                                    .coreUserId]
+                                    .userId]
                                 ?.displayName ??
                             context.l10n.tasksCapacityUnknownMember,
                       ),
@@ -202,18 +204,28 @@ class _WorkloadMetric extends StatelessWidget {
   );
 }
 
-Future<void> _pickRange(BuildContext context, TaskWorkloadReady state) async {
-  final range = await showDateRangePicker(
-    context: context,
-    firstDate: DateTime(2000),
-    lastDate: DateTime(2100),
-    initialDateRange: DateTimeRange(start: state.fromDate, end: state.toDate),
-    helpText: context.l10n.tasksWorkloadRange,
-  );
-  if (range != null && context.mounted) {
-    await context.read<TaskWorkloadCubit>().load(
-      fromDate: range.start,
-      toDate: range.end,
+final class TaskBoardWorkloadActions {
+  const TaskBoardWorkloadActions._();
+
+  static Future<void> pickRange(
+    BuildContext context,
+    TaskWorkloadReady state,
+  ) async {
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDateRange: DateTimeRange(
+        start: state.fromDate,
+        end: state.toDate,
+      ),
+      helpText: context.l10n.tasksWorkloadRange,
     );
+    if (range != null && context.mounted) {
+      await context.read<TaskWorkloadCubit>().load(
+        fromDate: range.start,
+        toDate: range.end,
+      );
+    }
   }
 }

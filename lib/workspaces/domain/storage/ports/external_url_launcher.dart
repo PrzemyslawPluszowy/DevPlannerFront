@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
+import 'package:devplanner/core/error/api_error.dart';
 
 /// Otwiera bezpieczny adres HTTP(S) w przeglądarce systemowej.
 // ignore: one_member_abstracts, typed port keeps platform code outside presentation

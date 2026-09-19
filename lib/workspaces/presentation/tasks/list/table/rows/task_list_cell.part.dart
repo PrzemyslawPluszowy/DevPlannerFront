@@ -46,7 +46,7 @@ class _TaskListCell extends StatelessWidget {
   final Future<bool> Function(String taskType)? onTaskTypeChanged;
   final Future<bool> Function(TaskSavedViewColumn column, int? value)?
   onSystemMetricChanged;
-  final Future<bool> Function(List<String> coreUserIds)? onAssigneesChanged;
+  final Future<bool> Function(List<String> userIds)? onAssigneesChanged;
   final Future<bool> Function(DateTime? dueAtUtc)? onDueDateChanged;
   final Future<bool> Function(DateTime? startAtUtc)? onStartDateChanged;
   final Future<bool> Function(bool isPinned)? onPinnedChanged;
@@ -103,7 +103,7 @@ class _TaskListCell extends StatelessWidget {
           status: task.status,
           onChanged: onStatusChanged,
           canManage: canManage,
-          onConfigureWorkflow: () => _openProjectSettings(
+          onConfigureWorkflow: () => TaskListProjectSettingsLauncher.show(
             context,
             ProjectSettingsTab.workflow,
           ),
@@ -112,7 +112,7 @@ class _TaskListCell extends StatelessWidget {
           task: task,
           onChanged: onCustomStatusChanged,
           canManage: canManage,
-          onConfigureWorkflow: () => _openProjectSettings(
+          onConfigureWorkflow: () => TaskListProjectSettingsLauncher.show(
             context,
             ProjectSettingsTab.workflow,
           ),
@@ -213,7 +213,7 @@ class _TaskListCell extends StatelessWidget {
           taskType: task.taskType,
           onChanged: onTaskTypeChanged,
           canManage: canManage,
-          onConfigureTypes: () => _openProjectSettings(
+          onConfigureTypes: () => TaskListProjectSettingsLauncher.show(
             context,
             ProjectSettingsTab.general,
           ),

@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
 
 /// Niemutowalny snapshot reprezentujący pełną, bieżącą konfigurację widoku listy zadań.
 ///
@@ -66,8 +66,7 @@ final class TaskListViewSnapshot {
     var count = 0;
     if (filter.statuses != null && filter.statuses!.isNotEmpty) count++;
     if (filter.priorities != null && filter.priorities!.isNotEmpty) count++;
-    if (filter.assigneeCoreUserIds != null &&
-        filter.assigneeCoreUserIds!.isNotEmpty) {
+    if (filter.assigneeUserIds != null && filter.assigneeUserIds!.isNotEmpty) {
       count++;
     }
     if (filter.labelIds != null && filter.labelIds!.isNotEmpty) count++;
@@ -121,7 +120,7 @@ final class TaskListViewSnapshot {
   ) =>
       listEquals(a.statuses, b.statuses) &&
       listEquals(a.priorities, b.priorities) &&
-      listEquals(a.assigneeCoreUserIds, b.assigneeCoreUserIds) &&
+      listEquals(a.assigneeUserIds, b.assigneeUserIds) &&
       listEquals(a.labelIds, b.labelIds) &&
       a.parentTaskId == b.parentTaskId &&
       a.myInvolvement == b.myInvolvement &&
@@ -136,7 +135,7 @@ final class TaskListViewSnapshot {
   static int _hashFilter(TaskSavedViewFilter f) => Object.hash(
     f.statuses == null ? 0 : Object.hashAll(f.statuses!),
     f.priorities == null ? 0 : Object.hashAll(f.priorities!),
-    f.assigneeCoreUserIds == null ? 0 : Object.hashAll(f.assigneeCoreUserIds!),
+    f.assigneeUserIds == null ? 0 : Object.hashAll(f.assigneeUserIds!),
     f.labelIds == null ? 0 : Object.hashAll(f.labelIds!),
     f.parentTaskId,
     f.myInvolvement,

@@ -75,20 +75,23 @@ class _TaskMilestoneReadyValue extends StatelessWidget {
     value: state.assigned?.name ?? context.l10n.taskDetailsNoMilestone,
     onTap: state.isSaving
         ? null
-        : () => _showTaskMilestonePicker(context, state),
+        : () => TaskMilestonePickerLauncher.show(context, state),
   );
 }
 
-Future<void> _showTaskMilestonePicker(
-  BuildContext context,
-  TaskMilestoneReady state,
-) => showModalBottomSheet<void>(
-  context: context,
-  builder: (_) => BlocProvider.value(
-    value: context.read<TaskMilestoneCubit>(),
-    child: _TaskMilestonePicker(assigned: state.assigned),
-  ),
-);
+/// Otwiera wybór milestone z Cubitem już utworzonym dla szczegółu zadania.
+final class TaskMilestonePickerLauncher {
+  const TaskMilestonePickerLauncher._();
+
+  static Future<void> show(BuildContext context, TaskMilestoneReady state) =>
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (_) => BlocProvider.value(
+          value: context.read<TaskMilestoneCubit>(),
+          child: _TaskMilestonePicker(assigned: state.assigned),
+        ),
+      );
+}
 
 class _TaskMilestonePicker extends StatelessWidget {
   const _TaskMilestonePicker({required this.assigned});

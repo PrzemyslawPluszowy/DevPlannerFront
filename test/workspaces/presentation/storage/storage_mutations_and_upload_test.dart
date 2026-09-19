@@ -1,25 +1,25 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/download_transport.dart';
-import 'package:ready_next/workspaces/domain/storage/ports/upload_transport.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_state.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_state.dart';
-import 'package:ready_next/workspaces/presentation/storage/upload/cubit/storage_upload_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/upload/cubit/storage_upload_state.dart';
 
 class _MockStorageRepository extends Mock implements StorageRepository {}
 
@@ -145,6 +145,43 @@ void main() {
       final s = cubit.state as StorageFolderMutationSuccess;
       expect(s.type, equals(StorageFolderMutationType.deleted));
       expect(s.folderId, equals('folder-1'));
+
+      await cubit.close();
+    });
+
+    test('renameFolder i moveFolder zachowują odpowiedź backendu', () async {
+      final renamed = sampleFolder.copyWith(name: 'Nowa nazwa');
+      when(
+        () => repository.updateFolder(
+          folderId: 'folder-1',
+          name: 'Nowa nazwa',
+        ),
+      ).thenAnswer((_) async => right(renamed));
+      when(
+        () => repository.moveFolder(
+          folderId: 'folder-1',
+          newParentFolderId: 'parent-1',
+        ),
+      ).thenAnswer((_) async => right(sampleFolder));
+
+      final cubit = StorageFolderMutationCubit(repository: repository);
+
+      await cubit.renameFolder(folderId: 'folder-1', newName: ' Nowa nazwa ');
+      expect(cubit.state, isA<StorageFolderMutationSuccess>());
+      expect(
+        (cubit.state as StorageFolderMutationSuccess).type,
+        StorageFolderMutationType.updated,
+      );
+
+      await cubit.moveFolder(
+        folderId: 'folder-1',
+        newParentFolderId: 'parent-1',
+      );
+      expect(cubit.state, isA<StorageFolderMutationSuccess>());
+      expect(
+        (cubit.state as StorageFolderMutationSuccess).type,
+        StorageFolderMutationType.moved,
+      );
 
       await cubit.close();
     });

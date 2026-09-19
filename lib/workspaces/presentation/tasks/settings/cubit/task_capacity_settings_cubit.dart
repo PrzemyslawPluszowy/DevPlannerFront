@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_capacity_models.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_capacity_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_capacity_models.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_capacity_repository.dart';
 
 sealed class TaskCapacitySettingsState {
   const TaskCapacitySettingsState();
@@ -28,29 +28,29 @@ final class TaskCapacitySettingsReady extends TaskCapacitySettingsState {
   const TaskCapacitySettingsReady({
     required this.capacity,
     required this.overrides,
-    this.memberProfilesByCoreUserId = const {},
+    this.memberProfilesByUserId = const {},
     this.isSaving = false,
     this.error,
   });
 
   final WorkspaceCapacityResponse capacity;
   final List<UserCapacityOverrideResponse> overrides;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final bool isSaving;
   final String? error;
 
   TaskCapacitySettingsReady copyWith({
     WorkspaceCapacityResponse? capacity,
     List<UserCapacityOverrideResponse>? overrides,
-    Map<String, ProjectMemberProfile>? memberProfilesByCoreUserId,
+    Map<String, ProjectMemberProfile>? memberProfilesByUserId,
     bool? isSaving,
     String? error,
     bool clearError = false,
   }) => TaskCapacitySettingsReady(
     capacity: capacity ?? this.capacity,
     overrides: overrides ?? this.overrides,
-    memberProfilesByCoreUserId:
-        memberProfilesByCoreUserId ?? this.memberProfilesByCoreUserId,
+    memberProfilesByUserId:
+        memberProfilesByUserId ?? this.memberProfilesByUserId,
     isSaving: isSaving ?? this.isSaving,
     error: clearError ? null : error ?? this.error,
   );
@@ -105,8 +105,8 @@ final class TaskCapacitySettingsCubit extends Cubit<TaskCapacitySettingsState> {
               TaskCapacitySettingsReady(
                 capacity: value,
                 overrides: _sorted(items),
-                memberProfilesByCoreUserId: {
-                  for (final member in members) member.coreUserId: member,
+                memberProfilesByUserId: {
+                  for (final member in members) member.userId: member,
                 },
               ),
             ),

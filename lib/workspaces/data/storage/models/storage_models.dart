@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
 
 part 'storage_models.freezed.dart';
 part 'storage_models.g.dart';

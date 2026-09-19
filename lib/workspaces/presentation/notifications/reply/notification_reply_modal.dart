@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_reply_target.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_reply_repository.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
+import 'package:devplanner/workspaces/presentation/notifications/reply/cubit/notification_reply_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_reply_target.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_reply_repository.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
-import 'package:ready_next/workspaces/presentation/notifications/reply/cubit/notification_reply_cubit.dart';
 
 /// Rootowy modal odpowiedzi Chat, uruchamiany tylko dla replyable notification.
 abstract final class AppNotificationReplyModal {
@@ -31,7 +31,7 @@ abstract final class AppNotificationReplyModal {
       return;
     }
     final inbox = context.read<NotificationsCubit?>();
-    await AppModalHost.showDialog<void>(
+    await DevPlannerModalHost.showDialog<void>(
       context,
       builder: (_) => BlocProvider(
         create: (_) => NotificationReplyCubit(
@@ -91,7 +91,9 @@ class _NotificationReplyDialogState extends State<_NotificationReplyDialog> {
   final ScrollController _richScrollController = ScrollController();
   late final quill.QuillController _richController =
       quill.QuillController.basic();
-  _NotificationReplyMode _mode = _NotificationReplyMode.plain;
+  final ValueNotifier<_NotificationReplyMode> _mode = ValueNotifier(
+    _NotificationReplyMode.plain,
+  );
 
   @override
   void initState() {
@@ -108,11 +110,12 @@ class _NotificationReplyDialogState extends State<_NotificationReplyDialog> {
     _richController
       ..removeListener(_onRichTextChanged)
       ..dispose();
+    _mode.dispose();
     super.dispose();
   }
 
   void _selectMode(_NotificationReplyMode mode) {
-    if (_mode == mode) return;
+    if (_mode.value == mode) return;
     final cubit = context.read<NotificationReplyCubit>();
     if (mode == _NotificationReplyMode.rich) {
       _replaceRichDocument(_plainController.text);
@@ -123,7 +126,7 @@ class _NotificationReplyDialogState extends State<_NotificationReplyDialog> {
           .trimRight();
       cubit.updatePlainText(_plainController.text);
     }
-    setState(() => _mode = mode);
+    _mode.value = mode;
   }
 
   void _replaceRichDocument(String text) {
@@ -149,7 +152,7 @@ class _NotificationReplyDialogState extends State<_NotificationReplyDialog> {
   }
 
   void _onRichTextChanged() {
-    if (!mounted || _mode != _NotificationReplyMode.rich) return;
+    if (!mounted || _mode.value != _NotificationReplyMode.rich) return;
     _updateRich(context.read<NotificationReplyCubit>());
   }
 
@@ -180,85 +183,88 @@ class _NotificationReplyDialogState extends State<_NotificationReplyDialog> {
           Expanded(child: Text(context.l10n.globalNotificationsReplyTitle)),
         ],
       ),
-      content: SizedBox(
-        width: 560,
-        child: BlocBuilder<NotificationReplyCubit, NotificationReplyState>(
-          builder: (context, state) => Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (state is NotificationReplyAccessRevoked)
-                _ReplyError(
-                  message: context.l10n.globalNotificationsReplyAccessRevoked,
-                )
-              else if (state case NotificationReplyEditing(:final error?))
-                _ReplyError(
-                  message:
-                      '${context.l10n.globalNotificationsReplyFailed}: ${error.message}',
+      content: ValueListenableBuilder<_NotificationReplyMode>(
+        valueListenable: _mode,
+        builder: (context, mode, _) => SizedBox(
+          width: 560,
+          child: BlocBuilder<NotificationReplyCubit, NotificationReplyState>(
+            builder: (context, state) => Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (state is NotificationReplyAccessRevoked)
+                  _ReplyError(
+                    message: context.l10n.globalNotificationsReplyAccessRevoked,
+                  )
+                else if (state case NotificationReplyEditing(:final error?))
+                  _ReplyError(
+                    message:
+                        '${context.l10n.globalNotificationsReplyFailed}: ${error.message}',
+                  ),
+                SegmentedButton<_NotificationReplyMode>(
+                  segments: [
+                    ButtonSegment(
+                      value: _NotificationReplyMode.plain,
+                      icon: const Icon(Symbols.notes_rounded, size: 18),
+                      label: Text(
+                        context.l10n.globalNotificationsReplyPlainMode,
+                      ),
+                    ),
+                    ButtonSegment(
+                      value: _NotificationReplyMode.rich,
+                      icon: const Icon(Symbols.format_size_rounded, size: 18),
+                      label: Text(
+                        context.l10n.globalNotificationsReplyRichMode,
+                      ),
+                    ),
+                  ],
+                  selected: {mode},
+                  onSelectionChanged: state is NotificationReplyEditing
+                      ? (modes) => _selectMode(modes.single)
+                      : null,
+                  showSelectedIcon: false,
                 ),
-              SegmentedButton<_NotificationReplyMode>(
-                segments: [
-                  ButtonSegment(
-                    value: _NotificationReplyMode.plain,
-                    icon: const Icon(Symbols.notes_rounded, size: 18),
-                    label: Text(
-                      context.l10n.globalNotificationsReplyPlainMode,
+                Gaps.h12,
+                if (mode == _NotificationReplyMode.plain)
+                  TextField(
+                    controller: _plainController,
+                    focusNode: _plainFocusNode,
+                    autofocus: true,
+                    enabled: state is NotificationReplyEditing,
+                    minLines: 3,
+                    maxLines: 6,
+                    onChanged: context
+                        .read<NotificationReplyCubit>()
+                        .updatePlainText,
+                    decoration: InputDecoration(
+                      hintText: context.l10n.globalNotificationsReplyHint,
+                      border: const OutlineInputBorder(),
                     ),
-                  ),
-                  ButtonSegment(
-                    value: _NotificationReplyMode.rich,
-                    icon: const Icon(Symbols.format_size_rounded, size: 18),
-                    label: Text(
-                      context.l10n.globalNotificationsReplyRichMode,
-                    ),
-                  ),
-                ],
-                selected: {_mode},
-                onSelectionChanged: state is NotificationReplyEditing
-                    ? (modes) => _selectMode(modes.single)
-                    : null,
-                showSelectedIcon: false,
-              ),
-              Gaps.h12,
-              if (_mode == _NotificationReplyMode.plain)
-                TextField(
-                  controller: _plainController,
-                  focusNode: _plainFocusNode,
-                  autofocus: true,
-                  enabled: state is NotificationReplyEditing,
-                  minLines: 3,
-                  maxLines: 6,
-                  onChanged: context
-                      .read<NotificationReplyCubit>()
-                      .updatePlainText,
-                  decoration: InputDecoration(
-                    hintText: context.l10n.globalNotificationsReplyHint,
-                    border: const OutlineInputBorder(),
-                  ),
-                )
-              else
-                SizedBox(
-                  height: 180,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: context.colors.outline),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: IgnorePointer(
-                      ignoring: state is! NotificationReplyEditing,
-                      child: quill.QuillEditor(
-                        controller: _richController,
-                        focusNode: _richFocusNode,
-                        scrollController: _richScrollController,
-                        config: const quill.QuillEditorConfig(
-                          padding: EdgeInsets.all(Sizes.p12),
-                          expands: true,
+                  )
+                else
+                  SizedBox(
+                    height: 180,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: context.colors.outline),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: IgnorePointer(
+                        ignoring: state is! NotificationReplyEditing,
+                        child: quill.QuillEditor(
+                          controller: _richController,
+                          focusNode: _richFocusNode,
+                          scrollController: _richScrollController,
+                          config: const quill.QuillEditorConfig(
+                            padding: EdgeInsets.all(Sizes.p12),
+                            expands: true,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

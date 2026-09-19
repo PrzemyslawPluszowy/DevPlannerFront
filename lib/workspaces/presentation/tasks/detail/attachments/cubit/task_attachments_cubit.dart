@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_attachment_repository.dart';
+import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_attachment_repository.dart';
-import 'package:ready_next/workspaces/domain/services/task_attachment_upload_transport.dart';
 
 /// Dane wybranego pliku niezależne od platformowego pickera.
 final class TaskAttachmentUploadInput {

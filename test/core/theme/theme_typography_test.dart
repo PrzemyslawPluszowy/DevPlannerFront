@@ -1,6 +1,6 @@
+import 'package:devplanner/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 void main() {
   test('globalny ThemeData utrzymuje lekką typografię i akcent zakładek', () {

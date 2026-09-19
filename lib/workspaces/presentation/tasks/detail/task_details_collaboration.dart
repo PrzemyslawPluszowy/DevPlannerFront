@@ -11,15 +11,17 @@ class _EditAssigneesDialog extends StatefulWidget {
 
 class _EditAssigneesDialogState extends State<_EditAssigneesDialog> {
   late final Future<List<ProjectMemberProfile>> _profiles;
-  late final Set<String> _selected;
-  var _saving = false;
+  late final ValueNotifier<Set<String>> _selected;
+  final ValueNotifier<bool> _saving = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
-    _selected = widget.task.assignees
-        .map((assignee) => assignee.coreUserId)
-        .toSet();
+    _selected = ValueNotifier(
+      Set.unmodifiable(
+        widget.task.assignees.map((assignee) => assignee.userId),
+      ),
+    );
     final cubit = context.read<TaskDetailsCubit>();
     _profiles = context
         .read<ProjectMemberProfilesRepository>()
@@ -36,86 +38,100 @@ class _EditAssigneesDialogState extends State<_EditAssigneesDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => WorkspaceCreationModalWrapper(
-    title: context.l10n.taskDetailsEditAssignees,
-    icon: Symbols.group_rounded,
-    accentColor: context.colors.primary,
-    isSubmitting: _saving,
-    submitLabel: context.l10n.save,
-    cancelLabel: context.l10n.cancel,
-    maxWidth: 460,
-    onSubmit: _saving ? null : _save,
-    body: FutureBuilder<List<ProjectMemberProfile>>(
-      future: _profiles,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Text(context.l10n.taskDetailsAssigneesLoadError);
-        }
-        final profiles = snapshot.data ?? const <ProjectMemberProfile>[];
-        if (profiles.isEmpty) {
-          return Text(context.l10n.taskDetailsNoProjectMembers);
-        }
-        return ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 420),
-          child: ListView.separated(
-            shrinkWrap: true,
-            itemCount: profiles.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 4),
-            itemBuilder: (context, index) {
-              final profile = profiles[index];
-              final displayName = profile.displayName?.trim();
-              final label = displayName?.isNotEmpty == true
-                  ? displayName!
-                  : context.l10n.taskDetailsProjectMember;
-              final selected = _selected.contains(profile.coreUserId);
-              return CheckboxListTile(
-                value: selected,
-                enabled: !_saving,
-                onChanged: (value) => setState(() {
-                  value == true
-                      ? _selected.add(profile.coreUserId)
-                      : _selected.remove(profile.coreUserId);
-                }),
-                secondary: CircleAvatar(
-                  foregroundImage: profile.avatarUrl?.isNotEmpty == true
-                      ? NetworkImage(profile.avatarUrl!)
-                      : null,
-                  backgroundColor: _avatarColor(label),
-                  child: profile.avatarUrl?.isNotEmpty == true
-                      ? null
-                      : Text(
-                          label.characters.first.toUpperCase(),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                ),
-                title: Text(label),
-                subtitle: Text(profile.role.name),
-                controlAffinity: ListTileControlAffinity.trailing,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              );
-            },
-          ),
-        );
-      },
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: Listenable.merge([_selected, _saving]),
+    builder: (context, _) => WorkspaceCreationModalWrapper(
+      title: context.l10n.taskDetailsEditAssignees,
+      icon: Symbols.group_rounded,
+      accentColor: context.colors.primary,
+      isSubmitting: _saving.value,
+      submitLabel: context.l10n.save,
+      cancelLabel: context.l10n.cancel,
+      maxWidth: 460,
+      onSubmit: _saving.value ? null : _save,
+      body: FutureBuilder<List<ProjectMemberProfile>>(
+        future: _profiles,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Text(context.l10n.taskDetailsAssigneesLoadError);
+          }
+          final profiles = snapshot.data ?? const <ProjectMemberProfile>[];
+          if (profiles.isEmpty) {
+            return Text(context.l10n.taskDetailsNoProjectMembers);
+          }
+          return ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 420),
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: profiles.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 4),
+              itemBuilder: (context, index) {
+                final profile = profiles[index];
+                final displayName = profile.displayName?.trim();
+                final label = displayName?.isNotEmpty == true
+                    ? displayName!
+                    : context.l10n.taskDetailsProjectMember;
+                final selected = _selected.value.contains(profile.userId);
+                return CheckboxListTile(
+                  value: selected,
+                  enabled: !_saving.value,
+                  onChanged: (value) {
+                    final selectedIds = {..._selected.value};
+                    value == true
+                        ? selectedIds.add(profile.userId)
+                        : selectedIds.remove(profile.userId);
+                    _selected.value = Set.unmodifiable(selectedIds);
+                  },
+                  secondary: CircleAvatar(
+                    foregroundImage: profile.avatarUrl?.isNotEmpty == true
+                        ? NetworkImage(profile.avatarUrl!)
+                        : null,
+                    backgroundColor: TaskCollaboratorAvatarPalette.colorFor(
+                      label,
+                    ),
+                    child: profile.avatarUrl?.isNotEmpty == true
+                        ? null
+                        : Text(
+                            label.characters.first.toUpperCase(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                  ),
+                  title: Text(label),
+                  subtitle: Text(profile.role.name),
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
     ),
   );
 
   Future<void> _save() async {
-    setState(() => _saving = true);
+    _saving.value = true;
     final saved = await context.read<TaskDetailsCubit>().replaceAssignees(
-      _selected.toList(growable: false),
+      _selected.value.toList(growable: false),
     );
     if (!mounted) return;
     if (saved) {
       Navigator.of(context).pop();
     } else {
-      setState(() => _saving = false);
+      _saving.value = false;
     }
+  }
+
+  @override
+  void dispose() {
+    _selected.dispose();
+    _saving.dispose();
+    super.dispose();
   }
 }
 
@@ -129,7 +145,7 @@ class _TaskWatchersSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final people = {
-      for (final user in details.includedUsers) user.coreUserId: user,
+      for (final user in details.includedUsers) user.userId: user,
     };
     final visible = details.watchers.take(5).toList(growable: false);
     final remaining = details.watchers.length - visible.length;
@@ -164,7 +180,7 @@ class _TaskWatchersSection extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 for (final watcher in visible)
-                  _WatcherAvatar(user: people[watcher.coreUserId]),
+                  _WatcherAvatar(user: people[watcher.userId]),
                 if (remaining > 0) _WatcherOverflow(count: remaining),
               ],
             ),
@@ -181,7 +197,7 @@ class _WatcherAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = user?.displayName?.trim().isNotEmpty == true
         ? user!.displayName!.trim()
-        : user?.coreUserId ?? '?';
+        : user?.userId ?? '?';
     final initial = label.characters.first.toUpperCase();
     final avatarUrl = user?.avatarUrl?.trim();
     return Tooltip(
@@ -191,7 +207,7 @@ class _WatcherAvatar extends StatelessWidget {
         foregroundImage: avatarUrl?.isNotEmpty == true
             ? NetworkImage(avatarUrl!)
             : null,
-        backgroundColor: _avatarColor(label),
+        backgroundColor: TaskCollaboratorAvatarPalette.colorFor(label),
         child: Text(
           initial,
           style: const TextStyle(
@@ -220,13 +236,18 @@ class _WatcherOverflow extends StatelessWidget {
   );
 }
 
-Color _avatarColor(String value) {
-  const palette = [
-    Color(0xFF6366F1),
-    Color(0xFF0F766E),
-    Color(0xFFB45309),
-    Color(0xFFBE123C),
-    Color(0xFF7C3AED),
-  ];
-  return palette[value.hashCode.abs() % palette.length];
+/// Deterministyczna paleta awatarów współpracowników bez stanu i I/O.
+final class TaskCollaboratorAvatarPalette {
+  const TaskCollaboratorAvatarPalette._();
+
+  static Color colorFor(String value) {
+    const palette = [
+      Color(0xFF6366F1),
+      Color(0xFF0F766E),
+      Color(0xFFB45309),
+      Color(0xFFBE123C),
+      Color(0xFF7C3AED),
+    ];
+    return palette[value.hashCode.abs() % palette.length];
+  }
 }

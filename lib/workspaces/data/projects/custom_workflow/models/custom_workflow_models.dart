@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_status_category.dart';
 
 part 'custom_workflow_models.freezed.dart';
 part 'custom_workflow_models.g.dart';

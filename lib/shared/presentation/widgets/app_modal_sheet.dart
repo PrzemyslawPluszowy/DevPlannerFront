@@ -1,8 +1,7 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/shared/presentation/widgets/app_modal_sheet_panel.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_modal_sheet_panel.dart';
 
 enum AppModalSheetSize { small, medium, large, fullscreen }
 
@@ -69,9 +68,9 @@ class AppModalSheet extends StatelessWidget {
     bool scrollBody = true,
     bool useRootNavigator = true,
   }) {
-    return AppModalHost.showDialog<T>(
+    return DevPlannerModalHost.showDialog<T>(
       context,
-      navigatorScope: AppModalHost.navigatorScopeFor(useRootNavigator),
+      navigatorScope: DevPlannerModalHost.navigatorScopeFor(useRootNavigator),
       barrierDismissible: barrierDismissible,
       builder: (dialogContext) {
         return AppModalSheet(
@@ -117,9 +116,9 @@ class AppModalSheet extends StatelessWidget {
   }) {
     final effectiveWidth = width ?? _maxWidthForStatic(size) ?? 760;
 
-    return AppModalHost.showSideSheet<T>(
+    return DevPlannerModalHost.showSideSheet<T>(
       context,
-      navigatorScope: AppModalHost.navigatorScopeFor(useRootNavigator),
+      navigatorScope: DevPlannerModalHost.navigatorScopeFor(useRootNavigator),
       barrierDismissible: barrierDismissible,
       canClose: !(isBusy || !canClose),
       builder: (dialogContext) => SafeArea(

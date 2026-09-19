@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
 
 /// Właściciel lokalnych prób dostawy jednej rozmowy, niezależny od Cubita UI.
 ///
@@ -53,7 +53,7 @@ final class ChatMessageDeliveryQueue {
     final message = ChatMessage(
       id: 'local:$clientMessageId',
       conversationId: conversationId,
-      authorCoreUserId: '',
+      authorUserId: '',
       clientMessageId: clientMessageId,
       text: draft.text,
       deltaJson: draft.deltaJson,

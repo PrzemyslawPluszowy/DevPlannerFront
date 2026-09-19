@@ -1,16 +1,16 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_context_menu.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Komórka etykiet zadania w tabeli.
 ///
@@ -191,26 +191,32 @@ class _LabelsMenuPanel extends StatefulWidget {
 }
 
 class _LabelsMenuPanelState extends State<_LabelsMenuPanel> {
-  late Set<String> _currentSelected = {...widget.selectedIds};
-  String _query = '';
-  bool _isSaving = false;
+  late final ValueNotifier<_LabelsMenuUiState> _ui = ValueNotifier(
+    _LabelsMenuUiState(selectedIds: {...widget.selectedIds}),
+  );
+
+  @override
+  void dispose() {
+    _ui.dispose();
+    super.dispose();
+  }
 
   Future<void> _toggle(String labelId) async {
-    if (_isSaving) return;
-    _isSaving = true;
-    final previous = {..._currentSelected};
-    final next = {..._currentSelected};
+    final current = _ui.value;
+    if (current.isSaving) return;
+    final previous = {...current.selectedIds};
+    final next = {...current.selectedIds};
     if (next.contains(labelId)) {
       next.remove(labelId);
     } else {
       next.add(labelId);
     }
-    setState(() => _currentSelected = next);
+    _ui.value = current.copyWith(selectedIds: next, isSaving: true);
     try {
       final success = await widget.onChanged(next.toList(growable: false));
       if (!mounted) return;
       if (!success) {
-        setState(() => _currentSelected = previous);
+        _ui.value = _ui.value.copyWith(selectedIds: previous);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Nie udało się zapisać etykiet zadania.'),
@@ -219,7 +225,7 @@ class _LabelsMenuPanelState extends State<_LabelsMenuPanel> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _currentSelected = previous);
+        _ui.value = _ui.value.copyWith(selectedIds: previous);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Błąd zapisu etykiet: $e'),
@@ -228,16 +234,22 @@ class _LabelsMenuPanelState extends State<_LabelsMenuPanel> {
       }
     } finally {
       if (mounted) {
-        setState(() => _isSaving = false);
+        _ui.value = _ui.value.copyWith(isSaving: false);
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<_LabelsMenuUiState>(
+        valueListenable: _ui,
+        builder: (context, ui, _) => _buildContent(context, ui),
+      );
+
+  Widget _buildContent(BuildContext context, _LabelsMenuUiState ui) {
     final filtered = widget.labels
         .where(
-          (l) => l.name.toLowerCase().contains(_query.toLowerCase().trim()),
+          (l) => l.name.toLowerCase().contains(ui.query.toLowerCase().trim()),
         )
         .toList();
 
@@ -273,7 +285,7 @@ class _LabelsMenuPanelState extends State<_LabelsMenuPanel> {
                   ),
                 ),
               ),
-              onChanged: (val) => setState(() => _query = val),
+              onChanged: (val) => _ui.value = _ui.value.copyWith(query: val),
             ),
             const SizedBox(height: Sizes.p6),
             ConstrainedBox(
@@ -295,9 +307,9 @@ class _LabelsMenuPanelState extends State<_LabelsMenuPanel> {
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final label = filtered[index];
-                        final isSelected = _currentSelected.contains(label.id);
+                        final isSelected = ui.selectedIds.contains(label.id);
                         return InkWell(
-                          onTap: _isSaving ? null : () => _toggle(label.id),
+                          onTap: ui.isSaving ? null : () => _toggle(label.id),
                           borderRadius: const BorderRadius.all(
                             .circular(Sizes.p4),
                           ),
@@ -313,7 +325,7 @@ class _LabelsMenuPanelState extends State<_LabelsMenuPanel> {
                                   height: 20,
                                   child: Checkbox(
                                     value: isSelected,
-                                    onChanged: _isSaving
+                                    onChanged: ui.isSaving
                                         ? null
                                         : (_) => _toggle(label.id),
                                     visualDensity: .compact,
@@ -335,4 +347,26 @@ class _LabelsMenuPanelState extends State<_LabelsMenuPanel> {
       ),
     );
   }
+}
+
+final class _LabelsMenuUiState {
+  const _LabelsMenuUiState({
+    required this.selectedIds,
+    this.query = '',
+    this.isSaving = false,
+  });
+
+  final Set<String> selectedIds;
+  final String query;
+  final bool isSaving;
+
+  _LabelsMenuUiState copyWith({
+    Set<String>? selectedIds,
+    String? query,
+    bool? isSaving,
+  }) => _LabelsMenuUiState(
+    selectedIds: selectedIds ?? this.selectedIds,
+    query: query ?? this.query,
+    isSaving: isSaving ?? this.isSaving,
+  );
 }

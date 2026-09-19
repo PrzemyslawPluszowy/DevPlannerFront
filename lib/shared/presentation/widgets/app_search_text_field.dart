@@ -1,9 +1,8 @@
 import 'dart:async';
 
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_control_size.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_control_size.dart';
 
 /// Kontroler do [AppSearchTextField].
 ///

@@ -1,8 +1,8 @@
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_status_category.dart';
 
 part 'task_templates_models.freezed.dart';
 part 'task_templates_models.g.dart';
@@ -70,7 +70,7 @@ abstract class CreateTaskTemplateDefinitionPayload
     int? risk,
     int? businessValue,
     int? estimatedMinutes,
-    List<String>? assigneeCoreUserIds,
+    List<String>? assigneeUserIds,
     List<String>? checklistItems,
     List<String>? acceptanceCriteria,
     List<TaskTemplateLabelResponse>? labels,
@@ -180,7 +180,7 @@ abstract class TaskTemplateDetailsResponse with _$TaskTemplateDetailsResponse {
     int? risk,
     int? businessValue,
     int? estimatedMinutes,
-    required List<String> assigneeCoreUserIds,
+    required List<String> assigneeUserIds,
     required List<String> checklistItems,
     required List<String> acceptanceCriteria,
     required List<TaskTemplateLabelResponse> labels,
@@ -211,7 +211,7 @@ abstract class UpdateTaskTemplatePayload with _$UpdateTaskTemplatePayload {
     int? risk,
     int? businessValue,
     int? estimatedMinutes,
-    List<String>? assigneeCoreUserIds,
+    List<String>? assigneeUserIds,
     List<String>? checklistItems,
     List<String>? acceptanceCriteria,
     List<TaskTemplateLabelResponse>? labels,

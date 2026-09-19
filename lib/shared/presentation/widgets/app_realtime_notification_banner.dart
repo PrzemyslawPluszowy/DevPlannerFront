@@ -1,6 +1,6 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
 
 /// Nowoczesny baner powiadomień realtime wzorowany na pasku ClickUp.
 ///

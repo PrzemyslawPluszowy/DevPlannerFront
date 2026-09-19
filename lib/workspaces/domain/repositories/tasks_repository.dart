@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 
 /// Typowane filtry cursorowej listy zadań projektu.
 final class ProjectTasksQuery {
@@ -14,7 +14,7 @@ final class ProjectTasksQuery {
     this.savedViewId,
     this.status,
     this.priority,
-    this.assigneeCoreUserId,
+    this.assigneeUserId,
     this.myInvolvement,
     this.unassignedOnly = false,
     this.search,
@@ -26,7 +26,7 @@ final class ProjectTasksQuery {
          'Limit listy zadań musi mieścić się w zakresie 1–100.',
        ),
        assert(
-         !unassignedOnly || assigneeCoreUserId == null,
+         !unassignedOnly || assigneeUserId == null,
          'Filtr nieprzypisanych zadań nie może wskazywać wykonawcy.',
        );
 
@@ -39,7 +39,7 @@ final class ProjectTasksQuery {
   final String? savedViewId;
   final String? status;
   final String? priority;
-  final String? assigneeCoreUserId;
+  final String? assigneeUserId;
   final String? myInvolvement;
   final bool unassignedOnly;
   final String? search;
@@ -60,7 +60,7 @@ final class ProjectTasksGroupedQuery extends ProjectTasksQuery {
     super.savedViewId,
     super.status,
     super.priority,
-    super.assigneeCoreUserId,
+    super.assigneeUserId,
     super.myInvolvement,
     super.unassignedOnly,
     super.search,

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/templates/models/project_template_models.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/templates/models/project_template_models.dart';
 
 /// Kontrakt repozytorium szablonów projektów w workspace.
 abstract interface class ProjectTemplatesRepository {

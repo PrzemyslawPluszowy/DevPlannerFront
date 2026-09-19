@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/domain/repositories/notifications_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/domain/repositories/notifications_repository.dart';
 
 /// Lokalny Cubit licznika używany wyłącznie przez globalny topbar.
 class UnreadNotificationsCubit extends Cubit<int?> {

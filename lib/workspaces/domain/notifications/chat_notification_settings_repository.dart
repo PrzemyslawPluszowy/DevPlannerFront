@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/chat_notification_settings.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/chat_notification_settings.dart';
 
 /// Port globalnych i per-rozmowa ustawień dostarczania Chat.
 abstract interface class ChatNotificationSettingsRepository {

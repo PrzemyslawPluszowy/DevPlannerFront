@@ -1,25 +1,22 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/realtime/notifications/workspace_notifications_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/domain/repositories/notifications_repository.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_realtime_status_cubit.dart';
+import 'package:devplanner/workspaces/presentation/notifications/cubit/notifications_state.dart';
+import 'package:devplanner/workspaces/presentation/notifications/notification_widgets.dart';
+import 'package:devplanner/workspaces/presentation/notifications/preferences/notification_preferences_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/app/shell/overlay/app_modal_host.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/realtime/notifications/workspace_notifications_realtime_service.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/domain/repositories/notifications_repository.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_cubit.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_realtime_status_cubit.dart';
-import 'package:ready_next/workspaces/presentation/notifications/cubit/notifications_state.dart';
-import 'package:ready_next/workspaces/presentation/notifications/notification_widgets.dart';
-import 'package:ready_next/workspaces/presentation/notifications/preferences/notification_preferences_modal.dart';
 
-/// Placeholder globalnej skrzynki powiadomień.
-///
-/// Docelowy ekran zostanie podłączony przez repository/Cubit. Ta wersja
-/// gwarantuje, że globalny deep link ma własny, jawny ekran zamiast fallbacku.
+/// Globalna skrzynka powiadomień zasilana przez jawny repository i Cubit.
 class GlobalNotificationsPage extends StatelessWidget {
   const GlobalNotificationsPage({super.key});
 
@@ -32,7 +29,7 @@ class GlobalNotificationsPage extends StatelessWidget {
       create: (context) {
         final cubit = NotificationsCubit(
           context.read<NotificationsRepository>(),
-          realtime: context.read<WorkspaceNotificationsRealtimeService>(),
+          realtime: context.read<WorkspaceNotificationsRealtimeService?>(),
         );
         unawaited(cubit.load());
         return cubit;
@@ -49,7 +46,7 @@ abstract final class AppGlobalNotificationsDrawer {
     BuildContext context, {
     required NotificationsRepository repository,
   }) async {
-    await AppModalHost.showSideSheet<void>(
+    await DevPlannerModalHost.showSideSheet<void>(
       context,
       builder: (context) => Align(
         alignment: Alignment.centerRight,
@@ -61,10 +58,15 @@ abstract final class AppGlobalNotificationsDrawer {
 
 /// Ekran globalnej skrzynki z jawnymi stanami API i nawigacją deep linków.
 class _NotificationsView extends StatelessWidget {
-  const _NotificationsView({this.drawer = false, this.onClose});
+  const _NotificationsView({
+    this.drawer = false,
+    this.onClose,
+    this.fillAvailableWidth = false,
+  });
 
   final bool drawer;
   final VoidCallback? onClose;
+  final bool fillAvailableWidth;
 
   Widget _body(BuildContext context) =>
       BlocBuilder<NotificationsCubit, NotificationsState>(
@@ -140,7 +142,7 @@ class _NotificationsView extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: Container(
-        width: 384,
+        width: fillAvailableWidth ? double.infinity : 384,
         height: double.infinity,
         margin: const EdgeInsets.all(Sizes.p12),
         decoration: BoxDecoration(
@@ -323,28 +325,38 @@ class AppGlobalNotificationsPanel extends StatelessWidget {
   const AppGlobalNotificationsPanel({
     required this.repository,
     this.onClose,
+    this.fillAvailableWidth = false,
     super.key,
   });
 
   final NotificationsRepository repository;
   final VoidCallback? onClose;
+  final bool fillAvailableWidth;
 
   @override
   Widget build(BuildContext context) {
     final sessionCubit = context.read<NotificationsCubit?>();
     if (sessionCubit != null) {
-      return _NotificationsView(drawer: true, onClose: onClose);
+      return _NotificationsView(
+        drawer: true,
+        onClose: onClose,
+        fillAvailableWidth: fillAvailableWidth,
+      );
     }
     return BlocProvider(
       create: (context) {
         final cubit = NotificationsCubit(
           repository,
-          realtime: context.read<WorkspaceNotificationsRealtimeService>(),
+          realtime: context.read<WorkspaceNotificationsRealtimeService?>(),
         );
         unawaited(cubit.load());
         return cubit;
       },
-      child: _NotificationsView(drawer: true, onClose: onClose),
+      child: _NotificationsView(
+        drawer: true,
+        onClose: onClose,
+        fillAvailableWidth: fillAvailableWidth,
+      ),
     );
   }
 }

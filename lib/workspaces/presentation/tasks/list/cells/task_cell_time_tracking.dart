@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_text_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/pickers/task_text_picker.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 
 /// Edytowalna komórka metryki liczbowej (rozmiar, złożoność, ryzyko, czas).
 class TaskCellMetric extends StatelessWidget {
@@ -53,7 +53,7 @@ class TaskCellMetric extends StatelessWidget {
   );
 
   Future<void> _editValue(BuildContext context) async {
-    final answer = await editAnchoredText(
+    final answer = await AnchoredTextEditor.edit(
       context,
       title: title,
       initialValue: value?.toString() ?? '',

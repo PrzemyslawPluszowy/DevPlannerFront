@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_preferences.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_preferences.dart';
 
 /// Port preferencji globalnego dostarczania i osobistego Storage.
 abstract interface class NotificationPreferencesRepository {

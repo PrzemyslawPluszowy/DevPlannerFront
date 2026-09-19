@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/shared/enums/access_control_enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/access_control_enums.dart';
 
 part 'access_control_models.freezed.dart';
 part 'access_control_models.g.dart';

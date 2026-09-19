@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_history_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/history/cubit/task_history_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_advanced_enums.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_history_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/detail/history/cubit/task_history_cubit.dart';
 
 final class _TaskHistoryRepository implements TaskHistoryRepository {
   _TaskHistoryRepository(this.responses);
@@ -33,7 +33,7 @@ TaskHistoryEventResponse _event(String id) => TaskHistoryEventResponse(
   actionLabel: 'Zmieniono zadanie',
   actor: const TaskHistoryActorResponse(
     type: TaskActorType.user,
-    coreUserId: 'user-1',
+    userId: 'user-1',
   ),
   changes: const [],
   taskVersion: 2,

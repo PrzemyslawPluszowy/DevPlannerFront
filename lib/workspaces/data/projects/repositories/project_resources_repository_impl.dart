@@ -1,23 +1,23 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/corkboard/api/corkboard_api.dart';
-import 'package:ready_next/workspaces/data/corkboard/models/corkboard_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/api/tasks_api.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/corkboard_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/data/storage/api/storage_api.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/data/whiteboard/api/whiteboard_api.dart';
-import 'package:ready_next/workspaces/data/whiteboard/models/whiteboard_models.dart';
-import 'package:ready_next/workspaces/data/wiki/api/wiki_api.dart';
-import 'package:ready_next/workspaces/data/wiki/models/wiki_models.dart';
-import 'package:ready_next/workspaces/data/workspaces/api/automation_api.dart';
-import 'package:ready_next/workspaces/domain/models/project_resource_list_item.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_resources_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/corkboard/api/corkboard_api.dart';
+import 'package:devplanner/workspaces/data/corkboard/models/corkboard_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/api/tasks_api.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/corkboard_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/data/whiteboard/api/whiteboard_api.dart';
+import 'package:devplanner/workspaces/data/whiteboard/models/whiteboard_models.dart';
+import 'package:devplanner/workspaces/data/wiki/api/wiki_api.dart';
+import 'package:devplanner/workspaces/data/wiki/models/wiki_models.dart';
+import 'package:devplanner/workspaces/data/workspaces/api/automation_api.dart';
+import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
 
 /// Implementacja katalogu zasobów projektu przez dedykowane API domenowe.
 final class ProjectResourcesRepositoryImpl extends ApiRepository

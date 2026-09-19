@@ -1,9 +1,9 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/models/task_list_view_snapshot.dart';
+import 'package:devplanner/workspaces/shared/presentation/widgets/workspace_creation_modal_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/models/task_list_view_snapshot.dart';
-import 'package:ready_next/workspaces/shared/presentation/widgets/workspace_creation_modal_wrapper.dart';
 
 /// Wynik działania dialogu tworzenia/edycji nazwy widoku.
 @immutable
@@ -59,7 +59,7 @@ class TaskSavedViewNameDialog extends StatefulWidget {
 
 class _TaskSavedViewNameDialogState extends State<TaskSavedViewNameDialog> {
   late final TextEditingController _controller;
-  String? _errorText;
+  final ValueNotifier<String?> _errorText = ValueNotifier(null);
 
   @override
   void initState() {
@@ -70,17 +70,18 @@ class _TaskSavedViewNameDialogState extends State<TaskSavedViewNameDialog> {
   @override
   void dispose() {
     _controller.dispose();
+    _errorText.dispose();
     super.dispose();
   }
 
   void _validateAndSubmit({required bool openConfigurator}) {
     final text = _controller.text.trim();
     if (text.isEmpty) {
-      setState(() => _errorText = 'Nazwa widoku nie może być pusta');
+      _errorText.value = 'Nazwa widoku nie może być pusta';
       return;
     }
     if (text.length > 120) {
-      setState(() => _errorText = 'Maksymalnie 120 znaków');
+      _errorText.value = 'Maksymalnie 120 znaków';
       return;
     }
     Navigator.of(context).pop(
@@ -96,96 +97,99 @@ class _TaskSavedViewNameDialogState extends State<TaskSavedViewNameDialog> {
     final colors = context.colors;
     final snapshot = widget.snapshot;
 
-    return WorkspaceCreationModalWrapper(
-      title:
-          widget.title ??
-          (widget.initialName == null
-              ? 'Zapisz bieżący widok'
-              : l10n.tasksSavedViewsRename),
-      subtitle: l10n.tasksSavedViewsName,
-      icon: Symbols.bookmark_rounded,
-      accentColor: colors.primary,
-      submitLabel: widget.submitLabel ?? l10n.save,
-      cancelLabel: l10n.cancel,
-      maxWidth: 440,
-      onSubmit: () => _validateAndSubmit(openConfigurator: false),
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            maxLength: 120,
-            decoration: InputDecoration(
-              hintText: l10n.tasksSavedViewsName,
-              errorText: _errorText,
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+    return ValueListenableBuilder<String?>(
+      valueListenable: _errorText,
+      builder: (context, errorText, _) => WorkspaceCreationModalWrapper(
+        title:
+            widget.title ??
+            (widget.initialName == null
+                ? 'Zapisz bieżący widok'
+                : l10n.tasksSavedViewsRename),
+        subtitle: l10n.tasksSavedViewsName,
+        icon: Symbols.bookmark_rounded,
+        accentColor: colors.primary,
+        submitLabel: widget.submitLabel ?? l10n.save,
+        cancelLabel: l10n.cancel,
+        maxWidth: 440,
+        onSubmit: () => _validateAndSubmit(openConfigurator: false),
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              maxLength: 120,
+              decoration: InputDecoration(
+                hintText: l10n.tasksSavedViewsName,
+                errorText: errorText,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p12,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p12,
-              ),
+              onChanged: (_) {
+                if (errorText != null) _errorText.value = null;
+              },
+              onSubmitted: (_) => _validateAndSubmit(openConfigurator: false),
             ),
-            onChanged: (_) {
-              if (_errorText != null) setState(() => _errorText = null);
-            },
-            onSubmitted: (_) => _validateAndSubmit(openConfigurator: false),
-          ),
-          if (snapshot != null) ...[
-            const SizedBox(height: Sizes.p8),
-            Container(
-              padding: const EdgeInsets.all(Sizes.p12),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colors.outlineVariant),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Konfiguracja do zapisania:',
-                    style: context.text.labelSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: colors.onSurfaceVariant,
+            if (snapshot != null) ...[
+              const SizedBox(height: Sizes.p8),
+              Container(
+                padding: const EdgeInsets.all(Sizes.p12),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: colors.outlineVariant),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Konfiguracja do zapisania:',
+                      style: context.text.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  _SnapshotSummaryRow(
-                    icon: Symbols.filter_alt_rounded,
-                    label: snapshot.activeFiltersCount == 0
-                        ? 'Brak aktywnych filtrów'
-                        : 'Aktywne filtry: ${snapshot.activeFiltersCount}',
-                  ),
-                  _SnapshotSummaryRow(
-                    icon: Symbols.view_column_rounded,
-                    label:
-                        'Kolumny: ${snapshot.columns.length + snapshot.customFieldIds.length}',
-                  ),
-                  _SnapshotSummaryRow(
-                    icon: Symbols.sort_rounded,
-                    label:
-                        'Sortowanie: ${snapshot.sortField.name} (${snapshot.sortDirection.name})',
-                  ),
-                  _SnapshotSummaryRow(
-                    icon: Symbols.grid_view_rounded,
-                    label: 'Grupowanie: ${snapshot.groupBy.name}',
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    _SnapshotSummaryRow(
+                      icon: Symbols.filter_alt_rounded,
+                      label: snapshot.activeFiltersCount == 0
+                          ? 'Brak aktywnych filtrów'
+                          : 'Aktywne filtry: ${snapshot.activeFiltersCount}',
+                    ),
+                    _SnapshotSummaryRow(
+                      icon: Symbols.view_column_rounded,
+                      label:
+                          'Kolumny: ${snapshot.columns.length + snapshot.customFieldIds.length}',
+                    ),
+                    _SnapshotSummaryRow(
+                      icon: Symbols.sort_rounded,
+                      label:
+                          'Sortowanie: ${snapshot.sortField.name} (${snapshot.sortDirection.name})',
+                    ),
+                    _SnapshotSummaryRow(
+                      icon: Symbols.grid_view_rounded,
+                      label: 'Grupowanie: ${snapshot.groupBy.name}',
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
+            if (widget.allowConfigure && snapshot != null) ...[
+              const SizedBox(height: Sizes.p12),
+              OutlinedButton.icon(
+                icon: const Icon(Symbols.tune_rounded, size: 18),
+                label: const Text('Skonfiguruj przed zapisem'),
+                onPressed: () => _validateAndSubmit(openConfigurator: true),
+              ),
+            ],
           ],
-          if (widget.allowConfigure && snapshot != null) ...[
-            const SizedBox(height: Sizes.p12),
-            OutlinedButton.icon(
-              icon: const Icon(Symbols.tune_rounded, size: 18),
-              label: const Text('Skonfiguruj przed zapisem'),
-              onPressed: () => _validateAndSubmit(openConfigurator: true),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

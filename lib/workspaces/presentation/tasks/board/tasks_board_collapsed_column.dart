@@ -37,7 +37,7 @@ class _CollapsedKanbanColumn extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: _parseColor(column.color),
+                      color: TaskBoardColorParser.parse(column.color),
                       shape: .circle,
                     ),
                   ),

@@ -1,6 +1,6 @@
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/widgets/app_text.dart';
 
 /// Wspolny tile do list i menu.
 class AppListTile extends StatelessWidget {

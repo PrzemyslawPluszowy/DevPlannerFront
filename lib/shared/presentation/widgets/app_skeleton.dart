@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:devplanner/core/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:ready_next/core/theme/theme.dart';
 
 class AppSkeleton extends StatefulWidget {
   const AppSkeleton({

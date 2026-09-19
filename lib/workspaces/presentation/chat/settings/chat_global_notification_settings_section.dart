@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_global_notification_settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/presentation/chat/settings/cubit/chat_global_notification_settings_cubit.dart';
 
 /// Sekcja globalnych kanałów Chat do osadzenia w preferencjach powiadomień.
 ///

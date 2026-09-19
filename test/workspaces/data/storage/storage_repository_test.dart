@@ -1,15 +1,15 @@
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/data/storage/repositories/storage_repository_impl.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:ready_next/workspaces/data/storage/api/storage_api.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/data/storage/repositories/storage_repository_impl.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_browser_filter.dart';
-import 'package:ready_next/workspaces/domain/storage/models/storage_scope.dart';
 
 class _MockStorageApi extends Mock implements StorageApi {}
 

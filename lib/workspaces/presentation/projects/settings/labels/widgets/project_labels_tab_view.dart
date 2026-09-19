@@ -1,11 +1,11 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/labels/widgets/project_label_editor_dialog.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/task_labels_settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/labels/widgets/project_label_editor_dialog.dart';
-import 'package:ready_next/workspaces/presentation/tasks/settings/cubit/task_labels_settings_cubit.dart';
 
 /// Widok zakładki "Etykiety" w ustawieniach projektu.
 class ProjectLabelsTabView extends StatelessWidget {

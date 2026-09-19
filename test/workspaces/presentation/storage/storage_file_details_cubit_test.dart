@@ -2,16 +2,16 @@ import 'dart:typed_data';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/features/settings/application/current_user_avatar_cubit.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
+import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/features/settings/application/current_user_avatar_cubit.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_extended_models.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/storage_repository.dart';
-import 'package:ready_next/workspaces/domain/services/task_attachment_upload_transport.dart';
-import 'package:ready_next/workspaces/presentation/storage/cubit/storage_file_details_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/cubit/storage_file_details_state.dart';
 
 class _StorageRepository implements StorageRepository {
   _StorageRepository(this.result, {this.avatarResult});

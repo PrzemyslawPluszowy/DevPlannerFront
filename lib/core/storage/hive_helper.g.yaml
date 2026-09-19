@@ -3,76 +3,6 @@
 # Check in to version control
 nextTypeId: 50
 types:
-  DashboardPreferences:
-    typeId: 41
-    nextIndex: 10
-    fields:
-      readyUserId:
-        index: 0
-      selectedWallpaperPath:
-        index: 1
-      builtInWallpaperPaths:
-        index: 2
-      customWallpaperPaths:
-        index: 3
-      widgets:
-        index: 4
-      shortcuts:
-        index: 5
-      updatedAt:
-        index: 6
-      startupModule:
-        index: 7
-      desktopGridVersion:
-        index: 8
-      snapToGrid:
-        index: 9
-  DashboardShortcutPreference:
-    typeId: 42
-    nextIndex: 8
-    fields:
-      shortcutId:
-        index: 0
-      userLabel:
-        index: 1
-      isVisible:
-        index: 2
-      position:
-        index: 3
-      gridColumn:
-        index: 4
-      gridRow:
-        index: 5
-      exactDx:
-        index: 6
-      exactDy:
-        index: 7
-  DashboardWidgetPreference:
-    typeId: 43
-    nextIndex: 11
-    fields:
-      id:
-        index: 0
-      widgetTypeId:
-        index: 1
-      gridColumn:
-        index: 2
-      gridRow:
-        index: 3
-      width:
-        index: 4
-      height:
-        index: 5
-      settings:
-        index: 6
-      exactDx:
-        index: 7
-      exactDy:
-        index: 8
-      preferredWidth:
-        index: 9
-      preferredHeight:
-        index: 10
   LocalSettingsModel:
     typeId: 44
     nextIndex: 9
@@ -143,15 +73,3 @@ types:
         index: 1
       dark:
         index: 2
-  DashboardStartupModule:
-    typeId: 49
-    nextIndex: 4
-    fields:
-      dashboard:
-        index: 0
-      inventory:
-        index: 1
-      bhp:
-        index: 2
-      settings:
-        index: 3

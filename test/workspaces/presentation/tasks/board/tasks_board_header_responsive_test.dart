@@ -1,13 +1,13 @@
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/l10n/app_localizations.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/data/shared/enums/kanban_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
-import 'package:ready_next/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 TasksBoardReady _createReadyState({
   Set<String> selectedTaskIds = const {},
@@ -42,7 +42,7 @@ TasksBoardReady _createReadyState({
   userPreference: UserKanbanPreferenceResponse(
     workspaceId: 'w-1',
     projectId: 'p-1',
-    coreUserId: 'user-1',
+    userId: 'user-1',
     version: 1,
     collapsedColumns: const [],
     collapsedCustomStatusIds: const [],

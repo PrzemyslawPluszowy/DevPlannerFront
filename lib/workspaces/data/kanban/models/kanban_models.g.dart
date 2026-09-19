@@ -48,7 +48,7 @@ _KanbanTaskCardResponse _$KanbanTaskCardResponseFromJson(
   status: $enumDecode(_$ProjectTaskStatusEnumMap, json['status']),
   priority: $enumDecode(_$TaskPriorityEnumMap, json['priority']),
   position: (json['position'] as num).toInt(),
-  primaryAssigneeCoreUserId: json['primaryAssigneeCoreUserId'] as String?,
+  primaryAssigneeUserId: json['primaryAssigneeUserId'] as String?,
   milestoneId: json['milestoneId'] as String?,
   dueAtUtc: json['dueAtUtc'] == null
       ? null
@@ -96,7 +96,7 @@ Map<String, dynamic> _$KanbanTaskCardResponseToJson(
   'status': _$ProjectTaskStatusEnumMap[instance.status]!,
   'priority': _$TaskPriorityEnumMap[instance.priority]!,
   'position': instance.position,
-  'primaryAssigneeCoreUserId': instance.primaryAssigneeCoreUserId,
+  'primaryAssigneeUserId': instance.primaryAssigneeUserId,
   'milestoneId': instance.milestoneId,
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
   'checklistTotal': instance.checklistTotal,
@@ -498,7 +498,7 @@ _UserKanbanPreferenceResponse _$UserKanbanPreferenceResponseFromJson(
 ) => _UserKanbanPreferenceResponse(
   workspaceId: json['workspaceId'] as String,
   projectId: json['projectId'] as String,
-  coreUserId: json['coreUserId'] as String,
+  userId: json['userId'] as String,
   collapsedColumns: (json['collapsedColumns'] as List<dynamic>)
       .map((e) => $enumDecode(_$ProjectTaskStatusEnumMap, e))
       .toList(),
@@ -517,7 +517,7 @@ Map<String, dynamic> _$UserKanbanPreferenceResponseToJson(
 ) => <String, dynamic>{
   'workspaceId': instance.workspaceId,
   'projectId': instance.projectId,
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'collapsedColumns': instance.collapsedColumns
       .map((e) => _$ProjectTaskStatusEnumMap[e]!)
       .toList(),

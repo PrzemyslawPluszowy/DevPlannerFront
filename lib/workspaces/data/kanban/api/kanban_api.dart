@@ -1,9 +1,9 @@
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ready_next/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'kanban_api.g.dart';
@@ -42,7 +42,7 @@ abstract class KanbanApi {
     @Path('status') ProjectTaskStatus status, {
     @Query('cursor') String? cursor,
     @Query('limit') int? limit,
-    @Query('assigneeCoreUserId') String? assigneeCoreUserId,
+    @Query('assigneeUserId') String? assigneeUserId,
     @Query('priority') TaskPriority? priority,
     @Query('milestoneId') String? milestoneId,
   });
@@ -57,7 +57,7 @@ abstract class KanbanApi {
     @Path('customStatusId') String customStatusId, {
     @Query('cursor') String? cursor,
     @Query('limit') int? limit,
-    @Query('assigneeCoreUserId') String? assigneeCoreUserId,
+    @Query('assigneeUserId') String? assigneeUserId,
     @Query('priority') TaskPriority? priority,
     @Query('milestoneId') String? milestoneId,
   });

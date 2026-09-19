@@ -1,10 +1,10 @@
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
 
 part 'project_member_response.freezed.dart';
 part 'project_member_response.g.dart';
 
-/// Jawne członkostwo projektu bez kopiowania danych użytkownika z Ready.
+/// Jawne członkostwo projektu z kanonicznym lokalnym UserId.
 @freezed
 abstract class ProjectMemberResponse with _$ProjectMemberResponse {
   /// Tworzy odpowiedź zgodną z `ProjectMemberResponse`.
@@ -15,11 +15,8 @@ abstract class ProjectMemberResponse with _$ProjectMemberResponse {
     /// UUID członkostwa użytkownika w workspace.
     required String workspaceMembershipId,
 
-    /// UUID użytkownika Core.
-    required String coreUserId,
-
-    /// Identyfikator użytkownika Ready albo null.
-    int? readyUserId,
+    /// UUID lokalnego użytkownika.
+    required String userId,
 
     /// Rola użytkownika w projekcie.
     required ProjectRole role,

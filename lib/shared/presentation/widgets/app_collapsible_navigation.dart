@@ -1,9 +1,8 @@
+import 'package:devplanner/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:ready_next/core/theme/theme.dart';
-
-export 'package:ready_next/shared/presentation/widgets/app_expansible_navigation_item.dart';
+export 'package:devplanner/shared/presentation/widgets/app_expansible_navigation_item.dart';
 
 /// Kontroler ręcznego zwijania panelu nawigacyjnego.
 ///

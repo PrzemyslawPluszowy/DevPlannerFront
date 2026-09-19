@@ -13,11 +13,11 @@ class _TaskRecurrenceForm extends StatefulWidget {
 class _TaskRecurrenceFormState extends State<_TaskRecurrenceForm> {
   late final TextEditingController _intervalController;
   late final TextEditingController _timeZoneController;
-  late TaskRecurrenceMode _mode;
-  late TaskRecurrenceFrequency _frequency;
-  late ProjectTaskStatus _occurrenceStatus;
-  late bool _skipIfPreviousOpen;
-  DateTime? _occurrenceAtUtc;
+  late final ValueNotifier<TaskRecurrenceMode> _mode;
+  late final ValueNotifier<TaskRecurrenceFrequency> _frequency;
+  late final ValueNotifier<ProjectTaskStatus> _occurrenceStatus;
+  late final ValueNotifier<bool> _skipIfPreviousOpen;
+  late final ValueNotifier<DateTime?> _occurrenceAtUtc;
 
   @override
   void initState() {
@@ -29,119 +29,142 @@ class _TaskRecurrenceFormState extends State<_TaskRecurrenceForm> {
     _timeZoneController = TextEditingController(
       text: recurrence?.timeZoneId ?? 'Etc/UTC',
     );
-    _mode = recurrence?.mode ?? TaskRecurrenceMode.scheduled;
-    _frequency = recurrence?.frequency ?? TaskRecurrenceFrequency.weekly;
-    _occurrenceStatus = recurrence?.occurrenceStatus ?? ProjectTaskStatus.todo;
-    _skipIfPreviousOpen = recurrence?.skipIfPreviousOpen ?? true;
-    _occurrenceAtUtc = recurrence?.nextOccurrenceAtUtc;
+    _mode = ValueNotifier(recurrence?.mode ?? TaskRecurrenceMode.scheduled);
+    _frequency = ValueNotifier(
+      recurrence?.frequency ?? TaskRecurrenceFrequency.weekly,
+    );
+    _occurrenceStatus = ValueNotifier(
+      recurrence?.occurrenceStatus ?? ProjectTaskStatus.todo,
+    );
+    _skipIfPreviousOpen = ValueNotifier(recurrence?.skipIfPreviousOpen ?? true);
+    _occurrenceAtUtc = ValueNotifier(recurrence?.nextOccurrenceAtUtc);
   }
 
   @override
   void dispose() {
     _intervalController.dispose();
     _timeZoneController.dispose();
+    _mode.dispose();
+    _frequency.dispose();
+    _occurrenceStatus.dispose();
+    _skipIfPreviousOpen.dispose();
+    _occurrenceAtUtc.dispose();
     super.dispose();
   }
 
   @override
   Widget build(
     BuildContext context,
-  ) => BlocBuilder<TaskRecurrenceCubit, TaskRecurrenceState>(
-    builder: (context, state) {
-      if (state is TaskRecurrenceLoading) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      if (state case TaskRecurrenceFailure(:final message)) {
-        return _TaskRecurrenceLoadFailure(message: message);
-      }
-      final ready = state as TaskRecurrenceReady;
-      final recurrence = ready.recurrence;
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (ready.error != null) ...[
-              Text(ready.error!, style: TextStyle(color: context.colors.error)),
-              const SizedBox(height: 12),
-            ],
-            _TaskRecurrenceFields(
-              mode: _mode,
-              frequency: _frequency,
-              intervalController: _intervalController,
-              timeZoneController: _timeZoneController,
-              occurrenceStatus: _occurrenceStatus,
-              skipIfPreviousOpen: _skipIfPreviousOpen,
-              occurrenceAtUtc: _occurrenceAtUtc,
-              recurrence: recurrence,
-              enabled: !ready.isSaving,
-              onModeChanged: (value) => setState(() => _mode = value),
-              onFrequencyChanged: (value) => setState(() => _frequency = value),
-              onStatusChanged: (value) =>
-                  setState(() => _occurrenceStatus = value),
-              onSkipChanged: (value) =>
-                  setState(() => _skipIfPreviousOpen = value),
-              onDateChanged: (value) =>
-                  setState(() => _occurrenceAtUtc = value),
-            ),
-            const SizedBox(height: 18),
-            if (recurrence != null) ...[
-              Row(
+  ) => AnimatedBuilder(
+    animation: Listenable.merge([
+      _mode,
+      _frequency,
+      _occurrenceStatus,
+      _skipIfPreviousOpen,
+      _occurrenceAtUtc,
+    ]),
+    builder: (context, _) =>
+        BlocBuilder<TaskRecurrenceCubit, TaskRecurrenceState>(
+          builder: (context, state) {
+            if (state is TaskRecurrenceLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state case TaskRecurrenceFailure(:final message)) {
+              return _TaskRecurrenceLoadFailure(message: message);
+            }
+            final ready = state as TaskRecurrenceReady;
+            final recurrence = ready.recurrence;
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Tooltip(
-                    message: context.l10n.tasksRecurrenceDelete,
-                    child: IconButton.outlined(
-                      onPressed: ready.isSaving ? null : () => _delete(context),
-                      style: IconButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        foregroundColor: context.colors.error,
-                        side: BorderSide(
-                          color: context.colors.error.withValues(alpha: .5),
-                        ),
-                      ),
-                      icon: const Icon(Symbols.delete_outline_rounded),
+                  if (ready.error != null) ...[
+                    Text(
+                      ready.error!,
+                      style: TextStyle(color: context.colors.error),
                     ),
+                    const SizedBox(height: 12),
+                  ],
+                  _TaskRecurrenceFields(
+                    mode: _mode.value,
+                    frequency: _frequency.value,
+                    intervalController: _intervalController,
+                    timeZoneController: _timeZoneController,
+                    occurrenceStatus: _occurrenceStatus.value,
+                    skipIfPreviousOpen: _skipIfPreviousOpen.value,
+                    occurrenceAtUtc: _occurrenceAtUtc.value,
+                    recurrence: recurrence,
+                    enabled: !ready.isSaving,
+                    onModeChanged: (value) => _mode.value = value,
+                    onFrequencyChanged: (value) => _frequency.value = value,
+                    onStatusChanged: (value) => _occurrenceStatus.value = value,
+                    onSkipChanged: (value) => _skipIfPreviousOpen.value = value,
+                    onDateChanged: (value) => _occurrenceAtUtc.value = value,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: ready.isSaving
-                          ? null
-                          : () => _toggleActive(context),
-                      icon: Icon(
-                        recurrence.isActive
-                            ? Symbols.pause_rounded
-                            : Symbols.play_arrow_rounded,
-                      ),
-                      label: Text(
-                        recurrence.isActive
-                            ? context.l10n.taskDetailsRecurrencePause
-                            : context.l10n.taskDetailsRecurrenceResume,
-                      ),
+                  const SizedBox(height: 18),
+                  if (recurrence != null) ...[
+                    Row(
+                      children: [
+                        Tooltip(
+                          message: context.l10n.tasksRecurrenceDelete,
+                          child: IconButton.outlined(
+                            onPressed: ready.isSaving
+                                ? null
+                                : () => _delete(context),
+                            style: IconButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              foregroundColor: context.colors.error,
+                              side: BorderSide(
+                                color: context.colors.error.withValues(
+                                  alpha: .5,
+                                ),
+                              ),
+                            ),
+                            icon: const Icon(Symbols.delete_outline_rounded),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: ready.isSaving
+                                ? null
+                                : () => _toggleActive(context),
+                            icon: Icon(
+                              recurrence.isActive
+                                  ? Symbols.pause_rounded
+                                  : Symbols.play_arrow_rounded,
+                            ),
+                            label: Text(
+                              recurrence.isActive
+                                  ? context.l10n.taskDetailsRecurrencePause
+                                  : context.l10n.taskDetailsRecurrenceResume,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+                  ],
+                  const SizedBox(height: 8),
+                  FilledButton(
+                    onPressed: ready.isSaving
+                        ? null
+                        : () => _save(context, recurrence),
+                    child: ready.isSaving
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            recurrence == null
+                                ? context.l10n.taskDetailsRecurrenceCreate
+                                : context.l10n.save,
+                          ),
                   ),
                 ],
               ),
-            ],
-            const SizedBox(height: 8),
-            FilledButton(
-              onPressed: ready.isSaving
-                  ? null
-                  : () => _save(context, recurrence),
-              child: ready.isSaving
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(
-                      recurrence == null
-                          ? context.l10n.taskDetailsRecurrenceCreate
-                          : context.l10n.save,
-                    ),
-            ),
-          ],
+            );
+          },
         ),
-      );
-    },
   );
 
   Future<void> _save(
@@ -163,25 +186,25 @@ class _TaskRecurrenceFormState extends State<_TaskRecurrenceForm> {
     final saved = recurrence == null
         ? await cubit.create(
             CreateTaskRecurrencePayload(
-              mode: _mode,
-              frequency: _frequency,
+              mode: _mode.value,
+              frequency: _frequency.value,
               interval: interval,
               timeZoneId: timeZoneId,
-              firstOccurrenceAtUtc: _occurrenceAtUtc,
+              firstOccurrenceAtUtc: _occurrenceAtUtc.value,
               expectedVersion: widget.task.version,
-              occurrenceStatus: _occurrenceStatus,
-              skipIfPreviousOpen: _skipIfPreviousOpen,
+              occurrenceStatus: _occurrenceStatus.value,
+              skipIfPreviousOpen: _skipIfPreviousOpen.value,
             ),
           )
         : await cubit.update(
             UpdateTaskRecurrencePayload(
-              mode: _mode,
-              frequency: _frequency,
+              mode: _mode.value,
+              frequency: _frequency.value,
               interval: interval,
               timeZoneId: timeZoneId,
-              nextOccurrenceAtUtc: _occurrenceAtUtc,
-              occurrenceStatus: _occurrenceStatus,
-              skipIfPreviousOpen: _skipIfPreviousOpen,
+              nextOccurrenceAtUtc: _occurrenceAtUtc.value,
+              occurrenceStatus: _occurrenceStatus.value,
+              skipIfPreviousOpen: _skipIfPreviousOpen.value,
               expectedVersion: recurrence.version,
             ),
           );
@@ -225,10 +248,15 @@ class _TaskRecurrenceLoadFailure extends StatelessWidget {
   );
 }
 
-String _recurrenceModeLabel(BuildContext context, TaskRecurrenceMode mode) =>
-    switch (mode) {
-      TaskRecurrenceMode.scheduled =>
-        context.l10n.taskDetailsRecurrenceModeScheduled,
-      TaskRecurrenceMode.afterCompletion =>
-        context.l10n.taskDetailsRecurrenceModeAfterCompletion,
-    };
+/// Lokalizuje tryb reguły cykliczności w formularzu zadania.
+final class TaskRecurrenceModeLabeler {
+  const TaskRecurrenceModeLabeler._();
+
+  static String label(BuildContext context, TaskRecurrenceMode value) =>
+      switch (value) {
+        TaskRecurrenceMode.scheduled =>
+          context.l10n.taskDetailsRecurrenceModeScheduled,
+        TaskRecurrenceMode.afterCompletion =>
+          context.l10n.taskDetailsRecurrenceModeAfterCompletion,
+      };
+}

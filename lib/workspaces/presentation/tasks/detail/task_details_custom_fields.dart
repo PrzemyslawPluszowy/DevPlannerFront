@@ -41,7 +41,7 @@ class _TaskCustomFieldsSection extends StatelessWidget {
             ),
             child: Column(
               children: [
-                for (final field in _sortedFields(fields))
+                for (final field in TaskCustomFieldPresentation.sorted(fields))
                   _CustomFieldReadRow(field: field),
               ],
             ),
@@ -57,7 +57,7 @@ class _CustomFieldReadRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListTile(
     dense: true,
-    leading: Icon(_customFieldIcon(field.type), size: 19),
+    leading: Icon(TaskCustomFieldPresentation.icon(field.type), size: 19),
     title: Row(
       children: [
         Flexible(child: Text(field.name)),
@@ -70,7 +70,7 @@ class _CustomFieldReadRow extends StatelessWidget {
     trailing: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 180),
       child: Text(
-        _customFieldDisplayValue(field.value),
+        TaskCustomFieldPresentation.displayValue(field.value),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.end,
@@ -94,15 +94,19 @@ class _EditCustomFieldsDialog extends StatefulWidget {
 }
 
 class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
-  late final Map<String, dynamic> _values;
+  late final ValueNotifier<Map<String, dynamic>> _values;
   late final Future<List<ProjectMemberProfile>> _memberProfiles;
-  var _saving = false;
-  String? _validationError;
+  final ValueNotifier<bool> _saving = ValueNotifier(false);
+  final ValueNotifier<String?> _validationError = ValueNotifier(null);
 
   @override
   void initState() {
     super.initState();
-    _values = {for (final field in widget.fields) field.id: field.value};
+    _values = ValueNotifier(
+      Map.unmodifiable({
+        for (final field in widget.fields) field.id: field.value,
+      }),
+    );
     final cubit = context.read<TaskDetailsCubit>();
     _memberProfiles = context
         .read<ProjectMemberProfilesRepository>()
@@ -114,45 +118,53 @@ class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => WorkspaceCreationModalWrapper(
-    title: context.l10n.taskDetailsEditCustomFields,
-    icon: Symbols.tune_rounded,
-    accentColor: context.colors.primary,
-    isSubmitting: _saving,
-    submitLabel: context.l10n.save,
-    cancelLabel: context.l10n.cancel,
-    maxWidth: 460,
-    onSubmit: _saving ? null : _save,
-    body: FutureBuilder<List<ProjectMemberProfile>>(
-      future: _memberProfiles,
-      builder: (context, snapshot) => SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final field in _sortedFields(widget.fields)) ...[
-              _CustomFieldEditor(
-                field: field,
-                value: _values[field.id],
-                enabled:
-                    !_saving &&
-                    snapshot.connectionState == ConnectionState.done,
-                memberProfiles: snapshot.data ?? const [],
-                onChanged: (value) => setState(() {
-                  _values[field.id] = value;
-                  _validationError = null;
-                }),
-              ),
-              const SizedBox(height: 14),
-            ],
-            if (_validationError case final message?)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  message,
-                  style: TextStyle(color: context.colors.error),
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: Listenable.merge([_values, _saving, _validationError]),
+    builder: (context, _) => WorkspaceCreationModalWrapper(
+      title: context.l10n.taskDetailsEditCustomFields,
+      icon: Symbols.tune_rounded,
+      accentColor: context.colors.primary,
+      isSubmitting: _saving.value,
+      submitLabel: context.l10n.save,
+      cancelLabel: context.l10n.cancel,
+      maxWidth: 460,
+      onSubmit: _saving.value ? null : _save,
+      body: FutureBuilder<List<ProjectMemberProfile>>(
+        future: _memberProfiles,
+        builder: (context, snapshot) => SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final field in TaskCustomFieldPresentation.sorted(
+                widget.fields,
+              )) ...[
+                _CustomFieldEditor(
+                  field: field,
+                  value: _values.value[field.id],
+                  enabled:
+                      !_saving.value &&
+                      snapshot.connectionState == ConnectionState.done,
+                  memberProfiles: snapshot.data ?? const [],
+                  onChanged: (value) {
+                    _values.value = Map.unmodifiable({
+                      ..._values.value,
+                      field.id: value,
+                    });
+                    _validationError.value = null;
+                  },
                 ),
-              ),
-          ],
+                const SizedBox(height: 14),
+              ],
+              if (_validationError.value case final message?)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    message,
+                    style: TextStyle(color: context.colors.error),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     ),
@@ -162,27 +174,23 @@ class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
     for (final field in widget.fields.where(
       (field) => field.type == TaskCustomFieldType.number,
     )) {
-      if (_values[field.id] is String) {
-        setState(
-          () => _validationError =
-              '${field.name}: ${context.l10n.taskDetailsInvalidNumber}',
-        );
+      if (_values.value[field.id] is String) {
+        _validationError.value =
+            '${field.name}: ${context.l10n.taskDetailsInvalidNumber}';
         return;
       }
     }
     for (final field in widget.fields.where((field) => field.isRequired)) {
-      final value = _values[field.id];
+      final value = _values.value[field.id];
       if (value == null || (value is String && value.trim().isEmpty)) {
-        setState(
-          () => _validationError =
-              '${field.name}: ${context.l10n.taskDetailsRequiredField}',
-        );
+        _validationError.value =
+            '${field.name}: ${context.l10n.taskDetailsRequiredField}';
         return;
       }
     }
-    setState(() => _saving = true);
+    _saving.value = true;
     final cleanValues = <String, dynamic>{
-      for (final entry in _values.entries)
+      for (final entry in _values.value.entries)
         if (entry.value != null &&
             (entry.value is! String ||
                 (entry.value as String).trim().isNotEmpty))
@@ -193,6 +201,14 @@ class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
         .replaceCustomFieldValues(cleanValues);
     if (!mounted) return;
     if (saved) Navigator.of(context).pop();
-    if (!saved) setState(() => _saving = false);
+    if (!saved) _saving.value = false;
+  }
+
+  @override
+  void dispose() {
+    _values.dispose();
+    _saving.dispose();
+    _validationError.dispose();
+    super.dispose();
   }
 }

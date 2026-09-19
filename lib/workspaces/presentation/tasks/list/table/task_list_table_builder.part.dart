@@ -18,13 +18,13 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
 
     final groups = [...state.groups]
       ..sort((left, right) {
-        final leftStatus = taskListStatusForGroup(left.key);
-        final rightStatus = taskListStatusForGroup(right.key);
+        final leftStatus = TaskListGrouping.statusForGroup(left.key);
+        final rightStatus = TaskListGrouping.statusForGroup(right.key);
         if (leftStatus == null || rightStatus == null) {
           return left.position.compareTo(right.position);
         }
-        return taskListStatusOrder(leftStatus).compareTo(
-          taskListStatusOrder(rightStatus),
+        return TaskListGrouping.statusOrder(leftStatus).compareTo(
+          TaskListGrouping.statusOrder(rightStatus),
         );
       });
     final isFlat = groupBy == TaskSavedViewGroupBy.none;
@@ -55,7 +55,7 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
         ],
         for (final group in groups)
           if (group.nextCursor != null) _ListGroupLoadMore(group.key),
-        if (taskListCanCreateRootTaskInGroup(groupBy, flatGroupKey))
+        if (TaskListGrouping.canCreateRootTaskInGroup(groupBy, flatGroupKey))
           _ListGroupInlineCreate(flatGroupKey),
       ];
     } else {
@@ -65,7 +65,7 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
             id: group.key,
             label: group.displayName,
             count: group.totalCount,
-            status: taskListStatusForGroup(group.key),
+            status: TaskListGrouping.statusForGroup(group.key),
           ),
           _ListGroupTableHeader(group.key),
           for (final task in _sortGroupItems(
@@ -90,7 +90,7 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
               ),
           ],
           if (group.nextCursor != null) _ListGroupLoadMore(group.key),
-          if (taskListCanCreateRootTaskInGroup(groupBy, group.key))
+          if (TaskListGrouping.canCreateRootTaskInGroup(groupBy, group.key))
             _ListGroupInlineCreate(group.key),
         ],
       ];
@@ -153,7 +153,7 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
           ? (dragged) => unawaited(
               cubit.moveTask(
                 task: dragged,
-                targetGroupKey: taskListGroupKeyForTask(task),
+                targetGroupKey: TaskListGrouping.groupKeyForTask(task),
                 parentTaskId: task.id,
               ),
             )
@@ -200,17 +200,19 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
       onRecurrenceToggled: task.recurrence == null
           ? null
           : () => cubit.toggleRecurrence(task),
-      onRecurrenceConfigured: (position) => showTaskRecurrenceContextEditor(
-        context,
-        globalPosition: position,
-        repository: context.read<TaskRecurrenceRepository>(),
-        workspaceId: cubit.workspaceId,
-        projectId: cubit.projectId,
-        taskId: task.id,
-        taskVersion: task.version,
-        hasRecurrence: task.recurrence != null,
-        onSaved: (mutation) => cubit.applyRecurrenceMutation(task, mutation),
-      ),
+      onRecurrenceConfigured: (position) =>
+          TaskRecurrenceContextEditorLauncher.show(
+            context,
+            globalPosition: position,
+            repository: context.read<TaskRecurrenceRepository>(),
+            workspaceId: cubit.workspaceId,
+            projectId: cubit.projectId,
+            taskId: task.id,
+            taskVersion: task.version,
+            hasRecurrence: task.recurrence != null,
+            onSaved: (mutation) =>
+                cubit.applyRecurrenceMutation(task, mutation),
+          ),
       onSystemMetricChanged: (column, value) => cubit.updateListItem(
         task: task,
         payload: switch (column) {
@@ -242,8 +244,8 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
           _ => throw ArgumentError.value(column, 'column'),
         },
       ),
-      onAssigneesChanged: (coreUserIds) =>
-          cubit.replaceAssigneesForLoadedTask(task, coreUserIds),
+      onAssigneesChanged: (userIds) =>
+          cubit.replaceAssigneesForLoadedTask(task, userIds),
       onDueDateChanged: (dueAtUtc) => cubit.updateListItem(
         task: task,
         payload: UpdateTaskListItemPayload(
@@ -274,7 +276,7 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
           expectedVersion: task.version,
         ),
       ),
-      memberProfilesByCoreUserId: widget.memberProfilesByCoreUserId,
+      memberProfilesByUserId: widget.memberProfilesByUserId,
     );
   }
 

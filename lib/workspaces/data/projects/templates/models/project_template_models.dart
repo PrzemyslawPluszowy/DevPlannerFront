@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/responses/project_response.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ready_next/workspaces/data/projects/responses/project_response.dart';
 
 part 'project_template_models.freezed.dart';
 part 'project_template_models.g.dart';

@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/views/cubit/task_saved_views_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_list_configuration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_view_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/views/cubit/task_saved_views_cubit.dart';
 
 final class _Repository implements TaskViewRepository {
   UpdateTaskSavedViewPayload? updated;
@@ -109,7 +109,7 @@ final class _MockPreferencesRepository
     TaskListUserPreferenceResponse(
       workspaceId: workspaceId,
       projectId: projectId,
-      coreUserId: 'user-1',
+      userId: 'user-1',
       visibleColumns: const ['sys:title'],
       columnWidths: const {'sys:title': 280.0},
       sortField: TaskSavedViewSortField.position,
@@ -133,7 +133,7 @@ final class _MockPreferencesRepository
       TaskListUserPreferenceResponse(
         workspaceId: workspaceId,
         projectId: projectId,
-        coreUserId: 'user-1',
+        userId: 'user-1',
         visibleColumns: payload.visibleColumns,
         columnWidths: payload.columnWidths,
         sortField: payload.sortField,

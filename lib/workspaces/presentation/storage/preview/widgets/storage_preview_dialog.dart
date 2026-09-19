@@ -1,20 +1,20 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
+import 'package:devplanner/workspaces/data/storage/transport/text_preview_loader_impl.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_office_editor_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_media_preview.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_pdf_preview.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_text_preview.dart';
+import 'package:devplanner/workspaces/presentation/storage/shared/storage_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/shared/presentation/icons/app_icons.dart';
-import 'package:ready_next/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:ready_next/workspaces/data/storage/transport/text_preview_loader_impl.dart';
-import 'package:ready_next/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/office/widgets/storage_office_editor_dialog.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/cubit/storage_preview_state.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/widgets/storage_media_preview.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/widgets/storage_pdf_preview.dart';
-import 'package:ready_next/workspaces/presentation/storage/preview/widgets/storage_text_preview.dart';
-import 'package:ready_next/workspaces/presentation/storage/shared/storage_formatters.dart';
 
 /// Modalne okno podglądu pliku (obraz, PDF, tekst, OnlyOffice lub fallback).
 class StoragePreviewDialog extends StatelessWidget {

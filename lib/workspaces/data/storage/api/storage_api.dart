@@ -1,9 +1,9 @@
+import 'package:devplanner/workspaces/data/admin/models/admin_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/storage/ai/models/storage_ai_models.dart';
+import 'package:devplanner/workspaces/data/storage/payloads/storage_payloads.dart';
+import 'package:devplanner/workspaces/data/storage/responses/storage_responses.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/admin/models/admin_models.dart';
-import 'package:ready_next/workspaces/data/shared/cursor_page_response.dart';
-import 'package:ready_next/workspaces/data/storage/ai/models/storage_ai_models.dart';
-import 'package:ready_next/workspaces/data/storage/payloads/storage_payloads.dart';
-import 'package:ready_next/workspaces/data/storage/responses/storage_responses.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'storage_api.g.dart';

@@ -1154,7 +1154,7 @@ as bool,
 /// @nodoc
 mixin _$WorkspaceMemberResponse {
 
- String get id; String get coreUserId; int? get readyUserId; WorkspaceRole get role; DateTime get createdAtUtc; DateTime get updatedAtUtc;
+ String get id; String get userId; WorkspaceRole get role; DateTime get createdAtUtc; DateTime get updatedAtUtc;
 /// Create a copy of WorkspaceMemberResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1167,16 +1167,16 @@ $WorkspaceMemberResponseCopyWith<WorkspaceMemberResponse> get copyWith => _$Work
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkspaceMemberResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkspaceMemberResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,coreUserId,readyUserId,role,createdAtUtc,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,userId,role,createdAtUtc,updatedAtUtc);
 
 @override
 String toString() {
-  return 'WorkspaceMemberResponse(id: $id, coreUserId: $coreUserId, readyUserId: $readyUserId, role: $role, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc)';
+  return 'WorkspaceMemberResponse(id: $id, userId: $userId, role: $role, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -1187,7 +1187,7 @@ abstract mixin class $WorkspaceMemberResponseCopyWith<$Res>  {
   factory $WorkspaceMemberResponseCopyWith(WorkspaceMemberResponse value, $Res Function(WorkspaceMemberResponse) _then) = _$WorkspaceMemberResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String coreUserId, int? readyUserId, WorkspaceRole role, DateTime createdAtUtc, DateTime updatedAtUtc
+ String id, String userId, WorkspaceRole role, DateTime createdAtUtc, DateTime updatedAtUtc
 });
 
 
@@ -1204,12 +1204,11 @@ class _$WorkspaceMemberResponseCopyWithImpl<$Res>
 
 /// Create a copy of WorkspaceMemberResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? coreUserId = null,Object? readyUserId = freezed,Object? role = null,Object? createdAtUtc = null,Object? updatedAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? role = null,Object? createdAtUtc = null,Object? updatedAtUtc = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
-as String,readyUserId: freezed == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as WorkspaceRole,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -1297,10 +1296,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String coreUserId,  int? readyUserId,  WorkspaceRole role,  DateTime createdAtUtc,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  WorkspaceRole role,  DateTime createdAtUtc,  DateTime updatedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WorkspaceMemberResponse() when $default != null:
-return $default(_that.id,_that.coreUserId,_that.readyUserId,_that.role,_that.createdAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.userId,_that.role,_that.createdAtUtc,_that.updatedAtUtc);case _:
   return orElse();
 
 }
@@ -1318,10 +1317,10 @@ return $default(_that.id,_that.coreUserId,_that.readyUserId,_that.role,_that.cre
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String coreUserId,  int? readyUserId,  WorkspaceRole role,  DateTime createdAtUtc,  DateTime updatedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  WorkspaceRole role,  DateTime createdAtUtc,  DateTime updatedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _WorkspaceMemberResponse():
-return $default(_that.id,_that.coreUserId,_that.readyUserId,_that.role,_that.createdAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.userId,_that.role,_that.createdAtUtc,_that.updatedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1338,10 +1337,10 @@ return $default(_that.id,_that.coreUserId,_that.readyUserId,_that.role,_that.cre
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String coreUserId,  int? readyUserId,  WorkspaceRole role,  DateTime createdAtUtc,  DateTime updatedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  WorkspaceRole role,  DateTime createdAtUtc,  DateTime updatedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _WorkspaceMemberResponse() when $default != null:
-return $default(_that.id,_that.coreUserId,_that.readyUserId,_that.role,_that.createdAtUtc,_that.updatedAtUtc);case _:
+return $default(_that.id,_that.userId,_that.role,_that.createdAtUtc,_that.updatedAtUtc);case _:
   return null;
 
 }
@@ -1353,12 +1352,11 @@ return $default(_that.id,_that.coreUserId,_that.readyUserId,_that.role,_that.cre
 @JsonSerializable()
 
 class _WorkspaceMemberResponse implements WorkspaceMemberResponse {
-  const _WorkspaceMemberResponse({required this.id, required this.coreUserId, this.readyUserId, required this.role, required this.createdAtUtc, required this.updatedAtUtc});
+  const _WorkspaceMemberResponse({required this.id, required this.userId, required this.role, required this.createdAtUtc, required this.updatedAtUtc});
   factory _WorkspaceMemberResponse.fromJson(Map<String, dynamic> json) => _$WorkspaceMemberResponseFromJson(json);
 
 @override final  String id;
-@override final  String coreUserId;
-@override final  int? readyUserId;
+@override final  String userId;
 @override final  WorkspaceRole role;
 @override final  DateTime createdAtUtc;
 @override final  DateTime updatedAtUtc;
@@ -1376,16 +1374,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkspaceMemberResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkspaceMemberResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,coreUserId,readyUserId,role,createdAtUtc,updatedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,userId,role,createdAtUtc,updatedAtUtc);
 
 @override
 String toString() {
-  return 'WorkspaceMemberResponse(id: $id, coreUserId: $coreUserId, readyUserId: $readyUserId, role: $role, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc)';
+  return 'WorkspaceMemberResponse(id: $id, userId: $userId, role: $role, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc)';
 }
 
 
@@ -1396,7 +1394,7 @@ abstract mixin class _$WorkspaceMemberResponseCopyWith<$Res> implements $Workspa
   factory _$WorkspaceMemberResponseCopyWith(_WorkspaceMemberResponse value, $Res Function(_WorkspaceMemberResponse) _then) = __$WorkspaceMemberResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String coreUserId, int? readyUserId, WorkspaceRole role, DateTime createdAtUtc, DateTime updatedAtUtc
+ String id, String userId, WorkspaceRole role, DateTime createdAtUtc, DateTime updatedAtUtc
 });
 
 
@@ -1413,12 +1411,11 @@ class __$WorkspaceMemberResponseCopyWithImpl<$Res>
 
 /// Create a copy of WorkspaceMemberResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? coreUserId = null,Object? readyUserId = freezed,Object? role = null,Object? createdAtUtc = null,Object? updatedAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? role = null,Object? createdAtUtc = null,Object? updatedAtUtc = null,}) {
   return _then(_WorkspaceMemberResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,coreUserId: null == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
-as String,readyUserId: freezed == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as WorkspaceRole,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,
@@ -1696,42 +1693,42 @@ as DateTime,
 
 
 /// @nodoc
-mixin _$ReadyDirectoryUserResponse {
+mixin _$LocalUserDirectoryResponse {
 
- int get readyUserId; String? get coreUserId; String get login; String get displayName; String? get email; bool get emailVerified; String? get avatarUrl;
-/// Create a copy of ReadyDirectoryUserResponse
+ String get userId; String get login; String get displayName; String? get email; bool get emailVerified; String? get avatarFileId;
+/// Create a copy of LocalUserDirectoryResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$ReadyDirectoryUserResponseCopyWith<ReadyDirectoryUserResponse> get copyWith => _$ReadyDirectoryUserResponseCopyWithImpl<ReadyDirectoryUserResponse>(this as ReadyDirectoryUserResponse, _$identity);
+$LocalUserDirectoryResponseCopyWith<LocalUserDirectoryResponse> get copyWith => _$LocalUserDirectoryResponseCopyWithImpl<LocalUserDirectoryResponse>(this as LocalUserDirectoryResponse, _$identity);
 
-  /// Serializes this ReadyDirectoryUserResponse to a JSON map.
+  /// Serializes this LocalUserDirectoryResponse to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadyDirectoryUserResponse&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocalUserDirectoryResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.avatarFileId, avatarFileId) || other.avatarFileId == avatarFileId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,readyUserId,coreUserId,login,displayName,email,emailVerified,avatarUrl);
+int get hashCode => Object.hash(runtimeType,userId,login,displayName,email,emailVerified,avatarFileId);
 
 @override
 String toString() {
-  return 'ReadyDirectoryUserResponse(readyUserId: $readyUserId, coreUserId: $coreUserId, login: $login, displayName: $displayName, email: $email, emailVerified: $emailVerified, avatarUrl: $avatarUrl)';
+  return 'LocalUserDirectoryResponse(userId: $userId, login: $login, displayName: $displayName, email: $email, emailVerified: $emailVerified, avatarFileId: $avatarFileId)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $ReadyDirectoryUserResponseCopyWith<$Res>  {
-  factory $ReadyDirectoryUserResponseCopyWith(ReadyDirectoryUserResponse value, $Res Function(ReadyDirectoryUserResponse) _then) = _$ReadyDirectoryUserResponseCopyWithImpl;
+abstract mixin class $LocalUserDirectoryResponseCopyWith<$Res>  {
+  factory $LocalUserDirectoryResponseCopyWith(LocalUserDirectoryResponse value, $Res Function(LocalUserDirectoryResponse) _then) = _$LocalUserDirectoryResponseCopyWithImpl;
 @useResult
 $Res call({
- int readyUserId, String? coreUserId, String login, String displayName, String? email, bool emailVerified, String? avatarUrl
+ String userId, String login, String displayName, String? email, bool emailVerified, String? avatarFileId
 });
 
 
@@ -1739,24 +1736,23 @@ $Res call({
 
 }
 /// @nodoc
-class _$ReadyDirectoryUserResponseCopyWithImpl<$Res>
-    implements $ReadyDirectoryUserResponseCopyWith<$Res> {
-  _$ReadyDirectoryUserResponseCopyWithImpl(this._self, this._then);
+class _$LocalUserDirectoryResponseCopyWithImpl<$Res>
+    implements $LocalUserDirectoryResponseCopyWith<$Res> {
+  _$LocalUserDirectoryResponseCopyWithImpl(this._self, this._then);
 
-  final ReadyDirectoryUserResponse _self;
-  final $Res Function(ReadyDirectoryUserResponse) _then;
+  final LocalUserDirectoryResponse _self;
+  final $Res Function(LocalUserDirectoryResponse) _then;
 
-/// Create a copy of ReadyDirectoryUserResponse
+/// Create a copy of LocalUserDirectoryResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? readyUserId = null,Object? coreUserId = freezed,Object? login = null,Object? displayName = null,Object? email = freezed,Object? emailVerified = null,Object? avatarUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? login = null,Object? displayName = null,Object? email = freezed,Object? emailVerified = null,Object? avatarFileId = freezed,}) {
   return _then(_self.copyWith(
-readyUserId: null == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int,coreUserId: freezed == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
-as String?,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,emailVerified: null == emailVerified ? _self.emailVerified : emailVerified // ignore: cast_nullable_to_non_nullable
-as bool,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as bool,avatarFileId: freezed == avatarFileId ? _self.avatarFileId : avatarFileId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -1764,8 +1760,8 @@ as String?,
 }
 
 
-/// Adds pattern-matching-related methods to [ReadyDirectoryUserResponse].
-extension ReadyDirectoryUserResponsePatterns on ReadyDirectoryUserResponse {
+/// Adds pattern-matching-related methods to [LocalUserDirectoryResponse].
+extension LocalUserDirectoryResponsePatterns on LocalUserDirectoryResponse {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -1778,10 +1774,10 @@ extension ReadyDirectoryUserResponsePatterns on ReadyDirectoryUserResponse {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ReadyDirectoryUserResponse value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _LocalUserDirectoryResponse value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _ReadyDirectoryUserResponse() when $default != null:
+case _LocalUserDirectoryResponse() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -1800,10 +1796,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ReadyDirectoryUserResponse value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _LocalUserDirectoryResponse value)  $default,){
 final _that = this;
 switch (_that) {
-case _ReadyDirectoryUserResponse():
+case _LocalUserDirectoryResponse():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -1821,10 +1817,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ReadyDirectoryUserResponse value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _LocalUserDirectoryResponse value)?  $default,){
 final _that = this;
 switch (_that) {
-case _ReadyDirectoryUserResponse() when $default != null:
+case _LocalUserDirectoryResponse() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -1842,10 +1838,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int readyUserId,  String? coreUserId,  String login,  String displayName,  String? email,  bool emailVerified,  String? avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String login,  String displayName,  String? email,  bool emailVerified,  String? avatarFileId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _ReadyDirectoryUserResponse() when $default != null:
-return $default(_that.readyUserId,_that.coreUserId,_that.login,_that.displayName,_that.email,_that.emailVerified,_that.avatarUrl);case _:
+case _LocalUserDirectoryResponse() when $default != null:
+return $default(_that.userId,_that.login,_that.displayName,_that.email,_that.emailVerified,_that.avatarFileId);case _:
   return orElse();
 
 }
@@ -1863,10 +1859,10 @@ return $default(_that.readyUserId,_that.coreUserId,_that.login,_that.displayName
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int readyUserId,  String? coreUserId,  String login,  String displayName,  String? email,  bool emailVerified,  String? avatarUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String login,  String displayName,  String? email,  bool emailVerified,  String? avatarFileId)  $default,) {final _that = this;
 switch (_that) {
-case _ReadyDirectoryUserResponse():
-return $default(_that.readyUserId,_that.coreUserId,_that.login,_that.displayName,_that.email,_that.emailVerified,_that.avatarUrl);case _:
+case _LocalUserDirectoryResponse():
+return $default(_that.userId,_that.login,_that.displayName,_that.email,_that.emailVerified,_that.avatarFileId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1883,10 +1879,10 @@ return $default(_that.readyUserId,_that.coreUserId,_that.login,_that.displayName
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int readyUserId,  String? coreUserId,  String login,  String displayName,  String? email,  bool emailVerified,  String? avatarUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String login,  String displayName,  String? email,  bool emailVerified,  String? avatarFileId)?  $default,) {final _that = this;
 switch (_that) {
-case _ReadyDirectoryUserResponse() when $default != null:
-return $default(_that.readyUserId,_that.coreUserId,_that.login,_that.displayName,_that.email,_that.emailVerified,_that.avatarUrl);case _:
+case _LocalUserDirectoryResponse() when $default != null:
+return $default(_that.userId,_that.login,_that.displayName,_that.email,_that.emailVerified,_that.avatarFileId);case _:
   return null;
 
 }
@@ -1897,52 +1893,51 @@ return $default(_that.readyUserId,_that.coreUserId,_that.login,_that.displayName
 /// @nodoc
 @JsonSerializable()
 
-class _ReadyDirectoryUserResponse implements ReadyDirectoryUserResponse {
-  const _ReadyDirectoryUserResponse({required this.readyUserId, this.coreUserId, required this.login, required this.displayName, this.email, required this.emailVerified, this.avatarUrl});
-  factory _ReadyDirectoryUserResponse.fromJson(Map<String, dynamic> json) => _$ReadyDirectoryUserResponseFromJson(json);
+class _LocalUserDirectoryResponse implements LocalUserDirectoryResponse {
+  const _LocalUserDirectoryResponse({required this.userId, required this.login, required this.displayName, this.email, required this.emailVerified, this.avatarFileId});
+  factory _LocalUserDirectoryResponse.fromJson(Map<String, dynamic> json) => _$LocalUserDirectoryResponseFromJson(json);
 
-@override final  int readyUserId;
-@override final  String? coreUserId;
+@override final  String userId;
 @override final  String login;
 @override final  String displayName;
 @override final  String? email;
 @override final  bool emailVerified;
-@override final  String? avatarUrl;
+@override final  String? avatarFileId;
 
-/// Create a copy of ReadyDirectoryUserResponse
+/// Create a copy of LocalUserDirectoryResponse
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$ReadyDirectoryUserResponseCopyWith<_ReadyDirectoryUserResponse> get copyWith => __$ReadyDirectoryUserResponseCopyWithImpl<_ReadyDirectoryUserResponse>(this, _$identity);
+_$LocalUserDirectoryResponseCopyWith<_LocalUserDirectoryResponse> get copyWith => __$LocalUserDirectoryResponseCopyWithImpl<_LocalUserDirectoryResponse>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$ReadyDirectoryUserResponseToJson(this, );
+  return _$LocalUserDirectoryResponseToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadyDirectoryUserResponse&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.coreUserId, coreUserId) || other.coreUserId == coreUserId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LocalUserDirectoryResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.avatarFileId, avatarFileId) || other.avatarFileId == avatarFileId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,readyUserId,coreUserId,login,displayName,email,emailVerified,avatarUrl);
+int get hashCode => Object.hash(runtimeType,userId,login,displayName,email,emailVerified,avatarFileId);
 
 @override
 String toString() {
-  return 'ReadyDirectoryUserResponse(readyUserId: $readyUserId, coreUserId: $coreUserId, login: $login, displayName: $displayName, email: $email, emailVerified: $emailVerified, avatarUrl: $avatarUrl)';
+  return 'LocalUserDirectoryResponse(userId: $userId, login: $login, displayName: $displayName, email: $email, emailVerified: $emailVerified, avatarFileId: $avatarFileId)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$ReadyDirectoryUserResponseCopyWith<$Res> implements $ReadyDirectoryUserResponseCopyWith<$Res> {
-  factory _$ReadyDirectoryUserResponseCopyWith(_ReadyDirectoryUserResponse value, $Res Function(_ReadyDirectoryUserResponse) _then) = __$ReadyDirectoryUserResponseCopyWithImpl;
+abstract mixin class _$LocalUserDirectoryResponseCopyWith<$Res> implements $LocalUserDirectoryResponseCopyWith<$Res> {
+  factory _$LocalUserDirectoryResponseCopyWith(_LocalUserDirectoryResponse value, $Res Function(_LocalUserDirectoryResponse) _then) = __$LocalUserDirectoryResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int readyUserId, String? coreUserId, String login, String displayName, String? email, bool emailVerified, String? avatarUrl
+ String userId, String login, String displayName, String? email, bool emailVerified, String? avatarFileId
 });
 
 
@@ -1950,24 +1945,23 @@ $Res call({
 
 }
 /// @nodoc
-class __$ReadyDirectoryUserResponseCopyWithImpl<$Res>
-    implements _$ReadyDirectoryUserResponseCopyWith<$Res> {
-  __$ReadyDirectoryUserResponseCopyWithImpl(this._self, this._then);
+class __$LocalUserDirectoryResponseCopyWithImpl<$Res>
+    implements _$LocalUserDirectoryResponseCopyWith<$Res> {
+  __$LocalUserDirectoryResponseCopyWithImpl(this._self, this._then);
 
-  final _ReadyDirectoryUserResponse _self;
-  final $Res Function(_ReadyDirectoryUserResponse) _then;
+  final _LocalUserDirectoryResponse _self;
+  final $Res Function(_LocalUserDirectoryResponse) _then;
 
-/// Create a copy of ReadyDirectoryUserResponse
+/// Create a copy of LocalUserDirectoryResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? readyUserId = null,Object? coreUserId = freezed,Object? login = null,Object? displayName = null,Object? email = freezed,Object? emailVerified = null,Object? avatarUrl = freezed,}) {
-  return _then(_ReadyDirectoryUserResponse(
-readyUserId: null == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int,coreUserId: freezed == coreUserId ? _self.coreUserId : coreUserId // ignore: cast_nullable_to_non_nullable
-as String?,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? login = null,Object? displayName = null,Object? email = freezed,Object? emailVerified = null,Object? avatarFileId = freezed,}) {
+  return _then(_LocalUserDirectoryResponse(
+userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,emailVerified: null == emailVerified ? _self.emailVerified : emailVerified // ignore: cast_nullable_to_non_nullable
-as bool,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as bool,avatarFileId: freezed == avatarFileId ? _self.avatarFileId : avatarFileId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -1979,7 +1973,7 @@ as String?,
 /// @nodoc
 mixin _$WorkspaceInvitationResponse {
 
- String get id; String get workspaceId; int get readyUserId; WorkspaceRole get role; WorkspaceInvitationStatus get status; String get login; String get displayName; String? get email; String? get message; DateTime get createdAtUtc; DateTime get expiresAtUtc; DateTime? get respondedAtUtc;
+ String get id; String get workspaceId; String get userId; WorkspaceRole get role; WorkspaceInvitationStatus get status; String get login; String get displayName; String? get email; String? get message; DateTime get createdAtUtc; DateTime get expiresAtUtc; DateTime? get respondedAtUtc;
 /// Create a copy of WorkspaceInvitationResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1992,16 +1986,16 @@ $WorkspaceInvitationResponseCopyWith<WorkspaceInvitationResponse> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkspaceInvitationResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.message, message) || other.message == message)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.respondedAtUtc, respondedAtUtc) || other.respondedAtUtc == respondedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkspaceInvitationResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.message, message) || other.message == message)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.respondedAtUtc, respondedAtUtc) || other.respondedAtUtc == respondedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceId,readyUserId,role,status,login,displayName,email,message,createdAtUtc,expiresAtUtc,respondedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,workspaceId,userId,role,status,login,displayName,email,message,createdAtUtc,expiresAtUtc,respondedAtUtc);
 
 @override
 String toString() {
-  return 'WorkspaceInvitationResponse(id: $id, workspaceId: $workspaceId, readyUserId: $readyUserId, role: $role, status: $status, login: $login, displayName: $displayName, email: $email, message: $message, createdAtUtc: $createdAtUtc, expiresAtUtc: $expiresAtUtc, respondedAtUtc: $respondedAtUtc)';
+  return 'WorkspaceInvitationResponse(id: $id, workspaceId: $workspaceId, userId: $userId, role: $role, status: $status, login: $login, displayName: $displayName, email: $email, message: $message, createdAtUtc: $createdAtUtc, expiresAtUtc: $expiresAtUtc, respondedAtUtc: $respondedAtUtc)';
 }
 
 
@@ -2012,7 +2006,7 @@ abstract mixin class $WorkspaceInvitationResponseCopyWith<$Res>  {
   factory $WorkspaceInvitationResponseCopyWith(WorkspaceInvitationResponse value, $Res Function(WorkspaceInvitationResponse) _then) = _$WorkspaceInvitationResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String workspaceId, int readyUserId, WorkspaceRole role, WorkspaceInvitationStatus status, String login, String displayName, String? email, String? message, DateTime createdAtUtc, DateTime expiresAtUtc, DateTime? respondedAtUtc
+ String id, String workspaceId, String userId, WorkspaceRole role, WorkspaceInvitationStatus status, String login, String displayName, String? email, String? message, DateTime createdAtUtc, DateTime expiresAtUtc, DateTime? respondedAtUtc
 });
 
 
@@ -2029,12 +2023,12 @@ class _$WorkspaceInvitationResponseCopyWithImpl<$Res>
 
 /// Create a copy of WorkspaceInvitationResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceId = null,Object? readyUserId = null,Object? role = null,Object? status = null,Object? login = null,Object? displayName = null,Object? email = freezed,Object? message = freezed,Object? createdAtUtc = null,Object? expiresAtUtc = null,Object? respondedAtUtc = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceId = null,Object? userId = null,Object? role = null,Object? status = null,Object? login = null,Object? displayName = null,Object? email = freezed,Object? message = freezed,Object? createdAtUtc = null,Object? expiresAtUtc = null,Object? respondedAtUtc = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
-as String,readyUserId: null == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as WorkspaceRole,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as WorkspaceInvitationStatus,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
@@ -2128,10 +2122,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceId,  int readyUserId,  WorkspaceRole role,  WorkspaceInvitationStatus status,  String login,  String displayName,  String? email,  String? message,  DateTime createdAtUtc,  DateTime expiresAtUtc,  DateTime? respondedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String userId,  WorkspaceRole role,  WorkspaceInvitationStatus status,  String login,  String displayName,  String? email,  String? message,  DateTime createdAtUtc,  DateTime expiresAtUtc,  DateTime? respondedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WorkspaceInvitationResponse() when $default != null:
-return $default(_that.id,_that.workspaceId,_that.readyUserId,_that.role,_that.status,_that.login,_that.displayName,_that.email,_that.message,_that.createdAtUtc,_that.expiresAtUtc,_that.respondedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.userId,_that.role,_that.status,_that.login,_that.displayName,_that.email,_that.message,_that.createdAtUtc,_that.expiresAtUtc,_that.respondedAtUtc);case _:
   return orElse();
 
 }
@@ -2149,10 +2143,10 @@ return $default(_that.id,_that.workspaceId,_that.readyUserId,_that.role,_that.st
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceId,  int readyUserId,  WorkspaceRole role,  WorkspaceInvitationStatus status,  String login,  String displayName,  String? email,  String? message,  DateTime createdAtUtc,  DateTime expiresAtUtc,  DateTime? respondedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String userId,  WorkspaceRole role,  WorkspaceInvitationStatus status,  String login,  String displayName,  String? email,  String? message,  DateTime createdAtUtc,  DateTime expiresAtUtc,  DateTime? respondedAtUtc)  $default,) {final _that = this;
 switch (_that) {
 case _WorkspaceInvitationResponse():
-return $default(_that.id,_that.workspaceId,_that.readyUserId,_that.role,_that.status,_that.login,_that.displayName,_that.email,_that.message,_that.createdAtUtc,_that.expiresAtUtc,_that.respondedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.userId,_that.role,_that.status,_that.login,_that.displayName,_that.email,_that.message,_that.createdAtUtc,_that.expiresAtUtc,_that.respondedAtUtc);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2169,10 +2163,10 @@ return $default(_that.id,_that.workspaceId,_that.readyUserId,_that.role,_that.st
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceId,  int readyUserId,  WorkspaceRole role,  WorkspaceInvitationStatus status,  String login,  String displayName,  String? email,  String? message,  DateTime createdAtUtc,  DateTime expiresAtUtc,  DateTime? respondedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceId,  String userId,  WorkspaceRole role,  WorkspaceInvitationStatus status,  String login,  String displayName,  String? email,  String? message,  DateTime createdAtUtc,  DateTime expiresAtUtc,  DateTime? respondedAtUtc)?  $default,) {final _that = this;
 switch (_that) {
 case _WorkspaceInvitationResponse() when $default != null:
-return $default(_that.id,_that.workspaceId,_that.readyUserId,_that.role,_that.status,_that.login,_that.displayName,_that.email,_that.message,_that.createdAtUtc,_that.expiresAtUtc,_that.respondedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.userId,_that.role,_that.status,_that.login,_that.displayName,_that.email,_that.message,_that.createdAtUtc,_that.expiresAtUtc,_that.respondedAtUtc);case _:
   return null;
 
 }
@@ -2184,12 +2178,12 @@ return $default(_that.id,_that.workspaceId,_that.readyUserId,_that.role,_that.st
 @JsonSerializable()
 
 class _WorkspaceInvitationResponse implements WorkspaceInvitationResponse {
-  const _WorkspaceInvitationResponse({required this.id, required this.workspaceId, required this.readyUserId, required this.role, required this.status, required this.login, required this.displayName, this.email, this.message, required this.createdAtUtc, required this.expiresAtUtc, this.respondedAtUtc});
+  const _WorkspaceInvitationResponse({required this.id, required this.workspaceId, required this.userId, required this.role, required this.status, required this.login, required this.displayName, this.email, this.message, required this.createdAtUtc, required this.expiresAtUtc, this.respondedAtUtc});
   factory _WorkspaceInvitationResponse.fromJson(Map<String, dynamic> json) => _$WorkspaceInvitationResponseFromJson(json);
 
 @override final  String id;
 @override final  String workspaceId;
-@override final  int readyUserId;
+@override final  String userId;
 @override final  WorkspaceRole role;
 @override final  WorkspaceInvitationStatus status;
 @override final  String login;
@@ -2213,16 +2207,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkspaceInvitationResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.readyUserId, readyUserId) || other.readyUserId == readyUserId)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.message, message) || other.message == message)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.respondedAtUtc, respondedAtUtc) || other.respondedAtUtc == respondedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkspaceInvitationResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.message, message) || other.message == message)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.respondedAtUtc, respondedAtUtc) || other.respondedAtUtc == respondedAtUtc));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceId,readyUserId,role,status,login,displayName,email,message,createdAtUtc,expiresAtUtc,respondedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,workspaceId,userId,role,status,login,displayName,email,message,createdAtUtc,expiresAtUtc,respondedAtUtc);
 
 @override
 String toString() {
-  return 'WorkspaceInvitationResponse(id: $id, workspaceId: $workspaceId, readyUserId: $readyUserId, role: $role, status: $status, login: $login, displayName: $displayName, email: $email, message: $message, createdAtUtc: $createdAtUtc, expiresAtUtc: $expiresAtUtc, respondedAtUtc: $respondedAtUtc)';
+  return 'WorkspaceInvitationResponse(id: $id, workspaceId: $workspaceId, userId: $userId, role: $role, status: $status, login: $login, displayName: $displayName, email: $email, message: $message, createdAtUtc: $createdAtUtc, expiresAtUtc: $expiresAtUtc, respondedAtUtc: $respondedAtUtc)';
 }
 
 
@@ -2233,7 +2227,7 @@ abstract mixin class _$WorkspaceInvitationResponseCopyWith<$Res> implements $Wor
   factory _$WorkspaceInvitationResponseCopyWith(_WorkspaceInvitationResponse value, $Res Function(_WorkspaceInvitationResponse) _then) = __$WorkspaceInvitationResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String workspaceId, int readyUserId, WorkspaceRole role, WorkspaceInvitationStatus status, String login, String displayName, String? email, String? message, DateTime createdAtUtc, DateTime expiresAtUtc, DateTime? respondedAtUtc
+ String id, String workspaceId, String userId, WorkspaceRole role, WorkspaceInvitationStatus status, String login, String displayName, String? email, String? message, DateTime createdAtUtc, DateTime expiresAtUtc, DateTime? respondedAtUtc
 });
 
 
@@ -2250,12 +2244,12 @@ class __$WorkspaceInvitationResponseCopyWithImpl<$Res>
 
 /// Create a copy of WorkspaceInvitationResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceId = null,Object? readyUserId = null,Object? role = null,Object? status = null,Object? login = null,Object? displayName = null,Object? email = freezed,Object? message = freezed,Object? createdAtUtc = null,Object? expiresAtUtc = null,Object? respondedAtUtc = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceId = null,Object? userId = null,Object? role = null,Object? status = null,Object? login = null,Object? displayName = null,Object? email = freezed,Object? message = freezed,Object? createdAtUtc = null,Object? expiresAtUtc = null,Object? respondedAtUtc = freezed,}) {
   return _then(_WorkspaceInvitationResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
-as String,readyUserId: null == readyUserId ? _self.readyUserId : readyUserId // ignore: cast_nullable_to_non_nullable
-as int,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as WorkspaceRole,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as WorkspaceInvitationStatus,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable

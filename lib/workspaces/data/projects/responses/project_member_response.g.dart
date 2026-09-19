@@ -11,8 +11,7 @@ _ProjectMemberResponse _$ProjectMemberResponseFromJson(
 ) => _ProjectMemberResponse(
   id: json['id'] as String,
   workspaceMembershipId: json['workspaceMembershipId'] as String,
-  coreUserId: json['coreUserId'] as String,
-  readyUserId: (json['readyUserId'] as num?)?.toInt(),
+  userId: json['userId'] as String,
   role: $enumDecode(_$ProjectRoleEnumMap, json['role']),
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
   revokedAtUtc: json['revokedAtUtc'] == null
@@ -25,8 +24,7 @@ Map<String, dynamic> _$ProjectMemberResponseToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'workspaceMembershipId': instance.workspaceMembershipId,
-  'coreUserId': instance.coreUserId,
-  'readyUserId': instance.readyUserId,
+  'userId': instance.userId,
   'role': _$ProjectRoleEnumMap[instance.role]!,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
   'revokedAtUtc': instance.revokedAtUtc?.toIso8601String(),

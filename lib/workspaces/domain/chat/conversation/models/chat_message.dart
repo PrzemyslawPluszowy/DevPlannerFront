@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_attachment.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message_attachment.dart';
 
 /// Stan lokalnej dostawy wiadomości, niezależny od potwierdzenia backendu.
 enum ChatMessageDeliveryState { sending, sent, failed }
@@ -10,7 +10,7 @@ final class ChatMessage extends Equatable {
   const ChatMessage({
     required this.id,
     required this.conversationId,
-    required this.authorCoreUserId,
+    required this.authorUserId,
     required this.clientMessageId,
     required this.text,
     required this.payloadHash,
@@ -29,7 +29,7 @@ final class ChatMessage extends Equatable {
 
   final String id;
   final String conversationId;
-  final String authorCoreUserId;
+  final String authorUserId;
   final String clientMessageId;
   final String text;
   final String? deltaJson;
@@ -55,7 +55,7 @@ final class ChatMessage extends Equatable {
     return ChatMessage(
       id: source.id,
       conversationId: source.conversationId,
-      authorCoreUserId: source.authorCoreUserId,
+      authorUserId: source.authorUserId,
       clientMessageId: source.clientMessageId,
       text: source.text,
       deltaJson: source.deltaJson,
@@ -77,7 +77,7 @@ final class ChatMessage extends Equatable {
   ChatMessage copyWithDeletion({required int version}) => ChatMessage(
     id: id,
     conversationId: conversationId,
-    authorCoreUserId: authorCoreUserId,
+    authorUserId: authorUserId,
     clientMessageId: clientMessageId,
     text: text,
     deltaJson: deltaJson,
@@ -98,7 +98,7 @@ final class ChatMessage extends Equatable {
   List<Object?> get props => [
     id,
     conversationId,
-    authorCoreUserId,
+    authorUserId,
     clientMessageId,
     text,
     deltaJson,

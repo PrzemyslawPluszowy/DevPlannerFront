@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/realtime/chat/chat_realtime_event_mapper.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/data/realtime/chat/chat_realtime_event_mapper.dart';
-import 'package:ready_next/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 
 void main() {
   group('ChatRealtimeEventMapper PascalCase backend envelope', () {
@@ -33,7 +33,7 @@ void main() {
         expect(event.conversationId, 'conversation-1');
         expect(event.kind, ChatConversationRealtimeEventKind.messageCreated);
         expect(event.message?.id, 'message-1');
-        expect(event.message?.authorCoreUserId, 'user-1');
+        expect(event.message?.authorUserId, 'user-1');
         expect(event.message?.clientMessageId, 'client-1');
         expect(event.message?.deltaJson, '{"ops":[{"insert":"Cześć"}]}');
         expect(event.message?.replyToMessageId, 'message-parent-1');
@@ -155,7 +155,7 @@ void main() {
 abstract final class _ChatRealtimeBackendPayload {
   /// Pełny `ChatMessageResponse` serializowany przez `ChatRealtimeEventFactory`.
   static const String fullMessageJson =
-      '{"Id":"message-1","ConversationId":"conversation-1","AuthorCoreUserId":"user-1","ClientMessageId":"client-1","Text":"Cześć","DeltaJson":"{\\"ops\\":[{\\"insert\\":\\"Cześć\\"}]}","ReplyToMessageId":"message-parent-1","PayloadHash":"HASH-1","Version":6,"CreatedAtUtc":"2026-09-13T10:00:00Z","IsDeleted":false,"Links":[],"Reactions":[],"ThreadRootMessageId":"thread-1","IsEdited":true,"DeletedAtUtc":"2026-09-13T10:01:00Z"}';
+      '{"Id":"message-1","ConversationId":"conversation-1","AuthorUserId":"user-1","ClientMessageId":"client-1","Text":"Cześć","DeltaJson":"{\\"ops\\":[{\\"insert\\":\\"Cześć\\"}]}","ReplyToMessageId":"message-parent-1","PayloadHash":"HASH-1","Version":6,"CreatedAtUtc":"2026-09-13T10:00:00Z","IsDeleted":false,"Links":[],"Reactions":[],"ThreadRootMessageId":"thread-1","IsEdited":true,"DeletedAtUtc":"2026-09-13T10:01:00Z"}';
 
   /// Payload usunięcia, odczytywany po nazwie `MessageId` przez backendowy test.
   static const String deletedMessageJson =
@@ -163,9 +163,9 @@ abstract final class _ChatRealtimeBackendPayload {
 
   /// Wersja create bez wymaganego Id, odrzucona przez wygenerowany fromJson.
   static const String missingIdMessageJson =
-      '{"ConversationId":"conversation-1","AuthorCoreUserId":"user-1","ClientMessageId":"client-1","Text":"Cześć","PayloadHash":"HASH-1","Version":6,"CreatedAtUtc":"2026-09-13T10:00:00Z","IsDeleted":false}';
+      '{"ConversationId":"conversation-1","AuthorUserId":"user-1","ClientMessageId":"client-1","Text":"Cześć","PayloadHash":"HASH-1","Version":6,"CreatedAtUtc":"2026-09-13T10:00:00Z","IsDeleted":false}';
 
   /// Wersja create z liczbą `Version` zastąpioną tekstem.
   static const String wrongVersionMessageJson =
-      '{"Id":"message-1","ConversationId":"conversation-1","AuthorCoreUserId":"user-1","ClientMessageId":"client-1","Text":"Cześć","PayloadHash":"HASH-1","Version":"sześć","CreatedAtUtc":"2026-09-13T10:00:00Z","IsDeleted":false}';
+      '{"Id":"message-1","ConversationId":"conversation-1","AuthorUserId":"user-1","ClientMessageId":"client-1","Text":"Cześć","PayloadHash":"HASH-1","Version":"sześć","CreatedAtUtc":"2026-09-13T10:00:00Z","IsDeleted":false}';
 }

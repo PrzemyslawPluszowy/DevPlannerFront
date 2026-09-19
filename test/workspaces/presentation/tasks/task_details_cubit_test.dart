@@ -1,17 +1,17 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_acceptance_criteria_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_checklist_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_acceptance_criteria_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_checklist_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_collaboration_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/detail/cubit/task_details_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/detail/cubit/task_details_state.dart';
 
 final class _TasksRepository implements TasksRepository {
   _TasksRepository(this.result);
@@ -238,10 +238,10 @@ final class _TaskCollaborationRepository
     required String workspaceId,
     required String projectId,
     required String taskId,
-    required List<String> coreUserIds,
+    required List<String> userIds,
     required int expectedVersion,
   }) async {
-    replacedAssigneeIds = coreUserIds;
+    replacedAssigneeIds = userIds;
     replaceAssigneesExpectedVersion = expectedVersion;
     return replaceAssigneesResult!;
   }
@@ -397,7 +397,7 @@ ProjectTaskDetailsResponse _details() => ProjectTaskDetailsResponse(
     priority: TaskPriority.normal,
     taskType: 'Task',
     position: 100,
-    createdByCoreUserId: 'user-1',
+    createdByUserId: 'user-1',
     assignees: [],
     checklistItems: [],
     createdAtUtc: DateTime.utc(2026, 8, 26),
@@ -1032,7 +1032,7 @@ void main() {
     final refreshed = initial.copyWith(
       task: initial.task.copyWith(version: 2),
       watchers: [
-        TaskWatcherResponse(coreUserId: 'user-1', createdAtUtc: now),
+        TaskWatcherResponse(userId: 'user-1', createdAtUtc: now),
       ],
       isWatchedByMe: true,
     );
@@ -1064,7 +1064,7 @@ void main() {
     expect(repository.getCalls, 2);
     final ready = cubit.state as TaskDetailsReady;
     expect(ready.details.isWatchedByMe, isTrue);
-    expect(ready.details.watchers.single.coreUserId, 'user-1');
+    expect(ready.details.watchers.single.userId, 'user-1');
     await cubit.close();
   });
 
@@ -1074,12 +1074,12 @@ void main() {
     final updatedTask = initial.task.copyWith(
       assignees: [
         TaskAssigneeResponse(
-          coreUserId: 'user-2',
+          userId: 'user-2',
           isPrimary: true,
           createdAtUtc: assignedAt,
         ),
         TaskAssigneeResponse(
-          coreUserId: 'user-3',
+          userId: 'user-3',
           isPrimary: false,
           createdAtUtc: assignedAt,
         ),

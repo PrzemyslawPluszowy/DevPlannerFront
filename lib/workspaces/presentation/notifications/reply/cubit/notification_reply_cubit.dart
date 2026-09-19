@@ -1,9 +1,9 @@
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/notifications/models/notification_reply_command.dart';
+import 'package:devplanner/workspaces/domain/notifications/notification_reply_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_message.dart';
-import 'package:ready_next/workspaces/domain/notifications/models/notification_reply_command.dart';
-import 'package:ready_next/workspaces/domain/notifications/notification_reply_repository.dart';
-import 'package:ready_next/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
 
 /// Niemutowalny stan krótkiego flow odpowiedzi z jednego powiadomienia.
 sealed class NotificationReplyState {

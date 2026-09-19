@@ -1,13 +1,12 @@
+import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/core/theme/theme_extensions.dart';
+import 'package:devplanner/workspaces/data/shared/enums/milestone_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/milestones/widgets/project_milestone_dialog_actions.dart';
+import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/milestone_settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme_extensions.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/milestone_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_role.dart';
-import 'package:ready_next/workspaces/presentation/projects/settings/milestones/widgets/project_milestone_editor_dialog.dart';
-import 'package:ready_next/workspaces/presentation/tasks/settings/cubit/milestone_settings_cubit.dart';
 
 /// Widok zakładki "Kamienie milowe" w ustawieniach projektu.
 class ProjectMilestonesTabView extends StatelessWidget {
@@ -144,7 +143,9 @@ class ProjectMilestonesTabView extends StatelessWidget {
                         child: FilledButton.icon(
                           onPressed: !isOwnerOrAdmin || isSaving
                               ? null
-                              : () => _openCreateDialog(context),
+                              : () => ProjectMilestoneDialogActions.openCreate(
+                                  context,
+                                ),
                           icon: const Icon(Icons.add_rounded, size: Sizes.p18),
                           label: Text(l10n.projectSettingsAddMilestone),
                           style: FilledButton.styleFrom(
@@ -187,7 +188,10 @@ class ProjectMilestonesTabView extends StatelessWidget {
                             FilledButton.tonalIcon(
                               onPressed: isSaving
                                   ? null
-                                  : () => _openCreateDialog(context),
+                                  : () =>
+                                        ProjectMilestoneDialogActions.openCreate(
+                                          context,
+                                        ),
                               icon: const Icon(
                                 Icons.add_rounded,
                                 size: Sizes.p18,
@@ -321,10 +325,11 @@ class ProjectMilestonesTabView extends StatelessWidget {
                                     tooltip: 'Edytuj etap',
                                     onPressed: isSaving
                                         ? null
-                                        : () => _openEditDialog(
-                                            context,
-                                            milestone,
-                                          ),
+                                        : () =>
+                                              ProjectMilestoneDialogActions.openEdit(
+                                                context,
+                                                milestone,
+                                              ),
                                   ),
                                   IconButton(
                                     icon: Icon(
@@ -335,10 +340,11 @@ class ProjectMilestonesTabView extends StatelessWidget {
                                     tooltip: 'Usuń etap',
                                     onPressed: isSaving
                                         ? null
-                                        : () => _confirmDelete(
-                                            context,
-                                            milestone,
-                                          ),
+                                        : () =>
+                                              ProjectMilestoneDialogActions.confirmDelete(
+                                                context,
+                                                milestone,
+                                              ),
                                   ),
                                 ],
                               ],
@@ -353,94 +359,5 @@ class ProjectMilestonesTabView extends StatelessWidget {
         };
       },
     );
-  }
-
-  Future<void> _openCreateDialog(BuildContext context) async {
-    final cubit = context.read<MilestoneSettingsCubit>();
-    final result =
-        await showDialog<
-          ({
-            String name,
-            String? description,
-            DateTime? dueAtUtc,
-            MilestoneStatus status,
-          })
-        >(
-          context: context,
-          builder: (_) => const ProjectMilestoneEditorDialog(),
-        );
-
-    if (result != null) {
-      await cubit.save(
-        name: result.name,
-        description: result.description ?? '',
-        dueAtUtc: result.dueAtUtc,
-        status: result.status,
-      );
-    }
-  }
-
-  Future<void> _openEditDialog(
-    BuildContext context,
-    MilestoneResponse milestone,
-  ) async {
-    final cubit = context.read<MilestoneSettingsCubit>();
-    final result =
-        await showDialog<
-          ({
-            String name,
-            String? description,
-            DateTime? dueAtUtc,
-            MilestoneStatus status,
-          })
-        >(
-          context: context,
-          builder: (_) =>
-              ProjectMilestoneEditorDialog(initialMilestone: milestone),
-        );
-
-    if (result != null) {
-      await cubit.save(
-        existing: milestone,
-        name: result.name,
-        description: result.description ?? '',
-        dueAtUtc: result.dueAtUtc,
-        status: result.status,
-      );
-    }
-  }
-
-  Future<void> _confirmDelete(
-    BuildContext context,
-    MilestoneResponse milestone,
-  ) async {
-    final cubit = context.read<MilestoneSettingsCubit>();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Usuń kamień milowy'),
-        content: Text(
-          'Czy na pewno chcesz usunąć kamień milowy "${milestone.name}"?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Anuluj'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: ctx.colors.error,
-              foregroundColor: ctx.colors.onError,
-            ),
-            child: const Text('Usuń'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await cubit.delete(milestone);
-    }
   }
 }

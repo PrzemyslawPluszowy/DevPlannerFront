@@ -1,8 +1,8 @@
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_capacity_models.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_capacity_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_capacity_models.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_capacity_repository.dart';
 
 sealed class TaskWorkloadState {
   const TaskWorkloadState();
@@ -20,13 +20,13 @@ final class TaskWorkloadFailure extends TaskWorkloadState {
 final class TaskWorkloadReady extends TaskWorkloadState {
   const TaskWorkloadReady({
     required this.workload,
-    required this.profilesByCoreUserId,
+    required this.profilesByUserId,
     required this.fromDate,
     required this.toDate,
   });
 
   final TaskWorkloadResponse workload;
-  final Map<String, ProjectMemberProfile> profilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> profilesByUserId;
   final DateTime fromDate;
   final DateTime toDate;
 }
@@ -79,8 +79,8 @@ final class TaskWorkloadCubit extends Cubit<TaskWorkloadState> {
       (members) => emit(
         TaskWorkloadReady(
           workload: workload,
-          profilesByCoreUserId: {
-            for (final member in members) member.coreUserId: member,
+          profilesByUserId: {
+            for (final member in members) member.userId: member,
           },
           fromDate: from,
           toDate: to,

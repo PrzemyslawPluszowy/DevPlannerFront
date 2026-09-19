@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ready_next/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:ready_next/workspaces/presentation/chat/composer/cubit/chat_composer_cubit.dart';
 
 void main() {
   group('ChatComposerCubit trwały draft', () {

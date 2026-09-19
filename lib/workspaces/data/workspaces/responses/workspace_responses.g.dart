@@ -116,8 +116,7 @@ _WorkspaceMemberResponse _$WorkspaceMemberResponseFromJson(
   Map<String, dynamic> json,
 ) => _WorkspaceMemberResponse(
   id: json['id'] as String,
-  coreUserId: json['coreUserId'] as String,
-  readyUserId: (json['readyUserId'] as num?)?.toInt(),
+  userId: json['userId'] as String,
   role: $enumDecode(_$WorkspaceRoleEnumMap, json['role']),
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
   updatedAtUtc: DateTime.parse(json['updatedAtUtc'] as String),
@@ -127,8 +126,7 @@ Map<String, dynamic> _$WorkspaceMemberResponseToJson(
   _WorkspaceMemberResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
-  'coreUserId': instance.coreUserId,
-  'readyUserId': instance.readyUserId,
+  'userId': instance.userId,
   'role': _$WorkspaceRoleEnumMap[instance.role]!,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
   'updatedAtUtc': instance.updatedAtUtc.toIso8601String(),
@@ -155,28 +153,26 @@ Map<String, dynamic> _$WorkspaceMemberRevocationResponseToJson(
   'revokedAtUtc': instance.revokedAtUtc.toIso8601String(),
 };
 
-_ReadyDirectoryUserResponse _$ReadyDirectoryUserResponseFromJson(
+_LocalUserDirectoryResponse _$LocalUserDirectoryResponseFromJson(
   Map<String, dynamic> json,
-) => _ReadyDirectoryUserResponse(
-  readyUserId: (json['readyUserId'] as num).toInt(),
-  coreUserId: json['coreUserId'] as String?,
+) => _LocalUserDirectoryResponse(
+  userId: json['userId'] as String,
   login: json['login'] as String,
   displayName: json['displayName'] as String,
   email: json['email'] as String?,
   emailVerified: json['emailVerified'] as bool,
-  avatarUrl: json['avatarUrl'] as String?,
+  avatarFileId: json['avatarFileId'] as String?,
 );
 
-Map<String, dynamic> _$ReadyDirectoryUserResponseToJson(
-  _ReadyDirectoryUserResponse instance,
+Map<String, dynamic> _$LocalUserDirectoryResponseToJson(
+  _LocalUserDirectoryResponse instance,
 ) => <String, dynamic>{
-  'readyUserId': instance.readyUserId,
-  'coreUserId': instance.coreUserId,
+  'userId': instance.userId,
   'login': instance.login,
   'displayName': instance.displayName,
   'email': instance.email,
   'emailVerified': instance.emailVerified,
-  'avatarUrl': instance.avatarUrl,
+  'avatarFileId': instance.avatarFileId,
 };
 
 _WorkspaceInvitationResponse _$WorkspaceInvitationResponseFromJson(
@@ -184,7 +180,7 @@ _WorkspaceInvitationResponse _$WorkspaceInvitationResponseFromJson(
 ) => _WorkspaceInvitationResponse(
   id: json['id'] as String,
   workspaceId: json['workspaceId'] as String,
-  readyUserId: (json['readyUserId'] as num).toInt(),
+  userId: json['userId'] as String,
   role: $enumDecode(_$WorkspaceRoleEnumMap, json['role']),
   status: $enumDecode(_$WorkspaceInvitationStatusEnumMap, json['status']),
   login: json['login'] as String,
@@ -203,7 +199,7 @@ Map<String, dynamic> _$WorkspaceInvitationResponseToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'workspaceId': instance.workspaceId,
-  'readyUserId': instance.readyUserId,
+  'userId': instance.userId,
   'role': _$WorkspaceRoleEnumMap[instance.role]!,
   'status': _$WorkspaceInvitationStatusEnumMap[instance.status]!,
   'login': instance.login,

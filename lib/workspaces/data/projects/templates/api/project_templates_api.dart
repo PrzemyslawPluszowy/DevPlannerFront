@@ -1,5 +1,5 @@
+import 'package:devplanner/workspaces/data/projects/templates/models/project_template_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/projects/templates/models/project_template_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'project_templates_api.g.dart';

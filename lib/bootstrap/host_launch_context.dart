@@ -1,9 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// Dane przekazywane do Fluttera na starcie przez hosta.
-///
-/// Host może wskazać trasę oraz dane pomocnicze użytkownika. Sesja jest zawsze
-/// tworzona wyłącznie przez Veloryn Core, więc token hosta nie jest przyjmowany.
+/// Local launch data used by the standalone DevPlanner root.
 @immutable
 class HostLaunchContext {
   const HostLaunchContext({
@@ -16,7 +13,7 @@ class HostLaunchContext {
     Map<String, dynamic> map, {
     required String initialRoute,
   }) {
-    // `initialRoute` pochodzi z URL, a pozostale dane z hosta/storage.
+    // Kept for decoding platform launch data; it never carries auth tokens.
     return HostLaunchContext(
       initialRoute: initialRoute,
       userId: map['userId'] as String?,

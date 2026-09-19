@@ -1,10 +1,10 @@
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_contract_enums.dart';
-import 'package:ready_next/workspaces/data/shared/enums/task_priority.dart';
-import 'package:ready_next/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
 
 /// Pełny, typowany zestaw filtrów aktywnej listy.
 ///
@@ -14,7 +14,7 @@ final class TaskListQuery {
   const TaskListQuery({
     this.status,
     this.priority,
-    this.assigneeCoreUserId,
+    this.assigneeUserId,
     this.myInvolvement,
     this.unassignedOnly = false,
     this.pinnedOnly = false,
@@ -27,7 +27,7 @@ final class TaskListQuery {
   }) => TaskListQuery(
     status: state.status,
     priority: state.priority,
-    assigneeCoreUserId: state.assigneeCoreUserId,
+    assigneeUserId: state.assigneeUserId,
     myInvolvement: state.myInvolvement,
     unassignedOnly: state.unassignedOnly,
     pinnedOnly: state.pinnedOnly,
@@ -36,7 +36,7 @@ final class TaskListQuery {
 
   final ProjectTaskStatus? status;
   final TaskPriority? priority;
-  final String? assigneeCoreUserId;
+  final String? assigneeUserId;
   final TaskInvolvementFilter? myInvolvement;
   final bool unassignedOnly;
   final bool pinnedOnly;
@@ -48,7 +48,7 @@ final class TaskListQuery {
         parentTaskId: parentTaskId,
         status: status?.name,
         priority: priority?.name,
-        assigneeCoreUserId: assigneeCoreUserId,
+        assigneeUserId: assigneeUserId,
         myInvolvement: _involvementWireValue(myInvolvement),
         unassignedOnly: unassignedOnly,
         pinnedOnly: pinnedOnly,
@@ -65,7 +65,7 @@ final class TaskListQuery {
     cursor: cursor,
     status: status?.name,
     priority: priority?.name,
-    assigneeCoreUserId: assigneeCoreUserId,
+    assigneeUserId: assigneeUserId,
     myInvolvement: _involvementWireValue(myInvolvement),
     unassignedOnly: unassignedOnly,
     pinnedOnly: pinnedOnly,
@@ -77,7 +77,7 @@ final class TaskListQuery {
         savedViewId: savedViewId,
         status: status?.name,
         priority: priority?.name,
-        assigneeCoreUserId: assigneeCoreUserId,
+        assigneeUserId: assigneeUserId,
         myInvolvement: _involvementWireValue(myInvolvement),
         pinnedOnly: pinnedOnly,
         unassignedOnly: unassignedOnly,
@@ -86,21 +86,23 @@ final class TaskListQuery {
   static String? statusWireValue(ProjectTaskStatus? value) => value?.name;
 
   static String? priorityWireValue(TaskPriority? value) => value?.name;
+
+  static String? _groupByWireValue(TaskSavedViewGroupBy value) =>
+      switch (value) {
+        TaskSavedViewGroupBy.none => null,
+        TaskSavedViewGroupBy.status => 'Status',
+        TaskSavedViewGroupBy.customStatus => 'CustomStatus',
+        TaskSavedViewGroupBy.priority => 'Priority',
+        TaskSavedViewGroupBy.assignee => 'Assignee',
+      };
+
+  static String? _involvementWireValue(TaskInvolvementFilter? value) =>
+      switch (value) {
+        null => null,
+        TaskInvolvementFilter.any => 'Any',
+        TaskInvolvementFilter.primaryAssignee => 'PrimaryAssignee',
+        TaskInvolvementFilter.collaborator => 'Collaborator',
+        TaskInvolvementFilter.assignee => 'Assignee',
+        TaskInvolvementFilter.watcher => 'Watcher',
+      };
 }
-
-String? _groupByWireValue(TaskSavedViewGroupBy value) => switch (value) {
-  TaskSavedViewGroupBy.none => null,
-  TaskSavedViewGroupBy.status => 'Status',
-  TaskSavedViewGroupBy.customStatus => 'CustomStatus',
-  TaskSavedViewGroupBy.priority => 'Priority',
-  TaskSavedViewGroupBy.assignee => 'Assignee',
-};
-
-String? _involvementWireValue(TaskInvolvementFilter? value) => switch (value) {
-  null => null,
-  TaskInvolvementFilter.any => 'Any',
-  TaskInvolvementFilter.primaryAssignee => 'PrimaryAssignee',
-  TaskInvolvementFilter.collaborator => 'Collaborator',
-  TaskInvolvementFilter.assignee => 'Assignee',
-  TaskInvolvementFilter.watcher => 'Watcher',
-};

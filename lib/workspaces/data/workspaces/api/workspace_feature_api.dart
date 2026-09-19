@@ -1,6 +1,6 @@
+import 'package:devplanner/workspaces/data/shared/enums/workspace_feature_enums.dart';
+import 'package:devplanner/workspaces/data/workspaces/models/workspace_feature_models.dart';
 import 'package:dio/dio.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_feature_enums.dart';
-import 'package:ready_next/workspaces/data/workspaces/models/workspace_feature_models.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'workspace_feature_api.g.dart';

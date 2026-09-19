@@ -1,41 +1,41 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/helpers/task_permission_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/bulk/task_list_bulk_bar.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/filters/task_list_filters.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/inline_create/task_list_inline_create.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/widgets/task_list_columns_sheet.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_header.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_group_row.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_row.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_subtasks.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/task_list_grouping.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_context_editor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:ready_next/core/l10n/l10n_extensions.dart';
-import 'package:ready_next/core/theme/theme.dart';
-import 'package:ready_next/workspaces/data/projects/milestones/models/milestone_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_column_reference.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_models.dart';
-import 'package:ready_next/workspaces/data/projects/tasks/models/task_views_models.dart';
-import 'package:ready_next/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:ready_next/workspaces/domain/models/project_member_profile.dart';
-import 'package:ready_next/workspaces/domain/repositories/milestone_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:ready_next/workspaces/domain/repositories/task_recurrence_repository.dart';
-import 'package:ready_next/workspaces/presentation/tasks/helpers/task_permission_helper.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/bulk/task_list_bulk_bar.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/filters/task_list_filters.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/inline_create/task_list_inline_create.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/preferences/widgets/task_list_columns_sheet.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/header/task_list_header.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/rows/task_list_group_row.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/rows/task_list_row.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_grid.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/table/task_list_subtasks.dart';
-import 'package:ready_next/workspaces/presentation/tasks/list/task_list_grouping.dart';
-import 'package:ready_next/workspaces/presentation/tasks/recurrence/task_recurrence_context_editor.dart';
 
-part 'task_list_table_resize.part.dart';
-part 'task_list_table_rows.part.dart';
 part 'task_list_table_builder.part.dart';
-part 'task_list_table_view.part.dart';
+part 'task_list_table_resize.part.dart';
 part 'task_list_table_row_item.part.dart';
+part 'task_list_table_rows.part.dart';
+part 'task_list_table_view.part.dart';
 
 /// Główny komponent tabeli zadań projektu w stanie gotowości danych.
 ///
@@ -48,7 +48,7 @@ class TaskListTable extends StatefulWidget {
     required this.columns,
     this.customFieldIds,
     this.columnReferences,
-    required this.memberProfilesByCoreUserId,
+    required this.memberProfilesByUserId,
     this.preferencesCubit,
     this.metadataRevision = 0,
     super.key,
@@ -59,7 +59,7 @@ class TaskListTable extends StatefulWidget {
   final List<TaskSavedViewColumn> columns;
   final List<String>? customFieldIds;
   final List<TaskColumnReference>? columnReferences;
-  final Map<String, ProjectMemberProfile> memberProfilesByCoreUserId;
+  final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final TaskListPreferencesCubit? preferencesCubit;
 
   /// Wersja rewizji metadanych (pól własnych, kamieni milowych).
@@ -77,6 +77,7 @@ class _TaskListTableState extends State<TaskListTable> {
   final ScrollController _horizontalController = ScrollController();
   final ValueNotifier<_ColumnResizeGuideData?> _resizeGuideNotifier =
       ValueNotifier(null);
+  final ValueNotifier<int> _localUiRevision = ValueNotifier(0);
   final Set<String> _collapsedGroupIds = {};
   final Map<TaskSavedViewColumn, double> _columnWidths = {};
   final Map<String, double> _columnWidthsById = {};
@@ -145,15 +146,18 @@ class _TaskListTableState extends State<TaskListTable> {
     _horizontalController.dispose();
     _rootCreateController.dispose();
     _resizeGuideNotifier.dispose();
+    _localUiRevision.dispose();
     super.dispose();
   }
 
   void updateState(VoidCallback fn) {
-    if (mounted) setState(fn);
+    if (!mounted) return;
+    fn();
+    _localUiRevision.value++;
   }
 
   void _beginInlineRootCreate(String groupKey) {
-    setState(() {
+    updateState(() {
       _collapsedGroupIds.remove(groupKey);
       _addingRootGroupKey = groupKey;
       _rootCreateController.clear();
@@ -161,9 +165,9 @@ class _TaskListTableState extends State<TaskListTable> {
   }
 
   Future<void> _submitInlineRootCreate(String groupKey) async {
-    final customStatusId = taskListCustomStatusIdForGroup(groupKey);
+    final customStatusId = TaskListGrouping.customStatusIdForGroup(groupKey);
     final status =
-        taskListStatusForGroup(groupKey) ??
+        TaskListGrouping.statusForGroup(groupKey) ??
         (customStatusId != null || widget.groupBy == TaskSavedViewGroupBy.none
             ? ProjectTaskStatus.todo
             : null);
@@ -175,7 +179,7 @@ class _TaskListTableState extends State<TaskListTable> {
       customStatusId: customStatusId,
     );
     if (!mounted || !created) return;
-    setState(() {
+    updateState(() {
       _rootCreateController.clear();
       _addingRootGroupKey = null;
     });
@@ -185,7 +189,7 @@ class _TaskListTableState extends State<TaskListTable> {
     ProjectTaskListItemResponse parent,
   ) async {
     final current = context.read<ProjectTasksListCubit>().state;
-    setState(() => _addingSubtaskParentId = parent.id);
+    updateState(() => _addingSubtaskParentId = parent.id);
     if (current is ProjectTasksListReady &&
         !current.expandedTaskIds.contains(parent.id)) {
       await context.read<ProjectTasksListCubit>().toggleSubtasks(parent);
@@ -200,7 +204,12 @@ class _TaskListTableState extends State<TaskListTable> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+    valueListenable: _localUiRevision,
+    builder: (context, _, _) => _buildWithLocalUiState(context),
+  );
+
+  Widget _buildWithLocalUiState(BuildContext context) {
     final prefCubit =
         widget.preferencesCubit ??
         () {
@@ -243,7 +252,7 @@ class _TaskListTableState extends State<TaskListTable> {
       sortDirection: prefState?.sortDirection,
     );
     final rows = _visibleRows(groupedRows, _collapsedGroupIds);
-    final visibleColumns = taskListVisibleColumns(widget.columns);
+    final visibleColumns = TaskListGrid.visibleColumns(widget.columns);
     final canMoveBetweenGroups =
         widget.groupBy == TaskSavedViewGroupBy.none ||
         widget.groupBy == TaskSavedViewGroupBy.status ||

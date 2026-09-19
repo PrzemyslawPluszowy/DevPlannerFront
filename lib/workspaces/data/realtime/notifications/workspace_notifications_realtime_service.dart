@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:ready_next/workspaces/data/notifications/models/notification_models.dart';
-import 'package:ready_next/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
-import 'package:ready_next/workspaces/domain/repositories/notifications_repository.dart';
+import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/domain/repositories/notifications_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Zdarzenie nowego elementu prywatnej skrzynki.

@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/domain/chat/conversation/models/chat_conversation.dart';
-import 'package:ready_next/workspaces/domain/chat/resource/resource_chat_file_request.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_request.dart';
 
 /// Autoryzowany resolver rozmowy związanej z zasobem zewnętrznym.
 ///

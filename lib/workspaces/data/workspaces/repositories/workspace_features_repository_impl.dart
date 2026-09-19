@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:ready_next/core/data/api_repository.dart';
-import 'package:ready_next/core/error/api_error.dart';
-import 'package:ready_next/workspaces/data/shared/enums/workspace_feature_enums.dart';
-import 'package:ready_next/workspaces/data/workspaces/api/workspace_feature_api.dart';
-import 'package:ready_next/workspaces/data/workspaces/models/workspace_feature_models.dart';
-import 'package:ready_next/workspaces/domain/repositories/workspace_features_repository.dart';
+import 'package:devplanner/core/data/api_repository.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/shared/enums/workspace_feature_enums.dart';
+import 'package:devplanner/workspaces/data/workspaces/api/workspace_feature_api.dart';
+import 'package:devplanner/workspaces/data/workspaces/models/workspace_feature_models.dart';
+import 'package:devplanner/workspaces/domain/repositories/workspace_features_repository.dart';
 
 /// Implementacja repozytorium dashboardów, aktywności i wyszukiwania.
 final class WorkspaceFeaturesRepositoryImpl extends ApiRepository
