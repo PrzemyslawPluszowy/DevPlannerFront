@@ -96,7 +96,9 @@ class _EditAssigneesDialogState extends State<_EditAssigneesDialog> {
                         ? null
                         : Text(
                             label.characters.first.toUpperCase(),
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(
+                              color: context.tasksTheme.onAccent,
+                            ),
                           ),
                   ),
                   title: Text(label),
@@ -210,9 +212,10 @@ class _WatcherAvatar extends StatelessWidget {
         backgroundColor: TaskCollaboratorAvatarPalette.colorFor(label),
         child: Text(
           initial,
-          style: const TextStyle(
-            color: Colors.white,
+          style: context.tasksTheme.metaText.copyWith(
+            height: 1,
             fontWeight: FontWeight.w700,
+            color: context.tasksTheme.onAccent,
           ),
         ),
       ),

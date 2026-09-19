@@ -163,7 +163,7 @@ class TaskInlineInputField extends StatelessWidget {
                     keyboardHint!,
                     style: context.text.labelSmall?.copyWith(
                       color: colors.onSurfaceVariant.withValues(alpha: .6),
-                      fontSize: 10,
+                      fontSize: context.tasksTheme.metaText.fontSize,
                     ),
                   ),
                 ),

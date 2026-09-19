@@ -27,3 +27,15 @@ enum ProjectTaskStatus {
   @JsonValue('Cancelled')
   cancelled,
 }
+
+/// Stabilna reprezentacja tekstowa używana w path/query API.
+extension ProjectTaskStatusWireValue on ProjectTaskStatus {
+  String get wireValue => switch (this) {
+    ProjectTaskStatus.backlog => 'Backlog',
+    ProjectTaskStatus.todo => 'Todo',
+    ProjectTaskStatus.inProgress => 'InProgress',
+    ProjectTaskStatus.blocked => 'Blocked',
+    ProjectTaskStatus.done => 'Done',
+    ProjectTaskStatus.cancelled => 'Cancelled',
+  };
+}

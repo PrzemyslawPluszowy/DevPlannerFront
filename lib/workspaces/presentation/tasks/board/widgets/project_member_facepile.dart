@@ -131,9 +131,9 @@ class ProjectMemberFacepile extends StatelessWidget {
                         child: Center(
                           child: Text(
                             '+$overflowCount',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: .w700,
+                            style: context.tasksTheme.metaText.copyWith(
+                              height: 1,
+                              fontWeight: FontWeight.w700,
                               color: colors.onSurfaceVariant,
                             ),
                           ),
@@ -199,10 +199,12 @@ class _FacepileAvatar extends StatelessWidget {
                   ? null
                   : Text(
                       name.characters.first.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: .w700,
-                        color: Colors.white,
+                      // Inicjał musi mieć kolor tokenu, a nie domyślny kolor
+                      // tekstu, żeby był czytelny na kolorze awatara.
+                      style: context.tasksTheme.metaText.copyWith(
+                        height: 1,
+                        fontWeight: FontWeight.w700,
+                        color: context.tasksTheme.onAccent,
                       ),
                     ),
             ),

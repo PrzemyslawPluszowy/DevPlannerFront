@@ -48,10 +48,8 @@ class _CardIdentityState extends State<_CardIdentity> {
                   ignoring: !showCheckbox,
                   child: Semantics(
                     label: context.l10n.tasksSelectTask(widget.task.taskCode),
-                    child: Checkbox(
+                    child: TasksSelectionCheckbox(
                       value: widget.isSelected,
-                      visualDensity: VisualDensity.compact,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       onChanged: (_) => context
                           .read<TasksBoardCubit>()
                           .toggleTaskSelection(widget.task),

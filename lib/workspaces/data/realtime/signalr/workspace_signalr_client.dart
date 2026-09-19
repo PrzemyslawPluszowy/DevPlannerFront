@@ -53,6 +53,8 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
   HubConnection? _connection;
   final Map<String, List<MethodInvocationFunc>> _handlers = {};
   bool _disposed = false;
+  int _generation = 0;
+  Future<void>? _connectInFlight;
 
   /// Strumień stanu transportu; kończy się razem z klientem.
   @override
@@ -64,14 +66,28 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
   @override
   Future<void> connect() async {
     _ensureNotDisposed();
+    final pending = _connectInFlight;
+    if (pending != null) return pending;
+    final operation = _connect(_generation);
+    _connectInFlight = operation;
+    try {
+      await operation;
+    } finally {
+      if (identical(_connectInFlight, operation)) _connectInFlight = null;
+    }
+  }
+
+  Future<void> _connect(int generation) async {
     if (_connection?.state == HubConnectionState.Connected ||
-        _connection?.state == HubConnectionState.Connecting) {
+        _connection?.state == HubConnectionState.Connecting ||
+        _connection?.state == HubConnectionState.Reconnecting) {
       return;
     }
 
     // Nie pozwalamy SignalR rozpocząć handshake'u bez tokenu. Dzięki temu
     // wygaśnięta sesja nie tworzy anonimowego połączenia ani pętli reconnect.
     final initialToken = (await _accessTokenProvider())?.trim() ?? '';
+    if (_disposed || generation != _generation) return;
     if (initialToken.isEmpty) {
       throw StateError('Nie można uruchomić SignalR bez aktywnej sesji.');
     }
@@ -82,6 +98,9 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
           options: HttpConnectionOptions(
             accessTokenFactory: () async {
               final token = (await _accessTokenProvider())?.trim() ?? '';
+              if (_disposed || generation != _generation) {
+                throw StateError('Połączenie SignalR zostało anulowane.');
+              }
               if (token.isEmpty) {
                 throw StateError('Sesja wygasła podczas handshake SignalR.');
               }
@@ -116,6 +135,10 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
     _emit(WorkspaceSignalRConnectionState.connecting);
     try {
       await connection.start();
+      if (_disposed || generation != _generation) {
+        await connection.stop();
+        return;
+      }
       _emit(WorkspaceSignalRConnectionState.connected);
     } catch (_) {
       _emit(WorkspaceSignalRConnectionState.disconnected);
@@ -146,6 +169,8 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
   /// Zatrzymuje transport przed wylogowaniem lub zmianą użytkownika.
   @override
   Future<void> disconnect() async {
+    _generation++;
+    _connectInFlight = null;
     final connection = _connection;
     _connection = null;
     _handlers.clear();
@@ -157,6 +182,7 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
   void dispose() {
     if (_disposed) return;
     _disposed = true;
+    _generation++;
     final connection = _connection;
     if (connection != null) unawaited(connection.stop());
     _connection = null;

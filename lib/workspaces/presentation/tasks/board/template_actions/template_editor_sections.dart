@@ -109,7 +109,7 @@ class _AssigneePickerSectionState extends State<_AssigneePickerSection> {
                     backgroundColor: TaskBoardAvatarPalette.colorFor(
                       member.userId,
                     ),
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.tasksTheme.onAccent,
                     child: Text(
                       _TemplateEditorHelpers.memberInitial(member),
                       style: const TextStyle(
@@ -189,7 +189,7 @@ class _AssigneePickerSectionState extends State<_AssigneePickerSection> {
                       backgroundColor: TaskBoardAvatarPalette.colorFor(
                         member.userId,
                       ),
-                      foregroundColor: Colors.white,
+                      foregroundColor: context.tasksTheme.onAccent,
                       child: Text(
                         _TemplateEditorHelpers.memberInitial(member),
                         style: const TextStyle(

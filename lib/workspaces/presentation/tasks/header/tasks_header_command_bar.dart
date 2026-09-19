@@ -1,4 +1,4 @@
-part of 'tasks_board_page.dart';
+part of 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 /// Menu filtrowania Kanbanu.
 class _KanbanQuickFilterMenu extends StatelessWidget {
@@ -18,6 +18,7 @@ class _KanbanQuickFilterMenu extends StatelessWidget {
     final colors = context.colors;
 
     return Tooltip(
+      key: const ValueKey('quick_filter_menu'),
       message: context.l10n.tasksKanbanQuickFilter,
       child: Semantics(
         button: true,
@@ -35,26 +36,26 @@ class _KanbanQuickFilterMenu extends StatelessWidget {
               onTap: isEnabled
                   ? () async {
                       final filter =
-                          await TaskContextMenu.show<KanbanQuickFilter>(
+                          await AppContextMenu.select<KanbanQuickFilter>(
                             context,
-                            position: TaskContextMenu.positionFor(
+                            globalPosition: AppContextMenu.positionFor(
                               buttonContext,
                             ),
-                            items: [
+                            options: [
                               for (final f in KanbanQuickFilter.values)
-                                TaskContextMenuItem<KanbanQuickFilter>(
+                                AppContextMenuOption(
                                   value: f,
-                                  title: _BoardHeaderHelpers.quickFilterLabel(
+                                  label: _TasksHeaderHelpers.quickFilterLabel(
                                     context,
                                     f,
                                   ),
-                                  icon: _BoardHeaderHelpers.quickFilterIcon(f),
+                                  icon: _TasksHeaderHelpers.quickFilterIcon(f),
                                   iconColor: f == KanbanQuickFilter.blocked
                                       ? colors.error
                                       : f == KanbanQuickFilter.dueSoon
                                       ? const Color(0xFFF59E0B)
                                       : null,
-                                  isSelected: f == selected,
+                                  selected: f == selected,
                                   trailing: f == selected
                                       ? Icon(
                                           Symbols.check_rounded,
@@ -88,7 +89,7 @@ class _KanbanQuickFilterMenu extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          _BoardHeaderHelpers.quickFilterIcon(selected),
+                          _TasksHeaderHelpers.quickFilterIcon(selected),
                           size: Sizes.p16,
                           color: selected == KanbanQuickFilter.all
                               ? colors.onSurfaceVariant
@@ -97,7 +98,7 @@ class _KanbanQuickFilterMenu extends StatelessWidget {
                         if (!compact) ...[
                           const SizedBox(width: Sizes.p6),
                           Text(
-                            _BoardHeaderHelpers.quickFilterLabel(
+                            _TasksHeaderHelpers.quickFilterLabel(
                               context,
                               selected,
                             ),
@@ -157,7 +158,7 @@ class _ActiveFilterStrip extends StatelessWidget {
         ),
         const SizedBox(width: Sizes.p6),
         InputChip(
-          label: Text(_BoardHeaderHelpers.quickFilterLabel(context, filter)),
+          label: Text(_TasksHeaderHelpers.quickFilterLabel(context, filter)),
           onDeleted: onClear,
           deleteIconColor: colors.onSecondaryContainer,
           backgroundColor: colors.secondaryContainer,
@@ -189,8 +190,8 @@ class _ActiveFilterStrip extends StatelessWidget {
 }
 
 /// Pomocnicze wartości prezentacyjne nagłówka Kanbana.
-class _BoardHeaderHelpers {
-  const _BoardHeaderHelpers._();
+class _TasksHeaderHelpers {
+  const _TasksHeaderHelpers._();
 
   static IconData quickFilterIcon(KanbanQuickFilter filter) => switch (filter) {
     KanbanQuickFilter.all => Symbols.filter_list_rounded,

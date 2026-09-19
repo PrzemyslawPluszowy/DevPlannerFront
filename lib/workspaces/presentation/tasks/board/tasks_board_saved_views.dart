@@ -18,6 +18,7 @@ class _TaskSavedViewsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TaskSavedViewsMenu(
+    key: const ValueKey('saved_views_menu'),
     compact: compact,
     workspaceId: workspaceId,
     projectId: projectId,

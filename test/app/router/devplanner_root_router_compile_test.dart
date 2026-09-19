@@ -169,6 +169,10 @@ void main() {
   testWidgets('workspace gateway route can render a real workspace card', (
     tester,
   ) async {
+    // Compact shell (<960 px) renderuje sidebar ikonowy, więc marka i karta
+    // workspace'u są widoczne równocześnie dopiero na szerokości desktopowej.
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     final auth = AuthComposition.unavailable();
     auth.session.setSignedIn(
       const AuthUser(userId: 'user-1', login: 'user', displayName: 'User'),
@@ -200,7 +204,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('DevPlanner'), findsNWidgets(2));
+    // Marka shella jest dziś logo z etykietą semantyczną, a nie tekstem, więc
+    // nazwę „DevPlanner” niesie już tylko karta workspace'u.
+    expect(
+      find.byKey(const ValueKey('devplanner-sidebar-brand-logo')),
+      findsOneWidget,
+    );
+    expect(find.text('DevPlanner'), findsOneWidget);
     expect(find.text('Workspace testowy'), findsOneWidget);
   });
 

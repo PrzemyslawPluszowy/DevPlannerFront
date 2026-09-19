@@ -13,19 +13,14 @@ final class AnchoredTextEditor {
     BuildContext context, {
     required String title,
     required String initialValue,
-    required RelativeRect menuPosition,
+    required Offset globalPosition,
     bool isNumber = false,
     bool allowClear = false,
   }) async {
-    final overlay = Navigator.of(context, rootNavigator: true).overlay;
-    final box = overlay?.context.findRenderObject() as RenderBox?;
-    if (box == null) return null;
     final result = Completer<String?>();
     await AppContextMenu.showCustom(
       context,
-      globalPosition: box.localToGlobal(
-        Offset(menuPosition.left, menuPosition.top),
-      ),
+      globalPosition: globalPosition,
       maxWidth: 260,
       maxHeight: allowClear ? 150 : 116,
       contentBuilder: (_, dismiss) => _CustomTextFieldPanel(

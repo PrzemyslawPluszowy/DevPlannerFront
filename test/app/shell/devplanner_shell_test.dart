@@ -33,10 +33,24 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('route content'), findsOneWidget);
-    expect(find.text('DevPlanner'), findsOneWidget);
+    final logoFinder = find.byKey(
+      const ValueKey('devplanner-sidebar-brand-logo'),
+    );
+    final toggleFinder = find.byKey(
+      const ValueKey('devplanner-toggle-sidebar'),
+    );
+    final logo = tester.widget<Image>(logoFinder);
+    expect(logo.image, isA<AssetImage>());
+    expect(logo.semanticLabel, 'DevPlanner');
+    // Logotyp dzieli wiersz belki z przyciskiem menu: zajmuje wolną szerokość
+    // po lewej, a przycisk domyka ten sam wiersz po prawej.
     expect(
-      tester.widget<Text>(find.text('DevPlanner')).style?.fontSize,
-      16,
+      tester.getTopRight(logoFinder).dx,
+      tester.getTopLeft(toggleFinder).dx,
+    );
+    expect(
+      tester.getTopLeft(toggleFinder).dx,
+      greaterThan(tester.getTopLeft(logoFinder).dx),
     );
     expect(
       tester.widget<Text>(find.text('Settings')).style?.fontSize,
@@ -206,10 +220,150 @@ void main() {
       ),
     );
     expect(kanbanNode, findsOneWidget);
-    expect(find.text('Whiteboards'), findsOneWidget);
-    expect(find.text('Corkboard'), findsOneWidget);
-    expect(find.text('Wiki'), findsOneWidget);
+    // Projekt pokazuje wyłącznie pozycje z aktywną trasą: Lista, Kanban i Pliki.
+    expect(find.text('List'), findsOneWidget);
     expect(find.text('Files and documents'), findsAtLeastNWidgets(1));
+    expect(find.text('Whiteboards'), findsNothing);
+    expect(find.text('Corkboard'), findsNothing);
+    expect(find.text('Wiki'), findsNothing);
+    expect(find.text('Automations'), findsNothing);
+  });
+
+  testWidgets('selects the Tasks view that the URL actually opens', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1440, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = GoRouter(
+      initialLocation: _kanbanLocation,
+      routes: [
+        ShellRoute(
+          builder: (_, _, child) => DevPlannerShellRoute(
+            workspaceNavigationGateway: _UuidWorkspaceGateway(),
+            projectsGateway: _UuidProjectsGateway(),
+            tasksBoardAvailable: true,
+            child: child,
+          ),
+          routes: [
+            GoRoute(
+              path: _tasksPath,
+              builder: (_, _) => const Text('tasks content'),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_LocalizedRouter(router));
+    await tester.pumpAndSettle();
+    await _expandProjectBranch(tester);
+
+    // Kanban jest zaznaczony, bo to jego adres otworzył shell.
+    expect(_labelWeight(tester, 'Kanban'), FontWeight.w600);
+    expect(_labelWeight(tester, 'List'), FontWeight.w400);
+
+    router.go(_tasksPath);
+    await tester.pumpAndSettle();
+
+    expect(_labelWeight(tester, 'List'), FontWeight.w600);
+    expect(_labelWeight(tester, 'Kanban'), FontWeight.w400);
+
+    router.go('$_tasksPath?view=list');
+    await tester.pumpAndSettle();
+
+    // `?view=list` musi zaznaczać Listę, a nie gubić zaznaczenia.
+    expect(_labelWeight(tester, 'List'), FontWeight.w600);
+    expect(_labelWeight(tester, 'Kanban'), FontWeight.w400);
+  });
+
+  testWidgets('opens the Tasks List when the project row is clicked', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1440, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = GoRouter(
+      initialLocation: '/workspaces',
+      routes: [
+        ShellRoute(
+          builder: (_, _, child) => DevPlannerShellRoute(
+            workspaceNavigationGateway: _UuidWorkspaceGateway(),
+            projectsGateway: _UuidProjectsGateway(),
+            tasksBoardAvailable: true,
+            child: child,
+          ),
+          routes: [
+            GoRoute(
+              path: '/workspaces',
+              builder: (_, _) => const Text('workspaces content'),
+            ),
+            GoRoute(
+              path: _tasksPath,
+              builder: (_, _) => const Text('tasks content'),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_LocalizedRouter(router));
+    await tester.pumpAndSettle();
+    await _expandProjectBranch(tester);
+
+    await tester.tap(find.text('Project A'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('tasks content'), findsOneWidget);
+    expect(
+      router.routerDelegate.currentConfiguration.uri.toString(),
+      _tasksPath,
+    );
+  });
+
+  testWidgets('na wąskim oknie drzewo jest osiągalne w nakładce', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(900, 700));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = GoRouter(
+      initialLocation: '/workspaces',
+      routes: [
+        ShellRoute(
+          builder: (_, _, child) => DevPlannerShellRoute(
+            workspaceNavigationGateway: _WorkspaceGateway(),
+            projectsGateway: _ProjectsGateway(),
+            child: child,
+          ),
+          routes: [
+            GoRoute(
+              path: '/workspaces',
+              builder: (_, _) => const Text('workspaces content'),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_LocalizedRouter(router));
+    await tester.pumpAndSettle();
+
+    // Compact shell zwija pasek do ikon, więc drzewo nie jest widoczne...
+    expect(find.byTooltip('Expand menu'), findsOneWidget);
+    expect(find.text('Alpha'), findsNothing);
+
+    // ...ale ten sam klawisz otwiera je w nakładce z pełnym drzewem.
+    await tester.tap(find.byTooltip('Expand menu'));
+    await tester.pumpAndSettle();
+    expect(find.text('Alpha'), findsOneWidget);
+    expect(find.byTooltip('Collapse menu'), findsOneWidget);
+
+    // Ponowne kliknięcie zamyka nakładkę i wraca do paska ikonowego.
+    await tester.tap(find.byTooltip('Collapse menu'));
+    await tester.pumpAndSettle();
+    expect(find.text('Alpha'), findsNothing);
+    expect(find.byTooltip('Expand menu'), findsOneWidget);
   });
 
   testWidgets('publishes injected projects gateway for descendant routes', (
@@ -241,6 +395,63 @@ void main() {
 
     expect(find.text('projects gateway available'), findsOneWidget);
   });
+}
+
+/// Rozwija gałąź projektu tylko tam, gdzie shell nie zrobił tego sam.
+///
+/// Węzły przodków bieżącej trasy rozwijają się automatycznie, więc helper
+/// sprawdza stan chevronu zamiast przełączać go w ciemno.
+Future<void> _expandProjectBranch(WidgetTester tester) async {
+  for (final id in const [
+    'workspace:$workspaceId',
+    'workspace:$workspaceId:projects',
+    'workspace:$workspaceId:project:$projectId',
+    'workspace:$workspaceId:project:$projectId:tasks',
+  ]) {
+    final chevron = find.descendant(
+      of: find.byKey(ValueKey<String>('navigation-node-$id')),
+      matching: find.byIcon(Icons.chevron_right),
+    );
+    if (chevron.evaluate().isEmpty) continue;
+    await tester.tap(chevron);
+    await tester.pumpAndSettle();
+  }
+}
+
+/// Waga etykiety wiersza drzewa jest kontraktem zaznaczenia shella.
+FontWeight? _labelWeight(WidgetTester tester, String label) =>
+    tester.widget<Text>(find.text(label)).style?.fontWeight;
+
+const workspaceId = '550e8400-e29b-41d4-a716-446655440000';
+const projectId = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+const _tasksPath = '/workspaces/$workspaceId/projects/$projectId/tasks';
+const _kanbanLocation = '$_tasksPath?view=kanban';
+
+final class _UuidWorkspaceGateway implements WorkspaceNavigationGateway {
+  @override
+  Future<List<WorkspaceSummary>> listWorkspaces() async => const [
+    WorkspaceSummary(
+      id: workspaceId,
+      name: 'Projektowy',
+      isPinned: true,
+      isHidden: false,
+      isOwner: true,
+    ),
+  ];
+}
+
+final class _UuidProjectsGateway implements ProjectsGateway {
+  @override
+  Future<List<ProjectListItem>> listProjects(
+    String workspaceId, {
+    bool includeHidden = false,
+  }) async => [
+    ProjectListItem(
+      id: projectId,
+      workspaceId: workspaceId,
+      name: 'Project A',
+    ),
+  ];
 }
 
 final class _LocalizedRouter extends StatelessWidget {

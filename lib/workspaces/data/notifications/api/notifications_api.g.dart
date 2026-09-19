@@ -23,7 +23,7 @@ class _NotificationsApi implements NotificationsApi {
   Future<CursorPageResponse<WorkspaceNotificationResponse>> list({
     String? cursor,
     int? limit,
-    NotificationCategory? category,
+    String? category,
     bool? isUnreadOnly,
   }) async {
     final _extra = <String, dynamic>{};
@@ -96,7 +96,7 @@ class _NotificationsApi implements NotificationsApi {
   Future<CursorPageResponse<NotificationGroupResponse>> listGroups({
     String? cursor,
     int? limit,
-    NotificationCategory? category,
+    String? category,
     bool? isUnreadOnly,
   }) async {
     final _extra = <String, dynamic>{};

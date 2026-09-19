@@ -12,6 +12,7 @@ mixin _DevPlannerRouterPages {
   TaskViewRepository? get _resolvedTaskViewRepository;
   TasksBoardComposition? get _resolvedTasksBoardComposition;
   TasksDetailsComposition? get _resolvedTasksDetailsComposition;
+  ProjectSettingsComposition? get _resolvedProjectSettingsComposition;
 
   Widget _workspaceFilesRoutePage(BuildContext context, GoRouterState state) {
     final workspaceId = state.pathParameters['workspaceId'] ?? '';
@@ -136,8 +137,13 @@ mixin _DevPlannerRouterPages {
     }
     final composition = _resolvedTasksBoardComposition;
     if (composition == null) return const TasksBoardTransportUnavailablePage();
+    final projectSettings = _resolvedProjectSettingsComposition;
+    if (projectSettings == null) {
+      return const TasksBoardTransportUnavailablePage();
+    }
     return TasksBoardRoutePage(
       composition: composition,
+      projectSettings: projectSettings,
       workspaceId: workspaceId,
       projectId: projectId,
       authSession: _auth.session,

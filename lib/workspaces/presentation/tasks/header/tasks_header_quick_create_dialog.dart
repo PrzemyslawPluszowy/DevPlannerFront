@@ -1,4 +1,4 @@
-part of 'tasks_board_page.dart';
+part of 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 class TaskQuickCreateDialog extends StatefulWidget {
   const TaskQuickCreateDialog({

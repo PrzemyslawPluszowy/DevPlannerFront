@@ -136,6 +136,95 @@ void main() {
     });
   });
 
+  group('kontrakt bledow standalone DevPlanner', () {
+    test('zachowuje kod, komunikat i traceId z odpowiedzi 409', () {
+      final error = DioException.badResponse(
+        statusCode: 409,
+        requestOptions: RequestOptions(path: '/api/test'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/api/test'),
+          statusCode: 409,
+          data: {
+            'code': 'kanban.version_conflict',
+            'message': 'Karta lub ustawienia zostały równolegle zmienione.',
+            'fields': null,
+            'traceId': '0HNOM9CUQSBV2',
+          },
+        ),
+      );
+
+      final result = ApiError.fromDioException(
+        error,
+        fallbackMessage: 'Nie udało się zapisać preferencji Kanbana.',
+      );
+
+      expect(result.type, ApiErrorType.conflict);
+      expect(result.apiCode, 'kanban.version_conflict');
+      expect(result.traceId, '0HNOM9CUQSBV2');
+      expect(
+        result.message,
+        'Karta lub ustawienia zostały równolegle zmienione.',
+      );
+    });
+
+    test('czyta kod reguły ruchu karty z odpowiedzi 400', () {
+      final error = DioException.badResponse(
+        statusCode: 400,
+        requestOptions: RequestOptions(path: '/api/test'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/api/test'),
+          statusCode: 400,
+          data: {
+            'code': 'kanban.invalid_move',
+            'message':
+                'Nie można umieścić karty pomiędzy wskazanymi sąsiadami.',
+            'fields': {
+              'previousTaskId': [
+                'Karta poprzedzająca musi znajdować się przed kartą następującą.',
+              ],
+            },
+            'traceId': 'trace-400',
+          },
+        ),
+      );
+
+      final result = ApiError.fromDioException(
+        error,
+        fallbackMessage: 'Nie udało się przenieść zadania.',
+      );
+
+      expect(result.apiCode, 'kanban.invalid_move');
+      expect(result.traceId, 'trace-400');
+      expect(
+        result.message,
+        'Nie można umieścić karty pomiędzy wskazanymi sąsiadami.',
+      );
+    });
+
+    test('nie gubi starego kontraktu z numerycznym kodem', () {
+      final error = DioException.badResponse(
+        statusCode: 400,
+        requestOptions: RequestOptions(path: '/api/test'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/api/test'),
+          statusCode: 400,
+          data: {
+            'error': {'code': 1001, 'message': 'Stary kontrakt odrzucił dane.'},
+          },
+        ),
+      );
+
+      final result = ApiError.fromDioException(
+        error,
+        fallbackMessage: 'Fallback',
+      );
+
+      expect(result.backendCode, 1001);
+      expect(result.apiCode, isNull);
+      expect(result.message, 'Stary kontrakt odrzucił dane.');
+    });
+  });
+
   group('ApiError.parsing', () {
     test('tworzy blad parsowania z dedykowanym typem', () {
       final result = ApiError.parsing(

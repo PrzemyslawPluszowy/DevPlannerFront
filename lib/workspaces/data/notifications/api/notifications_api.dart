@@ -1,7 +1,6 @@
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
-import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -18,7 +17,7 @@ abstract class NotificationsApi {
   Future<CursorPageResponse<WorkspaceNotificationResponse>> list({
     @Query('cursor') String? cursor,
     @Query('limit') int? limit,
-    @Query('category') NotificationCategory? category,
+    @Query('category') String? category,
     @Query('isUnreadOnly') bool? isUnreadOnly,
   });
 
@@ -31,7 +30,7 @@ abstract class NotificationsApi {
   Future<CursorPageResponse<NotificationGroupResponse>> listGroups({
     @Query('cursor') String? cursor,
     @Query('limit') int? limit,
-    @Query('category') NotificationCategory? category,
+    @Query('category') String? category,
     @Query('isUnreadOnly') bool? isUnreadOnly,
   });
 

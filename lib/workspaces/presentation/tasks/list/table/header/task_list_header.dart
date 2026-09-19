@@ -7,6 +7,7 @@ import 'package:devplanner/workspaces/presentation/projects/settings/custom_fiel
 import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_header_cell.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
+import 'package:devplanner/workspaces/presentation/tasks/widgets/tasks_selection_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -339,12 +340,9 @@ class TaskListTableHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectionCheckbox() => Checkbox(
+  Widget _buildSelectionCheckbox() => TasksSelectionCheckbox(
     value: allSelected,
     semanticLabel: selectionTooltip,
-    onChanged: onToggleAll == null
-        ? null
-        : (value) => onToggleAll!(value ?? false),
-    visualDensity: .compact,
+    onChanged: onToggleAll,
   );
 }

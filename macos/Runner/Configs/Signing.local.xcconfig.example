@@ -1,0 +1,8 @@
+// Copy this file to Signing.local.xcconfig. The local file is ignored by Git.
+// Copy the exact common name from `security find-identity -v -p codesigning`.
+// Its parenthesized suffix is NOT necessarily the certificate's TeamIdentifier.
+DEVPLANNER_CODE_SIGN_IDENTITY = Apple Development: Your Name (CERTIFICATE_SUFFIX)
+// Set the actual team from the certificate, when required by your signing setup.
+// DEVPLANNER_DEVELOPMENT_TEAM = ACTUAL_TEAM_ID
+// Release uses a separate distribution certificate, never the development one.
+// DEVPLANNER_RELEASE_CODE_SIGN_IDENTITY = Developer ID Application: Organization (TEAM_ID)

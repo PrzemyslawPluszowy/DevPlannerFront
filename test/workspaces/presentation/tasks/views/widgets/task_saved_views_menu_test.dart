@@ -13,13 +13,17 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _MockTaskViewRepository implements TaskViewRepository {
+  _MockTaskViewRepository({List<TaskSavedViewResponse>? views})
+    : views = views ?? [_sampleView];
+
+  final List<TaskSavedViewResponse> views;
   CreateTaskSavedViewPayload? created;
 
   @override
   Future<Either<ApiError, List<TaskSavedViewResponse>>> list({
     required String workspaceId,
     required String projectId,
-  }) async => Right([_sampleView]);
+  }) async => Right(views);
 
   @override
   Future<Either<ApiError, TaskSavedViewResponse>> create({
@@ -50,6 +54,20 @@ final _sampleView = TaskSavedViewResponse(
   updatedAtUtc: DateTime.utc(2026),
   view: const TaskSavedViewDefinition(
     filter: TaskSavedViewFilter(statuses: [ProjectTaskStatus.todo]),
+    sortField: TaskSavedViewSortField.position,
+    sortDirection: TaskSavedViewSortDirection.ascending,
+    groupBy: TaskSavedViewGroupBy.none,
+    columns: [TaskSavedViewColumn.title],
+  ),
+);
+
+final _teamView = TaskSavedViewResponse(
+  id: 'view-team',
+  name: 'Widok zespołu',
+  createdAtUtc: DateTime.utc(2026),
+  updatedAtUtc: DateTime.utc(2026),
+  view: const TaskSavedViewDefinition(
+    filter: TaskSavedViewFilter(),
     sortField: TaskSavedViewSortField.position,
     sortDirection: TaskSavedViewSortDirection.ascending,
     groupBy: TaskSavedViewGroupBy.none,
@@ -140,6 +158,67 @@ void main() {
       await tester.pumpAndSettle();
 
       expect((cubit.state as TaskSavedViewsReady).activeViewId, isNull);
+
+      await cubit.close();
+    },
+  );
+
+  testWidgets(
+    'każdy widok ma jedno „…", a jego akcje są zakotwiczone w klikniętym wierszu',
+    (tester) async {
+      final repo = _MockTaskViewRepository(views: [_sampleView, _teamView]);
+      final cubit = TaskSavedViewsCubit(
+        repository: repo,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.load();
+
+      await tester.pumpWidget(_buildTestableWidget(cubit: cubit));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TaskSavedViewsMenu));
+      await tester.pumpAndSettle();
+
+      // Menu listy widoków nie duplikuje pozycji zarządzania tekstem.
+      expect(find.text('Zarządzaj widokiem'), findsNothing);
+      expect(
+        find.byTooltip('Zarządzaj widokiem'),
+        findsNWidgets(2),
+        reason: 'każdy widok ma dokładnie jedną akcję w wierszu',
+      );
+
+      final listMenuOption = tester.getRect(find.text('Zapisz bieżący widok'));
+      final clickedRow = tester.getRect(find.text('Widok zespołu'));
+
+      // Akcje wiersza otwierają się z przycisku „…" drugiego widoku.
+      await tester.tap(find.byTooltip('Zarządzaj widokiem').at(1));
+      await tester.pumpAndSettle();
+
+      // Menu listy widoków jest zamknięte, więc pod spodem nie zostaje lista.
+      expect(find.text('Zapisz bieżący widok'), findsNothing);
+      expect(find.text('Mój widok'), findsNothing);
+      expect(find.text('Widok zespołu'), findsOneWidget);
+
+      // Kliknięcie „…” nie wybiera widoku.
+      expect((cubit.state as TaskSavedViewsReady).activeViewId, isNull);
+
+      final itemMenuOption = tester.getRect(find.text('Zarządzaj widokiem'));
+      expect(
+        itemMenuOption.left,
+        greaterThan(listMenuOption.left + 100),
+        reason: 'akcje wiersza startują z prawej krawędzi wiersza, nie z triggera',
+      );
+      expect(
+        itemMenuOption.top,
+        greaterThan(listMenuOption.top + 40),
+        reason: 'menu akcji nie otwiera się w miejscu menu listy widoków',
+      );
+      expect(
+        (itemMenuOption.top - clickedRow.top).abs(),
+        lessThan(120),
+        reason: 'menu akcji jest zakotwiczone w klikniętym wierszu',
+      );
 
       await cubit.close();
     },

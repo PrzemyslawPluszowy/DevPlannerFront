@@ -11,8 +11,8 @@ import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart'
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/filters/task_list_filters.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_failure_view.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_table.dart';
 import 'package:devplanner/workspaces/presentation/tasks/views/task_saved_views_export.dart';
@@ -38,6 +38,8 @@ class ProjectTasksList extends StatefulWidget {
     this.memberProfilesByUserId = const {},
     this.onViewSnapshotChanged,
     this.listenToBoardRealtime = true,
+    this.listCubit,
+    this.preferencesCubit,
     super.key,
   });
 
@@ -57,6 +59,13 @@ class ProjectTasksList extends StatefulWidget {
   /// później przez dedykowaną kompozycję listy.
   final bool listenToBoardRealtime;
 
+  /// Cubity dostarczone przez właściciela chrome nagłówka.
+  ///
+  /// Gdy są podane, Lista nie tworzy własnych i ich nie zamyka, bo ten sam stan
+  /// obsługuje wiersz poleceń w nagłówku.
+  final ProjectTasksListCubit? listCubit;
+  final TaskListPreferencesCubit? preferencesCubit;
+
   @override
   State<ProjectTasksList> createState() => _ProjectTasksListState();
 }
@@ -64,34 +73,42 @@ class ProjectTasksList extends StatefulWidget {
 class _ProjectTasksListState extends State<ProjectTasksList> {
   late final ProjectTasksListCubit _cubit;
   late final TaskListPreferencesCubit _preferencesCubit;
+  late final bool _ownsCubits;
   TaskListPreferencesReady? _lastAppliedPreferences;
 
   @override
   void initState() {
     super.initState();
-    _cubit = ProjectTasksListCubit(
-      repository: context.read<TasksRepository>(),
-      metadataRepository: context.read<TaskMetadataRepository>(),
-      collaborationRepository: context.read<TaskCollaborationRepository>(),
-      recurrenceRepository: context.read<TaskRecurrenceRepository>(),
-      workspaceId: widget.workspaceId,
-      projectId: widget.projectId,
-      savedViewId: widget.savedViewId,
-      groupBy: widget.groupBy,
-    );
-    _preferencesCubit = TaskListPreferencesCubit(
-      repository: context.read<TaskListConfigurationRepository>(),
-      workspaceId: widget.workspaceId,
-      projectId: widget.projectId,
-    );
-    unawaited(_cubit.load());
-    unawaited(_preferencesCubit.load());
+    _ownsCubits = widget.listCubit == null;
+    _cubit = widget.listCubit ??
+        ProjectTasksListCubit(
+          repository: context.read<TasksRepository>(),
+          metadataRepository: context.read<TaskMetadataRepository>(),
+          collaborationRepository: context.read<TaskCollaborationRepository>(),
+          recurrenceRepository: context.read<TaskRecurrenceRepository>(),
+          workspaceId: widget.workspaceId,
+          projectId: widget.projectId,
+          savedViewId: widget.savedViewId,
+          groupBy: widget.groupBy,
+        );
+    _preferencesCubit = widget.preferencesCubit ??
+        TaskListPreferencesCubit(
+          repository: context.read<TaskListConfigurationRepository>(),
+          workspaceId: widget.workspaceId,
+          projectId: widget.projectId,
+        );
+    if (_ownsCubits) {
+      unawaited(_cubit.load());
+      unawaited(_preferencesCubit.load());
+    }
   }
 
   @override
   void dispose() {
-    unawaited(_cubit.close());
-    unawaited(_preferencesCubit.close());
+    if (_ownsCubits) {
+      unawaited(_cubit.close());
+      unawaited(_preferencesCubit.close());
+    }
     super.dispose();
   }
 
@@ -161,7 +178,7 @@ class _ProjectTasksListState extends State<ProjectTasksList> {
                 (previous is TasksBoardReady &&
                     current is TasksBoardReady &&
                     (previous.realtimeRevision != current.realtimeRevision ||
-                        previous.mutationSerial != current.mutationSerial)),
+                        previous.taskDataRevision != current.taskDataRevision)),
             listener: (context, boardState) {
               if (!mounted) return;
               unawaited(

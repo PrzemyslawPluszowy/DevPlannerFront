@@ -1,6 +1,7 @@
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_list_configuration_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_state.dart';
 
 /// Koordynuje odrębny draft administracyjnej polityki kolumn projektu.
@@ -108,7 +109,7 @@ final class TaskListProjectPolicyController {
     required bool isClosed,
     required void Function(TaskListPreferencesState) emit,
   }) async {
-    emit(current.copyWith(isSaving: true, clearSaveError: true));
+    emit(current.copyWith(isSaving: true, clearSaveFailure: true));
     final result = await repository.updatePolicy(
       workspaceId: workspaceId,
       projectId: projectId,
@@ -128,7 +129,12 @@ final class TaskListProjectPolicyController {
     if (isClosed) return false;
     return result.fold(
       (error) {
-        emit(current.copyWith(isSaving: false, saveError: error.message));
+        emit(
+          current.copyWith(
+            isSaving: false,
+            saveFailure: tasksViewErrorFrom(error),
+          ),
+        );
         return false;
       },
       (policy) {
@@ -139,7 +145,7 @@ final class TaskListProjectPolicyController {
             projectDefaultColumnsDraft: policy.defaultColumns
                 .map(TaskColumnReference.fromId)
                 .toList(),
-            clearSaveError: true,
+            clearSaveFailure: true,
           ),
         );
         return true;

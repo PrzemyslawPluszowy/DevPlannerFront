@@ -1,11 +1,15 @@
+import 'package:devplanner/foundation/theme/menu_theme.dart';
 import 'package:devplanner/foundation/theme/navigation_theme.dart';
 import 'package:devplanner/foundation/theme/shell_theme.dart';
+import 'package:devplanner/foundation/theme/tasks_theme.dart';
 import 'package:devplanner/foundation/theme/theme_extensions.dart';
 import 'package:devplanner/foundation/theme/util.dart';
 import 'package:flutter/material.dart';
 
+export 'menu_theme.dart';
 export 'navigation_theme.dart';
 export 'shell_theme.dart';
+export 'tasks_theme.dart';
 export 'theme_extensions.dart';
 
 /// Centralna definicja motywu Material 3 dla calej aplikacji.
@@ -163,6 +167,8 @@ class MaterialTheme {
         else
           DevPlannerShellTheme.light(),
         const DevPlannerNavigationTheme.standard(),
+        DevPlannerMenuTheme.of(appTextTheme, effectiveColorScheme),
+        DevPlannerTasksTheme.of(appTextTheme, effectiveColorScheme),
       ],
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -301,12 +307,14 @@ class MaterialTheme {
         fontSize: 12,
         color: colorScheme.onSurface,
       ),
+      // Podłoga czytelności: etykiety kontrolek 12 px, metadane 11 px.
+      // Żadna interaktywna etykieta nie schodzi już do 10 px.
       labelMedium: baseTextTheme.labelMedium?.copyWith(
-        fontSize: 10,
+        fontSize: 12,
         color: colorScheme.onSurface,
       ),
       labelSmall: baseTextTheme.labelSmall?.copyWith(
-        fontSize: 10,
+        fontSize: 11,
         color: colorScheme.onSurfaceVariant,
       ),
     );

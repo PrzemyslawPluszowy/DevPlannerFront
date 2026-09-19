@@ -35,7 +35,11 @@ void main() {
       ),
     ]);
 
-    expect(tree.nodes[0].kind, WorkspaceNavigationNodeKind.overview);
+    expect(tree.nodes[0].kind, WorkspaceNavigationNodeKind.personalTasks);
+    expect(
+      tree.nodes.map((node) => node.kind),
+      isNot(contains(WorkspaceNavigationNodeKind.overview)),
+    );
     expect(
       tree.workspaceNodes.map((node) => node.workspaceId),
       ['personal', 'team'],
@@ -52,6 +56,15 @@ void main() {
     expect(
       WorkspaceNavigationTree.projectResourceKinds,
       contains(WorkspaceNavigationNodeKind.kanban),
+    );
+    // Pozycje bez aktywnych tras nie są renderowane jako funkcje.
+    expect(
+      tree.workspaceNodes
+          .expand((workspace) => workspace.children)
+          .expand((node) => node.children)
+          .expand((node) => node.children)
+          .map((node) => node.kind),
+      isNot(contains(WorkspaceNavigationNodeKind.automations)),
     );
     expect(
       WorkspaceNavigationTree.projectResourceKinds,

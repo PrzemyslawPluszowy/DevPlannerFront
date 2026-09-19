@@ -22,10 +22,18 @@ class _KanbanApi implements KanbanApi {
   @override
   Future<KanbanBoardResponse> getBoard(
     String workspaceId,
-    String projectId,
-  ) async {
+    String projectId, {
+    String? assigneeUserId,
+    String? priority,
+    String? milestoneId,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'assigneeUserId': assigneeUserId,
+      r'priority': priority,
+      r'milestoneId': milestoneId,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<KanbanBoardResponse>(
@@ -83,11 +91,11 @@ class _KanbanApi implements KanbanApi {
   Future<CursorPageResponse<KanbanTaskCardResponse>> getColumn(
     String workspaceId,
     String projectId,
-    ProjectTaskStatus status, {
+    String status, {
     String? cursor,
     int? limit,
     String? assigneeUserId,
-    TaskPriority? priority,
+    String? priority,
     String? milestoneId,
   }) async {
     final _extra = <String, dynamic>{};
@@ -133,7 +141,7 @@ class _KanbanApi implements KanbanApi {
     String? cursor,
     int? limit,
     String? assigneeUserId,
-    TaskPriority? priority,
+    String? priority,
     String? milestoneId,
   }) async {
     final _extra = <String, dynamic>{};

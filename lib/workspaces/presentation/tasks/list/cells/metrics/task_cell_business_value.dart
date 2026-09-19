@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -114,29 +114,31 @@ final class TaskBusinessValuePicker {
     BuildContext context, {
     required int? currentValue,
     required Future<bool> Function(int? value) onSave,
-    RelativeRect? menuPosition,
+    Offset? position,
   }) async {
-    final position = menuPosition ?? TaskContextMenu.positionFor(context);
+    final menuPosition = position ?? AppContextMenu.positionFor(context);
     const presets = [10, 20, 50, 80, 100];
 
-    final selected = await TaskContextMenu.show<int?>(
+    final selected = await AppContextMenu.select<int?>(
       context,
-      position: position,
-      items: [
-        const TaskContextMenuHeader(title: 'Wartość biznesowa'),
+      globalPosition: menuPosition,
+      options: [
         for (final val in presets)
-          TaskContextMenuItem<int?>(
+          AppContextMenuOption(
+            sectionTitle: 'Wartość biznesowa',
+
             value: val,
-            title: '$val pkt',
+            label: '$val pkt',
             icon: Symbols.trending_up_rounded,
             iconColor: context.colors.primary,
-            isSelected: currentValue == val,
+            selected: currentValue == val,
           ),
         if (currentValue != null) ...[
-          const TaskContextMenuDivider(),
-          TaskContextMenuItem<int?>(
+          AppContextMenuOption(
+            separatorBefore: true,
+
             value: 0,
-            title: 'Wyczyść wartość',
+            label: 'Wyczyść wartość',
             icon: Symbols.close_rounded,
             iconColor: context.colors.error,
           ),

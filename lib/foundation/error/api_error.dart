@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:devplanner/shared/data/models/bad_response.dart';
+import 'package:devplanner/shared/data/models/devplanner_api_error_response.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
@@ -41,9 +42,11 @@ class ApiError extends Equatable {
   }) {
     final statusCode = error.response?.statusCode;
     final badResponse = _parseBadResponse(error.response?.data);
+    final contractResponse = _parseContractError(error.response?.data);
     final backendMessage = _extractBackendMessage(
       error.response?.data,
       badResponse,
+      contractResponse,
     );
     final backendCode = badResponse?.error?.code;
 
@@ -80,6 +83,8 @@ class ApiError extends Equatable {
         statusCode: statusCode,
         backendCode: backendCode,
         backendMessage: backendMessage,
+        apiCode: contractResponse?.code,
+        traceId: contractResponse?.traceId,
       ),
       DioExceptionType.unknown => ApiError(
         type: statusCode == null
@@ -124,9 +129,9 @@ class ApiError extends Equatable {
     required this.statusCode,
     required this.backendCode,
     required String? backendMessage,
-  }) : apiCode = null,
-       traceId = null,
-       type = statusCode == 400
+    this.apiCode,
+    this.traceId,
+  }) : type = statusCode == 400
            ? ApiErrorType.badResponse
            : statusCode == 401
            ? ApiErrorType.unauthorized
@@ -223,10 +228,30 @@ class ApiError extends Equatable {
     return null;
   }
 
+  /// Czyta kontrakt błędów standalone; starsze endpointy mają inny kształt.
+  static DevPlannerApiErrorResponse? _parseContractError(Object? rawData) {
+    if (rawData is Map<String, dynamic>) {
+      return DevPlannerApiErrorResponse.tryFromJson(rawData);
+    }
+    if (rawData case final String value when value.trim().isNotEmpty) {
+      try {
+        return DevPlannerApiErrorResponse.tryFromJson(jsonDecode(value));
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
   static String? _extractBackendMessage(
     Object? rawData,
     BadResponse? badResponse,
+    DevPlannerApiErrorResponse? contractResponse,
   ) {
+    if (contractResponse?.message case final String message
+        when message.isNotEmpty) {
+      return message;
+    }
     if (badResponse?.error?.message case final String message
         when message.isNotEmpty) {
       return message;

@@ -1240,6 +1240,36 @@ void main() {
     },
   );
 
+  test('błąd edycji inline przywraca poprzednią wartość wiersza', () async {
+    repository.updateListItemError = const ApiError(
+      type: ApiErrorType.server,
+      message: 'Serwer odrzucił zmianę tytułu.',
+      statusCode: 500,
+      traceId: 'trace-inline-1',
+    );
+    await cubit.load();
+    final task = (cubit.state as ProjectTasksListReady).tasks.single;
+    final originalTitle = task.title;
+
+    final saved = await cubit.updateListItem(
+      task: task,
+      payload: UpdateTaskListItemPayload(
+        title: 'Wartość, która się nie zapisze',
+        expectedVersion: task.version,
+      ),
+    );
+
+    expect(saved, isFalse);
+    final state = cubit.state as ProjectTasksListReady;
+    // Rollback: wiersz wraca do wartości sprzed edycji, a przyczynę widać
+    // przy tym samym wierszu (komunikat pochodzi z ApiError).
+    expect(state.tasks.single.title, originalTitle);
+    expect(
+      state.taskErrorsByTaskId[task.id],
+      'Serwer odrzucił zmianę tytułu.',
+    );
+  });
+
   test('kolejkuje dwie szybkie zmiany statusu z kolejną wersją', () async {
     await cubit.load();
     final task = (cubit.state as ProjectTasksListReady).tasks.single;

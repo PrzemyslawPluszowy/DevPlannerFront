@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
@@ -130,7 +131,7 @@ Widget _buildGoldenHeaderApp({
         width: width,
         child: RepaintBoundary(
           key: const ValueKey('golden_header_boundary'),
-          child: TasksBoardHeader(
+          child: TasksHeader(
             state: state,
             workspaceId: 'w-1',
             projectId: 'p-1',
@@ -218,10 +219,17 @@ void main() {
       await tester.pumpAndSettle();
 
       final headerBox =
-          tester.renderObject(find.byType(TasksBoardHeader)) as RenderBox;
-      // Weryfikacja kryterium planu: zwarty nagłówek na desktopie <= 52.0 px
-      expect(headerBox.size.height, lessThanOrEqualTo(52.0));
-      expect(headerBox.size.height, greaterThanOrEqualTo(40.0));
+          tester.renderObject(find.byType(TasksHeader)) as RenderBox;
+      // Kontrakt planu: dwa wiersze — kontekst 44–48 px i polecenia 36–40 px.
+      final tokens = DevPlannerTasksTheme.of(
+        Theme.of(tester.element(find.byType(TasksHeader))).textTheme,
+        Theme.of(tester.element(find.byType(TasksHeader))).colorScheme,
+      );
+      expect(headerBox.size.height, greaterThanOrEqualTo(tokens.contextRowHeight));
+      expect(
+        headerBox.size.height,
+        lessThanOrEqualTo(tokens.contextRowHeight + tokens.commandRowHeight + 16),
+      );
 
       await expectLater(
         find.byKey(const ValueKey('golden_header_boundary')),

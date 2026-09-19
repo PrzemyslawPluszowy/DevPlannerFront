@@ -1,4 +1,3 @@
-import 'package:devplanner/workspaces/data/shared/enums/workspace_feature_enums.dart';
 import 'package:devplanner/workspaces/data/workspaces/models/workspace_feature_models.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
@@ -16,7 +15,7 @@ abstract class WorkspaceFeatureApi {
   @GET('/api/v1/workspaces/{workspaceId}/dashboard/preferences/')
   Future<DashboardPreferenceResponse> getDashboardPreferences(
     @Path('workspaceId') String workspaceId, {
-    @Query('context') DashboardContextKind? context,
+    @Query('context') String? context,
     @Query('projectId') String? projectId,
   });
 
@@ -25,7 +24,7 @@ abstract class WorkspaceFeatureApi {
   Future<DashboardPreferenceResponse> updateDashboardPreferences(
     @Path('workspaceId') String workspaceId,
     @Body() UpdateDashboardPreferencePayload payload, {
-    @Query('context') DashboardContextKind? context,
+    @Query('context') String? context,
     @Query('projectId') String? projectId,
   });
 

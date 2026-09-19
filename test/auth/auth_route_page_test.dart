@@ -187,15 +187,12 @@ final class _FakeDesktopTransport implements DesktopPkceSessionTransport {
   int interactiveCalls = 0;
 
   @override
-  Future<DesktopAuthorizationResult> authorizeInteractively() async {
+  Future<DesktopTokenResult> authorizeInteractively() async {
     interactiveCalls++;
-    return const DesktopAuthorizationResult(
-      user: AuthUser(
-        userId: 'desktop-user',
-        login: 'desktop',
-        displayName: 'Desktop',
-      ),
+    return const DesktopTokenResult(
+      accessToken: 'access',
       refreshToken: 'refresh',
+      expiresIn: Duration(minutes: 10),
     );
   }
 
@@ -203,14 +200,21 @@ final class _FakeDesktopTransport implements DesktopPkceSessionTransport {
   Future<Uri> beginAuthorization({required Uri callbackUri}) async =>
       callbackUri;
   @override
-  Future<DesktopAuthorizationResult> completeAuthorization({
+  Future<DesktopTokenResult> completeAuthorization({
     required String code,
     required String state,
   }) async => authorizeInteractively();
   @override
-  Future<DesktopAuthorizationResult?> restoreSession({
+  Future<DesktopTokenResult?> restoreSession({
     required String refreshToken,
   }) async => null;
+  @override
+  Future<AuthUser> fetchCurrentUser({required String accessToken}) async =>
+      const AuthUser(
+        userId: 'desktop-user',
+        login: 'desktop',
+        displayName: 'Desktop',
+      );
   @override
   Future<void> revoke({required String refreshToken}) async {}
 }

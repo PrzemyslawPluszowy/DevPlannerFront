@@ -5533,10 +5533,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasksListLoadMore => 'Show more tasks';
 
   @override
+  String get tasksListSort => 'Sort';
+
+  @override
+  String get tasksListGroupBy => 'Group by';
+
+  @override
+  String get tasksListClearAllFilters => 'Clear all';
+
+  @override
   String get tasksListStatus => 'Status';
 
   @override
   String get tasksListPriority => 'Priority';
+
+  @override
+  String get tasksBoardFilterAssignee => 'Person';
+
+  @override
+  String get tasksBoardFilterAllPeople => 'All people';
+
+  @override
+  String get tasksBoardMoveBlockedByFilter =>
+      'This card cannot be moved into a column whose contents are hidden by an active filter. Clear the filters and try again.';
 
   @override
   String get tasksListTask => 'Task';
@@ -7912,7 +7931,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasksListPreferencesConflict =>
-      'Column layout was updated in another session. View refreshed.';
+      'View settings were changed in another session. Your change has not been saved.';
+
+  @override
+  String get tasksViewPreferencesLoadFailed =>
+      'Your view settings could not be loaded. Columns and sorting may be out of date.';
+
+  @override
+  String get tasksViewErrorRetry => 'Retry';
+
+  @override
+  String get tasksViewErrorRefresh => 'Refresh';
+
+  @override
+  String get tasksViewErrorDismissTooltip => 'Dismiss message';
+
+  @override
+  String tasksViewErrorTraceId(String traceId) {
+    return 'Error id: $traceId';
+  }
 
   @override
   String get tasksListSaveViewDialogTitle => 'New saved view';

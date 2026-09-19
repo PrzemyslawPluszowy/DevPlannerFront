@@ -189,7 +189,7 @@ class _ColumnPoolSection extends StatelessWidget {
               style: context.text.labelSmall?.copyWith(
                 color: context.colors.onSurfaceVariant,
                 fontWeight: FontWeight.w600,
-                fontSize: 10.5,
+                fontSize: context.tasksTheme.metaText.fontSize,
               ),
             ),
           ),

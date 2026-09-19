@@ -14,6 +14,21 @@ enum NotificationCategory {
   storage,
 }
 
+/// Stabilna reprezentacja tekstowa używana w query API.
+extension NotificationCategoryWireValue on NotificationCategory {
+  String get wireValue => switch (this) {
+    NotificationCategory.invitation => 'Invitation',
+    NotificationCategory.membership => 'Membership',
+    NotificationCategory.workspace => 'Workspace',
+    NotificationCategory.system => 'System',
+    NotificationCategory.project => 'Project',
+    NotificationCategory.task => 'Task',
+    NotificationCategory.comment => 'Comment',
+    NotificationCategory.chat => 'Chat',
+    NotificationCategory.storage => 'Storage',
+  };
+}
+
 /// Priorytet dostarczenia powiadomienia.
 @JsonEnum()
 enum NotificationPriority { low, normal, high }

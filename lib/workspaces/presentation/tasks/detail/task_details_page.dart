@@ -6,6 +6,7 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_confirm_dialog.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
@@ -122,7 +123,9 @@ class _TaskDetailsOverlay extends StatelessWidget {
             Positioned.fill(
               child: GestureDetector(
                 onTap: () => Navigator.of(context).maybePop(),
-                child: ColoredBox(color: Colors.black.withValues(alpha: .22)),
+                child: ColoredBox(
+                  color: context.tasksTheme.scrim.withValues(alpha: .22),
+                ),
               ),
             ),
           Align(

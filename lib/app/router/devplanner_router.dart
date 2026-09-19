@@ -11,6 +11,7 @@ import 'package:devplanner/foundation/http/http.dart';
 import 'package:devplanner/me/me.dart';
 import 'package:devplanner/workspaces/data/projects/api/projects_list_api.dart';
 import 'package:devplanner/workspaces/data/projects/repositories/projects_gateway_impl.dart';
+import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_views_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_view_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
@@ -64,6 +65,7 @@ class DevPlannerRouter with _DevPlannerRouterPages {
     TaskViewRepository? taskViewRepository,
     TasksBoardComposition? tasksBoardComposition,
     TasksDetailsComposition? tasksDetailsComposition,
+    ProjectSettingsComposition? projectSettingsComposition,
   }) : _auth = auth ?? AuthComposition.unavailable(),
        _explicitAdminUsers = adminUsers,
        _explicitMeGateway = meGateway,
@@ -76,6 +78,7 @@ class DevPlannerRouter with _DevPlannerRouterPages {
        _explicitTaskViewRepository = taskViewRepository,
        _explicitTasksBoardComposition = tasksBoardComposition,
        _explicitTasksDetailsComposition = tasksDetailsComposition,
+       _explicitProjectSettingsComposition = projectSettingsComposition,
        _ownsAuth = auth == null {
     _authGuard = DevPlannerAuthGuard(session: _auth.session);
     _router = GoRouter(
@@ -226,6 +229,7 @@ class DevPlannerRouter with _DevPlannerRouterPages {
   final TaskViewRepository? _explicitTaskViewRepository;
   final TasksBoardComposition? _explicitTasksBoardComposition;
   final TasksDetailsComposition? _explicitTasksDetailsComposition;
+  final ProjectSettingsComposition? _explicitProjectSettingsComposition;
   @override
   final DevPlannerHttpTransport? httpTransport;
   final bool _ownsAuth;
@@ -331,6 +335,20 @@ class DevPlannerRouter with _DevPlannerRouterPages {
     return transport == null
         ? null
         : TasksDetailsComposition.fromTransport(transport);
+  }
+
+  /// Porty centrum ustawień projektu otwieranego z nagłówka Tasks.
+  ///
+  /// Centrum żyje na root navigatorze, więc nie może odczytać portów z trasy;
+  /// kompozycja jest składana raz i przekazywana trasie Tasks jawnie.
+  @override
+  ProjectSettingsComposition? get _resolvedProjectSettingsComposition {
+    final explicit = _explicitProjectSettingsComposition;
+    if (explicit != null) return explicit;
+    final transport = httpTransport;
+    return transport == null
+        ? null
+        : ProjectSettingsComposition.fromTransport(transport);
   }
 
   GoRouter get config => _router;
@@ -498,6 +516,16 @@ abstract final class DevPlannerRouteCatalog {
 
   static String projectTasks(String workspaceId, String projectId) =>
       '${project(workspaceId, projectId)}/tasks';
+
+  /// Kanoniczny adres Tasks z jawnie wybranym widokiem.
+  ///
+  /// Jedno miejsce buduje `?view=`, więc toolbar Listy/Kanbanu, sidebar i deep
+  /// link nie mogą rozjechać się z parserem widoku w `TasksProjectView`.
+  static String projectTasksView(
+    String workspaceId,
+    String projectId,
+    String view,
+  ) => '${projectTasks(workspaceId, projectId)}?view=${Uri.encodeQueryComponent(view)}';
 
   static String projectFiles(String workspaceId, String projectId) =>
       '${project(workspaceId, projectId)}/files';

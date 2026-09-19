@@ -223,6 +223,9 @@ final class _NavigationTreeNode extends StatelessWidget {
               node.projectId!,
             )
           : null,
+    // Kliknięcie projektu jest jego wejściem, a nie krokiem pośrednim: otwiera
+    // Listę zadań, a nie ekran „Przegląd”.
+    WorkspaceNavigationNodeKind.project ||
     WorkspaceNavigationNodeKind.taskList ||
     WorkspaceNavigationNodeKind.kanban =>
       tasksBoardAvailable &&
@@ -250,8 +253,26 @@ final class _NavigationTreeNode extends StatelessWidget {
             _hasSelectedDescendant(child);
       });
 
-  bool _isSelected(String path, String currentLocation) =>
-      currentLocation == path || currentLocation.startsWith('$path/');
+  /// Rozstrzyga zaznaczenie pozycji na podstawie adresu, a nie surowego URI.
+  ///
+  /// Lista i Kanban dzielą ścieżkę `/tasks`, więc o wyborze decyduje widok z
+  /// `?view=`. Dzięki temu `?view=list` zaznacza Listę, `?view=kanban` Kanban,
+  /// a szczegół zadania dziedziczy widok zapisany w adresie.
+  bool _isSelected(String path, String currentLocation) {
+    final target = Uri.tryParse(path);
+    final current = Uri.tryParse(currentLocation);
+    if (target == null || current == null) return false;
+    final isSamePath = current.path == target.path;
+    if (!isSamePath && !current.path.startsWith('${target.path}/')) {
+      return false;
+    }
+    if (!target.path.endsWith('/tasks')) return true;
+    return _viewOf(current) == _viewOf(target);
+  }
+
+  TasksProjectView _viewOf(Uri uri) => TasksProjectView.fromQuery(
+    uri.queryParameters[TasksProjectView.queryParameter],
+  );
 }
 
 final class _ProjectBranchFailure extends StatelessWidget {

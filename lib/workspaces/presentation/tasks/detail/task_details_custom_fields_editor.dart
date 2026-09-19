@@ -246,65 +246,75 @@ class _MultiSelectCustomFieldEditor extends StatelessWidget {
                       : null,
                 ),
               if (enabled)
-                PopupMenuButton<String>(
-                  tooltip: 'Wybierz wartości',
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  itemBuilder: (ctx) => [
-                    for (final opt in allOptions)
-                      CheckedPopupMenuItem<String>(
-                        value: opt.raw,
-                        checked:
-                            selectedValues.contains(opt.raw) ||
-                            selectedValues.contains(opt.label),
-                        child: CustomFieldOptionChip(
-                          option: opt,
-                          compact: true,
+                Builder(
+                  builder: (buttonContext) => Tooltip(
+                    message: 'Wybierz wartości',
+                    child: InkWell(
+                      key: const ValueKey('custom_field_values_menu'),
+                      onTap: () async {
+                        final rawVal = await AppContextMenu.select<String>(
+                          buttonContext,
+                          globalPosition: AppContextMenu.positionFor(
+                            buttonContext,
+                          ),
+                          headerTitle: 'Wybierz wartości',
+                          options: [
+                            for (final opt in allOptions)
+                              AppContextMenuOption<String>(
+                                value: opt.raw,
+                                label: opt.label,
+                                selected:
+                                    selectedValues.contains(opt.raw) ||
+                                    selectedValues.contains(opt.label),
+                              ),
+                          ],
+                        );
+                        if (rawVal == null) return;
+                        final next = Set<String>.from(selectedValues);
+                        final opt = allOptions.firstWhere(
+                          (o) => o.raw == rawVal,
+                        );
+                        if (next.contains(opt.raw) ||
+                            next.contains(opt.label)) {
+                          next.remove(opt.raw);
+                          next.remove(opt.label);
+                        } else {
+                          next.add(opt.raw);
+                        }
+                        onChanged(next.toList(growable: false));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                      ),
-                  ],
-                  onSelected: (rawVal) {
-                    final next = Set<String>.from(selectedValues);
-                    final opt = allOptions.firstWhere((o) => o.raw == rawVal);
-                    if (next.contains(opt.raw) || next.contains(opt.label)) {
-                      next.remove(opt.raw);
-                      next.remove(opt.label);
-                    } else {
-                      next.add(opt.raw);
-                    }
-                    onChanged(next.toList(growable: false));
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: colors.primary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Symbols.add_rounded,
-                          size: 14,
-                          color: colors.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Wybierz',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: colors.primary,
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: colors.primary.withValues(alpha: 0.3),
                           ),
                         ),
-                      ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Symbols.add_rounded,
+                              size: 14,
+                              color: colors.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Wybierz',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: colors.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),

@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_text_picker.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 
@@ -57,7 +57,7 @@ class TaskCellMetric extends StatelessWidget {
       context,
       title: title,
       initialValue: value?.toString() ?? '',
-      menuPosition: TaskContextMenu.positionFor(context),
+      globalPosition: AppContextMenu.positionFor(context),
       isNumber: true,
       allowClear: true,
     );

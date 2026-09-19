@@ -1,10 +1,13 @@
+import 'package:devplanner/app/router/devplanner_router.dart';
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
 import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_capacity_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
@@ -15,9 +18,9 @@ import 'package:devplanner/workspaces/domain/repositories/task_view_repository.d
 import 'package:devplanner/workspaces/domain/repositories/task_workflow_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 /// Composition boundary for the real Tasks/Kanban page.
@@ -27,6 +30,7 @@ import 'package:provider/provider.dart';
 final class TasksBoardRoutePage extends StatelessWidget {
   const TasksBoardRoutePage({
     required this.composition,
+    required this.projectSettings,
     required this.workspaceId,
     required this.projectId,
     required this.authSession,
@@ -35,6 +39,10 @@ final class TasksBoardRoutePage extends StatelessWidget {
   });
 
   final TasksBoardComposition composition;
+
+  /// Porty centrum ustawień projektu otwieranego z nagłówka Tasks.
+  final ProjectSettingsComposition projectSettings;
+
   final String workspaceId;
   final String projectId;
   final AuthSessionPort authSession;
@@ -61,6 +69,16 @@ final class TasksBoardRoutePage extends StatelessWidget {
       RepositoryProvider<ProjectMemberProfilesRepository>.value(
         value: composition.memberProfilesRepository,
       ),
+      // Panel użytkownika projektu i ustawienia projektu są otwierane z
+      // nagłówka Tasks, więc kontrakt projektów musi być widoczny w tej samej
+      // kompozycji co porty zadań. Centrum ustawień dostaje dodatkowo cały
+      // zestaw portów, bo jest montowane na root navigatorze.
+      RepositoryProvider<ProjectsRepository>.value(
+        value: composition.projectsRepository,
+      ),
+      RepositoryProvider<ProjectSettingsComposition>.value(
+        value: projectSettings,
+      ),
       RepositoryProvider<TaskMetadataRepository>.value(
         value: composition.metadataRepository,
       ),
@@ -84,23 +102,20 @@ final class TasksBoardRoutePage extends StatelessWidget {
       ),
       ListenableProvider<AuthSessionPort>.value(value: authSession),
     ],
-    child: _content(),
-  );
-
-  Widget _content() {
-    if (initialView == 'kanban') {
-      return TasksBoardPage(
-        workspaceId: workspaceId,
-        projectId: projectId,
-        initialView: initialView,
-      );
-    }
-    return ProjectTasksList(
+    // Lista, Kanban, Timeline, Workload i Cykliczne są widokami jednego
+    // modułu Tasks. Trasa zawsze montuje ten sam host, więc wspólny nagłówek,
+    // zapisane widoki, ustawienia projektu i realtime nie mogą zależeć od
+    // wartości `?view=`.
+    child: TasksBoardPage(
       workspaceId: workspaceId,
       projectId: projectId,
-      listenToBoardRealtime: false,
-    );
-  }
+      initialView: initialView,
+      // Wyjście z projektu obsługuje trasa, więc nagłówek nie zna routera.
+      onProjectExited: () => context.go(
+        DevPlannerRouteCatalog.workspace(workspaceId),
+      ),
+    ),
+  );
 }
 
 /// Fail-closed state used only when a browser BFF cannot supply desktop

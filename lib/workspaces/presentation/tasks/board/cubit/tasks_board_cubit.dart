@@ -13,6 +13,7 @@ import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart'
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_bulk_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_card_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_command_context.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_filter_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_preference_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_runtime_coordinator.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
@@ -55,6 +56,7 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
       taskTemplateRepository: taskTemplateRepository,
       boardQueryRevision: () => _runtime.boardQueryRevision,
     );
+    _filters = TasksBoardFilterCommands(context: this, runtime: _runtime);
     _bulk = TasksBoardBulkCommands(
       context: this,
       repository: repository,
@@ -73,6 +75,7 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
   late final TasksBoardRuntimeCoordinator _runtime;
   late final TasksBoardCardCommands _cards;
   late final TasksBoardPreferenceCommands _preferences;
+  late final TasksBoardFilterCommands _filters;
   late final TasksBoardBulkCommands _bulk;
 
   @override
@@ -110,6 +113,42 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
       _preferences.toggleColumnCollapsed(column);
   Future<void> setQuickFilter(KanbanQuickFilter quickFilter) =>
       _preferences.setQuickFilter(quickFilter);
+
+  /// Ponawia ostatnią nieudaną operację widoku.
+  ///
+  /// Najpierw próbuje donieść zaparkowane intencje użytkownika, a gdy ich nie ma
+  /// (np. nie udał się sam odczyt preferencji), ponawia odczyt.
+  Future<void> retryFailedOperation() async {
+    if (_preferences.hasPendingIntents) {
+      await _preferences.retryPending();
+      return;
+    }
+    await _runtime.reloadUserPreference();
+  }
+
+  /// Ukrywa komunikat błędu widoku.
+  void clearViewError() {
+    final current = state;
+    if (current is TasksBoardReady) {
+      publish(current.copyWith(clearError: true));
+    }
+  }
+
+  /// Ustawia filtr wykonawcy tablicy; `null` czyści ten wymiar.
+  Future<void> setFilterAssignee(String? assigneeUserId) =>
+      _filters.setAssignee(assigneeUserId);
+
+  /// Ustawia filtr priorytetu tablicy; `null` czyści ten wymiar.
+  Future<void> setFilterPriority(TaskPriority? priority) =>
+      _filters.setPriority(priority);
+
+  /// Ustawia filtr kamienia milowego tablicy; `null` czyści ten wymiar.
+  Future<void> setFilterMilestone(String? milestoneId) =>
+      _filters.setMilestone(milestoneId);
+
+  /// Czyści wszystkie filtry tablicy i wraca do pełnego projektu.
+  Future<void> clearFilters() => _filters.clearFilters();
+
   Future<void> loadMore(KanbanColumnResponse column) =>
       _preferences.loadMore(column);
   Future<bool> createQuickTask({

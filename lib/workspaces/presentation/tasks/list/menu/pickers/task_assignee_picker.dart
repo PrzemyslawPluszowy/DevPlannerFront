@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:devplanner/shared/presentation/widgets/workspace_context_menu.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_assignees.dart';
@@ -20,16 +20,16 @@ final class TaskAssigneePicker {
     required List<TaskAssigneeResponse> assignees,
     required Map<String, ProjectMemberProfile> profiles,
     required Future<bool> Function(List<String> userIds) onSave,
-    RelativeRect? menuPosition,
+    Offset? position,
     AssigneeMenuAction? initialAction,
     EligibleProfilesPageLoader? searchEligibleProfiles,
   }) async {
-    final position = menuPosition ?? _menuPositionFor(context);
+    final menuPosition = position ?? AppContextMenu.positionFor(context);
     final action =
         initialAction ??
         await _showAssigneeActionContext(
           context: context,
-          position: position,
+          globalPosition: menuPosition,
         );
     if (action == null) return;
     if (action == AssigneeMenuAction.clear) {
@@ -54,7 +54,7 @@ final class TaskAssigneePicker {
         currentIds.firstOrNull;
     final selectedId = await _showAssigneeSearchContext(
       context,
-      position: position,
+      globalPosition: menuPosition,
       candidates: candidates,
       selectedIds: currentIds,
       primaryId: primaryId,
@@ -78,82 +78,64 @@ final class TaskAssigneePicker {
 
   static Future<AssigneeMenuAction?> _showAssigneeActionContext({
     required BuildContext context,
-    required RelativeRect position,
-  }) => WorkspaceContextMenu.select<AssigneeMenuAction>(
+    required Offset globalPosition,
+  }) => AppContextMenu.select<AssigneeMenuAction>(
     context,
-    position: position,
-    items: const [
-      PopupMenuItem(
+    globalPosition: globalPosition,
+    headerTitle: 'Przypisanie',
+    options: const [
+      AppContextMenuOption(
         value: AssigneeMenuAction.setOwner,
-        height: 32,
-        padding: .symmetric(horizontal: 10),
-        child: Row(
-          children: [
-            Icon(Symbols.person_rounded, size: 16),
-            SizedBox(width: 8),
-            Text('Ustaw właściciela'),
-          ],
-        ),
+        label: 'Ustaw właściciela',
+        icon: Symbols.person_rounded,
       ),
-      PopupMenuItem(
+      AppContextMenuOption(
         value: AssigneeMenuAction.toggleCollaborator,
-        height: 32,
-        padding: .symmetric(horizontal: 10),
-        child: Row(
-          children: [
-            Icon(Symbols.group_add, size: 16),
-            SizedBox(width: 8),
-            Text('Współpracownicy'),
-          ],
-        ),
+        label: 'Współpracownicy',
+        icon: Symbols.group_add,
       ),
-      PopupMenuItem(
+      AppContextMenuOption(
         value: AssigneeMenuAction.clear,
-        height: 32,
-        padding: .symmetric(horizontal: 10),
-        child: Row(
-          children: [
-            Icon(Symbols.person_remove, size: 16),
-            SizedBox(width: 8),
-            Text('Usuń przypisanie'),
-          ],
-        ),
+        label: 'Usuń przypisanie',
+        icon: Symbols.person_remove,
+        separatorBefore: true,
       ),
     ],
   );
 
+  /// Wyszukiwanie osób jest interaktywną zawartością, więc korzysta z tej
+  /// samej powierzchni menu przez `showCustom`, a wybór wraca przez `pop`.
   static Future<String?> _showAssigneeSearchContext(
     BuildContext context, {
-    required RelativeRect position,
+    required Offset globalPosition,
     required List<ProjectMemberProfile> candidates,
     required List<String> selectedIds,
     required String? primaryId,
     required AssigneeMenuAction selectionMode,
     EligibleProfilesPageLoader? searchEligibleProfiles,
-  }) => WorkspaceContextMenu.select<String>(
-    context,
-    position: position,
-    items: [
-      TaskAssigneeSearchMenu(
-        candidates: candidates,
-        selectedIds: selectedIds,
-        primaryId: primaryId,
-        selectionMode: selectionMode,
-        searchEligibleProfiles: searchEligibleProfiles,
+  }) {
+    final result = Completer<String?>();
+    unawaited(
+      AppContextMenu.showCustom(
+        context,
+        globalPosition: globalPosition,
+        maxWidth: 340,
+        contentBuilder: (panelContext, _) {
+          final navigator = Navigator.of(panelContext);
+          return TaskAssigneeSearchMenu(
+            candidates: candidates,
+            selectedIds: selectedIds,
+            primaryId: primaryId,
+            selectionMode: selectionMode,
+            searchEligibleProfiles: searchEligibleProfiles,
+            onSelected: (value) {
+              if (!result.isCompleted) result.complete(value);
+              navigator.pop();
+            },
+          );
+        },
       ),
-    ],
-  );
-
-  static RelativeRect _menuPositionFor(BuildContext context) {
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return RelativeRect.fill;
-    final translation = renderBox.getTransformTo(null).getTranslation();
-    final size = renderBox.size;
-    return RelativeRect.fromLTRB(
-      translation.x,
-      translation.y + size.height,
-      translation.x + size.width,
-      translation.y + size.height,
     );
+    return result.future;
   }
 }

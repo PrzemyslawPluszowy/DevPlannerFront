@@ -2,12 +2,16 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/preferences/widgets/components/task_column_header_preview_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Kompaktowy komunikat o błędzie automatycznego zapisu preferencji.
+///
+/// Arkusz jest modalny, więc trwały banner nad treścią zostaje pod jego
+/// nakładką — komunikat o nieudanym zapisie musi być widoczny także tutaj.
 class SheetSaveError extends StatelessWidget {
   const SheetSaveError({required this.state, required this.onRetry, super.key});
 
@@ -16,9 +20,11 @@ class SheetSaveError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final message = state.saveError;
-    if (message == null) return const SizedBox.shrink();
+    final failure = state.saveFailure;
+    if (failure == null) return const SizedBox.shrink();
     final colors = context.colors;
+    final message =
+        tasksViewErrorText(context.l10n, failure.code) ?? failure.code;
     return Container(
       padding: const .symmetric(horizontal: 12, vertical: 8),
       margin: const .only(bottom: 10),
@@ -40,7 +46,11 @@ class SheetSaveError extends StatelessWidget {
               ),
             ),
           ),
-          TextButton(onPressed: onRetry, child: const Text('Ponów zapis')),
+          if (failure.canRetry)
+            TextButton(
+              onPressed: onRetry,
+              child: Text(context.l10n.tasksViewErrorRetry),
+            ),
         ],
       ),
     );
@@ -132,7 +142,7 @@ class ColumnsSheetPreview extends StatelessWidget {
             'Przeciągaj w lewo/prawo',
             style: context.text.labelSmall?.copyWith(
               color: context.colors.onSurfaceVariant,
-              fontSize: 10.5,
+              fontSize: context.tasksTheme.metaText.fontSize,
             ),
           ),
         ],
@@ -188,12 +198,12 @@ class ColumnsSheetActions extends StatelessWidget {
       else
         FilledButton.icon(
           icon: isSavingProjectPolicy
-              ? const SizedBox(
+              ? SizedBox(
                   width: 14,
                   height: 14,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: context.tasksTheme.onAccent,
                   ),
                 )
               : const Icon(Symbols.save_rounded, size: 16),

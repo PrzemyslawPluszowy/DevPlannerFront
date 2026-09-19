@@ -105,37 +105,29 @@ class _SubtaskRowState extends State<_SubtaskRow> {
     if (boardState is! TasksBoardReady || boardState.board.columns.isEmpty) {
       return;
     }
-    final position = globalPosition == null
-        ? TaskContextMenu.positionFor(context)
-        : _positionForGlobal(globalPosition);
-    unawaited(_showColumnPicker(boardState.board.columns, position));
-  }
-
-  RelativeRect _positionForGlobal(Offset globalPosition) {
-    final overlay = Navigator.of(context, rootNavigator: true).overlay;
-    final overlayBox = overlay?.context.findRenderObject() as RenderBox?;
-    if (overlayBox == null) return RelativeRect.fill;
-    return RelativeRect.fromRect(
-      globalPosition & const Size(1, 1),
-      Offset.zero & overlayBox.size,
+    unawaited(
+      _showColumnPicker(
+        boardState.board.columns,
+        globalPosition ?? AppContextMenu.positionFor(context),
+      ),
     );
   }
 
   Future<void> _showColumnPicker(
     List<KanbanColumnResponse> columns,
-    RelativeRect position,
+    Offset globalPosition,
   ) async {
-    final selected = await TaskContextMenu.show<KanbanColumnResponse>(
+    final selected = await AppContextMenu.select<KanbanColumnResponse>(
       context,
-      position: position,
-      items: [
+      globalPosition: globalPosition,
+      options: [
         for (final column in columns)
-          TaskContextMenuItem<KanbanColumnResponse>(
+          AppContextMenuOption(
             value: column,
-            title: column.displayName,
+            label: column.displayName,
             icon: TaskStatusVisualHelper.icon(column.status),
             iconColor: TaskStatusVisualHelper.color(column.status),
-            isSelected: column.customStatusId != null
+            selected: column.customStatusId != null
                 ? column.customStatusId == widget.task.customStatusId
                 : widget.task.customStatusId == null &&
                       column.status == widget.task.status,
@@ -320,9 +312,7 @@ class _ChildAssigneeAvatar extends StatelessWidget {
             ? null
             : Text(
                 label.characters.first.toUpperCase(),
-                style: KanbanCardTokens.childAvatarInitials(
-                  context,
-                ).copyWith(color: Colors.white),
+                style: KanbanCardTokens.childAvatarInitials(context),
               ),
       ),
     );

@@ -99,15 +99,13 @@ void main() {
       containsAll([
         WorkspaceNavigationNodeKind.taskList,
         WorkspaceNavigationNodeKind.kanban,
-        WorkspaceNavigationNodeKind.automations,
       ]),
     );
+    // Projekt renderuje wyłącznie zasoby z aktywną trasą.
     expect(
       projectChildren.map((node) => node.kind),
       containsAll([
-        WorkspaceNavigationNodeKind.whiteboards,
-        WorkspaceNavigationNodeKind.corkboard,
-        WorkspaceNavigationNodeKind.wiki,
+        WorkspaceNavigationNodeKind.tasks,
         WorkspaceNavigationNodeKind.files,
       ]),
     );

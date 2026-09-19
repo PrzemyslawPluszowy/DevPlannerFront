@@ -1,11 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/error.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_card_state_mutator.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_command_context.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_error_messages.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 
 /// Operacje zaznaczenia, masowe oraz przeciąganie kart Kanbana.
 final class TasksBoardBulkCommands {
@@ -143,6 +146,13 @@ final class TasksBoardBulkCommands {
     final targetCards = targetColumn.tasks
         .where((item) => item.id != latestTask.id)
         .toList(growable: true);
+    // Backend waliduje wstawienie względem pełnej kolumny, a filtr może ukryć
+    // całą jej zawartość. Wtedy nie da się wskazać sąsiada, więc zamiast
+    // wysyłać żądanie, które Backend musi odrzucić, zatrzymujemy ruch lokalnie.
+    if (targetCards.isEmpty && _hidesColumnContents(current)) {
+      _publishError(current, TasksBoardErrorCodes.moveBlockedByFilter);
+      return;
+    }
     final safeIndex = adjustedIndex.clamp(0, targetCards.length);
     final previousTaskId = safeIndex == 0
         ? null
@@ -187,7 +197,7 @@ final class TasksBoardBulkCommands {
               .toList(growable: false),
         ),
         pendingTaskIds: {...current.pendingTaskIds, latestTask.id},
-        clearMutationError: true,
+        clearError: true,
       ),
     );
     final result = await _repository.moveTask(
@@ -229,7 +239,7 @@ final class TasksBoardBulkCommands {
     final cards = _selectedCards(state);
     if (cards.isEmpty) return null;
     _context.publish(
-      state.copyWith(isBulkSaving: true, clearMutationError: true),
+      state.copyWith(isBulkSaving: true, clearError: true),
     );
     return state;
   }
@@ -243,13 +253,22 @@ final class TasksBoardBulkCommands {
           _context.publish(
             ready.copyWith(
               isBulkSaving: false,
-              mutationError: error.message,
-              mutationSerial: ready.mutationSerial + 1,
+              error: tasksViewErrorFrom(error),
             ),
           );
         }
       },
-      (_) async => _context.reloadBoard(force: true),
+      (_) async {
+        // Zaznaczenie czyścimy jawnie: karty zmieniły kolumnę, a odczyt tablicy
+        // zachowuje stan operacyjny, więc nie zniknie już przy okazji.
+        final ready = _context.currentState;
+        if (ready is TasksBoardReady && ready.selectedTaskIds.isNotEmpty) {
+          _context.publish(
+            ready.copyWith(selectedTaskIds: const <String>{}),
+          );
+        }
+        await _context.reloadBoard(force: true);
+      },
     );
   }
 
@@ -299,8 +318,7 @@ final class TasksBoardBulkCommands {
       current.copyWith(
         board: current.board.copyWith(columns: columns),
         pendingTaskIds: {...current.pendingTaskIds}..remove(task.id),
-        mutationError: errorMessage,
-        mutationSerial: current.mutationSerial + 1,
+        error: TasksViewError(code: errorMessage),
       ),
     );
   }
@@ -344,11 +362,17 @@ final class TasksBoardBulkCommands {
     );
   }
 
+  /// Czy aktywny filtr może ukrywać karty poza tym, co widać na tablicy.
+  ///
+  /// Filtr tablicy i osobisty szybki filtr zawężają karty po stronie Backendu,
+  /// więc pusta kolumna na ekranie nie musi być pusta w bazie.
+  bool _hidesColumnContents(TasksBoardReady state) =>
+      state.filter.isActive ||
+      (state.userPreference?.quickFilter ?? KanbanQuickFilter.all) !=
+          KanbanQuickFilter.all;
+
   void _publishError(TasksBoardReady state, String message) => _context.publish(
-    state.copyWith(
-      mutationError: message,
-      mutationSerial: state.mutationSerial + 1,
-    ),
+    state.copyWith(error: TasksViewError(code: message)),
   );
 
   String _columnKey(KanbanColumnResponse column) =>

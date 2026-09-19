@@ -1,16 +1,8 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
 import 'package:devplanner/workspaces/domain/models/project_settings_tab.dart';
-import 'package:devplanner/workspaces/domain/repositories/automation_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/custom_workflow_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/project_templates_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
 import 'package:devplanner/workspaces/presentation/projects/settings/admin/tabs/templates/cubit/project_templates_cubit.dart';
 import 'package:devplanner/workspaces/presentation/projects/settings/general/cubit/project_general_settings_cubit.dart';
 import 'package:devplanner/workspaces/presentation/projects/settings/members/cubit/project_members_settings_cubit.dart';
@@ -19,18 +11,21 @@ import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/custom_w
 import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/milestone_settings_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/task_custom_fields_settings_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/settings/cubit/task_labels_settings_cubit.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 /// Tworzy Cubity ustawień tylko po wejściu na daną zakładkę i sprząta je razem.
+///
+/// Porty przychodzą jawnie z kompozycji modala, a nie z kontekstu, bo centrum
+/// ustawień jest montowane na root navigatorze i nie widzi providerów trasy,
+/// która je otworzyła.
 class ProjectSettingsCubitRegistry {
   ProjectSettingsCubitRegistry({
-    required this.context,
+    required this.ports,
     required this.project,
     required this.onMutation,
   });
 
-  final BuildContext context;
+  final ProjectSettingsComposition ports;
   final ProjectListItem project;
   final ValueChanged<ProjectSettingsTab> onMutation;
   final List<StreamSubscription<dynamic>> _subscriptions = [];
@@ -70,7 +65,7 @@ class ProjectSettingsCubitRegistry {
     final cubit = ProjectGeneralSettingsCubit(
       workspaceId: project.workspaceId,
       projectId: project.id,
-      repository: context.read<ProjectsRepository>(),
+      repository: ports.projects,
     );
     _subscriptions.add(
       cubit.stream.listen((state) {
@@ -88,7 +83,7 @@ class ProjectSettingsCubitRegistry {
     final cubit = ProjectTemplatesCubit(
       workspaceId: project.workspaceId,
       projectId: project.id,
-      repository: context.read<ProjectTemplatesRepository>(),
+      repository: ports.projectTemplates,
     );
     _observeSaving<ProjectTemplatesReady>(
       cubit.stream,
@@ -105,8 +100,8 @@ class ProjectSettingsCubitRegistry {
     final cubit = ProjectMembersSettingsCubit(
       workspaceId: project.workspaceId,
       projectId: project.id,
-      projectsRepository: context.read<ProjectsRepository>(),
-      workspacesRepository: context.read<WorkspacesRepository>(),
+      projectsRepository: ports.projects,
+      workspacesRepository: ports.workspaces,
     );
     _observeSaving<ProjectMembersSettingsLoaded>(
       cubit.stream,
@@ -123,7 +118,7 @@ class ProjectSettingsCubitRegistry {
     final cubit = CustomWorkflowSettingsCubit(
       workspaceId: project.workspaceId,
       projectId: project.id,
-      repository: context.read<CustomWorkflowRepository>(),
+      repository: ports.customWorkflow,
     );
     _observeSaving<CustomWorkflowSettingsReady>(
       cubit.stream,
@@ -140,7 +135,7 @@ class ProjectSettingsCubitRegistry {
     final cubit = TaskCustomFieldsSettingsCubit(
       workspaceId: project.workspaceId,
       projectId: project.id,
-      repository: context.read<TaskMetadataRepository>(),
+      repository: ports.taskMetadata,
     );
     _observeSaving<TaskCustomFieldsSettingsReady>(
       cubit.stream,
@@ -157,7 +152,7 @@ class ProjectSettingsCubitRegistry {
     final cubit = TaskLabelsSettingsCubit(
       workspaceId: project.workspaceId,
       projectId: project.id,
-      repository: context.read<TaskMetadataRepository>(),
+      repository: ports.taskMetadata,
     );
     _observeSaving<TaskLabelsSettingsReady>(
       cubit.stream,
@@ -174,7 +169,7 @@ class ProjectSettingsCubitRegistry {
     final cubit = MilestoneSettingsCubit(
       workspaceId: project.workspaceId,
       projectId: project.id,
-      repository: context.read<MilestoneRepository>(),
+      repository: ports.milestones,
     );
     _observeSaving<MilestoneSettingsReady>(
       cubit.stream,
@@ -191,10 +186,10 @@ class ProjectSettingsCubitRegistry {
     final cubit = AutomationSettingsCubit(
       workspaceId: project.workspaceId,
       projectId: project.id,
-      repository: context.read<AutomationRepository>(),
-      tasksRepository: context.read<TasksRepository>(),
-      memberProfilesRepository: context.read<ProjectMemberProfilesRepository>(),
-      taskMetadataRepository: context.read<TaskMetadataRepository>(),
+      repository: ports.automations,
+      tasksRepository: ports.tasks,
+      memberProfilesRepository: ports.memberProfiles,
+      taskMetadataRepository: ports.taskMetadata,
     );
     var wasBusy = false;
     _subscriptions.add(

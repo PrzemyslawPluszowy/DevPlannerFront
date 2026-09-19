@@ -3,12 +3,11 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:devplanner/admin/data/adapters/admin_user_api_transport.dart';
-import 'package:devplanner/auth/data/adapters/secure_refresh_token_vault.dart';
-import 'package:devplanner/auth/domain/ports/auth_client_ports.dart';
 import 'package:devplanner/foundation/config/app_env.dart';
 import 'package:devplanner/foundation/http/csrf_cookie_reader_stub.dart'
     if (dart.library.js_interop) 'package:devplanner/foundation/http/csrf_cookie_reader_web.dart'
     as csrf_platform;
+import 'package:devplanner/foundation/http/devplanner_http_diagnostics_interceptor.dart';
 import 'package:devplanner/me/data/me_api_transport.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -102,22 +101,26 @@ final class DevPlannerHttpResponse {
 ///
 /// Implementuje:
 /// - Dla Web: transport oparty o cookies (`HttpOnly`, `SameSite=Lax`, CSRF header `X-DevPlanner-CSRF`).
-/// - Dla Desktop: transport dołączający lokalny Bearer token z bezpiecznego magazynu [PlatformSecureRefreshTokenVault].
+/// - Dla Desktop: transport dołączający wyłącznie pamięciowy Bearer token z
+///   jawnego koordynatora sesji.
 /// - Korelację zapytań z nagłówkami `X-Correlation-ID` i `X-Request-ID`.
 /// - Ustandaryzowaną obsługę błędów `ApiErrorResponse` (`code`, `message`, `fields`, `traceId`).
 class DevPlannerHttpTransport {
   DevPlannerHttpTransport({
     Dio? dio,
     String? baseUrl,
-    this._vault,
     this._tokenProvider,
+    this._unauthorizedRecovery,
     this._csrfTokenProvider,
+    this.enableDiagnosticLogging = kDebugMode,
+    void Function(String message)? diagnosticLog,
     String Function()? correlationIdGenerator,
     bool? isWeb,
   }) : _baseUrl = baseUrl ?? AppEnv.apiBaseUrl,
        _correlationIdGenerator =
            correlationIdGenerator ?? _defaultCorrelationIdGenerator,
        _isWeb = isWeb ?? kIsWeb,
+       _diagnosticLog = diagnosticLog ?? debugPrint,
        _dio =
            dio ??
            Dio(
@@ -137,11 +140,14 @@ class DevPlannerHttpTransport {
   /// Bazowy adres API wykorzystywany przez transport.
   String get baseUrl => _baseUrl;
 
-  final SecureRefreshTokenVault? _vault;
   final FutureOr<String?> Function()? _tokenProvider;
+  final Future<String?> Function(String? failedAccessToken)?
+  _unauthorizedRecovery;
   final FutureOr<String?> Function()? _csrfTokenProvider;
   final String Function() _correlationIdGenerator;
   final bool _isWeb;
+  final bool enableDiagnosticLogging;
+  final void Function(String message) _diagnosticLog;
   final Dio _dio;
   final csrf_platform.CsrfCookieReader _csrfCookieReader =
       const csrf_platform.CsrfCookieReader();
@@ -162,23 +168,21 @@ class DevPlannerHttpTransport {
   ///
   /// Brak token providera/vaultu jest częścią kontraktu: BFF sesję utrzymuje
   /// przeglądarka, a Flutter wysyła tylko cookies i CSRF.
-  bool get isBffCookieTransport =>
-      _isWeb && _vault == null && _tokenProvider == null;
+  bool get isBffCookieTransport => _isWeb && _tokenProvider == null;
 
   /// Czy transport może zostać użyty do złożenia klienta domenowego.
   ///
   /// Web wymaga cookie BFF bez bearerów. Desktop wymaga jawnie przekazanego
-  /// providera access tokenu albo vaultu PKCE; brak źródła poświadczenia nie
+  /// providera access tokenu; brak źródła poświadczenia nie
   /// może przypadkiem utworzyć klienta, który będzie wysyłał anonimowe żądania.
   bool get supportsStandaloneApiClients =>
-      isBffCookieTransport ||
-      (!_isWeb && (_vault != null || _tokenProvider != null));
+      isBffCookieTransport || (!_isWeb && _tokenProvider != null);
 
   /// Bezpieczny dostęp do Dio dla wygenerowanych klientów Retrofit.
   ///
   /// Interceptory są instalowane w konstruktorze i powtarzają zasady
   /// [execute]: Web usuwa Authorization i używa cookie/CSRF, Desktop pobiera
-  /// access token wyłącznie z providera/vaultu. Presentation nie dostaje tego
+  /// access token wyłącznie z providera. Presentation nie dostaje tego
   /// obiektu — używa go wyłącznie composition root warstwy data.
   Dio get apiDio => _dio;
 
@@ -222,11 +226,7 @@ class DevPlannerHttpTransport {
         }
       }
     } else {
-      // Tryb Desktop: dołączanie lokalnego Bearer tokenu z bezpiecznego magazynu.
-      final token = await _resolveBearerToken();
-      if (token != null && token.isNotEmpty) {
-        requestHeaders['Authorization'] = 'Bearer ${_normalizeToken(token)}';
-      }
+      // Desktop authorization is installed by the shared Dio interceptor.
     }
 
     final dynamic requestData;
@@ -342,14 +342,50 @@ class DevPlannerHttpTransport {
             if (token != null && token.isNotEmpty) {
               options.headers['Authorization'] =
                   'Bearer ${_normalizeToken(token)}';
+              options.extra['_devplanner.failed_access_token'] = token;
             } else {
               options.headers.remove('Authorization');
             }
           }
           handler.next(options);
         },
+        onResponse: (response, handler) async {
+          // Ten klient akceptuje każdy status (`validateStatus`), więc także 401
+          // przychodzi jako odpowiedź. Warunek jest dokładny: odzyskiwanie
+          // sesji dotyczy wyłącznie 401. Ponowienie odpowiedzi, która się
+          // udała (albo którą Backend świadomie odrzucił), wysyłałoby tę samą
+          // mutację dwa razy, a przy zapisie wersjonowanym kończyło się
+          // fałszywym konfliktem 409 na drugim żądaniu.
+          final retried = await _retryUnauthorized(
+            response.requestOptions,
+            statusCode: response.statusCode,
+          );
+          if (retried != null) {
+            handler.resolve(retried);
+            return;
+          }
+          handler.next(response);
+        },
+        onError: (error, handler) async {
+          // Ścieżka dla konfiguracji, w której 401 przychodzi jako wyjątek.
+          // Błąd sieci nie ma statusu, więc nie uruchamia odzyskiwania sesji.
+          final retried = await _retryUnauthorized(
+            error.requestOptions,
+            statusCode: error.response?.statusCode,
+          );
+          if (retried != null) {
+            handler.resolve(retried);
+            return;
+          }
+          handler.next(error);
+        },
       ),
     );
+    if (enableDiagnosticLogging) {
+      _dio.interceptors.add(
+        DevPlannerHttpDiagnosticsInterceptor(_diagnosticLog),
+      );
+    }
   }
 
   Future<String?> _resolveCsrfToken() async {
@@ -360,19 +396,41 @@ class DevPlannerHttpTransport {
   }
 
   Future<String?> _resolveBearerToken() async {
-    if (_tokenProvider != null) {
-      return _tokenProvider();
-    }
-    if (_vault != null) {
-      return _vault.read();
-    }
-    // Domyślny bezpieczny magazyn platformowy dla Desktop
-    final defaultVault = PlatformSecureRefreshTokenVault();
-    try {
-      return await defaultVault.read();
-    } catch (_) {
+    return _tokenProvider?.call();
+  }
+
+  /// Odzyskuje sesję i powtarza żądanie wyłącznie po odpowiedzi 401.
+  ///
+  /// Status jest warunkiem wejścia, a nie kontekstem: wołane dla innej
+  /// odpowiedzi powtarzałoby żądanie, które już się udało albo które Backend
+  /// świadomie odrzucił z innego powodu.
+  Future<Response<dynamic>?> _retryUnauthorized(
+    RequestOptions options, {
+    required int? statusCode,
+  }) async {
+    if (statusCode != 401 ||
+        _isWeb ||
+        options.responseType == ResponseType.stream ||
+        options.data is FormData ||
+        options.extra['_devplanner.auth_retry_count'] == 1 ||
+        _unauthorizedRecovery == null ||
+        options.extra['_devplanner.retrying'] == true) {
       return null;
     }
+    // Only one replay is allowed; FormData is deliberately not replayed as a
+    // multipart stream can already have been consumed.
+    final failedToken =
+        options.extra['_devplanner.failed_access_token'] as String?;
+    final recovered = await _unauthorizedRecovery(failedToken);
+    if (recovered == null || recovered.isEmpty) return null;
+    final headers = Map<String, dynamic>.from(options.headers)
+      ..remove('Authorization')
+      ..remove('authorization');
+    final extra = Map<String, dynamic>.from(options.extra)
+      ..['_devplanner.auth_retry_count'] = 1
+      ..['_devplanner.retrying'] = true;
+    final retry = options.copyWith(headers: headers, extra: extra);
+    return _dio.fetch<dynamic>(retry);
   }
 
   static String _normalizeToken(String token) {

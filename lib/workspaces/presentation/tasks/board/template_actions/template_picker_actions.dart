@@ -30,25 +30,26 @@ class _TemplateTileActions extends StatelessWidget {
   );
 
   Future<void> _showMenu(BuildContext context) async {
-    final action = await TaskContextMenu.show<_TemplateTileAction>(
+    final action = await AppContextMenu.select<_TemplateTileAction>(
       context,
-      position: TaskContextMenu.positionFor(context),
-      items: [
-        TaskContextMenuItem(
+      globalPosition: AppContextMenu.positionFor(context),
+      options: [
+        AppContextMenuOption(
           value: _TemplateTileAction.edit,
-          title: context.l10n.edit,
+          label: context.l10n.edit,
           icon: Symbols.tune_rounded,
         ),
-        TaskContextMenuItem(
+        AppContextMenuOption(
           value: _TemplateTileAction.rename,
-          title: context.l10n.tasksTemplatesRename,
+          label: context.l10n.tasksTemplatesRename,
           icon: Symbols.edit_rounded,
         ),
-        TaskContextMenuItem(
+        AppContextMenuOption(
           value: _TemplateTileAction.delete,
-          title: context.l10n.delete,
+          label: context.l10n.delete,
           icon: Symbols.delete_outline_rounded,
           iconColor: context.colors.error,
+          separatorBefore: true,
         ),
       ],
     );

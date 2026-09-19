@@ -78,7 +78,9 @@ class _KanbanCardFrameState extends State<KanbanCardFrame> {
         boxShadow: elevation > 0
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? .30 : .08),
+                  color: context.tasksTheme.shadow.withValues(
+                    alpha: isDark ? .30 : .08,
+                  ),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),

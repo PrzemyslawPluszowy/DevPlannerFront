@@ -162,7 +162,7 @@ class _ScopeTabButton extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: context.tasksTheme.shadow.withValues(alpha: 0.06),
                     blurRadius: 3,
                     offset: const Offset(0, 1),
                   ),

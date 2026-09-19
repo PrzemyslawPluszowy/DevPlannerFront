@@ -1,7 +1,7 @@
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_templates_models.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -80,31 +80,31 @@ class TaskBoardTemplateChoiceButton extends StatelessWidget {
     BuildContext context,
     BuildContext buttonContext,
   ) async {
-    final choice = await TaskContextMenu.show<String?>(
+    final choice = await AppContextMenu.select<String?>(
       context,
-      position: TaskContextMenu.positionFor(buttonContext),
-      items: [
+      globalPosition: AppContextMenu.positionFor(buttonContext),
+      options: [
         for (final template in templates)
-          TaskContextMenuItem<String?>(
+          AppContextMenuOption(
             value: template.id,
-            title: template.name,
+            label: template.name,
             icon: template.id == defaultTemplateId
                 ? Symbols.star_rounded
                 : Symbols.auto_awesome_mosaic_rounded,
             iconColor: template.id == defaultTemplateId
                 ? context.colors.primary
                 : null,
-            isSelected: template.id == effectiveTemplateId,
+            selected: template.id == effectiveTemplateId,
           ),
-        TaskContextMenuItem<String?>(
+        AppContextMenuOption(
           value: 'none',
-          title: context.l10n.tasksTemplateNoTemplate,
+          label: context.l10n.tasksTemplateNoTemplate,
           icon: Symbols.block_rounded,
-          isSelected: !useDefaultTemplate,
+          selected: !useDefaultTemplate,
         ),
-        TaskContextMenuItem<String?>(
+        AppContextMenuOption(
           value: 'manage',
-          title: context.l10n.tasksTemplatesManage,
+          label: context.l10n.tasksTemplatesManage,
           icon: Symbols.tune_rounded,
         ),
       ],

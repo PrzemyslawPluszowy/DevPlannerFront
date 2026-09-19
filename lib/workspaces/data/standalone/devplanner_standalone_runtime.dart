@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:devplanner/auth/data/auth_composition.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
@@ -37,7 +39,10 @@ final class DevPlannerStandaloneRuntime {
        _notificationsApi = NotificationsApi(
          transport.apiDio,
          baseUrl: transport.baseUrl,
-       );
+       ) {
+    _sessionListener = _stopRealtimeAfterSessionEnds;
+    auth.session.addListener(_sessionListener);
+  }
 
   /// Auth composition właściciela sesji. Runtime nie tworzy auth i nie
   /// przyjmuje tokenu z launch contextu.
@@ -62,6 +67,8 @@ final class DevPlannerStandaloneRuntime {
 
   WorkspaceChatRealtimeFactory? _chatRealtimeFactory;
   WorkspaceNotificationsRealtimeRealtime? _notificationsRealtime;
+  late final void Function() _sessionListener;
+  bool _disposed = false;
 
   /// Globalny Chat dla bieżącej sesji albo `null`, gdy runtime nie jest gotowy.
   DevPlannerGlobalChatComposition? get chatComposition {
@@ -125,9 +132,26 @@ final class DevPlannerStandaloneRuntime {
 
   /// Zwalnia ewentualny owner huba Notifications przed logoutem/wyjściem.
   Future<void> dispose() async {
-    await _notificationsRealtime?.dispose();
+    if (_disposed) return;
+    _disposed = true;
+    auth.session.removeListener(_sessionListener);
+    final notifications = _notificationsRealtime;
     _notificationsRealtime = null;
     _chatRealtimeFactory = null;
+    await notifications?.dispose();
+  }
+
+  void _stopRealtimeAfterSessionEnds() {
+    if (auth.session.snapshot.isAuthenticated || _disposed) return;
+    // Detach the old owner synchronously, before awaiting its cleanup.
+    unawaited(_disposeRealtimeForSignedOutSession());
+  }
+
+  Future<void> _disposeRealtimeForSignedOutSession() async {
+    final notifications = _notificationsRealtime;
+    _notificationsRealtime = null;
+    _chatRealtimeFactory = null;
+    await notifications?.dispose();
   }
 }
 

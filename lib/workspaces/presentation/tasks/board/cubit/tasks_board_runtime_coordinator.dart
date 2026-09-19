@@ -12,6 +12,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_project_realtime.
 import 'package:devplanner/workspaces/domain/repositories/task_workflow_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_command_context.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 
 /// Właściciel lifecycle snapshotu Kanbana oraz subskrypcji realtime.
 final class TasksBoardRuntimeCoordinator {
@@ -38,7 +39,30 @@ final class TasksBoardRuntimeCoordinator {
   final Map<String, int> _lastTaskVersions = <String, int>{};
   int _boardQueryRevision = 0;
 
+  /// Filtr obowiązujący przy odczytach tablicy.
+  ///
+  /// Żyje w koordynatorze, a nie tylko w stanie gotowym, żeby przetrwał nieudany
+  /// odczyt i żeby ponowienie nie wracało po cichu do pełnego projektu.
+  KanbanBoardFilter _filter = KanbanBoardFilter.none;
+
   int get boardQueryRevision => _boardQueryRevision;
+
+  /// Bieżący filtr tablicy, także gdy ostatni odczyt zakończył się błędem.
+  KanbanBoardFilter get filter => _filter;
+
+  /// Ustawia filtr i odświeża liczniki kolumn oraz pierwsze strony kart.
+  Future<void> setFilter(KanbanBoardFilter filter) async {
+    if (filter == _filter || _context.isBoardClosed) return;
+    _filter = filter;
+    final current = _context.currentState;
+    if (current is TasksBoardReady) {
+      _context.publish(current.copyWith(filter: filter, loadingFilter: true));
+    }
+    await load(force: true);
+    final ready = _context.currentState;
+    if (_context.isBoardClosed || ready is! TasksBoardReady) return;
+    _context.publish(ready.copyWith(loadingFilter: false));
+  }
 
   Future<void> load({bool force = false}) async {
     final revision = ++_boardQueryRevision;
@@ -52,34 +76,27 @@ final class TasksBoardRuntimeCoordinator {
     final result = await _repository.getBoard(
       workspaceId: _context.workspaceId,
       projectId: _context.projectId,
+      filter: _filter,
     );
     if (_context.isBoardClosed || revision != _boardQueryRevision) return;
     result.fold(
       (error) => _context.publish(_failure(error)),
       (board) {
         final previous = _context.currentState;
+        // Odczyt wymienia wyłącznie dane tablicy. Nowy stan od zera zgubiłby
+        // stan operacyjny — trwały błąd niezapisanej preferencji, znacznik
+        // trwającego zapisu, licznik zmian danych i zaznaczenie — więc resync
+        // z realtime mógłby ukryć banner i chwilowo odblokować kontrolki.
         _context.publish(
-          TasksBoardReady(
-            board: board,
-            connectionState: previous is TasksBoardReady
-                ? previous.connectionState
-                : WorkspaceSignalRConnectionState.disconnected,
-            presence: previous is TasksBoardReady
-                ? previous.presence
-                : const <TaskProjectPresenceUser>[],
-            memberProfilesByUserId: previous is TasksBoardReady
-                ? previous.memberProfilesByUserId
-                : const {},
-            userPreference: previous is TasksBoardReady
-                ? previous.userPreference
-                : null,
-            realtimeRevision: previous is TasksBoardReady
-                ? previous.realtimeRevision
-                : 0,
-            latestRealtimeMutation: previous is TasksBoardReady
-                ? previous.latestRealtimeMutation
-                : null,
-          ),
+          previous is TasksBoardReady
+              ? previous.copyWith(board: board, filter: _filter)
+              : TasksBoardReady(
+                  board: board,
+                  connectionState:
+                      WorkspaceSignalRConnectionState.disconnected,
+                  presence: const <TaskProjectPresenceUser>[],
+                  filter: _filter,
+                ),
         );
       },
     );
@@ -177,6 +194,13 @@ final class TasksBoardRuntimeCoordinator {
     );
   }
 
+  /// Wczytuje osobiste preferencje widoku.
+  ///
+  /// Nieudany odczyt nie może zniknąć po cichu: bez preferencji kontrolki
+  /// zwijania kolumn i szybkiego filtra są wyłączone, więc użytkownik musi
+  /// wiedzieć, dlaczego i móc ponowić odczyt.
+  Future<void> reloadUserPreference() => _loadUserPreference();
+
   Future<void> _loadUserPreference() async {
     final result = await _repository.getUserPreference(
       workspaceId: _context.workspaceId,
@@ -185,9 +209,16 @@ final class TasksBoardRuntimeCoordinator {
     final current = _context.currentState;
     if (_context.isBoardClosed || current is! TasksBoardReady) return;
     result.fold(
-      (_) {},
+      (error) => _context.publish(
+        current.copyWith(
+          error: const TasksViewError(code: TasksViewErrorCodes.loadFailed),
+        ),
+      ),
       (preference) => _context.publish(
-        current.copyWith(userPreference: preference),
+        current.copyWith(
+          userPreference: preference,
+          clearError: true,
+        ),
       ),
     );
   }

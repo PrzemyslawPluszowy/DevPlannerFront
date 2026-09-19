@@ -46,8 +46,8 @@ final class TaskListQuery {
       ProjectTasksQuery(
         cursor: cursor,
         parentTaskId: parentTaskId,
-        status: status?.name,
-        priority: priority?.name,
+        status: statusWireValue(status),
+        priority: priorityWireValue(priority),
         assigneeUserId: assigneeUserId,
         myInvolvement: _involvementWireValue(myInvolvement),
         unassignedOnly: unassignedOnly,
@@ -63,8 +63,8 @@ final class TaskListQuery {
     groupBy: _groupByWireValue(groupBy),
     groupKey: groupKey,
     cursor: cursor,
-    status: status?.name,
-    priority: priority?.name,
+    status: statusWireValue(status),
+    priority: priorityWireValue(priority),
     assigneeUserId: assigneeUserId,
     myInvolvement: _involvementWireValue(myInvolvement),
     unassignedOnly: unassignedOnly,
@@ -75,17 +75,17 @@ final class TaskListQuery {
   TaskSelectionQueryPayload selectionTokenPayload() =>
       TaskSelectionQueryPayload(
         savedViewId: savedViewId,
-        status: status?.name,
-        priority: priority?.name,
+        status: statusWireValue(status),
+        priority: priorityWireValue(priority),
         assigneeUserId: assigneeUserId,
         myInvolvement: _involvementWireValue(myInvolvement),
         pinnedOnly: pinnedOnly,
         unassignedOnly: unassignedOnly,
       );
 
-  static String? statusWireValue(ProjectTaskStatus? value) => value?.name;
+  static String? statusWireValue(ProjectTaskStatus? value) => value?.wireValue;
 
-  static String? priorityWireValue(TaskPriority? value) => value?.name;
+  static String? priorityWireValue(TaskPriority? value) => value?.wireValue;
 
   static String? _groupByWireValue(TaskSavedViewGroupBy value) =>
       switch (value) {

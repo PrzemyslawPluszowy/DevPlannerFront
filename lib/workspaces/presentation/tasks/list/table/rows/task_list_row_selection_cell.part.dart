@@ -30,14 +30,13 @@ class _TaskListRowSelectionCell extends StatelessWidget {
           SizedBox(
             width: 28,
             child: Semantics(
-              label: 'Zaznacz zadanie ${task.key}',
+              label: context.l10n.tasksSelectTask(task.key),
               checked: isSelected,
-              child: Checkbox(
+              child: TasksSelectionCheckbox(
                 value: isSelected,
-                visualDensity: .compact,
                 onChanged: onSelectionChanged == null
                     ? null
-                    : (value) => onSelectionChanged!(
+                    : (_) => onSelectionChanged!(
                         HardwareKeyboard.instance.isShiftPressed,
                       ),
               ),
@@ -76,10 +75,11 @@ class _TaskListRowSelectionCell extends StatelessWidget {
                           task.subtaskCount > 99
                               ? '99+'
                               : '${task.subtaskCount}',
-                          style: const TextStyle(
-                            fontSize: 8,
-                            fontWeight: .w700,
-                            height: 1.0,
+                          // Licznik podzadań w badge'u nie może być mniejszy
+                          // niż podłoga czytelności metadanych.
+                          style: context.tasksTheme.metaText.copyWith(
+                            height: 1,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         child: Icon(

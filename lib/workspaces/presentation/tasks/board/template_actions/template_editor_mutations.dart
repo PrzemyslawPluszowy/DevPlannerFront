@@ -149,17 +149,17 @@ extension _TemplateEditorMutations on _TaskTemplateEditorState {
     BuildContext anchorContext,
     List<SelectedTemplateStatus> statuses,
   ) async {
-    final selected = await TaskContextMenu.show<SelectedTemplateStatus>(
+    final selected = await AppContextMenu.select<SelectedTemplateStatus>(
       anchorContext,
-      position: TaskContextMenu.positionFor(anchorContext),
-      items: [
+      globalPosition: AppContextMenu.positionFor(anchorContext),
+      options: [
         for (final item in statuses)
-          TaskContextMenuItem<SelectedTemplateStatus>(
+          AppContextMenuOption(
             value: item,
-            title: item.displayName,
+            label: item.displayName,
             icon: TaskStatusVisualHelper.icon(item.fallbackStatus),
             iconColor: TaskBoardColorParser.parse(item.color),
-            isSelected: item == _status,
+            selected: item == _status,
           ),
       ],
     );

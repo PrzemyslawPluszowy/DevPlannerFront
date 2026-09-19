@@ -1,8 +1,8 @@
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_option.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -22,7 +22,7 @@ abstract final class TaskCustomFieldPicker {
     BuildContext context, {
     required TaskCustomFieldResponse field,
     required Object? value,
-    required RelativeRect menuPosition,
+    required Offset position,
   }) async {
     final boolValue = value is bool
         ? value
@@ -30,36 +30,35 @@ abstract final class TaskCustomFieldPicker {
         ? value.toLowerCase() == 'true'
         : null;
 
-    final items = <PopupMenuEntry<Object?>>[
-      TaskContextMenuItem<Object?>(
+    final options = <AppContextMenuOption<Object>>[
+      AppContextMenuOption(
         value: true,
-        title: '${field.name}: Tak',
+        label: '${field.name}: Tak',
         icon: Symbols.check_circle_rounded,
         iconColor: const Color(0xFF4CAF50),
-        isSelected: boolValue == true,
+        selected: boolValue == true,
       ),
-      TaskContextMenuItem<Object?>(
+      AppContextMenuOption(
         value: false,
-        title: '${field.name}: Nie',
+        label: '${field.name}: Nie',
         icon: Symbols.cancel_rounded,
         iconColor: const Color(0xFF757575),
-        isSelected: boolValue == false,
+        selected: boolValue == false,
       ),
-      if (!field.isRequired) ...[
-        const TaskContextMenuDivider(),
-        TaskContextMenuItem<Object?>(
+      if (!field.isRequired)
+        AppContextMenuOption(
           value: customFieldClear,
-          title: context.l10n.tasksListClearValue,
+          label: context.l10n.tasksListClearValue,
           icon: Symbols.close_rounded,
           iconColor: context.colors.error,
+          separatorBefore: true,
         ),
-      ],
     ];
 
-    final selected = await TaskContextMenu.show<Object?>(
+    final selected = await AppContextMenu.select<Object>(
       context,
-      position: menuPosition,
-      items: items,
+      globalPosition: position,
+      options: options,
     );
 
     if (selected == null) return customFieldCancelled;
@@ -72,52 +71,43 @@ abstract final class TaskCustomFieldPicker {
     BuildContext context, {
     required TaskCustomFieldResponse field,
     required Object? value,
-    required RelativeRect menuPosition,
+    required Offset position,
     bool canManage = false,
     VoidCallback? onConfigureField,
   }) async {
     final rawOptions = field.options ?? const <String>[];
     final currentStr = value?.toString();
 
-    final items = <PopupMenuEntry<Object?>>[
+    final options = <AppContextMenuOption<Object>>[
       for (final optionRaw in rawOptions)
-        TaskContextMenuItem<Object?>(
+        AppContextMenuOption(
           value: optionRaw,
-          title: _resolveOption(field, optionRaw).label,
+          label: _resolveOption(field, optionRaw).label,
           icon: _resolveOption(field, optionRaw).icon ?? Symbols.circle,
           iconColor: _resolveOption(field, optionRaw).color,
-          isSelected: _isOptionSelected(optionRaw, currentStr),
-          trailing: _isOptionSelected(optionRaw, currentStr)
-              ? Icon(
-                  Symbols.check_rounded,
-                  size: 15,
-                  color: context.colors.primary,
-                )
-              : null,
+          selected: _isOptionSelected(optionRaw, currentStr),
         ),
-      if (!field.isRequired) ...[
-        const TaskContextMenuDivider(),
-        TaskContextMenuItem<Object?>(
+      if (!field.isRequired)
+        AppContextMenuOption(
           value: customFieldClear,
-          title: context.l10n.tasksListClearValue,
+          label: context.l10n.tasksListClearValue,
           icon: Symbols.close_rounded,
           iconColor: context.colors.error,
+          separatorBefore: true,
         ),
-      ],
-      if (canManage && onConfigureField != null) ...[
-        const TaskContextMenuDivider(),
-        TaskContextMenuItem<Object?>(
+      if (canManage && onConfigureField != null)
+        const AppContextMenuOption(
           value: _configureFieldSentinel,
-          title: 'Konfiguruj pole...',
+          label: 'Konfiguruj pole...',
           icon: Symbols.settings_rounded,
+          separatorBefore: true,
         ),
-      ],
     ];
 
-    final selected = await TaskContextMenu.show<Object?>(
+    final selected = await AppContextMenu.select<Object>(
       context,
-      position: menuPosition,
-      items: items,
+      globalPosition: position,
+      options: options,
     );
 
     if (selected == null) return customFieldCancelled;
@@ -134,7 +124,7 @@ abstract final class TaskCustomFieldPicker {
     BuildContext context, {
     required TaskCustomFieldResponse field,
     required Object? value,
-    required RelativeRect menuPosition,
+    required Offset position,
     bool canManage = false,
     VoidCallback? onConfigureField,
   }) async {
@@ -143,45 +133,36 @@ abstract final class TaskCustomFieldPicker {
         .map((item) => item.toString())
         .toSet();
 
-    final items = <PopupMenuEntry<Object?>>[
+    final options = <AppContextMenuOption<Object>>[
       for (final optionRaw in rawOptions)
-        TaskContextMenuItem<Object?>(
+        AppContextMenuOption(
           value: optionRaw,
-          title: _resolveOption(field, optionRaw).label,
+          label: _resolveOption(field, optionRaw).label,
           icon: _resolveOption(field, optionRaw).icon ?? Symbols.circle,
           iconColor: _resolveOption(field, optionRaw).color,
-          isSelected: _isMultiOptionSelected(optionRaw, selectedSet),
-          trailing: _isMultiOptionSelected(optionRaw, selectedSet)
-              ? Icon(
-                  Symbols.check_rounded,
-                  size: 15,
-                  color: context.colors.primary,
-                )
-              : null,
+          selected: _isMultiOptionSelected(optionRaw, selectedSet),
         ),
-      if (!field.isRequired) ...[
-        const TaskContextMenuDivider(),
-        TaskContextMenuItem<Object?>(
+      if (!field.isRequired)
+        AppContextMenuOption(
           value: customFieldClear,
-          title: context.l10n.tasksListClearValue,
+          label: context.l10n.tasksListClearValue,
           icon: Symbols.close_rounded,
           iconColor: context.colors.error,
+          separatorBefore: true,
         ),
-      ],
-      if (canManage && onConfigureField != null) ...[
-        const TaskContextMenuDivider(),
-        TaskContextMenuItem<Object?>(
+      if (canManage && onConfigureField != null)
+        const AppContextMenuOption(
           value: _configureFieldSentinel,
-          title: 'Konfiguruj pole...',
+          label: 'Konfiguruj pole...',
           icon: Symbols.settings_rounded,
+          separatorBefore: true,
         ),
-      ],
     ];
 
-    final answer = await TaskContextMenu.show<Object?>(
+    final answer = await AppContextMenu.select<Object>(
       context,
-      position: menuPosition,
-      items: items,
+      globalPosition: position,
+      options: options,
     );
 
     if (answer == null) return customFieldCancelled;

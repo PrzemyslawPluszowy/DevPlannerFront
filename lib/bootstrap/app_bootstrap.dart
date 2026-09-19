@@ -33,14 +33,6 @@ Future<void> bootstrap({
   final desktopVault = desktopTransport == null
       ? null
       : PlatformSecureRefreshTokenVault();
-  final nativeTransport = desktopTransport == null
-      ? null
-      : DevPlannerHttpTransport(
-          baseUrl: AppEnv.apiBaseUrl,
-          vault: desktopVault,
-          tokenProvider: () => desktopTransport.accessToken,
-          isWeb: false,
-        );
   final resolvedAuth =
       auth ??
       (kIsWeb && resolvedTransport != null
@@ -51,6 +43,14 @@ Future<void> bootstrap({
               vault: desktopVault,
             )
           : null);
+  final nativeTransport = desktopTransport == null
+      ? null
+      : DevPlannerHttpTransport(
+          baseUrl: AppEnv.apiBaseUrl,
+          tokenProvider: resolvedAuth?.desktopAccessTokenProvider,
+          unauthorizedRecovery: resolvedAuth?.desktopUnauthorizedRecovery,
+          isWeb: false,
+        );
   final effectiveTransport = resolvedTransport ?? nativeTransport;
   if (auth == null && resolvedAuth != null) {
     try {

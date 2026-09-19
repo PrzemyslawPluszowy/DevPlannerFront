@@ -45,6 +45,16 @@ final class DevPlannerShellTheme extends ThemeExtension<DevPlannerShellTheme> {
     contentBorder: Color(0x26ffffff),
   );
 
+  /// Pełnoekranowy obraz tła ramy. Asset jest częścią katalogu
+  /// `assets/images/` zadeklarowanego w `pubspec.yaml`.
+  static const String backdropImageAsset = 'assets/images/bg.jpeg';
+  static const AssetImage backdropImage = AssetImage(backdropImageAsset);
+
+  /// Logotyp ramy. Zastępuje tekstową nazwę marki i ikonę w nagłówku menu.
+  /// Szeroki lockup z nazwą produktu, więc widget skaluje go szerokością.
+  static const String logoAsset = 'assets/images/logo-small.png';
+  static const AssetImage logoImage = AssetImage(logoAsset);
+
   final Color backdropStart;
   final Color backdropMiddle;
   final Color backdropEnd;

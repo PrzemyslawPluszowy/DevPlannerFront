@@ -5,6 +5,7 @@ import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart
 import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list_rows.dart';
+import 'package:devplanner/workspaces/presentation/tasks/widgets/tasks_selection_checkbox.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -942,4 +943,56 @@ void main() {
       expect(find.text('Krytyczne'), findsOneWidget);
     },
   );
+
+  testWidgets('wiersz zaznacza zadanie wspólnym, mniejszym checkboxem Listy', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final task = ProjectTaskListItemResponse(
+      id: 'task-select',
+      number: 3,
+      key: 'TASK-3',
+      title: 'Zadanie do zaznaczenia',
+      status: ProjectTaskStatus.todo,
+      priority: TaskPriority.normal,
+      assignees: const [],
+      checklistCompletedCount: 0,
+      checklistTotalCount: 0,
+      updatedAtUtc: DateTime.utc(2026, 8, 27),
+      version: 1,
+    );
+    final selections = <bool>[];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('pl'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: TaskListRow(
+            task: task,
+            columns: const [TaskSavedViewColumn.title],
+            memberProfilesByUserId: const {},
+            onOpen: () {},
+            onSelectionChanged: selections.add,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(TasksSelectionCheckbox), findsOneWidget);
+    // Kolumna zaznaczenia oddaje kontrolce pole 28 px, więc glyph 16 px jest
+    // od niego mniejszy i wiersz zachowuje gęstość tabeli.
+    expect(tester.getSize(find.byType(TasksSelectionCheckbox)).width, 28);
+    expect(find.bySemanticsLabel(RegExp('TASK-3')), findsOneWidget);
+
+    await tester.tap(find.byType(TasksSelectionCheckbox));
+    await tester.pumpAndSettle();
+
+    // Zaznaczenie bez Shift pozostaje pojedynczym przełączeniem wiersza.
+    expect(selections, [false]);
+  });
 }

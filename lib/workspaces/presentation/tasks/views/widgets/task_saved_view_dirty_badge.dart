@@ -20,7 +20,7 @@ class TaskSavedViewDirtyBadge extends StatelessWidget {
         style: context.text.labelSmall?.copyWith(
           color: colors.onTertiaryContainer,
           fontWeight: .w600,
-          fontSize: 10,
+          fontSize: context.tasksTheme.metaText.fontSize,
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'package:devplanner/workspaces/data/kanban/api/kanban_api.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 
 /// Implementacja wszystkich operacji tablicy Kanban projektu.
@@ -18,8 +19,15 @@ final class KanbanRepositoryImpl extends ApiRepository
   Future<Either<ApiError, KanbanBoardResponse>> getBoard({
     required String workspaceId,
     required String projectId,
+    KanbanBoardFilter filter = KanbanBoardFilter.none,
   }) => guardApiCall(
-    () => _api.getBoard(workspaceId, projectId),
+    () => _api.getBoard(
+      workspaceId,
+      projectId,
+      assigneeUserId: filter.assigneeUserId,
+      priority: filter.priority?.wireValue,
+      milestoneId: filter.milestoneId,
+    ),
     fallbackMessage: 'Nie udało się pobrać tablicy Kanban.',
     parsingMessage: 'Backend zwrócił nieprawidłową tablicę Kanban.',
   );
@@ -45,11 +53,11 @@ final class KanbanRepositoryImpl extends ApiRepository
     () => _api.getColumn(
       workspaceId,
       projectId,
-      status,
+      status.wireValue,
       cursor: query.cursor,
       limit: query.limit,
       assigneeUserId: query.assigneeUserId,
-      priority: query.priority,
+      priority: query.priority?.wireValue,
       milestoneId: query.milestoneId,
     ),
     fallbackMessage: 'Nie udało się pobrać kolumny Kanban.',
@@ -70,7 +78,7 @@ final class KanbanRepositoryImpl extends ApiRepository
       cursor: query.cursor,
       limit: query.limit,
       assigneeUserId: query.assigneeUserId,
-      priority: query.priority,
+      priority: query.priority?.wireValue,
       milestoneId: query.milestoneId,
     ),
     fallbackMessage: 'Nie udało się pobrać własnej kolumny Kanban.',

@@ -20,6 +20,8 @@ final class AuthComposition {
     required this.session,
     required this.useCases,
     this.client,
+    this.desktopAccessTokenProvider,
+    this.desktopUnauthorizedRecovery,
   });
 
   /// Kompozycja webowa oparta wyłącznie o sesję BFF w cookie.
@@ -64,11 +66,17 @@ final class AuthComposition {
     required DesktopPkceSessionTransport transport,
     SecureRefreshTokenVault? vault,
   }) {
+    final session = AuthSessionController();
+    final adapter = DesktopPkceAuthAdapter(
+      transport: transport,
+      vault: vault ?? PlatformSecureRefreshTokenVault(),
+      onSessionExpired: session.setSignedOut,
+    );
     return AuthComposition.fromClient(
-      DesktopPkceAuthAdapter(
-        transport: transport,
-        vault: vault ?? PlatformSecureRefreshTokenVault(),
-      ),
+      adapter,
+      sessionController: session,
+      desktopAccessTokenProvider: adapter.validAccessToken,
+      desktopUnauthorizedRecovery: adapter.recoverAfterUnauthorized,
     );
   }
 
@@ -76,8 +84,14 @@ final class AuthComposition {
   ///
   /// Host może użyć tej ścieżki dla własnego, zweryfikowanego adaptera bez
   /// dodawania tokenów do warstwy presentation.
-  factory AuthComposition.fromClient(AuthClientPort client) {
-    final session = AuthSessionController();
+  factory AuthComposition.fromClient(
+    AuthClientPort client, {
+    AuthSessionController? sessionController,
+    Future<String?> Function()? desktopAccessTokenProvider,
+    Future<String?> Function(String? failedAccessToken)?
+    desktopUnauthorizedRecovery,
+  }) {
+    final session = sessionController ?? AuthSessionController();
     return AuthComposition(
       session: session,
       useCases: AuthUseCases(
@@ -86,6 +100,8 @@ final class AuthComposition {
         clientKind: client.clientKind,
       ),
       client: client,
+      desktopAccessTokenProvider: desktopAccessTokenProvider,
+      desktopUnauthorizedRecovery: desktopUnauthorizedRecovery,
     );
   }
 
@@ -106,6 +122,13 @@ final class AuthComposition {
   /// Opcjonalny, typowany port platformowy używany przez hosta bootstrapu.
   /// Nie udostępnia tokenów i nie powinien być przekazywany do widgetów.
   final AuthClientPort? client;
+
+  /// Internal composition seam for desktop REST and SignalR only.
+  final Future<String?> Function()? desktopAccessTokenProvider;
+
+  /// Internal recovery seam paired with [desktopAccessTokenProvider].
+  final Future<String?> Function(String? failedAccessToken)?
+  desktopUnauthorizedRecovery;
 }
 
 /// Minimalny gateway łączący platformowy port sesji z use cases.

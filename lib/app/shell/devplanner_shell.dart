@@ -14,6 +14,7 @@ import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.
 import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_cubit.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/tasks_project_view_contract.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -52,6 +53,7 @@ class _DevPlannerShellRouteState extends State<DevPlannerShellRoute> {
   late final WorkspaceNavigationTreeCubit? _navigationCubit =
       _createNavigationCubit();
   final ValueNotifier<bool> _sidebarCollapsed = ValueNotifier(false);
+  final ValueNotifier<bool> _compactTreeOpen = ValueNotifier(false);
   final ValueNotifier<Set<String>> _expandedNavigationNodeIds = ValueNotifier(
     const <String>{},
   );
@@ -73,6 +75,7 @@ class _DevPlannerShellRouteState extends State<DevPlannerShellRoute> {
     final cubit = _navigationCubit;
     if (cubit != null) unawaited(cubit.close());
     _sidebarCollapsed.dispose();
+    _compactTreeOpen.dispose();
     _expandedNavigationNodeIds.dispose();
     super.dispose();
   }
@@ -137,34 +140,43 @@ class _DevPlannerShellRouteState extends State<DevPlannerShellRoute> {
       builder: (context, isSidebarCollapsed, _) =>
           ValueListenableBuilder<Set<String>>(
             valueListenable: _expandedNavigationNodeIds,
-            builder: (context, expandedNavigationNodeIds, _) {
-              final layout = _DesktopShellLayout(
-                key: const ValueKey('devplanner-shell-layout'),
-                navigationCubit: _navigationCubit,
-                tasksBoardAvailable: widget.tasksBoardAvailable,
-                location: location,
-                isSidebarCollapsed: isSidebarCollapsed,
-                expandedNavigationNodeIds: expandedNavigationNodeIds,
-                onToggleNavigationNode: _toggleNavigationNode,
-                onCreateWorkspace: widget.workspaceManagementGateway == null
-                    ? null
-                    : _createWorkspace,
-                onCreateProject: widget.projectManagementGateway == null
-                    ? null
-                    : _createProject,
-                onToggleSidebar: () {
-                  _sidebarCollapsed.value = !isSidebarCollapsed;
-                },
-                child: widget.child,
-              );
-              final projectsGateway = widget.projectsGateway;
-              return projectsGateway == null
-                  ? layout
-                  : RepositoryProvider<ProjectsGateway>.value(
-                      value: projectsGateway,
-                      child: layout,
+            builder: (context, expandedNavigationNodeIds, _) =>
+                ValueListenableBuilder<bool>(
+                  valueListenable: _compactTreeOpen,
+                  builder: (context, compactTreeOpen, _) {
+                    final layout = _DesktopShellLayout(
+                      key: const ValueKey('devplanner-shell-layout'),
+                      navigationCubit: _navigationCubit,
+                      tasksBoardAvailable: widget.tasksBoardAvailable,
+                      location: location,
+                      isSidebarCollapsed: isSidebarCollapsed,
+                      expandedNavigationNodeIds: expandedNavigationNodeIds,
+                      onToggleNavigationNode: _toggleNavigationNode,
+                      onCreateWorkspace:
+                          widget.workspaceManagementGateway == null
+                          ? null
+                          : _createWorkspace,
+                      onCreateProject: widget.projectManagementGateway == null
+                          ? null
+                          : _createProject,
+                      showCompactTree: compactTreeOpen,
+                      onToggleCompactTree: () {
+                        _compactTreeOpen.value = !compactTreeOpen;
+                      },
+                      onToggleSidebar: () {
+                        _sidebarCollapsed.value = !isSidebarCollapsed;
+                      },
+                      child: widget.child,
                     );
-            },
+                    final projectsGateway = widget.projectsGateway;
+                    return projectsGateway == null
+                        ? layout
+                        : RepositoryProvider<ProjectsGateway>.value(
+                            value: projectsGateway,
+                            child: layout,
+                          );
+                  },
+                ),
           ),
     );
   }

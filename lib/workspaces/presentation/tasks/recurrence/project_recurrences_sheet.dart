@@ -274,7 +274,7 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
                 style: context.text.labelSmall?.copyWith(
                   fontWeight: .w800,
                   letterSpacing: .3,
-                  fontSize: 10,
+                  fontSize: context.tasksTheme.controlText.fontSize,
                   color: context.colors.onSurfaceVariant.withValues(alpha: .7),
                 ),
               ),
@@ -288,7 +288,7 @@ class _ProjectRecurrencesSheetState extends State<ProjectRecurrencesSheet> {
                 style: context.text.labelSmall?.copyWith(
                   fontWeight: .w800,
                   letterSpacing: .3,
-                  fontSize: 10,
+                  fontSize: context.tasksTheme.controlText.fontSize,
                   color: context.colors.onSurfaceVariant.withValues(alpha: .7),
                 ),
               ),

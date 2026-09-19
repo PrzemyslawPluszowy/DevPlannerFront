@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 /// Tokeny geometrii, typografii oraz punktowych obramowań dla kart Kanban i podzadań.
@@ -66,23 +67,16 @@ abstract final class KanbanCardTokens {
 
   // --- Typografia (zgodnie z sekcją 3.1) ---
 
-  /// Tytuł rodzica: 14/20, weight 600, onSurface (najwyższy kontrast w karcie)
-  static TextStyle parentTitle(BuildContext context) {
-    final theme = Theme.of(context);
-    return (theme.textTheme.bodyMedium ?? const TextStyle()).copyWith(
-      fontSize: 14.0,
-      height: 20.0 / 14.0,
-      fontWeight: FontWeight.w600,
-      color: theme.colorScheme.onSurface,
-    );
-  }
+  /// Tytuł rodzica: token karty, onSurface (najwyższy kontrast w karcie)
+  static TextStyle parentTitle(BuildContext context) =>
+      context.tasksTheme.cardTitleText.copyWith(
+        color: context.colors.onSurface,
+      );
 
   /// Tytuł podzadania: 12.5–13/18, weight 400 (ukończone) lub 500 (aktywne)
   static TextStyle subtaskTitle(BuildContext context, {bool isDone = false}) {
     final theme = Theme.of(context);
-    return (theme.textTheme.bodySmall ?? const TextStyle()).copyWith(
-      fontSize: 12.5,
-      height: 18.0 / 12.5,
+    return context.tasksTheme.dataText.copyWith(
       fontWeight: isDone ? FontWeight.w400 : FontWeight.w500,
       color: isDone
           ? theme.colorScheme.onSurfaceVariant.withValues(alpha: .75)
@@ -93,61 +87,45 @@ abstract final class KanbanCardTokens {
   }
 
   /// Kod zadania: 11/16, weight 500, onSurfaceVariant (pomocniczy, neutralny)
-  static TextStyle taskCode(BuildContext context) {
-    final theme = Theme.of(context);
-    return (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
-      fontSize: 11.0,
-      height: 16.0 / 11.0,
-      fontWeight: FontWeight.w500,
-      color: theme.colorScheme.onSurfaceVariant,
-      letterSpacing: 0.1,
-    );
-  }
+  static TextStyle taskCode(BuildContext context) =>
+      context.tasksTheme.metaText.copyWith(
+        fontWeight: FontWeight.w500,
+        color: context.colors.onSurfaceVariant,
+        letterSpacing: 0.1,
+      );
 
   /// Termin, liczniki, etykiety: 12/16, weight 400–500, onSurfaceVariant
   static TextStyle metaText(
     BuildContext context, {
     FontWeight weight = FontWeight.w400,
-  }) {
-    final theme = Theme.of(context);
-    return (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
-      fontSize: 12.0,
-      height: 16.0 / 12.0,
-      fontWeight: weight,
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-  }
+  }) => context.tasksTheme.metaText.copyWith(
+    fontWeight: weight,
+    color: context.colors.onSurfaceVariant,
+  );
 
   /// Nagłówek przełącznika „Podzadania”: 12/16, weight 500, onSurfaceVariant
-  static TextStyle subtasksHeader(BuildContext context) {
-    final theme = Theme.of(context);
-    return (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
-      fontSize: 12.0,
-      height: 16.0 / 12.0,
-      fontWeight: FontWeight.w500,
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-  }
+  static TextStyle subtasksHeader(BuildContext context) =>
+      context.tasksTheme.metaText.copyWith(
+        fontWeight: FontWeight.w500,
+        color: context.colors.onSurfaceVariant,
+      );
 
   /// Nazwa kolumny: 14/20, weight 600, onSurface
-  static TextStyle columnTitle(BuildContext context) {
-    final theme = Theme.of(context);
-    return (theme.textTheme.titleSmall ?? const TextStyle()).copyWith(
-      fontSize: 14.0,
-      height: 20.0 / 14.0,
-      fontWeight: FontWeight.w600,
-      color: theme.colorScheme.onSurface,
-    );
-  }
+  static TextStyle columnTitle(BuildContext context) =>
+      context.tasksTheme.cardTitleText.copyWith(
+        color: context.colors.onSurface,
+      );
 
-  /// Inicjał awatara dziecka: 10/12, weight 500
-  static TextStyle childAvatarInitials(BuildContext context) {
-    return const TextStyle(
-      fontSize: 10.0,
-      height: 12.0 / 10.0,
-      fontWeight: FontWeight.w500,
-    );
-  }
+  /// Inicjał awatara dziecka: token metadanych, weight 500.
+  ///
+  /// Wcześniej stały 10 px bez koloru, więc inicjał nie był związany ani
+  /// z podłogą czytelności, ani z kolorem powierzchni awatara.
+  static TextStyle childAvatarInitials(BuildContext context) =>
+      context.tasksTheme.metaText.copyWith(
+        height: 1,
+        fontWeight: FontWeight.w500,
+        color: context.tasksTheme.onAccent,
+      );
 
   // --- Semantyczne kolory obrysów (Etap B) ---
 

@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_custom_field_picker.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_text_picker.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -167,14 +167,14 @@ class TaskCellCustomPrimitive extends StatelessWidget {
   }
 
   Future<void> _editValue(BuildContext context) async {
-    final menuPos = TaskContextMenu.positionFor(context);
+    final menuPos = AppContextMenu.positionFor(context);
 
     if (field.type == TaskCustomFieldType.boolean) {
       final res = await TaskCustomFieldPicker.pickBoolean(
         context,
         field: field,
         value: value,
-        menuPosition: menuPos,
+        position: menuPos,
       );
       if (res == customFieldCancelled || onChanged == null) return;
       await onChanged!(field, res);
@@ -182,31 +182,30 @@ class TaskCellCustomPrimitive extends StatelessWidget {
     }
 
     if (field.type == TaskCustomFieldType.user) {
-      final items = <PopupMenuEntry<Object?>>[
+      final options = <AppContextMenuOption<Object>>[
         for (final profile in profiles.values)
-          TaskContextMenuItem<Object?>(
+          AppContextMenuOption(
             value: profile.userId,
-            title: profile.displayName?.trim().isNotEmpty == true
+            label: profile.displayName?.trim().isNotEmpty == true
                 ? profile.displayName!.trim()
                 : profile.userId,
             icon: Symbols.person_rounded,
-            isSelected: value?.toString() == profile.userId,
+            selected: value?.toString() == profile.userId,
           ),
-        if (!field.isRequired && value != null) ...[
-          const TaskContextMenuDivider(),
-          TaskContextMenuItem<Object?>(
+        if (!field.isRequired && value != null)
+          AppContextMenuOption(
             value: customFieldClear,
-            title: 'Wyczyść',
+            label: 'Wyczyść',
             icon: Symbols.close_rounded,
             iconColor: context.colors.error,
+            separatorBefore: true,
           ),
-        ],
       ];
 
-      final selected = await TaskContextMenu.show<Object?>(
+      final selected = await AppContextMenu.select<Object>(
         context,
-        position: menuPos,
-        items: items,
+        globalPosition: menuPos,
+        options: options,
       );
       if (selected == null || onChanged == null) return;
       await onChanged!(field, selected == customFieldClear ? null : selected);
@@ -219,7 +218,7 @@ class TaskCellCustomPrimitive extends StatelessWidget {
       title: field.name,
       isNumber: field.type == TaskCustomFieldType.number,
       initialValue: value?.toString() ?? '',
-      menuPosition: menuPos,
+      globalPosition: menuPos,
       allowClear: !field.isRequired,
     );
     if (answer == null || onChanged == null) return;

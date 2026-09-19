@@ -17,7 +17,6 @@ class AppContextMenuButton extends StatefulWidget {
     required this.icon,
     required this.actions,
     super.key,
-    this.style = AppContextMenuStyle.flat,
     this.variant = AppActionButtonVariant.outlined,
     this.tone = AppActionButtonTone.primary,
     this.dense = false,
@@ -28,7 +27,6 @@ class AppContextMenuButton extends StatefulWidget {
   final String label;
   final IconData icon;
   final List<AppContextMenuAction> actions;
-  final AppContextMenuStyle style;
   final AppActionButtonVariant variant;
   final AppActionButtonTone tone;
   final bool dense;
@@ -63,7 +61,6 @@ class _AppContextMenuButtonState extends State<AppContextMenuButton> {
       context,
       globalPosition: _menuPosition(fromPointer: fromPointer),
       actions: widget.actions,
-      style: widget.style,
       headerTitle: widget.menuHeaderTitle,
       headerSubtitle: widget.menuHeaderSubtitle,
     );

@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
@@ -76,7 +77,7 @@ Widget _buildHeaderTestApp({
     child: Scaffold(
       body: SizedBox(
         width: width,
-        child: TasksBoardHeader(
+        child: TasksHeader(
           state: state,
           workspaceId: 'w-1',
           projectId: 'p-1',
@@ -93,45 +94,73 @@ void main() {
     FlutterError.onError = null;
   });
 
-  group('TasksBoardHeader - Responsywność i hierarchia', () {
-    const testWidths = [360.0, 768.0, 920.0, 1060.0, 1400.0];
+  group('TasksHeader - Responsywność i hierarchia', () {
+    // Zakres desktopowy z planu (§3.2) plus wąskie okna dla odporności układu.
+    const testWidths = [360.0, 768.0, 1024.0, 1440.0, 1920.0];
 
-    for (final width in testWidths) {
-      testWidgets(
-        'renderuje się poprawnie bez błędów overflow dla szerokości $width px',
-        (tester) async {
-          tester.view.physicalSize = Size(width, 800);
-          tester.view.devicePixelRatio = 1.0;
-          addTearDown(tester.view.resetPhysicalSize);
-          addTearDown(tester.view.resetDevicePixelRatio);
+    for (final view in [TasksProjectView.board, TasksProjectView.list]) {
+      for (final width in testWidths) {
+        testWidgets(
+          '${view.name}: $width px renderuje dwa wiersze bez overflow',
+          (tester) async {
+            tester.view.physicalSize = Size(width, 900);
+            tester.view.devicePixelRatio = 1.0;
+            addTearDown(tester.view.resetPhysicalSize);
+            addTearDown(tester.view.resetDevicePixelRatio);
 
-          final state = _createReadyState();
-          await tester.pumpWidget(
-            _buildHeaderTestApp(state: state, width: width),
-          );
-          await tester.pumpAndSettle();
+            final state = _createReadyState();
+            await tester.pumpWidget(
+              _buildHeaderTestApp(state: state, width: width, view: view),
+            );
+            await tester.pumpAndSettle();
 
-          // Rząd 1: Tytuł/nazwa projektu, licznik i primary CTA
-          expect(find.text('8'), findsOneWidget); // 5 + 3 = 8
-          if (width <= 920) {
-            expect(find.byTooltip('Dodaj zadanie'), findsOneWidget);
-          } else {
-            expect(find.text('Dodaj zadanie'), findsOneWidget);
-          }
+            expect(tester.takeException(), isNull);
 
-          // Rząd 2: Nawigacja widoków
-          expect(find.text('Tablica'), findsOneWidget);
+            // Wiersz kontekstu: nazwa/licznik, zakładki i główne CTA.
+            expect(find.text('8'), findsOneWidget);
+            expect(find.byType(TabBar), findsOneWidget);
+            if (width <= 920) {
+              expect(find.byTooltip('Dodaj zadanie'), findsOneWidget);
+            } else {
+              expect(find.text('Dodaj zadanie'), findsOneWidget);
+            }
 
-          // Weryfikacja wysokości: dla ekranów szerokich/desktopowych (>= 920 px) nagłówek ma 1 rząd <= 52.0 px
-          if (width >= 920) {
+            // Wiersz poleceń: zapisane widoki; szybki filtr tylko dla Kanbanu.
+            expect(
+              find.byKey(const ValueKey('saved_views_menu')),
+              findsOneWidget,
+            );
+            expect(
+              find.byKey(const ValueKey('quick_filter_menu')),
+              view == TasksProjectView.board ? findsOneWidget : findsNothing,
+            );
+
+            // Geometria obu wierszy mieści się w kontrakcie gęstości.
+            final tokens = DevPlannerTasksTheme.of(
+              Theme.of(
+                tester.element(find.byType(TasksHeader)),
+              ).textTheme,
+              Theme.of(tester.element(find.byType(TasksHeader))).colorScheme,
+            );
             final headerHeight = tester
-                .getSize(find.byType(TasksBoardHeader))
+                .getSize(find.byType(TasksHeader))
                 .height;
-            expect(headerHeight, lessThanOrEqualTo(52.0));
-            expect(headerHeight, greaterThanOrEqualTo(40.0));
-          }
-        },
-      );
+            expect(
+              headerHeight,
+              greaterThanOrEqualTo(tokens.contextRowHeight),
+            );
+            if (width >= 1024) {
+              expect(
+                headerHeight,
+                lessThanOrEqualTo(
+                  tokens.contextRowHeight + tokens.commandRowHeight + 16,
+                ),
+                reason: 'Dwa wiersze nagłówka nie mogą rosnąć ponad kontrakt.',
+              );
+            }
+          },
+        );
+      }
     }
 
     testWidgets(
@@ -171,14 +200,16 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Zamiast zakładek widoków pojawia się pasek masowych akcji
+        // Drugi wiersz staje się kontekstowym paskiem masowych akcji.
         expect(find.text('Wybrano: 2'), findsOneWidget);
         expect(find.text('Przenieś wybrane zadania'), findsOneWidget);
         expect(find.text('Zmień priorytet wybranych zadań'), findsOneWidget);
         expect(find.text('Ustaw termin wybranych zadań'), findsOneWidget);
 
-        // Zakładka Tablica nie jest widoczna podczas aktywnego Bulk Toolbara
-        expect(find.text('Tablica'), findsNothing);
+        // Zakładki widoków zostają w pierwszym wierszu, a pasek poleceń widoku
+        // ustępuje miejsca akcjom masowym, więc nie ma dwóch pasków naraz.
+        expect(find.text('Tablica'), findsOneWidget);
+        expect(find.byKey(const ValueKey('saved_views_menu')), findsNothing);
       },
     );
 
@@ -206,7 +237,7 @@ void main() {
     );
 
     testWidgets(
-      'split button tworzenia zadania w nagłówku otwiera menu szablonów TaskContextMenu',
+      'split button tworzenia zadania w nagłówku otwiera wspólne menu szablonów',
       (tester) async {
         tester.view.physicalSize = const Size(1200, 800);
         tester.view.devicePixelRatio = 1.0;
@@ -223,13 +254,13 @@ void main() {
         await tester.tap(templateTooltipFinder);
         await tester.pumpAndSettle();
 
-        // Menu kontekstowe TaskContextMenu powinno się otworzyć z opcją szablonu
+        // Wspólne menu kontekstowe powinno się otworzyć z opcją szablonu
         expect(find.text('Użyj szablonu'), findsOneWidget);
       },
     );
 
     testWidgets(
-      'menu szybkiego filtra otwiera TaskContextMenu ze wszystkimi opcjami',
+      'menu szybkiego filtra otwiera wspólne menu ze wszystkimi opcjami',
       (tester) async {
         tester.view.physicalSize = const Size(1200, 800);
         tester.view.devicePixelRatio = 1.0;

@@ -19,3 +19,13 @@ enum TaskPriority {
   @JsonValue('Critical')
   critical,
 }
+
+/// Stabilna reprezentacja tekstowa używana w query API.
+extension TaskPriorityWireValue on TaskPriority {
+  String get wireValue => switch (this) {
+    TaskPriority.low => 'Low',
+    TaskPriority.normal => 'Normal',
+    TaskPriority.high => 'High',
+    TaskPriority.critical => 'Critical',
+  };
+}

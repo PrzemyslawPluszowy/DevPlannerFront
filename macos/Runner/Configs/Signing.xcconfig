@@ -1,0 +1,14 @@
+// Signing policy for local development. The team identifier lives only in the
+// ignored Signing.local.xcconfig so this repository never pins a person's
+// certificate common name or Apple developer team.
+// Leave blank in source control: a missing local override must fail clearly
+// instead of producing an ad-hoc build with a changing designated requirement.
+DEVPLANNER_CODE_SIGN_IDENTITY =
+DEVPLANNER_DEVELOPMENT_TEAM =
+DEVPLANNER_RELEASE_CODE_SIGN_IDENTITY = Developer ID Application
+#include? "Signing.local.xcconfig"
+
+CODE_SIGN_IDENTITY = $(DEVPLANNER_CODE_SIGN_IDENTITY)
+DEVELOPMENT_TEAM = $(DEVPLANNER_DEVELOPMENT_TEAM)
+CODE_SIGN_STYLE = Manual
+CODE_SIGNING_REQUIRED = YES

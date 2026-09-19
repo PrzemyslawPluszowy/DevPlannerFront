@@ -275,11 +275,17 @@ class _DesktopNavigation extends StatelessWidget {
               children: [
                 for (final entry in grouped.entries) ...[
                   Padding(
-                    padding: const .all(Sizes.p8),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      Sizes.p16,
+                      Sizes.p8,
+                      Sizes.p8,
+                      Sizes.p4,
+                    ),
                     child: Text(
                       ProjectSettingsTabCatalog.sectionLabel(entry.key)
                           .toUpperCase(),
                       style: context.text.labelSmall?.copyWith(
+                        color: context.colors.onSurfaceVariant,
                         fontWeight: .w700,
                       ),
                     ),
@@ -311,39 +317,111 @@ class _CompactNavigation extends StatelessWidget {
   final ValueChanged<ProjectSettingsTab> onSelected;
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 44,
+    height: Sizes.p44,
     child: ListView(
       scrollDirection: .horizontal,
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: Sizes.p12),
       children: [
         for (final descriptor in descriptors)
-          _NavigationButton(
-            descriptor: descriptor,
-            selected: currentTab == descriptor.tab,
-            onSelected: onSelected,
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: Sizes.p6),
+            child: Center(
+              child: _NavigationButton(
+                descriptor: descriptor,
+                selected: currentTab == descriptor.tab,
+                onSelected: onSelected,
+                expanded: false,
+              ),
+            ),
           ),
       ],
     ),
   );
 }
 
+/// Wiersz nawigacji ustawień.
+///
+/// Wariant rozciągnięty (panel boczny) zajmuje pełną szerokość i wyrównuje
+/// treść do lewej krawędzi, wariant kompaktowy jest chipem przewijanej listy.
+/// Zaznaczenie jest widoczne tłem i kolorem ikony, nie tylko kolorem tekstu.
 class _NavigationButton extends StatelessWidget {
   const _NavigationButton({
     required this.descriptor,
     required this.selected,
     required this.onSelected,
+    this.expanded = true,
   });
+
   final ProjectSettingsTabDescriptor descriptor;
   final bool selected;
   final ValueChanged<ProjectSettingsTab> onSelected;
+  final bool expanded;
+
+  static const double _rowHeight = Sizes.p36;
+  static const double _rowIndent = Sizes.p8;
+  static const double _rowMargin = Sizes.p8;
+
   @override
-  Widget build(BuildContext context) => TextButton.icon(
-    onPressed: () => onSelected(descriptor.tab),
-    icon: Icon(descriptor.icon, size: Sizes.p16),
-    label: Text(descriptor.labelBuilder(context)),
-    style: TextButton.styleFrom(
-      foregroundColor: selected
-          ? context.colors.primary
-          : context.colors.onSurfaceVariant,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final surfaceRoles = context.surfaceRoles;
+    final label = descriptor.labelBuilder(context);
+
+    return Padding(
+      padding: EdgeInsetsDirectional.symmetric(
+        horizontal: expanded ? _rowMargin : 0,
+      ),
+      child: TextButton(
+        onPressed: () => onSelected(descriptor.tab),
+        style:
+            TextButton.styleFrom(
+              alignment: AlignmentDirectional.centerStart,
+              minimumSize: const Size(0, _rowHeight),
+              padding: EdgeInsetsDirectional.symmetric(
+                horizontal: expanded ? _rowIndent : Sizes.p12,
+              ),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Sizes.p8),
+              ),
+              foregroundColor: selected ? colors.primary : colors.onSurface,
+              backgroundColor: selected ? surfaceRoles.tintedBackground : null,
+              side: selected
+                  ? BorderSide(color: surfaceRoles.tintedBorder)
+                  : null,
+              textStyle: context.text.labelLarge?.copyWith(
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+              ),
+            ).copyWith(
+              overlayColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.pressed)) {
+                  return surfaceRoles.pressedOverlay;
+                }
+                if (states.contains(WidgetState.hovered) ||
+                    states.contains(WidgetState.focused)) {
+                  return surfaceRoles.hoverOverlay;
+                }
+                return null;
+              }),
+            ),
+        child: Row(
+          mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            Icon(descriptor.icon, size: Sizes.p16),
+            Gaps.w8,
+            if (expanded)
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+            else
+              Text(label, maxLines: 1),
+          ],
+        ),
+      ),
+    );
+  }
 }

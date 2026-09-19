@@ -38,6 +38,33 @@ void main() {
     expect(session.snapshot.clientKind, AuthClientKind.desktopPkce);
   });
 
+  test(
+    'sign-out clears visible session even when remote revoke fails',
+    () async {
+      final session = AuthSessionController();
+      session.setSignedIn(
+        const AuthUser(userId: 'u-1', login: 'anna', displayName: 'Anna'),
+        clientKind: AuthClientKind.desktopPkce,
+      );
+      final useCases = AuthUseCases(
+        gateway: _FakeAuthGateway(
+          user: const AuthUser(
+            userId: 'u-1',
+            login: 'anna',
+            displayName: 'Anna',
+          ),
+          signOutFailure: const AuthFailure('Brak sieci.'),
+        ),
+        session: session,
+        clientKind: AuthClientKind.desktopPkce,
+      );
+
+      await expectLater(useCases.signOut(), throwsA(isA<AuthFailure>()));
+
+      expect(session.snapshot.status, AuthSessionStatus.signedOut);
+    },
+  );
+
   test('login cubit calls only the injected domain use case', () async {
     final session = AuthSessionController();
     final gateway = _FakeAuthGateway(
@@ -120,10 +147,15 @@ void main() {
 }
 
 final class _FakeAuthGateway implements AuthGateway {
-  _FakeAuthGateway({required this.user, this.signInFailure});
+  _FakeAuthGateway({
+    required this.user,
+    this.signInFailure,
+    this.signOutFailure,
+  });
 
   final AuthUser user;
   final AuthFailure? signInFailure;
+  final AuthFailure? signOutFailure;
   LoginCredentials? credentials;
 
   @override
@@ -137,7 +169,9 @@ final class _FakeAuthGateway implements AuthGateway {
   Future<AuthUser?> restoreSession() async => user;
 
   @override
-  Future<void> signOut() async {}
+  Future<void> signOut() async {
+    if (signOutFailure case final failure?) throw failure;
+  }
 
   @override
   Future<void> activate({

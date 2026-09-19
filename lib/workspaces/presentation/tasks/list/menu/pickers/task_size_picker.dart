@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/theme/theme.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -38,32 +38,29 @@ final class TaskSizePicker {
     BuildContext context, {
     required int? currentSize,
     required Future<bool> Function(int? value) onSave,
-    RelativeRect? menuPosition,
+    Offset? position,
   }) async {
-    final position = menuPosition ?? TaskContextMenu.positionFor(context);
-
-    final selected = await TaskContextMenu.show<int?>(
+    final selected = await AppContextMenu.select<int>(
       context,
-      position: position,
-      items: [
-        const TaskContextMenuHeader(title: 'Rozmiar zadania'),
+      globalPosition: position ?? AppContextMenu.positionFor(context),
+      options: [
         for (final size in TaskTShirtSize.values)
-          TaskContextMenuItem<int?>(
+          AppContextMenuOption(
+            sectionTitle: 'Rozmiar zadania',
             value: size.value,
-            title: '${size.label} – ${size.description}',
+            label: '${size.label} – ${size.description}',
             icon: Symbols.straighten_rounded,
             iconColor: size.color,
-            isSelected: TaskTShirtSize.fromValue(currentSize) == size,
+            selected: TaskTShirtSize.fromValue(currentSize) == size,
           ),
-        if (currentSize != null) ...[
-          const TaskContextMenuDivider(),
-          TaskContextMenuItem<int?>(
+        if (currentSize != null)
+          AppContextMenuOption(
             value: 0,
-            title: 'Wyczyść rozmiar',
+            label: 'Wyczyść rozmiar',
             icon: Symbols.close_rounded,
             iconColor: context.colors.error,
+            separatorBefore: true,
           ),
-        ],
       ],
     );
 

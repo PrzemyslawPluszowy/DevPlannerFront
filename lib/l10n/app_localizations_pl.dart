@@ -5581,10 +5581,29 @@ class AppLocalizationsPl extends AppLocalizations {
   String get tasksListLoadMore => 'Pokaż kolejne zadania';
 
   @override
+  String get tasksListSort => 'Sortowanie';
+
+  @override
+  String get tasksListGroupBy => 'Grupowanie';
+
+  @override
+  String get tasksListClearAllFilters => 'Wyczyść wszystko';
+
+  @override
   String get tasksListStatus => 'Status';
 
   @override
   String get tasksListPriority => 'Priorytet';
+
+  @override
+  String get tasksBoardFilterAssignee => 'Osoba';
+
+  @override
+  String get tasksBoardFilterAllPeople => 'Wszystkie osoby';
+
+  @override
+  String get tasksBoardMoveBlockedByFilter =>
+      'Nie można przenieść karty do kolumny, której zawartość ukrywa aktywny filtr. Wyczyść filtry i spróbuj ponownie.';
 
   @override
   String get tasksListTask => 'Zadanie';
@@ -7988,7 +8007,25 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tasksListPreferencesConflict =>
-      'Układ kolumn został zaktualizowany w innej sesji. Odświeżono widok.';
+      'Ustawienia widoku zostały zmienione w innej sesji. Twoja zmiana nie została zapisana.';
+
+  @override
+  String get tasksViewPreferencesLoadFailed =>
+      'Nie udało się wczytać Twoich ustawień widoku. Kolumny i sortowanie mogą być nieaktualne.';
+
+  @override
+  String get tasksViewErrorRetry => 'Ponów';
+
+  @override
+  String get tasksViewErrorRefresh => 'Odśwież';
+
+  @override
+  String get tasksViewErrorDismissTooltip => 'Ukryj komunikat';
+
+  @override
+  String tasksViewErrorTraceId(String traceId) {
+    return 'Identyfikator błędu: $traceId';
+  }
 
   @override
   String get tasksListSaveViewDialogTitle => 'Nowy zapisany widok';

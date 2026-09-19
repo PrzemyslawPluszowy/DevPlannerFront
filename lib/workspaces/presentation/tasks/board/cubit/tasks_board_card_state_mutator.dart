@@ -20,8 +20,8 @@ final class TasksBoardCardStateMutator {
           ),
       ],
     ),
-    clearMutationError: true,
-    mutationSerial: current.mutationSerial + 1,
+    clearError: true,
+    taskDataRevision: current.taskDataRevision + 1,
   );
 
   static KanbanTaskCardResponse? findCard(

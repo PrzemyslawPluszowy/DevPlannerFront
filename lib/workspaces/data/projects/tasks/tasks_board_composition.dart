@@ -5,6 +5,7 @@ import 'package:devplanner/workspaces/data/projects/api/projects_api.dart';
 import 'package:devplanner/workspaces/data/projects/milestones/api/milestones_api.dart';
 import 'package:devplanner/workspaces/data/projects/milestones/repositories/milestone_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/repositories/project_member_profiles_repository_impl.dart';
+import 'package:devplanner/workspaces/data/projects/repositories/projects_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_advanced_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_capacity_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_operations_api.dart';
@@ -24,6 +25,7 @@ import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_real
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_capacity_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
@@ -47,6 +49,7 @@ final class TasksBoardComposition {
     required this.collaborationRepository,
     required this.taskTemplateRepository,
     required this.memberProfilesRepository,
+    required this.projectsRepository,
     required this.metadataRepository,
     required this.viewRepository,
     required this.listConfigurationRepository,
@@ -62,6 +65,7 @@ final class TasksBoardComposition {
   final TaskCollaborationRepository collaborationRepository;
   final TaskTemplateRepository taskTemplateRepository;
   final ProjectMemberProfilesRepository memberProfilesRepository;
+  final ProjectsRepository projectsRepository;
   final TaskMetadataRepository metadataRepository;
   final TaskViewRepository viewRepository;
   final TaskListConfigurationRepository listConfigurationRepository;
@@ -101,6 +105,7 @@ final class TasksBoardComposition {
       memberProfilesRepository: ProjectMemberProfilesRepositoryImpl(
         api: projectsApi,
       ),
+      projectsRepository: ProjectsRepositoryImpl(api: projectsApi),
       metadataRepository: TaskMetadataRepositoryImpl(operationsApi),
       viewRepository: TaskViewRepositoryImpl(
         TaskViewsApi(dio, baseUrl: baseUrl),

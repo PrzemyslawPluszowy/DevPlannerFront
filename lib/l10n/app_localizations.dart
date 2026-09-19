@@ -9878,6 +9878,24 @@ abstract class AppLocalizations {
   /// **'Show more tasks'**
   String get tasksListLoadMore;
 
+  /// No description provided for @tasksListSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get tasksListSort;
+
+  /// No description provided for @tasksListGroupBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Group by'**
+  String get tasksListGroupBy;
+
+  /// No description provided for @tasksListClearAllFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get tasksListClearAllFilters;
+
   /// No description provided for @tasksListStatus.
   ///
   /// In en, this message translates to:
@@ -9889,6 +9907,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Priority'**
   String get tasksListPriority;
+
+  /// No description provided for @tasksBoardFilterAssignee.
+  ///
+  /// In en, this message translates to:
+  /// **'Person'**
+  String get tasksBoardFilterAssignee;
+
+  /// No description provided for @tasksBoardFilterAllPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'All people'**
+  String get tasksBoardFilterAllPeople;
+
+  /// No description provided for @tasksBoardMoveBlockedByFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'This card cannot be moved into a column whose contents are hidden by an active filter. Clear the filters and try again.'**
+  String get tasksBoardMoveBlockedByFilter;
 
   /// No description provided for @tasksListTask.
   ///
@@ -14303,8 +14339,38 @@ abstract class AppLocalizations {
   /// No description provided for @tasksListPreferencesConflict.
   ///
   /// In en, this message translates to:
-  /// **'Column layout was updated in another session. View refreshed.'**
+  /// **'View settings were changed in another session. Your change has not been saved.'**
   String get tasksListPreferencesConflict;
+
+  /// No description provided for @tasksViewPreferencesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your view settings could not be loaded. Columns and sorting may be out of date.'**
+  String get tasksViewPreferencesLoadFailed;
+
+  /// No description provided for @tasksViewErrorRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get tasksViewErrorRetry;
+
+  /// No description provided for @tasksViewErrorRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get tasksViewErrorRefresh;
+
+  /// No description provided for @tasksViewErrorDismissTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss message'**
+  String get tasksViewErrorDismissTooltip;
+
+  /// No description provided for @tasksViewErrorTraceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Error id: {traceId}'**
+  String tasksViewErrorTraceId(String traceId);
 
   /// No description provided for @tasksListSaveViewDialogTitle.
   ///

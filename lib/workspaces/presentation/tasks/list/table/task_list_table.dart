@@ -12,9 +12,7 @@ import 'package:devplanner/workspaces/domain/repositories/milestone_repository.d
 import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/helpers/task_permission_helper.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/bulk/task_list_bulk_bar.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/filters/task_list_filters.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/inline_create/task_list_inline_create.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/preferences/widgets/task_list_columns_sheet.dart';

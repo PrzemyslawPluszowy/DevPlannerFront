@@ -1,8 +1,8 @@
-part of 'tasks_board_page.dart';
+part of 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 /// Publiczny komponent nagłówka obszaru zadań w projekcie (dla widoków i testów).
-class TasksBoardHeader extends StatelessWidget {
-  const TasksBoardHeader({
+class TasksHeader extends StatelessWidget {
+  const TasksHeader({
     required this.state,
     required this.workspaceId,
     required this.projectId,
@@ -10,6 +10,10 @@ class TasksBoardHeader extends StatelessWidget {
     required this.onViewChanged,
     this.currentSnapshot,
     this.onSettingsClosed,
+    this.onProjectExited,
+    this.commandBar,
+    this.bulkBar,
+    this.showBulkBar = false,
     super.key,
   });
 
@@ -21,8 +25,22 @@ class TasksBoardHeader extends StatelessWidget {
   final ValueChanged<TasksProjectView> onViewChanged;
   final VoidCallback? onSettingsClosed;
 
+  /// Wywoływane, gdy użytkownik opuścił lub usunął projekt.
+  ///
+  /// Nawigację wykonuje właściciel trasy, więc nagłówek nie zna routera.
+  final VoidCallback? onProjectExited;
+
+  /// Kontrolki wiersza poleceń aktywnego widoku (np. filtry Listy).
+  final Widget? commandBar;
+
+  /// Kontekstowy pasek akcji masowych aktywnego widoku.
+  final Widget? bulkBar;
+
+  /// Czy wiersz poleceń ma ustąpić miejsca paskowi akcji masowych.
+  final bool showBulkBar;
+
   @override
-  Widget build(BuildContext context) => _BoardHeader(
+  Widget build(BuildContext context) => _TasksHeader(
     state: state,
     workspaceId: workspaceId,
     projectId: projectId,
@@ -30,6 +48,10 @@ class TasksBoardHeader extends StatelessWidget {
     currentSnapshot: currentSnapshot,
     onViewChanged: onViewChanged,
     onSettingsClosed: onSettingsClosed,
+    onProjectExited: onProjectExited,
+    commandBar: commandBar,
+    bulkBar: bulkBar,
+    showBulkBar: showBulkBar,
   );
 }
 
@@ -40,8 +62,8 @@ class TasksBoardHeader extends StatelessWidget {
 ///   oraz strefa narzędzi globalnych (obecność, profil użytkownika, panel admina, połączenie).
 /// - Rząd 2: Pasek narzędziowy aktywnego widoku lub kontekstowy pasek akcji masowych (Bulk Toolbar)
 ///   po zaznaczeniu co najmniej jednego zadania.
-class _BoardHeader extends StatelessWidget {
-  const _BoardHeader({
+class _TasksHeader extends StatelessWidget {
+  const _TasksHeader({
     required this.state,
     required this.workspaceId,
     required this.projectId,
@@ -49,6 +71,10 @@ class _BoardHeader extends StatelessWidget {
     required this.onViewChanged,
     this.currentSnapshot,
     this.onSettingsClosed,
+    this.onProjectExited,
+    this.commandBar,
+    this.bulkBar,
+    this.showBulkBar = false,
   });
 
   final TasksBoardReady state;
@@ -58,6 +84,10 @@ class _BoardHeader extends StatelessWidget {
   final TaskListViewSnapshot? currentSnapshot;
   final ValueChanged<TasksProjectView> onViewChanged;
   final VoidCallback? onSettingsClosed;
+  final VoidCallback? onProjectExited;
+  final Widget? commandBar;
+  final Widget? bulkBar;
+  final bool showBulkBar;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +117,7 @@ class _BoardHeader extends StatelessWidget {
     };
     final projectName = projectItem?.name ?? '';
 
-    return _BoardHeaderLayout(
+    return _TasksHeaderLayout(
       state: state,
       workspaceId: workspaceId,
       projectId: projectId,
@@ -100,6 +130,10 @@ class _BoardHeader extends StatelessWidget {
       currentUserId: currentUserId,
       effectiveRole: effectiveRole,
       canManage: canManage,
+      onProjectExited: onProjectExited,
+      commandBar: commandBar,
+      bulkBar: bulkBar,
+      showBulkBar: showBulkBar,
     );
   }
 
@@ -109,6 +143,7 @@ class _BoardHeader extends StatelessWidget {
     required String projectId,
     required String projectName,
     required ProjectRole? effectiveRole,
+    required VoidCallback? onProjectExited,
   }) {
     final projectsCubit = context.read<WorkspaceProjectsCubit?>();
     final projectFromList = switch (projectsCubit?.state) {
@@ -130,16 +165,7 @@ class _BoardHeader extends StatelessWidget {
         context: context,
         project: project,
         userRole: effectiveRole,
-        onProjectLeft: () {
-          final router = GoRouter.maybeOf(context);
-          if (router != null) {
-            unawaited(
-              DevPlannerNavigation(router).go(
-                '/workspaces/$workspaceId/projects',
-              ),
-            );
-          }
-        },
+        onProjectLeft: () => onProjectExited?.call(),
       ).then((_) {
         unawaited(projectsCubit?.load());
       }),
@@ -153,6 +179,7 @@ class _BoardHeader extends StatelessWidget {
     required String projectName,
     required ProjectRole? effectiveRole,
     required VoidCallback? onSettingsClosed,
+    required VoidCallback? onProjectExited,
   }) {
     final projectsCubit = context.read<WorkspaceProjectsCubit?>();
     final tasksBoardCubit = context.read<TasksBoardCubit?>();
@@ -175,16 +202,7 @@ class _BoardHeader extends StatelessWidget {
         context: context,
         project: project,
         userRole: effectiveRole,
-        onProjectDeleted: () {
-          final router = GoRouter.maybeOf(context);
-          if (router != null) {
-            unawaited(
-              DevPlannerNavigation(router).go(
-                '/workspaces/$workspaceId/projects',
-              ),
-            );
-          }
-        },
+        onProjectDeleted: () => onProjectExited?.call(),
       ).then((result) {
         if (result != null && result.hasChanges) {
           onSettingsClosed?.call();

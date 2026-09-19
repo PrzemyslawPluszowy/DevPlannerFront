@@ -1,7 +1,5 @@
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
-import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:retrofit/retrofit.dart';
@@ -19,11 +17,17 @@ abstract class KanbanApi {
   }) = _KanbanApi;
 
   /// Pobiera ustawienia tablicy i pierwsze strony widocznych kolumn.
+  ///
+  /// Filtry są opcjonalne; Backend stosuje tę samą predykatę do liczników kolumn
+  /// i do kart, a kursor strony kolumny dziedziczy ten sam zestaw filtrów.
   @GET('/api/v1/workspaces/{workspaceId}/projects/{projectId}/kanban/')
   Future<KanbanBoardResponse> getBoard(
     @Path('workspaceId') String workspaceId,
-    @Path('projectId') String projectId,
-  );
+    @Path('projectId') String projectId, {
+    @Query('assigneeUserId') String? assigneeUserId,
+    @Query('priority') String? priority,
+    @Query('milestoneId') String? milestoneId,
+  });
 
   /// Pobiera zapisaną konfigurację kolumn i kart tablicy Kanban.
   @GET('/api/v1/workspaces/{workspaceId}/projects/{projectId}/kanban/settings')
@@ -39,11 +43,11 @@ abstract class KanbanApi {
   Future<CursorPageResponse<KanbanTaskCardResponse>> getColumn(
     @Path('workspaceId') String workspaceId,
     @Path('projectId') String projectId,
-    @Path('status') ProjectTaskStatus status, {
+    @Path('status') String status, {
     @Query('cursor') String? cursor,
     @Query('limit') int? limit,
     @Query('assigneeUserId') String? assigneeUserId,
-    @Query('priority') TaskPriority? priority,
+    @Query('priority') String? priority,
     @Query('milestoneId') String? milestoneId,
   });
 
@@ -58,7 +62,7 @@ abstract class KanbanApi {
     @Query('cursor') String? cursor,
     @Query('limit') int? limit,
     @Query('assigneeUserId') String? assigneeUserId,
-    @Query('priority') TaskPriority? priority,
+    @Query('priority') String? priority,
     @Query('milestoneId') String? milestoneId,
   });
 

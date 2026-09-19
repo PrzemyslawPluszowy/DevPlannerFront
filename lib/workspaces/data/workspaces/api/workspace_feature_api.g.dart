@@ -22,7 +22,7 @@ class _WorkspaceFeatureApi implements WorkspaceFeatureApi {
   @override
   Future<DashboardPreferenceResponse> getDashboardPreferences(
     String workspaceId, {
-    DashboardContextKind? context,
+    String? context,
     String? projectId,
   }) async {
     final _extra = <String, dynamic>{};
@@ -58,7 +58,7 @@ class _WorkspaceFeatureApi implements WorkspaceFeatureApi {
   Future<DashboardPreferenceResponse> updateDashboardPreferences(
     String workspaceId,
     UpdateDashboardPreferencePayload payload, {
-    DashboardContextKind? context,
+    String? context,
     String? projectId,
   }) async {
     final _extra = <String, dynamic>{};

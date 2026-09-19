@@ -109,7 +109,7 @@ class _ColumnResizeGuideOverlay extends StatelessWidget {
                     style: context.text.labelSmall?.copyWith(
                       color: context.colors.onPrimary,
                       fontWeight: FontWeight.w700,
-                      fontSize: 10,
+                      fontSize: context.tasksTheme.controlText.fontSize,
                     ),
                   ),
                 ),

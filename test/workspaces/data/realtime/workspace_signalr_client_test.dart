@@ -75,6 +75,31 @@ WorkspaceNotificationResponse _notification() => WorkspaceNotificationResponse(
 );
 
 void main() {
+  for (final dispose in [false, true]) {
+    test(
+      'pending connect is cancelled on ${dispose ? 'dispose' : 'disconnect'}',
+      () async {
+        final token = Completer<String?>();
+        var calls = 0;
+        final client = WorkspaceSignalRClient('http://127.0.0.1:1/hub', () {
+          calls++;
+          return token.future;
+        });
+        final first = client.connect();
+        final second = client.connect();
+        expect(calls, 1);
+        if (dispose) {
+          client.dispose();
+        } else {
+          await client.disconnect();
+        }
+        token.complete('access-token');
+        await Future.wait([first, second]);
+        expect(client.state, WorkspaceSignalRConnectionState.disconnected);
+        client.dispose();
+      },
+    );
+  }
   test(
     'klient zaczyna w stanie rozłączonym i nie wywołuje huba przed connect',
     () {

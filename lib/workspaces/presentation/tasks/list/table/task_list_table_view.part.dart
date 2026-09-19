@@ -77,14 +77,6 @@ extension _TaskListTableViewExtension on _TaskListTableState {
             Column(
               crossAxisAlignment: .stretch,
               children: [
-                TaskListFilters(
-                  state: state,
-                  memberProfiles: widget.memberProfilesByUserId,
-                  canManage: canManage,
-                  onOpenColumnSettings: prefCubit != null
-                      ? openColumnSettings
-                      : null,
-                ),
                 if (state.filterError case final error?)
                   Padding(
                     padding: const EdgeInsets.only(top: Sizes.p8),
@@ -267,20 +259,6 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                 ),
               ],
             ),
-            if (state.selectedTaskIds.isNotEmpty)
-              Positioned(
-                bottom: 16,
-                left: 20,
-                right: 20,
-                child: Center(
-                  child: TaskListBulkBar(
-                    selectedCount: state.selectedTaskIds.length,
-                    memberProfiles: widget.memberProfilesByUserId,
-                    groups: state.groups,
-                    groupBy: widget.groupBy,
-                  ),
-                ),
-              ),
           ],
         ),
       ),

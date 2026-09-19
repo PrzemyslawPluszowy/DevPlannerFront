@@ -22,7 +22,7 @@ final class WorkspaceFeaturesRepositoryImpl extends ApiRepository
   }) => guardApiCall(
     () => _api.getDashboardPreferences(
       workspaceId,
-      context: context,
+      context: context?.wireValue,
       projectId: projectId,
     ),
     fallbackMessage: 'Nie udało się pobrać preferencji pulpitu.',
@@ -39,7 +39,7 @@ final class WorkspaceFeaturesRepositoryImpl extends ApiRepository
     () => _api.updateDashboardPreferences(
       workspaceId,
       payload,
-      context: context,
+      context: context?.wireValue,
       projectId: projectId,
     ),
     fallbackMessage: 'Nie udało się zapisać preferencji pulpitu.',

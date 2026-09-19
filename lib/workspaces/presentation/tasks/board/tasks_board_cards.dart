@@ -68,7 +68,7 @@ class _DraggableTaskCardState extends State<_DraggableTaskCard>
       feedback: Material(
         color: Colors.transparent,
         elevation: 8,
-        shadowColor: Colors.black.withValues(alpha: .2),
+        shadowColor: context.tasksTheme.shadow.withValues(alpha: .2),
         borderRadius: BorderRadius.circular(KanbanCardTokens.cardRadius),
         child: SizedBox(
           width: _cardWidth,

@@ -1,4 +1,4 @@
-part of 'tasks_board_page.dart';
+part of 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 /// Szybkie tworzenie zadania z menu wyboru szablonu.
 class _HeaderCreateActions extends StatelessWidget {
@@ -89,16 +89,18 @@ class _HeaderCreateActions extends StatelessWidget {
                     onTap: isEnabled
                         ? () async {
                             final action =
-                                await TaskContextMenu.show<_HeaderCreateAction>(
+                                await AppContextMenu.select<
+                                  _HeaderCreateAction
+                                >(
                                   context,
-                                  position: TaskContextMenu.positionFor(
+                                  globalPosition: AppContextMenu.positionFor(
                                     buttonContext,
                                   ),
-                                  items: [
-                                    TaskContextMenuItem<_HeaderCreateAction>(
+                                  options: [
+                                    AppContextMenuOption(
                                       value: _HeaderCreateAction.fromTemplate,
                                       icon: Symbols.auto_awesome_mosaic_rounded,
-                                      title: context.l10n.tasksTemplatesUse,
+                                      label: context.l10n.tasksTemplatesUse,
                                     ),
                                   ],
                                 );

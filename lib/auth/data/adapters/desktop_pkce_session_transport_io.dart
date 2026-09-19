@@ -21,20 +21,24 @@ final class DesktopPkceProtocolException implements Exception {
 final class PlatformDesktopPkceSessionTransport
     implements DesktopPkceSessionTransport {
   PlatformDesktopPkceSessionTransport({required this.baseUrl, Dio? dio})
-    : _dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl));
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              baseUrl: baseUrl,
+              connectTimeout: const Duration(seconds: 15),
+              sendTimeout: const Duration(seconds: 20),
+              receiveTimeout: const Duration(seconds: 20),
+            ),
+          );
 
   final String baseUrl;
   final Dio _dio;
-  String? _accessToken;
-
-  String? get accessToken => _accessToken;
 
   @override
-  Future<DesktopAuthorizationResult> authorizeInteractively() async {
-    _accessToken = null;
+  Future<DesktopTokenResult> authorizeInteractively() async {
     final server = await _bindLoopback();
     final state = _random(32);
-    final nonce = _random(32);
     final verifier = _random(64);
     final challenge = base64Url
         .encode(sha256.convert(utf8.encode(verifier)).bytes)
@@ -52,9 +56,8 @@ final class PlatformDesktopPkceSessionTransport
             'client_id': 'devplanner-desktop',
             'response_type': 'code',
             'redirect_uri': callback.toString(),
-            'scope': 'openid profile offline_access devplanner.api',
+            'scope': 'offline_access devplanner.api',
             'state': state,
-            'nonce': nonce,
             'code_challenge': challenge,
             'code_challenge_method': 'S256',
           },
@@ -68,12 +71,14 @@ final class PlatformDesktopPkceSessionTransport
       // IPv4 loopback and the peer check makes that boundary explicit.
       if (request.uri.path != '/callback' ||
           request.connectionInfo?.remoteAddress.isLoopback != true) {
+        await _reply(request, success: false);
         throw const DesktopPkceProtocolException(
           'Nieprawidłowy adres callbacku.',
           code: 'auth.pkce.callback_invalid',
         );
       }
       if (request.uri.queryParameters['state'] != state) {
+        await _reply(request, success: false);
         throw const DesktopPkceProtocolException(
           'Nieprawidłowy stan logowania.',
           code: 'auth.pkce.state_mismatch',
@@ -82,12 +87,13 @@ final class PlatformDesktopPkceSessionTransport
       final error = request.uri.queryParameters['error'];
       final code = request.uri.queryParameters['code'];
       if (error != null || code == null || code.isEmpty) {
+        await _reply(request, success: false);
         throw const DesktopPkceProtocolException(
           'Logowanie zostało odrzucone.',
           code: 'auth.pkce.callback_error',
         );
       }
-      await _reply(request);
+      await _reply(request, success: true);
       final response = await _dio.post<Map<String, dynamic>>(
         '/connect/token',
         data: {
@@ -99,23 +105,24 @@ final class PlatformDesktopPkceSessionTransport
         },
         options: Options(contentType: Headers.formUrlEncodedContentType),
       );
-      return await _tokenResult(response.data);
+      return _tokenResult(response.data);
     } on TimeoutException {
-      _accessToken = null;
       throw const DesktopPkceProtocolException(
         'Przekroczono czas oczekiwania na logowanie.',
         code: 'auth.pkce.timeout',
       );
-    } on Object {
-      _accessToken = null;
-      rethrow;
+    } on DioException {
+      throw const DesktopPkceProtocolException(
+        'Nie udało się zakończyć logowania. Spróbuj ponownie.',
+        code: 'auth.pkce.exchange_unavailable',
+      );
     } finally {
       await server.close(force: true);
     }
   }
 
   @override
-  Future<DesktopAuthorizationResult?> restoreSession({
+  Future<DesktopTokenResult?> restoreSession({
     required String refreshToken,
   }) async {
     try {
@@ -128,29 +135,34 @@ final class PlatformDesktopPkceSessionTransport
         },
         options: Options(contentType: Headers.formUrlEncodedContentType),
       );
-      return await _tokenResult(response.data);
+      return _tokenResult(response.data);
     } on DioException catch (error) {
-      _accessToken = null;
       if (_shouldDiscardRefreshToken(error)) return null;
-      rethrow;
-    } catch (_) {
-      _accessToken = null;
-      rethrow;
+      throw const DesktopPkceProtocolException(
+        'Nie udało się odświeżyć sesji. Spróbuj ponownie.',
+        code: 'auth.pkce.refresh_unavailable',
+      );
     }
   }
 
   @override
   Future<void> revoke({required String refreshToken}) async {
-    _accessToken = null;
-    await _dio.post<void>(
-      '/connect/revocation',
-      data: {
-        'client_id': 'devplanner-desktop',
-        'token': refreshToken,
-        'token_type_hint': 'refresh_token',
-      },
-      options: Options(contentType: Headers.formUrlEncodedContentType),
-    );
+    try {
+      await _dio.post<void>(
+        '/connect/revocation',
+        data: {
+          'client_id': 'devplanner-desktop',
+          'token': refreshToken,
+          'token_type_hint': 'refresh_token',
+        },
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+    } on DioException {
+      throw const DesktopPkceProtocolException(
+        'Nie udało się unieważnić sesji na serwerze.',
+        code: 'auth.pkce.revocation_unavailable',
+      );
+    }
   }
 
   @override
@@ -161,7 +173,7 @@ final class PlatformDesktopPkceSessionTransport
       );
 
   @override
-  Future<DesktopAuthorizationResult> completeAuthorization({
+  Future<DesktopTokenResult> completeAuthorization({
     required String code,
     required String state,
   }) => throw const DesktopPkceProtocolException(
@@ -188,41 +200,63 @@ final class PlatformDesktopPkceSessionTransport
   }
 
   Future<HttpRequest> _callback(HttpServer server) async {
-    final request = await server.first;
-    return request;
+    await for (final request in server) {
+      if (request.uri.path != '/callback') {
+        request.response.statusCode = HttpStatus.notFound;
+        await request.response.close();
+        continue;
+      }
+      if (request.uri.toString().length > 2048 ||
+          request.uri.queryParameters.length > 8) {
+        request.response.statusCode = HttpStatus.badRequest;
+        await request.response.close();
+        continue;
+      }
+      return request;
+    }
+    throw const DesktopPkceProtocolException(
+      'Callback logowania został zamknięty.',
+      code: 'auth.pkce.callback_closed',
+    );
   }
 
-  Future<void> _reply(HttpRequest request) async {
+  Future<void> _reply(HttpRequest request, {required bool success}) async {
     request.response
-      ..statusCode = HttpStatus.ok
+      ..statusCode = success ? HttpStatus.ok : HttpStatus.badRequest
       ..headers.contentType = ContentType.html
       ..write(
-        '<!doctype html><title>DevPlanner</title><p>Logowanie zakończone. Możesz zamknąć tę kartę.</p>',
+        success
+            ? '<!doctype html><title>DevPlanner</title><p>Logowanie zakończone. Możesz zamknąć tę kartę.</p>'
+            : '<!doctype html><title>DevPlanner</title><p>Logowanie nie zostało ukończone. Wróć do aplikacji.</p>',
       );
     await request.response.close();
   }
 
-  Future<DesktopAuthorizationResult> _tokenResult(
-    Map<String, dynamic>? body,
-  ) async {
-    final access = body?['access_token'] as String?;
-    final refresh = body?['refresh_token'] as String?;
-    if (access == null || refresh == null) {
+  DesktopTokenResult _tokenResult(Map<String, dynamic>? body) {
+    final access = body?['access_token'];
+    final refresh = body?['refresh_token'];
+    final expiresIn = _readExpiresIn(body?['expires_in']);
+    if (access is! String ||
+        access.trim().isEmpty ||
+        refresh is! String ||
+        refresh.trim().isEmpty ||
+        expiresIn == null ||
+        body?['token_type'] is! String ||
+        (body!['token_type'] as String).toLowerCase() != 'bearer') {
       throw const DesktopPkceProtocolException(
         'Niepoprawna odpowiedź tokenowa.',
         code: 'auth.pkce.token_invalid',
       );
     }
-    _debug('token exchange succeeded; validating /api/v1/me/');
-    final user = await _fetchCurrentUser(access);
-    _accessToken = access;
-    return DesktopAuthorizationResult(
+    return DesktopTokenResult(
+      accessToken: access,
       refreshToken: refresh,
-      user: user,
+      expiresIn: expiresIn,
     );
   }
 
-  Future<AuthUser> _fetchCurrentUser(String accessToken) async {
+  @override
+  Future<AuthUser> fetchCurrentUser({required String accessToken}) async {
     late Response<Map<String, dynamic>> response;
     try {
       response = await _dio.get<Map<String, dynamic>>(
@@ -237,7 +271,10 @@ final class PlatformDesktopPkceSessionTransport
       if (kDebugMode) {
         debugPrintStack(stackTrace: stackTrace, label: '[auth] /me');
       }
-      rethrow;
+      throw const DesktopPkceProtocolException(
+        'Nie udało się pobrać profilu użytkownika.',
+        code: 'auth.pkce.profile_unavailable',
+      );
     }
     final body = response.data;
     final userId = body?['userId'] as String?;
@@ -258,28 +295,35 @@ final class PlatformDesktopPkceSessionTransport
     );
   }
 
+  Duration? _readExpiresIn(Object? value) {
+    final seconds = switch (value) {
+      final int value => value,
+      final double value
+          when value.isFinite && value == value.roundToDouble() =>
+        value.toInt(),
+      final String value => int.tryParse(value),
+      _ => null,
+    };
+    if (seconds == null || seconds <= 0 || seconds > 86_400) return null;
+    return Duration(seconds: seconds);
+  }
+
   void _debug(String message) {
     if (kDebugMode) debugPrint('[auth.pkce] $message');
   }
 
   /// Rozróżnia odrzucony lokalny refresh token od błędu transportu.
   ///
-  /// Odpowiedź 400/401 dla żądania `grant_type=refresh_token` oznacza, że
-  /// serwer nie może odtworzyć tej lokalnej sesji. Nie dotyczy to błędów
+  /// Jedynie standardowe `invalid_grant` oznacza, że serwer nie może odtworzyć
+  /// tej lokalnej sesji. Nie dotyczy to błędów
   /// połączenia, TLS ani 5xx — te pozostają widoczne i nie kasują tokenu.
   bool _shouldDiscardRefreshToken(DioException error) {
     final status = error.response?.statusCode;
-    if (status != HttpStatus.badRequest && status != HttpStatus.unauthorized) {
+    if (status != HttpStatus.badRequest) {
       return false;
     }
     final data = error.response?.data;
-    if (kDebugMode) {
-      _debug(
-        'refresh restore rejected with OIDC error='
-        '${data is Map ? data['error'] : 'unknown'}',
-      );
-    }
-    return true;
+    return data is Map && data['error'] == 'invalid_grant';
   }
 
   String _random(int length) {

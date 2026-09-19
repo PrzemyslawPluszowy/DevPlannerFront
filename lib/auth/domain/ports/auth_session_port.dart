@@ -11,14 +11,18 @@ final class AuthSessionController extends ChangeNotifier
     : _snapshot = initial ?? const AuthSessionSnapshot.signedOut();
 
   AuthSessionSnapshot _snapshot;
+  int _generation = 0;
+  int get generation => _generation;
 
   @override
   AuthSessionSnapshot get snapshot => _snapshot;
 
   void setRestoring() => _set(const AuthSessionSnapshot.restoring());
 
-  void setSignedOut({String? message}) =>
-      _set(AuthSessionSnapshot.signedOut(message: message));
+  void setSignedOut({String? message}) {
+    _generation++;
+    _set(AuthSessionSnapshot.signedOut(message: message));
+  }
 
   void setSignedIn(
     AuthUser user, {

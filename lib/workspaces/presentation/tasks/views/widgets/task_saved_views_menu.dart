@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_confirm_dialog.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/presentation/tasks/views/cubit/task_saved_view_metadata_cubit.dart';
@@ -84,170 +85,193 @@ class TaskSavedViewsMenu extends StatelessWidget {
 
     return TaskSavedViewsFeedbackListener(
       cubit: cubit,
-      child: PopupMenuButton<TaskSavedViewMenuAction>(
-        tooltip: context.l10n.tasksSavedViews,
-        enabled: ready != null && !ready.busy,
-        onSelected: (action) => _handleAction(
-          context,
-          action,
-          ready,
-          cubit,
-          metadata: metadata,
-          isDirty: isDirty,
+      child: Builder(
+        builder: (buttonContext) => Tooltip(
+          message: context.l10n.tasksSavedViews,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: ready == null || ready.busy
+                  ? null
+                  : () => unawaited(
+                      _openMenu(
+                        buttonContext,
+                        ready: ready,
+                        cubit: cubit,
+                        metadata: metadata,
+                        isDirty: isDirty,
+                        isDefaultActive: isDefaultActive,
+                        currentSnapshot: currentSnapshot,
+                      ),
+                    ),
+              child: compact
+                  ? ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          isDirty
+                              ? Symbols.bookmark_manager_rounded
+                              : Symbols.bookmark_rounded,
+                          size: 20,
+                          color: isDirty ? context.colors.tertiary : null,
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: context.colors.outlineVariant,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isDirty
+                                    ? Symbols.bookmark_manager_rounded
+                                    : Symbols.bookmark_rounded,
+                                size: 18,
+                                color: isDirty ? context.colors.tertiary : null,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                isDefaultActive
+                                    ? context.l10n.tasksSavedViewsDefault
+                                    : activeView?.name ??
+                                          context.l10n.tasksSavedViews,
+                              ),
+                              if (isDirty) ...[
+                                const SizedBox(width: 6),
+                                const TaskSavedViewDirtyBadge(),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+          ),
         ),
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: const TaskSavedViewMenuActionSaveCurrent(),
-            enabled: currentSnapshot != null,
-            child: ListTile(
-              leading: const Icon(Symbols.add_rounded, size: 20),
-              title: Text(context.l10n.tasksSavedViewsSaveCurrent),
-              subtitle: currentSnapshot == null
-                  ? Text(context.l10n.tasksSavedViewsListLoading)
-                  : null,
-              contentPadding: EdgeInsets.zero,
-            ),
-          ),
-          if (isDirty)
-            PopupMenuItem(
-              value: const TaskSavedViewMenuActionSaveActiveChanges(),
-              child: ListTile(
-                leading: const Icon(Symbols.save_rounded, size: 20),
-                title: Text(context.l10n.tasksSavedViewsSaveActiveChanges),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-          PopupMenuItem(
-            value: const TaskSavedViewMenuActionSelectDefault(),
-            child: Row(
-              children: [
-                Icon(
-                  isDefaultActive
-                      ? Symbols.check_rounded
-                      : Symbols.view_agenda_rounded,
-                  size: 18,
-                  color: isDefaultActive ? context.colors.primary : null,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    context.l10n.tasksSavedViewsDefault,
-                    style: TextStyle(
-                      fontWeight: isDefaultActive ? FontWeight.w600 : null,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (ready != null && ready.views.isNotEmpty) ...[
-            const PopupMenuDivider(),
-            for (final view in ready.views)
-              PopupMenuItem(
-                value: TaskSavedViewMenuActionSelect(view.id),
-                child: Row(
-                  children: [
-                    Icon(
-                      ready.activeViewId == view.id
-                          ? Symbols.check_rounded
-                          : Symbols.bookmark_rounded,
-                      size: 18,
-                      color: ready.activeViewId == view.id
-                          ? context.colors.primary
-                          : null,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        view.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: ready.activeViewId == view.id
-                              ? FontWeight.w600
-                              : null,
-                        ),
-                      ),
-                    ),
-                    if (ready.activeViewId == view.id && isDirty) ...[
-                      const SizedBox(width: 6),
-                      const TaskSavedViewDirtyBadge(),
-                    ],
-                    PopupMenuButton<_SavedViewItemAction>(
-                      tooltip: context.l10n.tasksSavedViewsManage,
-                      onSelected: (itemAction) => _handleItemAction(
-                        context,
-                        view,
-                        itemAction,
-                        cubit,
-                        metadata,
-                      ),
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: _SavedViewItemAction.configure,
-                          child: Text(context.l10n.tasksSavedViewsManage),
-                        ),
-                        PopupMenuItem(
-                          value: _SavedViewItemAction.rename,
-                          child: Text(context.l10n.tasksSavedViewsRename),
-                        ),
-                        PopupMenuItem(
-                          value: _SavedViewItemAction.delete,
-                          child: Text(context.l10n.tasksSavedViewsDelete),
-                        ),
-                      ],
-                      child: const Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Icon(Symbols.more_horiz_rounded, size: 18),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ],
-        child: compact
-            ? ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                child: Center(
-                  child: Icon(
-                    isDirty
-                        ? Symbols.bookmark_manager_rounded
-                        : Symbols.bookmark_rounded,
-                    size: 20,
-                    color: isDirty ? context.colors.tertiary : null,
-                  ),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: OutlinedButton.icon(
-                  onPressed: null,
-                  icon: Icon(
-                    isDirty
-                        ? Symbols.bookmark_manager_rounded
-                        : Symbols.bookmark_rounded,
-                    size: 18,
-                    color: isDirty ? context.colors.tertiary : null,
-                  ),
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        isDefaultActive
-                            ? context.l10n.tasksSavedViewsDefault
-                            : activeView?.name ?? context.l10n.tasksSavedViews,
-                      ),
-                      if (isDirty) ...[
-                        const SizedBox(width: 6),
-                        const TaskSavedViewDirtyBadge(),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
       ),
     );
+  }
+
+  Future<void> _openMenu(
+    BuildContext context, {
+    required TaskSavedViewsReady? ready,
+    required TaskSavedViewsCubit cubit,
+    required TaskSavedViewMetadataReady? metadata,
+    required bool isDirty,
+    required bool isDefaultActive,
+    required TaskListViewSnapshot? currentSnapshot,
+  }) async {
+    final views = ready?.views ?? const <TaskSavedViewResponse>[];
+    final activeViewId = ready?.activeViewId;
+    final action = await AppContextMenu.select<TaskSavedViewMenuAction>(
+      context,
+      globalPosition: AppContextMenu.positionFor(context),
+      headerTitle: context.l10n.tasksSavedViews,
+      options: [
+        AppContextMenuOption<TaskSavedViewMenuAction>(
+          value: const TaskSavedViewMenuActionSaveCurrent(),
+          label: context.l10n.tasksSavedViewsSaveCurrent,
+          icon: Symbols.add_rounded,
+          enabled: currentSnapshot != null,
+        ),
+        if (isDirty)
+          AppContextMenuOption<TaskSavedViewMenuAction>(
+            value: const TaskSavedViewMenuActionSaveActiveChanges(),
+            label: context.l10n.tasksSavedViewsSaveActiveChanges,
+            icon: Symbols.save_rounded,
+          ),
+        AppContextMenuOption<TaskSavedViewMenuAction>(
+          value: const TaskSavedViewMenuActionSelectDefault(),
+          label: context.l10n.tasksSavedViewsDefault,
+          icon: Symbols.view_agenda_rounded,
+          selected: isDefaultActive,
+          separatorBefore: true,
+        ),
+        for (final view in views)
+          AppContextMenuOption<TaskSavedViewMenuAction>(
+            value: TaskSavedViewMenuActionSelect(view.id),
+            label: view.name,
+            icon: Symbols.bookmark_rounded,
+            selected: activeViewId == view.id,
+            separatorBefore: view == views.first,
+            trailing: _SavedViewRowActions(
+              onPressed: (anchorGlobalPosition) => unawaited(
+                _openItemActions(
+                  context,
+                  anchorGlobalPosition,
+                  view,
+                  cubit,
+                  metadata,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+    if (action == null || !context.mounted) return;
+    await _handleAction(
+      context,
+      action,
+      ready,
+      cubit,
+      metadata: metadata,
+      isDirty: isDirty,
+    );
+  }
+
+  /// Otwiera akcje pojedynczego widoku zakotwiczone w jego wierszu menu.
+  ///
+  /// Menu nadrzędne jest już zamknięte przez [_SavedViewRowActions], a pozycję
+  /// kotwiczenia wylicza przycisk wiersza, więc akcje pojawiają się przy
+  /// klikniętej pozycji, a nie przy triggerze całego menu.
+  Future<void> _openItemActions(
+    BuildContext context,
+    Offset anchorGlobalPosition,
+    TaskSavedViewResponse view,
+    TaskSavedViewsCubit cubit,
+    TaskSavedViewMetadataReady? metadata,
+  ) async {
+    final itemAction = await AppContextMenu.select<_SavedViewItemAction>(
+      context,
+      globalPosition: anchorGlobalPosition,
+      headerTitle: view.name,
+      options: [
+        AppContextMenuOption<_SavedViewItemAction>(
+          value: _SavedViewItemAction.configure,
+          label: context.l10n.tasksSavedViewsManage,
+          icon: Symbols.tune_rounded,
+        ),
+        AppContextMenuOption<_SavedViewItemAction>(
+          value: _SavedViewItemAction.rename,
+          label: context.l10n.tasksSavedViewsRename,
+          icon: Symbols.edit_rounded,
+        ),
+        AppContextMenuOption<_SavedViewItemAction>(
+          value: _SavedViewItemAction.delete,
+          label: context.l10n.tasksSavedViewsDelete,
+          icon: Symbols.delete_outline_rounded,
+          isDestructive: true,
+          separatorBefore: true,
+        ),
+      ],
+    );
+    if (itemAction == null || !context.mounted) return;
+    await _handleItemAction(context, view, itemAction, cubit, metadata);
   }
 
   Future<void> _handleAction(
@@ -380,4 +404,33 @@ class TaskSavedViewsMenu extends StatelessWidget {
         }
     }
   }
+}
+
+/// Akcje pojedynczego widoku w wierszu menu zapisanych widoków.
+///
+/// Przycisk przejmuje zdarzenie przed wierszem menu, więc kliknięcie nie wybiera
+/// widoku. Pozycja kotwiczenia jest liczona w kontekście klikniętego przycisku,
+/// a menu nadrzędne zamyka się, żeby akcje widoku nie odsłaniały listy widoków
+/// pod spodem.
+class _SavedViewRowActions extends StatelessWidget {
+  const _SavedViewRowActions({required this.onPressed});
+
+  final void Function(Offset anchorGlobalPosition) onPressed;
+
+  @override
+  Widget build(BuildContext context) => Builder(
+    builder: (buttonContext) => IconButton(
+      tooltip: context.l10n.tasksSavedViewsManage,
+      onPressed: () {
+        final anchorGlobalPosition = AppContextMenu.positionFor(buttonContext);
+        Navigator.of(buttonContext, rootNavigator: true).pop();
+        onPressed(anchorGlobalPosition);
+      },
+      icon: const Icon(Symbols.more_horiz_rounded, size: Sizes.p16),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+      visualDensity: VisualDensity.compact,
+      color: context.colors.onSurfaceVariant,
+    ),
+  );
 }

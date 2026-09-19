@@ -169,6 +169,7 @@ final class _KanbanRepo implements KanbanRepository {
   Future<Either<ApiError, KanbanBoardResponse>> getBoard({
     required String workspaceId,
     required String projectId,
+    KanbanBoardFilter filter = KanbanBoardFilter.none,
   }) async => const Right(
     KanbanBoardResponse(
       projectId: 'p-1',

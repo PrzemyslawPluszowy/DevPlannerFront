@@ -33,7 +33,7 @@ class NotificationsRepositoryImpl extends ApiRepository
     () => _api.list(
       cursor: cursor,
       limit: limit,
-      category: category,
+      category: category?.wireValue,
       isUnreadOnly: unreadOnly,
     ),
     fallbackMessage: 'Nie udało się pobrać powiadomień.',
@@ -51,7 +51,7 @@ class NotificationsRepositoryImpl extends ApiRepository
     () => _api.listGroups(
       cursor: cursor,
       limit: limit,
-      category: category,
+      category: category?.wireValue,
       isUnreadOnly: unreadOnly,
     ),
     fallbackMessage: 'Nie udało się pobrać powiadomień.',

@@ -247,7 +247,7 @@ class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
                 day,
                 style: context.text.labelSmall?.copyWith(
                   color: context.colors.onSurfaceVariant.withValues(alpha: .6),
-                  fontSize: 10,
+                  fontSize: context.tasksTheme.metaText.fontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -377,7 +377,9 @@ class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
         onPressed: () => widget.onSelected(_selectedDay.value),
         child: Text(
           context.l10n.tasksListSaveButton,
-          style: context.text.labelSmall?.copyWith(color: Colors.white),
+          style: context.tasksTheme.controlText.copyWith(
+            color: context.tasksTheme.onAccent,
+          ),
         ),
       ),
     ],

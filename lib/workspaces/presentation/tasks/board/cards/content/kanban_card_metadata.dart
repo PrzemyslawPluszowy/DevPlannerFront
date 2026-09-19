@@ -229,10 +229,10 @@ class _CardAssigneeAvatar extends StatelessWidget {
             ? null
             : Text(
                 label.characters.first.toUpperCase(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: radius > 11 ? 10 : 9,
+                style: context.tasksTheme.metaText.copyWith(
+                  height: 1,
                   fontWeight: FontWeight.w700,
+                  color: context.tasksTheme.onAccent,
                 ),
               ),
       ),

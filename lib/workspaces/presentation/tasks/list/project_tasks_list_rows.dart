@@ -4,6 +4,8 @@
 /// z zachowaniem pełnej kompatybilności wstecznej.
 library;
 
+export 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+
 export 'bulk/task_list_bulk_bar.dart';
 export 'cells/custom_fields/task_cell_custom_field.dart';
 export 'cells/empty/task_cell_empty_placeholder.dart';
@@ -24,7 +26,6 @@ export 'cells/task_cell_time_tracking.dart';
 export 'cells/task_cell_title.dart';
 export 'cells/task_cell_watchers.dart';
 export 'cells/task_checklist_popover.dart';
-export 'filters/task_list_filters.dart';
 export 'inline_create/task_inline_input_field.dart';
 export 'inline_create/task_list_inline_create.dart';
 export 'menu/pickers/task_assignee_picker.dart';
@@ -39,11 +40,11 @@ export 'menu/pickers/task_size_picker.dart';
 export 'menu/pickers/task_status_picker.dart';
 export 'menu/pickers/task_text_picker.dart';
 export 'menu/pickers/task_type_picker.dart';
-export 'menu/task_context_menu.dart';
 export 'table/header/task_list_header.dart';
 export 'table/rows/task_list_group_row.dart';
 export 'table/rows/task_list_row.dart';
 export 'table/rows/task_list_row_actions.dart';
+export 'table/task_list_failure_view.dart';
 export 'table/task_list_grid.dart';
 export 'table/task_list_subtasks.dart';
 export 'table/task_list_table.dart';

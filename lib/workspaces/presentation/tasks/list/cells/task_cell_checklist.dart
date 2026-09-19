@@ -75,7 +75,7 @@ class TaskCellChecklist extends StatelessWidget {
                                 ? const Color(0xFF10B981)
                                 : context.colors.onSurface,
                             fontWeight: FontWeight.w700,
-                            fontSize: 10,
+                            fontSize: context.tasksTheme.metaText.fontSize,
                             height: 1.1,
                           ),
                         ),

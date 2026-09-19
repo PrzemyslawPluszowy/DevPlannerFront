@@ -1,5 +1,6 @@
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
@@ -43,7 +44,7 @@ final class TaskListPreferencesReady extends TaskListPreferencesState {
     required this.userPreferenceVersion,
     required this.policyVersion,
     this.isSaving = false,
-    this.saveError,
+    this.saveFailure,
     this.projectDefaultColumnsDraft,
     this.isLoadingProjectPolicy = false,
     this.projectPolicyError,
@@ -88,8 +89,11 @@ final class TaskListPreferencesReady extends TaskListPreferencesState {
   /// Czy trwa asynchroniczny zapis preferencji do backendu.
   final bool isSaving;
 
-  /// Ostatni komunikat błędu zapisu (np. 409 conflict).
-  final String? saveError;
+  /// Ostatni nieudany zapis ustawień widoku.
+  ///
+  /// Błąd jest częścią stanu, a nie zdarzeniem, więc trwały banner pokazuje go
+  /// także po zamknięciu arkusza kolumn i po przebudowie drzewa.
+  final TasksViewError? saveFailure;
 
   /// Roboczy draft domyślnych kolumn projektu edytowany w zakładce administracyjnej.
   final List<TaskColumnReference>? projectDefaultColumnsDraft;
@@ -143,8 +147,8 @@ final class TaskListPreferencesReady extends TaskListPreferencesState {
     int? userPreferenceVersion,
     int? policyVersion,
     bool? isSaving,
-    String? saveError,
-    bool clearSaveError = false,
+    TasksViewError? saveFailure,
+    bool clearSaveFailure = false,
     List<TaskColumnReference>? projectDefaultColumnsDraft,
     bool clearProjectDefaultColumnsDraft = false,
     bool? isLoadingProjectPolicy,
@@ -167,7 +171,9 @@ final class TaskListPreferencesReady extends TaskListPreferencesState {
     userPreferenceVersion: userPreferenceVersion ?? this.userPreferenceVersion,
     policyVersion: policyVersion ?? this.policyVersion,
     isSaving: isSaving ?? this.isSaving,
-    saveError: clearSaveError ? null : (saveError ?? this.saveError),
+    saveFailure: clearSaveFailure
+        ? null
+        : (saveFailure ?? this.saveFailure),
     projectDefaultColumnsDraft: clearProjectDefaultColumnsDraft
         ? null
         : (projectDefaultColumnsDraft ?? this.projectDefaultColumnsDraft),
@@ -193,7 +199,7 @@ final class TaskListPreferencesReady extends TaskListPreferencesState {
     userPreferenceVersion,
     policyVersion,
     isSaving,
-    saveError,
+    saveFailure,
     projectDefaultColumnsDraft,
     isLoadingProjectPolicy,
     projectPolicyError,

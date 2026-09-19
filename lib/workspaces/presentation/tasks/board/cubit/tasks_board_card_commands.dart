@@ -7,6 +7,7 @@ import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart'
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_card_state_mutator.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_command_context.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_summary.dart';
 
 /// Komendy mutujące pojedynczą kartę; nie obsługują realtime ani widoku.
@@ -36,10 +37,7 @@ final class TasksBoardCardCommands {
     return result.fold(
       (error) {
         _context.publish(
-          latest.copyWith(
-            mutationError: error.message,
-            mutationSerial: latest.mutationSerial + 1,
-          ),
+          latest.copyWith(error: tasksViewErrorFrom(error)),
         );
         return false;
       },
@@ -79,10 +77,7 @@ final class TasksBoardCardCommands {
     return result.fold(
       (error) {
         _context.publish(
-          latest.copyWith(
-            mutationError: error.message,
-            mutationSerial: latest.mutationSerial + 1,
-          ),
+          latest.copyWith(error: tasksViewErrorFrom(error)),
         );
         return false;
       },
@@ -153,8 +148,7 @@ final class TasksBoardCardCommands {
         _context.publish(
           ready.copyWith(
             pendingTaskIds: {...ready.pendingTaskIds}..remove(taskId),
-            mutationError: error.message,
-            mutationSerial: ready.mutationSerial + 1,
+            error: tasksViewErrorFrom(error),
           ),
         );
         return false;
@@ -217,8 +211,7 @@ final class TasksBoardCardCommands {
         _context.publish(
           ready.copyWith(
             pendingTaskIds: {...ready.pendingTaskIds}..remove(taskId),
-            mutationError: error.message,
-            mutationSerial: ready.mutationSerial + 1,
+            error: tasksViewErrorFrom(error),
           ),
         );
         return false;

@@ -205,7 +205,7 @@ class _TemplateCustomFieldEditor extends StatelessWidget {
             anchorContext,
             field: field,
             value: value,
-            menuPosition: TaskContextMenu.positionFor(anchorContext),
+            position: AppContextMenu.positionFor(anchorContext),
           );
           if (selected != customFieldCancelled) onChanged(selected);
         },
@@ -225,7 +225,7 @@ class _TemplateCustomFieldEditor extends StatelessWidget {
             anchorContext,
             field: field,
             value: value,
-            menuPosition: TaskContextMenu.positionFor(anchorContext),
+            position: AppContextMenu.positionFor(anchorContext),
           );
           if (selected != customFieldCancelled) onChanged(selected);
         },
@@ -249,7 +249,7 @@ class _TemplateCustomFieldEditor extends StatelessWidget {
             anchorContext,
             field: field,
             value: value,
-            menuPosition: TaskContextMenu.positionFor(anchorContext),
+            position: AppContextMenu.positionFor(anchorContext),
           );
           if (selected != customFieldCancelled) onChanged(selected);
         },

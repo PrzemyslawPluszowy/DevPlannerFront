@@ -12,6 +12,8 @@ final class _DesktopShellLayout extends StatelessWidget {
     required this.onCreateWorkspace,
     required this.onCreateProject,
     required this.onToggleSidebar,
+    required this.showCompactTree,
+    required this.onToggleCompactTree,
     super.key,
   });
 
@@ -26,6 +28,12 @@ final class _DesktopShellLayout extends StatelessWidget {
   final Future<void> Function(BuildContext, String)? onCreateProject;
   final VoidCallback onToggleSidebar;
 
+  /// Czy na wąskim oknie drzewo jest otwarte w nakładce.
+  final bool showCompactTree;
+
+  /// Otwiera lub zamyka nakładkę drzewa na wąskim oknie.
+  final VoidCallback onToggleCompactTree;
+
   @override
   Widget build(BuildContext context) {
     final shellTheme = context.devPlannerShellTheme;
@@ -33,71 +41,106 @@ final class _DesktopShellLayout extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 960;
-        final collapsed = isSidebarCollapsed || compact;
+        // Na wąskim oknie pasek zostaje ikonowy, ale drzewo jest osiągalne
+        // w nakładce — zwinięcie nie może odbierać dostępu do nawigacji.
+        final collapsed = isSidebarCollapsed || (compact && !showCompactTree);
         return DecoratedBox(
           key: const ValueKey('devplanner-shell-backdrop'),
-          decoration: BoxDecoration(gradient: shellTheme.backdropGradient),
+          decoration: BoxDecoration(
+            color: shellTheme.backdropMiddle,
+            image: const DecorationImage(
+              image: DevPlannerShellTheme.backdropImage,
+              fit: BoxFit.cover,
+            ),
+          ),
           child: Scaffold(
             backgroundColor: Colors.transparent,
-            body: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            body: Stack(
               children: [
-                SizedBox(
-                  width: collapsed
-                      ? navigationTheme.collapsedSidebarWidth
-                      : navigationTheme.sidebarWidth,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        key: const ValueKey('devplanner-sidebar-header'),
-                        height: navigationTheme.headerHeight,
-                        child: _DevPlannerSidebarHeader(
-                          isCollapsed: collapsed,
-                          onToggleSidebar: onToggleSidebar,
-                        ),
+                if (compact && showCompactTree) ...[
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onToggleCompactTree,
+                      child: ColoredBox(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.scrim.withValues(alpha: .35),
                       ),
-                      Expanded(
-                        child: _DevPlannerSidebar(
-                          isCollapsed: collapsed,
-                          location: location,
-                          navigationCubit: navigationCubit,
-                          tasksBoardAvailable: tasksBoardAvailable,
-                          expandedNavigationNodeIds: expandedNavigationNodeIds,
-                          onToggleNavigationNode: onToggleNavigationNode,
-                          onCreateWorkspace: onCreateWorkspace,
-                          onCreateProject: onCreateProject,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(
-                        key: const ValueKey('devplanner-topbar'),
-                        height: navigationTheme.headerHeight,
-                        child: _DevPlannerTopBar(location: location),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          key: const ValueKey('devplanner-content-margin'),
-                          padding: const EdgeInsets.all(12),
-                          child: Material(
-                            key: const ValueKey('devplanner-content-canvas'),
-                            color: shellTheme.contentSurface,
-                            clipBehavior: Clip.antiAlias,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: BorderSide(color: shellTheme.contentBorder),
+                ],
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      width: collapsed
+                          ? navigationTheme.collapsedSidebarWidth
+                          : navigationTheme.sidebarWidth,
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            key: const ValueKey('devplanner-sidebar-header'),
+                            height: navigationTheme.headerHeight,
+                            child: _DevPlannerSidebarHeader(
+                              isCollapsed: collapsed,
+                              // Na wąskim oknie ten sam klawisz otwiera
+                              // i zamyka nakładkę z pełnym drzewem.
+                              onToggleSidebar: compact
+                                  ? onToggleCompactTree
+                                  : onToggleSidebar,
                             ),
-                            child: child,
                           ),
-                        ),
+                          Expanded(
+                            child: _DevPlannerSidebar(
+                              isCollapsed: collapsed,
+                              location: location,
+                              navigationCubit: navigationCubit,
+                              tasksBoardAvailable: tasksBoardAvailable,
+                              expandedNavigationNodeIds:
+                                  expandedNavigationNodeIds,
+                              onToggleNavigationNode: onToggleNavigationNode,
+                              onCreateWorkspace: onCreateWorkspace,
+                              onCreateProject: onCreateProject,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    if (compact && showCompactTree) const Spacer(),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(
+                            key: const ValueKey('devplanner-topbar'),
+                            height: navigationTheme.headerHeight,
+                            child: _DevPlannerTopBar(location: location),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              key: const ValueKey('devplanner-content-margin'),
+                              padding: const EdgeInsets.all(12),
+                              child: Material(
+                                key: const ValueKey(
+                                  'devplanner-content-canvas',
+                                ),
+                                color: shellTheme.contentSurface,
+                                clipBehavior: Clip.antiAlias,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color: shellTheme.contentBorder,
+                                  ),
+                                ),
+                                child: child,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -171,6 +214,10 @@ final class _DevPlannerTopBar extends StatelessWidget {
 
 /// Lewa część ramy nad sidebarem. Jest częścią tej samej kolumny co menu,
 /// dzięki czemu tło pozostaje ciągłe jak w referencji Gmail-inspired.
+///
+/// Logotyp zajmuje całą wolną szerokość po lewej, a przycisk zwijania menu
+/// domyka wiersz po prawej. Szeroki lockup z nazwą produktu nie zmieściłby się
+/// między przyciskiem a krawędzią, więc to przycisk ustępuje mu miejsca.
 final class _DevPlannerSidebarHeader extends StatelessWidget {
   const _DevPlannerSidebarHeader({
     required this.isCollapsed,
@@ -185,6 +232,17 @@ final class _DevPlannerSidebarHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final shellTheme = context.devPlannerShellTheme;
     final navigationTheme = context.devPlannerNavigationTheme;
+    final toggle = IconButton(
+      key: const ValueKey('devplanner-toggle-sidebar'),
+      tooltip: isCollapsed
+          ? l10n.workspaceShellExpandMenu
+          : l10n.workspaceShellCollapseMenu,
+      onPressed: onToggleSidebar,
+      icon: Icon(
+        isCollapsed ? Icons.menu : Icons.menu_open,
+        color: shellTheme.sidebarText,
+      ),
+    );
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: isCollapsed ? 0 : navigationTheme.sidebarHorizontalPadding,
@@ -194,37 +252,21 @@ final class _DevPlannerSidebarHeader extends StatelessWidget {
             ? MainAxisAlignment.center
             : MainAxisAlignment.start,
         children: [
-          IconButton(
-            key: const ValueKey('devplanner-toggle-sidebar'),
-            tooltip: isCollapsed
-                ? l10n.workspaceShellExpandMenu
-                : l10n.workspaceShellCollapseMenu,
-            onPressed: onToggleSidebar,
-            icon: Icon(
-              isCollapsed ? Icons.menu : Icons.menu_open,
-              color: shellTheme.sidebarText,
-            ),
-          ),
-          if (!isCollapsed) ...[
-            Icon(
-              Icons.hub_outlined,
-              size: 22,
-              color: shellTheme.sidebarIcon,
-            ),
-            const SizedBox(width: 8),
+          if (isCollapsed)
+            toggle
+          else ...[
             Expanded(
-              child: Text(
-                l10n.appShellBrandName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 16,
-                  height: 22 / 16,
-                  fontWeight: FontWeight.w600,
-                  color: shellTheme.sidebarText,
+              child: Center(
+                child: Image(
+                  key: const ValueKey('devplanner-sidebar-brand-logo'),
+                  image: DevPlannerShellTheme.logoImage,
+                  width: double.infinity,
+                  fit: BoxFit.fitWidth,
+                  semanticLabel: l10n.appShellBrandName,
                 ),
               ),
             ),
+            toggle,
           ],
         ],
       ),

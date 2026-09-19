@@ -14,8 +14,10 @@ final class AuthUseCases {
   final AuthClientKind clientKind;
 
   Future<void> restoreSession() async {
+    final generation = session.generation;
     session.setRestoring();
     final user = await gateway.restoreSession();
+    if (generation != session.generation) return;
     if (user == null) {
       session.setSignedOut();
     } else {
@@ -24,11 +26,20 @@ final class AuthUseCases {
   }
 
   Future<void> signIn(LoginCredentials credentials) async {
+    final generation = session.generation;
     final user = await gateway.signIn(credentials);
+    if (generation != session.generation) return;
     session.setSignedIn(user, clientKind: clientKind);
   }
 
   Future<void> signOut() async {
+    if (clientKind == AuthClientKind.desktopPkce) {
+      // Invalidate pending profile/login publications before any network I/O.
+      session.setSignedOut();
+      await gateway.signOut();
+      return;
+    }
+    // A failed BFF logout has not necessarily removed the server cookie.
     await gateway.signOut();
     session.setSignedOut();
   }

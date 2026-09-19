@@ -32,16 +32,16 @@ final class WorkspaceNavigationTree {
     projectsLoaded: true,
   ).build();
 
-  /// Pełna lista zasobów, która musi pozostać osiągalna pod projektem.
+  /// Zasoby projektu, które drzewo renderuje, bo mają aktywną trasę.
+  ///
+  /// Whiteboardy, tablica korkowa, Wiki i Automatyzacje pozostają w enumie,
+  /// ale wracają do drzewa dopiero razem z własnymi trasami — pozycja bez
+  /// trasy wygląda jak niedziałająca funkcja.
   static const projectResourceKinds = <WorkspaceNavigationNodeKind>[
     WorkspaceNavigationNodeKind.tasks,
     WorkspaceNavigationNodeKind.taskList,
     WorkspaceNavigationNodeKind.kanban,
-    WorkspaceNavigationNodeKind.whiteboards,
-    WorkspaceNavigationNodeKind.corkboard,
-    WorkspaceNavigationNodeKind.wiki,
     WorkspaceNavigationNodeKind.files,
-    WorkspaceNavigationNodeKind.automations,
   ];
 
   final List<WorkspaceNavigationNode> nodes;
@@ -124,36 +124,11 @@ final class WorkspaceNavigationTree {
             workspaceId: project.workspaceId,
             projectId: project.id,
           ),
-          WorkspaceNavigationNode(
-            id: 'workspace:${project.workspaceId}:project:${project.id}:tasks:automations',
-            kind: WorkspaceNavigationNodeKind.automations,
-            workspaceId: project.workspaceId,
-            projectId: project.id,
-            isSelectable: false,
-          ),
         ],
       ),
-      WorkspaceNavigationNode(
-        id: 'workspace:${project.workspaceId}:project:${project.id}:whiteboards',
-        kind: WorkspaceNavigationNodeKind.whiteboards,
-        workspaceId: project.workspaceId,
-        projectId: project.id,
-        isSelectable: false,
-      ),
-      WorkspaceNavigationNode(
-        id: 'workspace:${project.workspaceId}:project:${project.id}:corkboard',
-        kind: WorkspaceNavigationNodeKind.corkboard,
-        workspaceId: project.workspaceId,
-        projectId: project.id,
-        isSelectable: false,
-      ),
-      WorkspaceNavigationNode(
-        id: 'workspace:${project.workspaceId}:project:${project.id}:wiki',
-        kind: WorkspaceNavigationNodeKind.wiki,
-        workspaceId: project.workspaceId,
-        projectId: project.id,
-        isSelectable: false,
-      ),
+      // Drzewo renderuje wyłącznie pozycje z aktywną trasą. Whiteboardy,
+      // tablica korkowa, Wiki i Automatyzacje wrócą, gdy dostaną własne trasy;
+      // do tego czasu nie udają działających funkcji.
       WorkspaceNavigationNode(
         id: 'workspace:${project.workspaceId}:project:${project.id}:files',
         kind: WorkspaceNavigationNodeKind.files,
@@ -185,11 +160,10 @@ final class _WorkspaceNavigationTreeBuilder {
         projectsLoaded: projectsLoaded,
       ),
     );
+    // Drzewo nie renderuje pośredniego „Przeglądu”. Widok `/workspaces`
+    // pozostaje bezpiecznym wejściem dla konta bez workspace'u, ale nie jest
+    // krokiem, przez który przechodzi praca nad projektem.
     return WorkspaceNavigationTree._([
-      WorkspaceNavigationNode(
-        id: 'overview',
-        kind: WorkspaceNavigationNodeKind.overview,
-      ),
       WorkspaceNavigationNode(
         id: 'personal-tasks',
         kind: WorkspaceNavigationNodeKind.personalTasks,

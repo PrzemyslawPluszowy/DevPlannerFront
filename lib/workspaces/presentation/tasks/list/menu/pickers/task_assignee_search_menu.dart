@@ -6,13 +6,17 @@ import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_as
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-/// Samodzielne menu wyszukiwania osób z lokalną paginacją i debounce.
-class TaskAssigneeSearchMenu extends PopupMenuEntry<String> {
+/// Zawartość wyszukiwania osób z lokalną paginacją i debounce.
+///
+/// Jest zwykłym widgetem renderowanym we wspólnej powierzchni menu
+/// (`AppContextMenu.showCustom`), a wybór zwraca przez [onSelected].
+class TaskAssigneeSearchMenu extends StatefulWidget {
   const TaskAssigneeSearchMenu({
     required this.candidates,
     required this.selectedIds,
     required this.primaryId,
     required this.selectionMode,
+    required this.onSelected,
     super.key,
     this.searchEligibleProfiles,
   });
@@ -23,16 +27,13 @@ class TaskAssigneeSearchMenu extends PopupMenuEntry<String> {
   final AssigneeMenuAction selectionMode;
   final EligibleProfilesPageLoader? searchEligibleProfiles;
 
+  /// Wywoływane z identyfikatorem wybranej osoby albo znacznikiem wyczyszczenia.
+  final ValueChanged<String> onSelected;
+
   static String profileLabel(ProjectMemberProfile profile) {
     final name = profile.displayName?.trim();
     return name?.isNotEmpty == true ? name! : 'Nieznany użytkownik';
   }
-
-  @override
-  double get height => 308;
-
-  @override
-  bool represents(String? value) => false;
 
   @override
   State<TaskAssigneeSearchMenu> createState() => _TaskAssigneeSearchMenuState();
@@ -68,7 +69,6 @@ class _TaskAssigneeSearchMenuState extends State<TaskAssigneeSearchMenu> {
       ValueListenableBuilder<_AssigneeSearchUiState>(
         valueListenable: _ui,
         builder: (context, ui, _) => SizedBox(
-          width: 252,
           height: 294,
           child: Column(
             children: [
@@ -135,12 +135,13 @@ class _TaskAssigneeSearchMenuState extends State<TaskAssigneeSearchMenu> {
           selected: widget.selectionMode == AssigneeMenuAction.setOwner
               ? profile.userId == widget.primaryId
               : widget.selectedIds.contains(profile.userId),
+          onSelected: widget.onSelected,
         );
       },
     );
   }
 
-  void _clearOwner() => Navigator.of(context).pop('__clear_owner__');
+  void _clearOwner() => widget.onSelected('__clear_owner__');
 
   void _onQueryChanged(String raw) {
     _debounce?.cancel();
@@ -291,10 +292,12 @@ class _TaskAssigneeSearchResultRow extends StatelessWidget {
   const _TaskAssigneeSearchResultRow({
     required this.profile,
     required this.selected,
+    required this.onSelected,
   });
 
   final ProjectMemberProfile profile;
   final bool selected;
+  final ValueChanged<String> onSelected;
 
   @override
   Widget build(BuildContext context) => ListTile(
@@ -320,7 +323,7 @@ class _TaskAssigneeSearchResultRow extends StatelessWidget {
           : context.colors.onSurfaceVariant,
       size: 16,
     ),
-    onTap: () => Navigator.of(context).pop(profile.userId),
+    onTap: () => onSelected(profile.userId),
   );
 }
 

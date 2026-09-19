@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/theme/theme.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/shared/presentation/widgets/workspace_creation_modal_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -56,56 +56,53 @@ final class TaskTypePicker {
     BuildContext context, {
     required String? currentType,
     required Future<bool> Function(String type) onSave,
-    RelativeRect? menuPosition,
+    Offset? position,
     bool canManage = false,
     VoidCallback? onConfigureTypes,
   }) async {
-    final position = menuPosition ?? TaskContextMenu.positionFor(context);
     final isCurrentCustom =
         currentType != null &&
         currentType.trim().isNotEmpty &&
         TaskPresetType.fromName(currentType) == null;
 
-    final selected = await TaskContextMenu.show<String?>(
+    final selected = await AppContextMenu.select<String>(
       context,
-      position: position,
-      items: [
-        const TaskContextMenuHeader(title: 'Typ zadania'),
+      globalPosition: position ?? AppContextMenu.positionFor(context),
+      options: [
         for (final preset in TaskPresetType.values)
-          TaskContextMenuItem<String>(
+          AppContextMenuOption(
+            sectionTitle: 'Typ zadania',
             value: preset.apiValue,
-            title: preset.label,
+            label: preset.label,
             icon: preset.icon,
             iconColor: preset.color,
-            isSelected:
+            selected:
                 currentType?.toLowerCase() == preset.label.toLowerCase() ||
                 currentType?.toLowerCase() == preset.apiValue.toLowerCase(),
           ),
         if (isCurrentCustom)
-          TaskContextMenuItem<String>(
+          AppContextMenuOption(
             value: currentType,
-            title: currentType,
+            label: currentType,
             icon: Symbols.label_important_rounded,
             iconColor: context.colors.primary,
-            isSelected: true,
+            selected: true,
           ),
-        if (canManage) ...[
-          const TaskContextMenuDivider(),
-          TaskContextMenuItem<String>(
+        if (canManage)
+          const AppContextMenuOption(
             value: '__ADMIN_CONFIG__',
-            title: 'Konfiguruj typy...',
+            label: 'Konfiguruj typy...',
             icon: Symbols.settings_rounded,
+            separatorBefore: true,
           ),
-        ],
-        if (currentType != null && currentType.trim().isNotEmpty) ...[
-          const TaskContextMenuDivider(),
-          TaskContextMenuItem<String>(
+        if (currentType != null && currentType.trim().isNotEmpty)
+          AppContextMenuOption(
             value: '',
-            title: 'Wyczyść typ',
+            label: 'Wyczyść typ',
             icon: Symbols.close_rounded,
             iconColor: context.colors.error,
+            separatorBefore: true,
           ),
-        ],
       ],
     );
 

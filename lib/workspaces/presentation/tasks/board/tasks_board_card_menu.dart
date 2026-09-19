@@ -23,72 +23,60 @@ class KanbanCardContextMenuHelper {
     final colors = context.colors;
     final l10n = context.l10n;
 
-    final overlay = Navigator.of(context, rootNavigator: true).overlay;
-    final overlayBox = overlay?.context.findRenderObject() as RenderBox?;
-    if (overlayBox == null) return;
+    final menuPosition = globalPosition ?? AppContextMenu.positionFor(context);
 
-    final RelativeRect position;
-    if (globalPosition != null) {
-      final rect = Rect.fromCenter(
-        center: globalPosition,
-        width: 0,
-        height: 0,
-      );
-      position = RelativeRect.fromRect(rect, Offset.zero & overlayBox.size);
-    } else {
-      position = TaskContextMenu.positionFor(context);
-    }
-
-    final selectedAction = await TaskContextMenu.show<_KanbanCardMenuAction>(
+    final selectedAction = await AppContextMenu.select<_KanbanCardMenuAction>(
       context,
-      position: position,
-      items: [
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+      globalPosition: menuPosition,
+      options: [
+        AppContextMenuOption(
           value: _KanbanCardMenuAction.open,
-          title: l10n.tasksContextMenuOpen,
+          label: l10n.tasksContextMenuOpen,
           icon: Symbols.open_in_new_rounded,
         ),
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+        AppContextMenuOption(
           value: _KanbanCardMenuAction.copyCode,
-          title: l10n.tasksContextMenuCopyCode,
+          label: l10n.tasksContextMenuCopyCode,
           icon: Symbols.content_copy_rounded,
         ),
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+        AppContextMenuOption(
           value: _KanbanCardMenuAction.copyLink,
-          title: l10n.tasksContextMenuCopyLink,
+          label: l10n.tasksContextMenuCopyLink,
           icon: Symbols.link_rounded,
         ),
-        const PopupMenuDivider(height: 8),
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+        AppContextMenuOption(
+          separatorBefore: true,
+
           value: _KanbanCardMenuAction.status,
-          title: l10n.tasksContextMenuStatus,
+          label: l10n.tasksContextMenuStatus,
           icon: Symbols.flowsheet_rounded,
         ),
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+        AppContextMenuOption(
           value: _KanbanCardMenuAction.priority,
-          title: l10n.tasksContextMenuPriority,
+          label: l10n.tasksContextMenuPriority,
           icon: Symbols.flag_rounded,
         ),
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+        AppContextMenuOption(
           value: _KanbanCardMenuAction.assignee,
-          title: l10n.tasksContextMenuAssignee,
+          label: l10n.tasksContextMenuAssignee,
           icon: Symbols.person_rounded,
         ),
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+        AppContextMenuOption(
           value: _KanbanCardMenuAction.dueDate,
-          title: l10n.tasksContextMenuDueDate,
+          label: l10n.tasksContextMenuDueDate,
           icon: Symbols.event_rounded,
         ),
-        const PopupMenuDivider(height: 8),
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+        AppContextMenuOption(
+          separatorBefore: true,
+
           value: _KanbanCardMenuAction.pin,
-          title: task.isPinned ? l10n.tasksUnpinTask : l10n.tasksPinTask,
+          label: task.isPinned ? l10n.tasksUnpinTask : l10n.tasksPinTask,
           icon: task.isPinned ? Symbols.push_pin_rounded : Symbols.push_pin,
           iconColor: task.isPinned ? colors.primary : null,
         ),
-        TaskContextMenuItem<_KanbanCardMenuAction>(
+        AppContextMenuOption(
           value: _KanbanCardMenuAction.watch,
-          title: task.isWatchedByMe
+          label: task.isWatchedByMe
               ? l10n.tasksUnwatchTask
               : l10n.tasksWatchTask,
           icon: task.isWatchedByMe
@@ -158,14 +146,14 @@ class KanbanCardContextMenuHelper {
           );
           break;
         }
-        final targetColumn = await TaskContextMenu.show<KanbanColumnResponse>(
+        final targetColumn = await AppContextMenu.select<KanbanColumnResponse>(
           context,
-          position: position,
-          items: [
+          globalPosition: menuPosition,
+          options: [
             for (final column in availableColumns)
-              TaskContextMenuItem<KanbanColumnResponse>(
+              AppContextMenuOption(
                 value: column,
-                title: column.displayName,
+                label: column.displayName,
                 icon: TaskStatusVisualHelper.icon(column.status),
                 iconColor: TaskStatusVisualHelper.color(column.status),
               ),
@@ -202,7 +190,7 @@ class KanbanCardContextMenuHelper {
           context,
           assignees: currentAssignees,
           profiles: memberProfilesByUserId,
-          menuPosition: position,
+          position: menuPosition,
           onSave: (userIds) async {
             return cubit.replaceTaskAssignees(task.id, userIds);
           },

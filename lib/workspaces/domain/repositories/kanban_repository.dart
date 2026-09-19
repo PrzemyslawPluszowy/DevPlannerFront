@@ -4,6 +4,7 @@ import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:flutter/foundation.dart';
 
 /// Filtry jednej cursorowej kolumny Kanban.
 final class KanbanColumnQuery {
@@ -25,11 +26,76 @@ final class KanbanColumnQuery {
   final String? milestoneId;
 }
 
+/// Filtry tablicy Kanban wspólne dla liczników kolumn, kart i kolejnych stron.
+///
+/// Backend liczy `totalTaskCount` i WIP tą samą predykatą, którą filtruje karty,
+/// dlatego filtr musi być wysłany razem z pierwszym odczytem tablicy oraz z
+/// każdym doładowaniem kolumny.
+@immutable
+final class KanbanBoardFilter {
+  const KanbanBoardFilter({
+    this.assigneeUserId,
+    this.priority,
+    this.milestoneId,
+  });
+
+  static const KanbanBoardFilter none = KanbanBoardFilter();
+
+  final String? assigneeUserId;
+  final TaskPriority? priority;
+  final String? milestoneId;
+
+  /// Czy tablica pokazuje pełny projekt, czy zawężony zestaw kart.
+  bool get isActive =>
+      assigneeUserId != null || priority != null || milestoneId != null;
+
+  /// Liczba aktywnych wymiarów filtra — używana przez pasek aktywnego filtra.
+  int get activeCount =>
+      (assigneeUserId == null ? 0 : 1) +
+      (priority == null ? 0 : 1) +
+      (milestoneId == null ? 0 : 1);
+
+  /// Tworzy zapytanie kolumny dziedziczące filtry tablicy.
+  KanbanColumnQuery toColumnQuery({String? cursor}) => KanbanColumnQuery(
+    cursor: cursor,
+    assigneeUserId: assigneeUserId,
+    priority: priority,
+    milestoneId: milestoneId,
+  );
+
+  KanbanBoardFilter copyWith({
+    String? assigneeUserId,
+    TaskPriority? priority,
+    String? milestoneId,
+    bool clearAssignee = false,
+    bool clearPriority = false,
+    bool clearMilestone = false,
+  }) => KanbanBoardFilter(
+    assigneeUserId: clearAssignee
+        ? null
+        : assigneeUserId ?? this.assigneeUserId,
+    priority: clearPriority ? null : priority ?? this.priority,
+    milestoneId: clearMilestone ? null : milestoneId ?? this.milestoneId,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is KanbanBoardFilter &&
+      other.assigneeUserId == assigneeUserId &&
+      other.priority == priority &&
+      other.milestoneId == milestoneId;
+
+  @override
+  int get hashCode => Object.hash(assigneeUserId, priority, milestoneId);
+}
+
 /// Pełny kontrakt danych i mutacji tablicy Kanban projektu.
 abstract interface class KanbanRepository {
+  /// Pobiera tablicę; filtry zawężają liczniki kolumn i pierwsze strony kart.
   Future<Either<ApiError, KanbanBoardResponse>> getBoard({
     required String workspaceId,
     required String projectId,
+    KanbanBoardFilter filter = KanbanBoardFilter.none,
   });
 
   /// Pobiera pełne, wersjonowane ustawienia tablicy projektu.

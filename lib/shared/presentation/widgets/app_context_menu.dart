@@ -1,28 +1,19 @@
 import 'dart:async';
-import 'dart:ui';
 
-import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 typedef AppContextMenuActionTap = FutureOr<void> Function(BuildContext context);
 
-/// Buduje interaktywną zawartość zachowującą tę samą powierzchnię i pozycjonowanie
-/// co standardowe menu kontekstowe.
+/// Buduje interaktywną zawartość zachowującą powierzchnię i pozycjonowanie
+/// wspólnego menu.
 typedef AppContextMenuContentBuilder = Widget Function(
   BuildContext context,
   VoidCallback dismiss,
 );
 
-/// Styl wizualny wspólnego menu kontekstowego.
-enum AppContextMenuStyle {
-  /// Szklany wariant z rozmyciem i refleksami.
-  glass,
-
-  /// Prosty, jasny wariant z białym tłem.
-  flat,
-}
-
-/// Akcja dostępna we wspólnym menu kontekstowym aplikacji.
+/// Akcja wspólnego menu wywołująca efekt po wybraniu.
 class AppContextMenuAction {
   /// Tworzy akcję menu kontekstowego.
   const AppContextMenuAction({
@@ -32,7 +23,10 @@ class AppContextMenuAction {
     this.isDestructive = false,
     this.enabled = true,
     this.foregroundColor,
+    this.iconColor,
     this.separatorBefore = false,
+    this.sectionTitle,
+    this.shortcutLabel,
     this.selected = false,
   });
 
@@ -54,116 +48,353 @@ class AppContextMenuAction {
   /// Opcjonalny kolor akcji.
   final Color? foregroundColor;
 
+  /// Opcjonalny kolor samej ikony, np. semantyczny kolor priorytetu.
+  final Color? iconColor;
+
   /// Czy przed akcją ma pojawić się separator.
   final bool separatorBefore;
+
+  /// Nagłówek sekcji poprzedzający tę akcję.
+  final String? sectionTitle;
+
+  /// Skrót klawiaturowy pokazywany po prawej stronie wiersza.
+  final String? shortcutLabel;
 
   /// Czy akcja reprezentuje aktualnie wybraną wartość.
   final bool selected;
 }
 
-/// Wspólne menu kontekstowe inspirowane interfejsem macOS.
+/// Pozycja menu wybierająca wartość i zamykająca menu po kliknięciu.
+class AppContextMenuOption<T> {
+  /// Tworzy pozycję menu wyboru.
+  const AppContextMenuOption({
+    required this.value,
+    required this.label,
+    this.icon,
+    this.isDestructive = false,
+    this.enabled = true,
+    this.selected = false,
+    this.iconColor,
+    this.leading,
+    this.trailing,
+    this.separatorBefore = false,
+    this.sectionTitle,
+    this.shortcutLabel,
+  });
+
+  /// Wartość zwracana po wybraniu pozycji.
+  final T value;
+
+  /// Etykieta pozycji.
+  final String label;
+
+  /// Ikona pozycji.
+  final IconData? icon;
+
+  /// Opcjonalny kolor samej ikony, np. semantyczny kolor priorytetu.
+  final Color? iconColor;
+
+  /// Widget przed etykietą, gdy sama ikona nie wystarcza (np. awatar).
+  final Widget? leading;
+
+  /// Widget po etykiecie, np. licznik albo próbka koloru.
+  final Widget? trailing;
+
+  /// Czy pozycja ma charakter destrukcyjny.
+  final bool isDestructive;
+
+  /// Czy pozycja jest dostępna.
+  final bool enabled;
+
+  /// Czy pozycja reprezentuje aktualnie wybraną wartość.
+  final bool selected;
+
+  /// Czy przed pozycją ma pojawić się separator.
+  final bool separatorBefore;
+
+  /// Nagłówek sekcji poprzedzający tę pozycję.
+  final String? sectionTitle;
+
+  /// Skrót klawiaturowy pokazywany po prawej stronie wiersza.
+  final String? shortcutLabel;
+}
+
+/// Jedna powierzchnia menu kontekstowego DevPlanner.
+///
+/// Z tego komponentu korzystają kliknięcie `…`, prawy klik i pickery w Tasks,
+/// Storage i katalogu workspace'ów. Menu ma jeden wiersz (32 px), jedną ikonę
+/// (16 px), jeden promień i jedną powierzchnię z tokenów motywu, obsługuje
+/// klawiaturę (strzałki, Home, End, Enter, Escape), przenosi i przywraca focus
+/// oraz pozycjonuje się w root overlayu aplikacji.
 abstract final class AppContextMenu {
-  static const _transitionDuration = Duration(milliseconds: 120);
-  static const _reverseTransitionDuration = Duration(milliseconds: 80);
+  static const Duration _transitionDuration = Duration(milliseconds: 120);
+  static const Duration _reverseTransitionDuration = Duration(milliseconds: 80);
+
+  /// Margines, który trzyma powierzchnię menu wewnątrz widoku.
+  static const double viewportMargin = 12;
+
+  /// Kotwica menu dla widgetu, który je otwiera.
+  ///
+  /// Zwraca lewy dolny róg widgetu przesunięty o 4 px, czyli miejsce, w którym
+  /// menu ma się pojawić po kliknięciu `…` lub prawego przycisku.
+  static Offset positionFor(BuildContext context) {
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) {
+      final overlay = Overlay.maybeOf(context)?.context.findRenderObject();
+      return overlay is RenderBox ? overlay.localToGlobal(Offset.zero) : Offset.zero;
+    }
+    return renderObject.localToGlobal(Offset(0, renderObject.size.height)) +
+        const Offset(0, 4);
+  }
 
   /// Pokazuje menu przy wskazanej pozycji globalnej.
   static Future<void> show(
     BuildContext context, {
     required Offset globalPosition,
     required List<AppContextMenuAction> actions,
-    AppContextMenuStyle style = AppContextMenuStyle.flat,
     String? headerTitle,
     String? headerSubtitle,
+    double? maxWidth,
   }) async {
-    if (actions.isEmpty) {
-      return;
-    }
+    if (actions.isEmpty) return;
 
-    final navigator = Navigator.of(context, rootNavigator: true);
-    final overlayBox =
-        navigator.overlay!.context.findRenderObject()! as RenderBox;
-    final overlayPosition =
-        overlayBox.globalToLocal(globalPosition) + const Offset(4, 4);
-    final selectedIndex = await navigator.push<int>(
-      _AppContextMenuRoute(
-        position: overlayPosition,
-        actions: actions,
-        style: style,
-        headerTitle: headerTitle,
-        headerSubtitle: headerSubtitle,
-        transitionDuration: _transitionDuration,
-        reverseTransitionDuration: _reverseTransitionDuration,
-      ),
+    final entries = <_MenuEntry<int>>[
+      for (var index = 0; index < actions.length; index++)
+        _MenuEntry<int>(
+          value: index,
+          label: actions[index].label,
+          icon: actions[index].icon,
+          isDestructive: actions[index].isDestructive,
+          enabled: actions[index].enabled,
+          selected: actions[index].selected,
+          foregroundColor: actions[index].foregroundColor,
+          iconColor: actions[index].iconColor,
+          separatorBefore: actions[index].separatorBefore,
+          sectionTitle: actions[index].sectionTitle,
+          shortcutLabel: actions[index].shortcutLabel,
+        ),
+    ];
+
+    final selectedIndex = await _open<int>(
+      context,
+      globalPosition: globalPosition,
+      entries: entries,
+      headerTitle: headerTitle,
+      headerSubtitle: headerSubtitle,
+      maxWidth: maxWidth,
     );
-    if (!context.mounted || selectedIndex == null) {
-      return;
-    }
+    if (selectedIndex == null || !context.mounted) return;
     await actions[selectedIndex].onTap(context);
   }
 
-  /// Pokazuje niestandardową, interaktywną zawartość w identycznym wrapperze.
+  /// Pokazuje menu wyboru wartości.
+  static Future<T?> select<T>(
+    BuildContext context, {
+    required Offset globalPosition,
+    required List<AppContextMenuOption<T>> options,
+    String? headerTitle,
+    String? headerSubtitle,
+    double? maxWidth,
+  }) {
+    if (options.isEmpty) return Future<T?>.value();
+
+    return _open<T>(
+      context,
+      globalPosition: globalPosition,
+      entries: [
+        for (final option in options)
+          _MenuEntry<T>(
+            value: option.value,
+            label: option.label,
+            icon: option.icon,
+            isDestructive: option.isDestructive,
+            enabled: option.enabled,
+            selected: option.selected,
+            iconColor: option.iconColor,
+            leading: option.leading,
+            trailing: option.trailing,
+            separatorBefore: option.separatorBefore,
+            sectionTitle: option.sectionTitle,
+            shortcutLabel: option.shortcutLabel,
+          ),
+      ],
+      headerTitle: headerTitle,
+      headerSubtitle: headerSubtitle,
+      maxWidth: maxWidth,
+    );
+  }
+
+  /// Pokazuje niestandardową, interaktywną zawartość w identycznej powierzchni.
+  ///
   /// Służy np. do wyszukiwania, gdy zwykła lista akcji nie wystarcza.
   static Future<void> showCustom(
     BuildContext context, {
     required Offset globalPosition,
     required AppContextMenuContentBuilder contentBuilder,
-    AppContextMenuStyle style = AppContextMenuStyle.flat,
     double maxWidth = 360,
     double maxHeight = 420,
+    String? headerTitle,
+  }) async {
+    await _open<int>(
+      context,
+      globalPosition: globalPosition,
+      entries: const [],
+      contentBuilder: contentBuilder,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
+      headerTitle: headerTitle,
+    );
+  }
+
+  /// Otwiera trasę menu i przywraca focus po jej zamknięciu.
+  static Future<T?> _open<T>(
+    BuildContext context, {
+    required Offset globalPosition,
+    required List<_MenuEntry<T>> entries,
+    required double? maxWidth,
+    double? maxHeight,
+    String? headerTitle,
+    String? headerSubtitle,
+    AppContextMenuContentBuilder? contentBuilder,
   }) async {
     final navigator = Navigator.of(context, rootNavigator: true);
     final overlayBox =
         navigator.overlay!.context.findRenderObject()! as RenderBox;
     final overlayPosition =
         overlayBox.globalToLocal(globalPosition) + const Offset(4, 4);
-    await navigator.push<int>(
-      _AppContextMenuRoute(
+    final previousFocus = FocusManager.instance.primaryFocus;
+
+    final selected = await navigator.push<T>(
+      _AppContextMenuRoute<T>(
         position: overlayPosition,
-        actions: const [],
-        style: style,
-        transitionDuration: _transitionDuration,
-        reverseTransitionDuration: _reverseTransitionDuration,
-        contentBuilder: contentBuilder,
+        entries: entries,
         maxWidth: maxWidth,
         maxHeight: maxHeight,
+        headerTitle: headerTitle,
+        headerSubtitle: headerSubtitle,
+        contentBuilder: contentBuilder,
+        transitionDuration: _transitionDuration,
+        reverseTransitionDuration: _reverseTransitionDuration,
       ),
     );
+
+    if (previousFocus != null && previousFocus.canRequestFocus) {
+      previousFocus.requestFocus();
+    }
+    return selected;
   }
 }
 
-/// Trasa odpowiedzialna za prezentację menu ponad bieżącym ekranem.
-class _AppContextMenuRoute extends PopupRoute<int> {
-  /// Tworzy trasę menu kontekstowego.
-  _AppContextMenuRoute({
-    required this.position,
-    required this.actions,
-    required this.style,
-    required this.transitionDuration,
-    required this.reverseTransitionDuration,
+/// Widget otwierający wspólne menu prawym przyciskiem myszy.
+///
+/// Dzięki niemu prawy klik na wierszu tabeli, karcie Kanbanu czy pozycji drzewa
+/// używa tego samego katalogu akcji co kliknięcie `…`.
+class AppContextMenuRegion extends StatelessWidget {
+  /// Tworzy obszar z menu kontekstowym prawego przycisku.
+  const AppContextMenuRegion({
+    required this.actionsBuilder,
+    required this.child,
     this.headerTitle,
     this.headerSubtitle,
-    this.contentBuilder,
-    this.maxWidth = 260,
-    this.maxHeight,
+    super.key,
   });
 
-  /// Pozycja kursora w globalnym układzie współrzędnych.
-  final Offset position;
+  /// Buduje akcje dla bieżącego stanu widgetu.
+  ///
+  /// Pusta lista wyłącza menu dla tego obszaru.
+  final List<AppContextMenuAction> Function(BuildContext context) actionsBuilder;
 
-  /// Akcje prezentowane w menu.
-  final List<AppContextMenuAction> actions;
-
-  /// Styl wizualny menu.
-  final AppContextMenuStyle style;
+  /// Zawartość obszaru.
+  final Widget child;
 
   /// Tytuł nagłówka menu.
   final String? headerTitle;
 
   /// Podtytuł nagłówka menu.
   final String? headerSubtitle;
-  final AppContextMenuContentBuilder? contentBuilder;
-  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    behavior: HitTestBehavior.translucent,
+    onSecondaryTapDown: (details) {
+      final actions = actionsBuilder(context);
+      if (actions.isEmpty) return;
+      unawaited(
+        AppContextMenu.show(
+          context,
+          globalPosition: details.globalPosition,
+          actions: actions,
+          headerTitle: headerTitle,
+          headerSubtitle: headerSubtitle,
+        ),
+      );
+    },
+    child: child,
+  );
+}
+
+/// Pozycja menu w jednym modelu dla akcji i wyboru wartości.
+class _MenuEntry<T> {
+  const _MenuEntry({
+    required this.value,
+    required this.label,
+    this.icon,
+    this.isDestructive = false,
+    this.enabled = true,
+    this.selected = false,
+    this.foregroundColor,
+    this.iconColor,
+    this.leading,
+    this.trailing,
+    this.separatorBefore = false,
+    this.sectionTitle,
+    this.shortcutLabel,
+  });
+
+  final T value;
+  final String label;
+  final IconData? icon;
+  final bool isDestructive;
+  final bool enabled;
+  final bool selected;
+  final Color? foregroundColor;
+  final Color? iconColor;
+  final Widget? leading;
+  final Widget? trailing;
+  final bool separatorBefore;
+  final String? sectionTitle;
+  final String? shortcutLabel;
+}
+
+/// Trasa odpowiedzialna za prezentację menu ponad bieżącym ekranem.
+class _AppContextMenuRoute<T> extends PopupRoute<T> {
+  _AppContextMenuRoute({
+    required this.position,
+    required this.entries,
+    required this.maxWidth,
+    required this.maxHeight,
+    required this.headerTitle,
+    required this.headerSubtitle,
+    required this.contentBuilder,
+    required this.transitionDuration,
+    required this.reverseTransitionDuration,
+  });
+
+  /// Pozycja menu w układzie overlayu.
+  final Offset position;
+
+  /// Pozycje menu.
+  final List<_MenuEntry<T>> entries;
+
+  /// Maksymalna szerokość powierzchni menu.
+  final double? maxWidth;
+
+  /// Maksymalna wysokość powierzchni menu.
   final double? maxHeight;
+
+  final String? headerTitle;
+  final String? headerSubtitle;
+  final AppContextMenuContentBuilder? contentBuilder;
 
   @override
   final Duration transitionDuration;
@@ -192,12 +423,12 @@ class _AppContextMenuRoute extends PopupRoute<int> {
         maxWidth: maxWidth,
         maxHeight: maxHeight,
       ),
-      child: _AppContextMenuPanel(
-        actions: actions,
-        style: style,
+      child: _AppContextMenuPanel<T>(
+        entries: entries,
         headerTitle: headerTitle,
         headerSubtitle: headerSubtitle,
         contentBuilder: contentBuilder,
+        onSelected: (value) => Navigator.of(context).pop(value),
       ),
     );
   }
@@ -227,43 +458,46 @@ class _AppContextMenuRoute extends PopupRoute<int> {
 
 /// Delegat utrzymujący menu wewnątrz widocznego obszaru ekranu.
 class _AppContextMenuPositionDelegate extends SingleChildLayoutDelegate {
-  /// Tworzy delegata dla pozycji kursora.
   const _AppContextMenuPositionDelegate(
     this.position, {
     required this.maxWidth,
     this.maxHeight,
   });
 
-  /// Pozycja kursora w globalnym układzie współrzędnych.
+  /// Pozycja menu w układzie overlayu.
   final Offset position;
-  final double maxWidth;
+
+  /// Maksymalna szerokość i wysokość powierzchni menu.
+  final double? maxWidth;
   final double? maxHeight;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    const margin = AppContextMenu.viewportMargin;
     return BoxConstraints(
-      minWidth: 220,
-      maxWidth: maxWidth,
+      minWidth: constraints.maxWidth.clamp(0, 220),
+      maxWidth: maxWidth ?? 300,
       maxHeight: (maxHeight ?? constraints.maxHeight).clamp(
         0,
-        constraints.maxHeight - (Sizes.p8 * 2),
+        (constraints.maxHeight - margin * 2).clamp(0, double.infinity),
       ),
     );
   }
 
   @override
   Offset getPositionForChild(Size size, Size childSize) {
-    final maxX = (size.width - childSize.width - Sizes.p8).clamp(
-      Sizes.p8,
+    const margin = AppContextMenu.viewportMargin;
+    final maxX = (size.width - childSize.width - margin).clamp(
+      margin,
       double.infinity,
     );
-    final maxY = (size.height - childSize.height - Sizes.p8).clamp(
-      Sizes.p8,
+    final maxY = (size.height - childSize.height - margin).clamp(
+      margin,
       double.infinity,
     );
     return Offset(
-      position.dx.clamp(Sizes.p8, maxX),
-      position.dy.clamp(Sizes.p8, maxY),
+      position.dx.clamp(margin, maxX),
+      position.dy.clamp(margin, maxY),
     );
   }
 
@@ -275,553 +509,356 @@ class _AppContextMenuPositionDelegate extends SingleChildLayoutDelegate {
   }
 }
 
-/// Wizualna powierzchnia menu kontekstowego.
-class _AppContextMenuPanel extends StatelessWidget {
-  /// Tworzy powierzchnię menu.
+/// Jedna powierzchnia menu wraz z obsługą klawiatury i focusu.
+class _AppContextMenuPanel<T> extends StatefulWidget {
   const _AppContextMenuPanel({
-    required this.actions,
-    required this.style,
+    required this.entries,
+    required this.onSelected,
     this.headerTitle,
     this.headerSubtitle,
     this.contentBuilder,
   });
 
-  /// Akcje prezentowane w menu.
-  final List<AppContextMenuAction> actions;
+  /// Pozycje menu.
+  final List<_MenuEntry<T>> entries;
 
-  /// Styl wizualny menu.
-  final AppContextMenuStyle style;
+  /// Wywoływane z wartością wybranej pozycji.
+  final ValueChanged<T> onSelected;
 
-  /// Tytuł nagłówka menu.
   final String? headerTitle;
-
-  /// Podtytuł nagłówka menu.
   final String? headerSubtitle;
   final AppContextMenuContentBuilder? contentBuilder;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return switch (style) {
-      AppContextMenuStyle.glass => Material(
-        type: .transparency,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(.circular(Sizes.p12)),
-            boxShadow: [
-              BoxShadow(
-                color: colors.shadow.withValues(alpha: .3),
-                blurRadius: 30,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
-          child: CustomPaint(
-            foregroundPainter: _AppContextMenuBorderPainter(
-              highlightColor: context.theme.brightness == .dark
-                  ? colors.onSurface
-                  : colors.surface,
-              outlineColor: colors.outlineVariant,
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(.circular(Sizes.p12)),
-              child: _AppContextMenuGlass(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: .topLeft,
-                      end: .bottomRight,
-                      colors: [
-                        colors.surfaceContainerHighest.withValues(alpha: .34),
-                        colors.surface.withValues(alpha: .2),
-                        colors.surfaceContainerHigh.withValues(alpha: .28),
-                      ],
-                      stops: const [0, .52, 1],
-                    ),
-                    borderRadius: const BorderRadius.all(.circular(Sizes.p12)),
-                  ),
-                  child: Material(
-                    type: .transparency,
-                    child: _body(context, AppContextMenuStyle.glass),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      AppContextMenuStyle.flat => Material(
-        type: .transparency,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: context.theme.brightness == .dark
-                ? const Color(0xFF1E2138)
-                : Colors.white,
-            borderRadius: const BorderRadius.all(.circular(Sizes.p12)),
-            border: Border.all(
-              color: context.theme.brightness == .dark
-                  ? Colors.white.withValues(alpha: .12)
-                  : const Color(0xFFE2E8F0),
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(
-                  alpha: context.theme.brightness == .dark ? .45 : .14,
-                ),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(
-                  alpha: context.theme.brightness == .dark ? .20 : .04,
-                ),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.all(.circular(Sizes.p12)),
-            child: Material(
-              type: .transparency,
-              child: _body(context, AppContextMenuStyle.flat),
-            ),
-          ),
-        ),
-      ),
-    };
-  }
-
-  Widget _body(BuildContext context, AppContextMenuStyle itemStyle) =>
-      contentBuilder?.call(context, () => Navigator.of(context).pop()) ??
-      _AppContextMenuBody(
-        actions: actions,
-        headerTitle: headerTitle,
-        headerSubtitle: headerSubtitle,
-        itemStyle: itemStyle,
-      );
+  State<_AppContextMenuPanel<T>> createState() => _AppContextMenuPanelState<T>();
 }
 
-/// Wspólny układ zawartości menu dla wszystkich stylów.
-class _AppContextMenuBody extends StatelessWidget {
-  /// Tworzy ciało menu dla wskazanego stylu.
-  const _AppContextMenuBody({
-    required this.actions,
-    required this.itemStyle,
-    this.headerTitle,
-    this.headerSubtitle,
-  });
+class _AppContextMenuPanelState<T> extends State<_AppContextMenuPanel<T>> {
+  final Map<int, GlobalKey> _rowKeys = {};
+  int? _highlightedIndex;
 
-  /// Akcje prezentowane w menu.
-  final List<AppContextMenuAction> actions;
+  List<int> get _selectableIndexes => [
+    for (var index = 0; index < widget.entries.length; index++)
+      if (widget.entries[index].enabled) index,
+  ];
 
-  /// Styl pojedynczych pozycji menu.
-  final AppContextMenuStyle itemStyle;
-
-  /// Tytuł nagłówka menu.
-  final String? headerTitle;
-
-  /// Podtytuł nagłówka menu.
-  final String? headerSubtitle;
+  @override
+  void initState() {
+    super.initState();
+    _highlightedIndex = _selectableIndexes.firstOrNull;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const .all(Sizes.p4),
-      child: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .stretch,
-        children: [
-          if (headerTitle case final title?) _buildHeader(context, title),
-          for (var index = 0; index < actions.length; index++) ...[
-            if (actions[index].separatorBefore)
-              Divider(
-                height: Sizes.p8,
-                thickness: 1,
-                color: _separatorColor(context),
+    final menuTheme = context.menuTheme;
+    return FocusScope(
+      autofocus: true,
+      child: Focus(
+        autofocus: true,
+        onKeyEvent: _handleKeyEvent,
+        child: FocusTraversalGroup(
+          child: Material(
+            type: MaterialType.transparency,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: menuTheme.surface,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(menuTheme.radius),
+                ),
+                border: Border.all(color: menuTheme.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: menuTheme.shadow.withValues(alpha: .16),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: menuTheme.shadow.withValues(alpha: .06),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            _AppContextMenuItem(
-              action: actions[index],
-              style: itemStyle,
-              onPressed: () => Navigator.of(context).pop(index),
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(menuTheme.radius)),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(menuTheme.padding),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (widget.headerTitle case final title?)
+                        _MenuHeader(title: title, subtitle: widget.headerSubtitle),
+                      if (widget.contentBuilder case final builder?)
+                        builder(context, () => Navigator.of(context).pop())
+                      else
+                        for (var index = 0; index < widget.entries.length; index++)
+                          _buildEntry(context, index),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ],
-        ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, String title) {
-    final titleColor = switch (itemStyle) {
-      AppContextMenuStyle.glass => Colors.white.withValues(alpha: .96),
-      AppContextMenuStyle.flat => context.colors.onSurface,
-    };
-    final subtitleColor = switch (itemStyle) {
-      AppContextMenuStyle.glass => Colors.white.withValues(alpha: .72),
-      AppContextMenuStyle.flat => context.colors.onSurfaceVariant,
-    };
+  Widget _buildEntry(BuildContext context, int index) {
+    final entry = widget.entries[index];
+    // Nagłówek sekcji rysujemy raz na początku grupy, więc kolejne pozycje
+    // z tą samą nazwą sekcji nie powtarzają etykiety.
+    final sectionTitle = entry.sectionTitle;
+    final startsSection =
+        sectionTitle != null &&
+        (index == 0 || widget.entries[index - 1].sectionTitle != sectionTitle);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (startsSection)
+          Padding(
+            padding: context.menuTheme.sectionPadding,
+            child: Text(
+              sectionTitle.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.menuTheme.sectionText.copyWith(
+                color: context.menuTheme.sectionForeground,
+              ),
+            ),
+          ),
+        if (entry.separatorBefore)
+          Divider(
+            height: 8,
+            thickness: 1,
+            color: context.menuTheme.divider.withValues(alpha: .6),
+          ),
+        _AppContextMenuItem<T>(
+          key: _rowKeys.putIfAbsent(index, GlobalKey.new),
+          entry: entry,
+          isHighlighted: _highlightedIndex == index,
+          onHoverChanged: (isHovered) {
+            if (!isHovered || _highlightedIndex == index) return;
+            setState(() => _highlightedIndex = index);
+          },
+          onPressed: () => widget.onSelected(entry.value),
+        ),
+      ],
+    );
+  }
 
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final selectable = _selectableIndexes;
+    if (selectable.isEmpty) return KeyEventResult.ignored;
+
+    final currentPosition = selectable.indexOf(_highlightedIndex ?? -1);
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.arrowDown:
+        _highlight(selectable[(currentPosition + 1) % selectable.length]);
+      case LogicalKeyboardKey.arrowUp:
+        _highlight(
+          selectable[(currentPosition - 1 + selectable.length) % selectable.length],
+        );
+      case LogicalKeyboardKey.home:
+        _highlight(selectable.first);
+      case LogicalKeyboardKey.end:
+        _highlight(selectable.last);
+      case LogicalKeyboardKey.enter:
+      case LogicalKeyboardKey.space:
+        final index = _highlightedIndex;
+        if (index == null) return KeyEventResult.ignored;
+        widget.onSelected(widget.entries[index].value);
+      default:
+        return KeyEventResult.ignored;
+    }
+    return KeyEventResult.handled;
+  }
+
+  void _highlight(int index) {
+    setState(() => _highlightedIndex = index);
+    final rowContext = _rowKeys[index]?.currentContext;
+    if (rowContext == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Scrollable.ensureVisible(rowContext);
+    });
+  }
+}
+
+/// Nagłówek powierzchni menu.
+class _MenuHeader extends StatelessWidget {
+  const _MenuHeader({required this.title, this.subtitle});
+
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final menuTheme = context.menuTheme;
     return Padding(
-      padding: const .fromLTRB(Sizes.p10, Sizes.p8, Sizes.p10, Sizes.p4),
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             maxLines: 1,
-            overflow: .ellipsis,
-            style: context.text.labelMedium?.copyWith(
-              color: titleColor,
-              fontWeight: .w700,
+            overflow: TextOverflow.ellipsis,
+            style: menuTheme.itemText.copyWith(
+              fontWeight: FontWeight.w600,
+              color: menuTheme.itemForeground,
             ),
           ),
-          if (headerSubtitle case final subtitle?) ...[
-            Gaps.h2,
+          if (subtitle case final value?) ...[
+            const SizedBox(height: 2),
             Text(
-              subtitle,
+              value,
               maxLines: 1,
-              overflow: .ellipsis,
-              style: context.text.bodySmall?.copyWith(color: subtitleColor),
+              overflow: TextOverflow.ellipsis,
+              style: menuTheme.shortcutText.copyWith(
+                color: menuTheme.sectionForeground,
+              ),
             ),
           ],
-          Gaps.h4,
+          const SizedBox(height: 4),
+          Divider(height: 1, thickness: 1, color: menuTheme.divider),
         ],
       ),
     );
   }
-
-  Color _separatorColor(BuildContext context) {
-    return switch (itemStyle) {
-      AppContextMenuStyle.glass => Colors.white.withValues(alpha: .16),
-      AppContextMenuStyle.flat => context.colors.outlineVariant.withValues(
-        alpha: .55,
-      ),
-    };
-  }
 }
 
-/// Warstwa refleksu szkła działająca niezależnie od backendu renderującego.
-class _AppContextMenuReflection extends StatefulWidget {
-  /// Tworzy warstwę refleksu w kolorze aktywnego motywu.
-  const _AppContextMenuReflection({required this.color});
-
-  /// Kolor światła odbitego przez szkło.
-  final Color color;
-
-  @override
-  State<_AppContextMenuReflection> createState() =>
-      _AppContextMenuReflectionState();
-}
-
-/// Stan zarządzający shaderem widocznego refleksu powierzchni.
-class _AppContextMenuReflectionState extends State<_AppContextMenuReflection> {
-  static Future<FragmentProgram>? _programFuture;
-
-  FragmentShader? _shader;
-
-  @override
-  void initState() {
-    super.initState();
-    final programFuture = _programFuture ??= FragmentProgram.fromAsset(
-      'shaders/app_context_menu_reflection.frag',
-    );
-    unawaited(
-      programFuture.then((program) {
-        if (!mounted) {
-          return;
-        }
-        setState(() => _shader = program.fragmentShader());
-      }),
-    );
-  }
-
-  @override
-  void dispose() {
-    _shader?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _shader == null
-          ? null
-          : _AppContextMenuReflectionPainter(
-              shader: _shader!,
-              color: widget.color,
-            ),
-    );
-  }
-}
-
-/// Malarz nakładający skompilowany refleks shadera na powierzchnię menu.
-class _AppContextMenuReflectionPainter extends CustomPainter {
-  /// Tworzy malarza refleksu.
-  const _AppContextMenuReflectionPainter({
-    required this.shader,
-    required this.color,
-  });
-
-  /// Shader używany do narysowania refleksu.
-  final FragmentShader shader;
-
-  /// Kolor światła refleksu.
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    shader
-      ..setFloat(0, size.width)
-      ..setFloat(1, size.height)
-      ..setFloat(2, .7)
-      ..setFloat(3, color.r)
-      ..setFloat(4, color.g)
-      ..setFloat(5, color.b);
-    canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
-  }
-
-  @override
-  bool shouldRepaint(_AppContextMenuReflectionPainter oldDelegate) {
-    return oldDelegate.shader != shader || oldDelegate.color != color;
-  }
-}
-
-/// Szklana warstwa menu korzystająca z shadera refrakcji tła.
-class _AppContextMenuGlass extends StatefulWidget {
-  /// Tworzy warstwę szkła dla zawartości menu.
-  const _AppContextMenuGlass({required this.child});
-
-  /// Zawartość renderowana ponad filtrowanym tłem.
-  final Widget child;
-
-  @override
-  State<_AppContextMenuGlass> createState() => _AppContextMenuGlassState();
-}
-
-/// Stan zarządzający cyklem życia programu i instancji shadera.
-class _AppContextMenuGlassState extends State<_AppContextMenuGlass> {
-  static Future<FragmentProgram>? _programFuture;
-
-  FragmentShader? _shader;
-
-  @override
-  void initState() {
-    super.initState();
-    final programFuture = _programFuture ??= FragmentProgram.fromAsset(
-      'shaders/app_context_menu_glass.frag',
-    );
-    unawaited(
-      programFuture.then((program) {
-        if (!mounted) {
-          return;
-        }
-        setState(() => _shader = program.fragmentShader());
-      }),
-    );
-  }
-
-  @override
-  void dispose() {
-    _shader?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final blurFilter = ImageFilter.blur(sigmaX: 6.5, sigmaY: 6.5);
-    final shader = _shader;
-    if (shader == null || !ImageFilter.isShaderFilterSupported) {
-      return BackdropFilter(filter: blurFilter, child: widget.child);
-    }
-
-    final tint = context.colors.surface;
-    shader
-      ..setFloat(2, .017)
-      ..setFloat(3, .65)
-      ..setFloat(4, tint.r)
-      ..setFloat(5, tint.g)
-      ..setFloat(6, tint.b)
-      ..setFloat(7, .07)
-      ..setFloat(8, .32);
-    final glassFilter = ImageFilter.compose(
-      outer: ImageFilter.shader(shader),
-      inner: blurFilter,
-    );
-    return BackdropFilter(filter: glassFilter, child: widget.child);
-  }
-}
-
-/// Malarz neutralnego obrysu imitującego krawędź matowego szkła.
-class _AppContextMenuBorderPainter extends CustomPainter {
-  /// Tworzy malarza na podstawie kolorów aktywnego motywu.
-  const _AppContextMenuBorderPainter({
-    required this.highlightColor,
-    required this.outlineColor,
-  });
-
-  /// Kolor świetlnego refleksu obrysu.
-  final Color highlightColor;
-
-  /// Kolor bazowego konturu obrysu.
-  final Color outlineColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const strokeWidth = 1.1;
-    const radius = Sizes.p12;
-    final borderRect = Offset.zero & size;
-    final borderPaint = Paint()
-      ..shader = LinearGradient(
-        begin: .topLeft,
-        end: .bottomRight,
-        colors: [
-          highlightColor.withValues(alpha: .42),
-          outlineColor.withValues(alpha: .18),
-          outlineColor.withValues(alpha: .28),
-        ],
-      ).createShader(borderRect)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-    final rrect = RRect.fromRectAndRadius(
-      borderRect.deflate(strokeWidth / 2),
-      const Radius.circular(radius),
-    );
-    canvas.drawRRect(rrect, borderPaint);
-  }
-
-  @override
-  bool shouldRepaint(_AppContextMenuBorderPainter oldDelegate) {
-    return oldDelegate.highlightColor != highlightColor ||
-        oldDelegate.outlineColor != outlineColor;
-  }
-}
-
-/// Interaktywny wiersz akcji menu kontekstowego.
-class _AppContextMenuItem extends StatefulWidget {
-  /// Tworzy pojedynczy wiersz akcji.
+/// Pojedynczy wiersz menu: ikona, etykieta, skrót i znacznik wyboru.
+class _AppContextMenuItem<T> extends StatefulWidget {
   const _AppContextMenuItem({
-    required this.action,
-    required this.style,
+    required this.entry,
+    required this.isHighlighted,
+    required this.onHoverChanged,
     required this.onPressed,
+    super.key,
   });
 
-  /// Akcja prezentowana w wierszu.
-  final AppContextMenuAction action;
-
-  /// Styl menu, z którego pochodzi wiersz.
-  final AppContextMenuStyle style;
-
-  /// Funkcja zamykająca menu z wybraną akcją.
+  final _MenuEntry<T> entry;
+  final bool isHighlighted;
+  final ValueChanged<bool> onHoverChanged;
   final VoidCallback onPressed;
 
   @override
-  State<_AppContextMenuItem> createState() => _AppContextMenuItemState();
+  State<_AppContextMenuItem<T>> createState() => _AppContextMenuItemState<T>();
 }
 
-/// Stan wiersza menu obsługujący kontrastowy wygląd po najechaniu.
-class _AppContextMenuItemState extends State<_AppContextMenuItem> {
-  var _isHovered = false;
+class _AppContextMenuItemState<T> extends State<_AppContextMenuItem<T>> {
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final action = widget.action;
-    final colors = context.colors;
-    final isDark = context.theme.brightness == Brightness.dark;
-    final defaultForegroundColor =
-        action.foregroundColor ??
-        switch (widget.style) {
-          AppContextMenuStyle.glass =>
-            action.isDestructive
-                ? colors.errorContainer
-                : Colors.white.withValues(alpha: .94),
-          AppContextMenuStyle.flat =>
-            action.isDestructive
-                ? (isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626))
-                : (isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B)),
-        };
-    final hoveredForegroundColor = switch (widget.style) {
-      AppContextMenuStyle.glass =>
-        action.isDestructive ? colors.errorContainer : Colors.white,
-      AppContextMenuStyle.flat =>
-        action.isDestructive
-            ? (isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626))
-            : (isDark ? Colors.white : const Color(0xFF0F172A)),
-    };
-    final foregroundColor = _isHovered
-        ? hoveredForegroundColor
-        : defaultForegroundColor;
-    final hoverColor = switch (widget.style) {
-      AppContextMenuStyle.glass =>
-        action.isDestructive
-            ? colors.error.withValues(alpha: .92)
-            : colors.primary.withValues(alpha: .92),
-      AppContextMenuStyle.flat =>
-        action.isDestructive
-            ? (isDark
-                  ? const Color(0xFFDC2626).withValues(alpha: .22)
-                  : const Color(0xFFFEE2E2))
-            : (isDark
-                  ? Colors.white.withValues(alpha: .08)
-                  : const Color(0xFFF1F5F9)),
-    };
+    final entry = widget.entry;
+    final menuTheme = context.menuTheme;
+    final isActive = _isHovered || widget.isHighlighted;
+    final Color foreground;
+    if (entry.foregroundColor case final explicit?) {
+      foreground = explicit;
+    } else if (entry.isDestructive) {
+      foreground = menuTheme.destructive;
+    } else if (entry.selected || isActive) {
+      foreground = menuTheme.itemSelectedForeground;
+    } else {
+      foreground = menuTheme.itemForeground;
+    }
+    final background = isActive
+        ? (entry.isDestructive ? menuTheme.destructiveHover : menuTheme.itemHover)
+        : (entry.selected ? menuTheme.itemSelectedSurface : Colors.transparent);
 
     return MouseRegion(
-      cursor: action.enabled
+      cursor: entry.enabled
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,
+      onEnter: (_) {
+        if (!entry.enabled) return;
+        setState(() => _isHovered = true);
+        widget.onHoverChanged(true);
+      },
+      onExit: (_) {
+        if (!entry.enabled) return;
+        setState(() => _isHovered = false);
+        widget.onHoverChanged(false);
+      },
       child: Material(
-        type: .transparency,
+        type: MaterialType.transparency,
         child: InkWell(
-          borderRadius: const BorderRadius.all(.circular(Sizes.p8)),
-          hoverColor: hoverColor,
-          highlightColor: hoverColor,
+          borderRadius: BorderRadius.all(Radius.circular(menuTheme.itemRadius)),
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
           splashFactory: NoSplash.splashFactory,
-          onHover: action.enabled
-              ? (isHovered) => setState(() => _isHovered = isHovered)
-              : null,
-          onTap: action.enabled ? widget.onPressed : null,
-          child: SizedBox(
-            height: 30,
+          onTap: entry.enabled ? widget.onPressed : null,
+          child: Container(
+            height: menuTheme.rowHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: background,
+              borderRadius: BorderRadius.all(
+                Radius.circular(menuTheme.itemRadius),
+              ),
+            ),
             child: Opacity(
-              opacity: action.enabled ? 1 : .4,
-              child: Padding(
-                padding: const .symmetric(horizontal: Sizes.p10),
-                child: Row(
-                  children: [
+              opacity: entry.enabled ? 1 : menuTheme.disabledOpacity,
+              child: Row(
+                children: [
+                  if (entry.leading case final leading?) ...[
+                    leading,
+                    const SizedBox(width: 8),
+                  ] else ...[
                     SizedBox(
-                      width: 18,
-                      child: action.icon == null
+                      width: menuTheme.iconSize + 2,
+                      child: entry.icon == null
                           ? null
-                          : Icon(action.icon, size: 15, color: foregroundColor),
+                          : Icon(
+                              entry.icon,
+                              size: menuTheme.iconSize - 1,
+                              color: entry.iconColor ?? foreground,
+                            ),
                     ),
-                    Gaps.w8,
-                    Expanded(
-                      child: Text(
-                        action.label,
-                        maxLines: 1,
-                        overflow: .ellipsis,
-                        style: context.text.bodySmall?.copyWith(
-                          fontSize: 12.5,
-                          color: foregroundColor,
-                          fontWeight: action.selected ? FontWeight.w700 : FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    if (action.selected)
-                      Icon(
-                        Icons.check_rounded,
-                        size: 15,
-                        color: _isHovered
-                            ? hoveredForegroundColor
-                            : switch (widget.style) {
-                                AppContextMenuStyle.glass =>
-                                  Colors.white.withValues(alpha: .92),
-                                AppContextMenuStyle.flat => colors.primary,
-                              },
-                      ),
+                    const SizedBox(width: 8),
                   ],
-                ),
+                  Expanded(
+                    child: Text(
+                      entry.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: menuTheme.itemText.copyWith(
+                        color: foreground,
+                        fontWeight: entry.selected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  if (entry.trailing case final trailing?) ...[
+                    const SizedBox(width: 8),
+                    trailing,
+                  ],
+                  if (entry.shortcutLabel case final shortcut?) ...[
+                    const SizedBox(width: 12),
+                    Text(
+                      shortcut,
+                      style: menuTheme.shortcutText.copyWith(
+                        color: menuTheme.sectionForeground,
+                      ),
+                    ),
+                  ],
+                  if (entry.selected) ...[
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.check_rounded,
+                      size: menuTheme.iconSize - 1,
+                      color: menuTheme.itemSelectedForeground,
+                    ),
+                  ],
+                ],
               ),
             ),
           ),

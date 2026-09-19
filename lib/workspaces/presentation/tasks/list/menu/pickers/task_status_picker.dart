@@ -1,12 +1,12 @@
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/menu/task_context_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Standaryzowany picker wyboru statusu zadania w tabeli.
 ///
-/// Wykorzystuje jednolitą typografię `TaskContextMenu` oraz `TaskContextMenuItem`.
+/// Korzysta ze wspólnej powierzchni `AppContextMenu`.
 abstract final class TaskStatusPicker {
   static const _configureWorkflowSentinel = 'CONFIGURE_WORKFLOW_SENTINEL';
 
@@ -19,30 +19,25 @@ abstract final class TaskStatusPicker {
     bool canManage = false,
     VoidCallback? onConfigureWorkflow,
   }) async {
-    final menuPosition = position != null
-        ? _menuPositionForGlobal(context, position)
-        : TaskContextMenu.positionFor(context);
-
-    final value = await TaskContextMenu.show<Object?>(
+    final value = await AppContextMenu.select<Object>(
       context,
-      position: menuPosition,
-      items: [
+      globalPosition: position ?? AppContextMenu.positionFor(context),
+      options: [
         for (final status in ProjectTaskStatus.values)
-          TaskContextMenuItem<ProjectTaskStatus>(
+          AppContextMenuOption(
             value: status,
-            title: TaskStatusVisualHelper.label(context, status),
+            label: TaskStatusVisualHelper.label(context, status),
             icon: TaskStatusVisualHelper.icon(status),
             iconColor: TaskStatusVisualHelper.color(status),
-            isSelected: status == selected,
+            selected: status == selected,
           ),
-        if (canManage && onConfigureWorkflow != null) ...[
-          const PopupMenuDivider(height: 8),
-          TaskContextMenuItem<String>(
+        if (canManage && onConfigureWorkflow != null)
+          const AppContextMenuOption(
             value: _configureWorkflowSentinel,
-            title: 'Konfiguruj workflow...',
+            label: 'Konfiguruj workflow...',
             icon: Symbols.settings_rounded,
+            separatorBefore: true,
           ),
-        ],
       ],
     );
 
@@ -53,14 +48,4 @@ abstract final class TaskStatusPicker {
     }
   }
 
-  static RelativeRect _menuPositionForGlobal(
-    BuildContext context,
-    Offset global,
-  ) {
-    final overlay = Navigator.of(context, rootNavigator: true).overlay;
-    final overlayBox = overlay?.context.findRenderObject() as RenderBox?;
-    if (overlayBox == null) return RelativeRect.fill;
-    final rect = global & const Size(1, 1);
-    return RelativeRect.fromRect(rect, Offset.zero & overlayBox.size);
-  }
 }

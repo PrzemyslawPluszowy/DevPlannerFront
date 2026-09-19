@@ -99,7 +99,7 @@ class TaskCellComplexity extends StatelessWidget {
                           style: context.text.labelSmall?.copyWith(
                             color: colors.onSurface,
                             fontWeight: FontWeight.w700,
-                            fontSize: 10.5,
+                            fontSize: context.tasksTheme.metaText.fontSize,
                           ),
                         ),
                       ],

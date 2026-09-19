@@ -245,12 +245,14 @@ class _TaskCellTitleState extends State<TaskCellTitle> {
                             children: [
                               Text(
                                 task.key,
-                                style: context.text.labelSmall?.copyWith(
-                                  fontSize: 9.5,
+                                // Klucz zadania to metadana: token 11 px zamiast
+                                // lokalnego 9,5 px, które schodziło pod podłogę
+                                // czytelności.
+                                style: context.tasksTheme.metaText.copyWith(
+                                  height: 1,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: .1,
                                   color: context.colors.onSurfaceVariant,
-                                  height: 1.0,
                                 ),
                               ),
                               if (task.milestoneId != null) ...[
@@ -277,14 +279,13 @@ class _TaskCellTitleState extends State<TaskCellTitle> {
                                       const SizedBox(width: 2),
                                       Text(
                                         context.l10n.tasksListMilestone,
-                                        style: context.text.labelSmall
-                                            ?.copyWith(
-                                              fontSize: 9,
+                                        style: context.tasksTheme.metaText
+                                            .copyWith(
+                                              height: 1,
                                               fontWeight: FontWeight.w600,
                                               color: context
                                                   .colors
                                                   .onTertiaryContainer,
-                                              height: 1.0,
                                             ),
                                       ),
                                     ],
@@ -345,7 +346,7 @@ class _TaskCellTitleState extends State<TaskCellTitle> {
                               ? context.l10n.tasksListRecurrenceSeriesBadge
                               : context.l10n.tasksListRecurrenceCycleBadge,
                           style: context.text.labelSmall?.copyWith(
-                            fontSize: 10,
+                            fontSize: context.tasksTheme.metaText.fontSize,
                             fontWeight: .w700,
                             letterSpacing: .2,
                             color: recurrence.isSourceTask

@@ -1,5 +1,22 @@
 # DevPlanner standalone — handoff zaakceptowanego stanu
 
+## 2026-09-19 — staging: desktop auth, commit 1c11573
+
+- [x] Wdrożono Backend `1c11573fd37f1d0d42f989e11e26bb8ddcd62439`
+  skryptem `devplanner-deploy-local` na VPS; automatyczny run Actions
+  `35442774260` anulowano przed ręcznym wdrożeniem.
+- [x] Build Release, oba migratory, kontener healthy, publiczne readiness
+  `Healthy`, zapytanie kontrolne PostgreSQL i odrzucenie błędnego Bearera 401.
+- [ ] Pełna suite Backend nie jest zielona: 1152 PASS, 7 FAIL, 1 SKIP;
+  testowy kontener DI w `MeEndpointsTests` nie rejestruje
+  `DeviceSessionRealtimeConnectionRegistry`. Produkcyjny kontener ją rejestruje.
+- [ ] Desktopowy E2E Keychain/restart/update i dystrybucyjny instalator
+  pozostają otwarte. To wdrożenie nie publikuje nowej aplikacji desktopowej.
+
+Raport: `Backend/docs/recovery/desktop-auth-staging-deployment-2026-09-19.md`.
+Nie wykonano dodatkowego commita; użyto commita dostarczonego przez użytkownika.
+
+
 Data stanu: **2026-09-17**  
 Zakres: wyłącznie zaakceptowane pakiety 2D, 3D, 4B, 4C, 4D, 4E, 4F, 4G, 4H,
 4I, 4J, 4N, 4O, 4P, 4Q, 4R-B, 4R Front, 4S, 6F i 6G.
@@ -1516,3 +1533,943 @@ Wykonane komendy: `dart format`, scoped `flutter analyze` (PASS) i targeted
 Następny krok: ręczne porównanie uruchomionej aplikacji desktopowej z
 referencją przy 100%, 125% i 150% skalowania tekstu; należy zweryfikować
 widok jasny i ciemny, długie nazwy oraz stan rozwiniętego projektu.
+
+### 2026-09-19 — UX-A1: przekazanie audytu Listy/Kanbanu
+
+Zakres był read-only poza nowym dokumentem planu. Przejrzano aktywny router,
+composition Tasks, Listę, Kanban, theme, menu kontekstowe, kontrakty endpointów
+Backend oraz historię Git od bootstrapu `d1cc273`.
+
+Najważniejszy blocker: `TasksBoardRoutePage._content` zwraca pełny
+`TasksBoardPage` tylko dla `initialView == 'kanban'`. Domyślna Lista i
+pozostałe wartości query zwracają bezpośrednio `ProjectTasksList` z
+`listenToBoardRealtime: false`. To wyjaśnia brak wspólnego headera i
+niedostępność Timeline/Workload/Recurrence po zmianie URL. Nie należy kopiować
+brakujących kontrolek do Listy; trzeba usunąć route-level bypass.
+
+Gotowy plan:
+`Front/docs/recovery/tasks-list-kanban-ux-recovery-plan.md`. Pierwszy krok T0
+naprawia wyłącznie route/composition/query/tests. Potem T1/T2 stabilizują tokeny
+i menu, T3 buduje wspólny Tasks chrome, T4 i T5 domykają równolegle Listę i
+Kanban, T6 porządkuje ekspozycję istniejących funkcji Backend, a T7 wykonuje
+rzeczywisty odbiór live. Nie uruchamiano GUI, Backend ani pełnych bramek, bo
+pakiet nie zmienia kodu runtime.
+
+### 2026-09-19 — UX-T0: jeden host Tasks i kontrakt trasy
+
+Regresja kompozycji z `TasksBoardRoutePage` została usunięta: trasa zawsze
+montuje ten sam `TasksBoardPage`, więc Lista, Kanban, Timeline, Workload i
+Cykliczne dzielą nagłówek, zapisane widoki, ustawienia projektu i lifecycle
+realtime.
+
+Kanoniczny kontrakt `?view=` żyje w
+`lib/workspaces/presentation/tasks/tasks_project_view_contract.dart`: `/tasks`
+otwiera Listę, `?view=kanban` Kanban, `board` pozostaje aliasem wejściowym, a
+`list|timeline|workload|recurrence` są rozpoznawane jak dotychczas. Serializacja
+Kanbanu pozostała `kanban`, żeby menu projektu, sidebar i deep link używały
+jednego adresu; `?view=` buduje wyłącznie
+`DevPlannerRouteCatalog.projectTasksView`.
+
+Zachowanie i granice:
+
+- `TasksProjectViewHost` czyta widok wyłącznie z adresu. Per-projektowe
+  zapamiętywanie widoku (`tasks_project_view_preferences.dart`) zostało
+  usunięte, bo po restarcie mogło wybrać inny widok niż URL.
+- `TasksBoardReadyView` nie montuje widoku, którego użytkownik nie otworzył, ale
+  trzyma stabilne sloty Listy i Kanbanu. Domyślna Lista nie pobiera więc stron
+  kolumn Kanbanu, a powrót między widokami nie gubi scrolla i stanu inline.
+- Sidebar porównuje ścieżkę oraz widok z `?view=`, więc `?view=list` zaznacza
+  Listę, `?view=kanban` Kanban, a szczegół zadania dziedziczy widok z adresu.
+  Wiersz projektu prowadzi bezpośrednio do jego Listy zamiast być martwą pozycją.
+- Drzewo nawigacji nie renderuje już pośredniego „Przeglądu”; `/workspaces`
+  pozostaje bezpiecznym wejściem (`/` → `/workspaces`) dla konta bez workspace'u.
+- Nie zmieniono API ani UI tabeli i boardu.
+
+Dowody: `flutter test` **884/884 PASS**, w tym nowy
+`test/app/router/devplanner_tasks_view_route_test.dart` (deep link, alias
+wejściowy, restart, zmiana URL w obie strony, historia przeglądarki, zapis
+kanonicznego `?view=`, fallback `/`) oraz `test/workspaces/presentation/tasks/tasks_project_view_contract_test.dart`.
+Zaktualizowano testy shella i trasy Tasks; współdzielony fixture kompozycji to
+`test/test_support/tasks_board_route_fixture.dart`. `flutter analyze`:
+**No issues found**, `git diff --check` czysty.
+
+Naprawiono zastany, czerwony test `workspace gateway route can render a real
+workspace card`: przy domyślnym 800×600 shell jest compact (<960 px) i nie
+renderuje marki, więc test otrzymał jawny rozmiar desktopowy 1280×900. Test
+failował także na `eda6e56`, przed tym pakietem.
+
+Ograniczenia: brak odbioru GUI/E2E, Backend nie był uruchamiany, Windows i Linux
+pozostają NOT RUN. W drzewie roboczym równolegle pracuje inna sesja agenta
+(Codex) rozszerzająca kompozycję Tasks o `ProjectsRepository` i test modali
+ustawień projektu; te zmiany zachowano bez modyfikacji. Następny krok: T1 (tokeny
+i typografia) oraz T2 (jedna infrastruktura menu).
+
+### 2026-09-19 — UX-T1: tokeny Tasks, podłoga typografii i powierzchnie
+
+Powstało rozszerzenie motywu `lib/foundation/theme/tasks_theme.dart`
+(`DevPlannerTasksTheme`), wpięte do `MaterialTheme.theme(...)` dla wariantu
+jasnego i ciemnego. Niesie jedną skalę dla całego modułu Tasks:
+
+- typografia: nazwa projektu 15/20 w600, dane 13/18, dane wyróżnione 13/18 w600,
+  tytuł karty Kanbanu 14/20 w600, kontrolki 12/16 w600, metadane 11/16, wiersz
+  menu 12/16; style dziedziczą rodzinę Inter z motywu aplikacji;
+- geometria: wiersz kontekstu 46, wiersz poleceń 38, nagłówek tabeli 36, wiersz
+  tabeli 38, wiersz grupy 40, wiersz menu 32 z ikoną 16, promienie 8/8/12,
+  odstępy 4/8/12/16/24;
+- powierzchnie: `canvas`, `canvasBorder`, `commandBar*`, `card*`, `divider`,
+  `rowHover`, `rowSelected`, `bulkBar*`, `selectionAccent`, `onAccent`, `shadow`
+  i `scrim`.
+
+Podniesiono globalną podłogę czytelności: `labelMedium` 10 → 12 px i
+`labelSmall` 10 → 11 px w `lib/foundation/theme/theme.dart`. To była główna
+przyczyna „ściskania do 10 px", bo tabela Listy i metadane kart korzystały
+właśnie z tych tokenów.
+
+Usunięte twarde wartości z aktywnego Tasks:
+
+- lokalne tło kanwy (`0xFF11131C` / `0xFFF6F7FB`) zastąpione `tasksTheme.canvas`;
+- wszystkie `Colors.white` i `Colors.black` w module zastąpione rolami
+  `onAccent`, `shadow` i `scrim` — w module nie pozostało żadne;
+- wszystkie rozmiary poniżej 11 px (10, 10.5, 9.5, 9, 8) podniesione do tokenów
+  metadanych lub kontrolek — nie pozostało żadne;
+- `kanban_card_tokens.dart` wylicza typografię karty z motywu; inicjał awatara
+  dostał kolor tokenu, bo wcześniej był 9–10 px bez koloru i zależał od
+  domyślnego koloru tekstu.
+
+Zmiana jest celowo wizualna, więc odświeżono trzy goldeny Kanbanu
+(`card_comfortable_light.png`, `card_comfortable_dark.png`,
+`header_desktop_1280.png`). Artefakty starszego niepowodzenia w
+`board/failures/` przywrócono do stanu z repozytorium.
+
+Dowody: pełny `flutter test` **913/913 PASS** (dwa kolejne przebiegi), w tym nowe
+`test/foundation/theme/tasks_theme_test.dart` (kontrakt tokenów: rozmiary,
+interlinia, siatka 4 px, wysokości wierszy, promienie, powierzchnie z palety,
+`copyWith`, `lerp`) oraz
+`test/workspaces/presentation/tasks/board/tasks_board_text_scale_test.dart`
+(18 kombinacji light/dark × 1024/1440/1920 px × 100/125/150 % bez overflow).
+`flutter analyze`: **No issues found**, `git diff --check` czysty.
+
+Uwaga o flake: w jednym z przebiegów pełnego suite czerwony był
+`chat_composer_draft_persistence_test.dart` (debounce draftu). Test przechodzi
+samodzielnie i w powtórzonym pełnym przebiegu **913/913**; nie dotyczy modułu
+Tasks ani motywu.
+
+Ograniczenia i następny krok:
+
+- Semantyczne palety danych (priorytety, statusy, kolory kolumn) pozostały bez
+  zmian, bo nie są powierzchniami. Audyt wykrył jednak cztery rozbieżne kopie
+  palety priorytetów (timeline, header filters, cards, helper listy) — ich
+  ujednolicenie należy do T5/T6.
+- Nagłówek i command bar zachowują obecny układ. Tokeny są gotowe, ale
+  dwurzędowy chrome z §3.2 buduje T3, a domknięcie Listy i Kanbanu to T4/T5.
+- Globalna zmiana tokenów etykiet dotyczy całej aplikacji; pełny suite przechodzi,
+  ale odbiór wizualny na Web i macOS pozostaje w T7.
+
+### 2026-09-19 — UX-T2: jedna infrastruktura menu
+
+Wybrany został jeden publiczny komponent: `AppContextMenu`
+(`lib/shared/presentation/widgets/app_context_menu.dart`). Zastąpił trzy
+współistniejące systemy: `TaskContextMenu` i `WorkspaceContextMenu` (oba pliki
+usunięte) oraz warianty `flat`/`glass` (usunięte razem z refleksem, shaderem
+i painterem obramowania).
+
+Komponent po przebudowie:
+
+- jedna powierzchnia z tokenów `DevPlannerMenuTheme`
+  (`lib/foundation/theme/menu_theme.dart`): wiersz 32 px, ikona 16 px, tekst
+  13 px, nagłówek sekcji 11 px, promień 8 px, minimalna szerokość 220 px,
+  kolory z palety motywu (bez lokalnych `Colors.white`/`Colors.black`);
+- trzy wejścia: `show` (akcje), `select<T>` (wybór wartości), `showCustom`
+  (interaktywna zawartość, np. wyszukiwanie osób) oraz `AppContextMenuRegion`
+  dla prawego klawisza myszy;
+- sekcje (`sectionTitle`, grupowane bez powtórzeń), skróty (`shortcutLabel`),
+  `selected`, `enabled`, `isDestructive`, `separatorBefore` i opcjonalne
+  `leading`/`trailing`;
+- klawiatura: strzałki z zawijaniem, Home, End, Enter, Space; Escape zamyka
+  przez `DismissIntent` trasy;
+- focus: `FocusScope` i `FocusTraversalGroup` wewnątrz powierzchni, a po
+  zamknięciu focus wraca do widgetu, który menu otworzył;
+- pozycjonowanie w root overlayu z marginesem 12 px od krawędzi ekranu.
+
+Migracja objęła 48 wywołań `TaskContextMenu.show`/`positionFor` w 22 plikach
+modułu Tasks (pickery tabeli, menu wiersza i karty, akcje nagłówka, szablony,
+podzadania) oraz wszystkie użycia `WorkspaceContextMenu`. Pickery przyjmują
+teraz globalną pozycję `Offset` zamiast `RelativeRect`, a edytor czasu zadania
+korzysta z `showCustom` zamiast własnego `showDialog` z ręczną powierzchnią,
+cieniem i `TaskDurationPickerAnchor` (plik usunięty jako zbędny).
+
+Dowody: pełny `flutter test` **929/929 PASS**, `flutter analyze`
+**No issues found**, `git diff --check` czysty. Nowe testy:
+`test/shared/presentation/widgets/app_context_menu_test.dart` (9 przypadków:
+sekcje i skróty, wybór wartości, pozycja wyłączona, kolor destrukcyjny z tokenów
+motywu, klawiatura, Escape z powrotem focusu, prawy klik, wykonanie akcji,
+pozycjonowanie przy krawędzi ekranu) oraz
+`test/shared/presentation/widgets/app_context_menu_boundary_test.dart`
+(strażnik: zakres menu bez `core/theme`, bez lokalnych kolorów, bez wariantu
+glass i starych klas; pickery korzystają ze wspólnego kontraktu).
+
+Poza zakresem T2, świadomie zostawione do T4/T6: 12 surowych `PopupMenuButton`
+w powierzchniach, które T4 przebudowuje (bulk bar 7, filtry 2, zapisane widoki 2)
+oraz edytor pól niestandardowych w szczegółach (1). T4 zastępuje te kontrolki
+wspólnym command barem, a nie migruje ich jeden do jednego.
+
+Konflikt między sesjami: równoległa sesja agenta wymieniła tekstową markę shella
+na logo (`devplanner-sidebar-brand-logo`) w `devplanner_shell_layout.dart` i
+zaktualizowała `test/app/shell/devplanner_shell_test.dart`, ale nie
+`test/app/router/devplanner_root_router_compile_test.dart`. Dostosowałem tam
+jedną asercję (marka to dziś logo z etykietą semantyczną, a nazwę „DevPlanner”
+niesie karta workspace'u), żeby suite wrócił do zielonego. Zmiana nie dotyczy
+zachowania, tylko reprezentacji marki.
+
+### 2026-09-19 — UX-T3: wspólny dwurzędowy nagłówek Listy i Kanbanu
+
+Nagłówek przestał być kanbanocentryczny: pliki przeniesione do neutralnego
+katalogu `lib/workspaces/presentation/tasks/header/`
+(`tasks_header.dart`, `tasks_header_layout.dart`, `tasks_header_actions.dart`,
+`tasks_header_create_actions.dart`, `tasks_header_command_bar.dart`,
+`tasks_header_quick_create_dialog.dart`), a publiczny komponent nazywa się
+`TasksHeader`. Moduł montuje teraz publiczny nagłówek, więc Lista i Kanban
+używają dokładnie tego samego chrome i testy mają jeden typ do sprawdzenia.
+
+Układ jest zawsze dwuwierszowy (§3.2) na tokenach `DevPlannerTasksTheme`:
+
+- wiersz kontekstu (`contextRowHeight`, 44–48 px): ikona, nazwa projektu,
+  licznik zadań, zakładki Lista/Kanban/Timeline/Workload/Cykliczne, obecność
+  i menu projektu oraz główne CTA „Dodaj zadanie” z menu szablonów;
+- wiersz poleceń (`commandRowHeight`, 36–40 px): zapisane widoki oraz akcje
+  zależne od widoku (szybki filtr Kanbanu); po zaznaczeniu zadań ten wiersz
+  staje się jednym kontekstowym paskiem akcji masowych, a widokowe kontrolki
+  znikają, więc nie renderują się dwa paski naraz.
+
+API nagłówka nie zna już `GoRouter`: wyjście z projektu (opuszczenie lub
+usunięcie) dostarcza trasa przez `onProjectExited`, przekazywane przez
+`TasksBoardPage` i host widoku.
+
+Dowody: pełny `flutter test` **934/934 PASS**, `flutter analyze`
+**No issues found**, `git diff --check` czysty. Testy: przepisany
+`tasks_board_header_responsive_test.dart` (dwa widoki × 360/768/1024/1440/1920 px,
+geometria obu wierszy z tokenów, brak overflow, pasek masowy w drugim wierszu),
+zaktualizowany `kanban_baseline_audit_test.dart` oraz golden nagłówka
+(`goldens/header_desktop_1280.png` odświeżony, bo zmienił się układ), a także
+dowód kompozycji w `tasks_board_route_page_test.dart`: ten sam `TasksHeader`
+dla wszystkich widoków, wspólne zakładki i zapisane widoki oraz szybki filtr
+tylko w widoku Kanbanu, plus sprawdzenie, że trasa dostarcza `onProjectExited`.
+
+Świadomie zostawione do T4/T5: Lista nadal ma własny pływający pasek akcji
+masowych oparty na `ProjectTasksListCubit`, a Kanban korzysta z paska nagłówka
+opartego na `TasksBoardCubit`. Selekcja obu widoków nie jest jeszcze wspólna,
+więc widoczny jest zawsze dokładnie jeden pasek, ale katalog akcji i wspólne
+źródło zaznaczenia domyka T4 („usunąć pływający drugi bulk bar”) i T5
+(„połączyć bulk z shared contextual bar”). Wiersz poleceń czeka też na filtry,
+sortowanie, grupowanie i kolumny Listy, które przenosi T4.
+
+### 2026-09-19 — UX-T4: domknięcie Listy
+
+Wiersz poleceń Listy przeniósł się do wspólnego nagłówka, a Lista nie renderuje
+już własnego paska filtrów ani pływającego paska akcji masowych nad treścią.
+
+Nowe elementy (wszystkie w `tasks/list/**`):
+
+- `chrome/task_list_chrome_host.dart` — właściciel stanu Listy. Tworzy
+  `ProjectTasksListCubit` i `TaskListPreferencesCubit` **ponad** nagłówkiem,
+  dzięki czemu drugi wiersz chrome i tabela opisują ten sam stan; oddaje
+  nagłówkowi gotowy `commandBar` i `bulkBar` oraz informację o zaznaczeniu;
+- `chrome/task_list_command_bar.dart` — filtry (status, priorytet, osoba,
+  udział, przypięte), sortowanie, kierunek, grupowanie, kolumny i
+  „Wyczyść wszystko”. Wszystkie menu używają wspólnego `AppContextMenu`, więc
+  w Listnie nie ma już surowych `PopupMenuButton` od filtrów;
+- `chrome/task_saved_view_selection.dart` — jedno miejsce wyprowadzające aktywny
+  zapisany widok (id, grupowanie, kolumny, pola własne), używane przez nagłówek
+  i treść Listy;
+- `bulk/task_list_bulk_bar.dart` — przepisany na tokeny i wspólne menu:
+  przewijany poziomo, wysokość kontrolki 28 px w wierszu 38 px, zachowane akcje
+  (status, priorytet, termin dziś, wykonawca, archiwizacja, „Cały wynik” przez
+  selection token oraz czyszczenie zaznaczenia). Siedem surowych
+  `PopupMenuButton` zniknęło.
+
+Usunięte: `filters/task_list_filters.dart` (jego kontrolki zastąpił command bar;
+`TaskListFailureView` przeniesiony do `table/task_list_failure_view.dart`) oraz
+pływający `TaskListBulkBar` z `task_list_table_view.part.dart`.
+
+Nagłówek dostał sloty `commandBar`, `bulkBar` i `showBulkBar`, a
+`ProjectTasksList` przyjmuje cubity od właściciela chrome (samodzielne użycie
+nadal tworzy własne i je zamyka).
+
+Dowody: pełny `flutter test` **940/940 PASS**, `flutter analyze`
+**No issues found**, `git diff --check` czysty. Nowe testy
+`test/workspaces/presentation/tasks/list/chrome/task_list_chrome_test.dart`
+(wiersz poleceń z filtrami/sort/grupowaniem/kolumnami, filtr statusu przez
+wspólne menu z przeładowaniem zapytania, „Wyczyść wszystko”, zapis sortowania w
+preferencjach, brak overflow przy 640 px, przełączenie na pasek akcji masowych i
+zmiana statusu zaznaczonych). W teście trasy doszły asercje kompozycji: kontrolki
+Listy są w drugim wierszu `TasksHeader`, a `TaskListBulkBar` nie istnieje poza
+nagłówkiem.
+
+Pozostawione świadomie: dwa `PopupMenuButton` w `views/widgets/task_saved_views_menu.dart`
+(menu zapisanych widoków, poza katalogiem `tasks/list/**`) i jeden w edytorze pól
+niestandardowych szczegółu — do domknięcia w T6.
+
+### 2026-09-19 — macOS: stabilny podpis Keychain dla Debug/Profile
+
+Cel: zatrzymać prompt macOS przy każdym hot resecie, gdy desktopowy PKCE czyta
+i rotuje refresh token w Keychain.
+
+Zmiana:
+
+- `macos/Runner.xcodeproj/project.pbxproj`: Debug i Profile używają ręcznie
+  wskazanego certyfikatu `Apple Development: Przemyslaw Nowak (9CZ5DH8V7A)`;
+  usunięto odziedziczone wymuszenie `CODE_SIGN_IDENTITY = "-"` dla konfiguracji
+  projektu. Release zachowuje poprzedni podpis ad-hoc, więc produkcyjny proces
+  dystrybucji nie został domyślnie przekierowany na lokalny certyfikat.
+- Nie podpinano `DebugProfile.entitlements`: wymagałoby to provisioning profile
+  dla `com.excellent.devplanner`, którego lokalny account nie posiada. Aplikacja
+  nadal używa zwykłego, szyfrowanego Keychain zgodnie z adapterem
+  `platform_secure_secret_store_io.dart`.
+
+Weryfikacja:
+
+- `flutter build macos --debug`: PASS;
+- `codesign --verify --deep --strict --verbose=2 .../DevPlanner.app`: PASS;
+- requirement podpisu: identifier `com.excellent.devplanner`, Apple anchor i
+  stały certyfikat Apple Development; nie jest to już Signature=adhoc;
+- `flutter test test/auth/auth_platform_adapters_test.dart --reporter compact`:
+  **8/8 PASS**;
+- pierwsze uruchomienie nowego artefaktu przywróciło sesję i wyświetliło
+  workspace bez promptu Keychain;
+- `flutter analyze`: NOT PASS wyłącznie przez istniejące, niezwiązane błędy w
+  brudnym `test/workspaces/presentation/tasks/board/tasks_board_bulk_bar_test.dart`.
+
+Następny krok: użytkownik wykonuje `R`/hot restart w aktywnej sesji; prompt
+Keychain nie powinien wracać. Jeśli pozostał pojedynczy prompt po migracji
+podpisu, zatwierdzić go dla podpisanej aplikacji, a nie usuwać całego Keychain.
+
+### 2026-09-19 — UX-T5: domknięcie Kanbanu
+
+Pasek akcji masowych Kanbanu używa teraz tego samego komponentu co Lista:
+`lib/workspaces/presentation/tasks/bulk/tasks_contextual_bulk_bar.dart`
+(`TasksContextualBulkBar` + `TasksBulkButton` + `TasksBulkMenu`). Powstał w
+neutralnym katalogu modułu, więc obie strony mają identyczny wygląd, przewijanie
+poziome, licznik z ARB (`tasksBulkSelected`) i obsługę przez wspólne menu.
+Zestaw akcji pozostaje zależny od widoku i ACL, zgodnie z §4 planu: Kanban
+przenosi zaznaczone karty między kolumnami (`board_bulk_move`), zmienia priorytet
+(`board_bulk_priority`) i termin (`board_bulk_due_date`); Lista ma dodatkowo
+status, wykonawcę, archiwizację i „Cały wynik” przez selection token.
+
+Pasek Listy przepisany na ten sam komponent (usunięte lokalne kopie kontrolek),
+a `_BulkSelectionToolbar` w nagłówku zastąpiony wspólnym paskiem z akcjami
+boardu. Przy okazji nazwy pomocników nagłówka przestały być kanbanocentryczne
+(`_TasksHeaderHelpers`).
+
+Potwierdzone zachowania Kanbanu (testy istniejące, wskazane jako dowód):
+
+- paginacja kolumny i doładowanie strony: `tasks_board_cubit_test.dart`
+  („ładuje snapshot, presence i kolejną stronę jednej kolumny”);
+- zwijanie kolumn z wersją preferencji oraz zachowanie zwiniętych kolumn przy
+  zmianie szybkiego filtra: dwa testy w tym samym pliku;
+- DnD z optimistic move, korektą indeksu w tej samej kolumnie i blokadą
+  niedozwoloną przez workflow: trzy testy;
+- rollback 409 z komunikatem przyczyny: „przy błędzie przywraca tablicę sprzed
+  optimistic move” (używa `ApiErrorType.conflict` i sprawdza `mutationError`);
+- realtime: testy wypychające zdarzenia przez `TaskProjectRealtime`
+  (`resync po status realtime zachowuje jego rewizję dla widoku listy`).
+
+Nowy test `test/workspaces/presentation/tasks/board/tasks_board_bulk_bar_test.dart`
+montuje realny `TasksBoardCubit` i dowodzi, że po zaznaczeniu kart drugi wiersz
+nagłówka renderuje `TasksContextualBulkBar` z licznikiem „Wybrano: 2”, a wybór
+kolumny wywołuje `bulkMove` na repozytorium boardu z identyfikatorami
+zaznaczonych kart.
+
+Dowody: pełny `flutter test` **941/941 PASS**, `flutter analyze`
+**No issues found**, `git diff --check` czysty.
+
+### 2026-09-19 — AUTH-AUDIT: przekazanie planu sesji desktopowej
+
+Zakres był read-only poza dokumentacją. Przejrzano aktywną kompozycję auth
+Fluttera, Desktop Authorization Code + PKCE, vault macOS, wspólny transport
+HTTP, provider SignalR, backendowy OpenIddict, lifecycle rodzin refresh tokenów,
+revocation i rzeczywisty podpis artefaktu macOS.
+
+Najważniejsze ustalenia:
+
+- Keychain jest właściwym magazynem refresh tokena; wcześniejszy prompt storm
+  wynikał z niestabilnej tożsamości podpisu, a aktualny podpis lokalny działa;
+- runtime nie odświeża access tokena po wygaśnięciu/401;
+- fallback `DevPlannerHttpTransport` może w przyszłej błędnej kompozycji użyć
+  refresh tokena jako Bearera;
+- nowy refresh token jest zapisywany dopiero po `/me`, więc przejściowy błąd
+  profilu po udanej rotacji może pozostawić w vault zużyty token;
+- REST i SignalR nie mają jednego koordynatora single-flight;
+- klient wysyła OIDC `nonce`, ale nie waliduje ID tokena;
+- backendowy refresh/reuse/revoke jest mocnym fundamentem, lecz natychmiastowy
+  revoke już wydanego access tokena i aktywnego SignalR wymaga osobnego dowodu;
+- osobisty certyfikat Debug/Profile w `project.pbxproj` nie jest przenośny, a
+  Release nadal nie ma gotowego procesu podpisu/notarization.
+
+Gotowy plan:
+`Front/docs/recovery/desktop-auth-session-hardening-plan.md`. Pakiety A0–F1 są
+sekwencyjne i zawierają ownership, zakazy, czerwone testy, kontrakty rotacji,
+single-flight, REST retry, SignalR, backend revoke, decyzję OAuth zamiast
+połowicznego OIDC, callback hardening, podpis macOS oraz pełną macierz live.
+Nie zmieniano kodu runtime, migracji ani testów i nie uruchamiano bramek jako
+dowodu implementacji. Następny dozwolony krok: A0.
+
+### 2026-09-19 — AUTH-A1: wynik pakietu trwałej rotacji
+
+Zmieniono wyłącznie Frontowy adapter Desktop PKCE i jego test doubles.
+`DesktopTokenResult` oddziela odpowiedź token endpoint od profilu, zawiera
+access token, refresh token i walidowany dodatni `expiresIn`. Adapter zapisuje
+refresh token przed `fetchCurrentUser`; błąd profilu zachowuje nowy credential
+na kolejny restore. Błąd vaulta nie publikuje sesji i wykonuje best-effort
+revocation nowego tokena bez logowania jego wartości.
+
+Dodane testy potwierdzają kolejność write → `/me`, przeżycie błędu `/me` oraz
+revocation po błędzie Keychain. Dowody: `flutter test test/auth --reporter
+compact` **29/29 PASS**, scoped analyzer **No issues found**, scoped `git diff
+--check` PASS. Pełny analyzer i native E2E: NOT RUN. Następny pakiet: A2.
+
+### 2026-09-19 — UX-T6: discoverability, martwe pozycje i domknięcie menu
+
+Drzewo nawigacji renderuje wyłącznie pozycje z aktywną trasą. Zniknęły
+Automatyzacje, Whiteboardy, Tablica korkowa i Wiki, a projekt pokazuje Zadania
+(Lista, Kanban) oraz Pliki. Kontrakt `WorkspaceNavigationTree.projectResourceKinds`
+opisuje teraz realnie renderowane zasoby, a rodzaje modułów zostają w enumie i
+wrócą razem z własnymi trasami — pozycja bez trasy nie udaje działającej funkcji.
+
+Ostatnie surowe menu w Tasks zniknęły (w module nie ma już ani jednego
+`PopupMenuButton`):
+
+- menu zapisanych widoków korzysta ze wspólnego `AppContextMenu.select`, a
+  zarządzanie widokiem (konfiguracja, zmiana nazwy, usunięcie) to drugi krok
+  tego samego menu; wiersze widoków zachowały znacznik „dirty” przez `trailing`,
+  a wyłączony `OutlinedButton` w triggerze zastąpił kontener o tym samym
+  wyglądzie, żeby klik docierał do aktywatora;
+- wielokrotny wybór wartości pola niestandardowego w szczegółach zadania używa
+  wspólnego menu z zaznaczeniem pozycji.
+
+Zmiana poza pakietami planu, ale wprost zgłoszona w audycie: na wąskim oknie
+(<960 px) pasek boczny zwijał się do ikon, a przez to drzewo stawało się
+nieosiągalne. Teraz ten sam klawisz otwiera je w nakładce nad treścią (z
+przygaszonym tłem i zamykaniem przez klik poza), a po zamknięciu wraca pasek
+ikoniczny. Nowy test w `test/app/shell/devplanner_shell_test.dart` sprawdza
+otwarcie i zamknięcie nakładki.
+
+Discoverability: nie dodawano żadnego endpointu ani nie zmieniano kontraktu
+Backendu; akcje pozostają ukrywane na podstawie capabilities projektu
+(`canManage` dla ustawień i WIP), a Backend nadal autoryzuje każdą operację.
+
+Dowody: pełny `flutter test` **945/945 PASS**, `flutter analyze`
+**No issues found**, `git diff --check` czysty.
+
+### 2026-09-19 — UX-T7 (częściowo): bramki buildów i żywy Backend, scenariusz GUI NOT RUN
+
+Ten pakiet jest odbiorem rootu i obejmuje uruchomienie całego stosu. W tej sesji
+wykonano część bramek i udokumentowano resztę jako NOT RUN, bez przedstawiania
+części jako pełnego odbioru.
+
+Wykonane i potwierdzone dowodami:
+
+- `flutter build web --wasm` — **PASS** (`✓ Built build/web`).
+- `flutter build macos --debug` — **PASS**
+  (`✓ Built build/macos/Build/Products/Debug/DevPlanner.app`). Pierwsza próba
+  padła w trakcie równoległej edycji drzewa przez inną sesję agenta
+  (`Target kernel_snapshot_program failed`), powtórzenie przeszło.
+- `flutter analyze` — **No issues found**; pełny `flutter test` — **945/945 PASS**;
+  `git diff --check` czysty w obu repozytoriach.
+- Stos lokalny działa: kontenery `backend-postgres-1` (przyjmuje połączenia),
+  `backend-redis-1`, `backend-minio-1`, `backend-mailpit-1`,
+  `backend-clamav-1`, `backend-onlyoffice-1`; API wstało przez
+  `Backend/start-local.sh` na `http://localhost:5072` w trybie Development.
+- Kontrakt na żywo: `GET /swagger/v1/swagger.json` zwraca **350** ścieżek, w tym
+  wszystkie używane przez frontend Tasks/Kanban (`/tasks/groups`, `/kanban`,
+  `/kanban/bulk-move`, `/kanban/bulk-update`, `/tasks/selection-token/bulk`,
+  `/me/tasks`).
+- Autoryzacja na żywo: `tasks/groups`, `kanban` i `me/tasks` zwracają **401**
+  bez tokenu, a `POST /api/v1/realtime/{tasks,chat,notifications}/negotiate`
+  również **401** — huby SignalR istnieją i wymagają sesji, zgodnie z route'ami
+  z `Endpoints/Tasks/ProjectTaskEndpoints.cs`.
+
+NOT RUN z powodem (nie zaliczam tego jako odbioru):
+
+- scenariusz live GUI (create → inline edit → details → List ↔ Kanban → DnD →
+  bulk → saved view → restart) — wymaga zalogowanej sesji BFF/PKCE; logowanie
+  idzie przez aktywację e-mailem (Mailpit), więc nie zostało wykonane skryptem
+  w tej sesji;
+- dwa konta i revoke dostępu, weryfikacja SignalR w locie oraz pomiary
+  PostgreSQL po mutacjach;
+- screenshoty 1024×768 / 1440×900 / 1920×1080 w jasnym i ciemnym motywie;
+- `flutter build windows` i `flutter build linux` — brak hosta (NOT RUN, nie
+  sukces).
+
+Uruchomiony przeze mnie proces API działa w tle (`start-local.sh` z `nohup`);
+zatrzymanie: `pkill -f veloryn-workspaces`.
+
+### 2026-09-19 — UX-T7 zamknięcie sesji: buildy i kontrakt live PASS, GUI odroczone decyzją właściciela
+
+Właściciel zdecydował, że w tej sesji nie wykonujemy fizycznych testów GUI.
+Zgodnie z tym decyzją pakiet T7 **nie jest odebrany** i nie jest tak
+przedstawiany; poniżej stan zamknięcia sesji.
+
+Wykonane i potwierdzone:
+
+- `flutter build web --wasm` — PASS; `flutter build macos --debug` — PASS;
+- `flutter analyze` — No issues found; pełny `flutter test` — **952/952 PASS**;
+  `git diff --check` czysty w obu repozytoriach; plan i handoff identyczne (`cmp`);
+- żywy stos backendu: PostgreSQL (5440), Redis, MinIO, Mailpit, ClamAV,
+  OnlyOffice; API wystawia 350 ścieżek OpenAPI, a `tasks/groups`, `kanban`,
+  `me/tasks` i negocjacje hubów SignalR zwracają 401 bez tokenu;
+- domknięta ostatnia luka w automatycznym pokryciu kroku „inline edit”:
+  `project_tasks_list_cubit_test.dart` ma teraz test rollbacku dla błędu
+  nie-konfliktowego (wiersz wraca do poprzedniej wartości, komunikat błędu
+  zostaje przypięty do tego samego wiersza), obok istniejącego testu 409.
+
+Odroczone decyzją właściciela: scenariusz GUI, dwa konta z revoke, screenshoty
+1024×768 / 1440×900 / 1920×1080 w light/dark. NOT RUN z braku hosta:
+`flutter build windows`, `flutter build linux`.
+
+Runbook dokończenia odbioru zapisano w
+`docs/recovery/tasks-list-kanban-ux-recovery-plan.md` (sekcja T7): uruchomienie
+stosu, trzy dopuszczalne ścieżki uzyskania loginu (hasło właściciela, reset
+przez lokalny Mailpit z SMTP włączonym tylko w środowisku procesu, albo nowy
+bootstrap administratora przez `start-desktop-auth-local.sh
+--bootstrap-local-admin`), uruchomienie frontu na macOS lub Web oraz lista
+kroków scenariusza i pomiarów.
+
+Stan środowiska po sesji: lokalne API zatrzymane, kontenery Docker działają;
+brak commitów — wszystkie zmiany pozostają w drzewie roboczym, moje wyłącznie
+poza `lib/auth/**`, które należy do równoległej sesji agenta (desktop PKCE).
+
+### 2026-09-19 — UX-T7: zrzuty widoków z realnej kompozycji (substytut bez GUI)
+
+Skoro odbiór GUI jest odroczony decyzją właściciela, przygotowałem materiał do
+przeglądu bez uruchamiania aplikacji: test
+`test/workspaces/presentation/tasks/board/tasks_visual_capture_test.dart`
+renderuje ten sam widget trasy Tasks z hermetycznym fixture'em, w motywie
+produktu (`MaterialTheme.crm()`), z załadowanym Inter i ikonami, i zapisuje
+12 obrazów do `docs/recovery/visual-captures/`:
+
+- `lista_{1024x768,1440x900,1920x1080}_{light,dark}.png`,
+- `kanban_{1024x768,1440x900,1920x1080}_{light,dark}.png`.
+
+Zrzuty są czytelne (prawdziwe fonty i ikony) i pokazują to, co plan wymagał
+obejrzeć: dwa wiersze wspólnego chrome (kontekst 44–48 px i polecenia 36–40 px),
+ten sam nagłówek i command bar w Liście i Kanbanie, kolejkę poleceń w wierszu
+drugim, kartę i nagłówek kolumny Kanbanu oraz tokenowe powierzchnie w trybie
+jasnym i ciemnym. Test przy okazji pilnuje braku przepełnień na tych
+rozdzielczościach (`takeException()` dla każdej kombinacji).
+
+To nadal **nie jest odbiór GUI/E2E**: obrazy pochodzą z renderu widgetów
+z fixture'em, a nie z aplikacji połączonej z żywym Backendem, więc nie zastępują
+scenariusza z sekcji T7 planu.
+
+### 2026-09-19 — AUTH-E1: podpis Debug/Profile
+
+Dodano wersjonowaną politykę `macos/Runner/Configs/Signing.xcconfig`, przykład
+lokalnego override i ignorowanie właściwego `Signing.local.xcconfig`. Build
+Debug korzysta z lokalnej Apple Development identity bez wpisywania jej common
+name ani Team ID do projektu. Dwa następujące buildy mają identyczny designated
+requirement; `codesign --verify --deep --strict` przeszedł.
+
+E2 pozostaje NOT RUN: lokalny Keychain nie ma macOS provisioning profile dla
+`com.excellent.devplanner`, a zatem nie wykonano sandboxowego Release,
+notarization ani Gatekeeper testu na czystym koncie.
+
+### 2026-09-19 — AUTH-A2–D1, B1–B2, C1: backendowy revoke i token lifecycle
+
+Desktopowy adapter ma wspólny single-flight access-token lifecycle, trwały zapis
+rotacji przed `/me`, bezpieczną klasyfikację `invalid_grant` oraz jeden retry
+401 dla REST. SignalR korzysta z tego samego providera. Backend wydaje
+10-minutowy access token i sprawdza `sub` oraz `devplanner_session_id` wobec
+aktywnej sesji, stanu konta i SecurityVersion przy każdym desktopowym bearerze.
+
+Revoke po commit publikuje `sessionId` do Redis i abortuje wyłącznie właściwe
+połączenia wszystkich hubów. Dowody: Front auth/HTTP/realtime test suite PASS,
+Backend identity/realtime targeted suite PASS oraz dwuhostowy registry test z
+dwoma `ConnectionMultiplexer` i lokalnym Redis `localhost:6379` PASS (3/3).
+E2 i F1 nadal wymagają provisioning/notarization oraz ręcznego realnego E2E.
+
+### 2026-09-19 — AUTH-A4: logout mimo błędu revoke
+
+`AuthUseCases` ustawia `signedOut` w `finally`. Gdy revoke offline rzuca błąd,
+adapter nadal usuwa refresh credential, a runtime otrzymuje zdarzenie kończące
+realtime. Test `auth_foundation_test.dart` pokrywa ten wariant (PASS).
+
+### 2026-09-19 — Audyt parytetu Listy/Kanbanu: ustalenia i plan N0–N7
+
+Po domknięciu T7 przeszedłem kod obu repozytoriów pod kątem parytetu widoków
+i zgłoszonych defektów UI. Ustalenia z dowodami:
+
+- Filtry nie są równe: Lista ma status, priorytet, osobę, udział, przypięte,
+  sortowanie, kierunek, grupowanie i kolumny; Kanban tylko szybki filtr.
+  Mechanizm filtrowania na boardzie istnieje (`ApplyQuickFilter` w
+  `KanbanBoardReader`, filtry wykonawcy/priorytetu/kamienia milowego w endpointcie
+  kolumny, wykonywane w PostgreSQL), ale klient przekazuje do kolumny **tylko
+  kursor** (`tasks_board_preference_commands.dart:149,155`), a board cubit nie zna
+  `savedViewId`, więc filtr zapisanego widoku nie działa na Kanbanie.
+- `GET /kanban` nie przyjmuje żadnych filtrów, więc bez rozszerzenia kontraktu
+  liczniki kolumn i WIP nie mogą być spójne z filtrowanymi kartami.
+- `KanbanSettingsCubit` (ukryte kolumny, WIP, gęstość, pola karty) **nie ma
+  konsumenta** — cała powierzchnia ustawień boardu jest nieosiągalna w UI,
+  mimo że Backend ją obsługuje.
+- `swimlaneMode` jest tylko przechowywany i odsyłany; nie ma renderowania torów
+  ani w Backendzie, ani w kliencie, więc wystawienie grupowania teraz byłoby
+  martwą kontrolką.
+- Modal ustawień: `_NavigationButton` (`project_settings_modal_frame.dart:339`)
+  używa `TextButton.icon` bez `alignment`, więc pozycje są wyśrodkowane; plik
+  pracuje na `core/theme`/`core/l10n` i twardych stringach poza ARB (37 plików
+  w `projects/settings/**`).
+- Menu zapisanego widoku (`task_saved_views_menu.dart:224`) ma zdublowaną
+  pozycję „Zarządzaj" pod każdym widokiem i otwiera drugie menu zakotwiczone
+  w triggerze — regresja z migracji menu w T6.
+
+Plan naprawy z pakietami N0–N7, deltami Backendu i bramkami:
+`docs/recovery/tasks-parity-and-ui-repair-plan.md` (kopia w Backendzie, `cmp`
+identyczny). Rekomendowana kolejność: N0 (dwa defekty UI) i N1 (parytet filtrów
+po stronie klienta) równolegle, N2 (opcjonalne filtry `GET /kanban`) po stronie
+Backendu, potem N3 (ustawienia boardu w UI) i N4 (jedno wejście do zapisanych
+widoków plus akcje masowe Kanbanu). N5 (modal ustawień na tokenach i w ARB)
+wymaga uzgodnienia z sesją, która edytuje `projects/settings/**`. N6 to decyzja
+o swimlane, N7 domyka odbiór.
+
+W tym przeglądzie nie zmieniałem kodu runtime ani nie dotykałem plików
+`lib/auth/**` należących do równoległej sesji.
+
+### 2026-09-19 — UX-N0: nawigacja modala ustawień i wiersz akcji zapisanego widoku
+
+Zamknięty pakiet N0 z planu parytetu (dwa defekty wskazane przez właściciela).
+
+Pliki i decyzje:
+
+- `lib/workspaces/presentation/projects/settings/widgets/project_settings_modal_frame.dart`
+  — `_NavigationButton` ma jedną implementację dla obu wariantów i wyrównuje
+  treść do lewej: `alignment: AlignmentDirectional.centerStart`, stała wysokość
+  `Sizes.p36`, wcięcie 8 px wiersza i 12 px treści, `tapTargetSize.shrinkWrap`,
+  tło `surfaceRoles.tintedBackground` + obramowanie `tintedBorder` dla pozycji
+  zaznaczonej, `overlayColor` z `WidgetStateProperty` (`pressedOverlay`
+  /`hoverOverlay`) i waga `w700`/`w600`. Nagłówki sekcji dostały to samo
+  wcięcie 16 px co ikony pozycji. Wariant kompaktowy (okno < 768 px) to teraz
+  zwarty chip 36 px wyśrodkowany w 44 px pasku, przewijany poziomo.
+- `lib/workspaces/presentation/tasks/views/widgets/task_saved_views_menu.dart`
+  — każdy wiersz widoku ma jedno „…" (`_SavedViewRowActions`), które liczy
+  kotwicę w kontekście klikniętego wiersza, zamyka menu listy (`Navigator.pop`)
+  i dopiero wtedy otwiera menu akcji widoku; nagłówkiem drugiego menu jest nazwa
+  widoku, więc „Zapisane widoki" występuje raz. Usunięty wariant
+  `TaskSavedViewMenuActionManage` i tekstowa pozycja „Zarządzaj" spod każdego
+  widoku. Akcje widoku (zmiana nazwy, konfiguracja, usunięcie) dostały żywy
+  kontekst strony zamiast kontekstu wiersza menu, dzięki czemu dialogi nie
+  otwierają się z już zdjętego elementu.
+
+Testy (nowe, wszystkie przechodzą):
+
+- `test/workspaces/presentation/projects/settings/project_settings_modal_navigation_test.dart`
+  — 5 przypadków: wspólna linia tekstu wszystkich pozycji i brak wyśrodkowania,
+  stała wysokość wiersza, tło i obramowanie dokładnie jednej aktywnej pozycji,
+  przeniesienie zaznaczenia po kliknięciu, kompaktowy pasek bez błędów układu.
+- `test/workspaces/presentation/tasks/views/widgets/task_saved_views_menu_test.dart`
+  — nowy przypadek: jedno „…" na widok, brak tekstowego duplikatu, zamknięcie
+  listy pod spodem, kotwica w klikniętym wierszu (x i y), brak zmiany aktywnego
+  widoku po kliknięciu „…"; mock repozytorium przyjmuje teraz listę widoków.
+- Kontrola mutacyjna: na wersji `HEAD` modala wszystkie 5 testów pada; po
+  cofnięciu kotwicy w menu akcji test kotwicy pada z `Expected: > 152.0,
+  Actual: <52.0>`. Testy pilnują więc poprawki, a nie bieżącego stanu.
+
+Bramki:
+
+- `flutter analyze` — No issues found (całe repo).
+- `flutter test` — 992/992 PASS.
+- `flutter build web --wasm` — PASS (pierwsze uruchomienie padło z exit -15,
+  bo proces budowania został uśmiercony przez zamknięcie powłoki narzędzia;
+  powtórzone bez `&` kończy się `✓ Built build/web`).
+- `git diff --check` — czysty.
+- Nie uruchamiałem buildów Windows/Linux (brak hosta) i nie zmieniałem ARB.
+
+Znalezisko przy okazji (defekt zastany, nie regresja N0): przy oknie 700 px
+zakładka Szablony przelewa się o 53 px — `project_template_card.dart:88`
+w `Row` z linii 62, bo próg `isNarrow < 580` (linia 45) nie łapie przypadku,
+w którym same akcje karty są szersze niż próg. Powtarza się na `HEAD` po
+cofnięciu zmian N0. Dopisane do planu jako §2.8 i do N5.
+
+Następny krok: N1 (parytet filtrów Kanbanu po stronie klienta: przekazać
+`priority`/`assigneeUserId`/`milestoneId` do `KanbanColumnQuery` i wystawić je
+w wierszu poleceń) równolegle z N2 (Backend: opcjonalne filtry `GET /kanban`).
+N5 tylko po uzgodnieniu z właścicielem `projects/settings/**`, bo N0 zmienił
+tam jeden plik.
+
+### 2026-09-19 — BE-N2: opcjonalne filtry boardu Kanban (Backend)
+
+Zamknięta pierwsza część N2: filtry wykonawcy, priorytetu i kamienia milowego na
+`GET /kanban`, tak aby liczniki kolumn, karty i kursor stron opisywały dokładnie
+to samo. `savedViewId` świadomie odłożony do N2b (wymiary zapisanego widoku,
+których board nie modeluje: etykiety, zaangażowanie, szukanie, daty, przypięte).
+
+Zmiany:
+
+- `Contracts/Kanban/KanbanContracts.cs` — `KanbanBoardQuery` z
+  `AssigneeUserId`/`Priority`/`MilestoneId`, właściwością `IsFiltered` oraz
+  `ToColumnQuery()`, która przenosi filtry tablicy na kursor kolumny.
+- `Endpoints/Kanban/KanbanEndpoints.cs` — `GET /kanban` przyjmuje
+  `[AsParameters] KanbanBoardQuery`; opis endpointu mówi o wspólnym zestawie
+  filtrów dla liczników, kart i kursora.
+- `Application/Kanban/KanbanBoardReader.cs` — nowa predykata `ApplyBoardFilter`
+  dołożona do zapytania liczników, pierwszych stron kolumn i własnych kolumn
+  (razem z ich licznikiem); kursory (`EncodeCursor`, `EncodeCustomCursor`)
+  powstają z `query.ToColumnQuery()`, dzięki czemu kolejne strony dziedziczą
+  filtry, a kursor użyty bez filtrów zwraca `400 validation.failed`;
+  `ValidateBoardQuery` odrzuca pusty UUID i niezdefiniowany priorytet.
+- `Application/Kanban/{IKanbanBoardReader,KanbanService}.cs` — sygnatury
+  przenoszą filtr; kontrakt HTTP rozszerzony addytywnie, bez zmiany kształtu
+  odpowiedzi.
+
+Testy i bramki:
+
+- `Tests/Veloryn.Workspaces.Tests/KanbanServiceTests.cs` +4 przypadki
+  (spójność licznika i kart dla trzech filtrów; dziedziczenie filtrów przez
+  kursor i odrzucenie kursora bez filtrów; własna kolumna z filtrem; walidacja),
+- `Tests/Veloryn.Workspaces.Tests/KanbanEndpointTests.cs` +1 przypadek HTTP
+  (liczniki, karty i strona kolumny po filtrze; `400 validation.failed` dla
+  pustego UUID, `400 request.invalid` dla nieczytelnego priorytetu),
+- `dotnet build` aplikacji, testów i harnessu bez błędów,
+- `dotnet test --filter FullyQualifiedName~Kanban` — 56/56 PASS (jednostkowe,
+  HTTP na realnym PostgreSQL, kontrakt OpenAPI, integracyjne),
+- `git diff --check` czysty w obu repozytoriach.
+
+Live HTTP na stosie lokalnym: **NIE URUCHOMIONE**. Stary proces API (pid 30141,
+sprzątanie po T7) działał na poprzednim buildzie i został zatrzymany; nowy build
+wymaga ponownego startu i logowania BFF (cookie + CSRF). Zachowanie HTTP jest
+pokryte testem przechodzącym przez pełny pipeline ASP.NET z realnym PostgreSQL,
+a odbiór live pozostaje w N7.
+
+Następny krok: N1 (klient wystawia trzy filtry w wierszu poleceń Kanbanu i
+przekazuje je do `GET /kanban` oraz do `KanbanColumnQuery` przy doładowaniu
+kolumn), potem N2b (`savedViewId` na boardzie) i N3/N4.
+
+### 2026-09-19 — UX-N1 (część): filtry tablicy Kanbanu i rozdział wierszy poleceń
+
+Wykonana część N1: filtry wykonawcy i priorytetu na tablicy, „Wyczyść wszystko”,
+plumbing filtra aż do Backendu oraz naprawa wiersza poleceń, który pokazywał
+kontrolki Listy na Kanbanie.
+
+Pliki i decyzje:
+
+- `lib/workspaces/domain/repositories/kanban_repository.dart` — nowy
+  `KanbanBoardFilter` (`isActive`, `activeCount`, `toColumnQuery`, `copyWith`
+  z jawnym czyszczeniem wymiaru, equality z `@immutable`);
+  `KanbanRepository.getBoard` przyjmuje filtr.
+- `lib/workspaces/data/kanban/api/kanban_api.dart` + `kanban_repository_impl.dart`
+  — trzy opcjonalne parametry zapytania; klient retrofita wygenerowany ponownie
+  (`dart run build_runner build --delete-conflicting-outputs`).
+- `lib/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart` —
+  `TasksBoardReady.filter` i `loadingFilter`.
+- `lib/workspaces/presentation/tasks/board/cubit/tasks_board_runtime_coordinator.dart`
+  — filtr żyje w koordynatorze lifecycle: `load()` wysyła go do `getBoard`,
+  `setFilter()` publikuje `loadingFilter` i odświeża tablicę. Filtr przeżywa
+  nieudany odczyt, więc ponowienie nie wraca po cichu do pełnego projektu.
+- `lib/workspaces/presentation/tasks/board/cubit/tasks_board_filter_commands.dart`
+  (nowy) + fasada `tasks_board_cubit.dart` — `setFilterAssignee`,
+  `setFilterPriority`, `setFilterMilestone`, `clearFilters`.
+- `lib/workspaces/presentation/tasks/board/cubit/tasks_board_preference_commands.dart`
+  — `loadMore` dokłada filtr tablicy do `KanbanColumnQuery`, więc kolejna strona
+  opisuje ten sam zestaw kart co licznik kolumny.
+- `lib/workspaces/presentation/tasks/header/tasks_header_board_filters.dart`
+  (nowy, część biblioteki widoku Tasks) — klawisze `board_filter_priority`,
+  `board_filter_assignee`, `board_filter_clear` oparte na wspólnym komponencie.
+- `lib/workspaces/presentation/tasks/chrome/tasks_command_menu.dart` (nowy) —
+  `TasksCommandMenu` i `TasksCommandButton` wyjęte z paska Listy, żeby Lista
+  i Kanban miały jeden klawisz poleceń (refaktor bez zmiany zachowania:
+  `task_list_chrome_test.dart` przechodzi bez zmian).
+- `lib/workspaces/presentation/tasks/header/tasks_header_layout.dart` — wiersz
+  poleceń Listy montowany tylko poza widokiem tablicy.
+
+Defekt wykryty przy tej okazji: na Kanbanie wisiał wiersz poleceń Listy
+(Status/Priorytet/Osoba/Mój udział/Przypięte/Sortowanie/Grupowanie/Kolumny),
+a jego kontrolki opisują kursorowy snapshot Listy, więc na tablicy nic nie
+robiły. Dowodem jest zrzut z T7 (`docs/recovery/visual-captures/
+kanban_1440x900_light.png`) sprzed zmiany; po zmianie tablica pokazuje szybki
+filtr, Priorytet, Osobę i widok domyślny, a Lista zachowuje swoje kontrolki
+(porównaj `lista_1440x900_light.png`). Timeline, Obciążenie i Cykliczne nadal
+dziedziczą pasek Listy — do rozstrzygnięcia w N3/N4.
+
+Otwarte po tej części N1:
+
+- filtr kamienia milowego: `MilestoneRepository` jest w zasięgu trasy tablicy,
+  ale lista kamieni nie ma kubita poza feature’em szczegółów zadania, więc
+  kontrolka wymaga małego, osobnego pakietu (N1b) — nie wystawiamy jej wcześniej,
+  żeby nie dodać martwego klawisza;
+- chip aktywnego filtra dla nowych wymiarów (`_ActiveFilterStrip` obsługuje
+  dzisiaj tylko szybki filtr);
+- powiązanie filtra zapisanego widoku z boardem czeka na N2b (`savedViewId`).
+
+Testy i bramki:
+
+- `test/workspaces/presentation/tasks/tasks_board_cubit_test.dart` +3 przypadki
+  (filtr w `getBoard` i w zapytaniu kolumny oraz „Wyczyść wszystko”; brak
+  zbędnego odczytu przy powtórzonym filtrze; filtr przeżywa nieudany odczyt),
+- `test/workspaces/presentation/tasks/board/tasks_board_filters_test.dart` (nowy,
+  2 przypadki): klik Priorytet → odczyt tablicy z filtrem i pojawienie się
+  „Wyczyść wszystko”, klik „Wyczyść wszystko” → odczyt bez filtra; drugi
+  przypadek pilnuje, że pasek Listy nie jest montowany na tablicy,
+- `test/test_support/tasks_board_route_fixture.dart` — `registerFallbackValue(
+  KanbanBoardFilter.none)` i stub `getBoard` z parametrem `filter`, bo moduł
+  zawsze wysyła filtr,
+- `test/workspaces/presentation/tasks/board/goldens/header_desktop_1280.png`
+  zaktualizowany świadomie (`--update-goldens`): wiersz poleceń tablicy zmienił
+  się zgodnie z planem,
+- ARB: `tasksBoardFilterAssignee` („Osoba”/„Person”) i
+  `tasksBoardFilterAllPeople` („Wszystkie osoby”/„All people”) w pl i en,
+  `flutter gen-l10n` uruchomione,
+- bramki: `flutter analyze` — No issues found, `flutter test` — 997/997 PASS,
+  `flutter build web --wasm` — PASS po zmianach N1 (`✓ Built build/web`),
+  `git diff --check` czysty.
+
+Następny krok: N1b (kontrolka kamienia milowego po dodaniu źródła danych
+w hoście tablicy) oraz chipy aktywnego filtra, potem N2b (`savedViewId` na
+boardzie) i N3 (ustawienia boardu w UI).
+
+### 2026-09-19 — N8: bezpieczny zapis ustawień widoku i wspólna powierzchnia błędów
+
+Zakres: sześć powiązanych defektów zgłoszonych przez właściciela — niebezpieczne
+ponowienie zapisu preferencji Kanbana, maskowane błędy Listy, nietrwały SnackBar
+Kanbana, ignorowany odczyt preferencji, przeładowanie Listy po błędzie ustawień
+tablicy oraz zbyt ogólny kod konfliktu w Backendzie.
+
+Pliki (Front): nowe `tasks/errors/tasks_view_error.dart`,
+`tasks/errors/tasks_error_banner.dart`, `tasks/chrome/tasks_error_banner_host.dart`,
+`tasks/list/preferences/cubit/task_list_preference_merge.dart`; zmienione
+`board/cubit/tasks_board_preference_commands.dart` (kolejka intencji + rebase),
+`board/cubit/tasks_board_state.dart` (`taskDataRevision`, `TasksViewError? error`),
+`board/cubit/tasks_board_cubit.dart` (`retryFailedOperation`, `clearViewError`),
+`board/cubit/tasks_board_runtime_coordinator.dart` (błąd odczytu preferencji,
+`reloadUserPreference`), `board/tasks_project_view.dart` (SnackBar usunięty),
+`board/tasks_board_page.dart` (banner pod nagłówkiem),
+`list/chrome/task_list_chrome_host.dart` i `list/project_tasks_list.dart` (słuchają
+`taskDataRevision`), `list/preferences/cubit/task_list_preferences_cubit.dart`,
+`..._state.dart`, `..._loader.dart` (`fetch()` bez emisji),
+`..._project_policy_controller.dart`, `.../widgets/task_columns_sheet_sections.dart`,
+`l10n/app_{pl,en}.arb` + regenerowane `app_localizations*`.
+
+Pliki (Backend): nowy `Domain/Rules/TaskListExceptions.cs`;
+`Domain/Entities/TaskListUserPreference.cs`, `Domain/Entities/ProjectTaskListPolicy.cs`,
+`Application/Tasks/Handlers/TaskListConfigurationHandler.cs`,
+`Infrastructure/Http/ApiExceptionMiddleware.cs`, komunikaty konfliktu
+w `Application/Kanban/{UserKanbanPreferenceService,KanbanSettingsService,KanbanTaskMover}.cs`
+i `Application/Projects/ProjectCustomStatusService.cs`.
+
+Decyzje: intencja opisuje wartość docelową (rebase jest idempotentny i nie
+przenosi starych pól); po drugim konflikcie zatrzymujemy automatyczne
+ponawianie, ale zachowujemy intencję/draft, więc „Ponów" ponawia zmianę
+użytkownika, a nie stan serwera; błąd jest częścią stanu (trwały banner), a nie
+zdarzeniem (SnackBar); sygnał danych zadań i sygnał błędów są rozdzielone;
+konflikt rozpoznajemy po stabilnym kodzie `*.version_conflict`, a HTTP 409
+zostaje jako zapas; arkusz kolumn zachowuje własny komunikat, bo jako modal
+zasłania banner; strażnicy wersji w encjach rzucają wyjątki domenowe, bo to oni
+odpowiadali za nieaktualny `expectedVersion`.
+
+Testy dodane: Front — `tasks_error_banner_test.dart` (4 przypadki: banner
+widoczny bez arkusza, „Ponów" ponawia draft, błąd odczytu bez „Ponów", `traceId`),
+`tasks_board_cubit_test.dart` (+4: brak nadpisania równoległej zmiany, kliknięcie
+w trakcie zapisu, nieudany odczyt preferencji z ponowieniem, brak przyrostu
+`taskDataRevision` przy błędzie), `task_list_preferences_cubit_test.dart` (+3:
+scalenie z równoległą zmianą sortowania, drugi konflikt z zachowanym draftem,
+zmiana sortowania w trakcie zapisu) oraz rozpoznanie kodu konfliktu bez patrzenia
+na sam status. Backend — `TaskListConfigurationTests` (+2: preferencje i polityka
+zgłaszają własne wyjątki), przepisany przypadek preferencji oraz HTTP-owy
+`TaskHttpOperationMatrixTests.TaskListConflictsUseDedicatedVersionConflictCodes`.
+
+Komendy i wyniki: `flutter gen-l10n` ok; `flutter analyze lib` i
+`flutter analyze test` — No issues found; `flutter test --timeout 180s` —
+1017/1017 PASS; `flutter build web --wasm` — PASS; `flutter build macos --debug` —
+PASS; `dotnet build veloryn-workspaces.csproj` — 0 ostrzeżeń, 0 błędów;
+`dotnet test --filter "FullyQualifiedName~TaskList|FullyQualifiedName~TaskHttpOperationMatrix"`
+— 18/18 PASS; pełna suite Backendu — 1156 PASS, 7 FAIL, 4 SKIP (wszystkie 7
+w `MeEndpointsTests`, potwierdzone jako zastane przez `git stash` i wynik 7/17
+bez N8); `git diff --check` czysty w obu repo; `cmp` dokumentów — identyczne.
+Kontrola mutacyjna: `workspace.conflict` zamiast kodów `task_list.*` w middleware
+→ `[FAIL]` nowego testu HTTP, po przywróceniu pliku zieleń.
+
+NOT RUN: Release macOS (brak profilu provisioning w lokalnym Keychain — stan
+zastany, AUTH-E2), buildy Windows/Linux (brak hosta) oraz live test dwóch sesji
+z widocznym komunikatem — odroczony do wdrożenia nowej wersji Backendu.
+
+Następny krok: właściciel wgrywa nową wersję Backendu, a po wdrożeniu uruchamiamy
+live test dwóch sesji (konflikt ustawień widoku → trwały banner → „Ponów"
+zapisuje intencję użytkownika), potem N3/N4 z planu parytetu.
+
+### 2026-09-19 — N9: audyt transportu i stanu operacyjnego (P0 w odzyskiwaniu sesji)
+
+Zakres: cztery defekty zgłoszone przez właściciela — podwójne żądania desktopowe,
+cofanie zmian z czasu nieudanego zapisu Listy, gubiony stan operacyjny przy
+odczycie tablicy oraz log ujawniający ciało odpowiedzi.
+
+Pliki: `lib/foundation/http/devplanner_http_transport.dart` (bramka 401
+w `_retryUnauthorized`, rozdzielenie `onResponse`/`onError`),
+`lib/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart`
+(`_publishFailure` na bieżącym stanie ze scaleniem, pętla autosave nie kasuje
+zmiany z czasu żądania, `_lastSaved` jako baseline),
+`lib/workspaces/presentation/tasks/board/cubit/tasks_board_runtime_coordinator.dart`
+(odczyt przez `copyWith(board:, filter:)`),
+`lib/workspaces/presentation/tasks/board/cubit/tasks_board_bulk_commands.dart`
+(ja wne czyszczenie zaznaczenia), `lib/core/data/api_repository.dart`
+(`debugResponseShape` zamiast zrzutu ciała).
+
+Decyzje: retry sesji dotyczy wyłącznie 401 i jest sprawdzany po statusie
+w obu ścieżkach, bo ten klient akceptuje każdy status i 401 przychodzi jako
+odpowiedź, nie wyjątek; błąd zapisu nigdy nie cofa stanu — jest nakładany na
+bieżący draft, a przy konflikcie draft przechodzi przez to samo scalenie co
+zapis; odczyt tablicy wymienia wyłącznie dane tablicy i zachowuje stan
+operacyjny (błąd, znacznik zapisu, rewizję, zaznaczenie); log diagnostyczny
+opisuje kształt odpowiedzi, nie jej treść.
+
+Komendy i wyniki: `flutter analyze lib test` — No issues found;
+`flutter test --timeout 180s` — 1024/1024 PASS (w tym 7 nowych przypadków);
+`flutter build web --wasm` — PASS; `flutter build macos --debug` — PASS;
+`git diff --check` czysty w obu repo; `cmp` planu, handoffu i planu parytetu —
+identyczne. Kontrola mutacyjna na trzech niezależnych mutacjach (bramka 401,
+snapshot zamiast bieżącego stanu, stan od zera w `load()`) — każda wysyła na
+czerwono właściwy nowy test, po przywróceniu plików zieleń.
+
+Własność plików: naprawa P0 weszła w `foundation/http` (obszar drugiej sesji)
+i `core/data` (legacy `core`); zmiany są punktowe, a cała suita transportu wraz
+z pięcioma istniejącymi testami 401-retry przechodzi 10/10.
+
+Następny krok: po wdrożeniu nowej wersji Backendu przez właściciela — live test
+dwóch sesji (konflikt ustawień → trwały banner → „Ponów" zapisuje intencję),
+a potem N3/N4 z planu parytetu.
+
+### 2026-09-19 — N10: enumy transportowe i globalna diagnostyka HTTP
+
+Przyczyna raportowanego `GET /tasks/groups` 400 była po stronie Frontu:
+`TaskListQuery` wysyłał dartowe `.name` (`todo`, `inProgress`, `high`),
+a binder ASP.NET Core 10 wymaga nazw enumów zgodnych z kontraktem (`Todo`,
+`InProgress`, `High`). Audyt ujawnił ten sam rodzaj ryzyka w Kanbanie
+(`TaskPriority` w query i `ProjectTaskStatus` w path), Notifications
+(`NotificationCategory`) oraz dashboardzie (`DashboardContextKind`). Wszystkie
+te granice mają teraz jawne `wireValue`, a klienty Retrofit przyjmują
+prymitywny `String`, więc generator nie może ponownie użyć `Enum.toString()`.
+
+Aktywny `DevPlannerHttpTransport` otrzymał globalny debugowy interceptor. Loguje
+request/response/error, pełną zredagowaną URI, status, czas, nagłówki oraz
+bezpieczny opis body. Redakcja obejmuje Authorization, Cookie/Set-Cookie, CSRF,
+tokeny, sekrety, hasła, login/e-mail oraz tekst wyszukiwania. Dla odpowiedzi
+sukcesu logowane są jedynie nazwy pól, a dla błędu `code`, `message`, `traceId`
+i nazwy `fields`; wartości DTO i szczegóły pól nie trafiają do konsoli.
+
+Backend ustawia `RouteHandlerOptions.ThrowOnBadRequest = true`. Dzięki temu
+produkcyjny błąd bindera nie kończy się pustym 400, tylko przechodzi przez
+istniejący `ApiExceptionMiddleware` i wspólny kontrakt błędu.
+
+Pliki Front: `foundation/http/devplanner_http_diagnostics_interceptor.dart`,
+`devplanner_http_transport.dart`, enumy shared, mapper `task_list_query.dart`,
+API/repozytoria Tasks/Kanban/Notifications/Workspace oraz wygenerowane klienty.
+Testy: `transport_enum_query_serialization_test.dart` i rozszerzona suita
+`devplanner_http_transport_test.dart`. Backend: `Program.cs` oraz
+`ApiEndpointTests.cs`.
+
+Dowody: frontend targeted 13/13 PASS; scoped `flutter analyze` — No issues
+found; backend build — 0 ostrzeżeń, 0 błędów; backend targeted 2/2 PASS.
+Skan źródeł nie znalazł pozostałych enumów jako typów `@Query`/`@Path` ani
+analogicznego `.name` w mapperach transportowych. Pełne suite i buildy
+platformowe nie były częścią tej punktowej naprawy.
+
+Następny krok: po wdrożeniu Backendu i ponownym uruchomieniu aplikacji potwierdzić
+w logu `[HTTP][REQUEST]`, że filtr Tasks wysyła np. `status=InProgress`, oraz że
+celowo błędny enum zwraca envelope `request.invalid` z `traceId` zamiast pustego
+body.

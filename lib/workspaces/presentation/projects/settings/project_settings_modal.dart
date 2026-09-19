@@ -1,4 +1,5 @@
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/domain/models/project_capabilities.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
@@ -31,6 +32,10 @@ class ProjectSettingsDialogs {
   const ProjectSettingsDialogs._();
 
   /// Otwiera responsywne centrum ustawień projektu z lazy loadingiem zakładek.
+  ///
+  /// Porty są czytane z kontekstu otwierającego, bo `showDialog` montuje modal
+  /// na root navigatorze — poza zakresem providerów trasy, z której użytkownik
+  /// otworzył ustawienia.
   static Future<ProjectSettingsResult?> show({
     required BuildContext context,
     required ProjectListItem project,
@@ -38,6 +43,7 @@ class ProjectSettingsDialogs {
     VoidCallback? onProjectDeleted,
     ProjectSettingsTab initialTab = ProjectSettingsTab.general,
   }) {
+    final ports = context.read<ProjectSettingsComposition>();
     final permissions = context
         .read<AuthSessionPort?>()
         ?.snapshot
@@ -54,6 +60,7 @@ class ProjectSettingsDialogs {
       context: context,
       builder: (_) => ProjectSettingsModal(
         project: project,
+        ports: ports,
         userRole: userRole ?? project.myRole,
         onProjectDeleted: onProjectDeleted,
         initialTab: capabilities.canViewTab(initialTab)
@@ -69,6 +76,7 @@ class ProjectSettingsDialogs {
 class ProjectSettingsModal extends StatefulWidget {
   const ProjectSettingsModal({
     required this.project,
+    required this.ports,
     required this.userRole,
     this.onProjectDeleted,
     this.initialTab = ProjectSettingsTab.general,
@@ -77,6 +85,10 @@ class ProjectSettingsModal extends StatefulWidget {
   });
 
   final ProjectListItem project;
+
+  /// Porty zakładek przekazane jawnie przez ekran otwierający ustawienia.
+  final ProjectSettingsComposition ports;
+
   final ProjectRole? userRole;
   final VoidCallback? onProjectDeleted;
   final ProjectSettingsTab initialTab;
@@ -107,7 +119,7 @@ class _ProjectSettingsModalState extends State<ProjectSettingsModal> {
       ),
     );
     _registry = ProjectSettingsCubitRegistry(
-      context: context,
+      ports: widget.ports,
       project: widget.project,
       onMutation: _mutatedTabs.add,
     );

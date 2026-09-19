@@ -1,4 +1,4 @@
-part of 'tasks_board_page.dart';
+part of 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 
 /// Zwarte menu Więcej w nagłówku zbierające panel administracyjny i status realtime.
 class _HeaderMoreMenu extends StatelessWidget {
@@ -34,21 +34,21 @@ class _HeaderMoreMenu extends StatelessWidget {
         child: InkWell(
           key: const ValueKey('header_more_menu'),
           onTap: () async {
-            final action = await TaskContextMenu.show<String>(
+            final action = await AppContextMenu.select<String>(
               context,
-              position: TaskContextMenu.positionFor(buttonContext),
-              items: [
+              globalPosition: AppContextMenu.positionFor(buttonContext),
+              options: [
                 if (canManage)
-                  TaskContextMenuItem<String>(
+                  AppContextMenuOption(
                     value: 'admin_settings',
                     icon: Symbols.admin_panel_settings_rounded,
-                    title: l10n.tasksListAdminPanelButton,
+                    label: l10n.tasksListAdminPanelButton,
                   ),
-                TaskContextMenuItem<String>(
+                AppContextMenuOption(
                   value: 'connection',
                   icon: Symbols.wifi_rounded,
                   iconColor: statusColor,
-                  title: connected
+                  label: connected
                       ? l10n.tasksRealtimeConnected
                       : connecting
                       ? l10n.tasksRealtimeConnecting
@@ -117,221 +117,61 @@ class _BulkSelectionToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final l10n = context.l10n;
     final count = state.selectedTaskIds.length;
 
-    return Container(
-      constraints: const BoxConstraints(minHeight: 44),
-      padding: const EdgeInsets.symmetric(
-        horizontal: Sizes.p12,
-        vertical: Sizes.p4,
-      ),
-      decoration: BoxDecoration(
-        color: colors.primaryContainer,
-        borderRadius: BorderRadius.circular(Sizes.p10),
-        border: Border.all(color: colors.primary.withValues(alpha: .3)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Symbols.check_box_rounded,
-            color: colors.onPrimaryContainer,
-            size: Sizes.p20,
-          ),
-          const SizedBox(width: Sizes.p8),
-          Text(
-            l10n.tasksBulkSelected(count),
-            style: context.text.labelLarge?.copyWith(
-              color: colors.onPrimaryContainer,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(width: Sizes.p8),
-
-          // Przewijane akcje masowe
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              reverse: true,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Akcja masowa: zmiana kolumny / statusu
-                  Builder(
-                    builder: (buttonContext) => _BulkActionButton(
-                      icon: Symbols.drive_file_move_outline,
-                      label: isCompact ? null : l10n.tasksBulkMove,
-                      isLoading: state.isBulkSaving,
-                      onTap: state.isBulkSaving
-                          ? null
-                          : () async {
-                              final column =
-                                  await TaskContextMenu.show<
-                                    KanbanColumnResponse
-                                  >(
-                                    context,
-                                    position: TaskContextMenu.positionFor(
-                                      buttonContext,
-                                    ),
-                                    items: [
-                                      for (final col in state.board.columns)
-                                        TaskContextMenuItem<
-                                          KanbanColumnResponse
-                                        >(
-                                          value: col,
-                                          title: col.displayName,
-                                          icon: Symbols.view_column_rounded,
-                                        ),
-                                    ],
-                                  );
-                              if (column != null && context.mounted) {
-                                unawaited(
-                                  context.read<TasksBoardCubit>().bulkMoveTasks(
-                                    column,
-                                  ),
-                                );
-                              }
-                            },
-                    ),
-                  ),
-                  const SizedBox(width: Sizes.p6),
-
-                  // Akcja masowa: zmiana priorytetu
-                  Builder(
-                    builder: (buttonContext) => _BulkActionButton(
-                      icon: Symbols.flag,
-                      label: isCompact ? null : l10n.tasksBulkPriority,
-                      isLoading: state.isBulkSaving,
-                      onTap: state.isBulkSaving
-                          ? null
-                          : () async {
-                              final priority = await TaskContextMenu.show<TaskPriority>(
-                                context,
-                                position: TaskContextMenu.positionFor(
-                                  buttonContext,
-                                ),
-                                items: [
-                                  for (final priority in TaskPriority.values)
-                                    TaskContextMenuItem<TaskPriority>(
-                                      value: priority,
-                                      title:
-                                          _BoardHeaderHelpers.boardPriorityLabel(
-                                            context,
-                                            priority,
-                                          ),
-                                      icon: Symbols.flag_rounded,
-                                      iconColor:
-                                          _BoardHeaderHelpers.boardPriorityColor(
-                                            priority,
-                                          ),
-                                    ),
-                                ],
-                              );
-                              if (priority != null && context.mounted) {
-                                unawaited(
-                                  context
-                                      .read<TasksBoardCubit>()
-                                      .bulkUpdatePriority(priority),
-                                );
-                              }
-                            },
-                    ),
-                  ),
-                  const SizedBox(width: Sizes.p6),
-
-                  // Akcja masowa: zmiana terminu
-                  _BulkActionButton(
-                    icon: Symbols.event,
-                    label: isCompact ? null : l10n.tasksBulkDueDate,
-                    onTap: state.isBulkSaving
-                        ? null
-                        : () => _BulkDueDateAction.pick(context),
-                  ),
-                ],
+    return TasksContextualBulkBar(
+      selectedCount: count,
+      onClearSelection: () =>
+          context.read<TasksBoardCubit?>()?.clearTaskSelection(),
+      controls: [
+        TasksBulkMenu<KanbanColumnResponse>(
+          key: const ValueKey('board_bulk_move'),
+          icon: Symbols.drive_file_move_outline,
+          label: l10n.tasksBulkMove,
+          isLoading: state.isBulkSaving,
+          options: [
+            for (final column in state.board.columns)
+              AppContextMenuOption<KanbanColumnResponse>(
+                value: column,
+                label: column.displayName,
+                icon: Symbols.view_column_rounded,
               ),
-            ),
-          ),
-          const SizedBox(width: Sizes.p6),
-
-          // Odznaczenie wszystkich
-          IconButton(
-            tooltip: l10n.tasksBulkClearSelection,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-            onPressed: state.isBulkSaving
-                ? null
-                : () => context.read<TasksBoardCubit?>()?.clearTaskSelection(),
-            icon: Icon(
-              Symbols.close_rounded,
-              color: colors.onPrimaryContainer,
-              size: Sizes.p20,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BulkActionButton extends StatelessWidget {
-  const _BulkActionButton({
-    required this.icon,
-    this.label,
-    this.onTap,
-    this.isLoading = false,
-  });
-
-  final IconData icon;
-  final String? label;
-  final VoidCallback? onTap;
-  final bool isLoading;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(Sizes.p8),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 38, minWidth: 44),
-          padding: const EdgeInsets.symmetric(
-            horizontal: Sizes.p10,
-            vertical: Sizes.p6,
-          ),
-          decoration: BoxDecoration(
-            color: colors.surface.withValues(alpha: .75),
-            borderRadius: BorderRadius.circular(Sizes.p8),
-            border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: .5),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isLoading)
-                const SizedBox.square(
-                  dimension: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else
-                Icon(icon, size: Sizes.p18, color: colors.onSurface),
-              if (label != null) ...[
-                const SizedBox(width: Sizes.p6),
-                Text(
-                  label!,
-                  style: context.text.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colors.onSurface,
-                  ),
-                ),
-              ],
-            ],
+          ],
+          onSelected: (column) => unawaited(
+            context.read<TasksBoardCubit>().bulkMoveTasks(column),
           ),
         ),
-      ),
+        TasksBulkMenu<TaskPriority>(
+          key: const ValueKey('board_bulk_priority'),
+          icon: Symbols.flag,
+          label: l10n.tasksBulkPriority,
+          isLoading: state.isBulkSaving,
+          options: [
+            for (final priority in TaskPriority.values)
+              AppContextMenuOption<TaskPriority>(
+                value: priority,
+                label: _TasksHeaderHelpers.boardPriorityLabel(
+                  context,
+                  priority,
+                ),
+                icon: Symbols.flag_rounded,
+                iconColor: _TasksHeaderHelpers.boardPriorityColor(priority),
+              ),
+          ],
+          onSelected: (priority) => unawaited(
+            context.read<TasksBoardCubit>().bulkUpdatePriority(priority),
+          ),
+        ),
+        TasksBulkButton(
+          key: const ValueKey('board_bulk_due_date'),
+          icon: Symbols.event,
+          label: l10n.tasksBulkDueDate,
+          onTap: state.isBulkSaving
+              ? null
+              : () => _BulkDueDateAction.pick(context),
+        ),
+      ],
     );
   }
 }

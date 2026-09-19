@@ -20,6 +20,8 @@ import 'package:devplanner/workspaces/domain/repositories/task_workflow_reposito
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_error_messages.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _KanbanRepository implements KanbanRepository {
@@ -27,6 +29,8 @@ final class _KanbanRepository implements KanbanRepository {
 
   final KanbanBoardResponse board;
   int boardCalls = 0;
+  final List<KanbanBoardFilter> boardFilters = [];
+  final List<KanbanColumnQuery> systemColumnQueries = [];
   Either<ApiError, KanbanBoardResponse>? boardResult;
   MoveKanbanTaskPayload? movePayload;
   Either<ApiError, MoveKanbanTaskResponse>? moveResult;
@@ -34,6 +38,11 @@ final class _KanbanRepository implements KanbanRepository {
   BulkUpdateKanbanTasksPayload? bulkUpdatePayload;
   UserKanbanPreferenceResponse preference = _preference();
   UpdateUserKanbanPreferencePayload? preferencePayload;
+  final List<UpdateUserKanbanPreferencePayload> preferencePayloads = [];
+  final List<Either<ApiError, UserKanbanPreferenceResponse>>
+  preferenceUpdateResults = [];
+  int preferenceGetCalls = 0;
+  ApiError? preferenceGetError;
   Either<ApiError, CursorPageResponse<KanbanTaskCardResponse>>?
   systemColumnResult;
 
@@ -41,8 +50,10 @@ final class _KanbanRepository implements KanbanRepository {
   Future<Either<ApiError, KanbanBoardResponse>> getBoard({
     required String workspaceId,
     required String projectId,
+    KanbanBoardFilter filter = KanbanBoardFilter.none,
   }) async {
     boardCalls++;
+    boardFilters.add(filter);
     return boardResult ?? Right(board);
   }
 
@@ -60,6 +71,7 @@ final class _KanbanRepository implements KanbanRepository {
     required ProjectTaskStatus status,
     KanbanColumnQuery query = const KanbanColumnQuery(),
   }) async {
+    systemColumnQueries.add(query);
     if (systemColumnLoader != null) {
       return systemColumnLoader!();
     }
@@ -131,7 +143,11 @@ final class _KanbanRepository implements KanbanRepository {
   Future<Either<ApiError, UserKanbanPreferenceResponse>> getUserPreference({
     required String workspaceId,
     required String projectId,
-  }) async => Right(preference);
+  }) async {
+    preferenceGetCalls++;
+    if (preferenceGetError case final error?) return Left(error);
+    return Right(preference);
+  }
 
   @override
   Future<Either<ApiError, UserKanbanPreferenceResponse>> updateUserPreference({
@@ -140,6 +156,11 @@ final class _KanbanRepository implements KanbanRepository {
     required UpdateUserKanbanPreferencePayload payload,
   }) async {
     preferencePayload = payload;
+    preferencePayloads.add(payload);
+    if (preferenceUpdateResults.isNotEmpty) {
+      final result = preferenceUpdateResults.removeAt(0);
+      if (result.isLeft()) return result;
+    }
     preference = preference.copyWith(
       collapsedColumns: payload.collapsedColumns,
       collapsedCustomStatusIds: payload.collapsedCustomStatusIds ?? const [],
@@ -498,6 +519,495 @@ void main() {
   );
 
   test(
+    'przy aktywnym filtrze nie wysyła ruchu do kolumny o ukrytej zawartości',
+    () async {
+      final repository = _KanbanRepository(_board());
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      await cubit.setFilterPriority(TaskPriority.high);
+
+      final ready = cubit.state as TasksBoardReady;
+      final card = ready.board.columns.first.tasks.single;
+      final emptyColumn = ready.board.columns.last;
+      expect(emptyColumn.tasks, isEmpty);
+
+      await cubit.moveTask(
+        task: card,
+        targetColumn: emptyColumn,
+        targetIndex: 0,
+      );
+
+      expect(
+        repository.movePayload,
+        isNull,
+        reason: 'Backend waliduje pełną kolumnę, więc ruch bez sąsiadów musiałby wrócić 400',
+      );
+      final after = cubit.state as TasksBoardReady;
+      expect(after.error?.code, TasksBoardErrorCodes.moveBlockedByFilter);
+      expect(after.pendingTaskIds, isEmpty);
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'bez filtra ruch do pustej kolumny nadal wysyła żądanie',
+    () async {
+      final repository = _KanbanRepository(_board());
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      final ready = cubit.state as TasksBoardReady;
+      final card = ready.board.columns.first.tasks.single;
+      final emptyColumn = ready.board.columns.last;
+
+      await cubit.moveTask(
+        task: card,
+        targetColumn: emptyColumn,
+        targetIndex: 0,
+      );
+
+      expect(repository.movePayload, isNotNull);
+      expect(repository.movePayload?.previousTaskId, isNull);
+      expect(repository.movePayload?.nextTaskId, isNull);
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'konflikt wersji preferencji odświeża wersję i powtarza zapis raz',
+    () async {
+      final repository = _KanbanRepository(_board())
+        ..preferenceUpdateResults.add(
+          const Left(
+            ApiError(
+              type: ApiErrorType.conflict,
+              message: 'Karta lub ustawienia zostały równolegle zmienione.',
+              apiCode: 'kanban.version_conflict',
+            ),
+          ),
+        );
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      await Future<void>.delayed(Duration.zero);
+      // Ktoś zmienił preferencje równolegle: serwer ma już wersję 7.
+      repository.preference = repository.preference.copyWith(version: 7);
+
+      await cubit.setQuickFilter(KanbanQuickFilter.mine);
+
+      expect(repository.preferencePayloads, hasLength(2));
+      expect(repository.preferencePayloads.first.expectedVersion, 1);
+      expect(
+        repository.preferencePayloads.last.expectedVersion,
+        7,
+        reason: 'ponowienie używa wersji odczytanej po konflikcie',
+      );
+      final ready = cubit.state as TasksBoardReady;
+      expect(ready.userPreference?.quickFilter, KanbanQuickFilter.mine);
+      expect(ready.savingUserPreference, isFalse);
+      expect(ready.error, isNull);
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'ponowienie po konflikcie nie nadpisuje równoległej zmiany w innym polu',
+    () async {
+      final repository = _KanbanRepository(_board())
+        ..preferenceUpdateResults.add(
+          const Left(
+            ApiError(
+              type: ApiErrorType.conflict,
+              message: 'Konflikt',
+              apiCode: 'kanban.version_conflict',
+            ),
+          ),
+        );
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      await Future<void>.delayed(Duration.zero);
+      // Inna sesja ustawiła szybki filtr i podniosła wersję.
+      repository.preference = repository.preference.copyWith(
+        quickFilter: KanbanQuickFilter.blocked,
+        version: 9,
+      );
+
+      final column = (cubit.state as TasksBoardReady).board.columns.first;
+      await cubit.toggleColumnCollapsed(column);
+
+      expect(repository.preferencePayloads, hasLength(2));
+      final retry = repository.preferencePayloads.last;
+      expect(retry.expectedVersion, 9);
+      expect(retry.collapsedColumns, contains(ProjectTaskStatus.todo));
+      expect(
+        retry.quickFilter,
+        KanbanQuickFilter.blocked,
+        reason:
+            'nieaktualny szybki filtr z lokalnego snapshotu nie może nadpisać zmiany z innej sesji',
+      );
+      final ready = cubit.state as TasksBoardReady;
+      expect(ready.userPreference?.quickFilter, KanbanQuickFilter.blocked);
+      expect(ready.userPreference?.collapsedColumns, [
+        ProjectTaskStatus.todo,
+      ]);
+
+      await cubit.close();
+    },
+  );
+
+  test('kliknięcie w trakcie zapisu preferencji nie jest ignorowane', () async {
+    final repository = _KanbanRepository(_board());
+    final cubit = TasksBoardCubit(
+      repository,
+      _Realtime(),
+      _TasksRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+    );
+    await cubit.start();
+    await Future<void>.delayed(Duration.zero);
+
+    final column = (cubit.state as TasksBoardReady).board.columns.first;
+    // Dwie zmiany zgłoszone jedna po drugiej, bez czekania na pierwszą.
+    final first = cubit.toggleColumnCollapsed(column);
+    final second = cubit.setQuickFilter(KanbanQuickFilter.mine);
+    await first;
+    await second;
+
+    expect(repository.preferencePayloads, hasLength(2));
+    final last = repository.preferencePayloads.last;
+    expect(last.collapsedColumns, contains(ProjectTaskStatus.todo));
+    expect(last.quickFilter, KanbanQuickFilter.mine);
+    final ready = cubit.state as TasksBoardReady;
+    expect(ready.savingUserPreference, isFalse);
+    expect(ready.userPreference?.quickFilter, KanbanQuickFilter.mine);
+    expect(ready.userPreference?.collapsedColumns, [ProjectTaskStatus.todo]);
+
+    await cubit.close();
+  });
+
+  test('resync tablicy nie ukrywa trwałego błędu ani nie cofa rewizji', () async {
+    final repository = _KanbanRepository(_board())
+      ..preferenceUpdateResults.addAll([
+        const Left(
+          ApiError(
+            type: ApiErrorType.conflict,
+            message: 'Konflikt',
+            apiCode: 'kanban.version_conflict',
+          ),
+        ),
+        const Left(
+          ApiError(
+            type: ApiErrorType.conflict,
+            message: 'Konflikt',
+            apiCode: 'kanban.version_conflict',
+          ),
+        ),
+      ]);
+    final cubit = TasksBoardCubit(
+      repository,
+      _Realtime(),
+      _TasksRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+    );
+
+    await cubit.start();
+    await Future<void>.delayed(Duration.zero);
+    repository.preference = repository.preference.copyWith(version: 4);
+    final column = (cubit.state as TasksBoardReady).board.columns.first;
+    await cubit.toggleColumnCollapsed(column);
+
+    final before = cubit.state as TasksBoardReady;
+    expect(before.error?.code, TasksViewErrorCodes.versionConflict);
+    expect(before.savingUserPreference, isFalse);
+    repository.preferenceUpdateResults.clear();
+
+    // Niezwiązany z ustawieniami odczyt tablicy, np. resync po realtime.
+    await cubit.load(force: true);
+
+    final after = cubit.state as TasksBoardReady;
+    expect(
+      after.error?.code,
+      TasksViewErrorCodes.versionConflict,
+      reason: 'odczyt tablicy nie może ukryć błędu niezapisanej preferencji',
+    );
+    expect(after.userPreference?.quickFilter, before.userPreference?.quickFilter);
+    expect(
+      after.taskDataRevision,
+      before.taskDataRevision,
+      reason: 'odczyt nie zeruje licznika zmian danych',
+    );
+
+    await cubit.close();
+  });
+
+  test('nieudany odczyt preferencji pokazuje trwały błąd i da się ponowić', () async {
+    final repository = _KanbanRepository(_board())
+      ..preferenceGetError = const ApiError(
+        type: ApiErrorType.server,
+        message: 'Błąd serwera',
+      );
+    final cubit = TasksBoardCubit(
+      repository,
+      _Realtime(),
+      _TasksRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+    );
+
+    await cubit.start();
+    await Future<void>.delayed(Duration.zero);
+
+    final ready = cubit.state as TasksBoardReady;
+    expect(ready.userPreference, isNull);
+    expect(
+      ready.error?.code,
+      TasksViewErrorCodes.loadFailed,
+      reason: 'bez preferencji kontrolki są wyłączone, więc użytkownik musi wiedzieć dlaczego',
+    );
+
+    repository.preferenceGetError = null;
+    await cubit.retryFailedOperation();
+
+    final afterRetry = cubit.state as TasksBoardReady;
+    expect(afterRetry.userPreference, isNotNull);
+    expect(afterRetry.error, isNull);
+
+    await cubit.close();
+  });
+
+  test(
+    'drugi konflikt przerywa ponawianie i zachowuje intencję użytkownika',
+    () async {
+      final repository = _KanbanRepository(_board())
+        ..preferenceUpdateResults.addAll([
+          const Left(
+            ApiError(
+              type: ApiErrorType.conflict,
+              message: 'Konflikt',
+              apiCode: 'kanban.version_conflict',
+            ),
+          ),
+          const Left(
+            ApiError(
+              type: ApiErrorType.conflict,
+              message: 'Konflikt',
+              apiCode: 'kanban.version_conflict',
+            ),
+          ),
+        ]);
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      await Future<void>.delayed(Duration.zero);
+      repository.preference = repository.preference.copyWith(version: 4);
+
+      await cubit.setQuickFilter(KanbanQuickFilter.blocked);
+
+      expect(repository.preferenceGetCalls, greaterThanOrEqualTo(2));
+      final ready = cubit.state as TasksBoardReady;
+      expect(ready.savingUserPreference, isFalse);
+      expect(ready.error?.code, TasksViewErrorCodes.versionConflict);
+      expect(
+        ready.error?.canRetry,
+        isTrue,
+        reason: 'intencja czeka w kolejce, więc ponowienie ma sens',
+      );
+      expect(
+        ready.userPreference?.quickFilter,
+        KanbanQuickFilter.blocked,
+        reason:
+            'użytkownik nadal widzi swoją zmianę — nie jest cicho porzucana, tylko niezapisana',
+      );
+      expect(
+        ready.userPreference?.version,
+        4,
+        reason: 'stan przyjmuje wersję serwera, żeby ponowienie nie konfliktowało od nowa',
+      );
+      expect(
+        ready.taskDataRevision,
+        0,
+        reason:
+            'błąd ustawień nie zmienia danych zadań, więc Lista nie ma po czym się przeładowywać',
+      );
+
+      final writesBeforeRetry = repository.preferencePayloads.length;
+      await cubit.retryFailedOperation();
+
+      expect(repository.preferencePayloads.length, writesBeforeRetry + 1);
+      expect(
+        repository.preferencePayloads.last.quickFilter,
+        KanbanQuickFilter.blocked,
+        reason:
+            '„Ponów” ponawia intencję użytkownika, a nie zapisuje odświeżonego stanu serwera',
+      );
+      expect(repository.preferencePayloads.last.expectedVersion, 4);
+      final afterRetry = cubit.state as TasksBoardReady;
+      expect(afterRetry.error, isNull);
+      expect(afterRetry.userPreference?.quickFilter, KanbanQuickFilter.blocked);
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'filtr tablicy jedzie do getBoard i do stron kolumn, a „Wyczyść wszystko” go zdejmuje',
+    () async {
+      final repository = _KanbanRepository(_board());
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      expect(repository.boardFilters.single, KanbanBoardFilter.none);
+
+      await cubit.setFilterPriority(TaskPriority.high);
+      await cubit.setFilterAssignee('user-9');
+      await cubit.setFilterMilestone('milestone-3');
+
+      expect(
+        repository.boardCalls,
+        4,
+        reason: 'każda zmiana filtra odświeża tablicę',
+      );
+      final active = repository.boardFilters.last;
+      expect(active.priority, TaskPriority.high);
+      expect(active.assigneeUserId, 'user-9');
+      expect(active.milestoneId, 'milestone-3');
+      expect(active.activeCount, 3);
+      expect((cubit.state as TasksBoardReady).filter, active);
+      expect((cubit.state as TasksBoardReady).loadingFilter, isFalse);
+
+      // Doładowanie kolumny musi nieść ten sam filtr co licznik kolumny.
+      final column = (cubit.state as TasksBoardReady).board.columns.first;
+      await cubit.loadMore(column);
+
+      final columnQuery = repository.systemColumnQueries.last;
+      expect(columnQuery.cursor, 'next-page');
+      expect(columnQuery.priority, TaskPriority.high);
+      expect(columnQuery.assigneeUserId, 'user-9');
+      expect(columnQuery.milestoneId, 'milestone-3');
+
+      await cubit.clearFilters();
+
+      expect(repository.boardFilters.last, KanbanBoardFilter.none);
+      expect((cubit.state as TasksBoardReady).filter.isActive, isFalse);
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'ustawienie tego samego filtra nie powoduje zbędnego odczytu tablicy',
+    () async {
+      final repository = _KanbanRepository(_board());
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      final callsAfterStart = repository.boardCalls;
+
+      await cubit.setFilterPriority(TaskPriority.high);
+      await cubit.setFilterPriority(TaskPriority.high);
+
+      expect(repository.boardCalls, callsAfterStart + 1);
+      expect(
+        (cubit.state as TasksBoardReady).filter.priority,
+        TaskPriority.high,
+      );
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'odrzucenie filtra przez Backend zostawia stan błędu, a nie pustą tablicę',
+    () async {
+      final repository = _KanbanRepository(_board())
+        ..boardResult = const Left(
+          ApiError(
+            type: ApiErrorType.validation,
+            message: 'Filtr jest nieprawidłowy',
+          ),
+        );
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      await cubit.setFilterMilestone('milestone-blad');
+
+      expect(cubit.state, isA<TasksBoardFailure>());
+      expect(
+        (cubit.state as TasksBoardFailure).message,
+        'Filtr jest nieprawidłowy',
+      );
+
+      // Filtr przeżywa nieudany odczyt, więc ponowienie nie wraca po cichu do
+      // pełnego projektu.
+      repository.boardResult = null;
+      await cubit.reloadBoard(force: true);
+
+      expect(repository.boardFilters.last.milestoneId, 'milestone-blad');
+      expect(
+        (cubit.state as TasksBoardReady).filter.milestoneId,
+        'milestone-blad',
+      );
+
+      await cubit.close();
+    },
+  );
+
+  test(
     'resync po status realtime zachowuje jego rewizję dla widoku listy',
     () async {
       final repository = _KanbanRepository(_board());
@@ -649,8 +1159,13 @@ void main() {
 
     final rolledBack = cubit.state as TasksBoardReady;
     expect(rolledBack.board, original);
-    expect(rolledBack.mutationError, 'Konflikt wersji');
-    expect(rolledBack.mutationSerial, 1);
+    expect(rolledBack.error?.code, 'Konflikt wersji');
+    expect(
+      rolledBack.taskDataRevision,
+      0,
+      reason:
+          'nieudany ruch nie zmienił danych zadań, więc widoki listowe nie mają po czym się przeładowywać',
+    );
 
     await cubit.close();
   });
@@ -731,7 +1246,7 @@ void main() {
     expect(tasksRepository.createPayload?.targetStatus, ProjectTaskStatus.todo);
     expect(tasksRepository.createPayload?.useDefaultTemplate, isTrue);
     expect(tasksRepository.createPayload?.taskTemplateId, isNull);
-    expect((cubit.state as TasksBoardReady).mutationError, 'Walidacja');
+    expect((cubit.state as TasksBoardReady).error?.code, 'Walidacja');
 
     await cubit.close();
   });
@@ -933,7 +1448,7 @@ void main() {
 
     expect(repository.movePayload, isNull);
     expect(
-      (cubit.state as TasksBoardReady).mutationError,
+      (cubit.state as TasksBoardReady).error?.code,
       'To przejście statusu nie jest dozwolone w workflow.',
     );
 
@@ -1010,7 +1525,7 @@ void main() {
         ready.board.columns.last.tasks.map((t) => t.id),
         contains('task-B'),
       );
-      expect(ready.mutationError, 'Konflikt wersji');
+      expect(ready.error?.code, 'Konflikt wersji');
 
       await cubit.close();
     },
