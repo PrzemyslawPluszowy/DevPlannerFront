@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:devplanner/admin/data/adapters/admin_user_api_transport.dart';
 import 'package:devplanner/admin/data/adapters/admin_user_gateway_api_adapter.dart';
 import 'package:devplanner/admin/data/admin_users_composition.dart';
@@ -9,14 +11,16 @@ import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/auth/presentation/auth_route_page.dart';
 import 'package:devplanner/foundation/http/http.dart';
 import 'package:devplanner/me/me.dart';
+import 'package:devplanner/workspaces/data/preferences/shared_preferences_tasks_project_view_store.dart';
+import 'package:devplanner/workspaces/data/projects/api/projects_api.dart';
 import 'package:devplanner/workspaces/data/projects/api/projects_list_api.dart';
 import 'package:devplanner/workspaces/data/projects/repositories/projects_gateway_impl.dart';
+import 'package:devplanner/workspaces/data/projects/repositories/projects_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_views_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_view_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
-import 'package:devplanner/workspaces/data/standalone/project_management_gateway.dart';
 import 'package:devplanner/workspaces/data/standalone/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/data/standalone/workspace_navigation_gateway.dart';
 import 'package:devplanner/workspaces/data/standalone/workspaces_gateway.dart';
@@ -25,11 +29,12 @@ import 'package:devplanner/workspaces/data/storage/repositories/storage_reposito
 import 'package:devplanner/workspaces/data/storage/transport/download_transport_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/file_picker_port_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/presigned_upload_transport.dart';
-import 'package:devplanner/workspaces/domain/ports/project_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/domain/ports/tasks_project_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
@@ -60,12 +65,12 @@ class DevPlannerRouter with _DevPlannerRouterPages {
     ProjectsGateway? projectsGateway,
     WorkspaceNavigationGateway? workspaceNavigationGateway,
     WorkspaceManagementGateway? workspaceManagementGateway,
-    ProjectManagementGateway? projectManagementGateway,
     StorageRepository? storageRepository,
     TaskViewRepository? taskViewRepository,
     TasksBoardComposition? tasksBoardComposition,
     TasksDetailsComposition? tasksDetailsComposition,
     ProjectSettingsComposition? projectSettingsComposition,
+    TasksProjectViewPreferenceStore? tasksViewPreferenceStore,
   }) : _auth = auth ?? AuthComposition.unavailable(),
        _explicitAdminUsers = adminUsers,
        _explicitMeGateway = meGateway,
@@ -73,14 +78,19 @@ class DevPlannerRouter with _DevPlannerRouterPages {
        _explicitProjectsGateway = projectsGateway,
        _explicitWorkspaceNavigationGateway = workspaceNavigationGateway,
        _explicitWorkspaceManagementGateway = workspaceManagementGateway,
-       _explicitProjectManagementGateway = projectManagementGateway,
        _explicitStorageRepository = storageRepository,
        _explicitTaskViewRepository = taskViewRepository,
        _explicitTasksBoardComposition = tasksBoardComposition,
        _explicitTasksDetailsComposition = tasksDetailsComposition,
        _explicitProjectSettingsComposition = projectSettingsComposition,
+       _explicitTasksViewPreferenceStore = tasksViewPreferenceStore,
        _ownsAuth = auth == null {
     _authGuard = DevPlannerAuthGuard(session: _auth.session);
+    // Preferencja widoku Zadania jest wczytywana raz, zanim użytkownik zdąży
+    // otworzyć projekt; trasa czyta ją synchronicznie i nie mruga widokiem.
+    _viewPreferenceUserId = _auth.session.snapshot.user?.userId;
+    unawaited(_tasksViewPreferenceStore.load());
+    _auth.session.addListener(_reloadViewPreferenceOnUserChange);
     _router = GoRouter(
       initialLocation: DevPlannerRouteCatalog.safeInitialLocation(
         initialLocation,
@@ -132,7 +142,7 @@ class DevPlannerRouter with _DevPlannerRouterPages {
           builder: (context, _, child) => DevPlannerShellRoute(
             workspaceNavigationGateway: _resolvedWorkspaceNavigationGateway,
             workspaceManagementGateway: _resolvedWorkspaceManagementGateway,
-            projectManagementGateway: _resolvedProjectManagementGateway,
+            projectsRepository: _resolvedShellProjectsRepository,
             projectsGateway: _resolvedProjectsGateway,
             tasksBoardAvailable: _resolvedTasksBoardComposition != null,
             child: child,
@@ -170,6 +180,18 @@ class DevPlannerRouter with _DevPlannerRouterPages {
             GoRoute(
               path: '/workspaces/:workspaceId/projects/:projectId/tasks',
               builder: (_, state) => _tasksBoardRoutePage(state),
+            ),
+            // Historyczne adresy widoków modułu Zadania. Muszą stać przed
+            // trasą szczegółu zadania, inaczej `list` zostałoby odczytane jako
+            // `taskId` i stary link kończyłby się ekranem braku transportu.
+            GoRoute(
+              path: '/workspaces/:workspaceId/projects/:projectId/tasks/list',
+              redirect: (_, state) => _legacyTasksViewRedirect(state, 'list'),
+            ),
+            GoRoute(
+              path:
+                  '/workspaces/:workspaceId/projects/:projectId/tasks/kanban',
+              redirect: (_, state) => _legacyTasksViewRedirect(state, 'kanban'),
             ),
             // Zachowujemy adres używany przez wcześniejsze menu Workspace.
             // Kanban i lista są dziś dwoma widokami jednego kontraktu Tasks,
@@ -224,12 +246,21 @@ class DevPlannerRouter with _DevPlannerRouterPages {
   final ProjectsGateway? _explicitProjectsGateway;
   final WorkspaceNavigationGateway? _explicitWorkspaceNavigationGateway;
   final WorkspaceManagementGateway? _explicitWorkspaceManagementGateway;
-  final ProjectManagementGateway? _explicitProjectManagementGateway;
   final StorageRepository? _explicitStorageRepository;
   final TaskViewRepository? _explicitTaskViewRepository;
   final TasksBoardComposition? _explicitTasksBoardComposition;
   final TasksDetailsComposition? _explicitTasksDetailsComposition;
   final ProjectSettingsComposition? _explicitProjectSettingsComposition;
+  final TasksProjectViewPreferenceStore? _explicitTasksViewPreferenceStore;
+  late final TasksProjectViewPreferenceStore _tasksViewPreferenceStore =
+      _explicitTasksViewPreferenceStore ??
+      SharedPreferencesTasksProjectViewStore(
+        // Preferencja jest per użytkownik, więc tożsamość czytamy w momencie
+        // operacji, a nie raz na starcie klienta.
+        currentUserId: () => _auth.session.snapshot.user?.userId,
+      );
+
+  String? _viewPreferenceUserId;
   @override
   final DevPlannerHttpTransport? httpTransport;
   final bool _ownsAuth;
@@ -266,14 +297,20 @@ class DevPlannerRouter with _DevPlannerRouterPages {
     return DevPlannerWorkspaceManagementGateway(transport: transport);
   }
 
-  ProjectManagementGateway? get _resolvedProjectManagementGateway {
-    final explicit = _explicitProjectManagementGateway;
-    if (explicit != null) return explicit;
+  /// Port tworzenia projektu dla shella.
+  ///
+  /// Sidebar i drzewo projektów otwierają ten sam formularz, więc shell dostaje
+  /// pełne repozytorium projektów, a nie drugi, wąski kontrakt tworzenia.
+  /// Web BFF nie tworzy projektów bezpośrednim klientem API, więc zostaje bez
+  /// akcji — dokładnie jak wcześniej.
+  ProjectsRepository? get _resolvedShellProjectsRepository {
     final transport = httpTransport;
     if (transport == null || !transport.supportsStandaloneApiClients) {
       return null;
     }
-    return DevPlannerProjectManagementGateway(transport: transport);
+    return ProjectsRepositoryImpl(
+      api: ProjectsApi(transport.apiDio, baseUrl: transport.baseUrl),
+    );
   }
 
   @override
@@ -351,9 +388,28 @@ class DevPlannerRouter with _DevPlannerRouterPages {
         : ProjectSettingsComposition.fromTransport(transport);
   }
 
+  /// Lokalna preferencja widoku Zadania nie zależy od transportu: brak jawnego
+  /// portu (np. w teście) nie może wyłączyć „ostatnio używanego widoku”.
+  ///
+  /// Trasa czyta ją synchronicznie, więc port jest jeden na router i jest
+  /// naładowany raz przy starcie klienta.
+  @override
+  TasksProjectViewPreferenceStore get _resolvedTasksViewPreferenceStore =>
+      _tasksViewPreferenceStore;
+
+  /// Zmiana konta w tej samej sesji klienta musi wczytać preferencje nowego
+  /// użytkownika, żeby wybór widoku nie przeciekał między kontami.
+  void _reloadViewPreferenceOnUserChange() {
+    final userId = _auth.session.snapshot.user?.userId;
+    if (userId == _viewPreferenceUserId) return;
+    _viewPreferenceUserId = userId;
+    unawaited(_tasksViewPreferenceStore.load());
+  }
+
   GoRouter get config => _router;
 
   void dispose() {
+    _auth.session.removeListener(_reloadViewPreferenceOnUserChange);
     _router.dispose();
     if (_ownsAuth) _auth.session.dispose();
   }

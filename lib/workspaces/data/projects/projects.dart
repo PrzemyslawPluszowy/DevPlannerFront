@@ -14,6 +14,7 @@ export 'payloads/update_project_payload.dart';
 export 'payloads/update_project_user_preference_payload.dart';
 export 'portfolios/api/portfolios_api.dart';
 export 'portfolios/models/portfolio_models.dart';
+export 'responses/project_capabilities_response.dart';
 export 'responses/project_list_item_response.dart';
 export 'responses/project_member_profile_response.dart';
 export 'responses/project_member_response.dart';

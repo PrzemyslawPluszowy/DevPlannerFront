@@ -39,8 +39,6 @@ final class WorkspaceNavigationTree {
   /// trasy wygląda jak niedziałająca funkcja.
   static const projectResourceKinds = <WorkspaceNavigationNodeKind>[
     WorkspaceNavigationNodeKind.tasks,
-    WorkspaceNavigationNodeKind.taskList,
-    WorkspaceNavigationNodeKind.kanban,
     WorkspaceNavigationNodeKind.files,
   ];
 
@@ -105,26 +103,14 @@ final class WorkspaceNavigationTree {
     workspaceId: project.workspaceId,
     projectId: project.id,
     children: [
+      // Jeden moduł Zadania. Lista i Kanban są widokami tego samego zbioru
+      // i wybiera się je w nagłówku modułu, więc drzewo nie duplikuje ich
+      // jako osobnych gałęzi, które sugerowałyby dwa źródła danych.
       WorkspaceNavigationNode(
         id: 'workspace:${project.workspaceId}:project:${project.id}:tasks',
         kind: WorkspaceNavigationNodeKind.tasks,
         workspaceId: project.workspaceId,
         projectId: project.id,
-        isSelectable: false,
-        children: [
-          WorkspaceNavigationNode(
-            id: 'workspace:${project.workspaceId}:project:${project.id}:tasks:list',
-            kind: WorkspaceNavigationNodeKind.taskList,
-            workspaceId: project.workspaceId,
-            projectId: project.id,
-          ),
-          WorkspaceNavigationNode(
-            id: 'workspace:${project.workspaceId}:project:${project.id}:tasks:kanban',
-            kind: WorkspaceNavigationNodeKind.kanban,
-            workspaceId: project.workspaceId,
-            projectId: project.id,
-          ),
-        ],
       ),
       // Drzewo renderuje wyłącznie pozycje z aktywną trasą. Whiteboardy,
       // tablica korkowa, Wiki i Automatyzacje wrócą, gdy dostaną własne trasy;

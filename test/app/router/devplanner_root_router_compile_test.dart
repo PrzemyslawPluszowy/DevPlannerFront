@@ -12,6 +12,7 @@ import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 import 'package:devplanner/workspaces/domain/models/workspace_summary.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
@@ -766,41 +767,34 @@ void main() {
         ),
       );
       expect(tasksNode, findsOneWidget);
-      await tester.tap(
+      // Moduł Zadania jest liściem: lista i tablica są widokami jednego
+      // adresu, więc drzewo nie ma dla nich osobnych gałęzi.
+      expect(
         find.descendant(
           of: tasksNode,
           matching: find.byIcon(Icons.chevron_right),
         ),
+        findsNothing,
       );
-      await tester.pumpAndSettle();
-      final taskListNode = find.byKey(
-        const ValueKey(
-          'navigation-node-workspace:550e8400-e29b-41d4-a716-446655440000:project:6ba7b810-9dad-11d1-80b4-00c04fd430c8:tasks:list',
+      expect(
+        find.byKey(
+          const ValueKey(
+            'navigation-node-workspace:550e8400-e29b-41d4-a716-446655440000:project:6ba7b810-9dad-11d1-80b4-00c04fd430c8:tasks:kanban',
+          ),
         ),
+        findsNothing,
       );
-      final kanbanNode = find.byKey(
-        const ValueKey(
-          'navigation-node-workspace:550e8400-e29b-41d4-a716-446655440000:project:6ba7b810-9dad-11d1-80b4-00c04fd430c8:tasks:kanban',
-        ),
-      );
-      expect(taskListNode, findsOneWidget);
-      expect(kanbanNode, findsOneWidget);
       final filesNode = find.byKey(
         const ValueKey(
           'navigation-node-workspace:550e8400-e29b-41d4-a716-446655440000:project:6ba7b810-9dad-11d1-80b4-00c04fd430c8:files',
         ),
       );
       expect(filesNode, findsOneWidget);
-      await tester.tap(taskListNode);
+      await tester.tap(tasksNode);
+      await tester.pumpAndSettle();
       expect(
         router.config.routerDelegate.currentConfiguration.uri.toString(),
         DevPlannerRouteCatalog.projectTasks(workspaceId, projectId),
-      );
-      await tester.tap(kanbanNode);
-
-      expect(
-        router.config.routerDelegate.currentConfiguration.uri.toString(),
-        DevPlannerRouteCatalog.projectKanban(workspaceId, projectId),
       );
       await tester.tap(filesNode);
 
@@ -839,7 +833,9 @@ final class _FakeProjectsGateway implements ProjectsGateway {
   @override
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    bool? includeHidden,
   }) async => const [];
 }
 
@@ -851,6 +847,8 @@ final class _ProjectItemsGateway implements ProjectsGateway {
   @override
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    bool? includeHidden,
   }) async => items;
 }

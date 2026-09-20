@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/data/projects/responses/project_capabilities_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
@@ -49,6 +50,12 @@ abstract class ProjectResponse with _$ProjectResponse {
 
     /// Czas archiwizacji albo null dla aktywnego projektu.
     DateTime? archivedAtUtc,
+
+    /// Nieprzezroczysta wersja projektu (`xmin`) albo null w starszym kontrakcie.
+    int? version,
+
+    /// Możliwości bieżącego użytkownika albo null w starszym kontrakcie.
+    ProjectCapabilitiesResponse? capabilities,
   }) = _ProjectResponse;
 
   /// Odtwarza pełny projekt z odpowiedzi JSON Workspaces.

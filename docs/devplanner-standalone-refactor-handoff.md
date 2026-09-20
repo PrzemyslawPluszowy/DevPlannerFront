@@ -2473,3 +2473,411 @@ Następny krok: po wdrożeniu Backendu i ponownym uruchomieniu aplikacji potwier
 w logu `[HTTP][REQUEST]`, że filtr Tasks wysyła np. `status=InProgress`, oraz że
 celowo błędny enum zwraca envelope `request.invalid` z `traceId` zamiast pustego
 body.
+### 2026-09-19 — PRODUCT-UX-AUDIT: nawigacja, wykorzystanie Backendu i kreator
+
+Utworzono szczegółowy plan wykonawczy
+`docs/recovery/product-navigation-and-project-wizard-refactor-plan.md` po
+statycznym audycie obu repozytoriów. Plan nie zmienia kodu runtime.
+
+Najważniejsze decyzje: jeden węzeł Zadania na projekt, Lista/Kanban jako widoki
+we wspólnym nagłówku, jedno menu projektu wykorzystujące pin/hide/order/archive,
+jeden wieloetapowy kreator dla wszystkich entrypointów oraz wspólny standard
+optimistic-first z rollbackiem, trwałym komunikatem i `traceId`.
+
+Potwierdzone braki Backendu rozpisane do implementacji: discoverable archiwum,
+`isHidden` w liście, wersja projektu i stabilne 409, jawne capabilities,
+atomowy/idempotentny project setup z preview oraz — tylko po decyzji produktowej
+— bezpieczny transfer cross-workspace. Dokument definiuje pakiety P0–P8,
+kontrakty, testy ról/IDOR/concurrency, bramki jakości i zakazy skrótów.
+
+Status: **DONE dla zakresu dokumentacyjnego (2026-09-19)** — plan z matrycą
+zapisany w obu repozytoriach; runtime i kontrakty API nietknięte.
+
+Dowody (komendy i wyniki):
+- `shasum -a 256` planu produktowego —
+  `8c655ac6a9d039b90dd6f263c5099c6d65ec48f7a62523721944b7fde4b3a81d` w `Front`
+  i w `Backend`.
+- `cmp -s` dla trzech dokumentów współdzielonych
+  (`devplanner-standalone-refactor-plan.md`,
+  `devplanner-standalone-refactor-handoff.md`,
+  `recovery/product-navigation-and-project-wizard-refactor-plan.md`) — pary
+  Front↔Backend bez różnic.
+- `git diff --check` w `Front` i w `Backend` — czysty.
+- Kontrola 143 ścieżek wyciągniętych z §4.3 planu skryptem w Pythonie
+  (`os.path.exists`) — wszystkie istnieją; wpis `Backend/…` wskazuje drugie
+  repozytorium zgodnie z legendą.
+- Audyt statyczny `grep` po `Backend/Contracts/Projects/`, `Domain/Entities/Project.cs`,
+  `Infrastructure/Persistence/Configurations/ProjectConfiguration.cs`,
+  `Endpoints/Projects/ProjectEndpoints.cs` oraz po `Front/lib/workspaces/**`
+  potwierdził wszystkie sześć zgłoszonych luk, w tym `IsRowVersion` na encji
+  `Project` bez publikacji wersji w DTO.
+
+NOT RUN: `flutter analyze`, `flutter test`, `dotnet test` i buildy platformowe —
+pakiet zmienia wyłącznie dokumentację, więc nie ma runtime do zweryfikowania.
+
+Następny krok: P0 z planu — zamrozić testami obecne trasy, drzewo, oba
+entrypointy tworzenia projektu i matrycę §4.3 (właściciel oraz stan każdego
+wiersza).
+
+### 2026-09-19 — PN-P2: jeden węzeł Zadania, routing i preferencja widoku
+
+Status: **DONE (2026-09-19)**.
+
+Pliki: `lib/workspaces/domain/navigation/workspace_navigation_node.dart` (usunięte
+`taskList`/`kanban` z enuma), `.../workspace_navigation_tree.dart` (jedna pozycja
+`Zadania`, projekt bez duplikatu gałęzi), `lib/app/shell/devplanner_shell_navigation.dart`
+(switch-e, `_path`, `_isSelected` świadomy `?view=`, brak podwójnego podświetlenia
+gałęzi z zaznaczonym dzieckiem), `lib/app/router/devplanner_router.dart` +
+`devplanner_router_pages.part.dart` (redirecty `/tasks/list` i `/tasks/kanban`
+przed trasą szczegółu, port preferencji w routerze), nowe
+`lib/workspaces/domain/ports/tasks_project_view_preference_store.dart` i
+`lib/workspaces/data/preferences/shared_preferences_tasks_project_view_store.dart`,
+`lib/workspaces/presentation/tasks/board/{tasks_project_view,tasks_board_page,tasks_board_route_page}.dart`.
+
+Decyzje: preferencja „ostatnio używany widok” jest lokalna jak motyw, a nie
+domenowa — brak kontraktu backendowego na domyślny widok (sprawdzone w
+`Contracts/`). Odczyt jest synchroniczny z cache wypełnianego raz przez `load()`
+w konstruktorze routera; dzięki temu `/tasks` nie mruga Listą przed Kanbanem i
+nie zależy od timingu platformy. Brak implementacji `shared_preferences`
+(np. test widgetowy) jest normalnym stanem: cache działa w pamięci sesji, a
+awaria persistence ląduje w logu diagnostycznym, nie w UI.
+
+Świadomie przepisane testy (pinowały rozdzielone gałęzie): `workspace_navigation_foundation_test.dart`
+(asercja `projectResourceKinds`), `workspace_navigation_tree_cubit_test.dart`
+(dzieci `tasks`), `devplanner_shell_test.dart` (drzewo i selekcja — jeden wiersz
+`Zadania` zaznaczony dla każdego widoku, projekt nie podświetla się drugi raz),
+`devplanner_root_router_compile_test.dart` (brak węzłów `tasks:list`/`tasks:kanban`).
+Nowe testy: `legacy view links redirect to the canonical Tasks query`,
+`the canonical URL reopens the last used view`, `tasks_project_view_store_test.dart`
+oraz `tasks_project_view_store_unavailable_test.dart` (osobny plik, bo mock
+`shared_preferences` rejestruje się na cały proces).
+
+Komendy i wyniki: `flutter analyze` — No issues found; `flutter test
+test/app/router/ test/workspaces/data/preferences/ test/workspaces/presentation/navigation/
+test/app/shell/` — 72/72 PASS; pełny `flutter test` — 1039/1039 PASS (przed P5 i P6a).
+
+Następny krok: po wdrożeniu P1 pokazać w UI ukryte i archiwalne projekty oraz
+sterować menu projektu przez `capabilities`.
+
+### 2026-09-19 — PN-P5: jeden formularz tworzenia projektu
+
+Status: **DONE dla ujednolicenia entrypointów (2026-09-19)**; kreator
+wieloetapowy z §5 planu pozostaje otwarty jako P5b, bo wymaga kontraktu z P4.
+
+Pliki: `lib/app/shell/devplanner_shell.dart` (shell przyjmuje `projectsRepository`,
+akcja tworzenia otwiera `ProjectResourceCreationDialogs.showCreateProject`),
+`lib/app/shell/devplanner_shell_navigation.dart` (usunięty
+`_CreateProjectFromSidebarDialog`), `lib/app/router/devplanner_router.dart`
+(`_resolvedShellProjectsRepository` zamiast bramy tworzenia), usunięte
+`lib/workspaces/domain/ports/project_management_gateway.dart` i
+`lib/workspaces/data/standalone/project_management_gateway.dart`.
+
+Decyzja: wąski port `ProjectManagementGateway` miał jednego członka i jednego
+konsumenta — drugi flow tworzenia. Zamiast utrzymywać dwa wejścia, sidebar
+korzysta z repozytorium projektów i tego samego formularza co drzewo; Web BFF
+nadal nie wystawia akcji (brak klienta API), więc zachowanie na webie się nie
+zmienia. Nawigacja do utworzonego projektu czeka na przekazanie identyfikatora
+z formularza (dziś oba wejścia tylko odświeżają gałąź workspace'u).
+
+Komendy i wyniki: `flutter analyze` — No issues found; `flutter test
+test/app/shell/devplanner_shell_test.dart` — 8/8 PASS, w tym nowy przypadek
+`sidebar opens the same project form as the project tree`.
+
+### 2026-09-19 — PN-P6a: kaskada harmonogramu w stanie
+
+Status: **DONE (2026-09-19)**.
+
+Pliki: nowy `lib/workspaces/presentation/tasks/detail/cascade/cubit/task_schedule_cascade_cubit.dart`
+(stan + cubit), `lib/workspaces/presentation/tasks/detail/task_details_properties_planning.dart`
+(dialog planowania używa cubita zamiast wołać `TaskScheduleRepository` wprost),
+import w `task_details_page.dart` (part file dziedziczy importy biblioteki).
+
+Decyzje: zapis kaskady bez podglądu jest odrzucany w cubicie, bo kontrakt wymaga
+`expectedVersion` każdego przesuwanego zadania; konflikt 409 zostawia podgląd
+i trwały komunikat, a zmiana dat zdejmuje podgląd, żeby nie opisywał innych
+terminów niż te w polach.
+
+Komendy i wyniki: `flutter analyze` — No issues found; `flutter test
+test/workspaces/presentation/tasks/detail/cascade/` — 6/6 PASS; `flutter test
+test/workspaces/presentation/tasks/` — 421/421 PASS.
+
+### 2026-09-19 — N10-followup: testy pinujące starą serializację enumów
+
+Pięć przypadków nadal oczekiwało dartowych nazw pól (`inProgress`, `blocked`,
+`critical`), które pakiet N10 zastąpił wartościami kontraktowymi. Asercje
+przepisano na `wireValue` (`task_list_chrome_test.dart` — 2 przypadki,
+`project_tasks_list_cubit_test.dart` — 3 przypadki), więc pilnują teraz
+poprawnego kontraktu, a nie wadliwej serializacji. Komendy i wyniki:
+`flutter test` obu plików — 60/60 PASS; pełny `flutter test` — 1039/1039 PASS.
+
+### 2026-09-19 — PN-P3: jedno menu projektu, optimistic-first z rollbackiem
+
+Status: **DONE dla drzewa projektów (2026-09-19)**; wpięcie drzewa w żywy shell
+i pełna lista archiwum pozostają otwarte (patrz „Następny krok”).
+
+Pliki nowe (wszystkie pod `lib/workspaces/presentation/workspaces_home/projects_tree/`):
+`cubit/{projects_tree_cubit,projects_tree_state,projects_tree_model,projects_tree_preferences,projects_tree_order,projects_tree_lifecycle}.dart`
+oraz `widgets/{project_context_menu,project_context_dialogs,project_tree_actions,project_tree_items,projects_tree_projects,projects_tree_project_section,projects_tree_failure_banner}.dart`.
+Zmienione: `workspace_project_menu.dart` (rozbudowane istniejące menu, bez drugiej
+implementacji), `lib/l10n/app_pl.arb`, `lib/l10n/app_en.arb` (+ generaty).
+
+Decyzje: jedno menu kontekstowe budowane raz (`buildProjectContextMenuEntries`)
+i używane w drzewie, sekcji `Ukryte` i sekcji `Archiwum`; `Przenieś do workspace`
+i `Opuść projekt` są widoczne, ale wyłączone z podanym powodem, bo nie mają
+kontraktu (§6.4) i reguły ostatniego Ownera — plan §11 zabrania udawania
+działającej funkcji. Pin/hide mają maksymalnie jedno żądanie na projekt i
+scalają kolejne intencje do ostatniej wartości; rollback cofa wyłącznie pola tej
+operacji i tylko wtedy, gdy rewizja pola się nie zmieniła, więc późniejsze
+zmiany użytkownika nie giną. DnD kolejności wysyła pełną listę widocznych
+projektów — niepełna lista jest odrzucana lokalnie. Błąd jest trwały (baner
+z operacją, przyczyną, kodem i `traceId` + „Ponów”), a SnackBar służy wyłącznie
+nietrwałym potwierdzeniom (ukrycie z „Cofnij”). Ukrycie i archiwizacja są
+poznawane z własnej operacji, nie z `ProjectListItemResponse`, dlatego nie
+dodano pól, których kontrakt jeszcze nie ma (P1).
+
+Świadomie przepisane testy: brak — istniejące asercje `user_hub` i menu zostały
+zachowane; nowe przypadki dodano obok nich.
+
+Komendy i wyniki: `flutter analyze` (cały projekt) — No issues found;
+`flutter test test/workspaces/presentation/workspaces_home/ test/workspaces/presentation/projects/`
+— 63/63 PASS (w tym 31 w `projects_tree/`: 22 cubita i 9 widgetowych);
+`flutter gen-l10n` — bez ostrzeżeń; `git diff --check` — czysty.
+
+NOT RUN: bramka P3 z §8 wymagająca żywego Backendu i dwóch sesji (macierz ról,
+konflikt 409, restart persistence) oraz scenariusze live — do odbioru w P8;
+buildy platformowe poza zakresem pakietu.
+
+Następny krok: wpiąć drzewo projektów w żywy shell (`WorkspaceProjectMenu` jest
+dziś montowane tylko przez `workspace_directory_item.dart`, a sidebar rysuje
+własne `WorkspaceNavigationTree`), przekazując mu `projectsRepository`, który
+shell już trzyma; potem pokazać pełną listę archiwum na kontrakcie z P1.
+
+### 2026-09-19 — PN-P1: backend list/lifecycle/version/capabilities
+
+Status: **DONE po stronie Backendu (2026-09-19)**.
+
+Pliki (Backend): `Contracts/Projects/ProjectCapabilitiesResponse.cs` (nowy),
+`Contracts/Projects/ProjectListQuery.cs` (nowy), `ProjectListItemResponse.cs`,
+`ProjectResponse.cs`, `UpdateProjectRequest.cs`, `UpdateProjectUserPreferenceRequest.cs`,
+`ProjectUserPreferenceResponse.cs`, `Application/Projects/{ProjectHandlers,ProjectAccessService,ProjectResponseMapper,ProjectTemplateHandler,ProjectCapabilityContext,ProjectCapabilityPolicy,ProjectConcurrencyGuard}.cs`,
+`Domain/Rules/{ProjectRoleResolution,ProjectVersionConflictException,ProjectPreferenceVersionConflictException,ProjectArchivedException}.cs`,
+`Infrastructure/Http/ApiExceptionMiddleware.cs`, `Endpoints/Projects/ProjectEndpoints.cs`,
+`Tests/Veloryn.Workspaces.Tests/{ProjectLifecycleReadTests,ProjectLifecycleHttpIntegrationTests}.cs`.
+
+Decyzje: `version` to `long` z `uint Xmin` (nieprzezroczysty dla klienta);
+capabilities liczone z rozstrzygniętego ACL, nie ze stanu encji — `canDelete`
+wymaga roli Owner workspace, `canLeave` istnieje tylko przy jawnym członkostwie,
+`canTransfer` jest zawsze `false`, bo transferu nie ma (§6.4); `MyRole` w liście
+pozostaje rolą jawną (bez zmiany semantyki dla Frontu), a uprawnienia efektywne
+niesie `capabilities`. Preferencje użytkownika mają token wersji z `Xmin`, więc
+`expectedVersion` działa bez migracji. `project.archived` zastąpił 404 dla
+operacji na zarchiwizowanym projekcie w PATCH projektu i preferencji; endpointy
+członkostw zachowują dotychczasowe 404. Swashbuckle 9 nie ma flagi
+`Deprecated`, więc przestarzałość `includeHidden` jest wyrażona w opisie
+parametru i endpointu.
+
+Świadomie przepisane testy: brak — nowe przypadki dodano obok zastanych.
+
+Komendy i wyniki (Backend): `dotnet build Veloryn.Workspaces.slnx` — 0
+ostrzeżeń, 0 błędów; `dotnet test --filter "FullyQualifiedName~Project"` —
+136/136 PASS (baseline 119 + 17 nowych; w tym 8 testów HTTP na realnym
+PostgreSQL: dwie sesje, 409, archiwum, hidden, OpenAPI);
+`ProjectLifecycle*` — 20/20 PASS; pełny `dotnet test Tests/Veloryn.Workspaces.Tests`
+— 1174 PASS / 4 SKIP / 7 FAIL, gdzie wszystkie 7 to zastane `MeEndpointsTests`
+(potwierdzone `git stash`, ten sam zestaw bez zmian projektowych);
+`dotnet ef migrations script --idempotent --context WorkspaceDbContext` — exit 0,
+`git status Migrations/` pusty; `dotnet format --verify-no-changes` na zmienionych
+ścieżkach — exit 0; `git diff --check` — czysty.
+
+NOT RUN: nic z zakresu P1 — testy integracyjne z PostgreSQL zostały uruchomione
+na lokalnym kontenerze (port 5440).
+
+Następny krok: przepisać DTO i adaptery Frontu na `isHidden`/`version`/
+`capabilities` i podłączyć je do menu projektu oraz widoków Ukryte/Archiwum
+(P3 dziś utrzymuje tę wiedzę lokalnie, bo pól jeszcze nie było).
+
+### 2026-09-19 — PN-P4: atomowy kreator projektu w Backendzie
+
+Status: **DONE (2026-09-19)**.
+
+Pliki nowe (Backend): `Contracts/Projects/ProjectSetupContracts.cs`,
+`Application/Projects/Setups/{ProjectSetupPlan,ProjectSetupPlanner,ProjectSetupWriter,ProjectSetupHandler,ProjectSetupPreviewHandler,ProjectSetupRequestHasher,ProjectSetupJson,ProjectSetupIdempotencyRetentionService}.cs`,
+`Application/Projects/{ProjectTemplateMaterializer,ProjectTemplateSnapshot,ProjectWorkflowTemplateCatalog}.cs`,
+`Domain/Entities/ProjectSetupIdempotencyRecord.cs`, `Domain/Enums/ProjectSetupEnums.cs`,
+`Domain/Rules/{ProjectSetupExceptions,ProjectWorkflowDefinition,ProjectDetailsRules}.cs`,
+`Endpoints/Projects/ProjectSetupEndpoints.cs`,
+`Infrastructure/Persistence/Configurations/ProjectSetupIdempotencyRecordConfiguration.cs`,
+`Infrastructure/Projects/ProjectSetupIdempotencyRetentionWorker.cs`,
+`Migrations/20260919203032_AddProjectSetupIdempotency.cs` (+ Designer, snapshot).
+Zmienione: `Domain/Entities/{Project,ProjectKanbanSettings,ProjectTaskListPolicy}.cs`,
+`Application/Projects/{ProjectTemplateHandler,ProjectCustomStatusService}.cs`,
+`Extensions/{WorkspaceEndpointExtensions,WorkspaceServiceExtensions}.cs`,
+`Infrastructure/Http/ApiExceptionMiddleware.cs`, `WorkspaceDbContext.cs`,
+`ProjectConfiguration.cs`. Testy: `ProjectSetupRequestHasherTests.cs` (4),
+`ProjectSetupHttpIntegrationTests.cs` (13, HTTP + PostgreSQL).
+
+Decyzje: klucz idempotencji jest rezerwowany pierwszym `SaveChanges` jeszcze
+przed utworzeniem projektu, więc równoległe żądania rozstrzyga unikalny indeks,
+a nie logika aplikacji. Hash żądania liczy się z kanonicznego JSON-a (sortowane
+klucze), dzięki czemu kolejność pól nie zmienia tożsamości żądania. Replay
+odczytuje zapisany wynik przed planowaniem, więc działa nawet po zmianie
+szablonu. Retencja klucza 48 h (zmienna `WORKSPACES_PROJECT_SETUP_IDEMPOTENCY_RETENTION_HOURS`,
+1–168) z workerem co 6 h — po retencji klucz wraca do obiegu i jest to
+udokumentowane w XML doc oraz w opisie endpointu. Capacity jest workspace'owa,
+więc jej ustawienie wymaga roli Admin/Owner i kończy się 403 już w preview.
+`taskView.defaultView` dostał addytywną kolumnę `projects.DefaultTaskView`
+(domyślnie `List`), bo nie miał gdzie żyć; celowo nie rozszerzano
+`ProjectResponse`/`UpdateProjectRequest`.
+
+Komendy i wyniki (Backend): `dotnet build Veloryn.Workspaces.slnx` — 0 ostrzeżeń,
+0 błędów (potwierdzone niezależnym przebiegiem agenta głównego);
+`dotnet test --filter "FullyQualifiedName~ProjectSetup"` — 17/17 PASS (13 HTTP na
+kontenerze PostgreSQL, 4 jednostkowe; potwierdzone niezależnie); pełny
+`dotnet test` — 1191 PASS / 4 SKIP / 7 FAIL, gdzie te same 7 testów pada na
+czystym `HEAD` (MeEndpointsTests, DI `DeviceSessionRealtimeConnectionRegistry`),
+a jeden flaky przypadek z pierwszego przebiegu przeszedł w drugim i osobno 3/3;
+`dotnet ef migrations script --idempotent --context WorkspaceDbContext` — exit 0
+(skrypt zawiera tabelę idempotencji, unikalny indeks i `ADD "DefaultTaskView"`);
+`dotnet format veloryn-workspaces.csproj --verify-no-changes` — exit 0;
+`git diff --check` — czysty.
+
+NOT RUN: buildy desktopowe i deploy/staging (repozytorium backendowe, brak hosta
+i polecenia).
+
+Następny krok: P5b w Froncie — kroki kreatora z §5 na tym kontrakcie (szablon,
+dostęp, workflow, sposób pracy, funkcje startowe, podsumowanie) oraz wystawienie
+`defaultTaskView` w `GET/PATCH /projects`.
+
+### 2026-09-19 — PN-REVIEW-FIX: blokery z review (Freezed, provider, preferencja per konto)
+
+Status: **DONE dla trzech blokerów (2026-09-19)**; konsumpcja kontraktu P1
+w Froncie i testy kreatora są osobnymi pakietami w toku.
+
+1. **[P0] Niekompilujący się kod Freezed** w nowych modelach kreatora
+   (`lib/workspaces/data/projects/setups/models/*.dart`): generator freezed 3
+   emitował dla kolekcji niepoprawne `final` w liście parametrów konstruktora.
+   Naprawa: adnotacje `@freezed` zamienione na
+   `@Freezed(makeCollectionsUnmodifiable: false)` (konwencja repo, m.in.
+   `task_advanced_models.dart`, `task_schedule_models.dart`) i ponowne
+   generowanie `dart run build_runner build --delete-conflicting-outputs`
+   (11 plików wyjściowych). Ten błąd nie jest wykrywany przez `flutter analyze`,
+   bo `analysis_options.yaml` wyklucza `*.freezed.dart` — bramką jest pełny
+   `flutter test`.
+
+2. **[P1] Zależności kreatora w drzewie**: `context.read<X?>()` w provider 6
+   **zwraca `null`**, gdy providera nie ma (rzuca tylko dla typu nie-nullable),
+   więc to nie było źródłem crashu. Realnym brakiem było to, że shell nie
+   **udostępniał** `ProjectsRepository` potomkom — przez to menu projektu
+   w sidebarze nie miało portu mutacji i wszystkie akcje były wyłączone.
+   Naprawa: `DevPlannerShellRoute` opakowuje layout w `MultiRepositoryProvider`
+   z `ProjectsRepository` i `ProjectsGateway`, z jawnym przypadkiem pustej listy
+   providerów (`MultiRepositoryProvider` nie przyjmuje pustej listy).
+
+3. **[P2] Preferencja widoku nie była izolowana per użytkownik**: klucz
+   `devplanner.tasks-view.{workspaceId}.{projectId}` zamieniony na
+   `devplanner.tasks-view.{userId}.{workspaceId}.{projectId}`. Tożsamość jest
+   czytana w momencie operacji (`currentUserId`), a router wczytuje preferencje
+   ponownie po zmianie konta w tej samej sesji klienta, żeby wybór widoku nie
+   przechodził na następną osobę. Odczyt z cache innego konta zwraca brak
+   preferencji, a nie cudzy widok.
+
+Komendy i wyniki: `flutter analyze` (cały projekt) — No issues found;
+`flutter test` — **1077/1077 PASS** (w tym nowe przypadki izolacji preferencji
+między kontami i braku zalogowanego użytkownika); `flutter test test/app/shell/`
+— 11/11 PASS; `git diff --check` — czysty.
+
+Backend (domknięcie luk wskazanych w review):
+- `ProjectListItemResponse` publikuje teraz także `ArchivedAtUtc`, żeby klient
+  mógł odtworzyć listę archiwum bez drugiego żądania i bez zgadywania daty.
+- `dotnet build Veloryn.Workspaces.slnx` — 0 ostrzeżeń, 0 błędów;
+  `dotnet test --filter "FullyQualifiedName~Project"` na działającej bazie —
+  **153/153 PASS** (wcześniejsze 39 niepowodzeń to wyłącznie wyłączony kontener
+  PostgreSQL, nie regresja).
+- Pełny `dotnet test Tests/Veloryn.Workspaces.Tests` na działającej bazie —
+  **1191 PASS / 4 SKIP / 7 FAIL** (1202). Wszystkie 7 niepowodzeń to zastane
+  `MeEndpointsTests`/`DeviceSessionRealtimeConnectionRegistryTests` (auth/identity,
+  poza zakresem projektów i objęte ustaleniem o module auth); baseline `HEAD`
+  pokazuje ten sam zestaw. Liczba testów wzrosła o 35 względem baseline
+  (1167 → 1202) dzięki pakietom P1 i P4.
+- Migracje: baza testowa `veloryn_admin_ops_*` ma jako ostatnią migrację
+  `20260919203032_AddProjectSetupIdempotency`, co dowodzi, że pełny łańcuch
+  (P1 + P4) wykonuje się na czystej bazie; `dotnet ef migrations script
+  --idempotent --context WorkspaceDbContext` z ustawionym
+  `ConnectionStrings__Workspaces`/`ConnectionStrings__Identity` — exit 0,
+  9679 linii, zawiera `project_setup_idempotency_records` i
+  `ADD "DefaultTaskView"`.
+
+4. **Pozostałe dialogi zasobów** (`showCreateWhiteboard/Task/WikiPage/CorkboardCard/Folder`)
+   czytały port nie-nullable, więc brak providera wywracał widok. Naprawione:
+   opcjonalny odczyt + wspólny, jawny stan „Ten formularz nie ma połączenia
+   z backendem w tej sesji, więc nic nie zostało zapisane.” (nowy klucz ARB
+   `projectResourceUnavailableMessage`). Przypięte testem
+   `project_resource_creation_dialogs_test.dart` (brak portu → jawny stan bez
+   wyjątku; z portem → właściwy formularz). Wynik: analyze bez uwag, 2/2 PASS.
+
+5. **Backend: `expectedVersion` dla `DELETE /projects/{id}`** — trwałe usunięcie
+   jest nieodwracalne, więc opcjonalna wersja pozwala wykryć zmianę od czasu
+   odczytu; konflikt mapuje się na 409 `project.version_conflict`.
+   `dotnet build` — 0/0; `--filter Project` — 153/153 PASS.
+
+Następny krok: przekazać `expectedVersion` w wywołaniach centrum ustawień
+i policzyć widoczność zakładki członków z `canManageMembers` (poza zakresem
+dotychczasowych pakietów).
+
+### 2026-09-19 — PN-P5b: kreator projektu z kroków §5 i jego testy
+
+Status: **DONE (2026-09-19)**.
+
+Pliki: `lib/workspaces/presentation/projects/dialogs/wizard/**` (kubit kreatora,
+walidator draftu, kroki `start/basics/access/workflow/working-style/starter/summary`,
+shell i kafelki), wejście `ProjectResourceCreationDialogs.showCreateProject`
+(z jawnym stanem „port niedostępny”), `lib/workspaces/data/projects/setups/**`
+(API Retrofit + modele żądań/podglądu/wyniku), `lib/workspaces/domain/**`
+(port `ProjectSetupsRepository`, modele domenowe setupu), ARB PL/EN (+generaty).
+
+Decyzje: kroki opcjonalne można pominąć, a podsumowanie pokazuje wybrane
+wartości domyślne; draft żyje lokalnie i przeżywa cofanie; submit wysyła jeden
+`Idempotency-Key` na draft i używa tego samego klucza po timeoucie, a 409
+(klucz albo wersja szablonu) jest trwałym błędem z wymianą klucza lub odświeżeniem
+snapshotu; żaden projekt nie trafia do drzewa przed odpowiedzią serwera. Dwa
+defekty znalezione przez nowe testy: komunikat błędu podglądu jednego szablonu
+przeciekał na wszystkie karty (naprawione `templateErrorId`) i lista wyboru
+przepełniała wiersz w wąskim oknie (`isExpanded` + ellipsis).
+
+Komendy i wyniki: `flutter analyze` — No issues found (całe repo);
+`flutter test test/workspaces/presentation/projects/` — 52/52 PASS (24 nowe
+przypadki w 5 plikach: dymny bez opcjonalnych providerów, kroki i walidacja,
+błędy planu/submit, idempotencja i timeout, katalog szablonów);
+pełny `flutter test` — 1143/1143 PASS; `flutter build web --wasm` — ✓ Built.
+
+### 2026-09-19 — PN-P1-FRONT: konsumpcja kontraktu projektów w Froncie
+
+Status: **DONE (2026-09-19)**.
+
+Pliki: `lib/workspaces/data/projects/**` (DTO `ProjectListItemResponse` z
+`isHidden`/`version`/`capabilities`/`archivedAtUtc`, nowy DTO capabilities,
+`state`/`visibility` w `ProjectsListApi` i Retrofit `ProjectsApi`,
+`expectedVersion` na archive/restore/update/preferences, mapper i parsowanie
+tolerancyjne starszego backendu), `lib/workspaces/domain/models/project_list_query.dart`
+(`ProjectListState`, `ProjectListVisibility`, `fromLegacy`), `domain/models/project_action_capabilities.dart`,
+`presentation/workspaces_home/projects_tree/**` (sekcje `Ukryte` i `Archiwum`
+z serwera, `syncFromServer` ze zakresem listy, menu z capabilities, akcja
+„Opuść projekt” przez `canLeave`), ARB (+5 kluczy).
+
+Decyzje: brak `capabilities` daje zachowanie zachowawcze z innym komunikatem
+(„Backend nie zwrócił uprawnień…”) niż odmowa uprawnień — menu nie liczy już
+`myRole`; znaczniki ukrycia/archiwum ustawia zakres listy, którym je pobrano,
+więc świeża lista aktywnych nie zdejmuje znacznika archiwum; intencje w locie
+są pomijane w obu ścieżkach, żeby wolniejszy odczyt nie cofał optymistycznej
+mutacji; brak GET-a preferencji oznacza, że po 409 porzucamy nieaktualną wersję
+i pokazujemy trwały błąd z kodem (jawny „Ponów” zamiast wiecznego 409).
+
+Komendy i wyniki: `flutter analyze` — No issues found; `flutter test` —
+1143/1143 PASS; `flutter build web --wasm` — ✓ Built; `git diff --check` — czysty;
+`dart run build_runner build --delete-conflicting-outputs` i `flutter gen-l10n`
+— bez błędów.
+
+Otwarte: zakładka członków w centrum ustawień nadal liczy rolę zamiast
+`canManageMembers`, a wywołania `settings/**` nie przekazują `expectedVersion`
+(oba poza zakresem pakietu); `dart format` w tym SDK przepisał 15 plików poza
+zakresem — cofnięte, różnice były wyłącznie formatowaniem.

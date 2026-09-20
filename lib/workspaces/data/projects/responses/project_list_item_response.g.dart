@@ -20,6 +20,16 @@ _ProjectListItemResponse _$ProjectListItemResponseFromJson(
   myRole: $enumDecodeNullable(_$ProjectRoleEnumMap, json['myRole']),
   isPinned: json['isPinned'] as bool,
   sortPosition: (json['sortPosition'] as num?)?.toInt(),
+  isHidden: json['isHidden'] as bool? ?? false,
+  archivedAtUtc: json['archivedAtUtc'] == null
+      ? null
+      : DateTime.parse(json['archivedAtUtc'] as String),
+  version: (json['version'] as num?)?.toInt(),
+  capabilities: json['capabilities'] == null
+      ? null
+      : ProjectCapabilitiesResponse.fromJson(
+          json['capabilities'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$ProjectListItemResponseToJson(
@@ -36,6 +46,10 @@ Map<String, dynamic> _$ProjectListItemResponseToJson(
   'myRole': _$ProjectRoleEnumMap[instance.myRole],
   'isPinned': instance.isPinned,
   'sortPosition': instance.sortPosition,
+  'isHidden': instance.isHidden,
+  'archivedAtUtc': instance.archivedAtUtc?.toIso8601String(),
+  'version': instance.version,
+  'capabilities': instance.capabilities,
 };
 
 const _$ProjectVisibilityEnumMap = {

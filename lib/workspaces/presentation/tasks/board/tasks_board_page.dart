@@ -26,6 +26,7 @@ import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dar
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/ports/tasks_project_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_capacity_repository.dart';
@@ -127,6 +128,7 @@ class TasksBoardPage extends StatelessWidget {
     required this.workspaceId,
     required this.projectId,
     this.initialView,
+    this.viewPreferenceStore,
     this.onProjectExited,
     super.key,
   });
@@ -134,6 +136,7 @@ class TasksBoardPage extends StatelessWidget {
   final String workspaceId;
   final String projectId;
   final String? initialView;
+  final TasksProjectViewPreferenceStore? viewPreferenceStore;
   final VoidCallback? onProjectExited;
 
   @override
@@ -199,6 +202,7 @@ class TasksBoardPage extends StatelessWidget {
       workspaceId: workspaceId,
       projectId: projectId,
       initialView: initialView,
+      viewPreferenceStore: viewPreferenceStore,
       onProjectExited: onProjectExited,
     ),
   );

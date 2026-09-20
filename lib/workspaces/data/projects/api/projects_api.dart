@@ -9,6 +9,9 @@ import 'package:devplanner/workspaces/data/projects/responses/project_member_pro
 import 'package:devplanner/workspaces/data/projects/responses/project_member_response.dart';
 import 'package:devplanner/workspaces/data/projects/responses/project_response.dart';
 import 'package:devplanner/workspaces/data/projects/responses/project_user_preference_response.dart';
+import 'package:devplanner/workspaces/data/projects/setups/models/project_setup_preview_models.dart';
+import 'package:devplanner/workspaces/data/projects/setups/models/project_setup_request_models.dart';
+import 'package:devplanner/workspaces/data/projects/setups/models/project_setup_result_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
@@ -24,11 +27,17 @@ abstract class ProjectsApi {
   /// Tworzy klienta na bazie uwierzytelnionego klienta Dio Workspaces.
   factory ProjectsApi(Dio dio, {String? baseUrl}) = _ProjectsApi;
 
-  /// Pobiera aktywne projekty dostępne w wskazanym workspace.
+  /// Pobiera projekty dostępne w wskazanym workspace.
   ///
   /// Workspaces filtruje wynik według członkostwa, widoczności projektu oraz
-  /// osobistego ukrycia projektu. `includeHidden` pozwala dołączyć projekty
-  /// ukryte wyłącznie przez bieżącego użytkownika.
+  /// osobistego ukrycia projektu. `state` wybiera aktywne, zarchiwizowane albo
+  /// wszystkie projekty, a `visibility` odpowiednio projekty widoczne, ukryte
+  /// przez bieżącego użytkownika albo oba zbiory.
+  ///
+  /// `includeHidden` jest przestarzałym parametrem kontraktu: `true` odpowiada
+  /// `visibility=all`, a `visibility` ma nad nim pierwszeństwo. Nowy kod
+  /// przekazuje `ProjectListState.queryValue` i
+  /// `ProjectListVisibility.queryValue`, a nie nazwy elementów enuma.
   ///
   /// Endpoint C#: `GET /api/v1/workspaces/{workspaceId}/projects/`.
   @GET('/api/v1/workspaces/{workspaceId}/projects/')
@@ -36,8 +45,16 @@ abstract class ProjectsApi {
     /// UUID workspace, którego projekty mają zostać pobrane.
     @Path('workspaceId') String workspaceId, {
 
-    /// Czy dołączyć projekty ukryte przez bieżącego użytkownika.
-    @Query('includeHidden') bool includeHidden = false,
+    /// Filtr stanu: `active`, `archived` albo `all`.
+    @Query('state') String? state,
+
+    /// Filtr osobistego ukrycia: `visible`, `hidden` albo `all`.
+    @Query('visibility') String? visibility,
+
+    /// Przestarzały odpowiednik `visibility=all`.
+    @Deprecated('Użyj visibility; wartość true odpowiada visibility=all.')
+    @Query('includeHidden')
+    bool? includeHidden,
   });
 
   /// Tworzy projekt w aktywnym workspace.
@@ -98,6 +115,10 @@ abstract class ProjectsApi {
 
   /// Archiwizuje projekt bez usuwania jego historii.
   ///
+  /// `expectedVersion` to wersja projektu z ostatniego odczytu; niezgodność
+  /// zwraca 409 z kodem `project.version_conflict` i nie nadpisuje cudzej
+  /// zmiany.
+  ///
   /// Endpoint C#: `POST /api/v1/workspaces/{workspaceId}/projects/{projectId}/archive`.
   @POST('/api/v1/workspaces/{workspaceId}/projects/{projectId}/archive')
   Future<ProjectResponse> archiveProject(
@@ -105,10 +126,15 @@ abstract class ProjectsApi {
     @Path('workspaceId') String workspaceId,
 
     /// UUID archiwizowanego projektu.
-    @Path('projectId') String projectId,
-  );
+    @Path('projectId') String projectId, {
+
+    /// Oczekiwana wersja projektu albo null, gdy klient jej nie zna.
+    @Query('expectedVersion') int? expectedVersion,
+  });
 
   /// Przywraca zarchiwizowany projekt do aktywnej listy workspace.
+  ///
+  /// `expectedVersion` działa jak w archiwizacji.
   ///
   /// Endpoint C#: `POST /api/v1/workspaces/{workspaceId}/projects/{projectId}/restore`.
   @POST('/api/v1/workspaces/{workspaceId}/projects/{projectId}/restore')
@@ -117,8 +143,11 @@ abstract class ProjectsApi {
     @Path('workspaceId') String workspaceId,
 
     /// UUID przywracanego projektu.
-    @Path('projectId') String projectId,
-  );
+    @Path('projectId') String projectId, {
+
+    /// Oczekiwana wersja projektu albo null, gdy klient jej nie zna.
+    @Query('expectedVersion') int? expectedVersion,
+  });
 
   /// Trwale usuwa wcześniej zarchiwizowany projekt.
   ///
@@ -251,4 +280,39 @@ abstract class ProjectsApi {
     /// Nowe ustawienia osobiste bieżącego użytkownika.
     @Body() UpdateProjectUserPreferencePayload body,
   );
+
+  /// Buduje znormalizowany plan utworzenia projektu bez żadnego zapisu.
+  ///
+  /// Endpoint sprawdza ACL workspace i projektu Private, istnienie oraz wersję
+  /// szablonu, istnienie przepisów automatyzacji i spójność jawnych statusów
+  /// workflow, ale niczego nie zapisuje i nie wymaga klucza idempotencji.
+  ///
+  /// Endpoint C#: `POST /api/v1/workspaces/{workspaceId}/project-setups/preview`.
+  @POST('/api/v1/workspaces/{workspaceId}/project-setups/preview')
+  Future<ProjectSetupPreviewResponse> previewProjectSetup(
+    /// UUID aktywnego workspace, w którym powstanie projekt.
+    @Path('workspaceId') String workspaceId,
+
+    /// Pełny plan utworzenia projektu.
+    @Body() CreateProjectSetupRequest body,
+  );
+
+  /// Tworzy projekt z pełną konfiguracją startową w jednej transakcji.
+  ///
+  /// Ten sam klucz z tym samym żądaniem zwraca zapisany wynik, a ten sam klucz
+  /// z innym żądaniem zwraca 409 z kodem
+  /// `project_setup.idempotency_key_conflict`.
+  ///
+  /// Endpoint C#: `POST /api/v1/workspaces/{workspaceId}/project-setups/`.
+  @POST('/api/v1/workspaces/{workspaceId}/project-setups/')
+  Future<ProjectSetupResponse> createProjectSetup(
+    /// UUID aktywnego workspace, w którym powstanie projekt.
+    @Path('workspaceId') String workspaceId,
+
+    /// Pełny plan utworzenia projektu.
+    @Body() CreateProjectSetupRequest body, {
+
+    /// Klucz idempotencji draftu kreatora w formacie UUID.
+    @Header('Idempotency-Key') required String idempotencyKey,
+  });
 }

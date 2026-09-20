@@ -28,7 +28,9 @@ mixin _$ProjectResponse {
  ProjectRole? get myRole;/// Czas utworzenia projektu.
  DateTime get createdAtUtc;/// Czas ostatniej aktualizacji projektu.
  DateTime get updatedAtUtc;/// Czas archiwizacji albo null dla aktywnego projektu.
- DateTime? get archivedAtUtc;
+ DateTime? get archivedAtUtc;/// Nieprzezroczysta wersja projektu (`xmin`) albo null w starszym kontrakcie.
+ int? get version;/// Możliwości bieżącego użytkownika albo null w starszym kontrakcie.
+ ProjectCapabilitiesResponse? get capabilities;
 /// Create a copy of ProjectResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -41,16 +43,16 @@ $ProjectResponseCopyWith<ProjectResponse> get copyWith => _$ProjectResponseCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.primaryColor, primaryColor) || other.primaryColor == primaryColor)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.myRole, myRole) || other.myRole == myRole)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.archivedAtUtc, archivedAtUtc) || other.archivedAtUtc == archivedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.primaryColor, primaryColor) || other.primaryColor == primaryColor)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.myRole, myRole) || other.myRole == myRole)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.archivedAtUtc, archivedAtUtc) || other.archivedAtUtc == archivedAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.capabilities, capabilities) || other.capabilities == capabilities));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceId,name,description,icon,primaryColor,visibility,status,createdByUserId,myRole,createdAtUtc,updatedAtUtc,archivedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,workspaceId,name,description,icon,primaryColor,visibility,status,createdByUserId,myRole,createdAtUtc,updatedAtUtc,archivedAtUtc,version,capabilities);
 
 @override
 String toString() {
-  return 'ProjectResponse(id: $id, workspaceId: $workspaceId, name: $name, description: $description, icon: $icon, primaryColor: $primaryColor, visibility: $visibility, status: $status, createdByUserId: $createdByUserId, myRole: $myRole, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, archivedAtUtc: $archivedAtUtc)';
+  return 'ProjectResponse(id: $id, workspaceId: $workspaceId, name: $name, description: $description, icon: $icon, primaryColor: $primaryColor, visibility: $visibility, status: $status, createdByUserId: $createdByUserId, myRole: $myRole, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, archivedAtUtc: $archivedAtUtc, version: $version, capabilities: $capabilities)';
 }
 
 
@@ -61,11 +63,11 @@ abstract mixin class $ProjectResponseCopyWith<$Res>  {
   factory $ProjectResponseCopyWith(ProjectResponse value, $Res Function(ProjectResponse) _then) = _$ProjectResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String workspaceId, String name, String? description, String? icon, String? primaryColor, ProjectVisibility visibility, ProjectStatus status, String createdByUserId, ProjectRole? myRole, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? archivedAtUtc
+ String id, String workspaceId, String name, String? description, String? icon, String? primaryColor, ProjectVisibility visibility, ProjectStatus status, String createdByUserId, ProjectRole? myRole, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? archivedAtUtc, int? version, ProjectCapabilitiesResponse? capabilities
 });
 
 
-
+$ProjectCapabilitiesResponseCopyWith<$Res>? get capabilities;
 
 }
 /// @nodoc
@@ -78,7 +80,7 @@ class _$ProjectResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceId = null,Object? name = null,Object? description = freezed,Object? icon = freezed,Object? primaryColor = freezed,Object? visibility = null,Object? status = null,Object? createdByUserId = null,Object? myRole = freezed,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? archivedAtUtc = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? workspaceId = null,Object? name = null,Object? description = freezed,Object? icon = freezed,Object? primaryColor = freezed,Object? visibility = null,Object? status = null,Object? createdByUserId = null,Object? myRole = freezed,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? archivedAtUtc = freezed,Object? version = freezed,Object? capabilities = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
@@ -93,10 +95,24 @@ as String,myRole: freezed == myRole ? _self.myRole : myRole // ignore: cast_null
 as ProjectRole?,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,archivedAtUtc: freezed == archivedAtUtc ? _self.archivedAtUtc : archivedAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,version: freezed == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
+as int?,capabilities: freezed == capabilities ? _self.capabilities : capabilities // ignore: cast_nullable_to_non_nullable
+as ProjectCapabilitiesResponse?,
   ));
 }
+/// Create a copy of ProjectResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProjectCapabilitiesResponseCopyWith<$Res>? get capabilities {
+    if (_self.capabilities == null) {
+    return null;
+  }
 
+  return $ProjectCapabilitiesResponseCopyWith<$Res>(_self.capabilities!, (value) {
+    return _then(_self.copyWith(capabilities: value));
+  });
+}
 }
 
 
@@ -178,10 +194,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  String createdByUserId,  ProjectRole? myRole,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  String createdByUserId,  ProjectRole? myRole,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int? version,  ProjectCapabilitiesResponse? capabilities)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProjectResponse() when $default != null:
-return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.createdByUserId,_that.myRole,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.createdByUserId,_that.myRole,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.capabilities);case _:
   return orElse();
 
 }
@@ -199,10 +215,10 @@ return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.ic
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  String createdByUserId,  ProjectRole? myRole,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String workspaceId,  String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  String createdByUserId,  ProjectRole? myRole,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int? version,  ProjectCapabilitiesResponse? capabilities)  $default,) {final _that = this;
 switch (_that) {
 case _ProjectResponse():
-return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.createdByUserId,_that.myRole,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.createdByUserId,_that.myRole,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.capabilities);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -219,10 +235,10 @@ return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.ic
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceId,  String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  String createdByUserId,  ProjectRole? myRole,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String workspaceId,  String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  String createdByUserId,  ProjectRole? myRole,  DateTime createdAtUtc,  DateTime updatedAtUtc,  DateTime? archivedAtUtc,  int? version,  ProjectCapabilitiesResponse? capabilities)?  $default,) {final _that = this;
 switch (_that) {
 case _ProjectResponse() when $default != null:
-return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.createdByUserId,_that.myRole,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc);case _:
+return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.createdByUserId,_that.myRole,_that.createdAtUtc,_that.updatedAtUtc,_that.archivedAtUtc,_that.version,_that.capabilities);case _:
   return null;
 
 }
@@ -234,7 +250,7 @@ return $default(_that.id,_that.workspaceId,_that.name,_that.description,_that.ic
 @JsonSerializable()
 
 class _ProjectResponse implements ProjectResponse {
-  const _ProjectResponse({required this.id, required this.workspaceId, required this.name, this.description, this.icon, this.primaryColor, required this.visibility, required this.status, required this.createdByUserId, this.myRole, required this.createdAtUtc, required this.updatedAtUtc, this.archivedAtUtc});
+  const _ProjectResponse({required this.id, required this.workspaceId, required this.name, this.description, this.icon, this.primaryColor, required this.visibility, required this.status, required this.createdByUserId, this.myRole, required this.createdAtUtc, required this.updatedAtUtc, this.archivedAtUtc, this.version, this.capabilities});
   factory _ProjectResponse.fromJson(Map<String, dynamic> json) => _$ProjectResponseFromJson(json);
 
 /// UUID projektu.
@@ -263,6 +279,10 @@ class _ProjectResponse implements ProjectResponse {
 @override final  DateTime updatedAtUtc;
 /// Czas archiwizacji albo null dla aktywnego projektu.
 @override final  DateTime? archivedAtUtc;
+/// Nieprzezroczysta wersja projektu (`xmin`) albo null w starszym kontrakcie.
+@override final  int? version;
+/// Możliwości bieżącego użytkownika albo null w starszym kontrakcie.
+@override final  ProjectCapabilitiesResponse? capabilities;
 
 /// Create a copy of ProjectResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -277,16 +297,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.primaryColor, primaryColor) || other.primaryColor == primaryColor)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.myRole, myRole) || other.myRole == myRole)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.archivedAtUtc, archivedAtUtc) || other.archivedAtUtc == archivedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.primaryColor, primaryColor) || other.primaryColor == primaryColor)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.myRole, myRole) || other.myRole == myRole)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.archivedAtUtc, archivedAtUtc) || other.archivedAtUtc == archivedAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.capabilities, capabilities) || other.capabilities == capabilities));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,workspaceId,name,description,icon,primaryColor,visibility,status,createdByUserId,myRole,createdAtUtc,updatedAtUtc,archivedAtUtc);
+int get hashCode => Object.hash(runtimeType,id,workspaceId,name,description,icon,primaryColor,visibility,status,createdByUserId,myRole,createdAtUtc,updatedAtUtc,archivedAtUtc,version,capabilities);
 
 @override
 String toString() {
-  return 'ProjectResponse(id: $id, workspaceId: $workspaceId, name: $name, description: $description, icon: $icon, primaryColor: $primaryColor, visibility: $visibility, status: $status, createdByUserId: $createdByUserId, myRole: $myRole, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, archivedAtUtc: $archivedAtUtc)';
+  return 'ProjectResponse(id: $id, workspaceId: $workspaceId, name: $name, description: $description, icon: $icon, primaryColor: $primaryColor, visibility: $visibility, status: $status, createdByUserId: $createdByUserId, myRole: $myRole, createdAtUtc: $createdAtUtc, updatedAtUtc: $updatedAtUtc, archivedAtUtc: $archivedAtUtc, version: $version, capabilities: $capabilities)';
 }
 
 
@@ -297,11 +317,11 @@ abstract mixin class _$ProjectResponseCopyWith<$Res> implements $ProjectResponse
   factory _$ProjectResponseCopyWith(_ProjectResponse value, $Res Function(_ProjectResponse) _then) = __$ProjectResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String workspaceId, String name, String? description, String? icon, String? primaryColor, ProjectVisibility visibility, ProjectStatus status, String createdByUserId, ProjectRole? myRole, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? archivedAtUtc
+ String id, String workspaceId, String name, String? description, String? icon, String? primaryColor, ProjectVisibility visibility, ProjectStatus status, String createdByUserId, ProjectRole? myRole, DateTime createdAtUtc, DateTime updatedAtUtc, DateTime? archivedAtUtc, int? version, ProjectCapabilitiesResponse? capabilities
 });
 
 
-
+@override $ProjectCapabilitiesResponseCopyWith<$Res>? get capabilities;
 
 }
 /// @nodoc
@@ -314,7 +334,7 @@ class __$ProjectResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceId = null,Object? name = null,Object? description = freezed,Object? icon = freezed,Object? primaryColor = freezed,Object? visibility = null,Object? status = null,Object? createdByUserId = null,Object? myRole = freezed,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? archivedAtUtc = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? workspaceId = null,Object? name = null,Object? description = freezed,Object? icon = freezed,Object? primaryColor = freezed,Object? visibility = null,Object? status = null,Object? createdByUserId = null,Object? myRole = freezed,Object? createdAtUtc = null,Object? updatedAtUtc = null,Object? archivedAtUtc = freezed,Object? version = freezed,Object? capabilities = freezed,}) {
   return _then(_ProjectResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
@@ -329,11 +349,25 @@ as String,myRole: freezed == myRole ? _self.myRole : myRole // ignore: cast_null
 as ProjectRole?,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,archivedAtUtc: freezed == archivedAtUtc ? _self.archivedAtUtc : archivedAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,version: freezed == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
+as int?,capabilities: freezed == capabilities ? _self.capabilities : capabilities // ignore: cast_nullable_to_non_nullable
+as ProjectCapabilitiesResponse?,
   ));
 }
 
+/// Create a copy of ProjectResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProjectCapabilitiesResponseCopyWith<$Res>? get capabilities {
+    if (_self.capabilities == null) {
+    return null;
+  }
 
+  return $ProjectCapabilitiesResponseCopyWith<$Res>(_self.capabilities!, (value) {
+    return _then(_self.copyWith(capabilities: value));
+  });
+}
 }
 
 // dart format on

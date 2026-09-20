@@ -15,6 +15,7 @@ _UpdateProjectPayload _$UpdateProjectPayloadFromJson(
   primaryColor: json['primaryColor'] as String?,
   visibility: $enumDecode(_$ProjectVisibilityEnumMap, json['visibility']),
   status: $enumDecode(_$ProjectStatusEnumMap, json['status']),
+  expectedVersion: (json['expectedVersion'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$UpdateProjectPayloadToJson(
@@ -26,6 +27,7 @@ Map<String, dynamic> _$UpdateProjectPayloadToJson(
   'primaryColor': instance.primaryColor,
   'visibility': _$ProjectVisibilityEnumMap[instance.visibility]!,
   'status': _$ProjectStatusEnumMap[instance.status]!,
+  'expectedVersion': instance.expectedVersion,
 };
 
 const _$ProjectVisibilityEnumMap = {

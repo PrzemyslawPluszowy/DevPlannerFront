@@ -1046,6 +1046,1140 @@ abstract class AppLocalizations {
   /// **'Private'**
   String get workspacesProjectVisibilityPrivate;
 
+  /// No description provided for @projectSetupWizardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New project'**
+  String get projectSetupWizardTitle;
+
+  /// No description provided for @projectSetupWizardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The wizard walks through the project configuration. You can skip steps 3-6.'**
+  String get projectSetupWizardSubtitle;
+
+  /// No description provided for @projectSetupStepCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String projectSetupStepCounter(int current, int total);
+
+  /// No description provided for @projectSetupNextButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get projectSetupNextButton;
+
+  /// No description provided for @projectSetupBackButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get projectSetupBackButton;
+
+  /// No description provided for @projectSetupSkipToSummaryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip to summary'**
+  String get projectSetupSkipToSummaryButton;
+
+  /// No description provided for @projectSetupCreateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create project'**
+  String get projectSetupCreateButton;
+
+  /// No description provided for @projectSetupCreatingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating project…'**
+  String get projectSetupCreatingButton;
+
+  /// No description provided for @projectSetupRetryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get projectSetupRetryButton;
+
+  /// No description provided for @projectSetupRefreshPlanButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh plan'**
+  String get projectSetupRefreshPlanButton;
+
+  /// No description provided for @projectSetupCancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get projectSetupCancelButton;
+
+  /// No description provided for @projectSetupStepStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting point'**
+  String get projectSetupStepStartTitle;
+
+  /// No description provided for @projectSetupStepStartSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What the project starts from.'**
+  String get projectSetupStepStartSubtitle;
+
+  /// No description provided for @projectSetupStepBasicsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Basics'**
+  String get projectSetupStepBasicsTitle;
+
+  /// No description provided for @projectSetupStepAccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Access'**
+  String get projectSetupStepAccessTitle;
+
+  /// No description provided for @projectSetupStepWorkflowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow'**
+  String get projectSetupStepWorkflowTitle;
+
+  /// No description provided for @projectSetupStepWorkingStyleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ways of working'**
+  String get projectSetupStepWorkingStyleTitle;
+
+  /// No description provided for @projectSetupStepStarterFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter features'**
+  String get projectSetupStepStarterFeaturesTitle;
+
+  /// No description provided for @projectSetupStepSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get projectSetupStepSummaryTitle;
+
+  /// No description provided for @projectSetupStartBlankTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank project'**
+  String get projectSetupStartBlankTitle;
+
+  /// No description provided for @projectSetupStartBlankDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A project without tasks, labels or fields. You configure everything in the next steps.'**
+  String get projectSetupStartBlankDescription;
+
+  /// No description provided for @projectSetupStartTemplateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'From a project template'**
+  String get projectSetupStartTemplateTitle;
+
+  /// No description provided for @projectSetupStartTemplateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Recreates the project together with the tasks, labels, fields and workflow stored in the template.'**
+  String get projectSetupStartTemplateDescription;
+
+  /// No description provided for @projectSetupTemplatesLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading templates…'**
+  String get projectSetupTemplatesLoading;
+
+  /// No description provided for @projectSetupTemplatesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This workspace has no project templates yet.'**
+  String get projectSetupTemplatesEmpty;
+
+  /// No description provided for @projectSetupTemplatesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The template catalog is not available in this session.'**
+  String get projectSetupTemplatesUnavailable;
+
+  /// No description provided for @projectSetupTemplatesUnavailableReason.
+  ///
+  /// In en, this message translates to:
+  /// **'No project template port is wired in.'**
+  String get projectSetupTemplatesUnavailableReason;
+
+  /// No description provided for @projectSetupTemplatesRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry loading templates'**
+  String get projectSetupTemplatesRetry;
+
+  /// No description provided for @projectSetupTemplateTasksCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks: {count}'**
+  String projectSetupTemplateTasksCount(int count);
+
+  /// No description provided for @projectSetupTemplateLabelsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels: {count}'**
+  String projectSetupTemplateLabelsCount(int count);
+
+  /// No description provided for @projectSetupTemplateFieldsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields: {count}'**
+  String projectSetupTemplateFieldsCount(int count);
+
+  /// No description provided for @projectSetupTemplateStatusesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom statuses: {count}'**
+  String projectSetupTemplateStatusesCount(int count);
+
+  /// No description provided for @projectSetupTemplateVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String projectSetupTemplateVersionLabel(int version);
+
+  /// No description provided for @projectSetupTemplatePreviewLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the template preview…'**
+  String get projectSetupTemplatePreviewLoading;
+
+  /// No description provided for @projectSetupTemplatePreviewFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the template preview.'**
+  String get projectSetupTemplatePreviewFailed;
+
+  /// No description provided for @projectSetupProjectStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Project status'**
+  String get projectSetupProjectStatusLabel;
+
+  /// No description provided for @projectSetupProjectStatusPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get projectSetupProjectStatusPlanned;
+
+  /// No description provided for @projectSetupProjectStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get projectSetupProjectStatusActive;
+
+  /// No description provided for @projectSetupProjectStatusOnHold.
+  ///
+  /// In en, this message translates to:
+  /// **'On hold'**
+  String get projectSetupProjectStatusOnHold;
+
+  /// No description provided for @projectSetupProjectStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get projectSetupProjectStatusCompleted;
+
+  /// No description provided for @projectSetupAccessSharedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in the workspace'**
+  String get projectSetupAccessSharedTitle;
+
+  /// No description provided for @projectSetupAccessSharedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Every active workspace member sees the project, and the starter member list is skipped.'**
+  String get projectSetupAccessSharedDescription;
+
+  /// No description provided for @projectSetupAccessPrivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get projectSetupAccessPrivateTitle;
+
+  /// No description provided for @projectSetupAccessPrivateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Only selected members see the project. You are always an Owner and cannot remove yourself.'**
+  String get projectSetupAccessPrivateDescription;
+
+  /// No description provided for @projectSetupAccessCreatorBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'You — Owner'**
+  String get projectSetupAccessCreatorBadge;
+
+  /// No description provided for @projectSetupAccessMembersLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter members'**
+  String get projectSetupAccessMembersLegend;
+
+  /// No description provided for @projectSetupAccessMembersLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading workspace members…'**
+  String get projectSetupAccessMembersLoading;
+
+  /// No description provided for @projectSetupAccessMembersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no other active workspace members.'**
+  String get projectSetupAccessMembersEmpty;
+
+  /// No description provided for @projectSetupAccessMembersUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The workspace member list is not available in this session.'**
+  String get projectSetupAccessMembersUnavailable;
+
+  /// No description provided for @projectSetupAccessMembersUnavailableReason.
+  ///
+  /// In en, this message translates to:
+  /// **'No workspace member port is wired in.'**
+  String get projectSetupAccessMembersUnavailableReason;
+
+  /// No description provided for @projectSetupAccessMembersRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry loading members'**
+  String get projectSetupAccessMembersRetry;
+
+  /// No description provided for @projectSetupAccessMemberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'User ({prefix}…)'**
+  String projectSetupAccessMemberLabel(String prefix);
+
+  /// No description provided for @projectSetupAccessRoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get projectSetupAccessRoleLabel;
+
+  /// No description provided for @projectSetupWorkflowFromTemplateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow from the template'**
+  String get projectSetupWorkflowFromTemplateTitle;
+
+  /// No description provided for @projectSetupWorkflowFromTemplateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A templated project uses the statuses stored in the template. You can change them after the project is created.'**
+  String get projectSetupWorkflowFromTemplateDescription;
+
+  /// No description provided for @projectSetupWorkflowDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get projectSetupWorkflowDefaultTitle;
+
+  /// No description provided for @projectSetupWorkflowDefaultDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'System task statuses of the project.'**
+  String get projectSetupWorkflowDefaultDescription;
+
+  /// No description provided for @projectSetupWorkflowCatalogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog template'**
+  String get projectSetupWorkflowCatalogTitle;
+
+  /// No description provided for @projectSetupWorkflowCatalogDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A ready-made set of columns from the backend catalog.'**
+  String get projectSetupWorkflowCatalogDescription;
+
+  /// No description provided for @projectSetupWorkflowCatalogLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog template'**
+  String get projectSetupWorkflowCatalogLegend;
+
+  /// No description provided for @projectSetupWorkflowCatalogStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get projectSetupWorkflowCatalogStandard;
+
+  /// No description provided for @projectSetupWorkflowCatalogMarketing.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketing'**
+  String get projectSetupWorkflowCatalogMarketing;
+
+  /// No description provided for @projectSetupWorkflowCatalogProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Production / Workshop'**
+  String get projectSetupWorkflowCatalogProduction;
+
+  /// No description provided for @projectSetupWorkflowCatalogHr.
+  ///
+  /// In en, this message translates to:
+  /// **'HR / Recruiting'**
+  String get projectSetupWorkflowCatalogHr;
+
+  /// No description provided for @projectSetupWorkflowCatalogSoftware.
+  ///
+  /// In en, this message translates to:
+  /// **'IT / Software'**
+  String get projectSetupWorkflowCatalogSoftware;
+
+  /// No description provided for @projectSetupWorkflowExplicitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom statuses'**
+  String get projectSetupWorkflowExplicitTitle;
+
+  /// No description provided for @projectSetupWorkflowExplicitDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'You define the columns, categories and WIP limits yourself.'**
+  String get projectSetupWorkflowExplicitDescription;
+
+  /// No description provided for @projectSetupStatusNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Column name'**
+  String get projectSetupStatusNameLabel;
+
+  /// No description provided for @projectSetupStatusColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Column color'**
+  String get projectSetupStatusColorLabel;
+
+  /// No description provided for @projectSetupStatusCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get projectSetupStatusCategoryLabel;
+
+  /// No description provided for @projectSetupStatusCategoryTodo.
+  ///
+  /// In en, this message translates to:
+  /// **'To do'**
+  String get projectSetupStatusCategoryTodo;
+
+  /// No description provided for @projectSetupStatusCategoryInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get projectSetupStatusCategoryInProgress;
+
+  /// No description provided for @projectSetupStatusCategoryDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get projectSetupStatusCategoryDone;
+
+  /// No description provided for @projectSetupStatusCategoryCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get projectSetupStatusCategoryCancelled;
+
+  /// No description provided for @projectSetupStatusWipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WIP limit'**
+  String get projectSetupStatusWipLabel;
+
+  /// No description provided for @projectSetupStatusDefaultLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default for new tasks'**
+  String get projectSetupStatusDefaultLabel;
+
+  /// No description provided for @projectSetupStatusAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add status'**
+  String get projectSetupStatusAddButton;
+
+  /// No description provided for @projectSetupStatusRemoveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove status'**
+  String get projectSetupStatusRemoveButton;
+
+  /// No description provided for @projectSetupScheduleLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get projectSetupScheduleLegend;
+
+  /// No description provided for @projectSetupScheduleManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get projectSetupScheduleManual;
+
+  /// No description provided for @projectSetupSchedulePushSuccessors.
+  ///
+  /// In en, this message translates to:
+  /// **'Push successors on conflict'**
+  String get projectSetupSchedulePushSuccessors;
+
+  /// No description provided for @projectSetupScheduleStrictCascade.
+  ///
+  /// In en, this message translates to:
+  /// **'Full dependency cascade'**
+  String get projectSetupScheduleStrictCascade;
+
+  /// No description provided for @projectSetupDefaultViewLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Tasks view'**
+  String get projectSetupDefaultViewLegend;
+
+  /// No description provided for @projectSetupViewList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get projectSetupViewList;
+
+  /// No description provided for @projectSetupViewBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Kanban'**
+  String get projectSetupViewBoard;
+
+  /// No description provided for @projectSetupBoardLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Kanban board'**
+  String get projectSetupBoardLegend;
+
+  /// No description provided for @projectSetupBoardDensityLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Card density'**
+  String get projectSetupBoardDensityLegend;
+
+  /// No description provided for @projectSetupDensityCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get projectSetupDensityCompact;
+
+  /// No description provided for @projectSetupDensityComfortable.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfortable'**
+  String get projectSetupDensityComfortable;
+
+  /// No description provided for @projectSetupDensityDetailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed'**
+  String get projectSetupDensityDetailed;
+
+  /// No description provided for @projectSetupBoardSwimlaneLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Card grouping into swimlanes'**
+  String get projectSetupBoardSwimlaneLegend;
+
+  /// No description provided for @projectSetupSwimlaneNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No swimlanes'**
+  String get projectSetupSwimlaneNone;
+
+  /// No description provided for @projectSetupSwimlaneAssignee.
+  ///
+  /// In en, this message translates to:
+  /// **'By assignee'**
+  String get projectSetupSwimlaneAssignee;
+
+  /// No description provided for @projectSetupSwimlanePriority.
+  ///
+  /// In en, this message translates to:
+  /// **'By priority'**
+  String get projectSetupSwimlanePriority;
+
+  /// No description provided for @projectSetupSwimlaneMilestone.
+  ///
+  /// In en, this message translates to:
+  /// **'By milestone'**
+  String get projectSetupSwimlaneMilestone;
+
+  /// No description provided for @projectSetupBoardFieldsLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields visible on the card'**
+  String get projectSetupBoardFieldsLegend;
+
+  /// No description provided for @projectSetupCardFieldAssignee.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignees'**
+  String get projectSetupCardFieldAssignee;
+
+  /// No description provided for @projectSetupCardFieldDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get projectSetupCardFieldDueDate;
+
+  /// No description provided for @projectSetupCardFieldLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels'**
+  String get projectSetupCardFieldLabels;
+
+  /// No description provided for @projectSetupCardFieldChecklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist'**
+  String get projectSetupCardFieldChecklist;
+
+  /// No description provided for @projectSetupCardFieldSubtasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtasks'**
+  String get projectSetupCardFieldSubtasks;
+
+  /// No description provided for @projectSetupCardFieldTimeTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Time tracking'**
+  String get projectSetupCardFieldTimeTracking;
+
+  /// No description provided for @projectSetupCardFieldBlockers.
+  ///
+  /// In en, this message translates to:
+  /// **'Blockers'**
+  String get projectSetupCardFieldBlockers;
+
+  /// No description provided for @projectSetupCardFieldCoverAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover image'**
+  String get projectSetupCardFieldCoverAttachment;
+
+  /// No description provided for @projectSetupCardFieldCustomFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom fields'**
+  String get projectSetupCardFieldCustomFields;
+
+  /// No description provided for @projectSetupListLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Task list'**
+  String get projectSetupListLegend;
+
+  /// No description provided for @projectSetupListSortFieldLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Default sorting'**
+  String get projectSetupListSortFieldLegend;
+
+  /// No description provided for @projectSetupListSortFieldPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual order'**
+  String get projectSetupListSortFieldPosition;
+
+  /// No description provided for @projectSetupListSortFieldUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last update'**
+  String get projectSetupListSortFieldUpdatedAt;
+
+  /// No description provided for @projectSetupListSortFieldDueAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get projectSetupListSortFieldDueAt;
+
+  /// No description provided for @projectSetupListSortFieldPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get projectSetupListSortFieldPriority;
+
+  /// No description provided for @projectSetupListSortFieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get projectSetupListSortFieldTitle;
+
+  /// No description provided for @projectSetupListSortDirectionLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort direction'**
+  String get projectSetupListSortDirectionLegend;
+
+  /// No description provided for @projectSetupListSortDirectionAscending.
+  ///
+  /// In en, this message translates to:
+  /// **'Ascending'**
+  String get projectSetupListSortDirectionAscending;
+
+  /// No description provided for @projectSetupListSortDirectionDescending.
+  ///
+  /// In en, this message translates to:
+  /// **'Descending'**
+  String get projectSetupListSortDirectionDescending;
+
+  /// No description provided for @projectSetupListGroupByLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'List grouping'**
+  String get projectSetupListGroupByLegend;
+
+  /// No description provided for @projectSetupListGroupByNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No grouping'**
+  String get projectSetupListGroupByNone;
+
+  /// No description provided for @projectSetupListGroupByStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'By status'**
+  String get projectSetupListGroupByStatus;
+
+  /// No description provided for @projectSetupListGroupByCustomStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'By custom status'**
+  String get projectSetupListGroupByCustomStatus;
+
+  /// No description provided for @projectSetupListGroupByPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'By priority'**
+  String get projectSetupListGroupByPriority;
+
+  /// No description provided for @projectSetupListGroupByAssignee.
+  ///
+  /// In en, this message translates to:
+  /// **'By assignee'**
+  String get projectSetupListGroupByAssignee;
+
+  /// No description provided for @projectSetupCapacityLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Default workspace daily capacity'**
+  String get projectSetupCapacityLegend;
+
+  /// No description provided for @projectSetupCapacityDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'In minutes per person. The change applies to every workspace member.'**
+  String get projectSetupCapacityDescription;
+
+  /// No description provided for @projectSetupCapacityFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes per day'**
+  String get projectSetupCapacityFieldLabel;
+
+  /// No description provided for @projectSetupCapacityAdminOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing the capacity requires the Admin or Owner role in the workspace.'**
+  String get projectSetupCapacityAdminOnly;
+
+  /// No description provided for @projectSetupStartersDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected automation recipes are created together with the project. You can disable them later in project settings.'**
+  String get projectSetupStartersDescription;
+
+  /// No description provided for @projectSetupRecipeCriticalToBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical task as blocked'**
+  String get projectSetupRecipeCriticalToBlocked;
+
+  /// No description provided for @projectSetupRecipeDueSoonHighPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise priority before the due date'**
+  String get projectSetupRecipeDueSoonHighPriority;
+
+  /// No description provided for @projectSetupRecipeDoneClearDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the due date when done'**
+  String get projectSetupRecipeDoneClearDueDate;
+
+  /// No description provided for @projectSetupRecipeDoneCreateReviewSubtask.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a review subtask'**
+  String get projectSetupRecipeDoneCreateReviewSubtask;
+
+  /// No description provided for @projectSetupRecipeCriticalToBlockedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'When the status changes and the priority is critical, it sets the blocked status.'**
+  String get projectSetupRecipeCriticalToBlockedDescription;
+
+  /// No description provided for @projectSetupRecipeDueSoonHighPriorityDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks due within two days get a high priority.'**
+  String get projectSetupRecipeDueSoonHighPriorityDescription;
+
+  /// No description provided for @projectSetupRecipeDoneClearDueDateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'When a task is completed, it clears the due date so planning does not show a stale date.'**
+  String get projectSetupRecipeDoneClearDueDateDescription;
+
+  /// No description provided for @projectSetupRecipeDoneCreateReviewSubtaskDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'When a task is completed, it creates a subtask with a result review.'**
+  String get projectSetupRecipeDoneCreateReviewSubtaskDescription;
+
+  /// No description provided for @projectSetupSummaryLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'What will be created'**
+  String get projectSetupSummaryLegend;
+
+  /// No description provided for @projectSetupSummarySource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get projectSetupSummarySource;
+
+  /// No description provided for @projectSetupSummarySourceBlank.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank project'**
+  String get projectSetupSummarySourceBlank;
+
+  /// No description provided for @projectSetupSummarySourceTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Template: {name}'**
+  String projectSetupSummarySourceTemplate(String name);
+
+  /// No description provided for @projectSetupSummaryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get projectSetupSummaryName;
+
+  /// No description provided for @projectSetupSummaryVisibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Visibility'**
+  String get projectSetupSummaryVisibility;
+
+  /// No description provided for @projectSetupSummaryStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get projectSetupSummaryStatus;
+
+  /// No description provided for @projectSetupSummaryMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get projectSetupSummaryMembers;
+
+  /// No description provided for @projectSetupSummaryMembersShared.
+  ///
+  /// In en, this message translates to:
+  /// **'All active workspace members'**
+  String get projectSetupSummaryMembersShared;
+
+  /// No description provided for @projectSetupSummaryMembersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} people'**
+  String projectSetupSummaryMembersCount(int count);
+
+  /// No description provided for @projectSetupSummaryWorkflow.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow'**
+  String get projectSetupSummaryWorkflow;
+
+  /// No description provided for @projectSetupSummaryWorkflowDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'System statuses'**
+  String get projectSetupSummaryWorkflowDefault;
+
+  /// No description provided for @projectSetupSummaryWorkflowCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog template: {name}'**
+  String projectSetupSummaryWorkflowCatalog(String name);
+
+  /// No description provided for @projectSetupSummaryWorkflowExplicit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} custom statuses'**
+  String projectSetupSummaryWorkflowExplicit(int count);
+
+  /// No description provided for @projectSetupSummaryWorkflowFromTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'From the project template'**
+  String get projectSetupSummaryWorkflowFromTemplate;
+
+  /// No description provided for @projectSetupSummaryView.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Tasks view'**
+  String get projectSetupSummaryView;
+
+  /// No description provided for @projectSetupSummarySchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get projectSetupSummarySchedule;
+
+  /// No description provided for @projectSetupSummaryCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily capacity'**
+  String get projectSetupSummaryCapacity;
+
+  /// No description provided for @projectSetupSummaryCapacityValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String projectSetupSummaryCapacityValue(int minutes);
+
+  /// No description provided for @projectSetupSummaryBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Kanban board'**
+  String get projectSetupSummaryBoard;
+
+  /// No description provided for @projectSetupSummaryRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Automations'**
+  String get projectSetupSummaryRecipes;
+
+  /// No description provided for @projectSetupSummaryRecipesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get projectSetupSummaryRecipesNone;
+
+  /// No description provided for @projectSetupSummaryPlanLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Building the plan…'**
+  String get projectSetupSummaryPlanLoading;
+
+  /// No description provided for @projectSetupSummaryPlanUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The plan has not been built yet.'**
+  String get projectSetupSummaryPlanUnavailable;
+
+  /// No description provided for @projectSetupSummaryPlanStale.
+  ///
+  /// In en, this message translates to:
+  /// **'The draft changed after the plan was built.'**
+  String get projectSetupSummaryPlanStale;
+
+  /// No description provided for @projectSetupSummaryWarningsLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings'**
+  String get projectSetupSummaryWarningsLegend;
+
+  /// No description provided for @projectSetupSummaryTemplateCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'The template will bring the tasks, labels and fields shown in the plan.'**
+  String get projectSetupSummaryTemplateCounts;
+
+  /// No description provided for @projectSetupErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation could not be completed'**
+  String get projectSetupErrorTitle;
+
+  /// No description provided for @projectSetupErrorCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Code: {code}'**
+  String projectSetupErrorCodeLabel(String code);
+
+  /// No description provided for @projectSetupErrorTraceIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Trace id: {traceId}'**
+  String projectSetupErrorTraceIdLabel(String traceId);
+
+  /// No description provided for @projectSetupErrorConflictIdempotency.
+  ///
+  /// In en, this message translates to:
+  /// **'This operation key was already used for a different request. The next attempt uses a new key.'**
+  String get projectSetupErrorConflictIdempotency;
+
+  /// No description provided for @projectSetupErrorConflictInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'An operation with the same key is still in progress. Try again in a moment.'**
+  String get projectSetupErrorConflictInProgress;
+
+  /// No description provided for @projectSetupErrorTemplateVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'The project template changed in another session. Its preview was refreshed — review the summary and try again.'**
+  String get projectSetupErrorTemplateVersion;
+
+  /// No description provided for @projectSetupErrorForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to create a project in this workspace.'**
+  String get projectSetupErrorForbidden;
+
+  /// No description provided for @projectSetupErrorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The workspace or the template is no longer available.'**
+  String get projectSetupErrorNotFound;
+
+  /// No description provided for @projectSetupErrorValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'The backend rejected the wizard data. Fix the highlighted values.'**
+  String get projectSetupErrorValidation;
+
+  /// No description provided for @projectSetupErrorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The wizard has no configured project creation port.'**
+  String get projectSetupErrorUnavailable;
+
+  /// No description provided for @projectResourceUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This form has no backend connection in this session, so nothing was saved.'**
+  String get projectResourceUnavailableMessage;
+
+  /// No description provided for @projectSetupErrorCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation was cancelled before it was sent.'**
+  String get projectSetupErrorCancelled;
+
+  /// No description provided for @projectSetupWarningMembersIgnoredForShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Every workspace member sees a shared project, so the starter member list will be skipped.'**
+  String get projectSetupWarningMembersIgnoredForShared;
+
+  /// No description provided for @projectSetupWarningPrivateMembersLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'A private project stays visible only to you until you add members.'**
+  String get projectSetupWarningPrivateMembersLimited;
+
+  /// No description provided for @projectSetupWarningTemplateFieldsOverridden.
+  ///
+  /// In en, this message translates to:
+  /// **'Descriptive fields come from the wizard, while the workflow, labels, fields and tasks come from the template.'**
+  String get projectSetupWarningTemplateFieldsOverridden;
+
+  /// No description provided for @projectSetupWarningWorkspaceCapacityChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The default workspace daily capacity will change for every member.'**
+  String get projectSetupWarningWorkspaceCapacityChanged;
+
+  /// No description provided for @projectSetupValidationNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the project name.'**
+  String get projectSetupValidationNameRequired;
+
+  /// No description provided for @projectSetupValidationNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'The project name can have at most 160 characters.'**
+  String get projectSetupValidationNameTooLong;
+
+  /// No description provided for @projectSetupValidationDescriptionTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'The project description can have at most 4000 characters.'**
+  String get projectSetupValidationDescriptionTooLong;
+
+  /// No description provided for @projectSetupValidationTemplateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a project template or start from a blank project.'**
+  String get projectSetupValidationTemplateRequired;
+
+  /// No description provided for @projectSetupValidationMemberDuplicated.
+  ///
+  /// In en, this message translates to:
+  /// **'This user appears on the list more than once.'**
+  String get projectSetupValidationMemberDuplicated;
+
+  /// No description provided for @projectSetupValidationStatusNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Every workflow status needs a name.'**
+  String get projectSetupValidationStatusNameRequired;
+
+  /// No description provided for @projectSetupValidationStatusNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Status names must be unique and at most 60 characters long.'**
+  String get projectSetupValidationStatusNameInvalid;
+
+  /// No description provided for @projectSetupValidationStatusesLimitExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'A workflow can have between 1 and 20 custom statuses.'**
+  String get projectSetupValidationStatusesLimitExceeded;
+
+  /// No description provided for @projectSetupValidationStatusWipInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The WIP limit must be between 1 and 999.'**
+  String get projectSetupValidationStatusWipInvalid;
+
+  /// No description provided for @projectSetupValidationCapacityOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'The capacity must be between 0 and 1440 minutes.'**
+  String get projectSetupValidationCapacityOutOfRange;
+
+  /// No description provided for @projectSetupValidationBoardFieldsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one field visible on the card.'**
+  String get projectSetupValidationBoardFieldsRequired;
+
+  /// No description provided for @projectSetupCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'The project was created.'**
+  String get projectSetupCreatedSuccess;
+
   /// No description provided for @workspacesCreateWhiteboardTitle.
   ///
   /// In en, this message translates to:
@@ -16319,6 +17453,504 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile service is not configured yet.'**
   String get meUnavailableMessage;
+
+  /// No description provided for @projectsTreeMenuTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Project menu'**
+  String get projectsTreeMenuTooltip;
+
+  /// No description provided for @projectsTreeDragHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder project'**
+  String get projectsTreeDragHandle;
+
+  /// No description provided for @projectsTreeLoadFailureFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load projects.'**
+  String get projectsTreeLoadFailureFallback;
+
+  /// No description provided for @projectsTreeHiddenSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get projectsTreeHiddenSectionTitle;
+
+  /// No description provided for @projectsTreeArchiveSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get projectsTreeArchiveSectionTitle;
+
+  /// No description provided for @projectsTreeArchiveSectionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This section lists the projects archived in this workspace, loaded from the server.'**
+  String get projectsTreeArchiveSectionNote;
+
+  /// No description provided for @projectsMenuOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get projectsMenuOpen;
+
+  /// No description provided for @projectsMenuPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get projectsMenuPin;
+
+  /// No description provided for @projectsMenuUnpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get projectsMenuUnpin;
+
+  /// No description provided for @projectsMenuHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide for me'**
+  String get projectsMenuHide;
+
+  /// No description provided for @projectsMenuUnhide.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in tree'**
+  String get projectsMenuUnhide;
+
+  /// No description provided for @projectsMenuRenameAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Change name and appearance'**
+  String get projectsMenuRenameAppearance;
+
+  /// No description provided for @projectsMenuSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get projectsMenuSettings;
+
+  /// No description provided for @projectsMenuCreateTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create template from project'**
+  String get projectsMenuCreateTemplate;
+
+  /// No description provided for @projectsMenuArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get projectsMenuArchive;
+
+  /// No description provided for @projectsMenuRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore to tree'**
+  String get projectsMenuRestore;
+
+  /// No description provided for @projectsMenuDeletePermanently.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get projectsMenuDeletePermanently;
+
+  /// No description provided for @projectsMenuMoveToWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to workspace'**
+  String get projectsMenuMoveToWorkspace;
+
+  /// No description provided for @projectsMenuLeaveProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave project'**
+  String get projectsMenuLeaveProject;
+
+  /// No description provided for @projectsMenuBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving project changes.'**
+  String get projectsMenuBusy;
+
+  /// No description provided for @projectsMenuReasonNoTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Project mutation port is not available in this composition.'**
+  String get projectsMenuReasonNoTransport;
+
+  /// No description provided for @projectsMenuReasonManagePermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires project owner or admin role.'**
+  String get projectsMenuReasonManagePermission;
+
+  /// No description provided for @projectsMenuReasonUnknownCapabilities.
+  ///
+  /// In en, this message translates to:
+  /// **'The backend did not return this project\'s permissions. Refresh the project list.'**
+  String get projectsMenuReasonUnknownCapabilities;
+
+  /// No description provided for @projectsMenuReasonDeletePermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent deletion requires the project owner role.'**
+  String get projectsMenuReasonDeletePermission;
+
+  /// No description provided for @projectsMenuReasonNoSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'The project settings center is not available here.'**
+  String get projectsMenuReasonNoSettings;
+
+  /// No description provided for @projectsMenuReasonNoTemplatePort.
+  ///
+  /// In en, this message translates to:
+  /// **'The project template repository is not available here.'**
+  String get projectsMenuReasonNoTemplatePort;
+
+  /// No description provided for @projectsMenuReasonTransferContract.
+  ///
+  /// In en, this message translates to:
+  /// **'The cross-workspace project transfer contract has not been delivered yet.'**
+  String get projectsMenuReasonTransferContract;
+
+  /// No description provided for @projectsMenuReasonLeaveRule.
+  ///
+  /// In en, this message translates to:
+  /// **'The last-owner rule is not yet available in the contract.'**
+  String get projectsMenuReasonLeaveRule;
+
+  /// No description provided for @projectsNoticePinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Project {projectName} pinned to the top of the tree.'**
+  String projectsNoticePinned(String projectName);
+
+  /// No description provided for @projectsNoticeUnpinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Project {projectName} unpinned.'**
+  String projectsNoticeUnpinned(String projectName);
+
+  /// No description provided for @projectsNoticeHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Project {projectName} hidden in the tree.'**
+  String projectsNoticeHidden(String projectName);
+
+  /// No description provided for @projectsNoticeUnhidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Project {projectName} is visible again.'**
+  String projectsNoticeUnhidden(String projectName);
+
+  /// No description provided for @projectsNoticeArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Project {projectName} archived.'**
+  String projectsNoticeArchived(String projectName);
+
+  /// No description provided for @projectsNoticeRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Project {projectName} restored to the tree.'**
+  String projectsNoticeRestored(String projectName);
+
+  /// No description provided for @projectsNoticeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Project {projectName} permanently deleted.'**
+  String projectsNoticeDeleted(String projectName);
+
+  /// No description provided for @projectsNoticeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'You left project {projectName}.'**
+  String projectsNoticeLeft(String projectName);
+
+  /// No description provided for @projectsNoticeTemplateCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Template of project {projectName} created.'**
+  String projectsNoticeTemplateCreated(String projectName);
+
+  /// No description provided for @projectsNoticeUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get projectsNoticeUndo;
+
+  /// No description provided for @projectsFailureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project operation failed'**
+  String get projectsFailureTitle;
+
+  /// No description provided for @projectsFailureOperationPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinning the project'**
+  String get projectsFailureOperationPin;
+
+  /// No description provided for @projectsFailureOperationHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hiding the project'**
+  String get projectsFailureOperationHide;
+
+  /// No description provided for @projectsFailureOperationPreference.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing project preferences'**
+  String get projectsFailureOperationPreference;
+
+  /// No description provided for @projectsFailureOperationReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving project order'**
+  String get projectsFailureOperationReorder;
+
+  /// No description provided for @projectsFailureOperationArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archiving the project'**
+  String get projectsFailureOperationArchive;
+
+  /// No description provided for @projectsFailureOperationRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring the project'**
+  String get projectsFailureOperationRestore;
+
+  /// No description provided for @projectsFailureOperationDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting the project permanently'**
+  String get projectsFailureOperationDelete;
+
+  /// No description provided for @projectsFailureOperationTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating the project template'**
+  String get projectsFailureOperationTemplate;
+
+  /// No description provided for @projectsFailureOperationLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaving the project'**
+  String get projectsFailureOperationLeave;
+
+  /// No description provided for @projectsFailureOperationSections.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the Hidden and Archive sections'**
+  String get projectsFailureOperationSections;
+
+  /// No description provided for @projectsFailureRolledBack.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation was rolled back — the previous state was restored.'**
+  String get projectsFailureRolledBack;
+
+  /// No description provided for @projectsFailureKindUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The project mutation port is not available in this composition.'**
+  String get projectsFailureKindUnavailable;
+
+  /// No description provided for @projectsFailureKindUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session expired. Sign in again.'**
+  String get projectsFailureKindUnauthorized;
+
+  /// No description provided for @projectsFailureKindForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to perform this operation.'**
+  String get projectsFailureKindForbidden;
+
+  /// No description provided for @projectsFailureKindNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The project does not exist or is no longer available.'**
+  String get projectsFailureKindNotFound;
+
+  /// No description provided for @projectsFailureKindConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The project state changed on the server (conflict).'**
+  String get projectsFailureKindConflict;
+
+  /// No description provided for @projectsFailureKindValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'The server rejected the operation payload.'**
+  String get projectsFailureKindValidation;
+
+  /// No description provided for @projectsFailureKindRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Try again in a moment.'**
+  String get projectsFailureKindRateLimited;
+
+  /// No description provided for @projectsFailureKindServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error. The change was not saved.'**
+  String get projectsFailureKindServer;
+
+  /// No description provided for @projectsFailureKindTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection to the server. The change was not saved.'**
+  String get projectsFailureKindTransport;
+
+  /// No description provided for @projectsFailureKindInvalidIntent.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation was incomplete and was not sent.'**
+  String get projectsFailureKindInvalidIntent;
+
+  /// No description provided for @projectsFailureKindUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'An unknown operation error occurred.'**
+  String get projectsFailureKindUnknown;
+
+  /// No description provided for @projectsFailureCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code: {code}'**
+  String projectsFailureCode(String code);
+
+  /// No description provided for @projectsFailureTraceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostic id: {traceId}'**
+  String projectsFailureTraceId(String traceId);
+
+  /// No description provided for @projectsFailureBackendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Server: {message}'**
+  String projectsFailureBackendMessage(String message);
+
+  /// No description provided for @projectsFailureRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get projectsFailureRetry;
+
+  /// No description provided for @projectsFailureDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss message'**
+  String get projectsFailureDismiss;
+
+  /// No description provided for @projectsArchiveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive this project?'**
+  String get projectsArchiveConfirmTitle;
+
+  /// No description provided for @projectsArchiveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Project {projectName} will disappear from the project tree. Its history, tasks and files are preserved, and the project can be restored from the Archive section.'**
+  String projectsArchiveConfirmBody(String projectName);
+
+  /// No description provided for @projectsArchiveConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive project'**
+  String get projectsArchiveConfirmAction;
+
+  /// No description provided for @projectsDialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get projectsDialogCancel;
+
+  /// No description provided for @projectsDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this project permanently?'**
+  String get projectsDeleteConfirmTitle;
+
+  /// No description provided for @projectsDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently deleting project {projectName} is irreversible and removes all of its data. To confirm, type the project name.'**
+  String projectsDeleteConfirmBody(String projectName);
+
+  /// No description provided for @projectsDeleteConfirmFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Project name'**
+  String get projectsDeleteConfirmFieldLabel;
+
+  /// No description provided for @projectsDeleteConfirmMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The name does not match the project name.'**
+  String get projectsDeleteConfirmMismatch;
+
+  /// No description provided for @projectsDeleteConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get projectsDeleteConfirmAction;
+
+  /// No description provided for @projectsLeaveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this project?'**
+  String get projectsLeaveConfirmTitle;
+
+  /// No description provided for @projectsLeaveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaving project {projectName} revokes your explicit project membership. A Shared project may remain visible, because access is inherited from the workspace.'**
+  String projectsLeaveConfirmBody(String projectName);
+
+  /// No description provided for @projectsLeaveConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave project'**
+  String get projectsLeaveConfirmAction;
+
+  /// No description provided for @projectsTemplateDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create template from project'**
+  String get projectsTemplateDialogTitle;
+
+  /// No description provided for @projectsTemplateDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The template of {projectName} will capture the current project configuration: workflow, labels, custom fields and active tasks.'**
+  String projectsTemplateDialogBody(String projectName);
+
+  /// No description provided for @projectsTemplateNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Template name'**
+  String get projectsTemplateNameLabel;
+
+  /// No description provided for @projectsTemplateNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the template name.'**
+  String get projectsTemplateNameRequired;
+
+  /// No description provided for @projectsTemplateCreateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create template'**
+  String get projectsTemplateCreateAction;
 }
 
 class _AppLocalizationsDelegate

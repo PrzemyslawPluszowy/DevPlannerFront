@@ -27,6 +27,12 @@ abstract class UpdateProjectPayload with _$UpdateProjectPayload {
 
     /// Nowy status projektu.
     required ProjectStatus status,
+
+    /// Oczekiwana wersja projektu z ostatniego odczytu albo null.
+    ///
+    /// Niezgodność zwraca 409 z kodem `project.version_conflict`, więc klient
+    /// nie nadpisuje zmiany wykonanej w drugiej sesji.
+    int? expectedVersion,
   }) = _UpdateProjectPayload;
 
   /// Odtwarza payload aktualizacji z JSON.

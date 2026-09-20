@@ -14,6 +14,7 @@ _ProjectUserPreferenceResponse _$ProjectUserPreferenceResponseFromJson(
   isPinned: json['isPinned'] as bool,
   sortPosition: (json['sortPosition'] as num?)?.toInt(),
   updatedAtUtc: DateTime.parse(json['updatedAtUtc'] as String),
+  version: (json['version'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$ProjectUserPreferenceResponseToJson(
@@ -24,4 +25,5 @@ Map<String, dynamic> _$ProjectUserPreferenceResponseToJson(
   'isPinned': instance.isPinned,
   'sortPosition': instance.sortPosition,
   'updatedAtUtc': instance.updatedAtUtc.toIso8601String(),
+  'version': instance.version,
 };

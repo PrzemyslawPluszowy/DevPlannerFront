@@ -106,7 +106,12 @@ final class _NavigationTreeNode extends StatelessWidget {
       icon: _icon(node.kind),
       depth: isCollapsed ? 0 : depth,
       isCollapsed: isCollapsed,
-      isSelected: path != null && _isSelected(path, location),
+      // Gałąź, której dziecko niesie zaznaczenie, nie podświetla się drugi raz:
+      // projekt i jego pozycja `Zadania` prowadzą do tego samego adresu.
+      isSelected:
+          path != null &&
+          _isSelected(path, location) &&
+          !_hasSelectedDescendant(node),
       isExpandable: node.hasChildren,
       isExpanded: expanded,
       onTap: path == null ? null : () => context.go(path),
@@ -173,8 +178,6 @@ final class _NavigationTreeNode extends StatelessWidget {
         node.label ?? l10n.globalModuleWorkspaces,
       WorkspaceNavigationNodeKind.projects => l10n.workspacesSectionProjects,
       WorkspaceNavigationNodeKind.tasks => l10n.workspacesSectionTasks,
-      WorkspaceNavigationNodeKind.taskList => l10n.workspacesTaskList,
-      WorkspaceNavigationNodeKind.kanban => l10n.workspacesTaskKanban,
       WorkspaceNavigationNodeKind.whiteboards =>
         l10n.workspacesSectionWhiteboards,
       WorkspaceNavigationNodeKind.corkboard => l10n.workspacesProjectCorkboard,
@@ -192,8 +195,6 @@ final class _NavigationTreeNode extends StatelessWidget {
     WorkspaceNavigationNodeKind.projects => Icons.folder_special_outlined,
     WorkspaceNavigationNodeKind.project => Icons.folder_open_outlined,
     WorkspaceNavigationNodeKind.tasks => Icons.checklist_outlined,
-    WorkspaceNavigationNodeKind.taskList => Icons.format_list_bulleted_outlined,
-    WorkspaceNavigationNodeKind.kanban => Icons.view_kanban_outlined,
     WorkspaceNavigationNodeKind.whiteboards =>
       Icons.dashboard_customize_outlined,
     WorkspaceNavigationNodeKind.corkboard => Icons.push_pin_outlined,
@@ -224,24 +225,20 @@ final class _NavigationTreeNode extends StatelessWidget {
             )
           : null,
     // Kliknięcie projektu jest jego wejściem, a nie krokiem pośrednim: otwiera
-    // Listę zadań, a nie ekran „Przegląd”.
+    // moduł Zadania, a nie ekran „Przegląd”. Projekt i jego pozycja `Zadania`
+    // wskazują ten sam adres bez `?view=`, więc o widoku rozstrzyga preferencja
+    // użytkownika, a nie duplikat gałęzi w drzewie.
     WorkspaceNavigationNodeKind.project ||
-    WorkspaceNavigationNodeKind.taskList ||
-    WorkspaceNavigationNodeKind.kanban =>
+    WorkspaceNavigationNodeKind.tasks =>
       tasksBoardAvailable &&
               node.workspaceId != null &&
               node.projectId != null &&
               DevPlannerRouteCatalog.isUuid(node.workspaceId!) &&
               DevPlannerRouteCatalog.isUuid(node.projectId!)
-          ? node.kind == WorkspaceNavigationNodeKind.kanban
-                ? DevPlannerRouteCatalog.projectKanban(
-                    node.workspaceId!,
-                    node.projectId!,
-                  )
-                : DevPlannerRouteCatalog.projectTasks(
-                    node.workspaceId!,
-                    node.projectId!,
-                  )
+          ? DevPlannerRouteCatalog.projectTasks(
+              node.workspaceId!,
+              node.projectId!,
+            )
           : null,
     _ => null,
   };
@@ -255,9 +252,10 @@ final class _NavigationTreeNode extends StatelessWidget {
 
   /// Rozstrzyga zaznaczenie pozycji na podstawie adresu, a nie surowego URI.
   ///
-  /// Lista i Kanban dzielą ścieżkę `/tasks`, więc o wyborze decyduje widok z
-  /// `?view=`. Dzięki temu `?view=list` zaznacza Listę, `?view=kanban` Kanban,
-  /// a szczegół zadania dziedziczy widok zapisany w adresie.
+  /// Moduł Zadania ma jedną pozycję w drzewie i jedno `/tasks`, a widoki
+  /// Lista/Kanban/harmonogram wybiera `?view=`. Pozycja `Zadania` obejmuje więc
+  /// wszystkie widoki modułu; o widoku rozstrzyga adres tylko wtedy, gdy sam
+  /// wskazuje go jawnie (np. deep link `?view=kanban` albo zapisany widok).
   bool _isSelected(String path, String currentLocation) {
     final target = Uri.tryParse(path);
     final current = Uri.tryParse(currentLocation);
@@ -267,6 +265,8 @@ final class _NavigationTreeNode extends StatelessWidget {
       return false;
     }
     if (!target.path.endsWith('/tasks')) return true;
+    final targetView = target.queryParameters[TasksProjectView.queryParameter];
+    if (targetView == null) return true;
     return _viewOf(current) == _viewOf(target);
   }
 
@@ -346,80 +346,6 @@ final class _CreateWorkspaceFromSidebarDialog extends StatefulWidget {
   @override
   State<_CreateWorkspaceFromSidebarDialog> createState() =>
       _CreateWorkspaceFromSidebarDialogState();
-}
-
-final class _CreateProjectFromSidebarDialog extends StatelessWidget {
-  const _CreateProjectFromSidebarDialog({
-    required this.gateway,
-    required this.workspaceId,
-    required this.onCreated,
-  });
-
-  final ProjectManagementGateway gateway;
-  final String workspaceId;
-  final Future<void> Function(String projectId) onCreated;
-
-  static Future<void> show(
-    BuildContext context, {
-    required ProjectManagementGateway gateway,
-    required String workspaceId,
-    required Future<void> Function(String projectId) onCreated,
-  }) => showDialog<void>(
-    context: context,
-    builder: (_) => _CreateProjectFromSidebarDialog(
-      gateway: gateway,
-      workspaceId: workspaceId,
-      onCreated: onCreated,
-    ),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = TextEditingController();
-    return AlertDialog(
-      title: Text(AppLocalizations.of(context)!.workspacesCreateProjectTitle),
-      content: TextField(
-        controller: controller,
-        autofocus: true,
-        decoration: InputDecoration(
-          labelText: AppLocalizations.of(context)!.workspacesProjectNameLabel,
-        ),
-        onSubmitted: (name) => _submit(context, name.trim()),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(AppLocalizations.of(context)!.workspacesCancelButton),
-        ),
-        FilledButton(
-          onPressed: () => _submit(context, controller.text.trim()),
-          child: Text(AppLocalizations.of(context)!.workspacesCreateButton),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _submit(BuildContext context, String name) async {
-    if (name.isEmpty) return;
-    try {
-      final projectId = await gateway.createProject(
-        workspaceId: workspaceId,
-        name: name,
-      );
-      await onCreated(projectId);
-      if (context.mounted) Navigator.of(context).pop();
-    } on ProjectsGatewayException {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.workspacesRequestFailedMessage,
-            ),
-          ),
-        );
-      }
-    }
-  }
 }
 
 final class _CreateWorkspaceFromSidebarDialogState

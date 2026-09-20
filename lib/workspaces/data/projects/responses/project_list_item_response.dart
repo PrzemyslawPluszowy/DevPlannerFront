@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/data/projects/responses/project_capabilities_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
@@ -45,6 +46,18 @@ abstract class ProjectListItemResponse with _$ProjectListItemResponse {
 
     /// Osobista pozycja sortowania projektu albo null.
     int? sortPosition,
+
+    /// Czy projekt jest ukryty przez bieżącego użytkownika.
+    @Default(false) bool isHidden,
+
+    /// Czas archiwizacji albo null dla aktywnego projektu.
+    DateTime? archivedAtUtc,
+
+    /// Nieprzezroczysta wersja projektu (`xmin`) albo null w starszym kontrakcie.
+    int? version,
+
+    /// Możliwości bieżącego użytkownika albo null w starszym kontrakcie.
+    ProjectCapabilitiesResponse? capabilities,
   }) = _ProjectListItemResponse;
 
   /// Odtwarza element listy projektu z odpowiedzi JSON Workspaces.

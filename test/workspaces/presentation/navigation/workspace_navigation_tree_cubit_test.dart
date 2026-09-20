@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 import 'package:devplanner/workspaces/domain/models/workspace_summary.dart';
 import 'package:devplanner/workspaces/domain/navigation/workspace_navigation_node.dart';
 import 'package:devplanner/workspaces/domain/navigation/workspace_navigation_tree.dart';
@@ -27,7 +28,9 @@ final class _ProjectsGateway implements ProjectsGateway {
   @override
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    bool? includeHidden,
   }) {
     requestedWorkspaceIds.add(workspaceId);
     return results[workspaceId] ?? Future.value(const <ProjectListItem>[]);
@@ -91,24 +94,18 @@ void main() {
     expect(alphaProjects.children.single.workspaceId, 'workspace-a');
     expect(alphaProjects.children.single.hasChildren, isTrue);
     final projectChildren = alphaProjects.children.single.children;
-    final tasks = projectChildren.firstWhere(
-      (node) => node.kind == WorkspaceNavigationNodeKind.tasks,
-    );
-    expect(
-      tasks.children.map((node) => node.kind),
-      containsAll([
-        WorkspaceNavigationNodeKind.taskList,
-        WorkspaceNavigationNodeKind.kanban,
-      ]),
-    );
-    // Projekt renderuje wyłącznie zasoby z aktywną trasą.
+    // Jeden węzeł Zadania na projekt. Lista i Kanban są widokami tego samego
+    // zbioru wybieranymi w nagłówku modułu, więc drzewo ich nie dubluje;
+    // projekt renderuje wyłącznie zasoby z aktywną trasą.
     expect(
       projectChildren.map((node) => node.kind),
-      containsAll([
+      [
         WorkspaceNavigationNodeKind.tasks,
         WorkspaceNavigationNodeKind.files,
-      ]),
+      ],
     );
+    expect(projectChildren.first.isSelectable, isTrue);
+    expect(projectChildren.first.children, isEmpty);
     expect(betaProjects.children, isEmpty);
     expect(tree.hasPendingProjectData, isFalse);
   });

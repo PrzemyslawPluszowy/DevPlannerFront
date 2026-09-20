@@ -53,9 +53,14 @@ void main() {
           .isDataPending,
       isTrue,
     );
+    // Jeden moduł Zadania: drzewo deklaruje jedną pozycję projektu, a nie
+    // osobną Listę i Kanban, które sugerowałyby dwa źródła danych.
     expect(
       WorkspaceNavigationTree.projectResourceKinds,
-      contains(WorkspaceNavigationNodeKind.kanban),
+      [
+        WorkspaceNavigationNodeKind.tasks,
+        WorkspaceNavigationNodeKind.files,
+      ],
     );
     // Pozycje bez aktywnych tras nie są renderowane jako funkcje.
     expect(

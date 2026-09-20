@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
@@ -12,7 +13,9 @@ final class _Gateway implements ProjectsGateway {
   @override
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    bool? includeHidden,
   }) => result;
 }
 

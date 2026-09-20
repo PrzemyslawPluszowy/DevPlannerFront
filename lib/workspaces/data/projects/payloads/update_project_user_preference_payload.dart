@@ -14,6 +14,10 @@ abstract class UpdateProjectUserPreferencePayload
 
     /// Czy projekt ma być przypięty na liście bieżącego użytkownika.
     required bool isPinned,
+
+    /// Oczekiwana wersja preferencji z poprzedniego odczytu lub zapisu
+    /// (a nie wersja projektu) albo null, gdy klient jej nie zna.
+    int? expectedVersion,
   }) = _UpdateProjectUserPreferencePayload;
 
   /// Odtwarza payload preferencji z JSON.

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:devplanner/app/router/devplanner_navigation.dart';
 import 'package:devplanner/app/router/devplanner_router.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/ports/tasks_project_view_preference_store.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
@@ -17,6 +18,7 @@ class TasksProjectViewHost extends StatefulWidget {
     required this.workspaceId,
     required this.projectId,
     this.initialView,
+    this.viewPreferenceStore,
     this.onProjectExited,
     super.key,
   });
@@ -24,6 +26,14 @@ class TasksProjectViewHost extends StatefulWidget {
   final String workspaceId;
   final String projectId;
   final String? initialView;
+
+  /// Lokalna preferencja „ostatnio używany widok” dla tego projektu.
+  ///
+  /// Adres bez `?view=` znaczy „widok, w którym użytkownik pracował”, więc
+  /// dopiero ten port rozstrzyga, czy moduł otworzy Listę, czy Kanban. Brak
+  /// portu zachowuje zachowanie trasy (widok domyślny).
+  final TasksProjectViewPreferenceStore? viewPreferenceStore;
+
   final VoidCallback? onProjectExited;
 
   @override
@@ -36,7 +46,7 @@ class _TasksProjectViewHostState extends State<TasksProjectViewHost> {
   @override
   void initState() {
     super.initState();
-    final view = TasksProjectView.fromQuery(widget.initialView);
+    final view = _resolveView();
     _viewState = ValueNotifier(
       _TasksProjectViewLocalState(
         view: view,
@@ -50,14 +60,36 @@ class _TasksProjectViewHostState extends State<TasksProjectViewHost> {
   void didUpdateWidget(covariant TasksProjectViewHost oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialView == widget.initialView) return;
-    final nextView = TasksProjectView.fromQuery(widget.initialView);
-    final current = _viewState.value;
-    if (nextView == current.view) return;
-    _viewState.value = current.copyWith(
-      view: nextView,
-      hasOpenedList: current.hasOpenedList || nextView == TasksProjectView.list,
-      hasOpenedBoard:
-          current.hasOpenedBoard || nextView == TasksProjectView.board,
+    // Adres bez `?view=` znaczy „ostatnio używany widok tego projektu”, więc
+    // rozstrzygnięcie jest deterministyczne: preferencja użytkownika, a gdy jej
+    // brak — widok domyślny trasy. Dzięki temu `/tasks` nigdy nie dziedziczy
+    // widoku z poprzedniego adresu.
+    _selectView(_resolveView(), persist: widget.initialView != null);
+  }
+
+  TasksProjectView _resolveView() {
+    final explicit = widget.initialView;
+    if (explicit != null) return TasksProjectView.fromQuery(explicit);
+    return _preferredView() ?? TasksProjectView.routeDefault;
+  }
+
+  TasksProjectView? _preferredView() {
+    final token = widget.viewPreferenceStore?.viewFor(
+      workspaceId: widget.workspaceId,
+      projectId: widget.projectId,
+    );
+    return token == null ? null : TasksProjectView.fromQuery(token);
+  }
+
+  /// Zapis idzie przez port, który sam raportuje awarię persistence i kończy
+  /// bez wyjątku — preferencja widoku nie jest danymi ekranu.
+  Future<void> _persistPreferredView(TasksProjectView view) async {
+    final store = widget.viewPreferenceStore;
+    if (store == null) return;
+    await store.write(
+      workspaceId: widget.workspaceId,
+      projectId: widget.projectId,
+      view: view.queryValue,
     );
   }
 
@@ -127,13 +159,23 @@ class _TasksProjectViewHostState extends State<TasksProjectViewHost> {
     );
   }
 
-  void _changeView(TasksProjectView view) {
+  /// Ustawia widok modułu, zachowując raz otwarty sąsiad (scroll i stan Listy
+  /// albo Kanbanu nie giną po przełączeniu tam i z powrotem).
+  void _selectView(TasksProjectView view, {bool persist = false}) {
     final current = _viewState.value;
-    _viewState.value = current.copyWith(
-      view: view,
-      hasOpenedList: current.hasOpenedList || view == TasksProjectView.list,
-      hasOpenedBoard: current.hasOpenedBoard || view == TasksProjectView.board,
-    );
+    if (view != current.view) {
+      _viewState.value = current.copyWith(
+        view: view,
+        hasOpenedList: current.hasOpenedList || view == TasksProjectView.list,
+        hasOpenedBoard:
+            current.hasOpenedBoard || view == TasksProjectView.board,
+      );
+    }
+    if (persist) unawaited(_persistPreferredView(view));
+  }
+
+  void _changeView(TasksProjectView view) {
+    _selectView(view, persist: true);
     final router = GoRouter.maybeOf(context);
     if (router == null) return;
     unawaited(

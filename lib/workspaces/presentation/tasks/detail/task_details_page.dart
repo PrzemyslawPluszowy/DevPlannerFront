@@ -38,6 +38,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cub
 import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/attachments/cubit/task_attachments_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cascade/cubit/task_schedule_cascade_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/history/cubit/task_history_cubit.dart';

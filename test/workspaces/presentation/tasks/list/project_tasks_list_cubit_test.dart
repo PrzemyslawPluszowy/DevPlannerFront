@@ -681,7 +681,12 @@ void main() {
   test('przekazuje filtr statusu do nowego odczytu cursorowego', () async {
     await cubit.load(status: ProjectTaskStatus.blocked);
 
-    expect(repository.lastGroupedQuery?.status, 'blocked');
+    // Kontraktem transportowym jest wartość enumu z backendu (`Blocked`), a nie
+    // dartowa nazwa pola: `.name` wracał tu 400 z bindera Minimal API.
+    expect(
+      repository.lastGroupedQuery?.status,
+      ProjectTaskStatus.blocked.wireValue,
+    );
     expect(
       (cubit.state as ProjectTasksListReady).status,
       ProjectTaskStatus.blocked,
@@ -758,8 +763,16 @@ void main() {
 
     await cubit.refreshFromRealtime();
 
-    expect(repository.lastGroupedQuery?.status, 'blocked');
-    expect(repository.lastGroupedQuery?.priority, 'critical');
+    // Zapytanie odtwarzane po realtime używa wartości kontraktowych
+    // (`Blocked`/`Critical`), a nie dartowych nazw pól.
+    expect(
+      repository.lastGroupedQuery?.status,
+      ProjectTaskStatus.blocked.wireValue,
+    );
+    expect(
+      repository.lastGroupedQuery?.priority,
+      TaskPriority.critical.wireValue,
+    );
     final state = cubit.state as ProjectTasksListReady;
     expect(state.status, ProjectTaskStatus.blocked);
     expect(state.priority, TaskPriority.critical);
@@ -1889,7 +1902,10 @@ void main() {
       );
 
       expect(updated, 5000);
-      expect(repository.selectionTokenPayload?.query.status, 'blocked');
+      expect(
+        repository.selectionTokenPayload?.query.status,
+        ProjectTaskStatus.blocked.wireValue,
+      );
       expect(
         repository.selectionTokenPayload?.query.assigneeUserId,
         'member-1',

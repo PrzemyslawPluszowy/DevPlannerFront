@@ -7,13 +7,14 @@ import 'package:devplanner/foundation/presentation/devplanner_panels.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/domain/navigation/workspace_navigation_node.dart';
-import 'package:devplanner/workspaces/domain/ports/project_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_cubit.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_state.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/project_resource_creation_dialogs.dart';
 import 'package:devplanner/workspaces/presentation/tasks/tasks_project_view_contract.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,7 +33,7 @@ class DevPlannerShellRoute extends StatefulWidget {
     required this.child,
     this.workspaceNavigationGateway,
     this.workspaceManagementGateway,
-    this.projectManagementGateway,
+    this.projectsRepository,
     this.projectsGateway,
     this.tasksBoardAvailable = false,
     super.key,
@@ -41,7 +42,10 @@ class DevPlannerShellRoute extends StatefulWidget {
   final Widget child;
   final WorkspaceNavigationGateway? workspaceNavigationGateway;
   final WorkspaceManagementGateway? workspaceManagementGateway;
-  final ProjectManagementGateway? projectManagementGateway;
+
+  /// Port tworzenia projektu. Sidebar otwiera dokładnie ten sam formularz co
+  /// drzewo projektów, więc nie ma drugiego, uproszczonego flow.
+  final ProjectsRepository? projectsRepository;
   final ProjectsGateway? projectsGateway;
   final bool tasksBoardAvailable;
 
@@ -115,18 +119,18 @@ class _DevPlannerShellRouteState extends State<DevPlannerShellRoute> {
   }
 
   Future<void> _createProject(BuildContext context, String workspaceId) async {
-    final gateway = widget.projectManagementGateway;
+    final repository = widget.projectsRepository;
     final cubit = _navigationCubit;
-    if (gateway == null || cubit == null) return;
-    await _CreateProjectFromSidebarDialog.show(
+    if (repository == null || cubit == null) return;
+    // Ten sam formularz co w drzewie projektów: sidebar nie utrzymuje drugiego,
+    // uproszczonego flow tworzenia projektu.
+    await ProjectResourceCreationDialogs.showCreateProject(
       context,
-      gateway: gateway,
       workspaceId: workspaceId,
-      onCreated: (projectId) async {
-        await cubit.loadProjects(workspaceId, refresh: true);
-        if (!mounted || !context.mounted) return;
-        context.go(DevPlannerRouteCatalog.projectTasks(workspaceId, projectId));
-      },
+      repository: repository,
+      // Drzewo projektów po utworzeniu odświeża gałąź workspace'u; sidebar robi
+      // to samo, żeby oba wejścia kończyły się identycznym stanem nawigacji.
+      onCreated: () => cubit.loadProjects(workspaceId, refresh: true),
     );
   }
 
@@ -156,7 +160,7 @@ class _DevPlannerShellRouteState extends State<DevPlannerShellRoute> {
                           widget.workspaceManagementGateway == null
                           ? null
                           : _createWorkspace,
-                      onCreateProject: widget.projectManagementGateway == null
+                      onCreateProject: widget.projectsRepository == null
                           ? null
                           : _createProject,
                       showCompactTree: compactTreeOpen,
@@ -169,12 +173,26 @@ class _DevPlannerShellRouteState extends State<DevPlannerShellRoute> {
                       child: widget.child,
                     );
                     final projectsGateway = widget.projectsGateway;
-                    return projectsGateway == null
-                        ? layout
-                        : RepositoryProvider<ProjectsGateway>.value(
+                    final projectsRepository = widget.projectsRepository;
+                    // Port projektów jest udostępniany potomkom, bo menu projektu
+                    // w drzewie mutuje przez ten kontrakt; bez providera akcje
+                    // byłyby wyłączone w całym sidebarze.
+                    if (projectsRepository == null && projectsGateway == null) {
+                      return layout;
+                    }
+                    return MultiRepositoryProvider(
+                      providers: [
+                        if (projectsRepository != null)
+                          RepositoryProvider<ProjectsRepository>.value(
+                            value: projectsRepository,
+                          ),
+                        if (projectsGateway != null)
+                          RepositoryProvider<ProjectsGateway>.value(
                             value: projectsGateway,
-                            child: layout,
-                          );
+                          ),
+                      ],
+                      child: layout,
+                    );
                   },
                 ),
           ),

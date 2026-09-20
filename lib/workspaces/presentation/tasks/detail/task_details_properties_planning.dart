@@ -13,12 +13,11 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
   late final TextEditingController _estimateController;
   late final ValueNotifier<DateTime?> _startAtUtc;
   late final ValueNotifier<DateTime?> _dueAtUtc;
-  final ValueNotifier<ScheduleCascadeResponse?> _cascadePreview = ValueNotifier(
-    null,
-  );
   final ValueNotifier<String?> _validationMessage = ValueNotifier(null);
   final ValueNotifier<bool> _saving = ValueNotifier(false);
-  final ValueNotifier<bool> _previewingCascade = ValueNotifier(false);
+
+  /// Podgląd i zapis kaskady mają własny stan: widget tylko przekazuje daty.
+  late final TaskScheduleCascadeCubit _cascadeCubit;
 
   @override
   void initState() {
@@ -28,6 +27,11 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
     _estimateController = TextEditingController(
       text: widget.task.estimatedMinutes?.toString() ?? '',
     );
+    _cascadeCubit = TaskScheduleCascadeCubit(
+      repository: context.read<TaskScheduleRepository>(),
+      workspaceId: context.read<TaskDetailsCubit>().workspaceId,
+      projectId: context.read<TaskDetailsCubit>().projectId,
+    );
   }
 
   @override
@@ -35,10 +39,9 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
     _estimateController.dispose();
     _startAtUtc.dispose();
     _dueAtUtc.dispose();
-    _cascadePreview.dispose();
     _validationMessage.dispose();
     _saving.dispose();
-    _previewingCascade.dispose();
+    unawaited(_cascadeCubit.close());
     super.dispose();
   }
 
@@ -47,104 +50,109 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
     final format = DateFormat.yMMMd(
       Localizations.localeOf(context).toLanguageTag(),
     );
-    return AnimatedBuilder(
-      animation: Listenable.merge([
-        _startAtUtc,
-        _dueAtUtc,
-        _cascadePreview,
-        _validationMessage,
-        _saving,
-        _previewingCascade,
-      ]),
-      builder: (context, _) => WorkspaceCreationModalWrapper(
-        title: context.l10n.taskDetailsEditPlanning,
-        icon: Symbols.calendar_month_rounded,
-        accentColor: context.colors.primary,
-        isSubmitting: _saving.value,
-        submitLabel: context.l10n.save,
-        cancelLabel: context.l10n.cancel,
-        onSubmit: _previewingCascade.value ? () {} : _save,
-        additionalActions: [
-          OutlinedButton.icon(
-            onPressed: _saving.value || _previewingCascade.value
-                ? null
-                : _previewCascade,
-            icon: _previewingCascade.value
-                ? const SizedBox.square(
-                    dimension: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Symbols.visibility),
-            label: Text(context.l10n.taskDetailsCascadePreview),
-          ),
-          if (_cascadePreview.value != null) ...[
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: _saving.value ? null : _applyCascade,
-              icon: _saving.value
+    return BlocConsumer<TaskScheduleCascadeCubit, TaskScheduleCascadeState>(
+      bloc: _cascadeCubit,
+      listener: (context, cascade) {
+        final error = cascade.error;
+        if (error != null) _validationMessage.value = error;
+      },
+      builder: (context, cascade) => AnimatedBuilder(
+        animation: Listenable.merge([
+          _startAtUtc,
+          _dueAtUtc,
+          _validationMessage,
+          _saving,
+        ]),
+        builder: (context, _) => WorkspaceCreationModalWrapper(
+          title: context.l10n.taskDetailsEditPlanning,
+          icon: Symbols.calendar_month_rounded,
+          accentColor: context.colors.primary,
+          isSubmitting: _saving.value || cascade.isApplying,
+          submitLabel: context.l10n.save,
+          cancelLabel: context.l10n.cancel,
+          onSubmit: cascade.isPreviewing ? () {} : _save,
+          additionalActions: [
+            OutlinedButton.icon(
+              onPressed: _saving.value || cascade.isBusy
+                  ? null
+                  : _previewCascade,
+              icon: cascade.isPreviewing
                   ? const SizedBox.square(
                       dimension: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Symbols.account_tree),
-              label: Text(context.l10n.taskDetailsCascadeApply),
+                  : const Icon(Symbols.visibility),
+              label: Text(context.l10n.taskDetailsCascadePreview),
             ),
+            if (cascade.preview != null) ...[
+              const SizedBox(width: 8),
+              FilledButton.icon(
+                onPressed: cascade.isApplying ? null : _applyCascade,
+                icon: cascade.isApplying
+                    ? const SizedBox.square(
+                        dimension: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Symbols.account_tree),
+                label: Text(context.l10n.taskDetailsCascadeApply),
+              ),
+            ],
           ],
-        ],
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _DateField(
-                label: context.l10n.taskDetailsStartDate,
-                value: _startAtUtc.value,
-                format: format,
-                enabled: !_saving.value,
-                onChanged: (value) {
-                  _startAtUtc.value = value;
-                  _cascadePreview.value = null;
-                  _validationMessage.value = null;
-                },
-              ),
-              const SizedBox(height: 12),
-              _DateField(
-                label: context.l10n.taskDetailsDueDate,
-                value: _dueAtUtc.value,
-                format: format,
-                enabled: !_saving.value,
-                onChanged: (value) {
-                  _dueAtUtc.value = value;
-                  _cascadePreview.value = null;
-                  _validationMessage.value = null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _estimateController,
-                enabled: !_saving.value,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: context.l10n.taskDetailsEstimateMinutes,
-                  suffixText: 'min',
+          body: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _DateField(
+                  label: context.l10n.taskDetailsStartDate,
+                  value: _startAtUtc.value,
+                  format: format,
+                  enabled: !_saving.value,
+                  onChanged: (value) {
+                    _startAtUtc.value = value;
+                    _cascadeCubit.clearPreview();
+                    _validationMessage.value = null;
+                  },
                 ),
-              ),
-              if (_validationMessage.value case final message?) ...[
                 const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    message,
-                    style: context.text.bodySmall?.copyWith(
-                      color: context.colors.error,
-                    ),
+                _DateField(
+                  label: context.l10n.taskDetailsDueDate,
+                  value: _dueAtUtc.value,
+                  format: format,
+                  enabled: !_saving.value,
+                  onChanged: (value) {
+                    _dueAtUtc.value = value;
+                    _cascadeCubit.clearPreview();
+                    _validationMessage.value = null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _estimateController,
+                  enabled: !_saving.value,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.taskDetailsEstimateMinutes,
+                    suffixText: 'min',
                   ),
                 ),
+                if (_validationMessage.value case final message?) ...[
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      message,
+                      style: context.text.bodySmall?.copyWith(
+                        color: context.colors.error,
+                      ),
+                    ),
+                  ),
+                ],
+                if (cascade.preview case final preview?) ...[
+                  const SizedBox(height: 18),
+                  _CascadePreview(preview: preview, format: format),
+                ],
               ],
-              if (_cascadePreview.value case final preview?) ...[
-                const SizedBox(height: 18),
-                _CascadePreview(preview: preview, format: format),
-              ],
-            ],
+            ),
           ),
         ),
       ),
@@ -185,56 +193,24 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
       _validationMessage.value = context.l10n.taskDetailsCascadeDatesRequired;
       return;
     }
-    _previewingCascade.value = true;
     _validationMessage.value = null;
-    final result = await context.read<TaskScheduleRepository>().previewCascade(
-      workspaceId: context.read<TaskDetailsCubit>().workspaceId,
-      projectId: context.read<TaskDetailsCubit>().projectId,
-      payload: PreviewScheduleCascadePayload(
-        taskId: widget.task.id,
-        newStartAtUtc: _startAtUtc.value!,
-        newDueAtUtc: _dueAtUtc.value!,
-      ),
-    );
-    if (!mounted) return;
-    result.fold(
-      (error) {
-        _previewingCascade.value = false;
-        _validationMessage.value = error.message;
-      },
-      (preview) {
-        _previewingCascade.value = false;
-        _cascadePreview.value = preview;
-      },
+    await _cascadeCubit.preview(
+      taskId: widget.task.id,
+      newStartAtUtc: _startAtUtc.value!,
+      newDueAtUtc: _dueAtUtc.value!,
     );
   }
 
   Future<void> _applyCascade() async {
-    final preview = _cascadePreview.value;
-    if (preview == null || !_validateDateRange()) return;
+    if (!_validateDateRange()) return;
     if (_startAtUtc.value == null || _dueAtUtc.value == null) return;
-    _saving.value = true;
-    final result = await context.read<TaskScheduleRepository>().applyCascade(
-      workspaceId: context.read<TaskDetailsCubit>().workspaceId,
-      projectId: context.read<TaskDetailsCubit>().projectId,
-      payload: ApplyScheduleCascadePayload(
-        taskId: widget.task.id,
-        newStartAtUtc: _startAtUtc.value!,
-        newDueAtUtc: _dueAtUtc.value!,
-        expectedTaskVersions: {
-          for (final shift in preview.dateShifts)
-            shift.taskId: shift.expectedVersion,
-        },
-      ),
+    final applied = await _cascadeCubit.apply(
+      taskId: widget.task.id,
+      newStartAtUtc: _startAtUtc.value!,
+      newDueAtUtc: _dueAtUtc.value!,
     );
-    if (!mounted) return;
-    result.fold(
-      (error) {
-        _saving.value = false;
-        _validationMessage.value = error.message;
-      },
-      (_) => unawaited(_reloadAfterCascade()),
-    );
+    if (!mounted || !applied) return;
+    await _reloadAfterCascade();
   }
 
   Future<void> _reloadAfterCascade() async {

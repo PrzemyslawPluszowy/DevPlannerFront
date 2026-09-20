@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 
 /// Stabilne powody odmowy/awarii katalogu projektów.
 enum ProjectsFailureReason {
@@ -35,8 +36,15 @@ final class ProjectsGatewayException implements Exception {
 /// Port leniwego katalogu projektów jednego workspace’u.
 // ignore: one_member_abstracts
 abstract interface class ProjectsGateway {
+  /// Pobiera projekty jednego workspace’u zgodnie z filtrem stanu i ukrycia.
+  ///
+  /// [includeHidden] jest przestarzałym aliasem: `true` odpowiada
+  /// `visibility: all`, a jawna wartość [visibility] ma pierwszeństwo.
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    @Deprecated('Użyj visibility; wartość true odpowiada visibility=all.')
+    bool? includeHidden,
   });
 }

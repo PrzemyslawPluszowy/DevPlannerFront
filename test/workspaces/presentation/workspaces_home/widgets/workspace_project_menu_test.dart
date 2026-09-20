@@ -3,6 +3,7 @@ import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/shared/presentation/widgets/app_shimmer.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
@@ -25,7 +26,9 @@ class _FakeProjectsGateway implements ProjectsGateway {
   @override
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    bool? includeHidden,
   }) async {
     calls++;
     requestedWorkspaceId = workspaceId;

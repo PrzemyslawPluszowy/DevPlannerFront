@@ -2080,3 +2080,187 @@ Backendu), Release macOS (brak profilu provisioning), buildy Windows/Linux
   targeted 13/13 PASS; scoped `flutter analyze` bez problemów.
 - [ ] Pełne suite/buildy platformowe pozostają poza tą punktową naprawą; ich
   wcześniejszy stan i niezależne blokady opisują N8/N9.
+### 2026-09-19 — audyt nawigacji produktu i kreatora projektu
+
+Audyt Front/Backend potwierdził, że Lista i Kanban są już dwoma widokami jednego
+modułu Tasks, a ich rozdzielenie w drzewie jest wyłącznie decyzją prezentacyjną.
+Backend ma pin/hide/order, archive/restore, szablony projektów i workflow oraz
+rozbudowane funkcje Tasks, ale część nie jest osiągalna z aktywnego UI.
+
+Wykryte luki kontraktu: brak listy archiwalnych projektów, brak `isHidden` w
+`ProjectListItemResponse`, brak transferu projektu między workspace’ami, brak
+publicznej `version/expectedVersion` mimo deklarowanej ochrony `xmin` oraz brak
+atomowego, idempotentnego polecenia dla konfigurowalnego kreatora.
+
+Plan P0–P8 zapisano w
+`docs/recovery/product-navigation-and-project-wizard-refactor-plan.md`. Ustala
+jeden węzeł Zadania z przełącznikiem Lista/Kanban, wspólne menu projektu,
+optimistic UI z precyzyjnym rollbackiem i trwałym błędem, atomowy kreator z
+preview oraz osobną decyzję dla transferu cross-workspace. §4.3 dodaje matrycę
+Backend → adapter → stan → UI → test z rzeczywistymi ścieżkami i ujawnia piony
+bez UI (capacity, schedule, kanban i workflow settings, kaskada harmonogramu)
+oraz kontrakty bez konsumenta (`PUT /tasks/order`,
+`PUT /projects/preferences/order`, `GET /tasks/search`). Ten pakiet jest
+wyłącznie dokumentacją; nie zmienia runtime ani kontraktów API.
+
+### 2026-09-19 — PN-P2: jeden węzeł Zadania, routing i preferencja widoku
+
+- Drzewo ma jedną pozycję `Zadania` na projekt; `taskList` i `kanban`
+  zniknęły z enuma, z drzewa i ze switchy shella. Projekt i jego pozycja
+  `Zadania` prowadzą do tego samego `/tasks`, a gałąź z zaznaczonym dzieckiem
+  nie podświetla się drugi raz.
+- Wybór widoku modułu jest porównywany z adresem tylko wtedy, gdy adres
+  wskazuje `?view=` jawnie; `/tasks` obejmuje wszystkie widoki modułu.
+- Legacy linki `/tasks/list` i `/tasks/kanban` przekierowują na kanoniczne
+  `?view=`, a trasa szczegółu zadania nie przechwytuje już `/tasks/list` jako
+  `taskId`.
+- „Ostatnio używany widok” to lokalna preferencja (port
+  `TasksProjectViewPreferenceStore` + adapter `shared_preferences`) wczytywana
+  raz przy starcie routera; odczyt jest synchroniczny, więc `/tasks` nie mruga
+  Listą przed Kanbanem.
+- Przepisane testy, które pinowały rozdzielone gałęzie:
+  `workspace_navigation_foundation_test`, `workspace_navigation_tree_cubit_test`,
+  `devplanner_shell_test` (selekcja i drzewo), `devplanner_root_router_compile_test`.
+- Nowe testy: redirecty legacy, powrót do ostatniego widoku, wczytywanie
+  i zapis preferencji oraz zachowanie przy braku implementacji persistence.
+- Walidacja: `flutter analyze` — No issues found; dotknięte obszary 72/72 PASS;
+  pełny `flutter test` 1039/1039 PASS.
+
+### 2026-09-19 — PN-P5: jeden formularz tworzenia projektu
+
+- Sidebar otwiera ten sam `CreateProjectDialog` co drzewo projektów;
+  uproszczony `_CreateProjectFromSidebarDialog` został usunięty.
+- Port `ProjectManagementGateway` i jego adapter zniknęły, bo obsługiwały
+  wyłącznie ten drugi flow; shell dostaje pełne repozytorium projektów.
+- Web BFF nadal nie wystawia akcji tworzenia (brak klienta API), bez zmiany
+  zachowania. Kreator wieloetapowy pozostaje w P5b i wymaga kontraktu P4.
+- Walidacja: `flutter analyze` — No issues found; testy shella 8/8 PASS,
+  w tym nowy przypadek „sidebar opens the same project form as the project tree”.
+
+### 2026-09-19 — PN-P6a: kaskada harmonogramu w stanie
+
+- Preview i apply kaskady wyszły z widgetu do `TaskScheduleCascadeCubit`
+  (`detail/cascade/cubit/`); widget przekazuje wyłącznie intencje i daty.
+- Zapis bez podglądu jest odrzucany w cubicie, bo kontrakt wymaga
+  `expectedVersion` każdego przesuwanego zadania.
+- Nowy zestaw 6 testów: sukces podglądu, błąd podglądu, brak podglądu przy
+  zapisie, wysłanie wersji, konflikt 409 z zachowanym podglądem, czyszczenie
+  podglądu po zmianie dat.
+- Walidacja: `flutter analyze` — No issues found; zestaw kaskady 6/6 PASS;
+  testy prezentacji Tasks 421/421 PASS.
+
+### 2026-09-19 — N10-followup: testy pinujące starą serializację enumów
+
+Pięć testów nadal oczekiwało dartowych nazw pól (`inProgress`, `blocked`,
+`critical`), które pakiet N10 zastąpił wartościami kontraktowymi. Asercje
+przepisano na `wireValue` enuma, żeby pilnowały poprawnego kontraktu zamiast
+wadliwego: `task_list_chrome_test` (2 przypadki) i
+`project_tasks_list_cubit_test` (3 przypadki). Walidacja: oba pliki 60/60 PASS,
+pełny `flutter test` bez czerwonych.
+
+### 2026-09-19 — PN-P3: jedno menu projektu, optimistic-first z rollbackiem
+
+- Drzewo projektów ma jedno menu kontekstowe (Otwórz, Przypnij/Odepnij, Ukryj
+  dla mnie, Zmień nazwę i wygląd, Ustawienia, Utwórz szablon z projektu,
+  Archiwizuj z potwierdzeniem, Przywróć, Usuń trwale po wpisaniu nazwy).
+- `Przenieś do workspace` i `Opuść projekt` są jawnie wyłączone z powodem —
+  brak kontraktu §6.4 i reguły ostatniego Ownera; nic nie udaje działającej
+  funkcji.
+- Pin/hide/order/lifecycle działają optimistic-first: jedno żądanie na projekt,
+  scalanie intencji do ostatniej wartości, rollback wyłącznie pól własnej
+  operacji (i tylko gdy rewizja pola się nie zmieniła), pełna lista w DnD,
+  trwały baner błędu z kodem i `traceId`.
+- Nowy stan drzewa rozbity po odpowiedzialnościach: fasada `ProjectsTreeCubit`
+  plus kontrolery preferencji, kolejności i cyklu życia; produkcyjne pliki
+  zmieściły się poniżej progu §9.4 po podziale.
+- Walidacja: `flutter analyze` (cały projekt) — No issues found; zestawy
+  `workspaces_home` i `projects` — 63/63 PASS (w tym 31 w `projects_tree/`);
+  `flutter gen-l10n` bez ostrzeżeń.
+- Otwarte: wpięcie drzewa w żywy shell i pełna lista archiwum (czeka na P1).
+
+### 2026-09-19 — PN-P1: backend list/lifecycle/version/capabilities
+
+- `GET /projects` przyjmuje `state=active|archived|all` oraz
+  `visibility=visible|hidden|all`; `includeHidden` zostaje wspierany jako
+  przestarzały alias (`true` → `visibility=all`) i jest tak opisany w OpenAPI.
+- `ProjectListItemResponse` publikuje `isHidden`, `version` i `capabilities`,
+  `ProjectResponse` — `version` i `capabilities`; nowy
+  `ProjectCapabilitiesResponse` niesie `canManage`, `canArchive`, `canDelete`,
+  `canManageMembers`, `canCreateTemplate`, `canLeave`, `canTransfer` (ostatnie
+  zawsze `false`, bo transferu nie ma — §6.4).
+- `version` to nieprzezroczysty `long` mapowany z `uint Xmin`; `expectedVersion`
+  obsługują PATCH projektu, archive, restore i preferencje. Konflikty mają
+  stabilne kody `project.version_conflict`, `project.preference_version_conflict`
+  i `project.archived`, mapowane w `ApiExceptionMiddleware`.
+- Reguły ACL są wyrażone raz (`ProjectAccessQueries.AccessibleProjects`), a
+  rozstrzyganie roli i rangi trafiło do `ProjectRoleResolution`; mapper listy
+  korzysta z istniejącego `ProjectResponseMapper` (bez drugiego mappera).
+- Preferencje użytkownika mają własny token wersji (`ProjectUserPreference.Xmin`),
+  więc przyjmują `expectedVersion` bez migracji i bez nowych pól encji.
+- Walidacja: `dotnet build` — 0 ostrzeżeń, 0 błędów; `dotnet test --filter
+  "FullyQualifiedName~Project"` — 136/136 PASS (w tym 8 testów HTTP na realnym
+  PostgreSQL: dwie sesje, 409, archiwum, hidden, OpenAPI); pełny zestaw —
+  1174 PASS / 4 SKIP / 7 FAIL, gdzie 7 to zastane `MeEndpointsTests`
+  (potwierdzone `git stash` bez zmian w projekcie); `dotnet ef migrations script
+  --idempotent` — exit 0, brak nowych migracji.
+- Otwarte: przepisanie DTO/adapters Frontu na nowe pola oraz `expectedVersion`
+  dla `DELETE` i handlerów członkostw.
+
+### 2026-09-19 — PN-P4: atomowy kreator projektu w Backendzie
+
+- `POST /workspaces/{id}/project-setups/preview` waliduje ACL, wersję szablonu
+  i zależności, niczego nie zapisuje i zwraca znormalizowany plan z ostrzeżeniami;
+  `POST /workspaces/{id}/project-setups` wykonuje całość w jednej transakcji
+  PostgreSQL (projekt, workflow, członkowie, ustawienia widoku, harmonogram,
+  capacity, automatyzacje, powiadomienia i outbox).
+- Idempotencja jest trwała: rekord `workspaceId + userId + klucz` z hashem
+  kanonicznego JSON-a żądania i zapisanym wynikiem. Powtórzenie tego samego
+  żądania zwraca zapisany wynik (`replayed`), ten sam klucz z innym ciałem to
+  409 `project_setup.idempotency_key_conflict`, a równoległe żądanie —
+  `project_setup.idempotency_in_progress`. Retencja klucza to 48 godzin
+  (konfigurowalna zmienną środowiskową) z zadaniem czyszczącym.
+- Endpoint tylko mapuje HTTP: planowanie i zapis żyją w Application, reguły
+  w Domain, persystencja i integracje w Infrastructure. Kroki korzystają
+  z istniejących serwisów (materializer szablonu, katalog workflow, polityki
+  listy i Kanbanu, capacity, powiadomienia) zamiast kopiować ich reguły.
+- Migracja addytywna `AddProjectSetupIdempotency` dokłada tabelę rekordów oraz
+  kolumnę `projects.DefaultTaskView` (domyślnie `List`, czyli dotychczasowe
+  zachowanie); historyczne migracje nietknięte, skrypt idempotentny przechodzi.
+- Walidacja: `dotnet build` — 0 ostrzeżeń, 0 błędów; `dotnet test --filter
+  "FullyQualifiedName~ProjectSetup"` — 17/17 PASS (13 HTTP na PostgreSQL,
+  4 jednostkowe hashera); pełny zestaw — 1191 PASS / 4 SKIP / 7 FAIL, gdzie te
+  same 7 testów pada na czystym `HEAD` (MeEndpointsTests, niezwiązane);
+  `dotnet ef migrations script --idempotent` — exit 0; `git diff --check` — czysty.
+- Otwarte: `defaultTaskView` nie jest jeszcze wystawiony w `GET/PATCH /projects`
+  (mały addytywny follow-up), kroki kreatora w Froncie (P5b) i transfer (P7).
+
+### 2026-09-19 — PN-REVIEW-FIX: blokery z review
+
+- Naprawiony [P0]: modele kreatora generowały niekompilujący się kod Freezed;
+  adnotacje przeszły na `@Freezed(makeCollectionsUnmodifiable: false)` i pliki
+  wygenerowały się ponownie. Pełny `flutter test` — 1077/1077 PASS.
+- Shell udostępnia teraz `ProjectsRepository` i `ProjectsGateway` potomkom, więc
+  menu projektu w sidebarze ma port mutacji zamiast być wyłączone.
+- Preferencja widoku modułu Zadania jest per użytkownik: klucz zawiera `userId`,
+  a router wczytuje ją ponownie po zmianie konta w tej samej sesji.
+- Backend: `ProjectListItemResponse` publikuje `ArchivedAtUtc`; na działającej
+  bazie `--filter Project` daje 153/153 PASS, a łańcuch migracji wykonuje się na
+  czystej bazie (potwierdzone historią migracji bazy testowej); skrypt
+  idempotentny generuje się z connection stringiem i zawiera nowe obiekty.
+
+### 2026-09-19 — PN-P5b i PN-P1-FRONT: kreator z kroków §5 oraz konsumpcja kontraktu
+
+- Kreator realizuje kroki §5 (start/podstawy/dostęp/workflow/sposób pracy/
+  funkcje startowe/podsumowanie) na atomowym kontrakcie `project-setups`:
+  jeden `Idempotency-Key` na draft, ponowienie po timeoucie z tym samym
+  kluczem, 409 jako trwały błąd, brak projektu w drzewie przed odpowiedzią.
+  24 nowe testy widgetowe; pełny `flutter test` — 1143/1143 PASS.
+- Front konsumuje kontrakt P1: `isHidden`, `version`, `capabilities`,
+  `archivedAtUtc`, `state`/`visibility` w zapytaniu listy, sekcje `Ukryte`
+  i `Archiwum` pobierane z serwera (przetrwają restart), menu liczone
+  z capabilities zamiast `myRole`, `expectedVersion` przy archiwizacji,
+  przywróceniu i preferencjach; brak capabilities daje zachowanie zachowawcze
+  z osobnym komunikatem.
+- Domknięcia po review: pięć pozostałych dialogów zasobów ma jawny stan
+  „brak połączenia w tej sesji” zamiast wyjątku (test to przypina), a backend
+  przyjmuje `expectedVersion` także przy trwałym usunięciu projektu.

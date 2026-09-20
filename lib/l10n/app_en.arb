@@ -163,6 +163,240 @@
   "workspacesProjectVisibilityLabel": "Project visibility",
   "workspacesProjectVisibilityShared": "Shared with all workspace members",
   "workspacesProjectVisibilityPrivate": "Private",
+  "projectSetupWizardTitle": "New project",
+  "projectSetupWizardSubtitle": "The wizard walks through the project configuration. You can skip steps 3-6.",
+  "projectSetupStepCounter": "Step {current} of {total}",
+  "@projectSetupStepCounter": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "projectSetupNextButton": "Next",
+  "projectSetupBackButton": "Back",
+  "projectSetupSkipToSummaryButton": "Skip to summary",
+  "projectSetupCreateButton": "Create project",
+  "projectSetupCreatingButton": "Creating project…",
+  "projectSetupRetryButton": "Try again",
+  "projectSetupRefreshPlanButton": "Refresh plan",
+  "projectSetupCancelButton": "Cancel",
+  "projectSetupStepStartTitle": "Starting point",
+  "projectSetupStepStartSubtitle": "What the project starts from.",
+  "projectSetupStepBasicsTitle": "Basics",
+  "projectSetupStepAccessTitle": "Access",
+  "projectSetupStepWorkflowTitle": "Workflow",
+  "projectSetupStepWorkingStyleTitle": "Ways of working",
+  "projectSetupStepStarterFeaturesTitle": "Starter features",
+  "projectSetupStepSummaryTitle": "Summary",
+  "projectSetupStartBlankTitle": "Blank project",
+  "projectSetupStartBlankDescription": "A project without tasks, labels or fields. You configure everything in the next steps.",
+  "projectSetupStartTemplateTitle": "From a project template",
+  "projectSetupStartTemplateDescription": "Recreates the project together with the tasks, labels, fields and workflow stored in the template.",
+  "projectSetupTemplatesLoading": "Loading templates…",
+  "projectSetupTemplatesEmpty": "This workspace has no project templates yet.",
+  "projectSetupTemplatesUnavailable": "The template catalog is not available in this session.",
+  "projectSetupTemplatesUnavailableReason": "No project template port is wired in.",
+  "projectSetupTemplatesRetry": "Retry loading templates",
+  "projectSetupTemplateTasksCount": "Tasks: {count}",
+  "@projectSetupTemplateTasksCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "projectSetupTemplateLabelsCount": "Labels: {count}",
+  "@projectSetupTemplateLabelsCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "projectSetupTemplateFieldsCount": "Fields: {count}",
+  "@projectSetupTemplateFieldsCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "projectSetupTemplateStatusesCount": "Custom statuses: {count}",
+  "@projectSetupTemplateStatusesCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "projectSetupTemplateVersionLabel": "Version {version}",
+  "@projectSetupTemplateVersionLabel": {
+    "placeholders": {"version": {"type": "int"}}
+  },
+  "projectSetupTemplatePreviewLoading": "Loading the template preview…",
+  "projectSetupTemplatePreviewFailed": "Could not load the template preview.",
+  "projectSetupProjectStatusLabel": "Project status",
+  "projectSetupProjectStatusPlanned": "Planned",
+  "projectSetupProjectStatusActive": "Active",
+  "projectSetupProjectStatusOnHold": "On hold",
+  "projectSetupProjectStatusCompleted": "Completed",
+  "projectSetupAccessSharedTitle": "Everyone in the workspace",
+  "projectSetupAccessSharedDescription": "Every active workspace member sees the project, and the starter member list is skipped.",
+  "projectSetupAccessPrivateTitle": "Private",
+  "projectSetupAccessPrivateDescription": "Only selected members see the project. You are always an Owner and cannot remove yourself.",
+  "projectSetupAccessCreatorBadge": "You — Owner",
+  "projectSetupAccessMembersLegend": "Starter members",
+  "projectSetupAccessMembersLoading": "Loading workspace members…",
+  "projectSetupAccessMembersEmpty": "There are no other active workspace members.",
+  "projectSetupAccessMembersUnavailable": "The workspace member list is not available in this session.",
+  "projectSetupAccessMembersUnavailableReason": "No workspace member port is wired in.",
+  "projectSetupAccessMembersRetry": "Retry loading members",
+  "projectSetupAccessMemberLabel": "User ({prefix}…)",
+  "@projectSetupAccessMemberLabel": {
+    "placeholders": {"prefix": {"type": "String"}}
+  },
+  "projectSetupAccessRoleLabel": "Role",
+  "projectSetupWorkflowFromTemplateTitle": "Workflow from the template",
+  "projectSetupWorkflowFromTemplateDescription": "A templated project uses the statuses stored in the template. You can change them after the project is created.",
+  "projectSetupWorkflowDefaultTitle": "Standard",
+  "projectSetupWorkflowDefaultDescription": "System task statuses of the project.",
+  "projectSetupWorkflowCatalogTitle": "Catalog template",
+  "projectSetupWorkflowCatalogDescription": "A ready-made set of columns from the backend catalog.",
+  "projectSetupWorkflowCatalogLegend": "Catalog template",
+  "projectSetupWorkflowCatalogStandard": "Standard",
+  "projectSetupWorkflowCatalogMarketing": "Marketing",
+  "projectSetupWorkflowCatalogProduction": "Production / Workshop",
+  "projectSetupWorkflowCatalogHr": "HR / Recruiting",
+  "projectSetupWorkflowCatalogSoftware": "IT / Software",
+  "projectSetupWorkflowExplicitTitle": "Custom statuses",
+  "projectSetupWorkflowExplicitDescription": "You define the columns, categories and WIP limits yourself.",
+  "projectSetupStatusNameLabel": "Column name",
+  "projectSetupStatusColorLabel": "Column color",
+  "projectSetupStatusCategoryLabel": "Category",
+  "projectSetupStatusCategoryTodo": "To do",
+  "projectSetupStatusCategoryInProgress": "In progress",
+  "projectSetupStatusCategoryDone": "Done",
+  "projectSetupStatusCategoryCancelled": "Cancelled",
+  "projectSetupStatusWipLabel": "WIP limit",
+  "projectSetupStatusDefaultLabel": "Default for new tasks",
+  "projectSetupStatusAddButton": "Add status",
+  "projectSetupStatusRemoveButton": "Remove status",
+  "projectSetupScheduleLegend": "Schedule",
+  "projectSetupScheduleManual": "Manual",
+  "projectSetupSchedulePushSuccessors": "Push successors on conflict",
+  "projectSetupScheduleStrictCascade": "Full dependency cascade",
+  "projectSetupDefaultViewLegend": "Default Tasks view",
+  "projectSetupViewList": "List",
+  "projectSetupViewBoard": "Kanban",
+  "projectSetupBoardLegend": "Kanban board",
+  "projectSetupBoardDensityLegend": "Card density",
+  "projectSetupDensityCompact": "Compact",
+  "projectSetupDensityComfortable": "Comfortable",
+  "projectSetupDensityDetailed": "Detailed",
+  "projectSetupBoardSwimlaneLegend": "Card grouping into swimlanes",
+  "projectSetupSwimlaneNone": "No swimlanes",
+  "projectSetupSwimlaneAssignee": "By assignee",
+  "projectSetupSwimlanePriority": "By priority",
+  "projectSetupSwimlaneMilestone": "By milestone",
+  "projectSetupBoardFieldsLegend": "Fields visible on the card",
+  "projectSetupCardFieldAssignee": "Assignees",
+  "projectSetupCardFieldDueDate": "Due date",
+  "projectSetupCardFieldLabels": "Labels",
+  "projectSetupCardFieldChecklist": "Checklist",
+  "projectSetupCardFieldSubtasks": "Subtasks",
+  "projectSetupCardFieldTimeTracking": "Time tracking",
+  "projectSetupCardFieldBlockers": "Blockers",
+  "projectSetupCardFieldCoverAttachment": "Cover image",
+  "projectSetupCardFieldCustomFields": "Custom fields",
+  "projectSetupListLegend": "Task list",
+  "projectSetupListSortFieldLegend": "Default sorting",
+  "projectSetupListSortFieldPosition": "Manual order",
+  "projectSetupListSortFieldUpdatedAt": "Last update",
+  "projectSetupListSortFieldDueAt": "Due date",
+  "projectSetupListSortFieldPriority": "Priority",
+  "projectSetupListSortFieldTitle": "Title",
+  "projectSetupListSortDirectionLegend": "Sort direction",
+  "projectSetupListSortDirectionAscending": "Ascending",
+  "projectSetupListSortDirectionDescending": "Descending",
+  "projectSetupListGroupByLegend": "List grouping",
+  "projectSetupListGroupByNone": "No grouping",
+  "projectSetupListGroupByStatus": "By status",
+  "projectSetupListGroupByCustomStatus": "By custom status",
+  "projectSetupListGroupByPriority": "By priority",
+  "projectSetupListGroupByAssignee": "By assignee",
+  "projectSetupCapacityLegend": "Default workspace daily capacity",
+  "projectSetupCapacityDescription": "In minutes per person. The change applies to every workspace member.",
+  "projectSetupCapacityFieldLabel": "Minutes per day",
+  "projectSetupCapacityAdminOnly": "Changing the capacity requires the Admin or Owner role in the workspace.",
+  "projectSetupStartersDescription": "Selected automation recipes are created together with the project. You can disable them later in project settings.",
+  "projectSetupRecipeCriticalToBlocked": "Critical task as blocked",
+  "projectSetupRecipeDueSoonHighPriority": "Raise priority before the due date",
+  "projectSetupRecipeDoneClearDueDate": "Clear the due date when done",
+  "projectSetupRecipeDoneCreateReviewSubtask": "Add a review subtask",
+  "projectSetupRecipeCriticalToBlockedDescription": "When the status changes and the priority is critical, it sets the blocked status.",
+  "projectSetupRecipeDueSoonHighPriorityDescription": "Tasks due within two days get a high priority.",
+  "projectSetupRecipeDoneClearDueDateDescription": "When a task is completed, it clears the due date so planning does not show a stale date.",
+  "projectSetupRecipeDoneCreateReviewSubtaskDescription": "When a task is completed, it creates a subtask with a result review.",
+  "projectSetupSummaryLegend": "What will be created",
+  "projectSetupSummarySource": "Source",
+  "projectSetupSummarySourceBlank": "Blank project",
+  "projectSetupSummarySourceTemplate": "Template: {name}",
+  "@projectSetupSummarySourceTemplate": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "projectSetupSummaryName": "Name",
+  "projectSetupSummaryVisibility": "Visibility",
+  "projectSetupSummaryStatus": "Status",
+  "projectSetupSummaryMembers": "Members",
+  "projectSetupSummaryMembersShared": "All active workspace members",
+  "projectSetupSummaryMembersCount": "{count} people",
+  "@projectSetupSummaryMembersCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "projectSetupSummaryWorkflow": "Workflow",
+  "projectSetupSummaryWorkflowDefault": "System statuses",
+  "projectSetupSummaryWorkflowCatalog": "Catalog template: {name}",
+  "@projectSetupSummaryWorkflowCatalog": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "projectSetupSummaryWorkflowExplicit": "{count} custom statuses",
+  "@projectSetupSummaryWorkflowExplicit": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "projectSetupSummaryWorkflowFromTemplate": "From the project template",
+  "projectSetupSummaryView": "Default Tasks view",
+  "projectSetupSummarySchedule": "Schedule",
+  "projectSetupSummaryCapacity": "Daily capacity",
+  "projectSetupSummaryCapacityValue": "{minutes} min",
+  "@projectSetupSummaryCapacityValue": {
+    "placeholders": {"minutes": {"type": "int"}}
+  },
+  "projectSetupSummaryBoard": "Kanban board",
+  "projectSetupSummaryRecipes": "Automations",
+  "projectSetupSummaryRecipesNone": "None",
+  "projectSetupSummaryPlanLoading": "Building the plan…",
+  "projectSetupSummaryPlanUnavailable": "The plan has not been built yet.",
+  "projectSetupSummaryPlanStale": "The draft changed after the plan was built.",
+  "projectSetupSummaryWarningsLegend": "Warnings",
+  "projectSetupSummaryTemplateCounts": "The template will bring the tasks, labels and fields shown in the plan.",
+  "projectSetupErrorTitle": "The operation could not be completed",
+  "projectSetupErrorCodeLabel": "Code: {code}",
+  "@projectSetupErrorCodeLabel": {
+    "placeholders": {"code": {"type": "String"}}
+  },
+  "projectSetupErrorTraceIdLabel": "Trace id: {traceId}",
+  "@projectSetupErrorTraceIdLabel": {
+    "placeholders": {"traceId": {"type": "String"}}
+  },
+  "projectSetupErrorConflictIdempotency": "This operation key was already used for a different request. The next attempt uses a new key.",
+  "projectSetupErrorConflictInProgress": "An operation with the same key is still in progress. Try again in a moment.",
+  "projectSetupErrorTemplateVersion": "The project template changed in another session. Its preview was refreshed — review the summary and try again.",
+  "projectSetupErrorForbidden": "You are not allowed to create a project in this workspace.",
+  "projectSetupErrorNotFound": "The workspace or the template is no longer available.",
+  "projectSetupErrorValidation": "The backend rejected the wizard data. Fix the highlighted values.",
+  "projectSetupErrorUnavailable": "The wizard has no configured project creation port.",
+  "projectResourceUnavailableMessage": "This form has no backend connection in this session, so nothing was saved.",
+  "projectSetupErrorCancelled": "The operation was cancelled before it was sent.",
+  "projectSetupWarningMembersIgnoredForShared": "Every workspace member sees a shared project, so the starter member list will be skipped.",
+  "projectSetupWarningPrivateMembersLimited": "A private project stays visible only to you until you add members.",
+  "projectSetupWarningTemplateFieldsOverridden": "Descriptive fields come from the wizard, while the workflow, labels, fields and tasks come from the template.",
+  "projectSetupWarningWorkspaceCapacityChanged": "The default workspace daily capacity will change for every member.",
+  "projectSetupValidationNameRequired": "Enter the project name.",
+  "projectSetupValidationNameTooLong": "The project name can have at most 160 characters.",
+  "projectSetupValidationDescriptionTooLong": "The project description can have at most 4000 characters.",
+  "projectSetupValidationTemplateRequired": "Pick a project template or start from a blank project.",
+  "projectSetupValidationMemberDuplicated": "This user appears on the list more than once.",
+  "projectSetupValidationStatusNameRequired": "Every workflow status needs a name.",
+  "projectSetupValidationStatusNameInvalid": "Status names must be unique and at most 60 characters long.",
+  "projectSetupValidationStatusesLimitExceeded": "A workflow can have between 1 and 20 custom statuses.",
+  "projectSetupValidationStatusWipInvalid": "The WIP limit must be between 1 and 999.",
+  "projectSetupValidationCapacityOutOfRange": "The capacity must be between 0 and 1440 minutes.",
+  "projectSetupValidationBoardFieldsRequired": "Select at least one field visible on the card.",
+  "projectSetupCreatedSuccess": "The project was created.",
   "workspacesCreateWhiteboardTitle": "New whiteboard",
   "workspacesCreateWhiteboardSubtitle": "Create a whiteboard for sketching, diagrams and brainstorming.",
   "workspacesWhiteboardNameLabel": "Whiteboard name *",
@@ -3648,5 +3882,169 @@
   "meSessionsRefreshTooltip": "Refresh sessions",
   "meProfileRetry": "Try again",
   "meUnavailableTitle": "Profile unavailable",
-  "meUnavailableMessage": "Profile service is not configured yet."
+  "meUnavailableMessage": "Profile service is not configured yet.",
+
+  "projectsTreeMenuTooltip": "Project menu",
+  "projectsTreeDragHandle": "Reorder project",
+  "projectsTreeLoadFailureFallback": "Could not load projects.",
+  "projectsTreeHiddenSectionTitle": "Hidden",
+  "projectsTreeArchiveSectionTitle": "Archive",
+  "projectsTreeArchiveSectionNote": "This section lists the projects archived in this workspace, loaded from the server.",
+  "projectsMenuOpen": "Open",
+  "projectsMenuPin": "Pin",
+  "projectsMenuUnpin": "Unpin",
+  "projectsMenuHide": "Hide for me",
+  "projectsMenuUnhide": "Show in tree",
+  "projectsMenuRenameAppearance": "Change name and appearance",
+  "projectsMenuSettings": "Settings",
+  "projectsMenuCreateTemplate": "Create template from project",
+  "projectsMenuArchive": "Archive",
+  "projectsMenuRestore": "Restore to tree",
+  "projectsMenuDeletePermanently": "Delete permanently",
+  "projectsMenuMoveToWorkspace": "Move to workspace",
+  "projectsMenuLeaveProject": "Leave project",
+  "projectsMenuBusy": "Saving project changes.",
+  "projectsMenuReasonNoTransport": "Project mutation port is not available in this composition.",
+  "projectsMenuReasonManagePermission": "Requires project owner or admin role.",
+  "projectsMenuReasonUnknownCapabilities": "The backend did not return this project's permissions. Refresh the project list.",
+  "projectsMenuReasonDeletePermission": "Permanent deletion requires the project owner role.",
+  "projectsMenuReasonNoSettings": "The project settings center is not available here.",
+  "projectsMenuReasonNoTemplatePort": "The project template repository is not available here.",
+  "projectsMenuReasonTransferContract": "The cross-workspace project transfer contract has not been delivered yet.",
+  "projectsMenuReasonLeaveRule": "The last-owner rule is not yet available in the contract.",
+  "projectsNoticePinned": "Project {projectName} pinned to the top of the tree.",
+  "@projectsNoticePinned": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsNoticeUnpinned": "Project {projectName} unpinned.",
+  "@projectsNoticeUnpinned": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsNoticeHidden": "Project {projectName} hidden in the tree.",
+  "@projectsNoticeHidden": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsNoticeUnhidden": "Project {projectName} is visible again.",
+  "@projectsNoticeUnhidden": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsNoticeArchived": "Project {projectName} archived.",
+  "@projectsNoticeArchived": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsNoticeRestored": "Project {projectName} restored to the tree.",
+  "@projectsNoticeRestored": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsNoticeDeleted": "Project {projectName} permanently deleted.",
+  "projectsNoticeLeft": "You left project {projectName}.",
+  "@projectsNoticeLeft": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "@projectsNoticeDeleted": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsNoticeTemplateCreated": "Template of project {projectName} created.",
+  "@projectsNoticeTemplateCreated": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsNoticeUndo": "Undo",
+  "projectsFailureTitle": "Project operation failed",
+  "projectsFailureOperationPin": "Pinning the project",
+  "projectsFailureOperationHide": "Hiding the project",
+  "projectsFailureOperationPreference": "Changing project preferences",
+  "projectsFailureOperationReorder": "Saving project order",
+  "projectsFailureOperationArchive": "Archiving the project",
+  "projectsFailureOperationRestore": "Restoring the project",
+  "projectsFailureOperationDelete": "Deleting the project permanently",
+  "projectsFailureOperationTemplate": "Creating the project template",
+  "projectsFailureOperationLeave": "Leaving the project",
+  "projectsFailureOperationSections": "Loading the Hidden and Archive sections",
+  "projectsFailureRolledBack": "The operation was rolled back — the previous state was restored.",
+  "projectsFailureKindUnavailable": "The project mutation port is not available in this composition.",
+  "projectsFailureKindUnauthorized": "Your session expired. Sign in again.",
+  "projectsFailureKindForbidden": "You do not have permission to perform this operation.",
+  "projectsFailureKindNotFound": "The project does not exist or is no longer available.",
+  "projectsFailureKindConflict": "The project state changed on the server (conflict).",
+  "projectsFailureKindValidation": "The server rejected the operation payload.",
+  "projectsFailureKindRateLimited": "Too many requests. Try again in a moment.",
+  "projectsFailureKindServer": "Server error. The change was not saved.",
+  "projectsFailureKindTransport": "No connection to the server. The change was not saved.",
+  "projectsFailureKindInvalidIntent": "The operation was incomplete and was not sent.",
+  "projectsFailureKindUnknown": "An unknown operation error occurred.",
+  "projectsFailureCode": "Code: {code}",
+  "@projectsFailureCode": {
+    "placeholders": {
+        "code": {"type": "String"}
+    }
+  },
+  "projectsFailureTraceId": "Diagnostic id: {traceId}",
+  "@projectsFailureTraceId": {
+    "placeholders": {
+        "traceId": {"type": "String"}
+    }
+  },
+  "projectsFailureBackendMessage": "Server: {message}",
+  "@projectsFailureBackendMessage": {
+    "placeholders": {
+        "message": {"type": "String"}
+    }
+  },
+  "projectsFailureRetry": "Retry",
+  "projectsFailureDismiss": "Dismiss message",
+  "projectsArchiveConfirmTitle": "Archive this project?",
+  "projectsArchiveConfirmBody": "Project {projectName} will disappear from the project tree. Its history, tasks and files are preserved, and the project can be restored from the Archive section.",
+  "@projectsArchiveConfirmBody": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsArchiveConfirmAction": "Archive project",
+  "projectsDialogCancel": "Cancel",
+  "projectsDeleteConfirmTitle": "Delete this project permanently?",
+  "projectsDeleteConfirmBody": "Permanently deleting project {projectName} is irreversible and removes all of its data. To confirm, type the project name.",
+  "@projectsDeleteConfirmBody": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsDeleteConfirmFieldLabel": "Project name",
+  "projectsDeleteConfirmMismatch": "The name does not match the project name.",
+  "projectsDeleteConfirmAction": "Delete permanently",
+  "projectsLeaveConfirmTitle": "Leave this project?",
+  "projectsLeaveConfirmBody": "Leaving project {projectName} revokes your explicit project membership. A Shared project may remain visible, because access is inherited from the workspace.",
+  "@projectsLeaveConfirmBody": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsLeaveConfirmAction": "Leave project",
+  "projectsTemplateDialogTitle": "Create template from project",
+  "projectsTemplateDialogBody": "The template of {projectName} will capture the current project configuration: workflow, labels, custom fields and active tasks.",
+  "@projectsTemplateDialogBody": {
+    "placeholders": {
+        "projectName": {"type": "String"}
+    }
+  },
+  "projectsTemplateNameLabel": "Template name",
+  "projectsTemplateNameRequired": "Enter the template name.",
+  "projectsTemplateCreateAction": "Create template"
 }

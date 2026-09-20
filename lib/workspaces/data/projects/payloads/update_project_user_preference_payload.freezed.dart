@@ -17,7 +17,9 @@ mixin _$UpdateProjectUserPreferencePayload {
 
 /// Czy projekt ma być ukryty na liście bieżącego użytkownika.
  bool get isHidden;/// Czy projekt ma być przypięty na liście bieżącego użytkownika.
- bool get isPinned;
+ bool get isPinned;/// Oczekiwana wersja preferencji z poprzedniego odczytu lub zapisu
+/// (a nie wersja projektu) albo null, gdy klient jej nie zna.
+ int? get expectedVersion;
 /// Create a copy of UpdateProjectUserPreferencePayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +32,16 @@ $UpdateProjectUserPreferencePayloadCopyWith<UpdateProjectUserPreferencePayload> 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProjectUserPreferencePayload&&(identical(other.isHidden, isHidden) || other.isHidden == isHidden)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProjectUserPreferencePayload&&(identical(other.isHidden, isHidden) || other.isHidden == isHidden)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,isHidden,isPinned);
+int get hashCode => Object.hash(runtimeType,isHidden,isPinned,expectedVersion);
 
 @override
 String toString() {
-  return 'UpdateProjectUserPreferencePayload(isHidden: $isHidden, isPinned: $isPinned)';
+  return 'UpdateProjectUserPreferencePayload(isHidden: $isHidden, isPinned: $isPinned, expectedVersion: $expectedVersion)';
 }
 
 
@@ -50,7 +52,7 @@ abstract mixin class $UpdateProjectUserPreferencePayloadCopyWith<$Res>  {
   factory $UpdateProjectUserPreferencePayloadCopyWith(UpdateProjectUserPreferencePayload value, $Res Function(UpdateProjectUserPreferencePayload) _then) = _$UpdateProjectUserPreferencePayloadCopyWithImpl;
 @useResult
 $Res call({
- bool isHidden, bool isPinned
+ bool isHidden, bool isPinned, int? expectedVersion
 });
 
 
@@ -67,11 +69,12 @@ class _$UpdateProjectUserPreferencePayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProjectUserPreferencePayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isHidden = null,Object? isPinned = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isHidden = null,Object? isPinned = null,Object? expectedVersion = freezed,}) {
   return _then(_self.copyWith(
 isHidden: null == isHidden ? _self.isHidden : isHidden // ignore: cast_nullable_to_non_nullable
 as bool,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,expectedVersion: freezed == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -156,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isHidden,  bool isPinned)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isHidden,  bool isPinned,  int? expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateProjectUserPreferencePayload() when $default != null:
-return $default(_that.isHidden,_that.isPinned);case _:
+return $default(_that.isHidden,_that.isPinned,_that.expectedVersion);case _:
   return orElse();
 
 }
@@ -177,10 +180,10 @@ return $default(_that.isHidden,_that.isPinned);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isHidden,  bool isPinned)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isHidden,  bool isPinned,  int? expectedVersion)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProjectUserPreferencePayload():
-return $default(_that.isHidden,_that.isPinned);case _:
+return $default(_that.isHidden,_that.isPinned,_that.expectedVersion);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +200,10 @@ return $default(_that.isHidden,_that.isPinned);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isHidden,  bool isPinned)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isHidden,  bool isPinned,  int? expectedVersion)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProjectUserPreferencePayload() when $default != null:
-return $default(_that.isHidden,_that.isPinned);case _:
+return $default(_that.isHidden,_that.isPinned,_that.expectedVersion);case _:
   return null;
 
 }
@@ -212,13 +215,16 @@ return $default(_that.isHidden,_that.isPinned);case _:
 @JsonSerializable()
 
 class _UpdateProjectUserPreferencePayload implements UpdateProjectUserPreferencePayload {
-  const _UpdateProjectUserPreferencePayload({required this.isHidden, required this.isPinned});
+  const _UpdateProjectUserPreferencePayload({required this.isHidden, required this.isPinned, this.expectedVersion});
   factory _UpdateProjectUserPreferencePayload.fromJson(Map<String, dynamic> json) => _$UpdateProjectUserPreferencePayloadFromJson(json);
 
 /// Czy projekt ma być ukryty na liście bieżącego użytkownika.
 @override final  bool isHidden;
 /// Czy projekt ma być przypięty na liście bieżącego użytkownika.
 @override final  bool isPinned;
+/// Oczekiwana wersja preferencji z poprzedniego odczytu lub zapisu
+/// (a nie wersja projektu) albo null, gdy klient jej nie zna.
+@override final  int? expectedVersion;
 
 /// Create a copy of UpdateProjectUserPreferencePayload
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProjectUserPreferencePayload&&(identical(other.isHidden, isHidden) || other.isHidden == isHidden)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProjectUserPreferencePayload&&(identical(other.isHidden, isHidden) || other.isHidden == isHidden)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,isHidden,isPinned);
+int get hashCode => Object.hash(runtimeType,isHidden,isPinned,expectedVersion);
 
 @override
 String toString() {
-  return 'UpdateProjectUserPreferencePayload(isHidden: $isHidden, isPinned: $isPinned)';
+  return 'UpdateProjectUserPreferencePayload(isHidden: $isHidden, isPinned: $isPinned, expectedVersion: $expectedVersion)';
 }
 
 
@@ -253,7 +259,7 @@ abstract mixin class _$UpdateProjectUserPreferencePayloadCopyWith<$Res> implemen
   factory _$UpdateProjectUserPreferencePayloadCopyWith(_UpdateProjectUserPreferencePayload value, $Res Function(_UpdateProjectUserPreferencePayload) _then) = __$UpdateProjectUserPreferencePayloadCopyWithImpl;
 @override @useResult
 $Res call({
- bool isHidden, bool isPinned
+ bool isHidden, bool isPinned, int? expectedVersion
 });
 
 
@@ -270,11 +276,12 @@ class __$UpdateProjectUserPreferencePayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProjectUserPreferencePayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isHidden = null,Object? isPinned = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isHidden = null,Object? isPinned = null,Object? expectedVersion = freezed,}) {
   return _then(_UpdateProjectUserPreferencePayload(
 isHidden: null == isHidden ? _self.isHidden : isHidden // ignore: cast_nullable_to_non_nullable
 as bool,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,expectedVersion: freezed == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

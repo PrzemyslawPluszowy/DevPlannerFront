@@ -296,7 +296,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tasks.queries.length, greaterThan(loadsBefore));
-    expect(tasks.queries.last.status, ProjectTaskStatus.inProgress.name);
+    // Kontraktem transportowym jest wartość enumu z backendu (`InProgress`),
+    // a nie dartowa nazwa pola: `.name` wracał tu 400 z bindera Minimal API.
+    expect(tasks.queries.last.status, ProjectTaskStatus.inProgress.wireValue);
     // Aktywny filtr pokazuje wartość i czyszczenie wszystkiego.
     expect(find.text('W toku'), findsOneWidget);
     expect(
@@ -318,7 +320,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('W toku').last);
     await tester.pumpAndSettle();
-    expect(tasks.queries.last.status, ProjectTaskStatus.inProgress.name);
+    expect(tasks.queries.last.status, ProjectTaskStatus.inProgress.wireValue);
 
     // Wiersz poleceń przewija się poziomo, więc przycisk może być poza kadrem.
     await tester.ensureVisible(

@@ -23,6 +23,12 @@ _ProjectResponse _$ProjectResponseFromJson(Map<String, dynamic> json) =>
       archivedAtUtc: json['archivedAtUtc'] == null
           ? null
           : DateTime.parse(json['archivedAtUtc'] as String),
+      version: (json['version'] as num?)?.toInt(),
+      capabilities: json['capabilities'] == null
+          ? null
+          : ProjectCapabilitiesResponse.fromJson(
+              json['capabilities'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$ProjectResponseToJson(_ProjectResponse instance) =>
@@ -40,6 +46,8 @@ Map<String, dynamic> _$ProjectResponseToJson(_ProjectResponse instance) =>
       'createdAtUtc': instance.createdAtUtc.toIso8601String(),
       'updatedAtUtc': instance.updatedAtUtc.toIso8601String(),
       'archivedAtUtc': instance.archivedAtUtc?.toIso8601String(),
+      'version': instance.version,
+      'capabilities': instance.capabilities,
     };
 
 const _$ProjectVisibilityEnumMap = {

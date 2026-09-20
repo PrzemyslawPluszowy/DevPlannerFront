@@ -1,6 +1,7 @@
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
+import 'package:devplanner/workspaces/domain/models/project_action_capabilities.dart';
 
 /// DTO listy projektów zgodny z backendowym `ProjectListItemResponse`.
 final class DevPlannerProjectListItemResponse {
@@ -16,6 +17,10 @@ final class DevPlannerProjectListItemResponse {
     required this.myRole,
     required this.isPinned,
     required this.sortPosition,
+    this.isHidden = false,
+    this.archivedAtUtc,
+    this.version,
+    this.capabilities,
   });
 
   factory DevPlannerProjectListItemResponse.fromJson(Object? value) {
@@ -64,6 +69,12 @@ final class DevPlannerProjectListItemResponse {
       sortPosition: value['sortPosition'] is num
           ? (value['sortPosition'] as num).toInt()
           : null,
+      isHidden: value['isHidden'] == true,
+      archivedAtUtc: _dateTimeValue(value['archivedAtUtc']),
+      version: value['version'] is num
+          ? (value['version'] as num).toInt()
+          : null,
+      capabilities: _capabilitiesValue(value['capabilities']),
     );
   }
 
@@ -78,6 +89,42 @@ final class DevPlannerProjectListItemResponse {
   final ProjectRole? myRole;
   final bool isPinned;
   final int? sortPosition;
+
+  /// Czy projekt jest ukryty przez bieżącego użytkownika.
+  final bool isHidden;
+
+  /// Czas archiwizacji albo null dla aktywnego projektu.
+  final DateTime? archivedAtUtc;
+
+  /// Nieprzezroczysta wersja projektu (`xmin`) albo null w starszym kontrakcie.
+  final int? version;
+
+  /// Możliwości bieżącego użytkownika albo null w starszym kontrakcie.
+  final ProjectActionCapabilities? capabilities;
+
+  /// Czyta czas z JSON tolerancyjnie: brak pola albo błędny format to `null`,
+  /// bo lista projektów nie może przestać działać przez jedno pole daty.
+  static DateTime? _dateTimeValue(Object? raw) {
+    if (raw is! String || raw.trim().isEmpty) return null;
+    return DateTime.tryParse(raw);
+  }
+
+  /// Czyta `capabilities`; brak obiektu oznacza starszy kontrakt i zwraca
+  /// `null`, żeby prezentacja zachowała się zachowawczo zamiast zgadywać.
+  static ProjectActionCapabilities? _capabilitiesValue(Object? raw) {
+    if (raw is! Map) return null;
+    return ProjectActionCapabilities(
+      canManage: _boolValue(raw['canManage']),
+      canArchive: _boolValue(raw['canArchive']),
+      canDelete: _boolValue(raw['canDelete']),
+      canManageMembers: _boolValue(raw['canManageMembers']),
+      canCreateTemplate: _boolValue(raw['canCreateTemplate']),
+      canLeave: _boolValue(raw['canLeave']),
+      canTransfer: _boolValue(raw['canTransfer']),
+    );
+  }
+
+  static bool _boolValue(Object? raw) => raw is bool && raw;
 
   static T? _enumValue<T>(Object? raw, List<T> values) {
     if (raw is! String) return null;

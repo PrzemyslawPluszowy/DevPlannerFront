@@ -22,10 +22,17 @@ class _ProjectsApi implements ProjectsApi {
   @override
   Future<List<ProjectListItemResponse>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    String? state,
+    String? visibility,
+    bool? includeHidden,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'includeHidden': includeHidden};
+    final queryParameters = <String, dynamic>{
+      r'state': state,
+      r'visibility': visibility,
+      r'includeHidden': includeHidden,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<ProjectListItemResponse>>(
@@ -186,10 +193,14 @@ class _ProjectsApi implements ProjectsApi {
   @override
   Future<ProjectResponse> archiveProject(
     String workspaceId,
-    String projectId,
-  ) async {
+    String projectId, {
+    int? expectedVersion,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'expectedVersion': expectedVersion,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<ProjectResponse>(
@@ -216,10 +227,14 @@ class _ProjectsApi implements ProjectsApi {
   @override
   Future<ProjectResponse> restoreProject(
     String workspaceId,
-    String projectId,
-  ) async {
+    String projectId, {
+    int? expectedVersion,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'expectedVersion': expectedVersion,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<ProjectResponse>(
@@ -494,6 +509,70 @@ class _ProjectsApi implements ProjectsApi {
     late ProjectUserPreferenceResponse _value;
     try {
       _value = ProjectUserPreferenceResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ProjectSetupPreviewResponse> previewProjectSetup(
+    String workspaceId,
+    CreateProjectSetupRequest body,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<ProjectSetupPreviewResponse>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/workspaces/${workspaceId}/project-setups/preview',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ProjectSetupPreviewResponse _value;
+    try {
+      _value = ProjectSetupPreviewResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ProjectSetupResponse> createProjectSetup(
+    String workspaceId,
+    CreateProjectSetupRequest body, {
+    required String idempotencyKey,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Idempotency-Key': idempotencyKey};
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<ProjectSetupResponse>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/workspaces/${workspaceId}/project-setups/',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ProjectSetupResponse _value;
+    try {
+      _value = ProjectSetupResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

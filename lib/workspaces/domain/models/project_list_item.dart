@@ -1,6 +1,7 @@
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
+import 'package:devplanner/workspaces/domain/models/project_action_capabilities.dart';
 
 /// Domena projektu używana przez katalog Workspace.
 ///
@@ -22,6 +23,8 @@ final class ProjectListItem {
     this.sortPosition,
     this.isHidden = false,
     this.archivedAtUtc,
+    this.version,
+    this.capabilities,
   });
 
   final String id;
@@ -35,8 +38,23 @@ final class ProjectListItem {
   final ProjectRole? myRole;
   final bool isPinned;
   final int? sortPosition;
+
+  /// Czy projekt jest ukryty przez bieżącego użytkownika.
+  ///
+  /// Pole pochodzi z listy serwera, więc sekcja `Ukryte` nie zależy wyłącznie
+  /// od tego, co użytkownik zdążył zrobić w tej sesji.
   final bool isHidden;
+
+  /// Czas archiwizacji albo `null` dla aktywnego projektu.
   final DateTime? archivedAtUtc;
+
+  /// Nieprzezroczysta wersja projektu (`xmin`) używana jako `expectedVersion`
+  /// przy zapisie; `null`, gdy backend jej nie zwrócił.
+  final int? version;
+
+  /// Możliwości bieżącego użytkownika albo `null`, gdy backend ich nie zwrócił
+  /// (starszy kontrakt). Prezentacja nie zgaduje wtedy uprawnień z [myRole].
+  final ProjectActionCapabilities? capabilities;
 
   /// Czy projekt jest zarchiwizowany.
   bool get isArchived => archivedAtUtc != null;
@@ -61,6 +79,10 @@ final class ProjectListItem {
     bool? isHidden,
     DateTime? archivedAtUtc,
     bool clearArchivedAtUtc = false,
+    int? version,
+    bool clearVersion = false,
+    ProjectActionCapabilities? capabilities,
+    bool clearCapabilities = false,
   }) => ProjectListItem(
     id: id ?? this.id,
     workspaceId: workspaceId ?? this.workspaceId,
@@ -81,5 +103,9 @@ final class ProjectListItem {
     archivedAtUtc: clearArchivedAtUtc
         ? null
         : (archivedAtUtc ?? this.archivedAtUtc),
+    version: clearVersion ? null : (version ?? this.version),
+    capabilities: clearCapabilities
+        ? null
+        : (capabilities ?? this.capabilities),
   );
 }

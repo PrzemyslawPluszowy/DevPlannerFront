@@ -1,6 +1,7 @@
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:devplanner/workspaces/data/projects/api/projects_list_api.dart';
 import 'package:devplanner/workspaces/data/projects/repositories/projects_gateway_impl.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,19 +19,26 @@ final class _Transport extends DevPlannerHttpTransport {
   }
 }
 
+/// Rejestrująca atrapa portu listy projektów; zapisuje cały filtr zapytania.
 final class _Api implements ProjectsListApi {
   _Api(this.response);
 
   final DevPlannerHttpResponse response;
   String? workspaceId;
+  ProjectListState? state;
+  ProjectListVisibility? visibility;
   bool? includeHidden;
 
   @override
   Future<DevPlannerHttpResponse> listProjects({
     required String workspaceId,
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    bool? includeHidden,
   }) async {
     this.workspaceId = workspaceId;
+    this.state = state;
+    this.visibility = visibility;
     this.includeHidden = includeHidden;
     return response;
   }
@@ -51,10 +59,42 @@ Map<String, Object?> _projectJson({
   'myRole': 'Member',
   'isPinned': true,
   'sortPosition': 2,
+  'isHidden': false,
+  'archivedAtUtc': null,
+  'version': 7,
+  'capabilities': {
+    'canManage': true,
+    'canArchive': true,
+    'canDelete': false,
+    'canManageMembers': true,
+    'canCreateTemplate': false,
+    'canLeave': true,
+    'canTransfer': false,
+  },
 };
 
 void main() {
-  test('API wysyła workspaceId w ścieżce i includeHidden w query', () async {
+  test('API wysyła dokładne wartości state i visibility w query', () async {
+    final transport = _Transport(
+      const DevPlannerHttpResponse(statusCode: 200, body: <Object?>[]),
+    );
+    final api = DevPlannerProjectsListApi(transport: transport);
+
+    await api.listProjects(
+      workspaceId: 'workspace-7',
+      state: ProjectListState.archived,
+      visibility: ProjectListVisibility.hidden,
+    );
+
+    expect(transport.request?.path, '/api/v1/workspaces/workspace-7/projects/');
+    // Wartości są tokenami backendu, a nie nazwami elementów enuma w Dartcie.
+    expect(transport.request?.query, {
+      'state': 'archived',
+      'visibility': 'hidden',
+    });
+  });
+
+  test('API mapuje przestarzały includeHidden na visibility=all', () async {
     final transport = _Transport(
       const DevPlannerHttpResponse(statusCode: 200, body: <Object?>[]),
     );
@@ -62,29 +102,57 @@ void main() {
 
     await api.listProjects(workspaceId: 'workspace-7', includeHidden: true);
 
-    expect(transport.request?.path, '/api/v1/workspaces/workspace-7/projects/');
-    expect(transport.request?.query, {'includeHidden': 'true'});
+    expect(transport.request?.query, {
+      'state': 'active',
+      'visibility': 'all',
+    });
+  });
+
+  test('jawna visibility ma pierwszeństwo nad includeHidden', () async {
+    final transport = _Transport(
+      const DevPlannerHttpResponse(statusCode: 200, body: <Object?>[]),
+    );
+    final api = DevPlannerProjectsListApi(transport: transport);
+
+    await api.listProjects(
+      workspaceId: 'workspace-7',
+      visibility: ProjectListVisibility.hidden,
+      includeHidden: true,
+    );
+
+    expect(transport.request?.query['visibility'], 'hidden');
   });
 
   test('listuje tylko wskazany workspace i mapuje lokalny DTO', () async {
     final api = _Api(
-      DevPlannerHttpResponse(
-        statusCode: 200,
-        body: [_projectJson()],
-      ),
+      DevPlannerHttpResponse(statusCode: 200, body: [_projectJson()]),
     );
     final gateway = ProjectsGatewayImpl(api: api);
 
     final projects = await gateway.listProjects(
       'workspace-1',
-      includeHidden: true,
+      state: ProjectListState.all,
+      visibility: ProjectListVisibility.hidden,
     );
 
     expect(api.workspaceId, 'workspace-1');
-    expect(api.includeHidden, isTrue);
+    expect(api.state, ProjectListState.all);
+    expect(api.visibility, ProjectListVisibility.hidden);
     expect(projects.single.id, 'project-1');
     expect(projects.single.workspaceId, 'workspace-1');
     expect(projects.single.isPinned, isTrue);
+  });
+
+  test('gateway przekazuje przestarzały includeHidden jako alias', () async {
+    final api = _Api(
+      DevPlannerHttpResponse(statusCode: 200, body: [_projectJson()]),
+    );
+    final gateway = ProjectsGatewayImpl(api: api);
+
+    await gateway.listProjects('workspace-1', includeHidden: true);
+
+    expect(api.includeHidden, isTrue);
+    expect(api.state, ProjectListState.active);
   });
 
   test('mapuje 403 na typed forbidden bez udawania pustej listy', () async {
@@ -162,25 +230,28 @@ void main() {
     );
   });
 
-  test('odrzuca element spoza żądanego workspace zamiast mieszać gałęzie', () async {
-    final gateway = ProjectsGatewayImpl(
-      api: _Api(
-        DevPlannerHttpResponse(
-          statusCode: 200,
-          body: [_projectJson(workspaceId: 'workspace-other')],
+  test(
+    'odrzuca element spoza żądanego workspace zamiast mieszać gałęzie',
+    () async {
+      final gateway = ProjectsGatewayImpl(
+        api: _Api(
+          DevPlannerHttpResponse(
+            statusCode: 200,
+            body: [_projectJson(workspaceId: 'workspace-other')],
+          ),
         ),
-      ),
-    );
+      );
 
-    await expectLater(
-      gateway.listProjects('workspace-1'),
-      throwsA(
-        isA<ProjectsGatewayException>().having(
-          (error) => error.reason,
-          'reason',
-          ProjectsFailureReason.invalidResponse,
+      await expectLater(
+        gateway.listProjects('workspace-1'),
+        throwsA(
+          isA<ProjectsGatewayException>().having(
+            (error) => error.reason,
+            'reason',
+            ProjectsFailureReason.invalidResponse,
+          ),
         ),
-      ),
-    );
-  });
+      );
+    },
+  );
 }

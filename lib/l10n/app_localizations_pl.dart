@@ -516,6 +516,659 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workspacesProjectVisibilityPrivate => 'Prywatny';
 
   @override
+  String get projectSetupWizardTitle => 'Nowy projekt';
+
+  @override
+  String get projectSetupWizardSubtitle =>
+      'Kreator prowadzi przez konfigurację projektu. Kroki 3-6 możesz pominąć.';
+
+  @override
+  String projectSetupStepCounter(int current, int total) {
+    return 'Krok $current z $total';
+  }
+
+  @override
+  String get projectSetupNextButton => 'Dalej';
+
+  @override
+  String get projectSetupBackButton => 'Wstecz';
+
+  @override
+  String get projectSetupSkipToSummaryButton => 'Pomiń do podsumowania';
+
+  @override
+  String get projectSetupCreateButton => 'Utwórz projekt';
+
+  @override
+  String get projectSetupCreatingButton => 'Tworzenie projektu…';
+
+  @override
+  String get projectSetupRetryButton => 'Ponów';
+
+  @override
+  String get projectSetupRefreshPlanButton => 'Odśwież plan';
+
+  @override
+  String get projectSetupCancelButton => 'Anuluj';
+
+  @override
+  String get projectSetupStepStartTitle => 'Sposób startu';
+
+  @override
+  String get projectSetupStepStartSubtitle => 'Od czego zaczyna się projekt.';
+
+  @override
+  String get projectSetupStepBasicsTitle => 'Podstawy';
+
+  @override
+  String get projectSetupStepAccessTitle => 'Dostęp';
+
+  @override
+  String get projectSetupStepWorkflowTitle => 'Workflow';
+
+  @override
+  String get projectSetupStepWorkingStyleTitle => 'Sposób pracy';
+
+  @override
+  String get projectSetupStepStarterFeaturesTitle => 'Funkcje startowe';
+
+  @override
+  String get projectSetupStepSummaryTitle => 'Podsumowanie';
+
+  @override
+  String get projectSetupStartBlankTitle => 'Pusty projekt';
+
+  @override
+  String get projectSetupStartBlankDescription =>
+      'Projekt bez zadań, etykiet i pól. Konfigurację wybierasz w kolejnych krokach.';
+
+  @override
+  String get projectSetupStartTemplateTitle => 'Z szablonu projektu';
+
+  @override
+  String get projectSetupStartTemplateDescription =>
+      'Odtwarza projekt razem z zadaniami, etykietami, polami i workflow zapisanymi w szablonie.';
+
+  @override
+  String get projectSetupTemplatesLoading => 'Pobieranie szablonów…';
+
+  @override
+  String get projectSetupTemplatesEmpty =>
+      'W tym workspace nie ma jeszcze szablonów projektów.';
+
+  @override
+  String get projectSetupTemplatesUnavailable =>
+      'Katalog szablonów nie jest dostępny w tej sesji.';
+
+  @override
+  String get projectSetupTemplatesUnavailableReason =>
+      'Brak wpiętego portu szablonów projektów.';
+
+  @override
+  String get projectSetupTemplatesRetry => 'Ponów pobieranie szablonów';
+
+  @override
+  String projectSetupTemplateTasksCount(int count) {
+    return 'Zadania: $count';
+  }
+
+  @override
+  String projectSetupTemplateLabelsCount(int count) {
+    return 'Etykiety: $count';
+  }
+
+  @override
+  String projectSetupTemplateFieldsCount(int count) {
+    return 'Pola: $count';
+  }
+
+  @override
+  String projectSetupTemplateStatusesCount(int count) {
+    return 'Własne statusy: $count';
+  }
+
+  @override
+  String projectSetupTemplateVersionLabel(int version) {
+    return 'Wersja $version';
+  }
+
+  @override
+  String get projectSetupTemplatePreviewLoading =>
+      'Pobieranie podglądu szablonu…';
+
+  @override
+  String get projectSetupTemplatePreviewFailed =>
+      'Nie udało się pobrać podglądu szablonu.';
+
+  @override
+  String get projectSetupProjectStatusLabel => 'Status projektu';
+
+  @override
+  String get projectSetupProjectStatusPlanned => 'Planowany';
+
+  @override
+  String get projectSetupProjectStatusActive => 'Aktywny';
+
+  @override
+  String get projectSetupProjectStatusOnHold => 'Wstrzymany';
+
+  @override
+  String get projectSetupProjectStatusCompleted => 'Zakończony';
+
+  @override
+  String get projectSetupAccessSharedTitle => 'Dla wszystkich w workspace';
+
+  @override
+  String get projectSetupAccessSharedDescription =>
+      'Projekt widzą wszyscy aktywni członkowie workspace, a lista startowych członków jest pomijana.';
+
+  @override
+  String get projectSetupAccessPrivateTitle => 'Prywatny';
+
+  @override
+  String get projectSetupAccessPrivateDescription =>
+      'Projekt widzą wyłącznie wybrani członkowie. Ty zawsze jesteś Ownerem i nie możesz usunąć siebie.';
+
+  @override
+  String get projectSetupAccessCreatorBadge => 'Ty — Owner';
+
+  @override
+  String get projectSetupAccessMembersLegend => 'Startowi członkowie';
+
+  @override
+  String get projectSetupAccessMembersLoading =>
+      'Pobieranie członków workspace…';
+
+  @override
+  String get projectSetupAccessMembersEmpty =>
+      'Brak innych aktywnych członków workspace.';
+
+  @override
+  String get projectSetupAccessMembersUnavailable =>
+      'Lista członków workspace nie jest dostępna w tej sesji.';
+
+  @override
+  String get projectSetupAccessMembersUnavailableReason =>
+      'Brak wpiętego portu członków workspace.';
+
+  @override
+  String get projectSetupAccessMembersRetry => 'Ponów pobieranie członków';
+
+  @override
+  String projectSetupAccessMemberLabel(String prefix) {
+    return 'Użytkownik ($prefix…)';
+  }
+
+  @override
+  String get projectSetupAccessRoleLabel => 'Rola';
+
+  @override
+  String get projectSetupWorkflowFromTemplateTitle => 'Workflow z szablonu';
+
+  @override
+  String get projectSetupWorkflowFromTemplateDescription =>
+      'Projekt z szablonu używa statusów zapisanych w szablonie. Zmienisz je po utworzeniu projektu.';
+
+  @override
+  String get projectSetupWorkflowDefaultTitle => 'Standardowy';
+
+  @override
+  String get projectSetupWorkflowDefaultDescription =>
+      'Systemowe statusy zadań projektu.';
+
+  @override
+  String get projectSetupWorkflowCatalogTitle => 'Katalogowy szablon';
+
+  @override
+  String get projectSetupWorkflowCatalogDescription =>
+      'Gotowy zestaw kolumn z katalogu Backendu.';
+
+  @override
+  String get projectSetupWorkflowCatalogLegend => 'Szablon katalogowy';
+
+  @override
+  String get projectSetupWorkflowCatalogStandard => 'Standardowy';
+
+  @override
+  String get projectSetupWorkflowCatalogMarketing => 'Marketing';
+
+  @override
+  String get projectSetupWorkflowCatalogProduction => 'Produkcja / Warsztat';
+
+  @override
+  String get projectSetupWorkflowCatalogHr => 'HR / Rekrutacja';
+
+  @override
+  String get projectSetupWorkflowCatalogSoftware => 'IT / Software';
+
+  @override
+  String get projectSetupWorkflowExplicitTitle => 'Własne statusy';
+
+  @override
+  String get projectSetupWorkflowExplicitDescription =>
+      'Sam definiujesz kolumny, kategorie i limity WIP.';
+
+  @override
+  String get projectSetupStatusNameLabel => 'Nazwa kolumny';
+
+  @override
+  String get projectSetupStatusColorLabel => 'Kolor kolumny';
+
+  @override
+  String get projectSetupStatusCategoryLabel => 'Kategoria';
+
+  @override
+  String get projectSetupStatusCategoryTodo => 'Do zrobienia';
+
+  @override
+  String get projectSetupStatusCategoryInProgress => 'W trakcie';
+
+  @override
+  String get projectSetupStatusCategoryDone => 'Zrobione';
+
+  @override
+  String get projectSetupStatusCategoryCancelled => 'Anulowane';
+
+  @override
+  String get projectSetupStatusWipLabel => 'Limit WIP';
+
+  @override
+  String get projectSetupStatusDefaultLabel => 'Domyślny dla nowych zadań';
+
+  @override
+  String get projectSetupStatusAddButton => 'Dodaj status';
+
+  @override
+  String get projectSetupStatusRemoveButton => 'Usuń status';
+
+  @override
+  String get projectSetupScheduleLegend => 'Harmonogram';
+
+  @override
+  String get projectSetupScheduleManual => 'Ręczny';
+
+  @override
+  String get projectSetupSchedulePushSuccessors =>
+      'Przesuwaj następców przy konflikcie';
+
+  @override
+  String get projectSetupScheduleStrictCascade => 'Pełna kaskada zależności';
+
+  @override
+  String get projectSetupDefaultViewLegend => 'Domyślny widok modułu Zadania';
+
+  @override
+  String get projectSetupViewList => 'Lista';
+
+  @override
+  String get projectSetupViewBoard => 'Kanban';
+
+  @override
+  String get projectSetupBoardLegend => 'Tablica Kanban';
+
+  @override
+  String get projectSetupBoardDensityLegend => 'Gęstość kafelka';
+
+  @override
+  String get projectSetupDensityCompact => 'Kompaktowa';
+
+  @override
+  String get projectSetupDensityComfortable => 'Wygodna';
+
+  @override
+  String get projectSetupDensityDetailed => 'Szczegółowa';
+
+  @override
+  String get projectSetupBoardSwimlaneLegend => 'Grupowanie kart w tory';
+
+  @override
+  String get projectSetupSwimlaneNone => 'Bez torów';
+
+  @override
+  String get projectSetupSwimlaneAssignee => 'Według wykonawcy';
+
+  @override
+  String get projectSetupSwimlanePriority => 'Według priorytetu';
+
+  @override
+  String get projectSetupSwimlaneMilestone => 'Według kamienia milowego';
+
+  @override
+  String get projectSetupBoardFieldsLegend => 'Pola widoczne na kafelku';
+
+  @override
+  String get projectSetupCardFieldAssignee => 'Wykonawcy';
+
+  @override
+  String get projectSetupCardFieldDueDate => 'Termin';
+
+  @override
+  String get projectSetupCardFieldLabels => 'Etykiety';
+
+  @override
+  String get projectSetupCardFieldChecklist => 'Checklista';
+
+  @override
+  String get projectSetupCardFieldSubtasks => 'Podzadania';
+
+  @override
+  String get projectSetupCardFieldTimeTracking => 'Czas pracy';
+
+  @override
+  String get projectSetupCardFieldBlockers => 'Blokady';
+
+  @override
+  String get projectSetupCardFieldCoverAttachment => 'Okładka';
+
+  @override
+  String get projectSetupCardFieldCustomFields => 'Pola własne';
+
+  @override
+  String get projectSetupListLegend => 'Lista zadań';
+
+  @override
+  String get projectSetupListSortFieldLegend => 'Domyślne sortowanie';
+
+  @override
+  String get projectSetupListSortFieldPosition => 'Kolejność ręczna';
+
+  @override
+  String get projectSetupListSortFieldUpdatedAt => 'Ostatnia zmiana';
+
+  @override
+  String get projectSetupListSortFieldDueAt => 'Termin';
+
+  @override
+  String get projectSetupListSortFieldPriority => 'Priorytet';
+
+  @override
+  String get projectSetupListSortFieldTitle => 'Tytuł';
+
+  @override
+  String get projectSetupListSortDirectionLegend => 'Kierunek sortowania';
+
+  @override
+  String get projectSetupListSortDirectionAscending => 'Rosnąco';
+
+  @override
+  String get projectSetupListSortDirectionDescending => 'Malejąco';
+
+  @override
+  String get projectSetupListGroupByLegend => 'Grupowanie listy';
+
+  @override
+  String get projectSetupListGroupByNone => 'Bez grupowania';
+
+  @override
+  String get projectSetupListGroupByStatus => 'Według statusu';
+
+  @override
+  String get projectSetupListGroupByCustomStatus => 'Według własnego statusu';
+
+  @override
+  String get projectSetupListGroupByPriority => 'Według priorytetu';
+
+  @override
+  String get projectSetupListGroupByAssignee => 'Według wykonawcy';
+
+  @override
+  String get projectSetupCapacityLegend =>
+      'Domyślna dzienna pojemność workspace';
+
+  @override
+  String get projectSetupCapacityDescription =>
+      'W minutach na osobę. Zmiana dotyczy wszystkich członków workspace.';
+
+  @override
+  String get projectSetupCapacityFieldLabel => 'Minuty na dzień';
+
+  @override
+  String get projectSetupCapacityAdminOnly =>
+      'Zmiana pojemności wymaga roli Admin albo Owner w workspace.';
+
+  @override
+  String get projectSetupStartersDescription =>
+      'Wybrane przepisy automatyzacji powstaną razem z projektem. Możesz je później wyłączyć w ustawieniach projektu.';
+
+  @override
+  String get projectSetupRecipeCriticalToBlocked =>
+      'Krytyczne zadanie jako zablokowane';
+
+  @override
+  String get projectSetupRecipeDueSoonHighPriority =>
+      'Podnieś priorytet przed terminem';
+
+  @override
+  String get projectSetupRecipeDoneClearDueDate =>
+      'Wyczyść termin po ukończeniu';
+
+  @override
+  String get projectSetupRecipeDoneCreateReviewSubtask =>
+      'Dodaj podzadanie przeglądu';
+
+  @override
+  String get projectSetupRecipeCriticalToBlockedDescription =>
+      'Po zmianie statusu, gdy priorytet jest krytyczny, ustawia status zablokowany.';
+
+  @override
+  String get projectSetupRecipeDueSoonHighPriorityDescription =>
+      'Zadania z terminem w ciągu dwóch dni otrzymują wysoki priorytet.';
+
+  @override
+  String get projectSetupRecipeDoneClearDueDateDescription =>
+      'Po ukończeniu zadania usuwa jego termin, żeby planowanie nie pokazywało zaległej daty.';
+
+  @override
+  String get projectSetupRecipeDoneCreateReviewSubtaskDescription =>
+      'Po ukończeniu zadania tworzy podzadanie z przeglądem rezultatu.';
+
+  @override
+  String get projectSetupSummaryLegend => 'Co powstanie';
+
+  @override
+  String get projectSetupSummarySource => 'Źródło';
+
+  @override
+  String get projectSetupSummarySourceBlank => 'Pusty projekt';
+
+  @override
+  String projectSetupSummarySourceTemplate(String name) {
+    return 'Szablon: $name';
+  }
+
+  @override
+  String get projectSetupSummaryName => 'Nazwa';
+
+  @override
+  String get projectSetupSummaryVisibility => 'Widoczność';
+
+  @override
+  String get projectSetupSummaryStatus => 'Status';
+
+  @override
+  String get projectSetupSummaryMembers => 'Członkowie';
+
+  @override
+  String get projectSetupSummaryMembersShared =>
+      'Wszyscy aktywni członkowie workspace';
+
+  @override
+  String projectSetupSummaryMembersCount(int count) {
+    return '$count osób';
+  }
+
+  @override
+  String get projectSetupSummaryWorkflow => 'Workflow';
+
+  @override
+  String get projectSetupSummaryWorkflowDefault => 'Statusy systemowe';
+
+  @override
+  String projectSetupSummaryWorkflowCatalog(String name) {
+    return 'Szablon katalogowy: $name';
+  }
+
+  @override
+  String projectSetupSummaryWorkflowExplicit(int count) {
+    return '$count własnych statusów';
+  }
+
+  @override
+  String get projectSetupSummaryWorkflowFromTemplate => 'Z szablonu projektu';
+
+  @override
+  String get projectSetupSummaryView => 'Domyślny widok Zadania';
+
+  @override
+  String get projectSetupSummarySchedule => 'Harmonogram';
+
+  @override
+  String get projectSetupSummaryCapacity => 'Dziennea pojemność';
+
+  @override
+  String projectSetupSummaryCapacityValue(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get projectSetupSummaryBoard => 'Tablica Kanban';
+
+  @override
+  String get projectSetupSummaryRecipes => 'Automatyzacje';
+
+  @override
+  String get projectSetupSummaryRecipesNone => 'Brak';
+
+  @override
+  String get projectSetupSummaryPlanLoading => 'Budowanie planu…';
+
+  @override
+  String get projectSetupSummaryPlanUnavailable =>
+      'Plan nie został jeszcze zbudowany.';
+
+  @override
+  String get projectSetupSummaryPlanStale =>
+      'Draft zmienił się od czasu zbudowania planu.';
+
+  @override
+  String get projectSetupSummaryWarningsLegend => 'Ostrzeżenia';
+
+  @override
+  String get projectSetupSummaryTemplateCounts =>
+      'Szablon wniesie zadania, etykiety i pola widoczne w planie.';
+
+  @override
+  String get projectSetupErrorTitle => 'Nie udało się wykonać operacji';
+
+  @override
+  String projectSetupErrorCodeLabel(String code) {
+    return 'Kod: $code';
+  }
+
+  @override
+  String projectSetupErrorTraceIdLabel(String traceId) {
+    return 'Identyfikator śledzenia: $traceId';
+  }
+
+  @override
+  String get projectSetupErrorConflictIdempotency =>
+      'Ten klucz operacji został już użyty dla innego żądania. Kolejna próba użyje nowego klucza.';
+
+  @override
+  String get projectSetupErrorConflictInProgress =>
+      'Operacja o tym samym kluczu jest jeszcze przetwarzana. Spróbuj ponownie za chwilę.';
+
+  @override
+  String get projectSetupErrorTemplateVersion =>
+      'Szablon projektu zmienił się w innej sesji. Podgląd szablonu został odświeżony — sprawdź podsumowanie i spróbuj ponownie.';
+
+  @override
+  String get projectSetupErrorForbidden =>
+      'Nie masz uprawnień do utworzenia projektu w tym workspace.';
+
+  @override
+  String get projectSetupErrorNotFound =>
+      'Workspace albo szablon nie jest już dostępny.';
+
+  @override
+  String get projectSetupErrorValidation =>
+      'Backend odrzucił dane kreatora. Popraw wskazane wartości.';
+
+  @override
+  String get projectSetupErrorUnavailable =>
+      'Kreator nie ma skonfigurowanego portu tworzenia projektu.';
+
+  @override
+  String get projectResourceUnavailableMessage =>
+      'Ten formularz nie ma połączenia z backendem w tej sesji, więc nic nie zostało zapisane.';
+
+  @override
+  String get projectSetupErrorCancelled =>
+      'Operacja została anulowana przed wysłaniem.';
+
+  @override
+  String get projectSetupWarningMembersIgnoredForShared =>
+      'Projekt współdzielony widzą wszyscy członkowie workspace, dlatego lista startowych członków zostanie pominięta.';
+
+  @override
+  String get projectSetupWarningPrivateMembersLimited =>
+      'Projekt prywatny będzie widoczny wyłącznie dla Ciebie, dopóki nie dodasz członków.';
+
+  @override
+  String get projectSetupWarningTemplateFieldsOverridden =>
+      'Pola opisowe pochodzą z kreatora, a workflow, etykiety, pola i zadania z szablonu.';
+
+  @override
+  String get projectSetupWarningWorkspaceCapacityChanged =>
+      'Domyślna dzienna pojemność workspace zostanie zmieniona dla wszystkich jego członków.';
+
+  @override
+  String get projectSetupValidationNameRequired => 'Wprowadź nazwę projektu.';
+
+  @override
+  String get projectSetupValidationNameTooLong =>
+      'Nazwa projektu może mieć maksymalnie 160 znaków.';
+
+  @override
+  String get projectSetupValidationDescriptionTooLong =>
+      'Opis projektu może mieć maksymalnie 4000 znaków.';
+
+  @override
+  String get projectSetupValidationTemplateRequired =>
+      'Wybierz szablon projektu albo zacznij od pustego projektu.';
+
+  @override
+  String get projectSetupValidationMemberDuplicated =>
+      'Ten użytkownik występuje na liście więcej niż raz.';
+
+  @override
+  String get projectSetupValidationStatusNameRequired =>
+      'Każdy status workflow wymaga nazwy.';
+
+  @override
+  String get projectSetupValidationStatusNameInvalid =>
+      'Nazwy statusów muszą być niepowtarzalne i mieć maksymalnie 60 znaków.';
+
+  @override
+  String get projectSetupValidationStatusesLimitExceeded =>
+      'Workflow może mieć od 1 do 20 własnych statusów.';
+
+  @override
+  String get projectSetupValidationStatusWipInvalid =>
+      'Limit WIP musi mieścić się w zakresie 1-999.';
+
+  @override
+  String get projectSetupValidationCapacityOutOfRange =>
+      'Pojemność musi mieścić się w zakresie 0-1440 minut.';
+
+  @override
+  String get projectSetupValidationBoardFieldsRequired =>
+      'Wybierz co najmniej jedno pole widoczne na kafelku.';
+
+  @override
+  String get projectSetupCreatedSuccess => 'Projekt został utworzony.';
+
+  @override
   String get workspacesCreateWhiteboardTitle => 'Nowa tablica interaktywna';
 
   @override
@@ -9139,4 +9792,308 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get meUnavailableMessage =>
       'Usługa profilu nie jest jeszcze skonfigurowana.';
+
+  @override
+  String get projectsTreeMenuTooltip => 'Menu projektu';
+
+  @override
+  String get projectsTreeDragHandle => 'Zmień kolejność projektu';
+
+  @override
+  String get projectsTreeLoadFailureFallback =>
+      'Nie udało się pobrać projektów.';
+
+  @override
+  String get projectsTreeHiddenSectionTitle => 'Ukryte';
+
+  @override
+  String get projectsTreeArchiveSectionTitle => 'Archiwum';
+
+  @override
+  String get projectsTreeArchiveSectionNote =>
+      'Sekcja pokazuje projekty zarchiwizowane w tym workspace, pobrane z serwera.';
+
+  @override
+  String get projectsMenuOpen => 'Otwórz';
+
+  @override
+  String get projectsMenuPin => 'Przypnij';
+
+  @override
+  String get projectsMenuUnpin => 'Odepnij';
+
+  @override
+  String get projectsMenuHide => 'Ukryj dla mnie';
+
+  @override
+  String get projectsMenuUnhide => 'Pokaż w drzewie';
+
+  @override
+  String get projectsMenuRenameAppearance => 'Zmień nazwę i wygląd';
+
+  @override
+  String get projectsMenuSettings => 'Ustawienia';
+
+  @override
+  String get projectsMenuCreateTemplate => 'Utwórz szablon z projektu';
+
+  @override
+  String get projectsMenuArchive => 'Archiwizuj';
+
+  @override
+  String get projectsMenuRestore => 'Przywróć do drzewa';
+
+  @override
+  String get projectsMenuDeletePermanently => 'Usuń trwale';
+
+  @override
+  String get projectsMenuMoveToWorkspace => 'Przenieś do workspace';
+
+  @override
+  String get projectsMenuLeaveProject => 'Opuść projekt';
+
+  @override
+  String get projectsMenuBusy => 'Trwa zapisywanie zmian w projekcie.';
+
+  @override
+  String get projectsMenuReasonNoTransport =>
+      'Brak portu projektów w tej kompozycji.';
+
+  @override
+  String get projectsMenuReasonManagePermission =>
+      'Wymaga roli właściciela lub administratora projektu.';
+
+  @override
+  String get projectsMenuReasonUnknownCapabilities =>
+      'Backend nie zwrócił uprawnień tego projektu. Odśwież listę projektów.';
+
+  @override
+  String get projectsMenuReasonDeletePermission =>
+      'Trwałe usunięcie wymaga roli właściciela projektu.';
+
+  @override
+  String get projectsMenuReasonNoSettings =>
+      'Centrum ustawień projektu nie jest dostępne w tym miejscu.';
+
+  @override
+  String get projectsMenuReasonNoTemplatePort =>
+      'Repozytorium szablonów projektów nie jest dostępne w tym miejscu.';
+
+  @override
+  String get projectsMenuReasonTransferContract =>
+      'Kontrakt przenoszenia projektu między workspace’ami nie został jeszcze dostarczony.';
+
+  @override
+  String get projectsMenuReasonLeaveRule =>
+      'Reguła ostatniego właściciela nie jest jeszcze dostępna w kontrakcie.';
+
+  @override
+  String projectsNoticePinned(String projectName) {
+    return 'Projekt $projectName przypięty na górze drzewa.';
+  }
+
+  @override
+  String projectsNoticeUnpinned(String projectName) {
+    return 'Projekt $projectName odpięty.';
+  }
+
+  @override
+  String projectsNoticeHidden(String projectName) {
+    return 'Projekt $projectName ukryty w drzewie.';
+  }
+
+  @override
+  String projectsNoticeUnhidden(String projectName) {
+    return 'Projekt $projectName ponownie widoczny w drzewie.';
+  }
+
+  @override
+  String projectsNoticeArchived(String projectName) {
+    return 'Projekt $projectName zarchiwizowany.';
+  }
+
+  @override
+  String projectsNoticeRestored(String projectName) {
+    return 'Projekt $projectName przywrócony do drzewa.';
+  }
+
+  @override
+  String projectsNoticeDeleted(String projectName) {
+    return 'Projekt $projectName usunięty trwale.';
+  }
+
+  @override
+  String projectsNoticeLeft(String projectName) {
+    return 'Opuściłeś projekt $projectName.';
+  }
+
+  @override
+  String projectsNoticeTemplateCreated(String projectName) {
+    return 'Szablon projektu $projectName został utworzony.';
+  }
+
+  @override
+  String get projectsNoticeUndo => 'Cofnij';
+
+  @override
+  String get projectsFailureTitle => 'Operacja na projekcie nie powiodła się';
+
+  @override
+  String get projectsFailureOperationPin => 'Przypięcie projektu';
+
+  @override
+  String get projectsFailureOperationHide => 'Ukrycie projektu';
+
+  @override
+  String get projectsFailureOperationPreference =>
+      'Zmiana preferencji projektu';
+
+  @override
+  String get projectsFailureOperationReorder => 'Zapis kolejności projektów';
+
+  @override
+  String get projectsFailureOperationArchive => 'Archiwizacja projektu';
+
+  @override
+  String get projectsFailureOperationRestore => 'Przywrócenie projektu';
+
+  @override
+  String get projectsFailureOperationDelete => 'Trwałe usunięcie projektu';
+
+  @override
+  String get projectsFailureOperationTemplate => 'Utworzenie szablonu projektu';
+
+  @override
+  String get projectsFailureOperationLeave => 'Opuszczenie projektu';
+
+  @override
+  String get projectsFailureOperationSections =>
+      'Wczytanie sekcji Ukryte i Archiwum';
+
+  @override
+  String get projectsFailureRolledBack =>
+      'Operacja została cofnięta — przywrócono poprzedni stan.';
+
+  @override
+  String get projectsFailureKindUnavailable =>
+      'Brak portu mutacji projektów w tej kompozycji.';
+
+  @override
+  String get projectsFailureKindUnauthorized =>
+      'Sesja wygasła. Zaloguj się ponownie.';
+
+  @override
+  String get projectsFailureKindForbidden =>
+      'Brak uprawnień do wykonania tej operacji.';
+
+  @override
+  String get projectsFailureKindNotFound =>
+      'Projekt nie istnieje lub nie jest już dostępny.';
+
+  @override
+  String get projectsFailureKindConflict =>
+      'Stan projektu zmienił się na serwerze (konflikt).';
+
+  @override
+  String get projectsFailureKindValidation => 'Serwer odrzucił dane operacji.';
+
+  @override
+  String get projectsFailureKindRateLimited =>
+      'Zbyt wiele żądań. Spróbuj ponownie za chwilę.';
+
+  @override
+  String get projectsFailureKindServer =>
+      'Błąd serwera. Zmiana nie została zapisana.';
+
+  @override
+  String get projectsFailureKindTransport =>
+      'Brak połączenia z serwerem. Zmiana nie została zapisana.';
+
+  @override
+  String get projectsFailureKindInvalidIntent =>
+      'Operacja była niepełna i nie została wysłana.';
+
+  @override
+  String get projectsFailureKindUnknown => 'Wystąpił nieznany błąd operacji.';
+
+  @override
+  String projectsFailureCode(String code) {
+    return 'Kod: $code';
+  }
+
+  @override
+  String projectsFailureTraceId(String traceId) {
+    return 'Identyfikator diagnostyczny: $traceId';
+  }
+
+  @override
+  String projectsFailureBackendMessage(String message) {
+    return 'Serwer: $message';
+  }
+
+  @override
+  String get projectsFailureRetry => 'Ponów';
+
+  @override
+  String get projectsFailureDismiss => 'Ukryj komunikat';
+
+  @override
+  String get projectsArchiveConfirmTitle => 'Zarchiwizować projekt?';
+
+  @override
+  String projectsArchiveConfirmBody(String projectName) {
+    return 'Projekt $projectName zniknie z drzewa projektów. Historia, zadania i pliki pozostaną zachowane, a projekt będzie można przywrócić z sekcji Archiwum.';
+  }
+
+  @override
+  String get projectsArchiveConfirmAction => 'Archiwizuj projekt';
+
+  @override
+  String get projectsDialogCancel => 'Anuluj';
+
+  @override
+  String get projectsDeleteConfirmTitle => 'Trwale usunąć projekt?';
+
+  @override
+  String projectsDeleteConfirmBody(String projectName) {
+    return 'Trwałe usunięcie projektu $projectName jest nieodwracalne i usuwa wszystkie jego dane. Aby potwierdzić, wpisz nazwę projektu.';
+  }
+
+  @override
+  String get projectsDeleteConfirmFieldLabel => 'Nazwa projektu';
+
+  @override
+  String get projectsDeleteConfirmMismatch =>
+      'Nazwa nie zgadza się z nazwą projektu.';
+
+  @override
+  String get projectsDeleteConfirmAction => 'Usuń trwale';
+
+  @override
+  String get projectsLeaveConfirmTitle => 'Opuścić projekt?';
+
+  @override
+  String projectsLeaveConfirmBody(String projectName) {
+    return 'Opuszczenie projektu $projectName cofa Twoje jawne członkostwo. Projekt Shared może pozostać widoczny, bo dostęp dziedziczy się z workspace.';
+  }
+
+  @override
+  String get projectsLeaveConfirmAction => 'Opuść projekt';
+
+  @override
+  String get projectsTemplateDialogTitle => 'Utwórz szablon z projektu';
+
+  @override
+  String projectsTemplateDialogBody(String projectName) {
+    return 'Szablon $projectName zapisze aktualną konfigurację projektu: workflow, etykiety, pola niestandardowe i aktywne zadania.';
+  }
+
+  @override
+  String get projectsTemplateNameLabel => 'Nazwa szablonu';
+
+  @override
+  String get projectsTemplateNameRequired => 'Wpisz nazwę szablonu.';
+
+  @override
+  String get projectsTemplateCreateAction => 'Utwórz szablon';
 }

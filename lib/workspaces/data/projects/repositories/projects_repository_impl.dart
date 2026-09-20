@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/data/api_repository.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/api/projects_api.dart';
+import 'package:devplanner/workspaces/data/projects/mappers/project_list_item_mapper.dart';
 import 'package:devplanner/workspaces/data/projects/payloads/change_project_member_role_payload.dart';
 import 'package:devplanner/workspaces/data/projects/payloads/create_project_membership_payload.dart';
 import 'package:devplanner/workspaces/data/projects/payloads/create_project_payload.dart';
@@ -12,27 +13,68 @@ import 'package:devplanner/workspaces/data/projects/responses/project_list_item_
 import 'package:devplanner/workspaces/data/projects/responses/project_member_response.dart';
 import 'package:devplanner/workspaces/data/projects/responses/project_response.dart';
 import 'package:devplanner/workspaces/data/projects/responses/project_user_preference_response.dart';
+import 'package:devplanner/workspaces/data/projects/setups/models/project_setup_preview_models.dart';
+import 'package:devplanner/workspaces/data/projects/setups/models/project_setup_request_models.dart';
+import 'package:devplanner/workspaces/data/projects/setups/repositories/project_setups_repository_impl.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
+import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_creation.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_setups_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 
 /// Implementacja repozytorium projektów oparta o uwierzytelniony Retrofit API.
+///
+/// Klasa implementuje także [ProjectSetupsRepository], bo atomowe utworzenie
+/// projektu jest operacją na tym samym zasobie, a shell przekazuje do formularza
+/// tworzenia projektu wyłącznie port projektów. Dzięki temu sidebar, drzewo i
+/// command palette korzystają z jednego kontraktu i jednej sesji HTTP.
 final class ProjectsRepositoryImpl extends ApiRepository
-    implements ProjectsRepository {
-  ProjectsRepositoryImpl({required this.api});
+    implements ProjectsRepository, ProjectSetupsRepository {
+  ProjectsRepositoryImpl({required this.api})
+    : _setups = ProjectSetupsRepositoryImpl(api: api);
 
   final ProjectsApi api;
+
+  final ProjectSetupsRepositoryImpl _setups;
+
+  @override
+  Future<Either<ApiError, ProjectSetupPreviewResponse>> previewProjectSetup({
+    required String workspaceId,
+    required CreateProjectSetupRequest request,
+  }) => _setups.previewProjectSetup(
+    workspaceId: workspaceId,
+    request: request,
+  );
+
+  @override
+  Future<Either<ApiError, ProjectSetupCreation>> createProjectSetup({
+    required String workspaceId,
+    required CreateProjectSetupRequest request,
+    required String idempotencyKey,
+  }) => _setups.createProjectSetup(
+    workspaceId: workspaceId,
+    request: request,
+    idempotencyKey: idempotencyKey,
+  );
 
   @override
   Future<Either<ApiError, List<ProjectListItem>>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    @Deprecated('Użyj visibility; wartość true odpowiada visibility=all.')
+    bool? includeHidden,
   }) => guardApiCall(
     () async => (await api.listProjects(
       workspaceId,
-      includeHidden: includeHidden,
+      state: state.queryValue,
+      visibility: ProjectListVisibility.fromLegacy(
+        visibility: visibility,
+        includeHidden: includeHidden,
+      ).queryValue,
     )).map(_toDomain).toList(growable: false),
     fallbackMessage: 'Nie udało się pobrać projektów workspace’u.',
     parsingMessage: 'Backend zwrócił nieprawidłową listę projektów.',
@@ -89,6 +131,7 @@ final class ProjectsRepositoryImpl extends ApiRepository
     String? primaryColor,
     required ProjectVisibility visibility,
     required ProjectStatus status,
+    int? expectedVersion,
   }) => guardApiCall(
     () async {
       final response = await api.updateProject(
@@ -101,6 +144,7 @@ final class ProjectsRepositoryImpl extends ApiRepository
           primaryColor: primaryColor,
           visibility: visibility,
           status: status,
+          expectedVersion: expectedVersion,
         ),
       );
       return _fromProjectResponse(response);
@@ -113,9 +157,14 @@ final class ProjectsRepositoryImpl extends ApiRepository
   Future<Either<ApiError, ProjectListItem>> archiveProject({
     required String workspaceId,
     required String projectId,
+    int? expectedVersion,
   }) => guardApiCall(
     () async {
-      final response = await api.archiveProject(workspaceId, projectId);
+      final response = await api.archiveProject(
+        workspaceId,
+        projectId,
+        expectedVersion: expectedVersion,
+      );
       return _fromProjectResponse(response);
     },
     fallbackMessage: 'Nie udało się zarchiwizować projektu.',
@@ -126,9 +175,14 @@ final class ProjectsRepositoryImpl extends ApiRepository
   Future<Either<ApiError, ProjectListItem>> restoreProject({
     required String workspaceId,
     required String projectId,
+    int? expectedVersion,
   }) => guardApiCall(
     () async {
-      final response = await api.restoreProject(workspaceId, projectId);
+      final response = await api.restoreProject(
+        workspaceId,
+        projectId,
+        expectedVersion: expectedVersion,
+      );
       return _fromProjectResponse(response);
     },
     fallbackMessage: 'Nie udało się przywrócić projektu.',
@@ -219,6 +273,7 @@ final class ProjectsRepositoryImpl extends ApiRepository
     required String projectId,
     required bool isHidden,
     required bool isPinned,
+    int? expectedVersion,
   }) => guardApiCall(
     () => api.updateProjectUserPreference(
       workspaceId,
@@ -226,6 +281,7 @@ final class ProjectsRepositoryImpl extends ApiRepository
       UpdateProjectUserPreferencePayload(
         isHidden: isHidden,
         isPinned: isPinned,
+        expectedVersion: expectedVersion,
       ),
     ),
     fallbackMessage: 'Nie udało się zaktualizować preferencji projektu.',
@@ -261,6 +317,10 @@ final class ProjectsRepositoryImpl extends ApiRepository
         myRole: response.myRole,
         sortPosition: 0,
         archivedAtUtc: response.archivedAtUtc,
+        version: response.version,
+        capabilities: ProjectListItemMapper.toDomainCapabilities(
+          response.capabilities,
+        ),
       );
 
   ProjectListItem _toDomain(ProjectListItemResponse response) =>
@@ -276,5 +336,11 @@ final class ProjectsRepositoryImpl extends ApiRepository
         myRole: response.myRole,
         isPinned: response.isPinned,
         sortPosition: response.sortPosition,
+        isHidden: response.isHidden,
+        archivedAtUtc: response.archivedAtUtc,
+        version: response.version,
+        capabilities: ProjectListItemMapper.toDomainCapabilities(
+          response.capabilities,
+        ),
       );
 }

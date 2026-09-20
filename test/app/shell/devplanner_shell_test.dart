@@ -1,9 +1,12 @@
 import 'package:devplanner/app/shell/devplanner_shell.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 import 'package:devplanner/workspaces/domain/models/workspace_summary.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/create_project_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -203,25 +206,22 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(
-          const ValueKey(
-            'navigation-node-workspace:alpha:project:project-a:tasks',
-          ),
-        ),
-        matching: find.byIcon(Icons.chevron_right),
-      ),
+    final tasksNode = find.byKey(
+      const ValueKey('navigation-node-workspace:alpha:project:project-a:tasks'),
     );
-    await tester.pumpAndSettle();
-    final kanbanNode = find.byKey(
-      const ValueKey(
-        'navigation-node-workspace:alpha:project:project-a:tasks:kanban',
-      ),
+    expect(tasksNode, findsOneWidget);
+    // Jeden węzeł Zadania zamiast dwóch gałęzi Lista/Kanban.
+    expect(
+      find.descendant(of: tasksNode, matching: find.text('Tasks')),
+      findsOneWidget,
     );
-    expect(kanbanNode, findsOneWidget);
-    // Projekt pokazuje wyłącznie pozycje z aktywną trasą: Lista, Kanban i Pliki.
-    expect(find.text('List'), findsOneWidget);
+    expect(
+      find.descendant(of: tasksNode, matching: find.byIcon(Icons.chevron_right)),
+      findsNothing,
+    );
+    expect(find.text('List'), findsNothing);
+    expect(find.text('Kanban'), findsNothing);
+    // Projekt pokazuje wyłącznie pozycje z aktywną trasą: Zadania i Pliki.
     expect(find.text('Files and documents'), findsAtLeastNWidgets(1));
     expect(find.text('Whiteboards'), findsNothing);
     expect(find.text('Corkboard'), findsNothing);
@@ -229,7 +229,7 @@ void main() {
     expect(find.text('Automations'), findsNothing);
   });
 
-  testWidgets('selects the Tasks view that the URL actually opens', (
+  testWidgets('keeps the single Tasks node selected for every module view', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(1440, 900));
@@ -259,22 +259,30 @@ void main() {
     await tester.pumpAndSettle();
     await _expandProjectBranch(tester);
 
-    // Kanban jest zaznaczony, bo to jego adres otworzył shell.
-    expect(_labelWeight(tester, 'Kanban'), FontWeight.w600);
-    expect(_labelWeight(tester, 'List'), FontWeight.w400);
+    const tasksNodeId = 'workspace:$workspaceId:project:$projectId:tasks';
+
+    // Moduł Zadania ma jeden wiersz, więc jest zaznaczony niezależnie od tego,
+    // który widok modułu (`?view=`) otworzył adres.
+    expect(_nodeLabelWeight(tester, tasksNodeId, 'Tasks'), FontWeight.w600);
 
     router.go(_tasksPath);
     await tester.pumpAndSettle();
-
-    expect(_labelWeight(tester, 'List'), FontWeight.w600);
-    expect(_labelWeight(tester, 'Kanban'), FontWeight.w400);
+    expect(_nodeLabelWeight(tester, tasksNodeId, 'Tasks'), FontWeight.w600);
 
     router.go('$_tasksPath?view=list');
     await tester.pumpAndSettle();
+    expect(_nodeLabelWeight(tester, tasksNodeId, 'Tasks'), FontWeight.w600);
 
-    // `?view=list` musi zaznaczać Listę, a nie gubić zaznaczenia.
-    expect(_labelWeight(tester, 'List'), FontWeight.w600);
-    expect(_labelWeight(tester, 'Kanban'), FontWeight.w400);
+    // Projekt nie podświetla się drugi raz, gdy zaznaczone jest jego dziecko:
+    // oba wiersze prowadzą do tego samego adresu modułu.
+    expect(
+      _nodeLabelWeight(
+        tester,
+        'workspace:$workspaceId:project:$projectId',
+        'Project A',
+      ),
+      FontWeight.w400,
+    );
   });
 
   testWidgets('opens the Tasks List when the project row is clicked', (
@@ -319,6 +327,50 @@ void main() {
       router.routerDelegate.currentConfiguration.uri.toString(),
       _tasksPath,
     );
+  });
+
+  testWidgets('sidebar opens the same project form as the project tree', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1440, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = GoRouter(
+      initialLocation: '/workspaces',
+      routes: [
+        ShellRoute(
+          builder: (_, _, child) => DevPlannerShellRoute(
+            workspaceNavigationGateway: _WorkspaceGateway(),
+            projectsGateway: _ProjectsGateway(),
+            projectsRepository: _StubProjectsRepository(),
+            child: child,
+          ),
+          routes: [
+            GoRoute(
+              path: '/workspaces',
+              builder: (_, _) => const Text('workspaces content'),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_LocalizedRouter(router));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('navigation-node-workspace:alpha')),
+        matching: find.byIcon(Icons.chevron_right),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Sidebar używa tego samego formularza co drzewo projektów — nie ma już
+    // drugiego, uproszczonego dialogu tworzenia projektu.
+    await tester.tap(find.byTooltip('New project'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CreateProjectDialog), findsOneWidget);
   });
 
   testWidgets('na wąskim oknie drzewo jest osiągalne w nakładce', (
@@ -406,7 +458,6 @@ Future<void> _expandProjectBranch(WidgetTester tester) async {
     'workspace:$workspaceId',
     'workspace:$workspaceId:projects',
     'workspace:$workspaceId:project:$projectId',
-    'workspace:$workspaceId:project:$projectId:tasks',
   ]) {
     final chevron = find.descendant(
       of: find.byKey(ValueKey<String>('navigation-node-$id')),
@@ -418,9 +469,23 @@ Future<void> _expandProjectBranch(WidgetTester tester) async {
   }
 }
 
-/// Waga etykiety wiersza drzewa jest kontraktem zaznaczenia shella.
-FontWeight? _labelWeight(WidgetTester tester, String label) =>
-    tester.widget<Text>(find.text(label)).style?.fontWeight;
+/// Waga etykiety konkretnego wiersza drzewa.
+///
+/// Etykiety takie jak „Tasks” występują w drzewie więcej niż raz (sekcja
+/// osobista i moduł projektu), więc adresowanie idzie po kluczu wiersza.
+FontWeight? _nodeLabelWeight(
+  WidgetTester tester,
+  String nodeId,
+  String label,
+) => tester
+    .widget<Text>(
+      find.descendant(
+        of: find.byKey(ValueKey<String>('navigation-node-$nodeId')),
+        matching: find.text(label),
+      ),
+    )
+    .style
+    ?.fontWeight;
 
 const workspaceId = '550e8400-e29b-41d4-a716-446655440000';
 const projectId = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
@@ -444,7 +509,9 @@ final class _UuidProjectsGateway implements ProjectsGateway {
   @override
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    bool? includeHidden,
   }) async => [
     ProjectListItem(
       id: projectId,
@@ -472,6 +539,13 @@ final class _LocalizedRouter extends StatelessWidget {
   );
 }
 
+/// Repozytorium projektów dla shella: test sprawdza wyłącznie, że sidebar
+/// otwiera wspólny formularz, więc żadna metoda nie jest wołana.
+final class _StubProjectsRepository implements ProjectsRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 final class _WorkspaceGateway implements WorkspaceNavigationGateway {
   @override
   Future<List<WorkspaceSummary>> listWorkspaces() async => const [
@@ -489,7 +563,9 @@ final class _ProjectsGateway implements ProjectsGateway {
   @override
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    bool? includeHidden,
   }) async => const [
     ProjectListItem(
       id: 'project-a',

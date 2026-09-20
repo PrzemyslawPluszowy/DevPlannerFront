@@ -10,8 +10,6 @@ enum WorkspaceNavigationNodeKind {
   projects,
   project,
   tasks,
-  taskList,
-  kanban,
   whiteboards,
   corkboard,
   wiki,

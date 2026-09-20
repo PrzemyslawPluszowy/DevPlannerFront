@@ -4,6 +4,7 @@ import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
 import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
+import 'package:devplanner/workspaces/domain/ports/tasks_project_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
@@ -35,6 +36,7 @@ final class TasksBoardRoutePage extends StatelessWidget {
     required this.projectId,
     required this.authSession,
     this.initialView,
+    this.viewPreferenceStore,
     super.key,
   });
 
@@ -47,6 +49,9 @@ final class TasksBoardRoutePage extends StatelessWidget {
   final String projectId;
   final AuthSessionPort authSession;
   final String? initialView;
+
+  /// Preferencja „ostatnio używany widok” dla adresu `/tasks` bez `?view=`.
+  final TasksProjectViewPreferenceStore? viewPreferenceStore;
 
   @override
   Widget build(BuildContext context) => MultiRepositoryProvider(
@@ -110,6 +115,7 @@ final class TasksBoardRoutePage extends StatelessWidget {
       workspaceId: workspaceId,
       projectId: projectId,
       initialView: initialView,
+      viewPreferenceStore: viewPreferenceStore,
       // Wyjście z projektu obsługuje trasa, więc nagłówek nie zna routera.
       onProjectExited: () => context.go(
         DevPlannerRouteCatalog.workspace(workspaceId),

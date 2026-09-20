@@ -1,37 +1,64 @@
 import 'dart:async';
 
-import 'package:devplanner/app/router/devplanner_navigation.dart';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
-import 'package:devplanner/shared/presentation/widgets/app_expansible_navigation_item.dart';
 import 'package:devplanner/shared/presentation/widgets/app_shimmer.dart';
-import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
 import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_resources_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_templates_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/project_resource_creation_dialogs.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/projects_tree/cubit/projects_tree_cubit.dart';
 import 'package:devplanner/workspaces/presentation/workspaces_home/projects_tree/widgets/project_menu_groups.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/projects_tree/widgets/projects_tree_failure_banner.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/projects_tree/widgets/projects_tree_projects.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Leniwie ładowane poddrzewo projektów dla danego workspace’u w menu bocznym.
+///
+/// Drzewo ma jedno menu kontekstowe projektu (`ProjectContextMenuButton`) i
+/// jednego właściciela stanu preferencji (`ProjectsTreeCubit`, tworzonego tutaj
+/// i zwalnianego razem z widgetem). Porty mutacji są opcjonalne: bez nich
+/// drzewo nadal czyta projekty, ale akcje zapisu są jawnie wyłączone z powodem
+/// zamiast udawać działanie.
+///
+/// Sekcje `Ukryte` i `Archiwum` są pobierane z serwera razem z listą aktywnych,
+/// więc pokazują projekty potwierdzone przez backend, a nie tylko efekt
+/// operacji wykonanych w tej sesji.
 class WorkspaceProjectMenu extends StatelessWidget {
   const WorkspaceProjectMenu({
     required this.workspaceId,
     required this.onProjectTap,
     this.resourcesRepository,
     this.onAction,
+    this.projectsRepository,
+    this.templatesRepository,
     super.key,
   });
 
+  /// Identyfikator workspace’u, którego projekty renderuje menu.
   final String workspaceId;
+
+  /// Nawigacja po wybraniu projektu albo jego zasobu.
   final ValueChanged<String> onProjectTap;
+
+  /// Opcjonalne repozytorium zasobów projektu (wstrzykiwane w testach).
   final ProjectResourcesRepository? resourcesRepository;
+
+  /// Opcjonalna obsługa akcji tworzenia zasobów.
   final ProjectMenuActionCallback? onAction;
+
+  /// Port mutacji projektów (pin, hide, kolejność, lifecycle).
+  final ProjectsRepository? projectsRepository;
+
+  /// Port szablonów projektów.
+  final ProjectTemplatesRepository? templatesRepository;
 
   void _handleAction(
     BuildContext context,
@@ -109,84 +136,203 @@ class WorkspaceProjectMenu extends StatelessWidget {
     }
   }
 
+  void _createProject(BuildContext context) => _handleAction(
+    context,
+    ProjectMenuAction.createProject,
+    null,
+    () => context.read<WorkspaceProjectsCubit>().load(force: true),
+  );
+
+  /// Pobiera z serwera sekcje `Ukryte` i `Archiwum`.
+  ///
+  /// Wywoływane razem z listą aktywnych; drzewo bez portu mutacji nie udaje
+  /// danych, których nie może pobrać.
+  void _loadServerSections(
+    ProjectsTreeCubit cubit,
+    WorkspaceProjectsState state,
+  ) {
+    if (state is WorkspaceProjectsFailure) return;
+    if (!cubit.canMutateProjects) return;
+    unawaited(cubit.refreshServerSections());
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WorkspaceProjectsCubit, WorkspaceProjectsState>(
-      builder: (context, state) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ProjectMenuSectionHeader(
-              onPressed: () => _handleAction(
-                context,
-                ProjectMenuAction.createProject,
-                null,
-                () => context.read<WorkspaceProjectsCubit>().load(force: true),
+    return BlocProvider<ProjectsTreeCubit>(
+      create: (context) {
+        final cubit = ProjectsTreeCubit(
+          workspaceId: workspaceId,
+          mutations: projectsRepository ?? context.read<ProjectsRepository?>(),
+          templates:
+              templatesRepository ??
+              context.read<ProjectTemplatesRepository?>(),
+        );
+        final projectsState = context.read<WorkspaceProjectsCubit>().state;
+        if (projectsState is WorkspaceProjectsReady) {
+          cubit.syncFromServer(projectsState.items);
+        }
+        _loadServerSections(cubit, projectsState);
+        return cubit;
+      },
+      child: BlocListener<WorkspaceProjectsCubit, WorkspaceProjectsState>(
+        listenWhen: (_, state) =>
+            state is WorkspaceProjectsReady || state is WorkspaceProjectsEmpty,
+        listener: (context, state) {
+          final cubit = context.read<ProjectsTreeCubit>();
+          if (state is WorkspaceProjectsReady) {
+            cubit.syncFromServer(state.items);
+          }
+          // Sekcje `Ukryte` i `Archiwum` są niezależne od listy aktywnych:
+          // workspace bez aktywnych projektów nadal może mieć archiwum.
+          _loadServerSections(cubit, state);
+        },
+        child: BlocListener<ProjectsTreeCubit, ProjectsTreeState>(
+          listenWhen: (previous, next) =>
+              next.notice != null && next.notice!.id != previous.notice?.id,
+          listener: (context, state) => _showNotice(context, state.notice!),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ProjectMenuSectionHeader(
+                onPressed: () => _createProject(context),
               ),
-            ),
-            switch (state) {
-              WorkspaceProjectsInitial() ||
-              WorkspaceProjectsLoading() => const Padding(
-                padding: EdgeInsets.symmetric(vertical: 4),
-                child: Column(
-                  children: [
-                    AppShimmerMenuItem(),
-                    Gaps.h4,
-                    AppShimmerMenuItem(),
-                  ],
-                ),
-              ),
-              WorkspaceProjectsFailure(
-                :final message,
-                :final backendCode,
-                :final statusCode,
-              ) =>
-                _WorkspaceProjectsFailureRow(
-                  message: message,
-                  backendCode: backendCode,
-                  statusCode: statusCode,
-                ),
-              WorkspaceProjectsEmpty() => _CreateProjectMenuAction(
-                onPressed: () => _handleAction(
-                  context,
-                  ProjectMenuAction.createProject,
-                  null,
-                  () =>
-                      context.read<WorkspaceProjectsCubit>().load(force: true),
-                ),
-              ),
-              WorkspaceProjectsReady(:final items) when items.isEmpty =>
-                _CreateProjectMenuAction(
-                  onPressed: () => _handleAction(
-                    context,
-                    ProjectMenuAction.createProject,
-                    null,
-                    () => context.read<WorkspaceProjectsCubit>().load(
-                      force: true,
+              const _ProjectsTreeFailureHost(),
+              BlocBuilder<WorkspaceProjectsCubit, WorkspaceProjectsState>(
+                builder: (context, state) => switch (state) {
+                  WorkspaceProjectsInitial() ||
+                  WorkspaceProjectsLoading() => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      children: [
+                        AppShimmerMenuItem(),
+                        Gaps.h4,
+                        AppShimmerMenuItem(),
+                      ],
                     ),
                   ),
-                ),
-              WorkspaceProjectsReady(:final items) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: items
-                    .map(
-                      (project) => _ProjectItemBranch(
+                  WorkspaceProjectsFailure(
+                    :final message,
+                    :final backendCode,
+                    :final statusCode,
+                  ) =>
+                    _WorkspaceProjectsFailureRow(
+                      message: message,
+                      backendCode: backendCode,
+                      statusCode: statusCode,
+                    ),
+                  WorkspaceProjectsEmpty() => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _CreateProjectMenuAction(
+                        onPressed: () => _createProject(context),
+                      ),
+                      // Pusty stan listy aktywnych nie oznacza pustego
+                      // archiwum — sekcje nadal mogą mieć treść z serwera.
+                      ProjectsTreeProjectsList(
                         workspaceId: workspaceId,
-                        project: project,
                         onProjectTap: onProjectTap,
                         resourcesRepository: resourcesRepository,
-                        onAction: (action, pId, [onCreated]) =>
-                            _handleAction(context, action, pId, onCreated),
+                        onAction: (action, projectId, [onCreated]) =>
+                            _handleAction(
+                              context,
+                              action,
+                              projectId,
+                              onCreated,
+                            ),
                       ),
-                    )
-                    .toList(),
+                    ],
+                  ),
+                  WorkspaceProjectsReady(:final items) when items.isEmpty =>
+                    _CreateProjectMenuAction(
+                      onPressed: () => _createProject(context),
+                    ),
+                  WorkspaceProjectsReady() => ProjectsTreeProjectsList(
+                    workspaceId: workspaceId,
+                    onProjectTap: onProjectTap,
+                    resourcesRepository: resourcesRepository,
+                    onAction: (action, projectId, [onCreated]) =>
+                        _handleAction(context, action, projectId, onCreated),
+                  ),
+                },
               ),
-            },
-          ],
-        );
-      },
+            ],
+          ),
+        ),
+      ),
     );
   }
+
+  void _showNotice(BuildContext context, ProjectsTreeNotice notice) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    final cubit = context.read<ProjectsTreeCubit>();
+    final l10n = context.l10n;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(_noticeMessage(l10n, notice)),
+          behavior: SnackBarBehavior.floating,
+          action: notice.canUndo
+              ? SnackBarAction(
+                  label: l10n.projectsNoticeUndo,
+                  onPressed: cubit.undoLastNotice,
+                )
+              : null,
+        ),
+      );
+  }
+}
+
+String _noticeMessage(AppLocalizations l10n, ProjectsTreeNotice notice) =>
+    switch (notice.kind) {
+      ProjectsTreeNoticeKind.pinned => l10n.projectsNoticePinned(
+        notice.projectName,
+      ),
+      ProjectsTreeNoticeKind.unpinned => l10n.projectsNoticeUnpinned(
+        notice.projectName,
+      ),
+      ProjectsTreeNoticeKind.hidden => l10n.projectsNoticeHidden(
+        notice.projectName,
+      ),
+      ProjectsTreeNoticeKind.unhidden => l10n.projectsNoticeUnhidden(
+        notice.projectName,
+      ),
+      ProjectsTreeNoticeKind.archived => l10n.projectsNoticeArchived(
+        notice.projectName,
+      ),
+      ProjectsTreeNoticeKind.restored => l10n.projectsNoticeRestored(
+        notice.projectName,
+      ),
+      ProjectsTreeNoticeKind.deleted => l10n.projectsNoticeDeleted(
+        notice.projectName,
+      ),
+      ProjectsTreeNoticeKind.left => l10n.projectsNoticeLeft(
+        notice.projectName,
+      ),
+      ProjectsTreeNoticeKind.templateCreated =>
+        l10n.projectsNoticeTemplateCreated(notice.projectName),
+    };
+
+/// Trwały komunikat ostatniej nieudanej operacji na projektach.
+class _ProjectsTreeFailureHost extends StatelessWidget {
+  const _ProjectsTreeFailureHost();
+
+  @override
+  Widget build(BuildContext context) =>
+      BlocBuilder<ProjectsTreeCubit, ProjectsTreeState>(
+        buildWhen: (previous, next) => previous.failure != next.failure,
+        builder: (context, state) {
+          final failure = state.failure;
+          if (failure == null) return const SizedBox.shrink();
+          final cubit = context.read<ProjectsTreeCubit>();
+          return ProjectsTreeFailureBanner(
+            failure: failure,
+            onRetry: failure.retry == null ? null : cubit.retryFailure,
+            onDismiss: cubit.dismissFailure,
+          );
+        },
+      );
 }
 
 class _CreateProjectMenuAction extends StatelessWidget {
@@ -223,7 +369,8 @@ class _WorkspaceProjectsFailureRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayCode = backendCode ?? statusCode?.toString();
-    final displayMessage = message ?? 'Nie udało się pobrać projektów.';
+    final displayMessage =
+        message ?? context.l10n.projectsTreeLoadFailureFallback;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
@@ -257,117 +404,6 @@ class _WorkspaceProjectsFailureRow extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ProjectItemBranch extends StatelessWidget {
-  const _ProjectItemBranch({
-    required this.workspaceId,
-    required this.project,
-    required this.onProjectTap,
-    required this.onAction,
-    this.resourcesRepository,
-  });
-
-  final String workspaceId;
-  final ProjectListItem project;
-  final ValueChanged<String> onProjectTap;
-  final ProjectResourcesRepository? resourcesRepository;
-  final ProjectMenuActionCallback onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: GoRouter.of(context).routerDelegate,
-      builder: (context, _) {
-        final projectPath = '/workspaces/$workspaceId/projects/${project.id}';
-        final selected = context.plannerNavigation.currentPath.startsWith(
-          projectPath,
-        );
-        final repo =
-            resourcesRepository ?? context.read<ProjectResourcesRepository>();
-
-        return AppExpansibleNavigationItem(
-          label: project.name,
-          icon: WorkspaceIcons.workflow,
-          depth: 1,
-          selected: selected,
-          hasChildren: true,
-          initiallyExpanded: selected,
-          onTap: () => onProjectTap('$projectPath/tasks'),
-          body: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Zadania & Kanban
-                _ProjectDirectNavLink(
-                  label: context.l10n.workspacesSectionTasks,
-                  icon: WorkspaceIcons.tasks,
-                  path: '$projectPath/tasks',
-                ),
-
-                // 2. Whiteboardy (jedyne rozwijane instancje)
-                ProjectWhiteboardMenuGroup(
-                  workspaceId: workspaceId,
-                  projectId: project.id,
-                  repository: repo,
-                  onAction: onAction,
-                ),
-
-                // 3. Tablica korkowa (Corkboard)
-                _ProjectDirectNavLink(
-                  label: context.l10n.workspacesProjectCorkboard,
-                  icon: WorkspaceIcons.corkboard,
-                  path: '$projectPath/corkboard',
-                ),
-
-                // 4. Baza wiedzy (Wiki)
-                _ProjectDirectNavLink(
-                  label: context.l10n.workspacesSectionWiki,
-                  icon: WorkspaceIcons.wiki,
-                  path: '$projectPath/wiki',
-                ),
-
-                // 5. Pliki projektu
-                _ProjectDirectNavLink(
-                  label: context.l10n.workspacesSectionFiles,
-                  icon: WorkspaceIcons.file,
-                  path: '$projectPath/files',
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ProjectDirectNavLink extends StatelessWidget {
-  const _ProjectDirectNavLink({
-    required this.label,
-    required this.icon,
-    required this.path,
-  });
-
-  final String label;
-  final IconData icon;
-  final String path;
-
-  @override
-  Widget build(BuildContext context) {
-    final currentPath = context.plannerNavigation.currentPath;
-    final selected = currentPath == path || currentPath.startsWith('$path/');
-
-    return AppExpansibleNavigationItem(
-      label: label,
-      icon: icon,
-      depth: 2,
-      selected: selected,
-      onTap: () => context.plannerNavigation.go(path),
     );
   }
 }

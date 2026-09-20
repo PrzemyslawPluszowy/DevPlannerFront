@@ -93,6 +93,35 @@ void main() {
     expect(_currentUrl(restarted), location);
   });
 
+  testWidgets('legacy view links redirect to the canonical Tasks query', (
+    tester,
+  ) async {
+    final router = _routerAt('$_tasksPath/kanban');
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_app(router));
+    await tester.pumpAndSettle();
+
+    expect(
+      _currentUrl(router),
+      DevPlannerRouteCatalog.projectTasksView(
+        _workspaceId,
+        _projectId,
+        'kanban',
+      ),
+    );
+    expect(find.byType(KanbanColumnsViewport), findsOneWidget);
+
+    router.config.go('$_tasksPath/list');
+    await tester.pumpAndSettle();
+
+    expect(
+      _currentUrl(router),
+      DevPlannerRouteCatalog.projectTasksView(_workspaceId, _projectId, 'list'),
+    );
+    expect(find.byType(ProjectTasksList), findsOneWidget);
+  });
+
   testWidgets('board stays an accepted input alias for the kanban query', (
     tester,
   ) async {
@@ -113,6 +142,11 @@ void main() {
       _projectId,
       'kanban',
     );
+    final listUrl = DevPlannerRouteCatalog.projectTasksView(
+      _workspaceId,
+      _projectId,
+      'list',
+    );
     final router = _routerAt(_tasksPath);
     addTearDown(router.dispose);
 
@@ -124,9 +158,34 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(KanbanColumnsViewport), findsOneWidget);
 
-    router.config.go(_tasksPath);
+    // Jawny `?view=` rozstrzyga widok w obie strony. Adres bez zapytania
+    // (`/tasks`) znaczy „ostatnio używany widok” — patrz osobny przypadek.
+    router.config.go(listUrl);
     await tester.pumpAndSettle();
     expect(find.byType(ProjectTasksList), findsOneWidget);
+  });
+
+  testWidgets('the canonical URL reopens the last used view', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1440, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = _routerAt(_tasksPath);
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_app(router));
+    await tester.pumpAndSettle();
+    expect(find.byType(ProjectTasksList), findsOneWidget);
+
+    // Użytkownik wybiera Kanban w nagłówku modułu...
+    await tester.tap(find.text('Tablica'));
+    await tester.pumpAndSettle();
+    expect(find.byType(KanbanColumnsViewport), findsOneWidget);
+
+    // ...a adres kanoniczny `/tasks` bez `?view=` wraca do tego wyboru, bo
+    // pozycja „Zadania” w drzewie prowadzi dokładnie tutaj.
+    router.config.go(_tasksPath);
+    await tester.pumpAndSettle();
+    expect(find.byType(KanbanColumnsViewport), findsOneWidget);
+    expect(find.byType(ProjectTasksList), findsNothing);
   });
 
   testWidgets('switching the view writes the canonical Tasks query', (

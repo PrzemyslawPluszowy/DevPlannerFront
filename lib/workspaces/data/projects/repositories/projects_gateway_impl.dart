@@ -3,6 +3,7 @@ import 'package:devplanner/workspaces/data/projects/api/projects_list_api.dart';
 import 'package:devplanner/workspaces/data/projects/mappers/project_list_item_mapper.dart';
 import 'package:devplanner/workspaces/data/projects/responses/devplanner_project_list_item_response.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 
 /// Produkcyjny adapter listy projektów oparty o lokalny transport DevPlanner.
@@ -14,11 +15,16 @@ final class ProjectsGatewayImpl implements ProjectsGateway {
   @override
   Future<List<ProjectListItem>> listProjects(
     String workspaceId, {
-    bool includeHidden = false,
+    ProjectListState state = ProjectListState.active,
+    ProjectListVisibility? visibility,
+    @Deprecated('Użyj visibility; wartość true odpowiada visibility=all.')
+    bool? includeHidden,
   }) async {
     try {
       final response = await api.listProjects(
         workspaceId: workspaceId,
+        state: state,
+        visibility: visibility,
         includeHidden: includeHidden,
       );
       if (response.statusCode < 200 || response.statusCode >= 300) {

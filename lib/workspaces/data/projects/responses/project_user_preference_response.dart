@@ -23,6 +23,12 @@ abstract class ProjectUserPreferenceResponse
 
     /// Czas aktualizacji preferencji.
     required DateTime updatedAtUtc,
+
+    /// Wersja preferencji (`xmin`) albo null w starszym kontrakcie.
+    ///
+    /// Wartość służy jako `expectedVersion` następnego zapisu preferencji;
+    /// niezgodność zwraca 409 z kodem `project.preference_version_conflict`.
+    int? version,
   }) = _ProjectUserPreferenceResponse;
 
   /// Odtwarza preferencje projektu z odpowiedzi JSON.

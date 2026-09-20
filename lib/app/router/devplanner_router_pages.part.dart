@@ -13,6 +13,7 @@ mixin _DevPlannerRouterPages {
   TasksBoardComposition? get _resolvedTasksBoardComposition;
   TasksDetailsComposition? get _resolvedTasksDetailsComposition;
   ProjectSettingsComposition? get _resolvedProjectSettingsComposition;
+  TasksProjectViewPreferenceStore get _resolvedTasksViewPreferenceStore;
 
   Widget _workspaceFilesRoutePage(BuildContext context, GoRouterState state) {
     final workspaceId = state.pathParameters['workspaceId'] ?? '';
@@ -148,6 +149,23 @@ mixin _DevPlannerRouterPages {
       projectId: projectId,
       authSession: _auth.session,
       initialView: state.uri.queryParameters['view'],
+      viewPreferenceStore: _resolvedTasksViewPreferenceStore,
+    );
+  }
+
+  /// Historyczny adres widoku modułu Zadania prowadzi do jednej kanonicznej
+  /// trasy z jawnym `?view=`, bez drugiej implementacji ekranu.
+  String _legacyTasksViewRedirect(GoRouterState state, String view) {
+    final workspaceId = state.pathParameters['workspaceId'] ?? '';
+    final projectId = state.pathParameters['projectId'] ?? '';
+    if (!DevPlannerRouteCatalog.isUuid(workspaceId) ||
+        !DevPlannerRouteCatalog.isUuid(projectId)) {
+      return DevPlannerRouteCatalog.workspaces;
+    }
+    return DevPlannerRouteCatalog.projectTasksView(
+      workspaceId,
+      projectId,
+      view,
     );
   }
 

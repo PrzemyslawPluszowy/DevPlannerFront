@@ -21,7 +21,11 @@ mixin _$UpdateProjectPayload {
  String? get icon;/// Nowy kolor główny projektu albo null.
  String? get primaryColor;/// Nowa widoczność projektu.
  ProjectVisibility get visibility;/// Nowy status projektu.
- ProjectStatus get status;
+ ProjectStatus get status;/// Oczekiwana wersja projektu z ostatniego odczytu albo null.
+///
+/// Niezgodność zwraca 409 z kodem `project.version_conflict`, więc klient
+/// nie nadpisuje zmiany wykonanej w drugiej sesji.
+ int? get expectedVersion;
 /// Create a copy of UpdateProjectPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -34,16 +38,16 @@ $UpdateProjectPayloadCopyWith<UpdateProjectPayload> get copyWith => _$UpdateProj
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProjectPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.primaryColor, primaryColor) || other.primaryColor == primaryColor)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProjectPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.primaryColor, primaryColor) || other.primaryColor == primaryColor)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.status, status) || other.status == status)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,description,icon,primaryColor,visibility,status);
+int get hashCode => Object.hash(runtimeType,name,description,icon,primaryColor,visibility,status,expectedVersion);
 
 @override
 String toString() {
-  return 'UpdateProjectPayload(name: $name, description: $description, icon: $icon, primaryColor: $primaryColor, visibility: $visibility, status: $status)';
+  return 'UpdateProjectPayload(name: $name, description: $description, icon: $icon, primaryColor: $primaryColor, visibility: $visibility, status: $status, expectedVersion: $expectedVersion)';
 }
 
 
@@ -54,7 +58,7 @@ abstract mixin class $UpdateProjectPayloadCopyWith<$Res>  {
   factory $UpdateProjectPayloadCopyWith(UpdateProjectPayload value, $Res Function(UpdateProjectPayload) _then) = _$UpdateProjectPayloadCopyWithImpl;
 @useResult
 $Res call({
- String name, String? description, String? icon, String? primaryColor, ProjectVisibility visibility, ProjectStatus status
+ String name, String? description, String? icon, String? primaryColor, ProjectVisibility visibility, ProjectStatus status, int? expectedVersion
 });
 
 
@@ -71,7 +75,7 @@ class _$UpdateProjectPayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProjectPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? description = freezed,Object? icon = freezed,Object? primaryColor = freezed,Object? visibility = null,Object? status = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? description = freezed,Object? icon = freezed,Object? primaryColor = freezed,Object? visibility = null,Object? status = null,Object? expectedVersion = freezed,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
@@ -79,7 +83,8 @@ as String?,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to
 as String?,primaryColor: freezed == primaryColor ? _self.primaryColor : primaryColor // ignore: cast_nullable_to_non_nullable
 as String?,visibility: null == visibility ? _self.visibility : visibility // ignore: cast_nullable_to_non_nullable
 as ProjectVisibility,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as ProjectStatus,
+as ProjectStatus,expectedVersion: freezed == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -164,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  int? expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateProjectPayload() when $default != null:
-return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status);case _:
+return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.expectedVersion);case _:
   return orElse();
 
 }
@@ -185,10 +190,10 @@ return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  int? expectedVersion)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProjectPayload():
-return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status);case _:
+return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.expectedVersion);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +210,10 @@ return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? description,  String? icon,  String? primaryColor,  ProjectVisibility visibility,  ProjectStatus status,  int? expectedVersion)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProjectPayload() when $default != null:
-return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status);case _:
+return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that.visibility,_that.status,_that.expectedVersion);case _:
   return null;
 
 }
@@ -220,7 +225,7 @@ return $default(_that.name,_that.description,_that.icon,_that.primaryColor,_that
 @JsonSerializable()
 
 class _UpdateProjectPayload implements UpdateProjectPayload {
-  const _UpdateProjectPayload({required this.name, this.description, this.icon, this.primaryColor, required this.visibility, required this.status});
+  const _UpdateProjectPayload({required this.name, this.description, this.icon, this.primaryColor, required this.visibility, required this.status, this.expectedVersion});
   factory _UpdateProjectPayload.fromJson(Map<String, dynamic> json) => _$UpdateProjectPayloadFromJson(json);
 
 /// Nowa nazwa projektu.
@@ -235,6 +240,11 @@ class _UpdateProjectPayload implements UpdateProjectPayload {
 @override final  ProjectVisibility visibility;
 /// Nowy status projektu.
 @override final  ProjectStatus status;
+/// Oczekiwana wersja projektu z ostatniego odczytu albo null.
+///
+/// Niezgodność zwraca 409 z kodem `project.version_conflict`, więc klient
+/// nie nadpisuje zmiany wykonanej w drugiej sesji.
+@override final  int? expectedVersion;
 
 /// Create a copy of UpdateProjectPayload
 /// with the given fields replaced by the non-null parameter values.
@@ -249,16 +259,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProjectPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.primaryColor, primaryColor) || other.primaryColor == primaryColor)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProjectPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.primaryColor, primaryColor) || other.primaryColor == primaryColor)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.status, status) || other.status == status)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,description,icon,primaryColor,visibility,status);
+int get hashCode => Object.hash(runtimeType,name,description,icon,primaryColor,visibility,status,expectedVersion);
 
 @override
 String toString() {
-  return 'UpdateProjectPayload(name: $name, description: $description, icon: $icon, primaryColor: $primaryColor, visibility: $visibility, status: $status)';
+  return 'UpdateProjectPayload(name: $name, description: $description, icon: $icon, primaryColor: $primaryColor, visibility: $visibility, status: $status, expectedVersion: $expectedVersion)';
 }
 
 
@@ -269,7 +279,7 @@ abstract mixin class _$UpdateProjectPayloadCopyWith<$Res> implements $UpdateProj
   factory _$UpdateProjectPayloadCopyWith(_UpdateProjectPayload value, $Res Function(_UpdateProjectPayload) _then) = __$UpdateProjectPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String? description, String? icon, String? primaryColor, ProjectVisibility visibility, ProjectStatus status
+ String name, String? description, String? icon, String? primaryColor, ProjectVisibility visibility, ProjectStatus status, int? expectedVersion
 });
 
 
@@ -286,7 +296,7 @@ class __$UpdateProjectPayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProjectPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? description = freezed,Object? icon = freezed,Object? primaryColor = freezed,Object? visibility = null,Object? status = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? description = freezed,Object? icon = freezed,Object? primaryColor = freezed,Object? visibility = null,Object? status = null,Object? expectedVersion = freezed,}) {
   return _then(_UpdateProjectPayload(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
@@ -294,7 +304,8 @@ as String?,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to
 as String?,primaryColor: freezed == primaryColor ? _self.primaryColor : primaryColor // ignore: cast_nullable_to_non_nullable
 as String?,visibility: null == visibility ? _self.visibility : visibility // ignore: cast_nullable_to_non_nullable
 as ProjectVisibility,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as ProjectStatus,
+as ProjectStatus,expectedVersion: freezed == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
