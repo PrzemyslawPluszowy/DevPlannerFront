@@ -61,6 +61,18 @@ class KanbanCardContextMenuHelper {
           label: l10n.tasksContextMenuAssignee,
           icon: Symbols.person_rounded,
         ),
+        // Widok osób dopiero czyni zmianę wykonawcy osobną operacją, więc
+        // pozycja pojawia się wyłącznie tam: w widoku statusów wykonawca jest
+        // edytowany w szczegółach zadania.
+        if (cubit.state case TasksBoardReady(
+          grouping: TasksBoardGrouping.assignee,
+          assigneeBoard: != null,
+        ))
+          AppContextMenuOption(
+            value: _KanbanCardMenuAction.moveToPerson,
+            label: l10n.tasksBoardMoveToPerson,
+            icon: Symbols.arrow_forward_rounded,
+          ),
         AppContextMenuOption(
           value: _KanbanCardMenuAction.dueDate,
           label: l10n.tasksContextMenuDueDate,
@@ -196,6 +208,22 @@ class KanbanCardContextMenuHelper {
           },
         );
 
+      case _KanbanCardMenuAction.moveToPerson:
+        final ready = cubit.state;
+        if (ready is! TasksBoardReady || ready.assigneeBoard == null) break;
+        final selection = await showKanbanMoveToPersonDialog(
+          context,
+          state: ready,
+          taskId: task.id,
+        );
+        if (selection == null) break;
+        unawaited(
+          cubit.moveTaskToAssignee(
+            task: task,
+            targetUserId: selection.targetUserId,
+          ),
+        );
+
       case _KanbanCardMenuAction.dueDate:
         final pickResult = await TaskDatePicker.pick(
           context,
@@ -222,6 +250,7 @@ enum _KanbanCardMenuAction {
   status,
   priority,
   assignee,
+  moveToPerson,
   dueDate,
   pin,
   watch,

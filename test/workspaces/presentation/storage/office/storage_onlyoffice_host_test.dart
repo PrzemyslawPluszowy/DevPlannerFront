@@ -222,6 +222,8 @@ final class _FakeStorageOnlyOfficeController
   ValueChanged<OnlyOfficeSaveAs>? _onSaveAsRequested;
   VoidCallback? _onPrintRequested;
   int loadCount = 0;
+  VoidCallback? _onDocumentReady;
+  ValueChanged<bool>? _onDocumentStateChanged;
   String? lastHtml;
   String? lastBaseUrl;
   String? lastScript;
@@ -234,13 +236,24 @@ final class _FakeStorageOnlyOfficeController
     VoidCallback? onPrintRequested,
     required VoidCallback onPageFinished,
     required ValueChanged<String> onMainFrameError,
+    VoidCallback? onDocumentReady,
+    ValueChanged<bool>? onDocumentStateChanged,
   }) async {
     _onDownloadRequested = onDownloadRequested;
     _onSaveAsRequested = onSaveAsRequested;
     _onPrintRequested = onPrintRequested;
     _onPageFinished = onPageFinished;
     _onMainFrameError = onMainFrameError;
+    _onDocumentReady = onDocumentReady;
+    _onDocumentStateChanged = onDocumentStateChanged;
   }
+
+  /// Zgłasza gotowość dokumentu tak, jak robi to osadzony edytor.
+  void emitDocumentReady() => _onDocumentReady?.call();
+
+  /// Zgłasza stan dokumentu tak, jak robi to osadzony edytor.
+  void emitDocumentStateChanged({required bool isModified}) =>
+      _onDocumentStateChanged?.call(isModified);
 
   @override
   Future<void> loadHtml(String html, {required String baseUrl}) async {

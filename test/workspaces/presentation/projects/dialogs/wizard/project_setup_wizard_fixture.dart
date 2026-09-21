@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart' hide State;
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/projects/setups/models/project_setup_preview_models.dart';
@@ -18,10 +19,13 @@ import 'package:devplanner/workspaces/domain/repositories/project_setups_reposit
 import 'package:devplanner/workspaces/domain/repositories/project_templates_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/workspaces_repository.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/widgets/preview/project_preview_panel.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/widgets/project_setup_wizard_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 /// Workspace, w którym wszystkie testy kreatora tworzą projekt.
 const String kProjectSetupWorkspaceId = 'ws-1';
@@ -227,6 +231,13 @@ ProjectSetupPreviewResponse projectSetupPlan({
       const <ProjectSetupWarningResponse>[],
   List<ProjectSetupRecipePreviewResponse> recipes =
       const <ProjectSetupRecipePreviewResponse>[],
+  ProjectSetupWorkflowPreviewResponse workflow =
+      const ProjectSetupWorkflowPreviewResponse(
+        kind: ProjectSetupWorkflowKind.systemDefault,
+        systemStatusCount: 4,
+        customStatuses: <ProjectSetupWorkflowStatusPreviewResponse>[],
+      ),
+  List<ProjectSetupTaskPreviewResponse>? tasks,
 }) => ProjectSetupPreviewResponse(
   source: templateName == null
       ? ProjectSetupSourceKind.blank
@@ -250,11 +261,7 @@ ProjectSetupPreviewResponse projectSetupPlan({
     memberCount: memberCount,
     members: const <ProjectSetupMemberPreviewResponse>[],
   ),
-  workflow: const ProjectSetupWorkflowPreviewResponse(
-    kind: ProjectSetupWorkflowKind.systemDefault,
-    systemStatusCount: 4,
-    customStatuses: <ProjectSetupWorkflowStatusPreviewResponse>[],
-  ),
+  workflow: workflow,
   taskView: const ProjectSetupTaskViewPreviewResponse(
     defaultView: ProjectSetupTaskViewKind.list,
     listDefaultColumns: <String>['title'],
@@ -270,6 +277,7 @@ ProjectSetupPreviewResponse projectSetupPlan({
   scheduleMode: scheduleMode,
   automationRecipes: recipes,
   warnings: warnings,
+  tasks: tasks,
 );
 
 /// Buduje wynik utworzenia projektu z identyfikatorem przydzielonym przez serwer.
@@ -301,7 +309,51 @@ ProjectTemplateResponse projectTemplate({
   version: version,
 );
 
+/// Buduje własny status zapisany w szablonie projektu.
+ProjectTemplateCustomStatusResponse projectTemplateStatus({
+  required String sourceId,
+  required String name,
+  String color = '#64748B',
+  String category = 'Todo',
+  int position = 0,
+  int? wipLimit,
+  bool isDefault = false,
+}) => ProjectTemplateCustomStatusResponse(
+  sourceId: sourceId,
+  name: name,
+  color: color,
+  category: category,
+  position: position,
+  wipLimit: wipLimit,
+  isDefault: isDefault,
+);
+
+/// Buduje zadanie zapisane w szablonie projektu.
+ProjectTemplateTaskResponse projectTemplateTask({
+  required String sourceId,
+  required String title,
+  String status = 'Todo',
+  String? customStatusSourceId,
+  String priority = 'Medium',
+  int position = 0,
+}) => ProjectTemplateTaskResponse(
+  sourceId: sourceId,
+  title: title,
+  status: status,
+  customStatusSourceId: customStatusSourceId,
+  priority: priority,
+  position: position,
+  checklist: const <String>[],
+  acceptanceCriteria: const <String>[],
+  labelSourceIds: const <String>[],
+  customFieldValues: const <ProjectTemplateTaskCustomValueResponse>[],
+);
+
 /// Buduje podgląd szablonu z policzalnymi zadaniami, etykietami i polami.
+///
+/// Gdy test poda własne [customStatuses] albo [tasks], fixture używa ich
+/// dosłownie — wtedy to test opisuje prawdziwą zawartość szablonu, a nie
+/// generyczne „Status 0” i „Zadanie 0”.
 ProjectTemplateDetailsResponse projectTemplateDetails({
   String id = 'template-1',
   String name = 'Szablon startowy',
@@ -311,58 +363,73 @@ ProjectTemplateDetailsResponse projectTemplateDetails({
   int labelCount = 2,
   int customFieldCount = 1,
   int customStatusCount = 5,
-}) => ProjectTemplateDetailsResponse(
-  id: id,
-  name: name,
-  description: description,
-  visibility: 'Private',
-  status: 'Active',
-  workflow: const <ProjectTemplateWorkflowResponse>[],
-  transitions: const <ProjectTemplateTransitionResponse>[],
-  customStatuses: <ProjectTemplateCustomStatusResponse>[
-    for (var index = 0; index < customStatusCount; index++)
-      ProjectTemplateCustomStatusResponse(
-        sourceId: 'status-$index',
-        name: 'Status $index',
-        color: '#64748B',
-        category: 'Todo',
-        position: index,
-        isDefault: index == 0,
-      ),
-  ],
-  labels: <ProjectTemplateDefinitionResponse>[
-    for (var index = 0; index < labelCount; index++)
-      ProjectTemplateDefinitionResponse(
-        sourceId: 'label-$index',
-        name: 'Etykieta $index',
-        type: 'Label',
-      ),
-  ],
-  customFields: <ProjectTemplateDefinitionResponse>[
-    for (var index = 0; index < customFieldCount; index++)
-      ProjectTemplateDefinitionResponse(
-        sourceId: 'field-$index',
-        name: 'Pole $index',
-        type: 'Text',
-      ),
-  ],
-  tasks: <ProjectTemplateTaskResponse>[
-    for (var index = 0; index < taskCount; index++)
-      ProjectTemplateTaskResponse(
-        sourceId: 'task-$index',
-        title: 'Zadanie $index',
-        status: 'Todo',
-        priority: 'Medium',
-        position: index,
-        checklist: const <String>[],
-        acceptanceCriteria: const <String>[],
-        labelSourceIds: const <String>[],
-        customFieldValues: const <ProjectTemplateTaskCustomValueResponse>[],
-      ),
-  ],
-  updatedAtUtc: DateTime.utc(2026, 9),
-  version: version,
-);
+  List<ProjectTemplateCustomStatusResponse>? customStatuses,
+  List<ProjectTemplateTaskResponse>? tasks,
+  List<ProjectTemplateWorkflowResponse> workflow =
+      const <ProjectTemplateWorkflowResponse>[],
+}) {
+  final statuses =
+      customStatuses ??
+      <ProjectTemplateCustomStatusResponse>[
+        for (var index = 0; index < customStatusCount; index++)
+          ProjectTemplateCustomStatusResponse(
+            sourceId: 'status-$index',
+            name: 'Status $index',
+            color: '#64748B',
+            category: 'Todo',
+            position: index,
+            isDefault: index == 0,
+          ),
+      ];
+  final resolvedTasks =
+      tasks ??
+      <ProjectTemplateTaskResponse>[
+        for (var index = 0; index < taskCount; index++)
+          ProjectTemplateTaskResponse(
+            sourceId: 'task-$index',
+            title: 'Zadanie $index',
+            status: 'Todo',
+            customStatusSourceId: statuses.isEmpty
+                ? null
+                : statuses.first.sourceId,
+            priority: 'Medium',
+            position: index,
+            checklist: const <String>[],
+            acceptanceCriteria: const <String>[],
+            labelSourceIds: const <String>[],
+            customFieldValues: const <ProjectTemplateTaskCustomValueResponse>[],
+          ),
+      ];
+  return ProjectTemplateDetailsResponse(
+    id: id,
+    name: name,
+    description: description,
+    visibility: 'Private',
+    status: 'Active',
+    workflow: workflow,
+    transitions: const <ProjectTemplateTransitionResponse>[],
+    customStatuses: statuses,
+    labels: <ProjectTemplateDefinitionResponse>[
+      for (var index = 0; index < labelCount; index++)
+        ProjectTemplateDefinitionResponse(
+          sourceId: 'label-$index',
+          name: 'Etykieta $index',
+          type: 'Label',
+        ),
+    ],
+    customFields: <ProjectTemplateDefinitionResponse>[
+      for (var index = 0; index < customFieldCount; index++)
+        ProjectTemplateDefinitionResponse(
+          sourceId: 'field-$index',
+          name: 'Pole $index',
+          type: 'Text',
+        ),
+    ],
+    tasks: resolvedTasks,
+    updatedAtUtc: DateTime.utc(2026, 9),
+    version: version,
+  );
+}
 
 /// Buduje aktywnego członka workspace.
 WorkspaceMemberResponse workspaceMember({
@@ -392,8 +459,26 @@ ApiError projectSetupApiError({
   traceId: traceId,
 );
 
+/// Znajduje tekst w obszarze kontrolek bieżącego kroku.
+///
+/// Podgląd celowo powtarza część danych kroku (nazwę szablonu, opis, tytuły
+/// zadań), więc test kroku musi zawęzić szukanie do lewego panelu.
+Finder findInControls(String text) => find.descendant(
+  of: find.byKey(ProjectSetupWizardLayout.controlsKey),
+  matching: find.text(text),
+);
+
+/// Znajduje tekst w panelu podglądu.
+Finder findInPreview(String text) => find.descendant(
+  of: find.byKey(ProjectPreviewPanel.panelKey),
+  matching: find.text(text),
+);
+
 /// Klucz trasy projektu używany przez testy sukcesu.
 const String kProjectRouteKey = 'project-route';
+
+/// Klucz korzenia aplikacji testowej — golden fotografuje dokładnie ten obszar.
+const Key kProjectSetupAppKey = ValueKey('project-setup-app');
 
 /// Uruchamia aplikację testową z prawdziwym routerem i otwiera [open] po
 /// pierwszej klatce.
@@ -401,15 +486,18 @@ const String kProjectRouteKey = 'project-route';
 /// Kreator w aplikacji żyje w dialogu na routerze, więc sukces kończy się
 /// `Navigator.pop` i przejściem do projektu. Ramka odwzorowuje to zachowanie:
 /// trasa projektu renderuje [kProjectRouteKey], żeby test mógł sprawdzić
-/// dokąd zaprowadziło utworzenie projektu.
+/// dokąd zaprowadziło utworzenie projektu. [viewport] i [textScale] pozwalają
+/// sprawdzić wariant szeroki, wąski i powiększony tekst.
 Future<void> pumpProjectSetupApp(
   WidgetTester tester, {
   required Future<void> Function(BuildContext context) open,
+  Size viewport = const Size(1440, 900),
+  double textScale = 1,
+  AuthSessionPort? authSession,
+  ThemeData? theme,
 }) async {
-  // Kreator jest modalem desktopowym: test dowodzi kontraktu portów, a nie
-  // responsywności w wąskim oknie, więc dostaje docelowy rozmiar okna.
   tester.view.devicePixelRatio = 1;
-  tester.view.physicalSize = const Size(1440, 900);
+  tester.view.physicalSize = viewport;
   addTearDown(tester.view.reset);
   final router = GoRouter(
     initialLocation: '/start',
@@ -441,17 +529,33 @@ Future<void> pumpProjectSetupApp(
       ),
     ],
   );
+  final app = MaterialApp.router(
+    theme: theme,
+    locale: const Locale('pl'),
+    localizationsDelegates: const <LocalizationsDelegate<Object>>[
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: AppLocalizations.supportedLocales,
+    routerConfig: router,
+    builder: (context, child) => MediaQuery(
+      data: MediaQuery.of(
+        context,
+      ).copyWith(textScaler: TextScaler.linear(textScale)),
+      child: child ?? const SizedBox.shrink(),
+    ),
+  );
   await tester.pumpWidget(
-    MaterialApp.router(
-      locale: const Locale('pl'),
-      localizationsDelegates: const <LocalizationsDelegate<Object>>[
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: router,
+    RepaintBoundary(
+      key: kProjectSetupAppKey,
+      child: authSession == null
+          ? app
+          : ListenableProvider<AuthSessionPort?>.value(
+              value: authSession,
+              child: app,
+            ),
     ),
   );
   await tester.pump();
@@ -479,6 +583,5 @@ class _DialogLauncherState extends State<_DialogLauncher> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: SizedBox.shrink());
+  Widget build(BuildContext context) => const Scaffold(body: SizedBox.shrink());
 }

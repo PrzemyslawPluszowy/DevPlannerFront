@@ -45,10 +45,14 @@ class _TasksHeaderLayout extends StatelessWidget {
     final tasksTheme = context.tasksTheme;
     final hasSelection = showBulkBar || state.selectedTaskIds.isNotEmpty;
     final quickFilter = state.userPreference?.quickFilter;
+    final boardFilter = state.filter;
+    final hasActiveQuickFilter =
+        quickFilter != null && quickFilter != KanbanQuickFilter.all;
+    // Pasek pojawia się, gdy cokolwiek zawęża tablicę: sam szybki filtr, samo
+    // grupowanie wymiarów tablicy albo jedno i drugie.
     final showActiveFilter =
         view == TasksProjectView.board &&
-        quickFilter != null &&
-        quickFilter != KanbanQuickFilter.all;
+        (hasActiveQuickFilter || boardFilter.isActive);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -88,12 +92,43 @@ class _TasksHeaderLayout extends StatelessWidget {
                 if (showActiveFilter) ...[
                   SizedBox(height: tasksTheme.tightGap),
                   _ActiveFilterStrip(
-                    filter: quickFilter,
-                    onClear: () => unawaited(
+                    quickFilter: quickFilter ?? KanbanQuickFilter.all,
+                    boardFilter: boardFilter,
+                    assigneeLabel: boardFilter.assigneeUserId == null
+                        ? null
+                        : _KanbanBoardFiltersHelpers.profileName(
+                            state.memberProfilesByUserId[boardFilter
+                                .assigneeUserId],
+                          ),
+                    statusLabel: _KanbanBoardFiltersHelpers.statusLabel(
+                      context,
+                      state,
+                    ),
+                    onClearQuickFilter: () => unawaited(
                       context.read<TasksBoardCubit>().setQuickFilter(
                         KanbanQuickFilter.all,
                       ),
                     ),
+                    onClearPriority: () => unawaited(
+                      context.read<TasksBoardCubit>().setFilterPriority(null),
+                    ),
+                    onClearAssignee: () => unawaited(
+                      context.read<TasksBoardCubit>().setFilterAssignee(null),
+                    ),
+                    onClearMilestone: () => unawaited(
+                      context.read<TasksBoardCubit>().setFilterMilestone(null),
+                    ),
+                    onClearStatus: () => unawaited(
+                      context.read<TasksBoardCubit>().setFilterStatusColumn(),
+                    ),
+                    onClearAll: () async {
+                      final cubit = context.read<TasksBoardCubit>();
+                      if (quickFilter != null &&
+                          quickFilter != KanbanQuickFilter.all) {
+                        await cubit.setQuickFilter(KanbanQuickFilter.all);
+                      }
+                      await cubit.clearFilters();
+                    },
                   ),
                 ],
               ],
@@ -229,6 +264,11 @@ class _TasksHeaderLayout extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (view == TasksProjectView.board) ...[
+                    // Przełącznik grupowania należy do wiersza poleceń, a nie do
+                    // własnej belki nad tablicą: trzy rzędy nagłówka zjadały
+                    // pół ekranu.
+                    KanbanBoardGroupingBar(state: state),
+                    SizedBox(width: tasksTheme.controlGap),
                     _KanbanQuickFilterMenu(
                       state: state,
                       compact: width < 1180,
@@ -238,6 +278,12 @@ class _TasksHeaderLayout extends StatelessWidget {
                       state: state,
                       compact: width < 1180,
                     ),
+                    // W widoku osób osoba jest kolumną, więc zamiast filtra
+                    // wykonawcy jest widoczność kolumn.
+                    if (state.grouping == TasksBoardGrouping.assignee) ...[
+                      SizedBox(width: tasksTheme.controlGap),
+                      _KanbanAssigneeColumnsMenu(state: state),
+                    ],
                   ],
                   _TaskSavedViewsMenu(
                     compact: width < 1300,

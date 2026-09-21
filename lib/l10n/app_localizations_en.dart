@@ -568,6 +568,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get projectSetupStepWorkingStyleTitle => 'Ways of working';
 
   @override
+  String get projectSetupStepBasicsSubtitle =>
+      'Name, description and the look of the project.';
+
+  @override
+  String get projectSetupStepAccessSubtitle =>
+      'Who will see the project and with which role.';
+
+  @override
+  String get projectSetupStepWorkflowSubtitle =>
+      'The statuses that tasks will move through.';
+
+  @override
+  String get projectSetupStepWorkingStyleSubtitle =>
+      'Default view, schedule and board settings.';
+
+  @override
+  String get projectSetupStepStarterFeaturesSubtitle =>
+      'Automations created together with the project.';
+
+  @override
+  String get projectSetupStepSummarySubtitle =>
+      'Review the plan and create the project.';
+
+  @override
   String get projectSetupStepStarterFeaturesTitle => 'Starter features';
 
   @override
@@ -596,11 +620,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectSetupTemplatesUnavailable =>
-      'The template catalog is not available in this session.';
+      'We cannot load project templates right now.';
 
   @override
   String get projectSetupTemplatesUnavailableReason =>
-      'No project template port is wired in.';
+      'Try again in a moment. If the problem repeats, report it to your administrator.';
 
   @override
   String get projectSetupTemplatesRetry => 'Retry loading templates';
@@ -682,11 +706,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectSetupAccessMembersUnavailable =>
-      'The workspace member list is not available in this session.';
+      'We cannot load the workspace member list right now.';
 
   @override
   String get projectSetupAccessMembersUnavailableReason =>
-      'No workspace member port is wired in.';
+      'Try again in a moment. If the problem repeats, report it to your administrator. You can also add members after creating the project.';
 
   @override
   String get projectSetupAccessMembersRetry => 'Retry loading members';
@@ -719,7 +743,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectSetupWorkflowCatalogDescription =>
-      'A ready-made set of columns from the backend catalog.';
+      'A ready-made set of columns matched to the type of work.';
 
   @override
   String get projectSetupWorkflowCatalogLegend => 'Catalog template';
@@ -1044,7 +1068,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectSetupSummaryPlanStale =>
-      'The draft changed after the plan was built.';
+      'Settings changed since the plan was built.';
 
   @override
   String get projectSetupSummaryWarningsLegend => 'Warnings';
@@ -1052,6 +1076,331 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get projectSetupSummaryTemplateCounts =>
       'The template will bring the tasks, labels and fields shown in the plan.';
+
+  @override
+  String get projectSetupPreviewLegend => 'Project preview';
+
+  @override
+  String get projectSetupPreviewUntitledProject => 'Untitled project';
+
+  @override
+  String projectSetupPreviewTemplateBadge(String name) {
+    return 'Template: $name';
+  }
+
+  @override
+  String get projectSetupPreviewRefreshing => 'Refreshing the preview';
+
+  @override
+  String get projectSetupPreviewLoading => 'Loading the template preview…';
+
+  @override
+  String get projectSetupPreviewRetryHint =>
+      'Try again. If the problem repeats, report it to your administrator.';
+
+  @override
+  String projectSetupPreviewMoreTasks(int count) {
+    return '+$count more tasks';
+  }
+
+  @override
+  String projectSetupPreviewMoreItems(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String projectSetupPreviewWipBadge(int limit) {
+    return 'WIP $limit';
+  }
+
+  @override
+  String get projectSetupPreviewColumnTask => 'Task';
+
+  @override
+  String get projectSetupPreviewColumnStatus => 'Status';
+
+  @override
+  String get projectSetupPreviewColumnPriority => 'Priority';
+
+  @override
+  String get projectSetupPreviewEmptyBoardTitle => 'Nothing to preview yet';
+
+  @override
+  String get projectSetupPreviewEmptyBoardBody =>
+      'This option brings no custom columns. The board will be created from the system statuses.';
+
+  @override
+  String get projectSetupPreviewColumnsFromTemplate =>
+      'Columns from the template';
+
+  @override
+  String get projectSetupPreviewColumnsFromTemplateBody =>
+      'Names, colours and WIP limits come straight from the template. You will see them in the project right after it is created.';
+
+  @override
+  String get projectSetupPreviewColumnsExplicit => 'Your columns';
+
+  @override
+  String get projectSetupPreviewColumnsExplicitBody =>
+      'You define these columns yourself. They will appear in the project in the order given.';
+
+  @override
+  String get projectSetupPreviewColumnsPlan => 'Columns confirmed by the plan';
+
+  @override
+  String projectSetupPreviewColumnsPlanBody(int count) {
+    return 'The plan confirms these columns plus $count system statuses that are always created.';
+  }
+
+  @override
+  String get projectSetupPreviewColumnsSystem => 'System statuses';
+
+  @override
+  String projectSetupPreviewColumnsSystemBody(int count) {
+    return 'System columns ($count) are created in every new project. You will see their names and colours once it is created.';
+  }
+
+  @override
+  String get projectSetupPreviewColumnsSystemNoCount =>
+      'System columns are created in every new project; you will see their names and colours once it is created.';
+
+  @override
+  String projectSetupPreviewColumnsCatalogBody(String name) {
+    return 'A ready-made status layout: $name. You will see the columns in the project once it is created.';
+  }
+
+  @override
+  String get projectSetupPreviewMembersTitle => 'Who will see the project';
+
+  @override
+  String get projectSetupPreviewMembersShared =>
+      'All active workspace members.';
+
+  @override
+  String projectSetupPreviewMembersPrivate(int count) {
+    return 'Invited people: $count.';
+  }
+
+  @override
+  String get projectSetupPreviewMembersPrivateNone =>
+      'Only you for now. You can add members now or later.';
+
+  @override
+  String get projectSetupPreviewBoardSettingsTitle => 'Board settings';
+
+  @override
+  String get projectSetupPreviewListSettingsTitle => 'List settings';
+
+  @override
+  String projectSetupPreviewVisibleFields(int count) {
+    return 'Visible fields: $count';
+  }
+
+  @override
+  String get projectSetupPreviewRecipesTitle => 'Automations';
+
+  @override
+  String get projectSetupPreviewRecipesNone =>
+      'No automation selected. You can add them later.';
+
+  @override
+  String get projectSetupPreviewRecipeWhen => 'When';
+
+  @override
+  String get projectSetupPreviewRecipeThen => 'then';
+
+  @override
+  String projectSetupPreviewWarningsBody(int count) {
+    return 'The plan contains warnings: $count. See them above the “Create project” button.';
+  }
+
+  @override
+  String get projectSetupRecipeCriticalToBlockedTrigger =>
+      'a task has a critical priority';
+
+  @override
+  String get projectSetupRecipeCriticalToBlockedAction =>
+      'set the status to blocked';
+
+  @override
+  String get projectSetupRecipeDueSoonHighPriorityTrigger =>
+      'a task is due within two days';
+
+  @override
+  String get projectSetupRecipeDueSoonHighPriorityAction =>
+      'raise the priority to high';
+
+  @override
+  String get projectSetupRecipeDoneClearDueDateTrigger => 'a task is completed';
+
+  @override
+  String get projectSetupRecipeDoneClearDueDateAction =>
+      'clear the task due date';
+
+  @override
+  String get projectSetupRecipeDoneCreateReviewSubtaskTrigger =>
+      'a task is completed';
+
+  @override
+  String get projectSetupRecipeDoneCreateReviewSubtaskAction =>
+      'add a subtask reviewing the result';
+
+  @override
+  String get projectSetupHelpSwimlanesTitle => 'Board lanes';
+
+  @override
+  String get projectSetupHelpSwimlanesBody =>
+      'Lanes split the board into horizontal sections, for example one per assignee or priority. They do not change the task status.';
+
+  @override
+  String get projectSetupHelpWipTitle => 'WIP limit';
+
+  @override
+  String get projectSetupHelpWipBody =>
+      'The maximum number of tasks that can sit in this column at the same time.';
+
+  @override
+  String get projectSetupHelpStatusCategoryTitle => 'Status category';
+
+  @override
+  String get projectSetupHelpStatusCategoryBody =>
+      'The category tells reports whether a task is waiting, in progress or finished. You can name the column however you like.';
+
+  @override
+  String get projectSetupHelpCascadeTitle => 'Dependency cascade';
+
+  @override
+  String get projectSetupHelpCascadeBody =>
+      'When one task moves its due date, the system can move the tasks that depend on it as well.';
+
+  @override
+  String get projectSetupHelpCapacityTitle => 'Daily capacity';
+
+  @override
+  String get projectSetupHelpCapacityBody =>
+      'Minutes of work planned per person per day. This setting applies to the whole workspace.';
+
+  @override
+  String get projectSetupHelpVisibilityTitle => 'Private visibility';
+
+  @override
+  String get projectSetupHelpVisibilityBody =>
+      'Only the members you add will see the project. People managing the workspace keep access according to their permissions.';
+
+  @override
+  String get projectSetupHelpAutomationsTitle => 'Automations';
+
+  @override
+  String get projectSetupHelpAutomationsBody =>
+      'Rules run an action after a specific event. You can turn them off later.';
+
+  @override
+  String get projectSetupHelpCatalogWorkflowTitle =>
+      'Catalog workflow template';
+
+  @override
+  String get projectSetupHelpCatalogWorkflowBody =>
+      'A ready-made status layout, not a full project template with tasks.';
+
+  @override
+  String get projectSetupHelpDensityTitle => 'Card density';
+
+  @override
+  String get projectSetupHelpDensityBody =>
+      'Decides how much detail and spacing a card has on the board.';
+
+  @override
+  String get projectSetupHelpMembersTitle => 'Initial members';
+
+  @override
+  String get projectSetupHelpMembersBody =>
+      'People who will see the project straight away. You can change their roles after the project is created.';
+
+  @override
+  String get projectSetupHelpPreviewTitle => 'Project preview';
+
+  @override
+  String get projectSetupHelpPreviewBody =>
+      'The preview shows a slice of what will be created: real tasks, columns and labels from the selected template.';
+
+  @override
+  String projectSetupHelpSemantics(String title) {
+    return 'Help: $title';
+  }
+
+  @override
+  String get projectSetupAppearanceLegend => 'Project appearance';
+
+  @override
+  String get projectSetupAppearanceHint =>
+      'Icon and colour shown in the project tree and in the project header.';
+
+  @override
+  String get projectSetupAccessMembersHint =>
+      'Select the people who should see the project right away.';
+
+  @override
+  String projectSetupAccessSelectedCount(int count) {
+    return 'Selected people: $count';
+  }
+
+  @override
+  String get projectSetupStatusesLegend => 'Custom columns';
+
+  @override
+  String get projectSetupStatusesHint =>
+      'Name, colour, category and WIP limit make up a single board column.';
+
+  @override
+  String get projectSetupSummaryDecisionsLegend => 'Your decisions';
+
+  @override
+  String get projectSetupSummaryChangeButton => 'Change';
+
+  @override
+  String get projectSetupWorkflowOptionColumnsLegend =>
+      'Columns in this option';
+
+  @override
+  String get projectSetupWorkflowSystemPreviewHint =>
+      'These columns are created in every new project.';
+
+  @override
+  String get projectSetupWorkflowCatalogPreviewHint =>
+      'Pick a ready-made layout from the list — the preview on the right shows its columns once you select it.';
+
+  @override
+  String get projectSetupWorkflowExplicitPreviewHint =>
+      'You add your own columns below.';
+
+  @override
+  String projectSetupPreviewMoreColumns(int count) {
+    return '+$count columns';
+  }
+
+  @override
+  String get projectSetupWorkingStyleAdjustBoard =>
+      'Also adjust board settings';
+
+  @override
+  String get projectSetupWorkingStyleAdjustList => 'Also adjust list settings';
+
+  @override
+  String get projectSetupWorkingStyleCollapseBoard => 'Collapse board settings';
+
+  @override
+  String get projectSetupWorkingStyleCollapseList => 'Collapse list settings';
+
+  @override
+  String get projectSetupWorkingStyleHiddenDefaults =>
+      'The other view\'s settings go into the project with default values; you will see them in the summary.';
+
+  @override
+  String get projectSetupPreviewColumnsApproved => 'Matches the server plan';
+
+  @override
+  String get projectSetupPreviewColumnsApprovedBody =>
+      'The server checked the template version and will create the project with exactly this content: columns, tasks and labels come straight from the template, and the plan does not change its workflow.';
 
   @override
   String get projectSetupErrorTitle => 'The operation could not be completed';
@@ -1088,15 +1437,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectSetupErrorValidation =>
-      'The backend rejected the wizard data. Fix the highlighted values.';
+      'The wizard data could not be saved. Fix the highlighted values.';
 
   @override
   String get projectSetupErrorUnavailable =>
-      'The wizard has no configured project creation port.';
+      'Creating projects is unavailable right now. Try again in a moment; if the problem repeats, report it to your administrator.';
 
   @override
   String get projectResourceUnavailableMessage =>
-      'This form has no backend connection in this session, so nothing was saved.';
+      'We have no server connection right now, so nothing was saved. Try again in a moment.';
 
   @override
   String get projectSetupErrorCancelled =>
@@ -6013,6 +6362,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasksKanbanSwimlaneMilestone => 'By milestone';
 
   @override
+  String get tasksBoardGroupBy => 'Group by';
+
+  @override
+  String get tasksBoardGroupByStatus => 'Status';
+
+  @override
+  String get tasksBoardCurrentUserBadge => 'You';
+
+  @override
+  String get tasksBoardMoveToPerson => 'Move to person';
+
+  @override
+  String get tasksBoardLoadMore => 'Load more';
+
+  @override
+  String get tasksBoardUnassignedDropTitle => 'Remove every assignee?';
+
+  @override
+  String get tasksBoardUnassignedDropBody =>
+      'Dropping the card here removes all assignees from the task. The task status does not change.';
+
+  @override
+  String get tasksBoardUnassignedDropConfirm => 'Remove assignees';
+
+  @override
   String get tasksKanbanCardDensity => 'Card density';
 
   @override
@@ -6203,6 +6577,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasksBoardFilterAllPeople => 'All people';
+
+  @override
+  String get tasksBoardAssigneeColumns => 'People columns';
+
+  @override
+  String get tasksBoardAssigneeColumnsHideEmpty => 'Hide empty columns';
+
+  @override
+  String get tasksBoardAssigneeColumnsShowAll => 'Show all columns';
+
+  @override
+  String get tasksBoardAssigneeColumnsAllHidden =>
+      'All columns hidden — show them';
+
+  @override
+  String get tasksBoardActiveFilters => 'Active filters:';
 
   @override
   String get tasksBoardMoveBlockedByFilter =>
@@ -8624,6 +9014,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageRecent => 'Recent';
 
   @override
+  String get storageFilterActiveLabel => 'Active filter:';
+
+  @override
+  String get storageFilterAll => 'All';
+
+  @override
+  String get storageFilterClear => 'Clear';
+
+  @override
+  String get storageFilterDateMonth => 'Last 30 days';
+
+  @override
+  String get storageFilterDateSection => 'Date added';
+
+  @override
+  String get storageFilterDateToday => 'Today';
+
+  @override
+  String get storageFilterDateWeek => 'Last 7 days';
+
+  @override
+  String get storageFilterMenuLabel => 'Filters';
+
+  @override
+  String get storageFilterStatusCompleted => 'Ready';
+
+  @override
+  String get storageFilterStatusFailed => 'Failed';
+
+  @override
+  String get storageFilterStatusNone => 'Not analysed';
+
+  @override
+  String get storageFilterStatusProcessing => 'Processing';
+
+  @override
+  String get storageFilterStatusQueued => 'Queued';
+
+  @override
+  String get storageFilterStatusSection => 'Analysis status';
+
+  @override
+  String get storageFilterTypeSection => 'File type';
+
+  @override
   String get storageFavorites => 'Favorites';
 
   @override
@@ -8821,6 +9256,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'No users with an active local account were found.';
 
   @override
+  String get storageViewDensityLabel => 'Row density';
+
+  @override
+  String get storageViewDensityComfortable => 'Comfortable';
+
+  @override
+  String get storageViewDensityCompact => 'Compact';
+
+  @override
   String get storageAddShareButton => 'Add';
 
   @override
@@ -8895,6 +9339,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageShareAction => 'Share';
 
   @override
+  String storageShareAuthor(Object identifier) {
+    return 'Author: $identifier';
+  }
+
+  @override
+  String storageShareExpiresAt(Object date) {
+    return 'Expires: $date';
+  }
+
+  @override
+  String get storageShareLinkSection => 'Public link';
+
+  @override
+  String get storageSharePeopleSection => 'People';
+
+  @override
+  String get storageShareProjectSection => 'Project';
+
+  @override
+  String get storageShareWorkspaceSection => 'Workspace';
+
+  @override
   String get storageAddFavoriteAction => 'Add to favorites';
 
   @override
@@ -8937,6 +9403,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storageOfficeCloseUnconfirmed =>
       'The editor did not confirm a safe close. Closing anyway may lose unsaved changes. Close the document?';
+
+  @override
+  String get storageOfficeCloseUnsavedBody =>
+      'The document has changes that have not been confirmed by a save yet. Closing the editor may lose them.';
+
+  @override
+  String get storageOfficeCloseUnsavedTitle => 'Close without saving?';
+
+  @override
+  String get storageOfficeConnected => 'Connected';
+
+  @override
+  String get storageOfficeConnecting => 'Connecting…';
+
+  @override
+  String get storageOfficeSavedChanges => 'Saved';
+
+  @override
+  String get storageOfficeUnsavedChanges => 'Unsaved changes';
 
   @override
   String get storageOfficeSessionFailure =>
@@ -8985,6 +9470,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageMoreOptionsTooltip => 'More options';
+
+  @override
+  String get storageMoveAction => 'Move to…';
+
+  @override
+  String get storageMoveConfirm => 'Move here';
+
+  @override
+  String get storageMoveDialogNoSubfolders =>
+      'No subfolders. Pick this folder or go up.';
+
+  @override
+  String get storageMoveDialogRoot => 'Root folder';
+
+  @override
+  String get storageMoveDialogTitle => 'Move to folder';
 
   @override
   String get storageClearCompletedTooltip => 'Clear completed';
@@ -9096,6 +9597,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageVersionsEmpty => 'No saved file versions.';
 
   @override
+  String storageVersionPreviewBadge(Object version) {
+    return 'Version $version — preview';
+  }
+
+  @override
+  String get storageVersionPreviewAction => 'Preview version';
+
+  @override
+  String get storageVersionPreviewOfficeUnavailable =>
+      'A historical version of an office document cannot be previewed in this session. Download the file to see it.';
+
+  @override
   String storageVersionLabel(int version) {
     return 'Version $version';
   }
@@ -9131,6 +9644,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storagePartialDeleteFailed => 'Some items could not be deleted.';
+
+  @override
+  String get storagePartialMoveFailed => 'Some items could not be moved.';
 
   @override
   String get storageDeleteSelectedFailed =>
@@ -10009,4 +10525,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectsTemplateCreateAction => 'Create template';
+
+  @override
+  String get storageOfficeSavingChanges => 'Waiting for the server…';
+
+  @override
+  String get storageOfficeSaveUnconfirmed => 'Save not confirmed';
+
+  @override
+  String get storageOfficeCloseAwaitingTitle =>
+      'Wait for the save to be confirmed?';
+
+  @override
+  String get storageOfficeCloseAwaitingBody =>
+      'The editor has no local changes left, but the backend has not confirmed a new version yet. Closing now may show the list with the previous version of the file.';
+
+  @override
+  String get storageOfficeCloseWaitForSave => 'Wait';
 }

@@ -5,6 +5,7 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/transport/text_preview_loader_impl.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_office_editor_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
@@ -21,11 +22,39 @@ class StoragePreviewDialog extends StatelessWidget {
   /// Tworzy okno dialogowe podglądu.
   const StoragePreviewDialog({
     required this.file,
+    this.repository,
+    this.version,
+    this.onEditorClosed,
     super.key,
   });
 
   /// Plik, dla którego wyświetlany jest podgląd.
   final StorageFileResponse file;
+
+  /// Repozytorium przekazane jawnie; modal nie ma providerów modułu w przodkach.
+  final StorageRepository? repository;
+
+  /// Wywoływane po zakończeniu sesji edytora otwartej z podglądu.
+  final VoidCallback? onEditorClosed;
+
+  /// Wersja historyczna do podglądu; `null` oznacza bieżącą wersję pliku.
+  ///
+  /// W trybie historycznym edytor biurowy jest niedostępny: jego sesja dotyczy
+  /// bieżącej wersji, więc otwarcie go tutaj pokazywałoby inną treść niż
+  /// wybrana, a zapis nadpisałby bieżący plik.
+  final int? version;
+
+  /// Otwiera edytor bieżącej wersji i zamyka podgląd.
+  Future<void> _openEditor(BuildContext context) async {
+    final repository = this.repository ?? context.read<StorageRepository>();
+    Navigator.of(context).pop();
+    await StorageOfficeEditorDialog.show(
+      context,
+      file: file,
+      repository: repository,
+    );
+    onEditorClosed?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,24 +96,23 @@ class StoragePreviewDialog extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${StorageFormatters.formatBytes(file.fileSizeBytes)} • Wersja ${file.version}',
+                          version == null
+                              ? '${StorageFormatters.formatBytes(file.fileSizeBytes)} • Wersja ${file.version}'
+                              : '${context.l10n.storageVersionPreviewBadge(version!)} • ${StorageFormatters.formatBytes(file.fileSizeBytes)}',
                           style: context.text.labelSmall?.copyWith(
-                            color: context.colors.onSurfaceVariant,
+                            color: version == null
+                                ? context.colors.onSurfaceVariant
+                                : context.colors.tertiary,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  if (file.canEditOnline)
+                  if (file.canEditOnline && version == null)
                     TextButton.icon(
                       icon: const Icon(AppIcons.documentText, size: 16),
                       label: Text(context.l10n.storageOpenOfficeAction),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        unawaited(
-                          StorageOfficeEditorDialog.show(context, file: file),
-                        );
-                      },
+                      onPressed: () => unawaited(_openEditor(context)),
                     ),
                   if (file.canDownload)
                     IconButton(
@@ -197,7 +225,10 @@ class StoragePreviewDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              context.l10n.storageOfficeDescription,
+              version == null
+                  ? context.l10n.storageOfficeDescription
+                  : context.l10n.storageVersionPreviewOfficeUnavailable,
+              textAlign: TextAlign.center,
               style: context.text.bodyMedium?.copyWith(
                 color: context.colors.onSurfaceVariant,
               ),
@@ -206,10 +237,7 @@ class StoragePreviewDialog extends StatelessWidget {
             FilledButton.icon(
               icon: const Icon(AppIcons.documentText, size: 16),
               label: Text(context.l10n.storageOpenOfficeAction),
-              onPressed: () {
-                Navigator.of(context).pop();
-                unawaited(StorageOfficeEditorDialog.show(context, file: file));
-              },
+              onPressed: () => unawaited(_openEditor(context)),
             ),
           ],
         ),

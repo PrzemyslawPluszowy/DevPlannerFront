@@ -1,100 +1,91 @@
-import 'dart:async';
-
 import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/files_theme.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Pusty stan bieżącego katalogu.
+///
+/// Widok celowo nie powtarza akcji: CTA tworzenia i wysyłania należą do
+/// chrome'u, który stoi bezpośrednio nad ciałem. Dwa wejścia do tej samej
+/// operacji na jednym ekranie to zaproszenie do rozjazdu ich bramkowania.
 final class StorageEmptyView extends StatelessWidget {
+  /// Tworzy widok pustego katalogu.
   const StorageEmptyView({super.key});
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          AppIcons.folder,
-          size: 48,
-          color: context.colors.onSurfaceVariant.withValues(alpha: 0.5),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          context.l10n.storageEmptyTitle,
-          style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          context.l10n.storageEmptySubtitle,
-          style: context.text.bodySmall?.copyWith(
-            color: context.colors.onSurfaceVariant,
-          ),
-        ),
-      ],
-    ),
-  );
-}
+  Widget build(BuildContext context) {
+    final common = context.filesTheme.common;
+    final colors = context.colors;
 
-/// Stan błędu listowania z możliwością ponowienia.
-final class StorageErrorView extends StatelessWidget {
-  const StorageErrorView({required this.message, super.key});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(AppIcons.alertCircle, size: 48, color: context.colors.error),
-        const SizedBox(height: 12),
-        Text(context.l10n.storageErrorTitle, style: context.text.titleSmall),
-        const SizedBox(height: 4),
-        Text(message, style: TextStyle(color: context.colors.error)),
-        const SizedBox(height: 12),
-        FilledButton.icon(
-          icon: const Icon(AppIcons.refresh, size: 16),
-          label: Text(context.l10n.retry),
-          onPressed: () => context.read<StorageBrowserCubit>().load(),
-        ),
-        if (context.read<StorageBrowserCubit>().currentScope.folderId != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: TextButton.icon(
-              icon: const Icon(Icons.arrow_back, size: 16),
-              label: Text(MaterialLocalizations.of(context).backButtonTooltip),
-              onPressed: () =>
-                  unawaited(context.read<StorageBrowserCubit>().navigateUp()),
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(common.blockGap),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              AppIcons.folder,
+              size: 48,
+              color: colors.onSurfaceVariant.withValues(alpha: 0.6),
             ),
-          ),
-      ],
-    ),
-  );
+            SizedBox(height: common.rowGutter),
+            Text(
+              context.l10n.storageEmptyTitle,
+              textAlign: TextAlign.center,
+              style: common.projectTitleText.copyWith(color: colors.onSurface),
+            ),
+            SizedBox(height: common.tightGap),
+            Text(
+              context.l10n.storageEmptySubtitle,
+              textAlign: TextAlign.center,
+              style: common.dataText.copyWith(color: colors.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// Jawny stan braku dostępu do zakresu Storage.
+///
+/// Odmowa dostępu nie jest błędem przejściowym: nie ma tu ponowienia, bo
+/// ponowienie nie zmieni wyniku, a stan trwa do zmiany zakresu.
 final class StorageForbiddenView extends StatelessWidget {
+  /// Tworzy widok braku dostępu.
   const StorageForbiddenView({required this.message, super.key});
 
+  /// Komunikat o odmowie dostępu.
   final String message;
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(AppIcons.lock, size: 48, color: context.colors.error),
-        const SizedBox(height: 12),
-        Text(
-          context.l10n.storageForbiddenTitle,
-          style: context.text.titleSmall,
+  Widget build(BuildContext context) {
+    final common = context.filesTheme.common;
+    final colors = context.colors;
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(common.blockGap),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(AppIcons.lock, size: 48, color: colors.error),
+            SizedBox(height: common.rowGutter),
+            Text(
+              context.l10n.storageForbiddenTitle,
+              textAlign: TextAlign.center,
+              style: common.projectTitleText.copyWith(color: colors.onSurface),
+            ),
+            SizedBox(height: common.tightGap),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: common.dataText.copyWith(color: colors.error),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(message, style: TextStyle(color: context.colors.error)),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }

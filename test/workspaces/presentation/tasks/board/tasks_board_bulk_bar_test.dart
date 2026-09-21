@@ -6,6 +6,7 @@ import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
@@ -69,6 +70,32 @@ KanbanBoardResponse _board() => KanbanBoardResponse(
 
 /// Repozytorium notujące akcje masowe boardu.
 final class _FakeKanbanRepository implements KanbanRepository {
+  @override
+  Future<Either<ApiError, AssigneeKanbanBoardResponse>> getAssigneeBoard({
+    required String workspaceId,
+    required String projectId,
+    KanbanBoardFilter filter = KanbanBoardFilter.none,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, CursorPageResponse<KanbanTaskCardResponse>>>
+  getAssigneeGroup({
+    required String workspaceId,
+    required String projectId,
+    String? assigneeUserId,
+    KanbanColumnQuery query = const KanbanColumnQuery(),
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChangeKanbanPrimaryAssigneeResponse>>
+  changePrimaryAssignee({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String? targetUserId,
+    required int expectedVersion,
+  }) async => throw UnimplementedError();
+
   BulkMoveKanbanTasksPayload? lastBulkMovePayload;
   BulkUpdateKanbanTasksPayload? lastBulkUpdatePayload;
   int bulkMoveCalls = 0;
@@ -148,84 +175,87 @@ final class _NoRealtime implements TaskProjectRealtime {
 }
 
 void main() {
-  testWidgets('pasek Kanbanu to wspólny contextual bulk bar i wykonuje bulk move', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1440, 900);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'pasek Kanbanu to wspólny contextual bulk bar i wykonuje bulk move',
+    (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1440, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final repository = _FakeKanbanRepository();
-    final cubit = TasksBoardCubit(
-      repository,
-      _NoRealtime(),
-      _FakeTasksRepository(),
-      workspaceId: 'workspace-1',
-      projectId: 'project-1',
-    );
-    addTearDown(cubit.close);
-    await cubit.start();
-    await tester.pump();
+      final repository = _FakeKanbanRepository();
+      final cubit = TasksBoardCubit(
+        repository,
+        _NoRealtime(),
+        _FakeTasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      addTearDown(cubit.close);
+      await cubit.start();
+      await tester.pump();
 
-    await tester.pumpWidget(
-      BlocProvider<TasksBoardCubit>.value(
-        value: cubit,
-        child: MaterialApp(
-          locale: const Locale('pl'),
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: BlocBuilder<TasksBoardCubit, TasksBoardState>(
-              builder: (context, state) => state is TasksBoardReady
-                  ? TasksHeader(
-                      state: state,
-                      workspaceId: 'workspace-1',
-                      projectId: 'project-1',
-                      view: TasksProjectView.board,
-                      onViewChanged: (_) {},
-                    )
-                  : const SizedBox.shrink(),
+      await tester.pumpWidget(
+        BlocProvider<TasksBoardCubit>.value(
+          value: cubit,
+          child: MaterialApp(
+            locale: const Locale('pl'),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: BlocBuilder<TasksBoardCubit, TasksBoardState>(
+                builder: (context, state) => state is TasksBoardReady
+                    ? TasksHeader(
+                        state: state,
+                        workspaceId: 'workspace-1',
+                        projectId: 'project-1',
+                        view: TasksProjectView.board,
+                        onViewChanged: (_) {},
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    // Bez zaznaczenia wiersz poleceń pokazuje kontrolki widoku, nie akcje masowe.
-    expect(find.byType(TasksContextualBulkBar), findsNothing);
+      // Bez zaznaczenia wiersz poleceń pokazuje kontrolki widoku, nie akcje masowe.
+      expect(find.byType(TasksContextualBulkBar), findsNothing);
 
-    final ready = cubit.state as TasksBoardReady;
-    ready.board.columns.first.tasks.forEach(cubit.toggleTaskSelection);
-    await tester.pumpAndSettle();
+      final ready = cubit.state as TasksBoardReady;
+      ready.board.columns.first.tasks.forEach(cubit.toggleTaskSelection);
+      await tester.pumpAndSettle();
 
-    // Ten sam komponent co w Liście, z licznikiem z ARB.
-    expect(find.byType(TasksContextualBulkBar), findsOneWidget);
-    expect(find.text('Wybrano: 2'), findsOneWidget);
-    expect(find.byKey(const ValueKey('board_bulk_move')), findsOneWidget);
-    expect(find.byKey(const ValueKey('board_bulk_priority')), findsOneWidget);
-    expect(find.byKey(const ValueKey('board_bulk_due_date')), findsOneWidget);
+      // Ten sam komponent co w Liście, z licznikiem z ARB.
+      expect(find.byType(TasksContextualBulkBar), findsOneWidget);
+      expect(find.text('Wybrano: 2'), findsOneWidget);
+      expect(find.byKey(const ValueKey('board_bulk_move')), findsOneWidget);
+      expect(find.byKey(const ValueKey('board_bulk_priority')), findsOneWidget);
+      expect(find.byKey(const ValueKey('board_bulk_due_date')), findsOneWidget);
 
-    // Przeniesienie zaznaczonych kart trafia do bulk move boardu.
-    await tester.tap(find.byKey(const ValueKey('board_bulk_move')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('W toku').last);
-    await tester.pumpAndSettle();
+      // Przeniesienie zaznaczonych kart trafia do bulk move boardu.
+      await tester.tap(find.byKey(const ValueKey('board_bulk_move')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('W toku').last);
+      await tester.pumpAndSettle();
 
-    expect(repository.bulkMoveCalls, 1);
-    expect(
-      repository.lastBulkMovePayload?.tasks.map((item) => item.taskId),
-      containsAll(<String>['task-1', 'task-2']),
-    );
-    expect(
-      repository.lastBulkMovePayload?.targetStatus,
-      ProjectTaskStatus.inProgress,
-    );
-  });
+      expect(repository.bulkMoveCalls, 1);
+      expect(
+        repository.lastBulkMovePayload?.tasks.map((item) => item.taskId),
+        containsAll(<String>['task-1', 'task-2']),
+      );
+      expect(
+        repository.lastBulkMovePayload?.targetStatus,
+        ProjectTaskStatus.inProgress,
+      );
+    },
+  );
 }

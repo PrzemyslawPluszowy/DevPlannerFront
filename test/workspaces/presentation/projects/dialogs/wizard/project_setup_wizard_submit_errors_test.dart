@@ -1,7 +1,12 @@
 import 'package:dartz/dartz.dart' hide State;
 import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_draft.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/project_resource_creation_dialogs.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/cubit/project_setup_wizard_cubit.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/project_creation_wizard.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'project_setup_wizard_fixture.dart';
@@ -70,7 +75,7 @@ void main() {
       expect(find.text('Nowy projekt'), findsOneWidget);
       await tester.tap(find.text('2. Podstawy'));
       await tester.pumpAndSettle();
-      expect(find.text('Projekt z nazwą'), findsOneWidget);
+      expect(findInControls('Projekt z nazwą'), findsOneWidget);
       expect(setups.createRequests, isEmpty);
     },
   );
@@ -100,7 +105,9 @@ void main() {
         traceId: 'trace-submit-422',
       );
       expect(
-        find.text('Backend odrzucił dane kreatora. Popraw wskazane wartości.'),
+        find.text(
+          'Nie udało się zapisać danych kreatora. Popraw wskazane wartości.',
+        ),
         findsOneWidget,
       );
       // Błąd walidacji serwera nie tworzy lokalnego błędu pola: pola bez
@@ -131,58 +138,119 @@ void main() {
     expect(find.text('Nie udało się wykonać operacji'), findsNothing);
   });
 
-  testWidgets('błąd submitowania nie zamyka kreatora, a sukces zamyka go i otwiera projekt', (
-    tester,
-  ) async {
-    final created = <String>[];
-    var generalNotifications = 0;
-    var attempts = 0;
-    final setups = FakeProjectSetupsRepository(
-      onCreate: (request, key) async {
-        attempts++;
-        if (attempts == 1) {
-          return Left(
-            projectSetupApiError(
-              type: ApiErrorType.server,
-              statusCode: 503,
-              message: 'Serwis chwilowo niedostępny.',
-              apiCode: 'project_setup.unavailable',
-              traceId: 'trace-submit-503',
-            ),
-          );
-        }
-        return Right(projectSetupCreation(projectId: 'project-42'));
-      },
-    );
-    await _openSummary(
+  testWidgets(
+    'błąd submitowania nie zamyka kreatora, a sukces zamyka go i otwiera projekt',
+    (
       tester,
-      setups: setups,
-      onProjectCreated: created.add,
-      onCreated: () => generalNotifications++,
-    );
+    ) async {
+      final created = <String>[];
+      var generalNotifications = 0;
+      var attempts = 0;
+      final setups = FakeProjectSetupsRepository(
+        onCreate: (request, key) async {
+          attempts++;
+          if (attempts == 1) {
+            return Left(
+              projectSetupApiError(
+                type: ApiErrorType.server,
+                statusCode: 503,
+                message: 'Serwis chwilowo niedostępny.',
+                apiCode: 'project_setup.unavailable',
+                traceId: 'trace-submit-503',
+              ),
+            );
+          }
+          return Right(projectSetupCreation(projectId: 'project-42'));
+        },
+      );
+      await _openSummary(
+        tester,
+        setups: setups,
+        onProjectCreated: created.add,
+        onCreated: () => generalNotifications++,
+      );
 
-    await tester.tap(find.text('Utwórz projekt'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Utwórz projekt'));
+      await tester.pumpAndSettle();
 
-    // Porażka: kreator zostaje otwarty, draft nietknięty, błąd jest trwały.
-    expect(tester.takeException(), isNull);
-    _expectDiagnostics(
-      code: 'project_setup.unavailable',
-      traceId: 'trace-submit-503',
-    );
-    expect(find.text('Serwis chwilowo niedostępny.'), findsOneWidget);
-    expect(find.text('Nowy projekt'), findsOneWidget);
-    expect(created, isEmpty);
+      // Porażka: kreator zostaje otwarty, draft nietknięty, błąd jest trwały.
+      expect(tester.takeException(), isNull);
+      _expectDiagnostics(
+        code: 'project_setup.unavailable',
+        traceId: 'trace-submit-503',
+      );
+      expect(find.text('Serwis chwilowo niedostępny.'), findsOneWidget);
+      expect(find.text('Nowy projekt'), findsOneWidget);
+      expect(created, isEmpty);
 
-    await tester.tap(find.text('Utwórz projekt'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Utwórz projekt'));
+      await tester.pumpAndSettle();
 
-    // Sukces: identyfikator pochodzi z odpowiedzi serwera, kreator się zamyka,
-    // a aplikacja przechodzi do utworzonego projektu.
-    expect(created, <String>['project-42']);
-    expect(generalNotifications, 1);
-    expect(find.text('Nowy projekt'), findsNothing);
-    expect(find.text('$kProjectRouteKey:project-42'), findsOneWidget);
-    expect(setups.createRequests, hasLength(2));
-  });
+      // Sukces: identyfikator pochodzi z odpowiedzi serwera, kreator się zamyka,
+      // a aplikacja przechodzi do utworzonego projektu.
+      expect(created, <String>['project-42']);
+      expect(generalNotifications, 1);
+      expect(find.text('Nowy projekt'), findsNothing);
+      expect(find.text('$kProjectRouteKey:project-42'), findsOneWidget);
+      expect(setups.createRequests, hasLength(2));
+    },
+  );
+
+  testWidgets(
+    'utworzenie projektu jest zablokowane, dopóki plan jest nieaktualny',
+    (tester) async {
+      final setups = FakeProjectSetupsRepository();
+      final cubit = ProjectSetupWizardCubit(
+        workspaceId: kProjectSetupWorkspaceId,
+        setups: setups,
+        templates: FakeProjectTemplatesRepository(),
+        idempotencyKeyFactory: () => 'klucz-testowy',
+      );
+      addTearDown(cubit.close);
+      // Najpierw poprawny draft i plan, tak jak po wejściu w podsumowanie.
+      cubit.applyDraft(cubit.state.draft.copyWith(name: 'Projekt z planem'));
+      cubit.goToStep(ProjectSetupStep.summary);
+      await cubit.refreshPlan();
+      // Dopiero potem zmienia się draft, więc plan przestaje opisywać to, co
+      // powstanie — w tym stanie żądanie nie może zostać wysłane.
+      cubit.applyDraft(
+        cubit.state.draft.copyWith(name: 'Nazwa po zbudowaniu planu'),
+      );
+      expect(cubit.state.planIsStale, isTrue);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('pl'),
+          localizationsDelegates: const <LocalizationsDelegate<Object>>[
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: ProjectCreationWizard(
+            workspaceId: kProjectSetupWorkspaceId,
+            cubit: cubit,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      FilledButton createButton() => tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, 'Utwórz projekt'),
+      );
+      expect(createButton().onPressed, isNull);
+      expect(
+        find.text('Ustawienia zmieniły się od czasu zbudowania planu.'),
+        findsOneWidget,
+      );
+
+      // Odświeżenie planu odblokowuje utworzenie projektu.
+      await cubit.refreshPlan();
+      await tester.pumpAndSettle();
+      expect(cubit.state.planIsStale, isFalse);
+      expect(createButton().onPressed, isNotNull);
+      expect(setups.createRequests, isEmpty);
+    },
+  );
 }

@@ -1434,6 +1434,40 @@ class _StorageApi implements StorageApi {
   }
 
   @override
+  Future<StorageFilePlacementResponse> moveFilePlacement(
+    String placementId,
+    MoveStorageFilePlacementPayload payload, {
+    String? idempotencyKey,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Idempotency-Key': idempotencyKey};
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(payload.toJson());
+    final _options = _setStreamType<StorageFilePlacementResponse>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/storage/placements/${placementId}/move',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late StorageFilePlacementResponse _value;
+    try {
+      _value = StorageFilePlacementResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<void> deleteFilePlacement(String fileId, String placementId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

@@ -92,8 +92,7 @@ final class TasksBoardRuntimeCoordinator {
               ? previous.copyWith(board: board, filter: _filter)
               : TasksBoardReady(
                   board: board,
-                  connectionState:
-                      WorkspaceSignalRConnectionState.disconnected,
+                  connectionState: WorkspaceSignalRConnectionState.disconnected,
                   presence: const <TaskProjectPresenceUser>[],
                   filter: _filter,
                 ),

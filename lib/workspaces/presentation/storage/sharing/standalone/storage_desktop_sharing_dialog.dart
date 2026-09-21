@@ -9,23 +9,26 @@ import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/data/storage/transport/public_share_link_builder_impl.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/public_share_link_builder.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_sharing_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_sharing_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/standalone/storage_public_share_form.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_share_people_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Desktopowy dialog udostępniania oparty wyłącznie na kontrakcie Storage.
 ///
-/// Świadomie nie zawiera wyszukiwania użytkowników: istniejący katalog
-/// użytkowników jest jeszcze kontraktem Ready i nie może wrócić do standalone
-/// DevPlanner. Dostępne są tylko cele, dla których plik ma stabilne ID:
-/// workspace oraz projekt, a także lista i cofanie istniejących grantów.
+/// Jeden dialog obsługuje cztery tryby: osobę z lokalnego katalogu, workspace
+/// pliku, projekt pliku oraz link publiczny. Katalog osób jest portem z
+/// composition rootu — dialog jest montowany na rootowym overlayu, więc nie może
+/// czytać portów z drzewa modułu.
 final class StorageDesktopSharingDialog extends StatelessWidget {
   /// Tworzy dialog udostępniania pliku.
   const StorageDesktopSharingDialog({
     required this.file,
     required this.repository,
+    this.userDirectory,
     this.onMutationConfirmed,
     this.publicShareLinkBuilder,
     super.key,
@@ -36,6 +39,9 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
 
   /// Repozytorium Storage z desktop composition root.
   final StorageRepository repository;
+
+  /// Lokalny katalog użytkowników; brak portu wyłącza tryb udostępniania osobie.
+  final StorageUserDirectoryPort? userDirectory;
 
   /// Callback odświeżający browser po udanej mutacji.
   final Future<void> Function()? onMutationConfirmed;
@@ -48,6 +54,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
     BuildContext context, {
     required StorageFileResponse file,
     required StorageRepository repository,
+    StorageUserDirectoryPort? userDirectory,
     Future<void> Function()? onMutationConfirmed,
     PublicShareLinkBuilder? publicShareLinkBuilder,
   }) => showDialog<void>(
@@ -55,6 +62,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
     builder: (_) => StorageDesktopSharingDialog(
       file: file,
       repository: repository,
+      userDirectory: userDirectory,
       onMutationConfirmed: onMutationConfirmed,
       publicShareLinkBuilder: publicShareLinkBuilder,
     ),
@@ -73,6 +81,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
     },
     child: _StorageDesktopSharingView(
       file: file,
+      userDirectory: userDirectory,
       publicShareLinkBuilder:
           publicShareLinkBuilder ?? const PublicShareLinkBuilderImpl(),
     ),
@@ -82,10 +91,12 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
 final class _StorageDesktopSharingView extends StatelessWidget {
   const _StorageDesktopSharingView({
     required this.file,
+    required this.userDirectory,
     required this.publicShareLinkBuilder,
   });
 
   final StorageFileResponse file;
+  final StorageUserDirectoryPort? userDirectory;
   final PublicShareLinkBuilder publicShareLinkBuilder;
 
   @override
@@ -112,8 +123,19 @@ final class _StorageDesktopSharingView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _SectionTitle(context.l10n.storageSharePeopleSection),
+              const SizedBox(height: 8),
+              StorageSharePeopleSection(
+                workspaceId: file.workspaceId,
+                userDirectory: userDirectory,
+              ),
+              const SizedBox(height: 20),
+              _SectionTitle(context.l10n.storageShareWorkspaceSection),
+              const SizedBox(height: 8),
               _ShareTargets(file: file),
               const SizedBox(height: 20),
+              _SectionTitle(context.l10n.storageShareLinkSection),
+              const SizedBox(height: 8),
               StoragePublicShareForm(
                 onCreate: (password, expiresAtUtc) async {
                   final token = await context
@@ -136,10 +158,7 @@ final class _StorageDesktopSharingView extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 20),
-              Text(
-                context.l10n.storageActiveShares,
-                style: context.text.titleSmall,
-              ),
+              _SectionTitle(context.l10n.storageActiveShares),
               const SizedBox(height: 8),
               const SizedBox(height: 280, child: _ShareList()),
             ],
@@ -153,6 +172,18 @@ final class _StorageDesktopSharingView extends StatelessWidget {
         child: Text(context.l10n.close),
       ),
     ],
+  );
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w600),
   );
 }
 

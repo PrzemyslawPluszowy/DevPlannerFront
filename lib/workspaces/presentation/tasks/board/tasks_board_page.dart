@@ -10,6 +10,7 @@ import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/shared/presentation/widgets/app_confirm_dialog.dart';
 import 'package:devplanner/shared/presentation/widgets/app_expandable_side_sheet.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/preferences/shared_preferences_tasks_board_view_store.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_capacity_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
@@ -26,6 +27,8 @@ import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dar
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/models/tasks_board_grouping.dart';
+import 'package:devplanner/workspaces/domain/ports/tasks_board_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/ports/tasks_project_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
@@ -44,6 +47,7 @@ import 'package:devplanner/workspaces/presentation/projects/settings/custom_fiel
 import 'package:devplanner/workspaces/presentation/projects/settings/project_settings_modal.dart';
 import 'package:devplanner/workspaces/presentation/projects/settings/user_hub/project_user_hub_modal.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cards/kanban_card_tokens.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_assignee_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/task_board_date_formatter.dart';
@@ -83,6 +87,7 @@ export 'tasks_project_view.dart';
 
 part '../header/tasks_header.dart';
 part '../header/tasks_header_actions.dart';
+part '../header/tasks_header_assignee_columns.dart';
 part '../header/tasks_header_board_filters.dart';
 part '../header/tasks_header_command_bar.dart';
 part '../header/tasks_header_create_actions.dart';
@@ -91,10 +96,12 @@ part '../header/tasks_header_quick_create_dialog.dart';
 part 'cards/content/kanban_card_frame.dart';
 part 'cards/content/kanban_card_identity.dart';
 part 'cards/content/kanban_card_metadata.dart';
+part 'tasks_board_assignee_view.dart';
 part 'tasks_board_card_content.dart';
 part 'tasks_board_card_menu.dart';
 part 'tasks_board_cards.dart';
 part 'tasks_board_collapsed_column.dart';
+part 'tasks_board_column_surface.dart';
 part 'tasks_board_columns.dart';
 part 'tasks_board_quick_create.dart';
 part 'tasks_board_saved_views.dart';
@@ -128,6 +135,7 @@ class TasksBoardPage extends StatelessWidget {
     required this.workspaceId,
     required this.projectId,
     this.initialView,
+    this.boardViewPreferenceStore,
     this.viewPreferenceStore,
     this.onProjectExited,
     super.key,
@@ -137,6 +145,10 @@ class TasksBoardPage extends StatelessWidget {
   final String projectId;
   final String? initialView;
   final TasksProjectViewPreferenceStore? viewPreferenceStore;
+
+  /// Osobiste preferencje widoku tablicy (grupowanie, widoczność kolumn osób);
+  /// brak adaptera oznacza wybór w pamięci bieżącej sesji.
+  final TasksBoardViewPreferenceStore? boardViewPreferenceStore;
   final VoidCallback? onProjectExited;
 
   @override
@@ -156,6 +168,14 @@ class TasksBoardPage extends StatelessWidget {
             taskTemplateRepository: context.read<TaskTemplateRepository>(),
             memberProfilesRepository: context
                 .read<ProjectMemberProfilesRepository>(),
+            viewPreferenceStore:
+                boardViewPreferenceStore ??
+                SharedPreferencesTasksBoardViewStore(
+                  // Preferencja jest osobista, więc tożsamość czytamy w momencie
+                  // operacji, a nie raz na starcie klienta.
+                  currentUserId: () =>
+                      context.read<AuthSessionPort>().snapshot.user?.userId,
+                ),
             workspaceId: workspaceId,
             projectId: projectId,
           );
@@ -404,16 +424,30 @@ class _BoardContentState extends State<_BoardContent> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.state.board.columns.isEmpty
-      ? const _BoardEmpty()
-      : KanbanAutoScrollScope(
-          coordinator: _coordinator,
-          child: KanbanColumnsViewport(
-            workspaceId: widget.workspaceId,
-            projectId: widget.projectId,
-            state: widget.state,
-          ),
-        );
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Expanded(
+        child: widget.state.grouping == TasksBoardGrouping.assignee
+            ? KanbanAssigneeBoardContent(
+                workspaceId: widget.workspaceId,
+                projectId: widget.projectId,
+                state: widget.state,
+                coordinator: _coordinator,
+              )
+            : widget.state.board.columns.isEmpty
+            ? const _BoardEmpty()
+            : KanbanAutoScrollScope(
+                coordinator: _coordinator,
+                child: KanbanColumnsViewport(
+                  workspaceId: widget.workspaceId,
+                  projectId: widget.projectId,
+                  state: widget.state,
+                ),
+              ),
+      ),
+    ],
+  );
 }
 
 class _BoardKeyboardShortcuts extends StatelessWidget {

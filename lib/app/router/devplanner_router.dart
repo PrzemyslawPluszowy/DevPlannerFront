@@ -11,6 +11,7 @@ import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/auth/presentation/auth_route_page.dart';
 import 'package:devplanner/foundation/http/http.dart';
 import 'package:devplanner/me/me.dart';
+import 'package:devplanner/workspaces/data/preferences/shared_preferences_storage_view_store.dart';
 import 'package:devplanner/workspaces/data/preferences/shared_preferences_tasks_project_view_store.dart';
 import 'package:devplanner/workspaces/data/projects/api/projects_api.dart';
 import 'package:devplanner/workspaces/data/projects/api/projects_list_api.dart';
@@ -21,6 +22,7 @@ import 'package:devplanner/workspaces/data/projects/tasks/api/task_views_api.dar
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_view_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
+import 'package:devplanner/workspaces/data/realtime/storage/storage_realtime_composition.dart';
 import 'package:devplanner/workspaces/data/standalone/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/data/standalone/workspace_navigation_gateway.dart';
 import 'package:devplanner/workspaces/data/standalone/workspaces_gateway.dart';
@@ -29,7 +31,11 @@ import 'package:devplanner/workspaces/data/storage/repositories/storage_reposito
 import 'package:devplanner/workspaces/data/storage/transport/download_transport_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/file_picker_port_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/presigned_upload_transport.dart';
+import 'package:devplanner/workspaces/data/storage/transport/storage_user_directory_adapter.dart';
+import 'package:devplanner/workspaces/data/workspaces/api/workspaces_api.dart';
+import 'package:devplanner/workspaces/data/workspaces/repositories/workspaces_repository_impl.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/domain/ports/storage_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/ports/tasks_project_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.dart';
@@ -38,13 +44,16 @@ import 'package:devplanner/workspaces/domain/repositories/projects_repository.da
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_realtime_client.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/devplanner_workspaces_page.dart';
 import 'package:devplanner/workspaces/presentation/private/private_pages.dart';
 import 'package:devplanner/workspaces/presentation/projects/workspace_projects_page.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_file_details_page.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_read_only_browser_page.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_workspace_files_route_page.dart';
 import 'package:devplanner/workspaces/presentation/storage/public_share/storage_public_share_page.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_page.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_route_page.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/tasks_details_route_page.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +80,7 @@ class DevPlannerRouter with _DevPlannerRouterPages {
     TasksDetailsComposition? tasksDetailsComposition,
     ProjectSettingsComposition? projectSettingsComposition,
     TasksProjectViewPreferenceStore? tasksViewPreferenceStore,
+    StorageViewPreferenceStore? filesViewPreferenceStore,
   }) : _auth = auth ?? AuthComposition.unavailable(),
        _explicitAdminUsers = adminUsers,
        _explicitMeGateway = meGateway,
@@ -84,12 +94,16 @@ class DevPlannerRouter with _DevPlannerRouterPages {
        _explicitTasksDetailsComposition = tasksDetailsComposition,
        _explicitProjectSettingsComposition = projectSettingsComposition,
        _explicitTasksViewPreferenceStore = tasksViewPreferenceStore,
+       _explicitFilesViewPreferenceStore = filesViewPreferenceStore,
        _ownsAuth = auth == null {
     _authGuard = DevPlannerAuthGuard(session: _auth.session);
     // Preferencja widoku Zadania jest wczytywana raz, zanim użytkownik zdąży
     // otworzyć projekt; trasa czyta ją synchronicznie i nie mruga widokiem.
     _viewPreferenceUserId = _auth.session.snapshot.user?.userId;
     unawaited(_tasksViewPreferenceStore.load());
+    // Preferencja widoku Plików jest wczytywana tak samo wcześnie, bo trasa
+    // czyta ją synchronicznie i nie mruga widokiem przy wejściu w katalog.
+    unawaited(_filesViewPreferenceStore.load());
     _auth.session.addListener(_reloadViewPreferenceOnUserChange);
     _router = GoRouter(
       initialLocation: DevPlannerRouteCatalog.safeInitialLocation(
@@ -189,8 +203,7 @@ class DevPlannerRouter with _DevPlannerRouterPages {
               redirect: (_, state) => _legacyTasksViewRedirect(state, 'list'),
             ),
             GoRoute(
-              path:
-                  '/workspaces/:workspaceId/projects/:projectId/tasks/kanban',
+              path: '/workspaces/:workspaceId/projects/:projectId/tasks/kanban',
               redirect: (_, state) => _legacyTasksViewRedirect(state, 'kanban'),
             ),
             // Zachowujemy adres używany przez wcześniejsze menu Workspace.
@@ -252,11 +265,17 @@ class DevPlannerRouter with _DevPlannerRouterPages {
   final TasksDetailsComposition? _explicitTasksDetailsComposition;
   final ProjectSettingsComposition? _explicitProjectSettingsComposition;
   final TasksProjectViewPreferenceStore? _explicitTasksViewPreferenceStore;
+  final StorageViewPreferenceStore? _explicitFilesViewPreferenceStore;
   late final TasksProjectViewPreferenceStore _tasksViewPreferenceStore =
       _explicitTasksViewPreferenceStore ??
       SharedPreferencesTasksProjectViewStore(
         // Preferencja jest per użytkownik, więc tożsamość czytamy w momencie
         // operacji, a nie raz na starcie klienta.
+        currentUserId: () => _auth.session.snapshot.user?.userId,
+      );
+  late final StorageViewPreferenceStore _filesViewPreferenceStore =
+      _explicitFilesViewPreferenceStore ??
+      SharedPreferencesStorageViewStore(
         currentUserId: () => _auth.session.snapshot.user?.userId,
       );
 
@@ -397,6 +416,37 @@ class DevPlannerRouter with _DevPlannerRouterPages {
   TasksProjectViewPreferenceStore get _resolvedTasksViewPreferenceStore =>
       _tasksViewPreferenceStore;
 
+  @override
+  StorageViewPreferenceStore get _resolvedStorageViewPreferenceStore =>
+      _filesViewPreferenceStore;
+
+  /// Katalog lokalnych użytkowników dla udostępniania i filtra właściciela.
+  ///
+  /// Powstaje tylko dla klienta z samodzielnym API: bez transportu nie ma czym
+  /// zapytać katalogu, a podstawianie pustej listy udawałoby „brak wyników”.
+  @override
+  StorageUserDirectoryPort? get _resolvedStorageUserDirectory {
+    final transport = httpTransport;
+    if (transport == null || !transport.supportsStandaloneApiClients) {
+      return null;
+    }
+    return StorageUserDirectoryAdapter(
+      WorkspacesRepositoryImpl(
+        api: WorkspacesApi(transport.apiDio, baseUrl: transport.baseUrl),
+      ),
+    );
+  }
+
+  /// Kanał zmian plików dla klienta z samodzielnym API.
+  ///
+  /// Fabryka, nie instancja: każdy ekran Files tworzy własnego klienta i zamyka
+  /// go razem ze sobą, więc przejście między widokami nie zostawia otwartego
+  /// połączenia. Webowy BFF bez tokenu dla huba dostaje `null` i działa bez
+  /// odświeżeń na żywo.
+  @override
+  StorageRealtimeClientFactory? get _resolvedStorageRealtimeClientFactory =>
+      storageRealtimeClientFactory(httpTransport);
+
   /// Zmiana konta w tej samej sesji klienta musi wczytać preferencje nowego
   /// użytkownika, żeby wybór widoku nie przeciekał między kontami.
   void _reloadViewPreferenceOnUserChange() {
@@ -404,6 +454,7 @@ class DevPlannerRouter with _DevPlannerRouterPages {
     if (userId == _viewPreferenceUserId) return;
     _viewPreferenceUserId = userId;
     unawaited(_tasksViewPreferenceStore.load());
+    unawaited(_filesViewPreferenceStore.load());
   }
 
   GoRouter get config => _router;
@@ -581,7 +632,8 @@ abstract final class DevPlannerRouteCatalog {
     String workspaceId,
     String projectId,
     String view,
-  ) => '${projectTasks(workspaceId, projectId)}?view=${Uri.encodeQueryComponent(view)}';
+  ) =>
+      '${projectTasks(workspaceId, projectId)}?view=${Uri.encodeQueryComponent(view)}';
 
   static String projectFiles(String workspaceId, String projectId) =>
       '${project(workspaceId, projectId)}/files';

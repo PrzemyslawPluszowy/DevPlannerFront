@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_command_context.dart';
@@ -35,6 +36,22 @@ final class TasksBoardFilterCommands {
       milestoneId: milestoneId,
       clearMilestone: milestoneId == null,
     ),
+  );
+
+  /// Ustawia filtr statusu kart: systemowy albo własny, nigdy oba naraz.
+  ///
+  /// W widoku osób osoba opisuje kolumnę, więc status jest tam filtrem kart —
+  /// „pokaż tylko to, co jest w toku” nie myli się z osią kolumn. Oba pola
+  /// kontraktu opisują jeden wymiar, więc zmieniamy je **jedną** operacją: dwa
+  /// osobne wywołania zostawiały na moment oba filtry aktywne (pusta tablica),
+  /// a czyszczenie szło dwiema niezależnymi ścieżkami, czyli w wyścigu.
+  Future<void> setStatusColumn({
+    ProjectTaskStatus? status,
+    String? customStatusId,
+  }) => _apply(
+    (filter) => status == null && customStatusId == null
+        ? filter.copyWith(clearStatus: true, clearCustomStatus: true)
+        : filter.copyWith(status: status, customStatusId: customStatusId),
   );
 
   Future<void> clearFilters() => _apply((_) => KanbanBoardFilter.none);

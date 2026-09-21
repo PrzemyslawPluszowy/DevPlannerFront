@@ -4,9 +4,13 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_view_preference.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_drag_and_drop.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_actions_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,17 +19,26 @@ class StorageFolderRows extends StatelessWidget {
   /// Tworzy listę folderów.
   const StorageFolderRows({
     required this.folders,
+    this.capabilities = StorageShellCapabilities.readOnly,
     super.key,
   });
 
   /// Lista folderów do wyrenderowania.
   final List<StorageFolderResponse> folders;
 
+  /// Uprawnienia kompozycji przekazywane do menu folderu.
+  final StorageShellCapabilities capabilities;
+
   @override
   Widget build(BuildContext context) {
     if (folders.isEmpty) return const SizedBox.shrink();
 
     final selectionCubit = context.watch<StorageSelectionCubit>();
+    final dense =
+        context.select<StorageBrowserCubit, StorageDensity>(
+          (cubit) => cubit.currentDensity,
+        ) ==
+        StorageDensity.compact;
 
     return ListView.separated(
       shrinkWrap: true,
@@ -39,49 +52,58 @@ class StorageFolderRows extends StatelessWidget {
         final folder = folders[index];
         final isSelected = selectionCubit.state.isFolderSelected(folder.id);
 
-        return GestureDetector(
-          onSecondaryTapDown: (details) =>
-              StorageFolderActionsMenu.showContextMenu(
-                context,
-                folder,
-                details.globalPosition,
+        return StorageFolderDropTarget(
+          folder: folder,
+          enabled: capabilities.canMove,
+          child: GestureDetector(
+            onSecondaryTapDown: (details) =>
+                StorageFolderActionsMenu.showContextMenu(
+                  context,
+                  folder,
+                  details.globalPosition,
+                  capabilities: capabilities,
+                ),
+            child: ListTile(
+              dense: dense,
+              minVerticalPadding: dense ? 4 : 8,
+              selected: isSelected,
+              selectedTileColor: context.colors.primaryContainer.withValues(
+                alpha: 0.3,
               ),
-          child: ListTile(
-            dense: true,
-            selected: isSelected,
-            selectedTileColor: context.colors.primaryContainer.withValues(
-              alpha: 0.3,
-            ),
-            leading: Icon(
-              AppIcons.folder,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            title: Text(
-              folder.name,
-              style: context.text.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
+              leading: Icon(
+                AppIcons.folder,
+                color: Theme.of(context).colorScheme.primary,
               ),
+              title: Text(
+                folder.name,
+                style: context.text.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              subtitle: folder.itemCount > 0
+                  ? Text(context.l10n.storageItemsCount(folder.itemCount))
+                  : null,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  StorageFolderActionsMenu(
+                    folder: folder,
+                    capabilities: capabilities,
+                  ),
+                  const Icon(AppIcons.chevronRight, size: 16),
+                ],
+              ),
+              onTap: () {
+                if (selectionCubit.state.hasSelection) {
+                  selectionCubit.toggleFolder(folder);
+                } else {
+                  unawaited(
+                    context.read<StorageBrowserCubit>().openFolder(folder),
+                  );
+                }
+              },
+              onLongPress: () => selectionCubit.toggleFolder(folder),
             ),
-            subtitle: folder.itemCount > 0
-                ? Text(context.l10n.storageItemsCount(folder.itemCount))
-                : null,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                StorageFolderActionsMenu(folder: folder),
-                const Icon(AppIcons.chevronRight, size: 16),
-              ],
-            ),
-            onTap: () {
-              if (selectionCubit.state.hasSelection) {
-                selectionCubit.toggleFolder(folder);
-              } else {
-                unawaited(
-                  context.read<StorageBrowserCubit>().openFolder(folder),
-                );
-              }
-            },
-            onLongPress: () => selectionCubit.toggleFolder(folder),
           ),
         );
       },

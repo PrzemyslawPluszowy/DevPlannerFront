@@ -245,56 +245,64 @@ extension _KanbanCardSubtasksSectionStateContent
             ),
           )
         else
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 3),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                key: const ValueKey('subtasks_add_button'),
-                onTap: () => _isAddingSubtask.value = true,
-                borderRadius: BorderRadius.circular(6),
-                hoverColor: colors.surfaceContainerHighest.withValues(
-                  alpha: .5,
-                ),
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 32),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: colors.outlineVariant.withValues(alpha: .4),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Symbols.add_rounded,
-                        size: 14,
-                        color: colors.primary,
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          context.l10n.tasksAddSubtask,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: KanbanCardTokens.metaText(
-                            context,
-                            weight: FontWeight.w600,
-                          ).copyWith(color: colors.primary),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          _buildAddSubtaskAction(
+            context,
+            onTap: () => _isAddingSubtask.value = true,
           ),
       ],
+    );
+  }
+
+  /// Wiersz akcji „Dodaj podzadanie”.
+  ///
+  /// Wspólny dla listy podzadań i dla karty bez podzadań: zadanie, które nie ma
+  /// jeszcze żadnego dziecka, też potrzebuje widocznego przycisku — wcześniej
+  /// sekcja w ogóle się nie montowała i dodanie podzadania wymagało wejścia
+  /// w szczegóły zadania.
+  Widget _buildAddSubtaskAction(
+    BuildContext context, {
+    required VoidCallback onTap,
+  }) {
+    final colors = context.colors;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: const ValueKey('subtasks_add_button'),
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(6),
+          hoverColor: colors.surfaceContainerHighest.withValues(alpha: .5),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: colors.outlineVariant.withValues(alpha: .4),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Symbols.add_rounded, size: 14, color: colors.primary),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    context.l10n.tasksAddSubtask,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: KanbanCardTokens.metaText(
+                      context,
+                      weight: FontWeight.w600,
+                    ).copyWith(color: colors.primary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

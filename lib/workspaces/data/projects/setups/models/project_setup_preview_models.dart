@@ -293,9 +293,43 @@ abstract class ProjectSetupPreviewResponse with _$ProjectSetupPreviewResponse {
 
     /// Ostrzeżenia planu; nie blokują wykonania.
     required List<ProjectSetupWarningResponse> warnings,
+
+    /// Zadania, które powstaną razem z projektem, każde z nazwą kolumny
+    /// docelowej.
+    ///
+    /// Pole jest opcjonalne, bo starsza wersja planu go nie wysyłała; brak listy
+    /// oznacza, że podgląd nadal korzysta z zawartości szablonu.
+    @JsonKey(name: 'tasks') List<ProjectSetupTaskPreviewResponse>? tasks,
   }) = _ProjectSetupPreviewResponse;
 
   /// Odtwarza plan utworzenia projektu z JSON.
   factory ProjectSetupPreviewResponse.fromJson(Map<String, dynamic> json) =>
       _$ProjectSetupPreviewResponseFromJson(json);
+}
+
+/// Zadanie planu kreatora wraz z kolumną, w której powstanie.
+///
+/// Nazwę kolumny wyznacza Backend tą samą regułą, którą materializuje projekt,
+/// więc podgląd nie musi dopasowywać zadań do kolumn po nazwie statusu.
+@Freezed(makeCollectionsUnmodifiable: false)
+abstract class ProjectSetupTaskPreviewResponse
+    with _$ProjectSetupTaskPreviewResponse {
+  /// Tworzy zadanie planu.
+  const factory ProjectSetupTaskPreviewResponse({
+    /// Tytuł zadania.
+    required String title,
+
+    /// Nazwa kolumny (statusu), w której zadanie powstanie.
+    required String statusName,
+
+    /// Priorytet zadania w kontrakcie, np. `High`.
+    required String priority,
+
+    /// Nazwy etykiet przypisanych do zadania.
+    required List<String> labels,
+  }) = _ProjectSetupTaskPreviewResponse;
+
+  /// Odtwarza zadanie planu z JSON.
+  factory ProjectSetupTaskPreviewResponse.fromJson(Map<String, dynamic> json) =>
+      _$ProjectSetupTaskPreviewResponseFromJson(json);
 }

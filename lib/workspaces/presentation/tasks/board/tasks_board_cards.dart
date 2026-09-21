@@ -9,7 +9,10 @@ class _DraggableTaskCard extends StatefulWidget {
     required this.density,
     required this.isSelected,
     required this.isPending,
+    this.hasError = false,
+    this.statusBadge,
     required this.memberProfilesByUserId,
+    super.key,
   });
 
   final KanbanTaskCardResponse task;
@@ -19,6 +22,8 @@ class _DraggableTaskCard extends StatefulWidget {
   final KanbanCardDensity density;
   final bool isSelected;
   final bool isPending;
+  final bool hasError;
+  final KanbanCardStatusBadge? statusBadge;
   final Map<String, ProjectMemberProfile> memberProfilesByUserId;
 
   @override
@@ -39,6 +44,9 @@ class _DraggableTaskCardState extends State<_DraggableTaskCard>
       density: widget.density,
       isSelected: widget.isSelected,
       memberProfilesByUserId: widget.memberProfilesByUserId,
+      statusBadge: widget.statusBadge,
+      isPending: widget.isPending,
+      hasError: widget.hasError,
     );
 
     final coordinator = KanbanAutoScrollScope.maybeOf(context);

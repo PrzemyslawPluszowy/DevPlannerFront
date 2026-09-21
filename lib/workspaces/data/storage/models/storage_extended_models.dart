@@ -293,11 +293,28 @@ abstract class StorageFilePlacementResponse
     String? mimeType,
     int? fileSizeBytes,
     StorageFilePermissionsResponse? permissions,
+    int? version,
   }) = _StorageFilePlacementResponse;
 
   /// Odtwarza placement z JSON.
   factory StorageFilePlacementResponse.fromJson(Map<String, dynamic> json) =>
       _$StorageFilePlacementResponseFromJson(json);
+}
+
+/// Payload przeniesienia placementu do innego folderu.
+@freezed
+abstract class MoveStorageFilePlacementPayload
+    with _$MoveStorageFilePlacementPayload {
+  /// Wskazuje folder docelowy i wersję placementu.
+  const factory MoveStorageFilePlacementPayload({
+    required String targetFolderId,
+    required int expectedVersion,
+  }) = _MoveStorageFilePlacementPayload;
+
+  /// Odtwarza payload z JSON.
+  factory MoveStorageFilePlacementPayload.fromJson(
+    Map<String, dynamic> json,
+  ) => _$MoveStorageFilePlacementPayloadFromJson(json);
 }
 
 /// Payload utworzenia placementu pliku.

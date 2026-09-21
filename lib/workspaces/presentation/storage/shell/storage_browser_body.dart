@@ -8,13 +8,24 @@ import 'package:devplanner/workspaces/presentation/storage/browser/grid/storage_
 import 'package:devplanner/workspaces/presentation/storage/browser/grid/storage_folder_grid.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/list/storage_file_rows.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/list/storage_folder_rows.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_status_views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Ciało eksploratora, które posiada wyłącznie lifecycle kontrolera przewijania.
 final class StorageBrowserBody extends StatefulWidget {
-  const StorageBrowserBody({super.key});
+  const StorageBrowserBody({
+    this.capabilities = StorageShellCapabilities.readOnly,
+    this.onOpenFileDetails,
+    super.key,
+  });
+
+  /// Uprawnienia kompozycji przekazywane do wierszy i kafelków.
+  final StorageShellCapabilities capabilities;
+
+  /// Nawigacja do szczegółów pliku, jeśli trasa ją wystawia.
+  final ValueChanged<String>? onOpenFileDetails;
 
   @override
   State<StorageBrowserBody> createState() => _StorageBrowserBodyState();
@@ -51,9 +62,10 @@ final class _StorageBrowserBodyState extends State<StorageBrowserBody> {
             child: CircularProgressIndicator(),
           ),
           StorageBrowserEmpty() => const StorageEmptyView(),
-          StorageBrowserFailure(:final message) => StorageErrorView(
-            message: message,
-          ),
+          // Błąd zakresu należy do trwałego bannera w chrome'ie: on pokazuje
+          // komunikat, kod, traceId oraz Ponów i Odśwież. Ciało nie powtarza
+          // tego samego komunikatu drugi raz.
+          StorageBrowserFailure() => const SizedBox.shrink(),
           StorageBrowserForbidden(:final message) => StorageForbiddenView(
             message: message,
           ),
@@ -67,6 +79,8 @@ final class _StorageBrowserBodyState extends State<StorageBrowserBody> {
               folders: folders,
               files: files,
               viewMode: viewMode,
+              capabilities: widget.capabilities,
+              onOpenFileDetails: widget.onOpenFileDetails,
             ),
         },
       );
@@ -78,20 +92,34 @@ final class _StorageBrowserContent extends StatelessWidget {
     required this.folders,
     required this.files,
     required this.viewMode,
+    required this.capabilities,
+    required this.onOpenFileDetails,
   });
 
   final ScrollController controller;
   final List<StorageFolderResponse> folders;
   final List<StorageFileResponse> files;
   final StorageViewMode viewMode;
+  final StorageShellCapabilities capabilities;
+  final ValueChanged<String>? onOpenFileDetails;
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
     controller: controller,
     padding: const EdgeInsets.all(20),
     child: viewMode == StorageViewMode.grid
-        ? _StorageBrowserGridContent(folders: folders, files: files)
-        : _StorageBrowserListContent(folders: folders, files: files),
+        ? _StorageBrowserGridContent(
+            folders: folders,
+            files: files,
+            capabilities: capabilities,
+            onOpenFileDetails: onOpenFileDetails,
+          )
+        : _StorageBrowserListContent(
+            folders: folders,
+            files: files,
+            capabilities: capabilities,
+            onOpenFileDetails: onOpenFileDetails,
+          ),
   );
 }
 
@@ -99,18 +127,26 @@ final class _StorageBrowserGridContent extends StatelessWidget {
   const _StorageBrowserGridContent({
     required this.folders,
     required this.files,
+    required this.capabilities,
+    required this.onOpenFileDetails,
   });
 
   final List<StorageFolderResponse> folders;
   final List<StorageFileResponse> files;
+  final StorageShellCapabilities capabilities;
+  final ValueChanged<String>? onOpenFileDetails;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      StorageFolderGrid(folders: folders),
+      StorageFolderGrid(folders: folders, capabilities: capabilities),
       if (folders.isNotEmpty && files.isNotEmpty) const SizedBox(height: 20),
-      StorageFileGrid(files: files),
+      StorageFileGrid(
+        files: files,
+        capabilities: capabilities,
+        onOpenFileDetails: onOpenFileDetails,
+      ),
     ],
   );
 }
@@ -119,18 +155,26 @@ final class _StorageBrowserListContent extends StatelessWidget {
   const _StorageBrowserListContent({
     required this.folders,
     required this.files,
+    required this.capabilities,
+    required this.onOpenFileDetails,
   });
 
   final List<StorageFolderResponse> folders;
   final List<StorageFileResponse> files;
+  final StorageShellCapabilities capabilities;
+  final ValueChanged<String>? onOpenFileDetails;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      StorageFolderRows(folders: folders),
+      StorageFolderRows(folders: folders, capabilities: capabilities),
       if (folders.isNotEmpty && files.isNotEmpty) const SizedBox(height: 12),
-      StorageFileRows(files: files),
+      StorageFileRows(
+        files: files,
+        capabilities: capabilities,
+        onOpenFileDetails: onOpenFileDetails,
+      ),
     ],
   );
 }

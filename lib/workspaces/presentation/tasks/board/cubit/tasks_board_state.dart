@@ -2,6 +2,7 @@ import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/models/tasks_board_grouping.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 
@@ -51,6 +52,14 @@ final class TasksBoardReady extends TasksBoardState {
     this.taskDataRevision = 0,
     this.realtimeRevision = 0,
     this.latestRealtimeMutation,
+    this.grouping = TasksBoardGrouping.status,
+    this.assigneeBoard,
+    this.isAssigneeBoardLoading = false,
+    this.assigneeGroupLoadErrors = const <String, String>{},
+    this.loadingAssigneeGroupKeys = const <String>{},
+    this.failedTaskIds = const <String>{},
+    this.hiddenAssigneeUserIds = const <String>{},
+    this.hideEmptyAssigneeColumns = false,
   });
 
   final KanbanBoardResponse board;
@@ -99,6 +108,40 @@ final class TasksBoardReady extends TasksBoardState {
   /// zaktualizować pojedynczy wiersz zamiast odczytywać cały snapshot.
   final TaskRealtimeMutation? latestRealtimeMutation;
 
+  /// Sposób grupowania kolumn: status workflow albo osoba przypisana.
+  ///
+  /// Preferencja jest osobista i trwała (per użytkownik, workspace i projekt),
+  /// więc zmiana trybu nie zapisuje wspólnych ustawień projektu.
+  final TasksBoardGrouping grouping;
+
+  /// Snapshot tablicy grupowanej po osobach; `null` dopóki widok osób nie został
+  /// wczytany. Widok statusów działa niezależnie od tego pola.
+  final AssigneeKanbanBoardResponse? assigneeBoard;
+
+  /// Czy trwa przełączenie grupowania albo odczyt tablicy osób.
+  final bool isAssigneeBoardLoading;
+
+  /// Błędy doładowania kolejnych stron pojedynczych grup, kluczowane kluczem grupy.
+  final Map<String, String> assigneeGroupLoadErrors;
+
+  /// Grupy, których kolejna strona jest właśnie wczytywana.
+  final Set<String> loadingAssigneeGroupKeys;
+
+  /// Karty, których ostatni zapis się nie udał. Prezentacja pokazuje na nich
+  /// obrys błędu, a komunikat i tak niesie banner, więc błąd nie jest kodowany
+  /// wyłącznie kolorem.
+  final Set<String> failedTaskIds;
+
+  /// Klucze ukrytych kolumn osób (identyfikator osoby albo „Nieprzypisane”).
+  ///
+  /// W widoku osób osoba opisuje kolumnę, więc widoczność kolumn zastępuje tam
+  /// filtr wykonawcy: użytkownik nie filtruje kart po osobie, tylko decyduje,
+  /// które kolumny ma przed oczami. Filtr kart nadal działa w widoku statusów.
+  final Set<String> hiddenAssigneeUserIds;
+
+  /// Czy kolumny osób bez zadań są ukryte.
+  final bool hideEmptyAssigneeColumns;
+
   TasksBoardReady copyWith({
     KanbanBoardResponse? board,
     WorkspaceSignalRConnectionState? connectionState,
@@ -119,6 +162,15 @@ final class TasksBoardReady extends TasksBoardState {
     int? taskDataRevision,
     int? realtimeRevision,
     TaskRealtimeMutation? latestRealtimeMutation,
+    TasksBoardGrouping? grouping,
+    AssigneeKanbanBoardResponse? assigneeBoard,
+    bool clearAssigneeBoard = false,
+    bool? isAssigneeBoardLoading,
+    Map<String, String>? assigneeGroupLoadErrors,
+    Set<String>? loadingAssigneeGroupKeys,
+    Set<String>? failedTaskIds,
+    Set<String>? hiddenAssigneeUserIds,
+    bool? hideEmptyAssigneeColumns,
   }) => TasksBoardReady(
     board: board ?? this.board,
     connectionState: connectionState ?? this.connectionState,
@@ -141,5 +193,19 @@ final class TasksBoardReady extends TasksBoardState {
     realtimeRevision: realtimeRevision ?? this.realtimeRevision,
     latestRealtimeMutation:
         latestRealtimeMutation ?? this.latestRealtimeMutation,
+    grouping: grouping ?? this.grouping,
+    assigneeBoard: clearAssigneeBoard
+        ? null
+        : assigneeBoard ?? this.assigneeBoard,
+    isAssigneeBoardLoading:
+        isAssigneeBoardLoading ?? this.isAssigneeBoardLoading,
+    assigneeGroupLoadErrors:
+        assigneeGroupLoadErrors ?? this.assigneeGroupLoadErrors,
+    loadingAssigneeGroupKeys:
+        loadingAssigneeGroupKeys ?? this.loadingAssigneeGroupKeys,
+    failedTaskIds: failedTaskIds ?? this.failedTaskIds,
+    hiddenAssigneeUserIds: hiddenAssigneeUserIds ?? this.hiddenAssigneeUserIds,
+    hideEmptyAssigneeColumns:
+        hideEmptyAssigneeColumns ?? this.hideEmptyAssigneeColumns,
   );
 }

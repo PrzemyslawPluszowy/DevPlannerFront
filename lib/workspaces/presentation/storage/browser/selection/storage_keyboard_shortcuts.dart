@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_delete_confirmation.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_preview_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/selection/storage_selection_toolbar.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_actions_menu.dart';
-import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
-import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,10 +14,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Skróty klawiaturowe eksploratora, aktywne poza polami edycyjnymi.
 final class StorageKeyboardShortcuts extends StatelessWidget {
   /// Tworzy zakres skrótów dla całego eksploratora.
-  const StorageKeyboardShortcuts({required this.child, super.key});
+  const StorageKeyboardShortcuts({
+    required this.child,
+    this.capabilities = StorageShellCapabilities.readOnly,
+    super.key,
+  });
 
   /// Zawartość przejmująca focus eksploratora.
   final Widget child;
+
+  /// Uprawnienia kompozycji; skrót bez dozwolonej akcji nie robi nic.
+  final StorageShellCapabilities capabilities;
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +74,10 @@ final class StorageKeyboardShortcuts extends StatelessWidget {
 
   void _deleteSelection(BuildContext context) {
     _outsideEditor(context, () {
+      if (!capabilities.canDelete) return;
       final state = context.read<StorageSelectionCubit>().state;
       if (state.hasSelection && state.canDelete) {
-        unawaited(StorageSelectionToolbar.showDeleteConfirm(context, state));
+        unawaited(showStorageDeleteConfirm(context, state));
       }
     });
   }
@@ -85,21 +93,13 @@ final class StorageKeyboardShortcuts extends StatelessWidget {
 
       final file = selection.singleSelectedFile;
       if (file == null || !file.canPreview) return;
-      unawaited(context.read<StoragePreviewCubit>().preparePreview(file));
-      unawaited(
-        showDialog<void>(
-          context: context,
-          builder: (_) => BlocProvider.value(
-            value: context.read<StoragePreviewCubit>(),
-            child: StoragePreviewDialog(file: file),
-          ),
-        ),
-      );
+      unawaited(showStoragePreview(context, file: file));
     });
   }
 
   void _renameSelection(BuildContext context) {
     _outsideEditor(context, () {
+      if (!capabilities.canRenameFolder) return;
       final folder = context.read<StorageSelectionCubit>().singleSelectedFolder;
       if (folder != null && folder.canEdit) {
         unawaited(StorageFolderActionsMenu.showRename(context, folder));

@@ -7,11 +7,14 @@ import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_scope_route_codec.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_page.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_sidebar.dart';
 import 'package:flutter/gestures.dart';
@@ -28,6 +31,15 @@ class _MockStorageRepository extends Mock implements StorageRepository {}
 class _MockDownloadTransport extends Mock implements DownloadTransport {}
 
 class _MockUploadTransport extends Mock implements UploadTransport {}
+
+/// Picker bez systemowego dialogu: test nie dotyka wyboru plików z dysku.
+class _FakeFilePicker extends Fake implements FilePickerPort {
+  @override
+  Future<List<StorageUploadInput>> pickFiles({
+    bool allowMultiple = true,
+    List<String>? allowedExtensions,
+  }) async => const [];
+}
 
 void main() {
   late _MockStorageRepository repository;
@@ -130,6 +142,8 @@ void main() {
       home: Scaffold(
         body: StorageShellPage(
           storageRepository: repository,
+          capabilities: StorageShellCapabilities.desktop,
+          filePicker: _FakeFilePicker(),
           downloadTransport: downloadTransport,
           uploadTransport: uploadTransport,
         ),
@@ -155,7 +169,23 @@ void main() {
     expect(find.text('Moje pliki'), findsAtLeastNWidgets(1));
     expect(find.text('Udostępnione mi'), findsOneWidget);
     expect(find.text('Kosz'), findsOneWidget);
-    expect(find.text('Nowy dokument'), findsOneWidget);
+
+    // Dwuwierszowy chrome: akcje kontekstu w pierwszym wierszu, polecenia
+    // widoku w drugim. Akcje tworzące są w jednym menu, więc nie konkurują
+    // o miejsce z wyszukiwaniem i przełącznikiem widoku.
+    expect(find.byKey(const ValueKey('storage_create_menu')), findsOneWidget);
+    expect(find.byKey(const ValueKey('storage_upload_action')), findsOneWidget);
+    expect(find.text('Prześlij pliki'), findsOneWidget);
+    expect(find.byKey(const ValueKey('storage_sort_menu')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('storage_view_mode_list')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('storage_view_mode_grid')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('storage_search_field')), findsOneWidget);
   });
 
   testWidgets(
@@ -175,6 +205,8 @@ void main() {
                 state.pathParameters['workspaceId']!,
               ),
               storageRepository: repository,
+              capabilities: StorageShellCapabilities.desktop,
+              filePicker: _FakeFilePicker(),
               downloadTransport: downloadTransport,
               uploadTransport: uploadTransport,
             ),
@@ -184,6 +216,8 @@ void main() {
             builder: (_, state) => StorageShellPage(
               initialScope: StorageScopeRouteCodec.fromPersonalUri(state.uri),
               storageRepository: repository,
+              capabilities: StorageShellCapabilities.desktop,
+              filePicker: _FakeFilePicker(),
               downloadTransport: downloadTransport,
               uploadTransport: uploadTransport,
             ),
@@ -243,10 +277,12 @@ void main() {
 
     await tester.pumpWidget(buildHarness());
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('storage_create_menu')));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Nowy dokument').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('Nowy dokument'), findsOneWidget);
+    expect(find.text('Utwórz dokument'), findsOneWidget);
     expect(
       find.byType(DropdownButtonFormField<StorageDocumentFormat>),
       findsOneWidget,

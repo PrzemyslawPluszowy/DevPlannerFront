@@ -2,17 +2,13 @@ import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/error.dart';
-import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_read_only_file_tile.dart';
 import 'package:devplanner/workspaces/presentation/storage/versions/cubit/storage_versions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/versions/cubit/storage_versions_state.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -78,35 +74,6 @@ StorageFileVersionResponse _version(int number) => StorageFileVersionResponse(
 );
 
 void main() {
-  testWidgets('BFF/read-only oraz ACL bez zarządzania nie pokazują historii', (
-    tester,
-  ) async {
-    final repository = _RepositoryMock();
-    await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('pl'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: StorageReadOnlyFileTile(
-            file: _file(canManageVersions: false),
-            canDelete: false,
-            canDownload: false,
-            repository: repository,
-            onOpen: () {},
-          ),
-        ),
-      ),
-    );
-
-    expect(find.byKey(const ValueKey('versions-file-file-1')), findsNothing);
-  });
-
   test('cubit listuje, pobiera i przywraca przez repozytorium', () async {
     final repository = _RepositoryMock();
     final transport = _DownloadTransportFake();

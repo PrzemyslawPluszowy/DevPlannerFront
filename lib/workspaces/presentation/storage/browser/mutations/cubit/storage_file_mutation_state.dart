@@ -23,9 +23,24 @@ enum StorageFileMutationType {
 
   /// Pobranie pojedynczego pliku.
   fileDownloaded,
+
+  /// Przeniesienie pliku do innego folderu.
+  moved,
+
+  /// Dodanie pliku do folderu jako nowy placement.
+  placementCreated,
 }
 
-enum StorageFileMutationMessage { partialDelete, deleteFailed }
+enum StorageFileMutationMessage {
+  partialDelete,
+  deleteFailed,
+
+  /// Przeniesienie części elementów nie powiodło się.
+  partialMove,
+
+  /// Konflikt wersji placementu: stan na ekranie był nieaktualny.
+  placementConflict,
+}
 
 /// Bazowy stan mutacji plików.
 sealed class StorageFileMutationState extends Equatable {
@@ -116,6 +131,8 @@ class StorageFileMutationFailure extends StorageFileMutationState {
     required this.message,
     this.statusCode,
     this.backendCode,
+    this.apiCode,
+    this.traceId,
     this.messageCode,
   });
 
@@ -125,11 +142,25 @@ class StorageFileMutationFailure extends StorageFileMutationState {
   /// Opcjonalny kod HTTP.
   final int? statusCode;
 
-  /// Opcjonalny kod błędu backendu.
+  /// Opcjonalny numeryczny kod błędu backendu.
   final int? backendCode;
 
+  /// Opcjonalny stabilny kod kontraktu, np. `storage.placement_conflict`.
+  final String? apiCode;
+
+  /// Opcjonalny identyfikator śledzenia żądania.
+  final String? traceId;
+
+  /// Typ komunikatu, gdy backend nie podał własnej treści.
   final StorageFileMutationMessage? messageCode;
 
   @override
-  List<Object?> get props => [message, statusCode, backendCode, messageCode];
+  List<Object?> get props => [
+    message,
+    statusCode,
+    backendCode,
+    apiCode,
+    traceId,
+    messageCode,
+  ];
 }

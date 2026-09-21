@@ -55,8 +55,8 @@ void main() {
     // że w tej sesji nie ma połączenia i nic nie zostało zapisane.
     expect(
       find.text(
-        'Ten formularz nie ma połączenia z backendem w tej sesji, '
-        'więc nic nie zostało zapisane.',
+        'Nie mamy teraz połączenia z serwerem, więc nic nie zostało '
+        'zapisane. Spróbuj ponownie za chwilę.',
       ),
       findsOneWidget,
     );
@@ -64,7 +64,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('z portem zasobów otwiera się właściwy formularz', (tester) async {
+  testWidgets('z portem zasobów otwiera się właściwy formularz', (
+    tester,
+  ) async {
     await tester.pumpWidget(_host(withRepository: true));
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -72,8 +74,8 @@ void main() {
     expect(find.byType(CreateFolderDialog), findsOneWidget);
     expect(
       find.text(
-        'Ten formularz nie ma połączenia z backendem w tej sesji, '
-        'więc nic nie zostało zapisane.',
+        'Nie mamy teraz połączenia z serwerem, więc nic nie zostało '
+        'zapisane. Spróbuj ponownie za chwilę.',
       ),
       findsNothing,
     );

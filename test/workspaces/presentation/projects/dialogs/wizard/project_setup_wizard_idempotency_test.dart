@@ -46,14 +46,14 @@ Future<void> _openSummary(
 
 /// Czeka na zakończenie operacji w tle bez `pumpAndSettle`, które nie kończy
 /// się przy pasku postępu `submitting` animowanym w nieskończoność.
-Future<void> _settleAfterCompletion(WidgetTester tester) => tester.pumpAndSettle();
+Future<void> _settleAfterCompletion(WidgetTester tester) =>
+    tester.pumpAndSettle();
 
 void main() {
   testWidgets('podwójne kliknięcie Utwórz wysyła jedno żądanie i jeden klucz', (
     tester,
   ) async {
-    final completion =
-        Completer<Either<ApiError, ProjectSetupCreation>>();
+    final completion = Completer<Either<ApiError, ProjectSetupCreation>>();
     final created = <String>[];
     final setups = FakeProjectSetupsRepository(
       onCreate: (_, _) => completion.future,

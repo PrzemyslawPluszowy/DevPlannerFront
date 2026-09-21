@@ -55,7 +55,13 @@ final class StorageDocumentMutationCubit
     );
     if (isClosed) return;
     result.fold(
-      (error) => emit(StorageDocumentMutationFailure(error.message)),
+      (error) => emit(
+        StorageDocumentMutationFailure(
+          error.message,
+          apiCode: error.apiCode,
+          traceId: error.traceId,
+        ),
+      ),
       (file) {
         _pending = null;
         emit(StorageDocumentMutationSuccess(file));

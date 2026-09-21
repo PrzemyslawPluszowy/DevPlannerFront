@@ -553,7 +553,7 @@ as String,
 /// @nodoc
 mixin _$KanbanTaskCardResponse {
 
- String get id; int get number; String get taskCode; String get title; ProjectTaskStatus get status; TaskPriority get priority; int get position; String? get primaryAssigneeUserId; String? get milestoneId; DateTime? get dueAtUtc; int get checklistTotal; int get checklistCompleted; int get attachmentCount; int get version; int? get estimatedMinutes; int? get loggedMinutes; int get subtaskTotal; int get subtaskCompleted; bool get isBlocked; List<String>? get blockedByTaskIds; List<KanbanCardLabelResponse>? get labels; List<KanbanCardCustomFieldResponse>? get customFieldsSummary; String? get coverAttachmentId; String? get customStatusId; TaskRecurrenceSummaryResponse? get recurrence; bool get isPinned; int get watcherCount; bool get isWatchedByMe;
+ String get id; int get number; String get taskCode; String get title; ProjectTaskStatus get status; TaskPriority get priority; int get position; String? get primaryAssigneeUserId; String? get milestoneId; DateTime? get dueAtUtc; int get checklistTotal; int get checklistCompleted; int get attachmentCount; int get version; int? get estimatedMinutes; int? get loggedMinutes; int get subtaskTotal; int get subtaskCompleted; bool get isBlocked; List<String>? get blockedByTaskIds; List<KanbanCardLabelResponse>? get labels; List<KanbanCardCustomFieldResponse>? get customFieldsSummary; String? get coverAttachmentId; String? get customStatusId; TaskRecurrenceSummaryResponse? get recurrence; bool get isPinned; int get watcherCount; bool get isWatchedByMe; List<String>? get assigneeUserIds;
 /// Create a copy of KanbanTaskCardResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -566,16 +566,16 @@ $KanbanTaskCardResponseCopyWith<KanbanTaskCardResponse> get copyWith => _$Kanban
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is KanbanTaskCardResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.taskCode, taskCode) || other.taskCode == taskCode)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.position, position) || other.position == position)&&(identical(other.primaryAssigneeUserId, primaryAssigneeUserId) || other.primaryAssigneeUserId == primaryAssigneeUserId)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.checklistTotal, checklistTotal) || other.checklistTotal == checklistTotal)&&(identical(other.checklistCompleted, checklistCompleted) || other.checklistCompleted == checklistCompleted)&&(identical(other.attachmentCount, attachmentCount) || other.attachmentCount == attachmentCount)&&(identical(other.version, version) || other.version == version)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.subtaskTotal, subtaskTotal) || other.subtaskTotal == subtaskTotal)&&(identical(other.subtaskCompleted, subtaskCompleted) || other.subtaskCompleted == subtaskCompleted)&&(identical(other.isBlocked, isBlocked) || other.isBlocked == isBlocked)&&const DeepCollectionEquality().equals(other.blockedByTaskIds, blockedByTaskIds)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldsSummary, customFieldsSummary)&&(identical(other.coverAttachmentId, coverAttachmentId) || other.coverAttachmentId == coverAttachmentId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.watcherCount, watcherCount) || other.watcherCount == watcherCount)&&(identical(other.isWatchedByMe, isWatchedByMe) || other.isWatchedByMe == isWatchedByMe));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is KanbanTaskCardResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.taskCode, taskCode) || other.taskCode == taskCode)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.position, position) || other.position == position)&&(identical(other.primaryAssigneeUserId, primaryAssigneeUserId) || other.primaryAssigneeUserId == primaryAssigneeUserId)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.checklistTotal, checklistTotal) || other.checklistTotal == checklistTotal)&&(identical(other.checklistCompleted, checklistCompleted) || other.checklistCompleted == checklistCompleted)&&(identical(other.attachmentCount, attachmentCount) || other.attachmentCount == attachmentCount)&&(identical(other.version, version) || other.version == version)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.subtaskTotal, subtaskTotal) || other.subtaskTotal == subtaskTotal)&&(identical(other.subtaskCompleted, subtaskCompleted) || other.subtaskCompleted == subtaskCompleted)&&(identical(other.isBlocked, isBlocked) || other.isBlocked == isBlocked)&&const DeepCollectionEquality().equals(other.blockedByTaskIds, blockedByTaskIds)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldsSummary, customFieldsSummary)&&(identical(other.coverAttachmentId, coverAttachmentId) || other.coverAttachmentId == coverAttachmentId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.watcherCount, watcherCount) || other.watcherCount == watcherCount)&&(identical(other.isWatchedByMe, isWatchedByMe) || other.isWatchedByMe == isWatchedByMe)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,number,taskCode,title,status,priority,position,primaryAssigneeUserId,milestoneId,dueAtUtc,checklistTotal,checklistCompleted,attachmentCount,version,estimatedMinutes,loggedMinutes,subtaskTotal,subtaskCompleted,isBlocked,const DeepCollectionEquality().hash(blockedByTaskIds),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldsSummary),coverAttachmentId,customStatusId,recurrence,isPinned,watcherCount,isWatchedByMe]);
+int get hashCode => Object.hashAll([runtimeType,id,number,taskCode,title,status,priority,position,primaryAssigneeUserId,milestoneId,dueAtUtc,checklistTotal,checklistCompleted,attachmentCount,version,estimatedMinutes,loggedMinutes,subtaskTotal,subtaskCompleted,isBlocked,const DeepCollectionEquality().hash(blockedByTaskIds),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldsSummary),coverAttachmentId,customStatusId,recurrence,isPinned,watcherCount,isWatchedByMe,const DeepCollectionEquality().hash(assigneeUserIds)]);
 
 @override
 String toString() {
-  return 'KanbanTaskCardResponse(id: $id, number: $number, taskCode: $taskCode, title: $title, status: $status, priority: $priority, position: $position, primaryAssigneeUserId: $primaryAssigneeUserId, milestoneId: $milestoneId, dueAtUtc: $dueAtUtc, checklistTotal: $checklistTotal, checklistCompleted: $checklistCompleted, attachmentCount: $attachmentCount, version: $version, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, subtaskTotal: $subtaskTotal, subtaskCompleted: $subtaskCompleted, isBlocked: $isBlocked, blockedByTaskIds: $blockedByTaskIds, labels: $labels, customFieldsSummary: $customFieldsSummary, coverAttachmentId: $coverAttachmentId, customStatusId: $customStatusId, recurrence: $recurrence, isPinned: $isPinned, watcherCount: $watcherCount, isWatchedByMe: $isWatchedByMe)';
+  return 'KanbanTaskCardResponse(id: $id, number: $number, taskCode: $taskCode, title: $title, status: $status, priority: $priority, position: $position, primaryAssigneeUserId: $primaryAssigneeUserId, milestoneId: $milestoneId, dueAtUtc: $dueAtUtc, checklistTotal: $checklistTotal, checklistCompleted: $checklistCompleted, attachmentCount: $attachmentCount, version: $version, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, subtaskTotal: $subtaskTotal, subtaskCompleted: $subtaskCompleted, isBlocked: $isBlocked, blockedByTaskIds: $blockedByTaskIds, labels: $labels, customFieldsSummary: $customFieldsSummary, coverAttachmentId: $coverAttachmentId, customStatusId: $customStatusId, recurrence: $recurrence, isPinned: $isPinned, watcherCount: $watcherCount, isWatchedByMe: $isWatchedByMe, assigneeUserIds: $assigneeUserIds)';
 }
 
 
@@ -586,7 +586,7 @@ abstract mixin class $KanbanTaskCardResponseCopyWith<$Res>  {
   factory $KanbanTaskCardResponseCopyWith(KanbanTaskCardResponse value, $Res Function(KanbanTaskCardResponse) _then) = _$KanbanTaskCardResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, int number, String taskCode, String title, ProjectTaskStatus status, TaskPriority priority, int position, String? primaryAssigneeUserId, String? milestoneId, DateTime? dueAtUtc, int checklistTotal, int checklistCompleted, int attachmentCount, int version, int? estimatedMinutes, int? loggedMinutes, int subtaskTotal, int subtaskCompleted, bool isBlocked, List<String>? blockedByTaskIds, List<KanbanCardLabelResponse>? labels, List<KanbanCardCustomFieldResponse>? customFieldsSummary, String? coverAttachmentId, String? customStatusId, TaskRecurrenceSummaryResponse? recurrence, bool isPinned, int watcherCount, bool isWatchedByMe
+ String id, int number, String taskCode, String title, ProjectTaskStatus status, TaskPriority priority, int position, String? primaryAssigneeUserId, String? milestoneId, DateTime? dueAtUtc, int checklistTotal, int checklistCompleted, int attachmentCount, int version, int? estimatedMinutes, int? loggedMinutes, int subtaskTotal, int subtaskCompleted, bool isBlocked, List<String>? blockedByTaskIds, List<KanbanCardLabelResponse>? labels, List<KanbanCardCustomFieldResponse>? customFieldsSummary, String? coverAttachmentId, String? customStatusId, TaskRecurrenceSummaryResponse? recurrence, bool isPinned, int watcherCount, bool isWatchedByMe, List<String>? assigneeUserIds
 });
 
 
@@ -603,7 +603,7 @@ class _$KanbanTaskCardResponseCopyWithImpl<$Res>
 
 /// Create a copy of KanbanTaskCardResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? number = null,Object? taskCode = null,Object? title = null,Object? status = null,Object? priority = null,Object? position = null,Object? primaryAssigneeUserId = freezed,Object? milestoneId = freezed,Object? dueAtUtc = freezed,Object? checklistTotal = null,Object? checklistCompleted = null,Object? attachmentCount = null,Object? version = null,Object? estimatedMinutes = freezed,Object? loggedMinutes = freezed,Object? subtaskTotal = null,Object? subtaskCompleted = null,Object? isBlocked = null,Object? blockedByTaskIds = freezed,Object? labels = freezed,Object? customFieldsSummary = freezed,Object? coverAttachmentId = freezed,Object? customStatusId = freezed,Object? recurrence = freezed,Object? isPinned = null,Object? watcherCount = null,Object? isWatchedByMe = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? number = null,Object? taskCode = null,Object? title = null,Object? status = null,Object? priority = null,Object? position = null,Object? primaryAssigneeUserId = freezed,Object? milestoneId = freezed,Object? dueAtUtc = freezed,Object? checklistTotal = null,Object? checklistCompleted = null,Object? attachmentCount = null,Object? version = null,Object? estimatedMinutes = freezed,Object? loggedMinutes = freezed,Object? subtaskTotal = null,Object? subtaskCompleted = null,Object? isBlocked = null,Object? blockedByTaskIds = freezed,Object? labels = freezed,Object? customFieldsSummary = freezed,Object? coverAttachmentId = freezed,Object? customStatusId = freezed,Object? recurrence = freezed,Object? isPinned = null,Object? watcherCount = null,Object? isWatchedByMe = null,Object? assigneeUserIds = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
@@ -633,7 +633,8 @@ as String?,recurrence: freezed == recurrence ? _self.recurrence : recurrence // 
 as TaskRecurrenceSummaryResponse?,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
 as bool,watcherCount: null == watcherCount ? _self.watcherCount : watcherCount // ignore: cast_nullable_to_non_nullable
 as int,isWatchedByMe: null == isWatchedByMe ? _self.isWatchedByMe : isWatchedByMe // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
+as List<String>?,
   ));
 }
 /// Create a copy of KanbanTaskCardResponse
@@ -730,10 +731,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe,  List<String>? assigneeUserIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _KanbanTaskCardResponse() when $default != null:
-return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
+return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe,_that.assigneeUserIds);case _:
   return orElse();
 
 }
@@ -751,10 +752,10 @@ return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe,  List<String>? assigneeUserIds)  $default,) {final _that = this;
 switch (_that) {
 case _KanbanTaskCardResponse():
-return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
+return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe,_that.assigneeUserIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -771,10 +772,10 @@ return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int number,  String taskCode,  String title,  ProjectTaskStatus status,  TaskPriority priority,  int position,  String? primaryAssigneeUserId,  String? milestoneId,  DateTime? dueAtUtc,  int checklistTotal,  int checklistCompleted,  int attachmentCount,  int version,  int? estimatedMinutes,  int? loggedMinutes,  int subtaskTotal,  int subtaskCompleted,  bool isBlocked,  List<String>? blockedByTaskIds,  List<KanbanCardLabelResponse>? labels,  List<KanbanCardCustomFieldResponse>? customFieldsSummary,  String? coverAttachmentId,  String? customStatusId,  TaskRecurrenceSummaryResponse? recurrence,  bool isPinned,  int watcherCount,  bool isWatchedByMe,  List<String>? assigneeUserIds)?  $default,) {final _that = this;
 switch (_that) {
 case _KanbanTaskCardResponse() when $default != null:
-return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe);case _:
+return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_that.priority,_that.position,_that.primaryAssigneeUserId,_that.milestoneId,_that.dueAtUtc,_that.checklistTotal,_that.checklistCompleted,_that.attachmentCount,_that.version,_that.estimatedMinutes,_that.loggedMinutes,_that.subtaskTotal,_that.subtaskCompleted,_that.isBlocked,_that.blockedByTaskIds,_that.labels,_that.customFieldsSummary,_that.coverAttachmentId,_that.customStatusId,_that.recurrence,_that.isPinned,_that.watcherCount,_that.isWatchedByMe,_that.assigneeUserIds);case _:
   return null;
 
 }
@@ -786,7 +787,7 @@ return $default(_that.id,_that.number,_that.taskCode,_that.title,_that.status,_t
 @JsonSerializable()
 
 class _KanbanTaskCardResponse implements KanbanTaskCardResponse {
-  const _KanbanTaskCardResponse({required this.id, required this.number, required this.taskCode, required this.title, required this.status, required this.priority, required this.position, this.primaryAssigneeUserId, this.milestoneId, this.dueAtUtc, required this.checklistTotal, required this.checklistCompleted, required this.attachmentCount, required this.version, this.estimatedMinutes, this.loggedMinutes, this.subtaskTotal = 0, this.subtaskCompleted = 0, this.isBlocked = false, this.blockedByTaskIds, this.labels, this.customFieldsSummary, this.coverAttachmentId, this.customStatusId, this.recurrence, this.isPinned = false, this.watcherCount = 0, this.isWatchedByMe = false});
+  const _KanbanTaskCardResponse({required this.id, required this.number, required this.taskCode, required this.title, required this.status, required this.priority, required this.position, this.primaryAssigneeUserId, this.milestoneId, this.dueAtUtc, required this.checklistTotal, required this.checklistCompleted, required this.attachmentCount, required this.version, this.estimatedMinutes, this.loggedMinutes, this.subtaskTotal = 0, this.subtaskCompleted = 0, this.isBlocked = false, this.blockedByTaskIds, this.labels, this.customFieldsSummary, this.coverAttachmentId, this.customStatusId, this.recurrence, this.isPinned = false, this.watcherCount = 0, this.isWatchedByMe = false, this.assigneeUserIds});
   factory _KanbanTaskCardResponse.fromJson(Map<String, dynamic> json) => _$KanbanTaskCardResponseFromJson(json);
 
 @override final  String id;
@@ -817,6 +818,7 @@ class _KanbanTaskCardResponse implements KanbanTaskCardResponse {
 @override@JsonKey() final  bool isPinned;
 @override@JsonKey() final  int watcherCount;
 @override@JsonKey() final  bool isWatchedByMe;
+@override final  List<String>? assigneeUserIds;
 
 /// Create a copy of KanbanTaskCardResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -831,16 +833,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KanbanTaskCardResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.taskCode, taskCode) || other.taskCode == taskCode)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.position, position) || other.position == position)&&(identical(other.primaryAssigneeUserId, primaryAssigneeUserId) || other.primaryAssigneeUserId == primaryAssigneeUserId)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.checklistTotal, checklistTotal) || other.checklistTotal == checklistTotal)&&(identical(other.checklistCompleted, checklistCompleted) || other.checklistCompleted == checklistCompleted)&&(identical(other.attachmentCount, attachmentCount) || other.attachmentCount == attachmentCount)&&(identical(other.version, version) || other.version == version)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.subtaskTotal, subtaskTotal) || other.subtaskTotal == subtaskTotal)&&(identical(other.subtaskCompleted, subtaskCompleted) || other.subtaskCompleted == subtaskCompleted)&&(identical(other.isBlocked, isBlocked) || other.isBlocked == isBlocked)&&const DeepCollectionEquality().equals(other.blockedByTaskIds, blockedByTaskIds)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldsSummary, customFieldsSummary)&&(identical(other.coverAttachmentId, coverAttachmentId) || other.coverAttachmentId == coverAttachmentId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.watcherCount, watcherCount) || other.watcherCount == watcherCount)&&(identical(other.isWatchedByMe, isWatchedByMe) || other.isWatchedByMe == isWatchedByMe));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KanbanTaskCardResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.taskCode, taskCode) || other.taskCode == taskCode)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.position, position) || other.position == position)&&(identical(other.primaryAssigneeUserId, primaryAssigneeUserId) || other.primaryAssigneeUserId == primaryAssigneeUserId)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.checklistTotal, checklistTotal) || other.checklistTotal == checklistTotal)&&(identical(other.checklistCompleted, checklistCompleted) || other.checklistCompleted == checklistCompleted)&&(identical(other.attachmentCount, attachmentCount) || other.attachmentCount == attachmentCount)&&(identical(other.version, version) || other.version == version)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.loggedMinutes, loggedMinutes) || other.loggedMinutes == loggedMinutes)&&(identical(other.subtaskTotal, subtaskTotal) || other.subtaskTotal == subtaskTotal)&&(identical(other.subtaskCompleted, subtaskCompleted) || other.subtaskCompleted == subtaskCompleted)&&(identical(other.isBlocked, isBlocked) || other.isBlocked == isBlocked)&&const DeepCollectionEquality().equals(other.blockedByTaskIds, blockedByTaskIds)&&const DeepCollectionEquality().equals(other.labels, labels)&&const DeepCollectionEquality().equals(other.customFieldsSummary, customFieldsSummary)&&(identical(other.coverAttachmentId, coverAttachmentId) || other.coverAttachmentId == coverAttachmentId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.recurrence, recurrence) || other.recurrence == recurrence)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.watcherCount, watcherCount) || other.watcherCount == watcherCount)&&(identical(other.isWatchedByMe, isWatchedByMe) || other.isWatchedByMe == isWatchedByMe)&&const DeepCollectionEquality().equals(other.assigneeUserIds, assigneeUserIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,number,taskCode,title,status,priority,position,primaryAssigneeUserId,milestoneId,dueAtUtc,checklistTotal,checklistCompleted,attachmentCount,version,estimatedMinutes,loggedMinutes,subtaskTotal,subtaskCompleted,isBlocked,const DeepCollectionEquality().hash(blockedByTaskIds),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldsSummary),coverAttachmentId,customStatusId,recurrence,isPinned,watcherCount,isWatchedByMe]);
+int get hashCode => Object.hashAll([runtimeType,id,number,taskCode,title,status,priority,position,primaryAssigneeUserId,milestoneId,dueAtUtc,checklistTotal,checklistCompleted,attachmentCount,version,estimatedMinutes,loggedMinutes,subtaskTotal,subtaskCompleted,isBlocked,const DeepCollectionEquality().hash(blockedByTaskIds),const DeepCollectionEquality().hash(labels),const DeepCollectionEquality().hash(customFieldsSummary),coverAttachmentId,customStatusId,recurrence,isPinned,watcherCount,isWatchedByMe,const DeepCollectionEquality().hash(assigneeUserIds)]);
 
 @override
 String toString() {
-  return 'KanbanTaskCardResponse(id: $id, number: $number, taskCode: $taskCode, title: $title, status: $status, priority: $priority, position: $position, primaryAssigneeUserId: $primaryAssigneeUserId, milestoneId: $milestoneId, dueAtUtc: $dueAtUtc, checklistTotal: $checklistTotal, checklistCompleted: $checklistCompleted, attachmentCount: $attachmentCount, version: $version, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, subtaskTotal: $subtaskTotal, subtaskCompleted: $subtaskCompleted, isBlocked: $isBlocked, blockedByTaskIds: $blockedByTaskIds, labels: $labels, customFieldsSummary: $customFieldsSummary, coverAttachmentId: $coverAttachmentId, customStatusId: $customStatusId, recurrence: $recurrence, isPinned: $isPinned, watcherCount: $watcherCount, isWatchedByMe: $isWatchedByMe)';
+  return 'KanbanTaskCardResponse(id: $id, number: $number, taskCode: $taskCode, title: $title, status: $status, priority: $priority, position: $position, primaryAssigneeUserId: $primaryAssigneeUserId, milestoneId: $milestoneId, dueAtUtc: $dueAtUtc, checklistTotal: $checklistTotal, checklistCompleted: $checklistCompleted, attachmentCount: $attachmentCount, version: $version, estimatedMinutes: $estimatedMinutes, loggedMinutes: $loggedMinutes, subtaskTotal: $subtaskTotal, subtaskCompleted: $subtaskCompleted, isBlocked: $isBlocked, blockedByTaskIds: $blockedByTaskIds, labels: $labels, customFieldsSummary: $customFieldsSummary, coverAttachmentId: $coverAttachmentId, customStatusId: $customStatusId, recurrence: $recurrence, isPinned: $isPinned, watcherCount: $watcherCount, isWatchedByMe: $isWatchedByMe, assigneeUserIds: $assigneeUserIds)';
 }
 
 
@@ -851,7 +853,7 @@ abstract mixin class _$KanbanTaskCardResponseCopyWith<$Res> implements $KanbanTa
   factory _$KanbanTaskCardResponseCopyWith(_KanbanTaskCardResponse value, $Res Function(_KanbanTaskCardResponse) _then) = __$KanbanTaskCardResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, int number, String taskCode, String title, ProjectTaskStatus status, TaskPriority priority, int position, String? primaryAssigneeUserId, String? milestoneId, DateTime? dueAtUtc, int checklistTotal, int checklistCompleted, int attachmentCount, int version, int? estimatedMinutes, int? loggedMinutes, int subtaskTotal, int subtaskCompleted, bool isBlocked, List<String>? blockedByTaskIds, List<KanbanCardLabelResponse>? labels, List<KanbanCardCustomFieldResponse>? customFieldsSummary, String? coverAttachmentId, String? customStatusId, TaskRecurrenceSummaryResponse? recurrence, bool isPinned, int watcherCount, bool isWatchedByMe
+ String id, int number, String taskCode, String title, ProjectTaskStatus status, TaskPriority priority, int position, String? primaryAssigneeUserId, String? milestoneId, DateTime? dueAtUtc, int checklistTotal, int checklistCompleted, int attachmentCount, int version, int? estimatedMinutes, int? loggedMinutes, int subtaskTotal, int subtaskCompleted, bool isBlocked, List<String>? blockedByTaskIds, List<KanbanCardLabelResponse>? labels, List<KanbanCardCustomFieldResponse>? customFieldsSummary, String? coverAttachmentId, String? customStatusId, TaskRecurrenceSummaryResponse? recurrence, bool isPinned, int watcherCount, bool isWatchedByMe, List<String>? assigneeUserIds
 });
 
 
@@ -868,7 +870,7 @@ class __$KanbanTaskCardResponseCopyWithImpl<$Res>
 
 /// Create a copy of KanbanTaskCardResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? number = null,Object? taskCode = null,Object? title = null,Object? status = null,Object? priority = null,Object? position = null,Object? primaryAssigneeUserId = freezed,Object? milestoneId = freezed,Object? dueAtUtc = freezed,Object? checklistTotal = null,Object? checklistCompleted = null,Object? attachmentCount = null,Object? version = null,Object? estimatedMinutes = freezed,Object? loggedMinutes = freezed,Object? subtaskTotal = null,Object? subtaskCompleted = null,Object? isBlocked = null,Object? blockedByTaskIds = freezed,Object? labels = freezed,Object? customFieldsSummary = freezed,Object? coverAttachmentId = freezed,Object? customStatusId = freezed,Object? recurrence = freezed,Object? isPinned = null,Object? watcherCount = null,Object? isWatchedByMe = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? number = null,Object? taskCode = null,Object? title = null,Object? status = null,Object? priority = null,Object? position = null,Object? primaryAssigneeUserId = freezed,Object? milestoneId = freezed,Object? dueAtUtc = freezed,Object? checklistTotal = null,Object? checklistCompleted = null,Object? attachmentCount = null,Object? version = null,Object? estimatedMinutes = freezed,Object? loggedMinutes = freezed,Object? subtaskTotal = null,Object? subtaskCompleted = null,Object? isBlocked = null,Object? blockedByTaskIds = freezed,Object? labels = freezed,Object? customFieldsSummary = freezed,Object? coverAttachmentId = freezed,Object? customStatusId = freezed,Object? recurrence = freezed,Object? isPinned = null,Object? watcherCount = null,Object? isWatchedByMe = null,Object? assigneeUserIds = freezed,}) {
   return _then(_KanbanTaskCardResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
@@ -898,7 +900,8 @@ as String?,recurrence: freezed == recurrence ? _self.recurrence : recurrence // 
 as TaskRecurrenceSummaryResponse?,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
 as bool,watcherCount: null == watcherCount ? _self.watcherCount : watcherCount // ignore: cast_nullable_to_non_nullable
 as int,isWatchedByMe: null == isWatchedByMe ? _self.isWatchedByMe : isWatchedByMe // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,assigneeUserIds: freezed == assigneeUserIds ? _self.assigneeUserIds : assigneeUserIds // ignore: cast_nullable_to_non_nullable
+as List<String>?,
   ));
 }
 
@@ -913,6 +916,1124 @@ $TaskRecurrenceSummaryResponseCopyWith<$Res>? get recurrence {
 
   return $TaskRecurrenceSummaryResponseCopyWith<$Res>(_self.recurrence!, (value) {
     return _then(_self.copyWith(recurrence: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$AssigneeKanbanGroupResponse {
+
+ String? get assigneeUserId; String get displayName; String? get avatarUrl; bool get isCurrentUser; int get totalTaskCount; List<KanbanTaskCardResponse> get tasks; String? get nextCursor;
+/// Create a copy of AssigneeKanbanGroupResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AssigneeKanbanGroupResponseCopyWith<AssigneeKanbanGroupResponse> get copyWith => _$AssigneeKanbanGroupResponseCopyWithImpl<AssigneeKanbanGroupResponse>(this as AssigneeKanbanGroupResponse, _$identity);
+
+  /// Serializes this AssigneeKanbanGroupResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssigneeKanbanGroupResponse&&(identical(other.assigneeUserId, assigneeUserId) || other.assigneeUserId == assigneeUserId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isCurrentUser, isCurrentUser) || other.isCurrentUser == isCurrentUser)&&(identical(other.totalTaskCount, totalTaskCount) || other.totalTaskCount == totalTaskCount)&&const DeepCollectionEquality().equals(other.tasks, tasks)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,assigneeUserId,displayName,avatarUrl,isCurrentUser,totalTaskCount,const DeepCollectionEquality().hash(tasks),nextCursor);
+
+@override
+String toString() {
+  return 'AssigneeKanbanGroupResponse(assigneeUserId: $assigneeUserId, displayName: $displayName, avatarUrl: $avatarUrl, isCurrentUser: $isCurrentUser, totalTaskCount: $totalTaskCount, tasks: $tasks, nextCursor: $nextCursor)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AssigneeKanbanGroupResponseCopyWith<$Res>  {
+  factory $AssigneeKanbanGroupResponseCopyWith(AssigneeKanbanGroupResponse value, $Res Function(AssigneeKanbanGroupResponse) _then) = _$AssigneeKanbanGroupResponseCopyWithImpl;
+@useResult
+$Res call({
+ String? assigneeUserId, String displayName, String? avatarUrl, bool isCurrentUser, int totalTaskCount, List<KanbanTaskCardResponse> tasks, String? nextCursor
+});
+
+
+
+
+}
+/// @nodoc
+class _$AssigneeKanbanGroupResponseCopyWithImpl<$Res>
+    implements $AssigneeKanbanGroupResponseCopyWith<$Res> {
+  _$AssigneeKanbanGroupResponseCopyWithImpl(this._self, this._then);
+
+  final AssigneeKanbanGroupResponse _self;
+  final $Res Function(AssigneeKanbanGroupResponse) _then;
+
+/// Create a copy of AssigneeKanbanGroupResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? assigneeUserId = freezed,Object? displayName = null,Object? avatarUrl = freezed,Object? isCurrentUser = null,Object? totalTaskCount = null,Object? tasks = null,Object? nextCursor = freezed,}) {
+  return _then(_self.copyWith(
+assigneeUserId: freezed == assigneeUserId ? _self.assigneeUserId : assigneeUserId // ignore: cast_nullable_to_non_nullable
+as String?,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,isCurrentUser: null == isCurrentUser ? _self.isCurrentUser : isCurrentUser // ignore: cast_nullable_to_non_nullable
+as bool,totalTaskCount: null == totalTaskCount ? _self.totalTaskCount : totalTaskCount // ignore: cast_nullable_to_non_nullable
+as int,tasks: null == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
+as List<KanbanTaskCardResponse>,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [AssigneeKanbanGroupResponse].
+extension AssigneeKanbanGroupResponsePatterns on AssigneeKanbanGroupResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AssigneeKanbanGroupResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _AssigneeKanbanGroupResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AssigneeKanbanGroupResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _AssigneeKanbanGroupResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AssigneeKanbanGroupResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _AssigneeKanbanGroupResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? assigneeUserId,  String displayName,  String? avatarUrl,  bool isCurrentUser,  int totalTaskCount,  List<KanbanTaskCardResponse> tasks,  String? nextCursor)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _AssigneeKanbanGroupResponse() when $default != null:
+return $default(_that.assigneeUserId,_that.displayName,_that.avatarUrl,_that.isCurrentUser,_that.totalTaskCount,_that.tasks,_that.nextCursor);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? assigneeUserId,  String displayName,  String? avatarUrl,  bool isCurrentUser,  int totalTaskCount,  List<KanbanTaskCardResponse> tasks,  String? nextCursor)  $default,) {final _that = this;
+switch (_that) {
+case _AssigneeKanbanGroupResponse():
+return $default(_that.assigneeUserId,_that.displayName,_that.avatarUrl,_that.isCurrentUser,_that.totalTaskCount,_that.tasks,_that.nextCursor);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? assigneeUserId,  String displayName,  String? avatarUrl,  bool isCurrentUser,  int totalTaskCount,  List<KanbanTaskCardResponse> tasks,  String? nextCursor)?  $default,) {final _that = this;
+switch (_that) {
+case _AssigneeKanbanGroupResponse() when $default != null:
+return $default(_that.assigneeUserId,_that.displayName,_that.avatarUrl,_that.isCurrentUser,_that.totalTaskCount,_that.tasks,_that.nextCursor);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _AssigneeKanbanGroupResponse implements AssigneeKanbanGroupResponse {
+  const _AssigneeKanbanGroupResponse({this.assigneeUserId, required this.displayName, this.avatarUrl, this.isCurrentUser = false, required this.totalTaskCount, required this.tasks, this.nextCursor});
+  factory _AssigneeKanbanGroupResponse.fromJson(Map<String, dynamic> json) => _$AssigneeKanbanGroupResponseFromJson(json);
+
+@override final  String? assigneeUserId;
+@override final  String displayName;
+@override final  String? avatarUrl;
+@override@JsonKey() final  bool isCurrentUser;
+@override final  int totalTaskCount;
+@override final  List<KanbanTaskCardResponse> tasks;
+@override final  String? nextCursor;
+
+/// Create a copy of AssigneeKanbanGroupResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AssigneeKanbanGroupResponseCopyWith<_AssigneeKanbanGroupResponse> get copyWith => __$AssigneeKanbanGroupResponseCopyWithImpl<_AssigneeKanbanGroupResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$AssigneeKanbanGroupResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssigneeKanbanGroupResponse&&(identical(other.assigneeUserId, assigneeUserId) || other.assigneeUserId == assigneeUserId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isCurrentUser, isCurrentUser) || other.isCurrentUser == isCurrentUser)&&(identical(other.totalTaskCount, totalTaskCount) || other.totalTaskCount == totalTaskCount)&&const DeepCollectionEquality().equals(other.tasks, tasks)&&(identical(other.nextCursor, nextCursor) || other.nextCursor == nextCursor));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,assigneeUserId,displayName,avatarUrl,isCurrentUser,totalTaskCount,const DeepCollectionEquality().hash(tasks),nextCursor);
+
+@override
+String toString() {
+  return 'AssigneeKanbanGroupResponse(assigneeUserId: $assigneeUserId, displayName: $displayName, avatarUrl: $avatarUrl, isCurrentUser: $isCurrentUser, totalTaskCount: $totalTaskCount, tasks: $tasks, nextCursor: $nextCursor)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AssigneeKanbanGroupResponseCopyWith<$Res> implements $AssigneeKanbanGroupResponseCopyWith<$Res> {
+  factory _$AssigneeKanbanGroupResponseCopyWith(_AssigneeKanbanGroupResponse value, $Res Function(_AssigneeKanbanGroupResponse) _then) = __$AssigneeKanbanGroupResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ String? assigneeUserId, String displayName, String? avatarUrl, bool isCurrentUser, int totalTaskCount, List<KanbanTaskCardResponse> tasks, String? nextCursor
+});
+
+
+
+
+}
+/// @nodoc
+class __$AssigneeKanbanGroupResponseCopyWithImpl<$Res>
+    implements _$AssigneeKanbanGroupResponseCopyWith<$Res> {
+  __$AssigneeKanbanGroupResponseCopyWithImpl(this._self, this._then);
+
+  final _AssigneeKanbanGroupResponse _self;
+  final $Res Function(_AssigneeKanbanGroupResponse) _then;
+
+/// Create a copy of AssigneeKanbanGroupResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? assigneeUserId = freezed,Object? displayName = null,Object? avatarUrl = freezed,Object? isCurrentUser = null,Object? totalTaskCount = null,Object? tasks = null,Object? nextCursor = freezed,}) {
+  return _then(_AssigneeKanbanGroupResponse(
+assigneeUserId: freezed == assigneeUserId ? _self.assigneeUserId : assigneeUserId // ignore: cast_nullable_to_non_nullable
+as String?,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,isCurrentUser: null == isCurrentUser ? _self.isCurrentUser : isCurrentUser // ignore: cast_nullable_to_non_nullable
+as bool,totalTaskCount: null == totalTaskCount ? _self.totalTaskCount : totalTaskCount // ignore: cast_nullable_to_non_nullable
+as int,tasks: null == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
+as List<KanbanTaskCardResponse>,nextCursor: freezed == nextCursor ? _self.nextCursor : nextCursor // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$AssigneeKanbanBoardResponse {
+
+ String get projectId; KanbanSwimlaneMode get grouping; int get settingsVersion; List<KanbanCardField> get visibleCardFields; KanbanCardDensity get defaultCardDensity; List<AssigneeKanbanGroupResponse> get groups;
+/// Create a copy of AssigneeKanbanBoardResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AssigneeKanbanBoardResponseCopyWith<AssigneeKanbanBoardResponse> get copyWith => _$AssigneeKanbanBoardResponseCopyWithImpl<AssigneeKanbanBoardResponse>(this as AssigneeKanbanBoardResponse, _$identity);
+
+  /// Serializes this AssigneeKanbanBoardResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssigneeKanbanBoardResponse&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.grouping, grouping) || other.grouping == grouping)&&(identical(other.settingsVersion, settingsVersion) || other.settingsVersion == settingsVersion)&&const DeepCollectionEquality().equals(other.visibleCardFields, visibleCardFields)&&(identical(other.defaultCardDensity, defaultCardDensity) || other.defaultCardDensity == defaultCardDensity)&&const DeepCollectionEquality().equals(other.groups, groups));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,projectId,grouping,settingsVersion,const DeepCollectionEquality().hash(visibleCardFields),defaultCardDensity,const DeepCollectionEquality().hash(groups));
+
+@override
+String toString() {
+  return 'AssigneeKanbanBoardResponse(projectId: $projectId, grouping: $grouping, settingsVersion: $settingsVersion, visibleCardFields: $visibleCardFields, defaultCardDensity: $defaultCardDensity, groups: $groups)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AssigneeKanbanBoardResponseCopyWith<$Res>  {
+  factory $AssigneeKanbanBoardResponseCopyWith(AssigneeKanbanBoardResponse value, $Res Function(AssigneeKanbanBoardResponse) _then) = _$AssigneeKanbanBoardResponseCopyWithImpl;
+@useResult
+$Res call({
+ String projectId, KanbanSwimlaneMode grouping, int settingsVersion, List<KanbanCardField> visibleCardFields, KanbanCardDensity defaultCardDensity, List<AssigneeKanbanGroupResponse> groups
+});
+
+
+
+
+}
+/// @nodoc
+class _$AssigneeKanbanBoardResponseCopyWithImpl<$Res>
+    implements $AssigneeKanbanBoardResponseCopyWith<$Res> {
+  _$AssigneeKanbanBoardResponseCopyWithImpl(this._self, this._then);
+
+  final AssigneeKanbanBoardResponse _self;
+  final $Res Function(AssigneeKanbanBoardResponse) _then;
+
+/// Create a copy of AssigneeKanbanBoardResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? projectId = null,Object? grouping = null,Object? settingsVersion = null,Object? visibleCardFields = null,Object? defaultCardDensity = null,Object? groups = null,}) {
+  return _then(_self.copyWith(
+projectId: null == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
+as String,grouping: null == grouping ? _self.grouping : grouping // ignore: cast_nullable_to_non_nullable
+as KanbanSwimlaneMode,settingsVersion: null == settingsVersion ? _self.settingsVersion : settingsVersion // ignore: cast_nullable_to_non_nullable
+as int,visibleCardFields: null == visibleCardFields ? _self.visibleCardFields : visibleCardFields // ignore: cast_nullable_to_non_nullable
+as List<KanbanCardField>,defaultCardDensity: null == defaultCardDensity ? _self.defaultCardDensity : defaultCardDensity // ignore: cast_nullable_to_non_nullable
+as KanbanCardDensity,groups: null == groups ? _self.groups : groups // ignore: cast_nullable_to_non_nullable
+as List<AssigneeKanbanGroupResponse>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [AssigneeKanbanBoardResponse].
+extension AssigneeKanbanBoardResponsePatterns on AssigneeKanbanBoardResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AssigneeKanbanBoardResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _AssigneeKanbanBoardResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AssigneeKanbanBoardResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _AssigneeKanbanBoardResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AssigneeKanbanBoardResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _AssigneeKanbanBoardResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String projectId,  KanbanSwimlaneMode grouping,  int settingsVersion,  List<KanbanCardField> visibleCardFields,  KanbanCardDensity defaultCardDensity,  List<AssigneeKanbanGroupResponse> groups)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _AssigneeKanbanBoardResponse() when $default != null:
+return $default(_that.projectId,_that.grouping,_that.settingsVersion,_that.visibleCardFields,_that.defaultCardDensity,_that.groups);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String projectId,  KanbanSwimlaneMode grouping,  int settingsVersion,  List<KanbanCardField> visibleCardFields,  KanbanCardDensity defaultCardDensity,  List<AssigneeKanbanGroupResponse> groups)  $default,) {final _that = this;
+switch (_that) {
+case _AssigneeKanbanBoardResponse():
+return $default(_that.projectId,_that.grouping,_that.settingsVersion,_that.visibleCardFields,_that.defaultCardDensity,_that.groups);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String projectId,  KanbanSwimlaneMode grouping,  int settingsVersion,  List<KanbanCardField> visibleCardFields,  KanbanCardDensity defaultCardDensity,  List<AssigneeKanbanGroupResponse> groups)?  $default,) {final _that = this;
+switch (_that) {
+case _AssigneeKanbanBoardResponse() when $default != null:
+return $default(_that.projectId,_that.grouping,_that.settingsVersion,_that.visibleCardFields,_that.defaultCardDensity,_that.groups);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _AssigneeKanbanBoardResponse implements AssigneeKanbanBoardResponse {
+  const _AssigneeKanbanBoardResponse({required this.projectId, required this.grouping, required this.settingsVersion, required this.visibleCardFields, required this.defaultCardDensity, required this.groups});
+  factory _AssigneeKanbanBoardResponse.fromJson(Map<String, dynamic> json) => _$AssigneeKanbanBoardResponseFromJson(json);
+
+@override final  String projectId;
+@override final  KanbanSwimlaneMode grouping;
+@override final  int settingsVersion;
+@override final  List<KanbanCardField> visibleCardFields;
+@override final  KanbanCardDensity defaultCardDensity;
+@override final  List<AssigneeKanbanGroupResponse> groups;
+
+/// Create a copy of AssigneeKanbanBoardResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AssigneeKanbanBoardResponseCopyWith<_AssigneeKanbanBoardResponse> get copyWith => __$AssigneeKanbanBoardResponseCopyWithImpl<_AssigneeKanbanBoardResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$AssigneeKanbanBoardResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssigneeKanbanBoardResponse&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.grouping, grouping) || other.grouping == grouping)&&(identical(other.settingsVersion, settingsVersion) || other.settingsVersion == settingsVersion)&&const DeepCollectionEquality().equals(other.visibleCardFields, visibleCardFields)&&(identical(other.defaultCardDensity, defaultCardDensity) || other.defaultCardDensity == defaultCardDensity)&&const DeepCollectionEquality().equals(other.groups, groups));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,projectId,grouping,settingsVersion,const DeepCollectionEquality().hash(visibleCardFields),defaultCardDensity,const DeepCollectionEquality().hash(groups));
+
+@override
+String toString() {
+  return 'AssigneeKanbanBoardResponse(projectId: $projectId, grouping: $grouping, settingsVersion: $settingsVersion, visibleCardFields: $visibleCardFields, defaultCardDensity: $defaultCardDensity, groups: $groups)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AssigneeKanbanBoardResponseCopyWith<$Res> implements $AssigneeKanbanBoardResponseCopyWith<$Res> {
+  factory _$AssigneeKanbanBoardResponseCopyWith(_AssigneeKanbanBoardResponse value, $Res Function(_AssigneeKanbanBoardResponse) _then) = __$AssigneeKanbanBoardResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ String projectId, KanbanSwimlaneMode grouping, int settingsVersion, List<KanbanCardField> visibleCardFields, KanbanCardDensity defaultCardDensity, List<AssigneeKanbanGroupResponse> groups
+});
+
+
+
+
+}
+/// @nodoc
+class __$AssigneeKanbanBoardResponseCopyWithImpl<$Res>
+    implements _$AssigneeKanbanBoardResponseCopyWith<$Res> {
+  __$AssigneeKanbanBoardResponseCopyWithImpl(this._self, this._then);
+
+  final _AssigneeKanbanBoardResponse _self;
+  final $Res Function(_AssigneeKanbanBoardResponse) _then;
+
+/// Create a copy of AssigneeKanbanBoardResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? projectId = null,Object? grouping = null,Object? settingsVersion = null,Object? visibleCardFields = null,Object? defaultCardDensity = null,Object? groups = null,}) {
+  return _then(_AssigneeKanbanBoardResponse(
+projectId: null == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
+as String,grouping: null == grouping ? _self.grouping : grouping // ignore: cast_nullable_to_non_nullable
+as KanbanSwimlaneMode,settingsVersion: null == settingsVersion ? _self.settingsVersion : settingsVersion // ignore: cast_nullable_to_non_nullable
+as int,visibleCardFields: null == visibleCardFields ? _self.visibleCardFields : visibleCardFields // ignore: cast_nullable_to_non_nullable
+as List<KanbanCardField>,defaultCardDensity: null == defaultCardDensity ? _self.defaultCardDensity : defaultCardDensity // ignore: cast_nullable_to_non_nullable
+as KanbanCardDensity,groups: null == groups ? _self.groups : groups // ignore: cast_nullable_to_non_nullable
+as List<AssigneeKanbanGroupResponse>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ChangeKanbanPrimaryAssigneePayload {
+
+ String? get targetUserId; int get expectedVersion;
+/// Create a copy of ChangeKanbanPrimaryAssigneePayload
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ChangeKanbanPrimaryAssigneePayloadCopyWith<ChangeKanbanPrimaryAssigneePayload> get copyWith => _$ChangeKanbanPrimaryAssigneePayloadCopyWithImpl<ChangeKanbanPrimaryAssigneePayload>(this as ChangeKanbanPrimaryAssigneePayload, _$identity);
+
+  /// Serializes this ChangeKanbanPrimaryAssigneePayload to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChangeKanbanPrimaryAssigneePayload&&(identical(other.targetUserId, targetUserId) || other.targetUserId == targetUserId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,targetUserId,expectedVersion);
+
+@override
+String toString() {
+  return 'ChangeKanbanPrimaryAssigneePayload(targetUserId: $targetUserId, expectedVersion: $expectedVersion)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ChangeKanbanPrimaryAssigneePayloadCopyWith<$Res>  {
+  factory $ChangeKanbanPrimaryAssigneePayloadCopyWith(ChangeKanbanPrimaryAssigneePayload value, $Res Function(ChangeKanbanPrimaryAssigneePayload) _then) = _$ChangeKanbanPrimaryAssigneePayloadCopyWithImpl;
+@useResult
+$Res call({
+ String? targetUserId, int expectedVersion
+});
+
+
+
+
+}
+/// @nodoc
+class _$ChangeKanbanPrimaryAssigneePayloadCopyWithImpl<$Res>
+    implements $ChangeKanbanPrimaryAssigneePayloadCopyWith<$Res> {
+  _$ChangeKanbanPrimaryAssigneePayloadCopyWithImpl(this._self, this._then);
+
+  final ChangeKanbanPrimaryAssigneePayload _self;
+  final $Res Function(ChangeKanbanPrimaryAssigneePayload) _then;
+
+/// Create a copy of ChangeKanbanPrimaryAssigneePayload
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? targetUserId = freezed,Object? expectedVersion = null,}) {
+  return _then(_self.copyWith(
+targetUserId: freezed == targetUserId ? _self.targetUserId : targetUserId // ignore: cast_nullable_to_non_nullable
+as String?,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ChangeKanbanPrimaryAssigneePayload].
+extension ChangeKanbanPrimaryAssigneePayloadPatterns on ChangeKanbanPrimaryAssigneePayload {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ChangeKanbanPrimaryAssigneePayload value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneePayload() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ChangeKanbanPrimaryAssigneePayload value)  $default,){
+final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneePayload():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ChangeKanbanPrimaryAssigneePayload value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneePayload() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? targetUserId,  int expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneePayload() when $default != null:
+return $default(_that.targetUserId,_that.expectedVersion);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? targetUserId,  int expectedVersion)  $default,) {final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneePayload():
+return $default(_that.targetUserId,_that.expectedVersion);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? targetUserId,  int expectedVersion)?  $default,) {final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneePayload() when $default != null:
+return $default(_that.targetUserId,_that.expectedVersion);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ChangeKanbanPrimaryAssigneePayload implements ChangeKanbanPrimaryAssigneePayload {
+  const _ChangeKanbanPrimaryAssigneePayload({this.targetUserId, required this.expectedVersion});
+  factory _ChangeKanbanPrimaryAssigneePayload.fromJson(Map<String, dynamic> json) => _$ChangeKanbanPrimaryAssigneePayloadFromJson(json);
+
+@override final  String? targetUserId;
+@override final  int expectedVersion;
+
+/// Create a copy of ChangeKanbanPrimaryAssigneePayload
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ChangeKanbanPrimaryAssigneePayloadCopyWith<_ChangeKanbanPrimaryAssigneePayload> get copyWith => __$ChangeKanbanPrimaryAssigneePayloadCopyWithImpl<_ChangeKanbanPrimaryAssigneePayload>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ChangeKanbanPrimaryAssigneePayloadToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChangeKanbanPrimaryAssigneePayload&&(identical(other.targetUserId, targetUserId) || other.targetUserId == targetUserId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,targetUserId,expectedVersion);
+
+@override
+String toString() {
+  return 'ChangeKanbanPrimaryAssigneePayload(targetUserId: $targetUserId, expectedVersion: $expectedVersion)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ChangeKanbanPrimaryAssigneePayloadCopyWith<$Res> implements $ChangeKanbanPrimaryAssigneePayloadCopyWith<$Res> {
+  factory _$ChangeKanbanPrimaryAssigneePayloadCopyWith(_ChangeKanbanPrimaryAssigneePayload value, $Res Function(_ChangeKanbanPrimaryAssigneePayload) _then) = __$ChangeKanbanPrimaryAssigneePayloadCopyWithImpl;
+@override @useResult
+$Res call({
+ String? targetUserId, int expectedVersion
+});
+
+
+
+
+}
+/// @nodoc
+class __$ChangeKanbanPrimaryAssigneePayloadCopyWithImpl<$Res>
+    implements _$ChangeKanbanPrimaryAssigneePayloadCopyWith<$Res> {
+  __$ChangeKanbanPrimaryAssigneePayloadCopyWithImpl(this._self, this._then);
+
+  final _ChangeKanbanPrimaryAssigneePayload _self;
+  final $Res Function(_ChangeKanbanPrimaryAssigneePayload) _then;
+
+/// Create a copy of ChangeKanbanPrimaryAssigneePayload
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? targetUserId = freezed,Object? expectedVersion = null,}) {
+  return _then(_ChangeKanbanPrimaryAssigneePayload(
+targetUserId: freezed == targetUserId ? _self.targetUserId : targetUserId // ignore: cast_nullable_to_non_nullable
+as String?,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ChangeKanbanPrimaryAssigneeResponse {
+
+ KanbanTaskCardResponse get task; String? get previousAssigneeUserId; int get previousGroupTaskCount; String? get targetAssigneeUserId; int get targetGroupTaskCount;
+/// Create a copy of ChangeKanbanPrimaryAssigneeResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ChangeKanbanPrimaryAssigneeResponseCopyWith<ChangeKanbanPrimaryAssigneeResponse> get copyWith => _$ChangeKanbanPrimaryAssigneeResponseCopyWithImpl<ChangeKanbanPrimaryAssigneeResponse>(this as ChangeKanbanPrimaryAssigneeResponse, _$identity);
+
+  /// Serializes this ChangeKanbanPrimaryAssigneeResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChangeKanbanPrimaryAssigneeResponse&&(identical(other.task, task) || other.task == task)&&(identical(other.previousAssigneeUserId, previousAssigneeUserId) || other.previousAssigneeUserId == previousAssigneeUserId)&&(identical(other.previousGroupTaskCount, previousGroupTaskCount) || other.previousGroupTaskCount == previousGroupTaskCount)&&(identical(other.targetAssigneeUserId, targetAssigneeUserId) || other.targetAssigneeUserId == targetAssigneeUserId)&&(identical(other.targetGroupTaskCount, targetGroupTaskCount) || other.targetGroupTaskCount == targetGroupTaskCount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,task,previousAssigneeUserId,previousGroupTaskCount,targetAssigneeUserId,targetGroupTaskCount);
+
+@override
+String toString() {
+  return 'ChangeKanbanPrimaryAssigneeResponse(task: $task, previousAssigneeUserId: $previousAssigneeUserId, previousGroupTaskCount: $previousGroupTaskCount, targetAssigneeUserId: $targetAssigneeUserId, targetGroupTaskCount: $targetGroupTaskCount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ChangeKanbanPrimaryAssigneeResponseCopyWith<$Res>  {
+  factory $ChangeKanbanPrimaryAssigneeResponseCopyWith(ChangeKanbanPrimaryAssigneeResponse value, $Res Function(ChangeKanbanPrimaryAssigneeResponse) _then) = _$ChangeKanbanPrimaryAssigneeResponseCopyWithImpl;
+@useResult
+$Res call({
+ KanbanTaskCardResponse task, String? previousAssigneeUserId, int previousGroupTaskCount, String? targetAssigneeUserId, int targetGroupTaskCount
+});
+
+
+$KanbanTaskCardResponseCopyWith<$Res> get task;
+
+}
+/// @nodoc
+class _$ChangeKanbanPrimaryAssigneeResponseCopyWithImpl<$Res>
+    implements $ChangeKanbanPrimaryAssigneeResponseCopyWith<$Res> {
+  _$ChangeKanbanPrimaryAssigneeResponseCopyWithImpl(this._self, this._then);
+
+  final ChangeKanbanPrimaryAssigneeResponse _self;
+  final $Res Function(ChangeKanbanPrimaryAssigneeResponse) _then;
+
+/// Create a copy of ChangeKanbanPrimaryAssigneeResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? task = null,Object? previousAssigneeUserId = freezed,Object? previousGroupTaskCount = null,Object? targetAssigneeUserId = freezed,Object? targetGroupTaskCount = null,}) {
+  return _then(_self.copyWith(
+task: null == task ? _self.task : task // ignore: cast_nullable_to_non_nullable
+as KanbanTaskCardResponse,previousAssigneeUserId: freezed == previousAssigneeUserId ? _self.previousAssigneeUserId : previousAssigneeUserId // ignore: cast_nullable_to_non_nullable
+as String?,previousGroupTaskCount: null == previousGroupTaskCount ? _self.previousGroupTaskCount : previousGroupTaskCount // ignore: cast_nullable_to_non_nullable
+as int,targetAssigneeUserId: freezed == targetAssigneeUserId ? _self.targetAssigneeUserId : targetAssigneeUserId // ignore: cast_nullable_to_non_nullable
+as String?,targetGroupTaskCount: null == targetGroupTaskCount ? _self.targetGroupTaskCount : targetGroupTaskCount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+/// Create a copy of ChangeKanbanPrimaryAssigneeResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$KanbanTaskCardResponseCopyWith<$Res> get task {
+
+  return $KanbanTaskCardResponseCopyWith<$Res>(_self.task, (value) {
+    return _then(_self.copyWith(task: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ChangeKanbanPrimaryAssigneeResponse].
+extension ChangeKanbanPrimaryAssigneeResponsePatterns on ChangeKanbanPrimaryAssigneeResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ChangeKanbanPrimaryAssigneeResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneeResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ChangeKanbanPrimaryAssigneeResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneeResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ChangeKanbanPrimaryAssigneeResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneeResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( KanbanTaskCardResponse task,  String? previousAssigneeUserId,  int previousGroupTaskCount,  String? targetAssigneeUserId,  int targetGroupTaskCount)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneeResponse() when $default != null:
+return $default(_that.task,_that.previousAssigneeUserId,_that.previousGroupTaskCount,_that.targetAssigneeUserId,_that.targetGroupTaskCount);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( KanbanTaskCardResponse task,  String? previousAssigneeUserId,  int previousGroupTaskCount,  String? targetAssigneeUserId,  int targetGroupTaskCount)  $default,) {final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneeResponse():
+return $default(_that.task,_that.previousAssigneeUserId,_that.previousGroupTaskCount,_that.targetAssigneeUserId,_that.targetGroupTaskCount);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( KanbanTaskCardResponse task,  String? previousAssigneeUserId,  int previousGroupTaskCount,  String? targetAssigneeUserId,  int targetGroupTaskCount)?  $default,) {final _that = this;
+switch (_that) {
+case _ChangeKanbanPrimaryAssigneeResponse() when $default != null:
+return $default(_that.task,_that.previousAssigneeUserId,_that.previousGroupTaskCount,_that.targetAssigneeUserId,_that.targetGroupTaskCount);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ChangeKanbanPrimaryAssigneeResponse implements ChangeKanbanPrimaryAssigneeResponse {
+  const _ChangeKanbanPrimaryAssigneeResponse({required this.task, this.previousAssigneeUserId, required this.previousGroupTaskCount, this.targetAssigneeUserId, required this.targetGroupTaskCount});
+  factory _ChangeKanbanPrimaryAssigneeResponse.fromJson(Map<String, dynamic> json) => _$ChangeKanbanPrimaryAssigneeResponseFromJson(json);
+
+@override final  KanbanTaskCardResponse task;
+@override final  String? previousAssigneeUserId;
+@override final  int previousGroupTaskCount;
+@override final  String? targetAssigneeUserId;
+@override final  int targetGroupTaskCount;
+
+/// Create a copy of ChangeKanbanPrimaryAssigneeResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ChangeKanbanPrimaryAssigneeResponseCopyWith<_ChangeKanbanPrimaryAssigneeResponse> get copyWith => __$ChangeKanbanPrimaryAssigneeResponseCopyWithImpl<_ChangeKanbanPrimaryAssigneeResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ChangeKanbanPrimaryAssigneeResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChangeKanbanPrimaryAssigneeResponse&&(identical(other.task, task) || other.task == task)&&(identical(other.previousAssigneeUserId, previousAssigneeUserId) || other.previousAssigneeUserId == previousAssigneeUserId)&&(identical(other.previousGroupTaskCount, previousGroupTaskCount) || other.previousGroupTaskCount == previousGroupTaskCount)&&(identical(other.targetAssigneeUserId, targetAssigneeUserId) || other.targetAssigneeUserId == targetAssigneeUserId)&&(identical(other.targetGroupTaskCount, targetGroupTaskCount) || other.targetGroupTaskCount == targetGroupTaskCount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,task,previousAssigneeUserId,previousGroupTaskCount,targetAssigneeUserId,targetGroupTaskCount);
+
+@override
+String toString() {
+  return 'ChangeKanbanPrimaryAssigneeResponse(task: $task, previousAssigneeUserId: $previousAssigneeUserId, previousGroupTaskCount: $previousGroupTaskCount, targetAssigneeUserId: $targetAssigneeUserId, targetGroupTaskCount: $targetGroupTaskCount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ChangeKanbanPrimaryAssigneeResponseCopyWith<$Res> implements $ChangeKanbanPrimaryAssigneeResponseCopyWith<$Res> {
+  factory _$ChangeKanbanPrimaryAssigneeResponseCopyWith(_ChangeKanbanPrimaryAssigneeResponse value, $Res Function(_ChangeKanbanPrimaryAssigneeResponse) _then) = __$ChangeKanbanPrimaryAssigneeResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ KanbanTaskCardResponse task, String? previousAssigneeUserId, int previousGroupTaskCount, String? targetAssigneeUserId, int targetGroupTaskCount
+});
+
+
+@override $KanbanTaskCardResponseCopyWith<$Res> get task;
+
+}
+/// @nodoc
+class __$ChangeKanbanPrimaryAssigneeResponseCopyWithImpl<$Res>
+    implements _$ChangeKanbanPrimaryAssigneeResponseCopyWith<$Res> {
+  __$ChangeKanbanPrimaryAssigneeResponseCopyWithImpl(this._self, this._then);
+
+  final _ChangeKanbanPrimaryAssigneeResponse _self;
+  final $Res Function(_ChangeKanbanPrimaryAssigneeResponse) _then;
+
+/// Create a copy of ChangeKanbanPrimaryAssigneeResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? task = null,Object? previousAssigneeUserId = freezed,Object? previousGroupTaskCount = null,Object? targetAssigneeUserId = freezed,Object? targetGroupTaskCount = null,}) {
+  return _then(_ChangeKanbanPrimaryAssigneeResponse(
+task: null == task ? _self.task : task // ignore: cast_nullable_to_non_nullable
+as KanbanTaskCardResponse,previousAssigneeUserId: freezed == previousAssigneeUserId ? _self.previousAssigneeUserId : previousAssigneeUserId // ignore: cast_nullable_to_non_nullable
+as String?,previousGroupTaskCount: null == previousGroupTaskCount ? _self.previousGroupTaskCount : previousGroupTaskCount // ignore: cast_nullable_to_non_nullable
+as int,targetAssigneeUserId: freezed == targetAssigneeUserId ? _self.targetAssigneeUserId : targetAssigneeUserId // ignore: cast_nullable_to_non_nullable
+as String?,targetGroupTaskCount: null == targetGroupTaskCount ? _self.targetGroupTaskCount : targetGroupTaskCount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+/// Create a copy of ChangeKanbanPrimaryAssigneeResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$KanbanTaskCardResponseCopyWith<$Res> get task {
+
+  return $KanbanTaskCardResponseCopyWith<$Res>(_self.task, (value) {
+    return _then(_self.copyWith(task: value));
   });
 }
 }
@@ -1828,7 +2949,7 @@ as bool,
 @override
 @pragma('vm:prefer-inline')
 $KanbanTaskCardResponseCopyWith<$Res> get task {
-  
+
   return $KanbanTaskCardResponseCopyWith<$Res>(_self.task, (value) {
     return _then(_self.copyWith(task: value));
   });
@@ -2043,7 +3164,7 @@ as bool,
 @override
 @pragma('vm:prefer-inline')
 $KanbanTaskCardResponseCopyWith<$Res> get task {
-  
+
   return $KanbanTaskCardResponseCopyWith<$Res>(_self.task, (value) {
     return _then(_self.copyWith(task: value));
   });

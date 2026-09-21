@@ -2324,7 +2324,12 @@ mixin _$ProjectSetupPreviewResponse {
  String get scheduleMode;/// Domyślna dzienna pojemność workspace, jeśli żądanie ją zmienia.
  int? get defaultDailyCapacityMinutes;/// Przepisy automatyzacji instalowane w projekcie.
  List<ProjectSetupRecipePreviewResponse> get automationRecipes;/// Ostrzeżenia planu; nie blokują wykonania.
- List<ProjectSetupWarningResponse> get warnings;
+ List<ProjectSetupWarningResponse> get warnings;/// Zadania, które powstaną razem z projektem, każde z nazwą kolumny
+/// docelowej.
+///
+/// Pole jest opcjonalne, bo starsza wersja planu go nie wysyłała; brak listy
+/// oznacza, że podgląd nadal korzysta z zawartości szablonu.
+@JsonKey(name: 'tasks') List<ProjectSetupTaskPreviewResponse>? get tasks;
 /// Create a copy of ProjectSetupPreviewResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2337,16 +2342,16 @@ $ProjectSetupPreviewResponseCopyWith<ProjectSetupPreviewResponse> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectSetupPreviewResponse&&(identical(other.source, source) || other.source == source)&&(identical(other.template, template) || other.template == template)&&(identical(other.project, project) || other.project == project)&&(identical(other.workflow, workflow) || other.workflow == workflow)&&(identical(other.taskView, taskView) || other.taskView == taskView)&&(identical(other.scheduleMode, scheduleMode) || other.scheduleMode == scheduleMode)&&(identical(other.defaultDailyCapacityMinutes, defaultDailyCapacityMinutes) || other.defaultDailyCapacityMinutes == defaultDailyCapacityMinutes)&&const DeepCollectionEquality().equals(other.automationRecipes, automationRecipes)&&const DeepCollectionEquality().equals(other.warnings, warnings));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectSetupPreviewResponse&&(identical(other.source, source) || other.source == source)&&(identical(other.template, template) || other.template == template)&&(identical(other.project, project) || other.project == project)&&(identical(other.workflow, workflow) || other.workflow == workflow)&&(identical(other.taskView, taskView) || other.taskView == taskView)&&(identical(other.scheduleMode, scheduleMode) || other.scheduleMode == scheduleMode)&&(identical(other.defaultDailyCapacityMinutes, defaultDailyCapacityMinutes) || other.defaultDailyCapacityMinutes == defaultDailyCapacityMinutes)&&const DeepCollectionEquality().equals(other.automationRecipes, automationRecipes)&&const DeepCollectionEquality().equals(other.warnings, warnings)&&const DeepCollectionEquality().equals(other.tasks, tasks));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,source,template,project,workflow,taskView,scheduleMode,defaultDailyCapacityMinutes,const DeepCollectionEquality().hash(automationRecipes),const DeepCollectionEquality().hash(warnings));
+int get hashCode => Object.hash(runtimeType,source,template,project,workflow,taskView,scheduleMode,defaultDailyCapacityMinutes,const DeepCollectionEquality().hash(automationRecipes),const DeepCollectionEquality().hash(warnings),const DeepCollectionEquality().hash(tasks));
 
 @override
 String toString() {
-  return 'ProjectSetupPreviewResponse(source: $source, template: $template, project: $project, workflow: $workflow, taskView: $taskView, scheduleMode: $scheduleMode, defaultDailyCapacityMinutes: $defaultDailyCapacityMinutes, automationRecipes: $automationRecipes, warnings: $warnings)';
+  return 'ProjectSetupPreviewResponse(source: $source, template: $template, project: $project, workflow: $workflow, taskView: $taskView, scheduleMode: $scheduleMode, defaultDailyCapacityMinutes: $defaultDailyCapacityMinutes, automationRecipes: $automationRecipes, warnings: $warnings, tasks: $tasks)';
 }
 
 
@@ -2357,7 +2362,7 @@ abstract mixin class $ProjectSetupPreviewResponseCopyWith<$Res>  {
   factory $ProjectSetupPreviewResponseCopyWith(ProjectSetupPreviewResponse value, $Res Function(ProjectSetupPreviewResponse) _then) = _$ProjectSetupPreviewResponseCopyWithImpl;
 @useResult
 $Res call({
- ProjectSetupSourceKind source, ProjectSetupTemplatePreviewResponse? template, ProjectSetupProjectPreviewResponse project, ProjectSetupWorkflowPreviewResponse workflow, ProjectSetupTaskViewPreviewResponse taskView, String scheduleMode, int? defaultDailyCapacityMinutes, List<ProjectSetupRecipePreviewResponse> automationRecipes, List<ProjectSetupWarningResponse> warnings
+ ProjectSetupSourceKind source, ProjectSetupTemplatePreviewResponse? template, ProjectSetupProjectPreviewResponse project, ProjectSetupWorkflowPreviewResponse workflow, ProjectSetupTaskViewPreviewResponse taskView, String scheduleMode, int? defaultDailyCapacityMinutes, List<ProjectSetupRecipePreviewResponse> automationRecipes, List<ProjectSetupWarningResponse> warnings,@JsonKey(name: 'tasks') List<ProjectSetupTaskPreviewResponse>? tasks
 });
 
 
@@ -2374,7 +2379,7 @@ class _$ProjectSetupPreviewResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectSetupPreviewResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? source = null,Object? template = freezed,Object? project = null,Object? workflow = null,Object? taskView = null,Object? scheduleMode = null,Object? defaultDailyCapacityMinutes = freezed,Object? automationRecipes = null,Object? warnings = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? source = null,Object? template = freezed,Object? project = null,Object? workflow = null,Object? taskView = null,Object? scheduleMode = null,Object? defaultDailyCapacityMinutes = freezed,Object? automationRecipes = null,Object? warnings = null,Object? tasks = freezed,}) {
   return _then(_self.copyWith(
 source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
 as ProjectSetupSourceKind,template: freezed == template ? _self.template : template // ignore: cast_nullable_to_non_nullable
@@ -2385,7 +2390,8 @@ as ProjectSetupTaskViewPreviewResponse,scheduleMode: null == scheduleMode ? _sel
 as String,defaultDailyCapacityMinutes: freezed == defaultDailyCapacityMinutes ? _self.defaultDailyCapacityMinutes : defaultDailyCapacityMinutes // ignore: cast_nullable_to_non_nullable
 as int?,automationRecipes: null == automationRecipes ? _self.automationRecipes : automationRecipes // ignore: cast_nullable_to_non_nullable
 as List<ProjectSetupRecipePreviewResponse>,warnings: null == warnings ? _self.warnings : warnings // ignore: cast_nullable_to_non_nullable
-as List<ProjectSetupWarningResponse>,
+as List<ProjectSetupWarningResponse>,tasks: freezed == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
+as List<ProjectSetupTaskPreviewResponse>?,
   ));
 }
 /// Create a copy of ProjectSetupPreviewResponse
@@ -2509,10 +2515,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProjectSetupSourceKind source,  ProjectSetupTemplatePreviewResponse? template,  ProjectSetupProjectPreviewResponse project,  ProjectSetupWorkflowPreviewResponse workflow,  ProjectSetupTaskViewPreviewResponse taskView,  String scheduleMode,  int? defaultDailyCapacityMinutes,  List<ProjectSetupRecipePreviewResponse> automationRecipes,  List<ProjectSetupWarningResponse> warnings)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProjectSetupSourceKind source,  ProjectSetupTemplatePreviewResponse? template,  ProjectSetupProjectPreviewResponse project,  ProjectSetupWorkflowPreviewResponse workflow,  ProjectSetupTaskViewPreviewResponse taskView,  String scheduleMode,  int? defaultDailyCapacityMinutes,  List<ProjectSetupRecipePreviewResponse> automationRecipes,  List<ProjectSetupWarningResponse> warnings, @JsonKey(name: 'tasks')  List<ProjectSetupTaskPreviewResponse>? tasks)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProjectSetupPreviewResponse() when $default != null:
-return $default(_that.source,_that.template,_that.project,_that.workflow,_that.taskView,_that.scheduleMode,_that.defaultDailyCapacityMinutes,_that.automationRecipes,_that.warnings);case _:
+return $default(_that.source,_that.template,_that.project,_that.workflow,_that.taskView,_that.scheduleMode,_that.defaultDailyCapacityMinutes,_that.automationRecipes,_that.warnings,_that.tasks);case _:
   return orElse();
 
 }
@@ -2530,10 +2536,10 @@ return $default(_that.source,_that.template,_that.project,_that.workflow,_that.t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProjectSetupSourceKind source,  ProjectSetupTemplatePreviewResponse? template,  ProjectSetupProjectPreviewResponse project,  ProjectSetupWorkflowPreviewResponse workflow,  ProjectSetupTaskViewPreviewResponse taskView,  String scheduleMode,  int? defaultDailyCapacityMinutes,  List<ProjectSetupRecipePreviewResponse> automationRecipes,  List<ProjectSetupWarningResponse> warnings)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProjectSetupSourceKind source,  ProjectSetupTemplatePreviewResponse? template,  ProjectSetupProjectPreviewResponse project,  ProjectSetupWorkflowPreviewResponse workflow,  ProjectSetupTaskViewPreviewResponse taskView,  String scheduleMode,  int? defaultDailyCapacityMinutes,  List<ProjectSetupRecipePreviewResponse> automationRecipes,  List<ProjectSetupWarningResponse> warnings, @JsonKey(name: 'tasks')  List<ProjectSetupTaskPreviewResponse>? tasks)  $default,) {final _that = this;
 switch (_that) {
 case _ProjectSetupPreviewResponse():
-return $default(_that.source,_that.template,_that.project,_that.workflow,_that.taskView,_that.scheduleMode,_that.defaultDailyCapacityMinutes,_that.automationRecipes,_that.warnings);case _:
+return $default(_that.source,_that.template,_that.project,_that.workflow,_that.taskView,_that.scheduleMode,_that.defaultDailyCapacityMinutes,_that.automationRecipes,_that.warnings,_that.tasks);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2550,10 +2556,10 @@ return $default(_that.source,_that.template,_that.project,_that.workflow,_that.t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProjectSetupSourceKind source,  ProjectSetupTemplatePreviewResponse? template,  ProjectSetupProjectPreviewResponse project,  ProjectSetupWorkflowPreviewResponse workflow,  ProjectSetupTaskViewPreviewResponse taskView,  String scheduleMode,  int? defaultDailyCapacityMinutes,  List<ProjectSetupRecipePreviewResponse> automationRecipes,  List<ProjectSetupWarningResponse> warnings)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProjectSetupSourceKind source,  ProjectSetupTemplatePreviewResponse? template,  ProjectSetupProjectPreviewResponse project,  ProjectSetupWorkflowPreviewResponse workflow,  ProjectSetupTaskViewPreviewResponse taskView,  String scheduleMode,  int? defaultDailyCapacityMinutes,  List<ProjectSetupRecipePreviewResponse> automationRecipes,  List<ProjectSetupWarningResponse> warnings, @JsonKey(name: 'tasks')  List<ProjectSetupTaskPreviewResponse>? tasks)?  $default,) {final _that = this;
 switch (_that) {
 case _ProjectSetupPreviewResponse() when $default != null:
-return $default(_that.source,_that.template,_that.project,_that.workflow,_that.taskView,_that.scheduleMode,_that.defaultDailyCapacityMinutes,_that.automationRecipes,_that.warnings);case _:
+return $default(_that.source,_that.template,_that.project,_that.workflow,_that.taskView,_that.scheduleMode,_that.defaultDailyCapacityMinutes,_that.automationRecipes,_that.warnings,_that.tasks);case _:
   return null;
 
 }
@@ -2565,7 +2571,7 @@ return $default(_that.source,_that.template,_that.project,_that.workflow,_that.t
 @JsonSerializable()
 
 class _ProjectSetupPreviewResponse implements ProjectSetupPreviewResponse {
-  const _ProjectSetupPreviewResponse({required this.source, this.template, required this.project, required this.workflow, required this.taskView, required this.scheduleMode, this.defaultDailyCapacityMinutes, required this.automationRecipes, required this.warnings});
+  const _ProjectSetupPreviewResponse({required this.source, this.template, required this.project, required this.workflow, required this.taskView, required this.scheduleMode, this.defaultDailyCapacityMinutes, required this.automationRecipes, required this.warnings, @JsonKey(name: 'tasks') this.tasks});
   factory _ProjectSetupPreviewResponse.fromJson(Map<String, dynamic> json) => _$ProjectSetupPreviewResponseFromJson(json);
 
 /// Sposób startu projektu przyjęty w planie.
@@ -2586,6 +2592,12 @@ class _ProjectSetupPreviewResponse implements ProjectSetupPreviewResponse {
 @override final  List<ProjectSetupRecipePreviewResponse> automationRecipes;
 /// Ostrzeżenia planu; nie blokują wykonania.
 @override final  List<ProjectSetupWarningResponse> warnings;
+/// Zadania, które powstaną razem z projektem, każde z nazwą kolumny
+/// docelowej.
+///
+/// Pole jest opcjonalne, bo starsza wersja planu go nie wysyłała; brak listy
+/// oznacza, że podgląd nadal korzysta z zawartości szablonu.
+@override@JsonKey(name: 'tasks') final  List<ProjectSetupTaskPreviewResponse>? tasks;
 
 /// Create a copy of ProjectSetupPreviewResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -2600,16 +2612,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectSetupPreviewResponse&&(identical(other.source, source) || other.source == source)&&(identical(other.template, template) || other.template == template)&&(identical(other.project, project) || other.project == project)&&(identical(other.workflow, workflow) || other.workflow == workflow)&&(identical(other.taskView, taskView) || other.taskView == taskView)&&(identical(other.scheduleMode, scheduleMode) || other.scheduleMode == scheduleMode)&&(identical(other.defaultDailyCapacityMinutes, defaultDailyCapacityMinutes) || other.defaultDailyCapacityMinutes == defaultDailyCapacityMinutes)&&const DeepCollectionEquality().equals(other.automationRecipes, automationRecipes)&&const DeepCollectionEquality().equals(other.warnings, warnings));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectSetupPreviewResponse&&(identical(other.source, source) || other.source == source)&&(identical(other.template, template) || other.template == template)&&(identical(other.project, project) || other.project == project)&&(identical(other.workflow, workflow) || other.workflow == workflow)&&(identical(other.taskView, taskView) || other.taskView == taskView)&&(identical(other.scheduleMode, scheduleMode) || other.scheduleMode == scheduleMode)&&(identical(other.defaultDailyCapacityMinutes, defaultDailyCapacityMinutes) || other.defaultDailyCapacityMinutes == defaultDailyCapacityMinutes)&&const DeepCollectionEquality().equals(other.automationRecipes, automationRecipes)&&const DeepCollectionEquality().equals(other.warnings, warnings)&&const DeepCollectionEquality().equals(other.tasks, tasks));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,source,template,project,workflow,taskView,scheduleMode,defaultDailyCapacityMinutes,const DeepCollectionEquality().hash(automationRecipes),const DeepCollectionEquality().hash(warnings));
+int get hashCode => Object.hash(runtimeType,source,template,project,workflow,taskView,scheduleMode,defaultDailyCapacityMinutes,const DeepCollectionEquality().hash(automationRecipes),const DeepCollectionEquality().hash(warnings),const DeepCollectionEquality().hash(tasks));
 
 @override
 String toString() {
-  return 'ProjectSetupPreviewResponse(source: $source, template: $template, project: $project, workflow: $workflow, taskView: $taskView, scheduleMode: $scheduleMode, defaultDailyCapacityMinutes: $defaultDailyCapacityMinutes, automationRecipes: $automationRecipes, warnings: $warnings)';
+  return 'ProjectSetupPreviewResponse(source: $source, template: $template, project: $project, workflow: $workflow, taskView: $taskView, scheduleMode: $scheduleMode, defaultDailyCapacityMinutes: $defaultDailyCapacityMinutes, automationRecipes: $automationRecipes, warnings: $warnings, tasks: $tasks)';
 }
 
 
@@ -2620,7 +2632,7 @@ abstract mixin class _$ProjectSetupPreviewResponseCopyWith<$Res> implements $Pro
   factory _$ProjectSetupPreviewResponseCopyWith(_ProjectSetupPreviewResponse value, $Res Function(_ProjectSetupPreviewResponse) _then) = __$ProjectSetupPreviewResponseCopyWithImpl;
 @override @useResult
 $Res call({
- ProjectSetupSourceKind source, ProjectSetupTemplatePreviewResponse? template, ProjectSetupProjectPreviewResponse project, ProjectSetupWorkflowPreviewResponse workflow, ProjectSetupTaskViewPreviewResponse taskView, String scheduleMode, int? defaultDailyCapacityMinutes, List<ProjectSetupRecipePreviewResponse> automationRecipes, List<ProjectSetupWarningResponse> warnings
+ ProjectSetupSourceKind source, ProjectSetupTemplatePreviewResponse? template, ProjectSetupProjectPreviewResponse project, ProjectSetupWorkflowPreviewResponse workflow, ProjectSetupTaskViewPreviewResponse taskView, String scheduleMode, int? defaultDailyCapacityMinutes, List<ProjectSetupRecipePreviewResponse> automationRecipes, List<ProjectSetupWarningResponse> warnings,@JsonKey(name: 'tasks') List<ProjectSetupTaskPreviewResponse>? tasks
 });
 
 
@@ -2637,7 +2649,7 @@ class __$ProjectSetupPreviewResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectSetupPreviewResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? source = null,Object? template = freezed,Object? project = null,Object? workflow = null,Object? taskView = null,Object? scheduleMode = null,Object? defaultDailyCapacityMinutes = freezed,Object? automationRecipes = null,Object? warnings = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? source = null,Object? template = freezed,Object? project = null,Object? workflow = null,Object? taskView = null,Object? scheduleMode = null,Object? defaultDailyCapacityMinutes = freezed,Object? automationRecipes = null,Object? warnings = null,Object? tasks = freezed,}) {
   return _then(_ProjectSetupPreviewResponse(
 source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
 as ProjectSetupSourceKind,template: freezed == template ? _self.template : template // ignore: cast_nullable_to_non_nullable
@@ -2648,7 +2660,8 @@ as ProjectSetupTaskViewPreviewResponse,scheduleMode: null == scheduleMode ? _sel
 as String,defaultDailyCapacityMinutes: freezed == defaultDailyCapacityMinutes ? _self.defaultDailyCapacityMinutes : defaultDailyCapacityMinutes // ignore: cast_nullable_to_non_nullable
 as int?,automationRecipes: null == automationRecipes ? _self.automationRecipes : automationRecipes // ignore: cast_nullable_to_non_nullable
 as List<ProjectSetupRecipePreviewResponse>,warnings: null == warnings ? _self.warnings : warnings // ignore: cast_nullable_to_non_nullable
-as List<ProjectSetupWarningResponse>,
+as List<ProjectSetupWarningResponse>,tasks: freezed == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
+as List<ProjectSetupTaskPreviewResponse>?,
   ));
 }
 
@@ -2692,6 +2705,286 @@ $ProjectSetupTaskViewPreviewResponseCopyWith<$Res> get taskView {
     return _then(_self.copyWith(taskView: value));
   });
 }
+}
+
+
+/// @nodoc
+mixin _$ProjectSetupTaskPreviewResponse {
+
+/// Tytuł zadania.
+ String get title;/// Nazwa kolumny (statusu), w której zadanie powstanie.
+ String get statusName;/// Priorytet zadania w kontrakcie, np. `High`.
+ String get priority;/// Nazwy etykiet przypisanych do zadania.
+ List<String> get labels;
+/// Create a copy of ProjectSetupTaskPreviewResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProjectSetupTaskPreviewResponseCopyWith<ProjectSetupTaskPreviewResponse> get copyWith => _$ProjectSetupTaskPreviewResponseCopyWithImpl<ProjectSetupTaskPreviewResponse>(this as ProjectSetupTaskPreviewResponse, _$identity);
+
+  /// Serializes this ProjectSetupTaskPreviewResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectSetupTaskPreviewResponse&&(identical(other.title, title) || other.title == title)&&(identical(other.statusName, statusName) || other.statusName == statusName)&&(identical(other.priority, priority) || other.priority == priority)&&const DeepCollectionEquality().equals(other.labels, labels));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,title,statusName,priority,const DeepCollectionEquality().hash(labels));
+
+@override
+String toString() {
+  return 'ProjectSetupTaskPreviewResponse(title: $title, statusName: $statusName, priority: $priority, labels: $labels)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProjectSetupTaskPreviewResponseCopyWith<$Res>  {
+  factory $ProjectSetupTaskPreviewResponseCopyWith(ProjectSetupTaskPreviewResponse value, $Res Function(ProjectSetupTaskPreviewResponse) _then) = _$ProjectSetupTaskPreviewResponseCopyWithImpl;
+@useResult
+$Res call({
+ String title, String statusName, String priority, List<String> labels
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProjectSetupTaskPreviewResponseCopyWithImpl<$Res>
+    implements $ProjectSetupTaskPreviewResponseCopyWith<$Res> {
+  _$ProjectSetupTaskPreviewResponseCopyWithImpl(this._self, this._then);
+
+  final ProjectSetupTaskPreviewResponse _self;
+  final $Res Function(ProjectSetupTaskPreviewResponse) _then;
+
+/// Create a copy of ProjectSetupTaskPreviewResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? statusName = null,Object? priority = null,Object? labels = null,}) {
+  return _then(_self.copyWith(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,statusName: null == statusName ? _self.statusName : statusName // ignore: cast_nullable_to_non_nullable
+as String,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
+as String,labels: null == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProjectSetupTaskPreviewResponse].
+extension ProjectSetupTaskPreviewResponsePatterns on ProjectSetupTaskPreviewResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProjectSetupTaskPreviewResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProjectSetupTaskPreviewResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProjectSetupTaskPreviewResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProjectSetupTaskPreviewResponse():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProjectSetupTaskPreviewResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProjectSetupTaskPreviewResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String statusName,  String priority,  List<String> labels)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProjectSetupTaskPreviewResponse() when $default != null:
+return $default(_that.title,_that.statusName,_that.priority,_that.labels);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String statusName,  String priority,  List<String> labels)  $default,) {final _that = this;
+switch (_that) {
+case _ProjectSetupTaskPreviewResponse():
+return $default(_that.title,_that.statusName,_that.priority,_that.labels);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String statusName,  String priority,  List<String> labels)?  $default,) {final _that = this;
+switch (_that) {
+case _ProjectSetupTaskPreviewResponse() when $default != null:
+return $default(_that.title,_that.statusName,_that.priority,_that.labels);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ProjectSetupTaskPreviewResponse implements ProjectSetupTaskPreviewResponse {
+  const _ProjectSetupTaskPreviewResponse({required this.title, required this.statusName, required this.priority, required this.labels});
+  factory _ProjectSetupTaskPreviewResponse.fromJson(Map<String, dynamic> json) => _$ProjectSetupTaskPreviewResponseFromJson(json);
+
+/// Tytuł zadania.
+@override final  String title;
+/// Nazwa kolumny (statusu), w której zadanie powstanie.
+@override final  String statusName;
+/// Priorytet zadania w kontrakcie, np. `High`.
+@override final  String priority;
+/// Nazwy etykiet przypisanych do zadania.
+@override final  List<String> labels;
+
+/// Create a copy of ProjectSetupTaskPreviewResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProjectSetupTaskPreviewResponseCopyWith<_ProjectSetupTaskPreviewResponse> get copyWith => __$ProjectSetupTaskPreviewResponseCopyWithImpl<_ProjectSetupTaskPreviewResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ProjectSetupTaskPreviewResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectSetupTaskPreviewResponse&&(identical(other.title, title) || other.title == title)&&(identical(other.statusName, statusName) || other.statusName == statusName)&&(identical(other.priority, priority) || other.priority == priority)&&const DeepCollectionEquality().equals(other.labels, labels));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,title,statusName,priority,const DeepCollectionEquality().hash(labels));
+
+@override
+String toString() {
+  return 'ProjectSetupTaskPreviewResponse(title: $title, statusName: $statusName, priority: $priority, labels: $labels)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProjectSetupTaskPreviewResponseCopyWith<$Res> implements $ProjectSetupTaskPreviewResponseCopyWith<$Res> {
+  factory _$ProjectSetupTaskPreviewResponseCopyWith(_ProjectSetupTaskPreviewResponse value, $Res Function(_ProjectSetupTaskPreviewResponse) _then) = __$ProjectSetupTaskPreviewResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ String title, String statusName, String priority, List<String> labels
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProjectSetupTaskPreviewResponseCopyWithImpl<$Res>
+    implements _$ProjectSetupTaskPreviewResponseCopyWith<$Res> {
+  __$ProjectSetupTaskPreviewResponseCopyWithImpl(this._self, this._then);
+
+  final _ProjectSetupTaskPreviewResponse _self;
+  final $Res Function(_ProjectSetupTaskPreviewResponse) _then;
+
+/// Create a copy of ProjectSetupTaskPreviewResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? statusName = null,Object? priority = null,Object? labels = null,}) {
+  return _then(_ProjectSetupTaskPreviewResponse(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,statusName: null == statusName ? _self.statusName : statusName // ignore: cast_nullable_to_non_nullable
+as String,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
+as String,labels: null == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+
 }
 
 // dart format on

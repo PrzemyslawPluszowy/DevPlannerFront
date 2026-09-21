@@ -16,6 +16,7 @@ export '../models/storage_extended_models.dart'
         CreateStorageAiReportPayload,
         CreateStorageFilePlacementPayload,
         CreateStorageFolderSharePayload,
+        MoveStorageFilePlacementPayload,
         OnlyOfficeCallbackPayload,
         PublicShareAccessPayload,
         QuillCleanUnusedImagesPayload,

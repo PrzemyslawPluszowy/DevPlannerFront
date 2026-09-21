@@ -7,6 +7,11 @@ final class StorageOfficeEditorActionsState extends Equatable {
     this.isDownloading = false,
     this.isPrinting = false,
     this.isSavingCopy = false,
+    this.isSessionReady = false,
+    this.hasUnsavedChanges = false,
+    this.hasSavedChanges = false,
+    this.saveConfirmation = StorageOfficeSaveConfirmation.none,
+    this.confirmedVersion,
     this.notice,
     this.noticeRevision = 0,
   });
@@ -15,6 +20,28 @@ final class StorageOfficeEditorActionsState extends Equatable {
   final bool isDownloading;
   final bool isPrinting;
   final bool isSavingCopy;
+
+  /// Czy dokument zgłosił gotowość, czyli czy sesja jest połączona.
+  final bool isSessionReady;
+
+  /// Czy dokument ma zmiany niepotwierdzone zapisem.
+  final bool hasUnsavedChanges;
+
+  /// Czy w tej sesji backend potwierdził nową wersję; po takiej sesji lista
+  /// plików musi zostać odświeżona.
+  ///
+  /// Flaga jest lepka: kolejna edycja nie cofa potrzeby odświeżenia listy.
+  final bool hasSavedChanges;
+
+  /// Stan potwierdzenia ostatniego „braku lokalnych zmian”.
+  ///
+  /// Sam brak zmian w edytorze nie znaczy, że wersja została zapisana: callback
+  /// OnlyOffice może jeszcze lecieć, zostać odrzucony albo czekać na skanowanie.
+  final StorageOfficeSaveConfirmation saveConfirmation;
+
+  /// Numer wersji potwierdzonej przez backend.
+  final int? confirmedVersion;
+
   final StorageOfficeEditorActionNotice? notice;
   final int noticeRevision;
 
@@ -23,6 +50,11 @@ final class StorageOfficeEditorActionsState extends Equatable {
     bool? isDownloading,
     bool? isPrinting,
     bool? isSavingCopy,
+    bool? isSessionReady,
+    bool? hasUnsavedChanges,
+    bool? hasSavedChanges,
+    StorageOfficeSaveConfirmation? saveConfirmation,
+    int? confirmedVersion,
     StorageOfficeEditorActionNotice? notice,
     bool clearNotice = false,
     int? noticeRevision,
@@ -31,6 +63,11 @@ final class StorageOfficeEditorActionsState extends Equatable {
     isDownloading: isDownloading ?? this.isDownloading,
     isPrinting: isPrinting ?? this.isPrinting,
     isSavingCopy: isSavingCopy ?? this.isSavingCopy,
+    isSessionReady: isSessionReady ?? this.isSessionReady,
+    hasUnsavedChanges: hasUnsavedChanges ?? this.hasUnsavedChanges,
+    hasSavedChanges: hasSavedChanges ?? this.hasSavedChanges,
+    saveConfirmation: saveConfirmation ?? this.saveConfirmation,
+    confirmedVersion: confirmedVersion ?? this.confirmedVersion,
     notice: clearNotice ? null : notice ?? this.notice,
     noticeRevision: noticeRevision ?? this.noticeRevision,
   );
@@ -41,6 +78,11 @@ final class StorageOfficeEditorActionsState extends Equatable {
     isDownloading,
     isPrinting,
     isSavingCopy,
+    isSessionReady,
+    hasUnsavedChanges,
+    hasSavedChanges,
+    saveConfirmation,
+    confirmedVersion,
     notice,
     noticeRevision,
   ];
@@ -96,4 +138,23 @@ final class StorageOfficeEditorActionLocalizedFailure
 
   @override
   List<Object?> get props => [code];
+}
+
+/// Stan potwierdzenia zapisu w edytorze biurowym.
+///
+/// Rozdział jest istotny, bo edytor mówi tylko o swoich lokalnych zmianach,
+/// a wersję pliku potwierdza backend — dopiero on wie, że treść została pobrana,
+/// zeskanowana i zapisana.
+enum StorageOfficeSaveConfirmation {
+  /// Brak sygnału o zapisie w tej sesji.
+  none,
+
+  /// Edytor nie ma lokalnych zmian, ale backend nie potwierdził jeszcze wersji.
+  awaitingServer,
+
+  /// Backend potwierdził nową wersję pliku.
+  confirmed,
+
+  /// Edytor zgłosił brak zmian, a backend nie potwierdził wersji w oknie kontroli.
+  unconfirmed,
 }

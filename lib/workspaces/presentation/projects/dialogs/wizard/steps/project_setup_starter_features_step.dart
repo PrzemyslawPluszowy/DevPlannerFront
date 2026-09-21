@@ -4,6 +4,7 @@ import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/cubit/project_setup_wizard_cubit.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/cubit/project_setup_wizard_state.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/l10n/project_setup_wizard_l10n.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/widgets/project_setup_recipe_rule.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/widgets/project_setup_wizard_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,6 +33,8 @@ class ProjectSetupStarterFeaturesStep extends StatelessWidget {
         ProjectSetupSectionLabel(
           l10n.projectSetupStepStarterFeaturesTitle,
           hint: l10n.projectSetupStartersDescription,
+          helpTitle: l10n.projectSetupHelpAutomationsTitle,
+          helpBody: l10n.projectSetupHelpAutomationsBody,
         ),
         Gaps.h12,
         for (final key in ProjectSetupCatalog.automationRecipeKeys)
@@ -39,6 +42,13 @@ class ProjectSetupStarterFeaturesStep extends StatelessWidget {
             title: ProjectSetupWizardL10n.recipeName(l10n, key),
             description: ProjectSetupWizardL10n.recipeDescription(l10n, key),
             checked: selected.contains(key),
+            // Reguła jest na karcie, a nie tylko w podglądzie: decyzję o
+            // automatyzacji podejmuje się tutaj, więc skutek musi być widoczny
+            // bez zaznaczania opcji.
+            rule: ProjectSetupRecipeRule(
+              trigger: ProjectSetupWizardL10n.recipeTrigger(l10n, key),
+              action: ProjectSetupWizardL10n.recipeAction(l10n, key),
+            ),
             onChanged: (_) => cubit.toggleRecipe(key),
           ),
       ],

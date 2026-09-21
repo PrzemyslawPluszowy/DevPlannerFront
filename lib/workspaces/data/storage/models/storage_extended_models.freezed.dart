@@ -4412,7 +4412,7 @@ $StorageFilePermissionsResponseCopyWith<$Res> get permissions {
 /// @nodoc
 mixin _$StorageFilePlacementResponse {
 
- String get id; String get fileId; String get folderId; String? get displayName; String? get resourceType; String? get resourceId; DateTime get createdAtUtc; String? get fileName; String? get mimeType; int? get fileSizeBytes; StorageFilePermissionsResponse? get permissions;
+ String get id; String get fileId; String get folderId; String? get displayName; String? get resourceType; String? get resourceId; DateTime get createdAtUtc; String? get fileName; String? get mimeType; int? get fileSizeBytes; StorageFilePermissionsResponse? get permissions; int? get version;
 /// Create a copy of StorageFilePlacementResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4425,16 +4425,16 @@ $StorageFilePlacementResponseCopyWith<StorageFilePlacementResponse> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFilePlacementResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.fileId, fileId) || other.fileId == fileId)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.resourceType, resourceType) || other.resourceType == resourceType)&&(identical(other.resourceId, resourceId) || other.resourceId == resourceId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.mimeType, mimeType) || other.mimeType == mimeType)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.permissions, permissions) || other.permissions == permissions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFilePlacementResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.fileId, fileId) || other.fileId == fileId)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.resourceType, resourceType) || other.resourceType == resourceType)&&(identical(other.resourceId, resourceId) || other.resourceId == resourceId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.mimeType, mimeType) || other.mimeType == mimeType)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.permissions, permissions) || other.permissions == permissions)&&(identical(other.version, version) || other.version == version));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fileId,folderId,displayName,resourceType,resourceId,createdAtUtc,fileName,mimeType,fileSizeBytes,permissions);
+int get hashCode => Object.hash(runtimeType,id,fileId,folderId,displayName,resourceType,resourceId,createdAtUtc,fileName,mimeType,fileSizeBytes,permissions,version);
 
 @override
 String toString() {
-  return 'StorageFilePlacementResponse(id: $id, fileId: $fileId, folderId: $folderId, displayName: $displayName, resourceType: $resourceType, resourceId: $resourceId, createdAtUtc: $createdAtUtc, fileName: $fileName, mimeType: $mimeType, fileSizeBytes: $fileSizeBytes, permissions: $permissions)';
+  return 'StorageFilePlacementResponse(id: $id, fileId: $fileId, folderId: $folderId, displayName: $displayName, resourceType: $resourceType, resourceId: $resourceId, createdAtUtc: $createdAtUtc, fileName: $fileName, mimeType: $mimeType, fileSizeBytes: $fileSizeBytes, permissions: $permissions, version: $version)';
 }
 
 
@@ -4445,7 +4445,7 @@ abstract mixin class $StorageFilePlacementResponseCopyWith<$Res>  {
   factory $StorageFilePlacementResponseCopyWith(StorageFilePlacementResponse value, $Res Function(StorageFilePlacementResponse) _then) = _$StorageFilePlacementResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String fileId, String folderId, String? displayName, String? resourceType, String? resourceId, DateTime createdAtUtc, String? fileName, String? mimeType, int? fileSizeBytes, StorageFilePermissionsResponse? permissions
+ String id, String fileId, String folderId, String? displayName, String? resourceType, String? resourceId, DateTime createdAtUtc, String? fileName, String? mimeType, int? fileSizeBytes, StorageFilePermissionsResponse? permissions, int? version
 });
 
 
@@ -4462,7 +4462,7 @@ class _$StorageFilePlacementResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageFilePlacementResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fileId = null,Object? folderId = null,Object? displayName = freezed,Object? resourceType = freezed,Object? resourceId = freezed,Object? createdAtUtc = null,Object? fileName = freezed,Object? mimeType = freezed,Object? fileSizeBytes = freezed,Object? permissions = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fileId = null,Object? folderId = null,Object? displayName = freezed,Object? resourceType = freezed,Object? resourceId = freezed,Object? createdAtUtc = null,Object? fileName = freezed,Object? mimeType = freezed,Object? fileSizeBytes = freezed,Object? permissions = freezed,Object? version = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fileId: null == fileId ? _self.fileId : fileId // ignore: cast_nullable_to_non_nullable
@@ -4475,7 +4475,8 @@ as DateTime,fileName: freezed == fileName ? _self.fileName : fileName // ignore:
 as String?,mimeType: freezed == mimeType ? _self.mimeType : mimeType // ignore: cast_nullable_to_non_nullable
 as String?,fileSizeBytes: freezed == fileSizeBytes ? _self.fileSizeBytes : fileSizeBytes // ignore: cast_nullable_to_non_nullable
 as int?,permissions: freezed == permissions ? _self.permissions : permissions // ignore: cast_nullable_to_non_nullable
-as StorageFilePermissionsResponse?,
+as StorageFilePermissionsResponse?,version: freezed == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 /// Create a copy of StorageFilePlacementResponse
@@ -4572,10 +4573,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String fileId,  String folderId,  String? displayName,  String? resourceType,  String? resourceId,  DateTime createdAtUtc,  String? fileName,  String? mimeType,  int? fileSizeBytes,  StorageFilePermissionsResponse? permissions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String fileId,  String folderId,  String? displayName,  String? resourceType,  String? resourceId,  DateTime createdAtUtc,  String? fileName,  String? mimeType,  int? fileSizeBytes,  StorageFilePermissionsResponse? permissions,  int? version)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StorageFilePlacementResponse() when $default != null:
-return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.resourceType,_that.resourceId,_that.createdAtUtc,_that.fileName,_that.mimeType,_that.fileSizeBytes,_that.permissions);case _:
+return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.resourceType,_that.resourceId,_that.createdAtUtc,_that.fileName,_that.mimeType,_that.fileSizeBytes,_that.permissions,_that.version);case _:
   return orElse();
 
 }
@@ -4593,10 +4594,10 @@ return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.res
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String fileId,  String folderId,  String? displayName,  String? resourceType,  String? resourceId,  DateTime createdAtUtc,  String? fileName,  String? mimeType,  int? fileSizeBytes,  StorageFilePermissionsResponse? permissions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String fileId,  String folderId,  String? displayName,  String? resourceType,  String? resourceId,  DateTime createdAtUtc,  String? fileName,  String? mimeType,  int? fileSizeBytes,  StorageFilePermissionsResponse? permissions,  int? version)  $default,) {final _that = this;
 switch (_that) {
 case _StorageFilePlacementResponse():
-return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.resourceType,_that.resourceId,_that.createdAtUtc,_that.fileName,_that.mimeType,_that.fileSizeBytes,_that.permissions);case _:
+return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.resourceType,_that.resourceId,_that.createdAtUtc,_that.fileName,_that.mimeType,_that.fileSizeBytes,_that.permissions,_that.version);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4613,10 +4614,10 @@ return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.res
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String fileId,  String folderId,  String? displayName,  String? resourceType,  String? resourceId,  DateTime createdAtUtc,  String? fileName,  String? mimeType,  int? fileSizeBytes,  StorageFilePermissionsResponse? permissions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String fileId,  String folderId,  String? displayName,  String? resourceType,  String? resourceId,  DateTime createdAtUtc,  String? fileName,  String? mimeType,  int? fileSizeBytes,  StorageFilePermissionsResponse? permissions,  int? version)?  $default,) {final _that = this;
 switch (_that) {
 case _StorageFilePlacementResponse() when $default != null:
-return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.resourceType,_that.resourceId,_that.createdAtUtc,_that.fileName,_that.mimeType,_that.fileSizeBytes,_that.permissions);case _:
+return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.resourceType,_that.resourceId,_that.createdAtUtc,_that.fileName,_that.mimeType,_that.fileSizeBytes,_that.permissions,_that.version);case _:
   return null;
 
 }
@@ -4628,7 +4629,7 @@ return $default(_that.id,_that.fileId,_that.folderId,_that.displayName,_that.res
 @JsonSerializable()
 
 class _StorageFilePlacementResponse implements StorageFilePlacementResponse {
-  const _StorageFilePlacementResponse({required this.id, required this.fileId, required this.folderId, this.displayName, this.resourceType, this.resourceId, required this.createdAtUtc, this.fileName, this.mimeType, this.fileSizeBytes, this.permissions});
+  const _StorageFilePlacementResponse({required this.id, required this.fileId, required this.folderId, this.displayName, this.resourceType, this.resourceId, required this.createdAtUtc, this.fileName, this.mimeType, this.fileSizeBytes, this.permissions, this.version});
   factory _StorageFilePlacementResponse.fromJson(Map<String, dynamic> json) => _$StorageFilePlacementResponseFromJson(json);
 
 @override final  String id;
@@ -4642,6 +4643,7 @@ class _StorageFilePlacementResponse implements StorageFilePlacementResponse {
 @override final  String? mimeType;
 @override final  int? fileSizeBytes;
 @override final  StorageFilePermissionsResponse? permissions;
+@override final  int? version;
 
 /// Create a copy of StorageFilePlacementResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -4656,16 +4658,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageFilePlacementResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.fileId, fileId) || other.fileId == fileId)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.resourceType, resourceType) || other.resourceType == resourceType)&&(identical(other.resourceId, resourceId) || other.resourceId == resourceId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.mimeType, mimeType) || other.mimeType == mimeType)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.permissions, permissions) || other.permissions == permissions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageFilePlacementResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.fileId, fileId) || other.fileId == fileId)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.resourceType, resourceType) || other.resourceType == resourceType)&&(identical(other.resourceId, resourceId) || other.resourceId == resourceId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.mimeType, mimeType) || other.mimeType == mimeType)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.permissions, permissions) || other.permissions == permissions)&&(identical(other.version, version) || other.version == version));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fileId,folderId,displayName,resourceType,resourceId,createdAtUtc,fileName,mimeType,fileSizeBytes,permissions);
+int get hashCode => Object.hash(runtimeType,id,fileId,folderId,displayName,resourceType,resourceId,createdAtUtc,fileName,mimeType,fileSizeBytes,permissions,version);
 
 @override
 String toString() {
-  return 'StorageFilePlacementResponse(id: $id, fileId: $fileId, folderId: $folderId, displayName: $displayName, resourceType: $resourceType, resourceId: $resourceId, createdAtUtc: $createdAtUtc, fileName: $fileName, mimeType: $mimeType, fileSizeBytes: $fileSizeBytes, permissions: $permissions)';
+  return 'StorageFilePlacementResponse(id: $id, fileId: $fileId, folderId: $folderId, displayName: $displayName, resourceType: $resourceType, resourceId: $resourceId, createdAtUtc: $createdAtUtc, fileName: $fileName, mimeType: $mimeType, fileSizeBytes: $fileSizeBytes, permissions: $permissions, version: $version)';
 }
 
 
@@ -4676,7 +4678,7 @@ abstract mixin class _$StorageFilePlacementResponseCopyWith<$Res> implements $St
   factory _$StorageFilePlacementResponseCopyWith(_StorageFilePlacementResponse value, $Res Function(_StorageFilePlacementResponse) _then) = __$StorageFilePlacementResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String fileId, String folderId, String? displayName, String? resourceType, String? resourceId, DateTime createdAtUtc, String? fileName, String? mimeType, int? fileSizeBytes, StorageFilePermissionsResponse? permissions
+ String id, String fileId, String folderId, String? displayName, String? resourceType, String? resourceId, DateTime createdAtUtc, String? fileName, String? mimeType, int? fileSizeBytes, StorageFilePermissionsResponse? permissions, int? version
 });
 
 
@@ -4693,7 +4695,7 @@ class __$StorageFilePlacementResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageFilePlacementResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fileId = null,Object? folderId = null,Object? displayName = freezed,Object? resourceType = freezed,Object? resourceId = freezed,Object? createdAtUtc = null,Object? fileName = freezed,Object? mimeType = freezed,Object? fileSizeBytes = freezed,Object? permissions = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fileId = null,Object? folderId = null,Object? displayName = freezed,Object? resourceType = freezed,Object? resourceId = freezed,Object? createdAtUtc = null,Object? fileName = freezed,Object? mimeType = freezed,Object? fileSizeBytes = freezed,Object? permissions = freezed,Object? version = freezed,}) {
   return _then(_StorageFilePlacementResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fileId: null == fileId ? _self.fileId : fileId // ignore: cast_nullable_to_non_nullable
@@ -4706,7 +4708,8 @@ as DateTime,fileName: freezed == fileName ? _self.fileName : fileName // ignore:
 as String?,mimeType: freezed == mimeType ? _self.mimeType : mimeType // ignore: cast_nullable_to_non_nullable
 as String?,fileSizeBytes: freezed == fileSizeBytes ? _self.fileSizeBytes : fileSizeBytes // ignore: cast_nullable_to_non_nullable
 as int?,permissions: freezed == permissions ? _self.permissions : permissions // ignore: cast_nullable_to_non_nullable
-as StorageFilePermissionsResponse?,
+as StorageFilePermissionsResponse?,version: freezed == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -4723,6 +4726,272 @@ $StorageFilePermissionsResponseCopyWith<$Res>? get permissions {
     return _then(_self.copyWith(permissions: value));
   });
 }
+}
+
+
+/// @nodoc
+mixin _$MoveStorageFilePlacementPayload {
+
+ String get targetFolderId; int get expectedVersion;
+/// Create a copy of MoveStorageFilePlacementPayload
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$MoveStorageFilePlacementPayloadCopyWith<MoveStorageFilePlacementPayload> get copyWith => _$MoveStorageFilePlacementPayloadCopyWithImpl<MoveStorageFilePlacementPayload>(this as MoveStorageFilePlacementPayload, _$identity);
+
+  /// Serializes this MoveStorageFilePlacementPayload to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MoveStorageFilePlacementPayload&&(identical(other.targetFolderId, targetFolderId) || other.targetFolderId == targetFolderId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,targetFolderId,expectedVersion);
+
+@override
+String toString() {
+  return 'MoveStorageFilePlacementPayload(targetFolderId: $targetFolderId, expectedVersion: $expectedVersion)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $MoveStorageFilePlacementPayloadCopyWith<$Res>  {
+  factory $MoveStorageFilePlacementPayloadCopyWith(MoveStorageFilePlacementPayload value, $Res Function(MoveStorageFilePlacementPayload) _then) = _$MoveStorageFilePlacementPayloadCopyWithImpl;
+@useResult
+$Res call({
+ String targetFolderId, int expectedVersion
+});
+
+
+
+
+}
+/// @nodoc
+class _$MoveStorageFilePlacementPayloadCopyWithImpl<$Res>
+    implements $MoveStorageFilePlacementPayloadCopyWith<$Res> {
+  _$MoveStorageFilePlacementPayloadCopyWithImpl(this._self, this._then);
+
+  final MoveStorageFilePlacementPayload _self;
+  final $Res Function(MoveStorageFilePlacementPayload) _then;
+
+/// Create a copy of MoveStorageFilePlacementPayload
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? targetFolderId = null,Object? expectedVersion = null,}) {
+  return _then(_self.copyWith(
+targetFolderId: null == targetFolderId ? _self.targetFolderId : targetFolderId // ignore: cast_nullable_to_non_nullable
+as String,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [MoveStorageFilePlacementPayload].
+extension MoveStorageFilePlacementPayloadPatterns on MoveStorageFilePlacementPayload {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _MoveStorageFilePlacementPayload value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _MoveStorageFilePlacementPayload() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _MoveStorageFilePlacementPayload value)  $default,){
+final _that = this;
+switch (_that) {
+case _MoveStorageFilePlacementPayload():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _MoveStorageFilePlacementPayload value)?  $default,){
+final _that = this;
+switch (_that) {
+case _MoveStorageFilePlacementPayload() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String targetFolderId,  int expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _MoveStorageFilePlacementPayload() when $default != null:
+return $default(_that.targetFolderId,_that.expectedVersion);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String targetFolderId,  int expectedVersion)  $default,) {final _that = this;
+switch (_that) {
+case _MoveStorageFilePlacementPayload():
+return $default(_that.targetFolderId,_that.expectedVersion);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String targetFolderId,  int expectedVersion)?  $default,) {final _that = this;
+switch (_that) {
+case _MoveStorageFilePlacementPayload() when $default != null:
+return $default(_that.targetFolderId,_that.expectedVersion);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _MoveStorageFilePlacementPayload implements MoveStorageFilePlacementPayload {
+  const _MoveStorageFilePlacementPayload({required this.targetFolderId, required this.expectedVersion});
+  factory _MoveStorageFilePlacementPayload.fromJson(Map<String, dynamic> json) => _$MoveStorageFilePlacementPayloadFromJson(json);
+
+@override final  String targetFolderId;
+@override final  int expectedVersion;
+
+/// Create a copy of MoveStorageFilePlacementPayload
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$MoveStorageFilePlacementPayloadCopyWith<_MoveStorageFilePlacementPayload> get copyWith => __$MoveStorageFilePlacementPayloadCopyWithImpl<_MoveStorageFilePlacementPayload>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$MoveStorageFilePlacementPayloadToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MoveStorageFilePlacementPayload&&(identical(other.targetFolderId, targetFolderId) || other.targetFolderId == targetFolderId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,targetFolderId,expectedVersion);
+
+@override
+String toString() {
+  return 'MoveStorageFilePlacementPayload(targetFolderId: $targetFolderId, expectedVersion: $expectedVersion)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$MoveStorageFilePlacementPayloadCopyWith<$Res> implements $MoveStorageFilePlacementPayloadCopyWith<$Res> {
+  factory _$MoveStorageFilePlacementPayloadCopyWith(_MoveStorageFilePlacementPayload value, $Res Function(_MoveStorageFilePlacementPayload) _then) = __$MoveStorageFilePlacementPayloadCopyWithImpl;
+@override @useResult
+$Res call({
+ String targetFolderId, int expectedVersion
+});
+
+
+
+
+}
+/// @nodoc
+class __$MoveStorageFilePlacementPayloadCopyWithImpl<$Res>
+    implements _$MoveStorageFilePlacementPayloadCopyWith<$Res> {
+  __$MoveStorageFilePlacementPayloadCopyWithImpl(this._self, this._then);
+
+  final _MoveStorageFilePlacementPayload _self;
+  final $Res Function(_MoveStorageFilePlacementPayload) _then;
+
+/// Create a copy of MoveStorageFilePlacementPayload
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? targetFolderId = null,Object? expectedVersion = null,}) {
+  return _then(_MoveStorageFilePlacementPayload(
+targetFolderId: null == targetFolderId ? _self.targetFolderId : targetFolderId // ignore: cast_nullable_to_non_nullable
+as String,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
 }
 
 

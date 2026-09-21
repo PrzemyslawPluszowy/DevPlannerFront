@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
@@ -70,6 +71,32 @@ void main() {
 }
 
 final class _KanbanRepository implements KanbanRepository {
+  @override
+  Future<Either<ApiError, AssigneeKanbanBoardResponse>> getAssigneeBoard({
+    required String workspaceId,
+    required String projectId,
+    KanbanBoardFilter filter = KanbanBoardFilter.none,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, CursorPageResponse<KanbanTaskCardResponse>>>
+  getAssigneeGroup({
+    required String workspaceId,
+    required String projectId,
+    String? assigneeUserId,
+    KanbanColumnQuery query = const KanbanColumnQuery(),
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChangeKanbanPrimaryAssigneeResponse>>
+  changePrimaryAssignee({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String? targetUserId,
+    required int expectedVersion,
+  }) async => throw UnimplementedError();
+
   int updateCalls = 0;
   UpdateProjectKanbanSettingsPayload? payload;
 

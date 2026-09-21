@@ -1,5 +1,6 @@
 import 'package:devplanner/core/l10n/l10n_extensions.dart';
 import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_tooltip.dart';
 import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_draft.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/l10n/project_setup_wizard_l10n.dart';
 import 'package:flutter/material.dart';
@@ -77,13 +78,26 @@ class _StepChip extends StatelessWidget {
     final l10n = context.l10n;
     final label =
         '${step.ordinal}. ${ProjectSetupWizardL10n.stepTitle(l10n, step)}';
-    final background = isCurrent
-        ? colors.primaryContainer
-        : colors.surfaceContainerHighest;
-    final foreground = isCurrent
-        ? colors.onPrimaryContainer
-        : colors.onSurfaceVariant;
-    return Tooltip(
+    // Trzy stany kroku różnią się nie tylko tłem: ukończony ma znacznik
+    // i spokojniejszy ton, bieżący mocny akcent, a przyszły pozostaje dyskretny.
+    final (background, foreground, border) = switch ((isCurrent, isDone)) {
+      (true, _) => (
+        colors.primaryContainer,
+        colors.onPrimaryContainer,
+        colors.primary,
+      ),
+      (false, true) => (
+        colors.primaryContainer.withValues(alpha: 0.28),
+        colors.onPrimaryContainer,
+        colors.primary.withValues(alpha: 0.45),
+      ),
+      (false, false) => (
+        colors.surfaceContainerHighest,
+        colors.onSurfaceVariant,
+        outlineColor,
+      ),
+    };
+    return AppTooltip(
       message: step.isOptional
           ? '$label · ${l10n.projectSetupSkipToSummaryButton}'
           : label,
@@ -96,7 +110,8 @@ class _StepChip extends StatelessWidget {
             color: background,
             borderRadius: const BorderRadius.all(Radius.circular(999)),
             border: Border.all(
-              color: isCurrent ? colors.primary : outlineColor,
+              color: border,
+              width: isCurrent ? 1.4 : 1,
             ),
           ),
           child: Row(

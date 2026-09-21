@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:flutter/material.dart';
 
 /// Tokeny geometrii, typografii oraz punktowych obramowań dla kart Kanban i podzadań.
@@ -26,8 +27,13 @@ abstract final class KanbanCardTokens {
   static const double hierarchyIndent = 12.0;
 
   // --- Odstępy wewnątrz karty ---
+  //
+  // Różnica między gęstościami musi być widoczna, a nie kosmetyczna: gęstość
+  // Compact ma realnie mieścić więcej kolumn na ekranie, więc zmienia także
+  // szerokość kolumny (patrz `columnWidthFor`).
   static const EdgeInsets contentPaddingCompact = EdgeInsets.all(10.0);
-  static const EdgeInsets contentPaddingComfortable = EdgeInsets.all(12.0);
+  static const EdgeInsets contentPaddingComfortable = EdgeInsets.all(14.0);
+  static const EdgeInsets contentPaddingDetailed = EdgeInsets.all(16.0);
 
   static const double identityToTitleSpacing = 4.0;
   static const double titleToMetaSpacingCompact = 6.0;
@@ -57,7 +63,31 @@ abstract final class KanbanCardTokens {
   // --- Kolumna Kanban i siatka tablicy ---
   static const double boardGutter = 12.0;
   static const double columnGap = 12.0;
+
+  /// Grubość poziomego paska przewijania tablicy.
+  static const double boardScrollbarThickness = 10.0;
+
+  /// Pasmo zarezerwowane na dole tablicy pod pasek przewijania.
+  ///
+  /// Kolumny mają pełną wysokość, więc bez tego pasma pasek zasłaniałby ich
+  /// dolną krawędź — wiersz „Dodaj zadanie” i strefę upuszczenia włącznie.
+  static const double boardScrollbarReserve = 18.0;
+
+  /// Szerokość kolumny w gęstości Comfortable — wartość odniesienia.
   static const double columnWidthStandard = 308.0;
+  static const double columnWidthCompact = 264.0;
+  static const double columnWidthDetailed = 356.0;
+
+  /// Szerokość kolumny dla gęstości tablicy.
+  ///
+  /// Gęstość opisuje, ile treści mieści karta, więc musi również decydować
+  /// o szerokości kolumny: bez tego Compact nie mieścił na ekranie ani jednej
+  /// kolumny więcej i cały wybór sprowadzał się do 2 px paddingu.
+  static double columnWidthFor(KanbanCardDensity density) => switch (density) {
+    KanbanCardDensity.compact => columnWidthCompact,
+    KanbanCardDensity.comfortable => columnWidthStandard,
+    KanbanCardDensity.detailed => columnWidthDetailed,
+  };
   static const double columnHeaderHeight = 40.0;
 
   // --- Czas trwania animacji ---
@@ -127,7 +157,45 @@ abstract final class KanbanCardTokens {
         color: context.tasksTheme.onAccent,
       );
 
-  // --- Semantyczne kolory obrysów (Etap B) ---
+  // --- Semantyczne kolory powierzchni i obrysów (Etap B) ---
+
+  /// Powierzchnia karty w spoczynku.
+  static Color cardSurfaceRest(ColorScheme colors) => colors.surface;
+
+  /// Powierzchnia karty pod kursorem.
+  static Color cardSurfaceHover(ColorScheme colors) =>
+      colors.surfaceContainerHighest.withValues(alpha: .30);
+
+  /// Powierzchnia karty zaznaczonej.
+  static Color cardSurfaceSelected(ColorScheme colors) =>
+      colors.primaryContainer.withValues(alpha: .14);
+
+  /// Kolor przerywanej ramki kafelka w spoczynku: biel w motywie ciemnym,
+  /// czerń w jasnym, a przy wysokim kontraście pełny kolor obrysu.
+  static Color cardDashedBorderRest(
+    ColorScheme colors, {
+    required bool isDark,
+    bool highContrast = false,
+  }) => highContrast
+      ? cardBorderHighContrast(colors)
+      : isDark
+      ? Colors.white.withValues(alpha: .42)
+      : Colors.black.withValues(alpha: .28);
+
+  /// Pierścień focusa klawiatury; w planie §5.6 kontrast minimum 3:1.
+  static Color cardFocusRing(ColorScheme colors) => colors.primary;
+
+  /// Powierzchnia karty, której zapis trwa.
+  static Color cardSurfacePending(ColorScheme colors) =>
+      colors.surfaceContainerHigh.withValues(alpha: .55);
+
+  /// Obrys karty przy włączonym wysokim kontraście systemu; pełne krycie
+  /// zamiast subtelnej alfy.
+  static Color cardBorderHighContrast(ColorScheme colors) => colors.outline;
+
+  /// Obrys karty po nieudanym zapisie; błąd nie może być kodowany samym kolorem,
+  /// więc para z ikoną lub komunikatem nadal obowiązuje.
+  static Color cardBorderError(ColorScheme colors) => colors.error;
 
   /// Ciągły obrys karty w spoczynku (bardzo subtelny, czysty border 1 px).
   static Color cardBorderRest(ColorScheme colors, {bool isDark = false}) =>

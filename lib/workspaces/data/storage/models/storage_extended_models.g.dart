@@ -384,6 +384,7 @@ _StorageFilePlacementResponse _$StorageFilePlacementResponseFromJson(
       : StorageFilePermissionsResponse.fromJson(
           json['permissions'] as Map<String, dynamic>,
         ),
+  version: (json['version'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$StorageFilePlacementResponseToJson(
@@ -400,6 +401,21 @@ Map<String, dynamic> _$StorageFilePlacementResponseToJson(
   'mimeType': instance.mimeType,
   'fileSizeBytes': instance.fileSizeBytes,
   'permissions': instance.permissions,
+  'version': instance.version,
+};
+
+_MoveStorageFilePlacementPayload _$MoveStorageFilePlacementPayloadFromJson(
+  Map<String, dynamic> json,
+) => _MoveStorageFilePlacementPayload(
+  targetFolderId: json['targetFolderId'] as String,
+  expectedVersion: (json['expectedVersion'] as num).toInt(),
+);
+
+Map<String, dynamic> _$MoveStorageFilePlacementPayloadToJson(
+  _MoveStorageFilePlacementPayload instance,
+) => <String, dynamic>{
+  'targetFolderId': instance.targetFolderId,
+  'expectedVersion': instance.expectedVersion,
 };
 
 _CreateStorageFilePlacementPayload _$CreateStorageFilePlacementPayloadFromJson(

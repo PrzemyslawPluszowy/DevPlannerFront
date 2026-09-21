@@ -381,6 +381,24 @@ final class StorageRepositoryImpl extends ApiRepository
   }) => _extended.createFilePlacement(fileId: fileId, folderId: folderId);
 
   @override
+  Future<Either<ApiError, List<StorageFilePlacementResponse>>>
+  listFolderPlacements(String folderId) =>
+      _extended.listFolderPlacements(folderId);
+
+  @override
+  Future<Either<ApiError, StorageFilePlacementResponse>> moveFilePlacement({
+    required String placementId,
+    required String targetFolderId,
+    required int expectedVersion,
+    String? idempotencyKey,
+  }) => _extended.moveFilePlacement(
+    placementId: placementId,
+    targetFolderId: targetFolderId,
+    expectedVersion: expectedVersion,
+    idempotencyKey: idempotencyKey,
+  );
+
+  @override
   Future<Either<ApiError, Unit>> deleteFilePlacement({
     required String fileId,
     required String placementId,

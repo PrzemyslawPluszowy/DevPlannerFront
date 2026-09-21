@@ -1,6 +1,8 @@
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/core/l10n/l10n_extensions.dart';
 import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_dropdown.dart';
+import 'package:devplanner/shared/presentation/widgets/app_tooltip.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
 import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
@@ -8,6 +10,7 @@ import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_
 import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_draft.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/cubit/project_setup_wizard_cubit.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/cubit/project_setup_wizard_state.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/l10n/project_setup_wizard_l10n.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/widgets/project_setup_wizard_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +33,12 @@ class ProjectSetupAccessStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        ProjectSetupSectionLabel(
+          l10n.workspacesProjectVisibilityLabel,
+          helpTitle: l10n.projectSetupHelpVisibilityTitle,
+          helpBody: l10n.projectSetupHelpVisibilityBody,
+        ),
+        Gaps.h8,
         ProjectSetupChoiceCard(
           title: l10n.projectSetupAccessSharedTitle,
           description: l10n.projectSetupAccessSharedDescription,
@@ -47,8 +56,20 @@ class ProjectSetupAccessStep extends StatelessWidget {
         ),
         if (isPrivate) ...[
           Gaps.h20,
-          ProjectSetupSectionLabel(l10n.projectSetupAccessMembersLegend),
-          Gaps.h8,
+          ProjectSetupSectionLabel(
+            l10n.projectSetupAccessMembersLegend,
+            hint: l10n.projectSetupAccessMembersHint,
+            helpTitle: l10n.projectSetupHelpMembersTitle,
+            helpBody: l10n.projectSetupHelpMembersBody,
+          ),
+          Gaps.h6,
+          if (state.members.status == ProjectSetupMembersStatus.ready)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Sizes.p8),
+              child: ProjectSetupSectionLabel(
+                l10n.projectSetupAccessSelectedCount(draft.members.length),
+              ),
+            ),
           _MemberList(state: state),
           ProjectSetupFieldError(
             error: state.fieldErrors[ProjectSetupField.members],
@@ -93,7 +114,7 @@ class _MemberList extends StatelessWidget {
               title:
                   state.members.error?.message ??
                   l10n.projectSetupAccessMembersUnavailable,
-              description: null,
+              description: l10n.projectSetupAccessMembersUnavailableReason,
               isError: true,
             ),
             Gaps.h8,
@@ -111,9 +132,7 @@ class _MemberList extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _CreatorRow(
-              label: _creatorLabel(context, currentUserId),
-            ),
+            _CreatorRow(label: _creatorLabel(context, currentUserId)),
             if (others.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: Sizes.p8),
@@ -197,7 +216,7 @@ class _CreatorRow extends StatelessWidget {
             ),
           ),
           Gaps.w4,
-          Tooltip(
+          AppTooltip(
             message: context.l10n.projectSetupAccessPrivateDescription,
             child: Icon(Symbols.lock, size: 14, color: colors.onSurfaceVariant),
           ),
@@ -233,9 +252,12 @@ class _MemberRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Sizes.p8),
       padding: const EdgeInsets.symmetric(
         horizontal: Sizes.p10,
-        vertical: Sizes.p4,
+        vertical: Sizes.p6,
       ),
       decoration: BoxDecoration(
+        color: selected
+            ? colors.primaryContainer.withValues(alpha: 0.24)
+            : null,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
         border: Border.all(
           color: selected ? colors.primary : colors.outlineVariant,
@@ -250,29 +272,31 @@ class _MemberRow extends StatelessWidget {
           Expanded(
             child: Text(label, style: context.text.bodySmall),
           ),
-          if (selected)
-            DropdownButton<ProjectRole>(
-              value: role,
-              underline: const SizedBox.shrink(),
-              style: context.text.bodySmall,
-              items: [
-                DropdownMenuItem(
-                  value: ProjectRole.admin,
-                  child: Text(l10n.projectSettingsMemberRoleAdmin),
-                ),
-                DropdownMenuItem(
-                  value: ProjectRole.member,
-                  child: Text(l10n.projectSettingsMemberRoleMember),
-                ),
-                DropdownMenuItem(
-                  value: ProjectRole.observer,
-                  child: Text(l10n.projectSettingsMemberRoleObserver),
-                ),
-              ],
-              onChanged: (value) {
-                if (value != null) onRoleChanged(value);
-              },
+          if (selected) ...[
+            Gaps.w8,
+            SizedBox(
+              width: 148,
+              child: AppDropdown<ProjectRole>(
+                value: role,
+                inlineLabel: l10n.projectSetupAccessRoleLabel,
+                options: [
+                  for (final value in const [
+                    ProjectRole.admin,
+                    ProjectRole.member,
+                    ProjectRole.observer,
+                  ])
+                    AppDropdownOption(
+                      value: value,
+                      label: ProjectSetupWizardL10n.projectRole(l10n, value),
+                      icon: ProjectSetupWizardL10n.projectRoleIcon(value),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value != null) onRoleChanged(value);
+                },
+              ),
             ),
+          ],
         ],
       ),
     );
@@ -315,7 +339,9 @@ class _Note extends StatelessWidget {
             Text(
               value,
               style: context.text.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: isError
+                    ? colors.onErrorContainer
+                    : colors.onSurfaceVariant,
               ),
             ),
           ],

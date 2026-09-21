@@ -21,6 +21,8 @@ abstract interface class StorageOnlyOfficeController {
     VoidCallback? onPrintRequested,
     required VoidCallback onPageFinished,
     required ValueChanged<String> onMainFrameError,
+    VoidCallback? onDocumentReady,
+    ValueChanged<bool>? onDocumentStateChanged,
   });
 
   /// Ładuje podpisaną konfigurację edytora w lokalnym dokumencie HTML.
@@ -126,6 +128,8 @@ final class _WebViewStorageOnlyOfficeController
     VoidCallback? onPrintRequested,
     required VoidCallback onPageFinished,
     required ValueChanged<String> onMainFrameError,
+    VoidCallback? onDocumentReady,
+    ValueChanged<bool>? onDocumentStateChanged,
   }) async {
     await _controller.setJavaScriptMode(JavaScriptMode.unrestricted);
     await _controller.addJavaScriptChannel(
@@ -135,7 +139,12 @@ final class _WebViewStorageOnlyOfficeController
         switch (event?['type']) {
           case 'ready':
             debugPrint('[storage.onlyoffice] Dokument gotowy.');
+            onDocumentReady?.call();
             onPageFinished();
+          case 'modified':
+            // OnlyOffice raportuje stan dokumentu: 1 to zmiany jeszcze
+            // niepotwierdzone zapisem, 0 to stan zapisany.
+            onDocumentStateChanged?.call(event?['data'] == '1');
           case 'close':
             onCloseRequested?.call();
           case 'print':

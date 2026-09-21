@@ -61,6 +61,7 @@ class StoragePreviewReady extends StoragePreviewState {
     required this.previewUrl,
     this.officeSessionUrl,
     this.previewHeaders = const {},
+    this.version,
   });
 
   /// Metadane pliku.
@@ -78,8 +79,23 @@ class StoragePreviewReady extends StoragePreviewState {
   /// Headers required by an authenticated backend stream (never logged).
   final Map<String, String> previewHeaders;
 
+  /// Numer wersji historycznej albo `null` dla bieżącej wersji pliku.
+  ///
+  /// Tryb historyczny jest tylko do odczytu: podgląd nie może podmienić
+  /// bieżącego pliku ani otworzyć edytora na starej treści.
+  final int? version;
+
+  /// Czy podgląd pokazuje wersję historyczną.
+  bool get isHistoricalVersion => version != null;
+
   @override
-  List<Object?> get props => [file, kind, previewUrl, officeSessionUrl];
+  List<Object?> get props => [
+    file,
+    kind,
+    previewUrl,
+    officeSessionUrl,
+    version,
+  ];
 }
 
 /// Stan błędu przygotowania podglądu.

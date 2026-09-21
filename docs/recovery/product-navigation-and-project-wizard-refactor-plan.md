@@ -600,3 +600,327 @@ czy chodzi o reorder, czy o transfer cross-workspace, zanim powstanie kontrakt.
 - Nie usuwać Listy ani Kanbanu; usuwamy wyłącznie ich duplikację w nawigacji.
 - Nie wystawiać transferu między workspace’ami na podstawie samego reorderu.
 - Nie przywracać martwych modułów do drzewa przed pełnym pionem runtime.
+
+### 2026-09-20 — WIZ-PREVIEW-CARDS: plan nie może zgubić kart szablonu (mapowanie zadań do kolumn)
+
+Status: **DONE (2026-09-20)** — uwaga P1 z review zweryfikowana u źródła kontraktu,
+luka domknięta mapowaniem i testem, komunikat podglądu uściślony.
+
+**Ustalenie po weryfikacji w kodzie i kontrakcie: scenariusz z review nie jest
+osiągalny, ale luka była realna.** Review twierdził, że `_withPlanColumns()`
+zastępuje kolumny planu bez kart, gubiąc zadania szablonu. Sprawdzone po obu
+stronach: (1) `buildProjectPreviewSnapshot` ma osobną gałąź dla
+`draft.usesTemplate`, która **nie** wchodzi w `_withPlanColumns` i zostawia
+kolumny szablonu razem z kartami; (2) `templateId` jest czyszczony razem ze
+zmianą startu na pusty projekt (`clearTemplate`), więc `template != null`
+pociąga `usesTemplate`; (3) Backend dla projektu z szablonu zwraca w planie
+`ProjectSetupWorkflowKind.Default` z **pustą** listą własnych statusów
+(`ProjectSetupPlanner.ResolveWorkflow`), a statusy i zadania materializuje
+snapshot szablonu — potwierdza to test integracyjny
+`SetupFromTemplateRecreatesWorkflowLabelsAndTasks` (`workflow.kind == "Default"`,
+`systemStatusCount == 6`, a w projekcie jest zadanie z szablonu). Czyli plan nie
+może „zmienić nazw kolumn" projektu z szablonu, a przedmiotowa gałąź nigdy nie
+widzi zadań szablonu.
+
+**Co mimo to zostało naprawione.** (1) Mapowanie zadań na kolumny planu istnieje
+teraz jawnie jako funkcja `mapProjectPreviewTasksToColumns` (dopasowanie po
+nazwie statusu bez wielkości liter i nadmiarowych spacji; zadanie ze statusem,
+którego plan nie zna, dostaje **własną kolumnę** zamiast zniknąć; liczniki
+i wycinek tytułów liczone na wejściu) i jest używane przez `_withPlanColumns`,
+więc podmiana kolumn jest bezstratna **z konstrukcji**, a nie tylko dlatego, że
+gałąź jest nieosiągalna. (2) Test `plan z własnymi kolumnami nie odbiera
+szablonowi kart` podaje plan z własnymi kolumnami („W realizacji”) i wymaga, by
+kolumny szablonu i dwie karty zostały nietknięte — to odpowiedź na brakujące
+w review twierdzenie. (3) Test jednostkowy mapowania sprawdza dopasowanie
+„W realizacji” / „ w REALIZACJI ”, zachowanie koloru kolumny planu oraz własną
+kolumnę dla nieznanego statusu. (4) Kolor statusu na liście podglądu bierze się
+teraz z klucza znormalizowanego (`projectPreviewStatusKey`, wspólnego
+z mapowaniem), więc inna pisownia statusu nie odbiera wierszowi koloru
+(`template_list_preview.dart`); wcześniej było to dopasowanie dokładne.
+(5) Nota podsumowania mówi „Zgodne z planem serwera" z ciałem wyjaśniającym, że
+serwer sprawdził wersję szablonu i nie zmienia jego workflow — wcześniejszy
+tytuł „Zatwierdzone przez plan" sugerował, że plan zatwierdził listę kolumn,
+których dla projektu z szablonu w ogóle nie niesie.
+
+**Świadomie przepisany test:** `podsumowanie projektu z szablonu zachowuje
+kolumny i karty` — asercja tytułu noty z „Zatwierdzone przez plan" na
+„Zgodne z planem serwera", z komentarzem dlaczego.
+
+**Kontrola mutacyjna:** po zmianie mapowania na „pomiń zadanie bez pasującej
+kolumny" (czyli zachowanie, które zarzuca review) test jednostkowy failuje:
+`Expected: an object with length of <3> Actual: [2 kolumny]`.
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/projects` →
+**109/109 PASS**; pełny `flutter test` → **1378/1378 PASS**;
+`flutter analyze lib test` → No issues found; `flutter build web --wasm` →
+`✓ Built build/web`; `git diff --check` czysty. Backend bez zmian: jego
+zachowanie było już poprawne i pokryte testem integracyjnym, więc „poprawianie
+backendu" nie miało tu czego naprawiać.
+
+Otwarte (świadomie): podgląd nie zna identyfikatorów zadań, więc mapowanie
+działa po nazwie statusu — **zaktualizowane tego samego dnia wpisem
+`WIZ-PREVIEW-PLAN`**: to ograniczenie zniknęło, bo plan serwera niesie teraz
+kolumny i zadania z nazwą kolumny docelowej, a front tylko je pokazuje.
+
+### 2026-09-20 — WIZ-PREVIEW-PLAN: plan serwera niesie kolumny i mapowanie zadań (backend + front)
+
+Status: **DONE (2026-09-20)** — poprzedni wpis `WIZ-PREVIEW-CARDS` domykał lukę
+mapowaniem po stronie klienta; po uwadze „masz dostęp do backendu" mapowanie
+wychodzi teraz z serwera, a front tylko je pokazuje.
+
+**Kontrakt rozszerzony (tylko addytywnie, więc starszy klient działa dalej):**
+- `ProjectSetupPreviewResponse.Tasks` — lista zadań, które powstaną, każde
+  z nazwą kolumny docelowej: `ProjectSetupTaskPreviewResponse(Title, StatusName,
+  Priority, Labels)`. Pisane wielką literą pole priorytetu to wartość kontraktu
+  (`High`), etykiety to nazwy, bo identyfikatory źródłowe są wewnętrzne dla
+  snapshotu. Dla pustego projektu lista jest pusta.
+- `ProjectSetupWorkflowPreviewResponse.SystemStatusCount` przestał być stałą
+  `TaskSystemWorkflowDefaults.Workflow.Count`, a stał się **liczbą statusów
+  systemowych z planu**: dla projektu z szablonu jest to liczba statusów zapisanych
+  w snapshotcie (z fallbackiem do domyślnych, gdy snapshot ich nie opisuje).
+- `ProjectSetupWorkflowPreviewResponse.CustomStatuses` dla projektu z szablonu
+  niesie **własne statusy szablonu** (nazwa, kolor, kategoria, pozycja, limit WIP,
+  czy domyślny), czyli kolumny, które naprawdę powstaną. Wcześniej plan zwracał tu
+  pustą listę, więc klient nie miał z czego zbudować finalnej tablicy.
+
+**Skąd plan wie, do której kolumny trafi zadanie.** Nowa
+`ProjectTemplateMaterializer.ColumnNameFor(task, snapshot)` używa dokładnie tej
+samej reguły co materializacja: zadanie z własnym statusem dostaje nazwę tego
+statusu, a pozostałe — nazwę statusu systemowego ze snapshotu (albo nazwę domyślną,
+gdy snapshot go nie opisuje). `ProjectSetupPlanner.ResolveTaskPlans` buduje z niej
+listę zadań planu w kolejności materializacji (pozycja, identyfikator), więc plan
+i zapis nie mogą się rozjechać.
+
+**Jedna pułapka zapisu, świadomie zamknięta.** Skoro plan deklaruje teraz własne
+statusy szablonu, pętla `foreach (plan.Workflow.CustomStatuses)` w
+`ProjectSetupWriter` dodałaby je **drugi raz** obok materiału snapshotu, więc dla
+projektu z szablonu jest pominięta (komentarz w kodzie + asercja w teście, że
+status występuje dokładnie raz).
+
+**Front konsumuje plan, zamiast dopasowywać po nazwie.** `buildProjectPreviewSnapshot`
+przyjmuje teraz cały `ProjectSetupPreviewResponse` (a nie sam `workflow`) i gdy plan
+niesie zadania, buduje podsumowanie z planu: kolumny z jego statusów, karty
+rozłożone po `statusName` (liczniki z pełnej listy, wycinek listy z pierwszych
+wierszy), priorytet i etykiety wprost z planu, a etykiety i pola projektu nadal
+z podglądu szablonu. Plan bez listy zadań (starszy Backend) zostawia dotychczasową
+ścieżkę: kolumny i karty z szablonu — dzięki temu aktualizacja API nie jest
+warunkiem działania kreatora. Mapowanie `mapProjectPreviewTasksToColumns` zostało
+jako mechanika rozkładania, a nie jako zgadywanie nazw.
+
+**Testy.** Backend: nowy `TemplatePreviewReportsColumnsAndColumnOfEachTask` —
+podgląd zwraca własny status szablonu (`Default` + `systemStatusCount == 6`,
+kolor `#7C3AED`), zadanie z nazwą kolumny docelowej (`statusName` = nazwa własnego
+statusu) i po wykonaniu setupu dokładnie jeden taki status oraz jedno zadanie.
+Front: nowy test `plan serwera jest źródłem kolumn i kart podsumowania` (kolumna
+z planu, karty w niej, priorytet i etykiety z planu, licznik 2, źródło kolumn
+z szablonu bo tam należy wybór użytkownika) plus zachowane testy ścieżki bez listy
+zadań. Front: `flutter test test/workspaces/presentation/projects` → **110/110**;
+pełny `flutter test` → **1379/1379 PASS**; `flutter analyze lib test` → No issues
+found; `flutter build web --wasm` → `✓ Built build/web`. Backend:
+`dotnet test --filter "FullyQualifiedName~ProjectSetup|FullyQualifiedName~Project"`
+→ **160/160 PASS**; pełny `dotnet test` → **1240 PASS / 7 FAIL / 4 SKIP**, a te
+7 to `MeEndpointsTests`, które **failują identycznie bez moich zmian** — dowód
+przeprowadzony przez `git stash push` moich plików, ponowny przebieg (te same
+7) i `git stash pop`; to znany, udokumentowany brak rejestracji
+`DeviceSessionRealtimeConnectionRegistry` w kontenerze testowym. Model
+`ProjectSetupTaskPreviewResponse` dostał `@Freezed(makeCollectionsUnmodifiable:
+false)` — bez tego generator wypuszcza nieskompilowany plik, którego
+`flutter analyze` nie widzi (patrz wcześniejszy wpis o freezed).
+
+Otwarte (świadomie): podgląd nadal nie zna identyfikatorów zadań, tylko nazwy
+kolumn — to wystarcza, bo nazwa kolumny jest unikalna w projekcie; gdyby kontrakt
+kiedyś dopuścił dwie kolumny o tej samej nazwie, mapowanie trzeba oprzeć na
+identyfikatorze statusu. Windows/Linux pozostają pominięte decyzją użytkownika.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-UI6: pasmo na pasek przewijania w obu widokach tablicy
+
+Status: **DONE** — uwaga z użycia: pasek przewijania tablicy wchodził na kolumny.
+
+Pasek przewijania tablicy jest poziomy i leży na dole, a kolumny mają pełną
+wysokość, więc jego uchwyt nachodził na dolną krawędź kolumny — w widoku osób
+na wiersz „Dodaj zadanie”, a w widoku statusów na strefę upuszczenia. Teraz obie
+tablice rezerwują pod pasek własne pasmo:
+
+- nowe tokeny `KanbanCardTokens.boardScrollbarThickness = 10` i
+  `boardScrollbarReserve = 18` (pasmo = grubość paska plus margines);
+- widok statusów: `padding` listy `fromLTRB(gutter, gutter, gutter, reserve)`,
+  `thickness: boardScrollbarThickness`, `trackVisibility` i `interactive`
+  bez zmian;
+- widok osób: to samo pasmo i ta sama grubość, a przy okazji doszły
+  `trackVisibility: true` i `interactive: true`, które miał tylko widok
+  statusów — oba paski zachowują się teraz identycznie;
+- kolumny kończą się nad pasmem, bo padding listy działa wewnątrz viewportu,
+  więc treść nie może wejść pod uchwyt.
+
+Test `kanban_board_scrollbar_reserve_test.dart` mierzy w obu widokach odstęp
+między dolną krawędzią kolumny a dolną krawędzią tablicy i wymaga, by był nie
+mniejszy niż grubość paska, oraz sprawdza, że oba paski używają tego samego
+tokenu grubości (widok osób także `trackVisibility`). **Kontrola mutacyjna**:
+po przywróceniu w widoku osób paddingu `vertical: 4` test failuje
+(`Expected: >= 10.0, Actual: 4.0`).
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/tasks
+test/workspaces/data/kanban` → **507/507 PASS**; pełny `flutter test` →
+**1383/1383 PASS** (z późniejszymi zmianami z tej samej sesji, patrz
+`KANBAN-ASSIGNEE-BACKEND2`); `flutter analyze lib test` → No issues found;
+`flutter build web --wasm` → `✓ Built build/web`; `git diff --check` czysty.
+Zrzuty `docs/recovery/visual-captures/kanban_*.png` odświeżyły się przy okazji
+uruchomienia testu zrzutów (kolumny kończą się wyżej).
+
+### 2026-09-20 — KANBAN-ASSIGNEE-BACKEND2: filtr statusu, domyślny Compact, jeden quick filter na snapshot
+
+Status: **DONE dla trzech uwag backendowych z review** + **rekomendacje w dwóch
+decyzjach produktowych**. Kolejność wdrożenia: najpierw dwa błędy (quick filter,
+gęstość), potem zakres P1 (filtr statusu).
+
+**1 [P1] Filtr statusu w widoku osób — kontrakt i oba readery.** Nowy model mówi,
+że gdy osobę wybiera kolumnę, status jest filtrem **kart**. Kontrakt:
+`KanbanBoardQuery` i `KanbanColumnQuery` mają teraz `Status` (`ProjectTaskStatus?`)
+i `CustomStatusId` (`Guid?`); `IsFiltered` i `ToColumnQuery` je uwzględniają, więc
+filtr dziedziczą liczniki, pierwsze strony i doładowania kolumn. Predykat jest
+jeden (`ApplyStatusFilter`: własny status albo status systemowy) i używany przez
+oba readery — `KanbanBoardReader` (kolumny statusów) i `KanbanAssigneeBoardReader`
+(grupy osób). **Kursor jest częścią kontraktu filtra**: oba rekordy kursora niosą
+`Status`/`CustomStatusId`, a `DecodeCursor` je porównuje — kursor wydany dla
+`InProgress` jest odrzucany, gdy strona prosi o `Todo`, zamiast doklejać obcą
+stronę. Walidacja odrzuca pusty `customStatusId` i status spoza enuma.
+
+Front: `KanbanBoardFilter` i `KanbanColumnQuery` mają `status`/`customStatusId`
+(transport wysyła `status` jako `wireValue` i `customStatusId`), doszły komendy
+`setFilterStatus`/`setFilterCustomStatus`, a w wierszu poleceń pojawiło się menu
+„Status" **tylko w widoku osób** — w widoku statusów kolumna sama jest statusem,
+więc ten wymiar jest tam zbędny (odwrotnie niż filtr wykonawcy, który jest tylko
+w widoku statusów). Pasek aktywnych filtrów dostał chip statusu z nazwą kolumny.
+
+**Po drodze znalazłem realny błąd klasy „cichy brak odświeżenia”.**
+`KanbanBoardFilter` miał własne `==`/`hashCode` obejmujące tylko trzy pola
+(wykonawca, priorytet, kamień milowy). Filtr różniący się **wyłącznie** statusem
+był więc uznawany za ten sam, a `TasksBoardRuntimeCoordinator.setFilter` pomija
+identyczny filtr — zmiana nie odświeżyłaby tablicy. Równość obejmuje teraz
+wszystkie wymiary (komentarz w kodzie mówi dlaczego).
+
+**2 [P2] Domyślna gęstość to `Compact`.** Zmienione we wszystkich miejscach,
+które ją ustawiały: encja `ProjectKanbanSettings` (konstruktor i reset
+domyślnych), `KanbanSettingsService` (brak rekordu ustawień), kontrakt
+(`DefaultCardDensity` w żądaniu) i plan kreatora
+(`ProjectSetupPlanner.ResolveTaskView`). Front wysyłał gęstość jawnie
+(`ProjectSetupDraft.boardDensity`), więc jego domyślna wartość też zmieniła się
+na `compact` — inaczej kreator nadpisywałby serwerowy domyśl. **Aktualizacja (wpis `KANBAN-ASSIGNEE-BACKEND3`): backfill wycofany decyzją
+właściciela.** Migracja `CompactDefaultKanbanCardDensity` została usunięta
+z łańcucha, bo nadpisywała także świadome wybory użytkowników. Obowiązuje
+„domyślna wartość tak, backfill nie": zmiana domyślnej gęstości obejmuje nowe
+projekty i projekty bez zapisanych ustawień, a istniejące zachowują swoje
+gęstości i mogą je zmienić w ustawieniach projektu. Test
+`DensityDefaultsToCompactForProjectWithoutSettingsAndInRequest` pilnuje, że brak
+rekordu i brak pola w żądaniu dają `Compact`, a jawny `Detailed` nadal wygrywa.
+
+**3 [P2] Quick filter nakładany dwa razy.** `ProjectCards(...)` już aplikował
+filtr, a `LoadFirstPageTaskIdsAsync` robił to ponownie — z **drugim**
+`DateTime.UtcNow`, więc przy „DueSoon" liczniki i pierwsza strona mogły opisywać
+przesunięte o mikrosekundy okno. Metoda przyjmuje teraz gotowe, przefiltrowane
+źródło (`IQueryable<ProjectTask>`, bez dostępu do `db`, filtra i zegara — jest
+`static`, więc ponowne nałożenie filtra jest niemożliwe z konstrukcji), a cały
+snapshot liczy jedno `nowUtc`. Test
+`DueSoonCountsAndFirstPageShareOneSnapshotInstant` sprawdza, że licznik grupy
+i pierwsza strona wskazują tę samą kartę (termin +1 dzień), przy karcie poza
+oknem (+8 dni) i przeterminowanej (-1 dzień).
+
+**Decyzje produktowe, o które prosiło review.**
+- **Gęstość: zostaje wspólnym ustawieniem projektu** (nie przenosimy jej do
+  preferencji użytkownika). Model projektu, kreator i ustawienia już tak ją
+  traktują, a przeniesienie do preferencji oznaczałoby zmianę kontraktu i pytanie
+  w kreatorze o wartość, której projekt nie zapisuje. Domyślna wartość zmieniona
+  na `Compact` + backfill wyżej.
+- **Widoczność kolumn osób: rekomendacja — synchronizacja przez preferencję
+  serwerową** (`UserKanbanPreference`, tam gdzie już są zwinięte kolumny i szybki
+  filtr), bo dwie bliskie preferencje w dwóch różnych miejscach mylą. Teraz
+  działa lokalnie (`SharedPreferencesTasksBoardViewStore`), a przeniesienie to
+  osobny pakiet: zapis preferencji jest wersjonowany, więc szybkie przełączanie
+  checkboxów wymaga tej samej kolejki intencji z rebase, którą ma
+  `TasksBoardPreferenceCommands` — bez tego wracamy do wyścigu, który właśnie
+  zamknąłem w `KANBAN-ASSIGNEE-REVIEW3`. Otwarte z nazwanym powodem, nie
+  obietnica.
+
+Komendy i wyniki: backend `dotnet test --filter
+"FullyQualifiedName~Kanban|FullyQualifiedName~Project"` → **234/234 PASS**;
+pełny `dotnet test` → **1245 PASS / 7 FAIL / 4 SKIP**, gdzie 7 to znane
+`MeEndpointsTests` (brak rejestracji `DeviceSessionRealtimeConnectionRegistry`
+w kontenerze testowym) — przy poprzedniej zmianie udowodniłem `git stash` +
+ponownym przebiegiem, że failują bez moich zmian; `dotnet ef database update`
+zastosował migrację na lokalnej bazie. Front: `flutter test` → **1383/1383
+PASS**, `flutter analyze lib test` → No issues found, `flutter build web --wasm`
+→ `✓ Built build/web`, `git diff --check` czysty w obu repo. Testy nowe: backend
+`StatusFilterNarrowsPersonCountsAndFirstPage`,
+`StatusFilterTravelsInTheCursorAndRejectsAForeignCursor`,
+`StatusFilterNarrowsStatusBoardCountsColumnPagesAndCursor`,
+`DueSoonCountsAndFirstPageShareOneSnapshotInstant`,
+`DensityDefaultsToCompactForProjectWithoutSettingsAndInRequest`; front
+`filtr statusu w widoku osób jedzie do odczytu grup i wraca po świeże`,
+`filtr statusu pojawia się w widoku osób i zawęża grupy po stronie Backendu`.
+
+Otwarte (świadomie): menu statusu w widoku osób pokazuje kolumny projektu
+(systemowe i własne) — własny status jedzie wtedy jako `customStatusId`, ale
+filtra kamienia milowego nadal nie ma kontrolki w wierszu poleceń; przeniesienie
+widoczności kolumn do preferencji serwerowej czeka na pakiet opisany wyżej.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-BACKEND3: jeden wymiar statusu, wycofany backfill gęstości
+
+Status: **DONE dla dwóch uwag z review** — P1 (dwa filtry statusu naraz) i P1
+(migracja nadpisywała świadome wybory). Oba z testami i kontrolą mutacyjną.
+
+**1 [P1] Status to jeden wymiar, pilnowany w modelu i w kontrakcie.** Review
+wskazał trzy objawy jednej przyczyny: front ustawiał `status` i `customStatusId`
+osobnymi komendami, „Pokaż wszystkie” wysyłał dwa niezależne wywołania (wyścig),
+a powrót do widoku statusów nie zdejmował filtra statusu. Naprawa po kolei:
+
+- **model**: `KanbanBoardFilter.copyWith` sam pilnuje niezmiennika — podanie
+  `status` zdejmuje `customStatusId` i odwrotnie. Dwa naraz opisują sprzeczne
+  zbiory kart (karta ma albo własny status, albo systemowy), więc nie może ich
+  w ogóle dać się ustawić, niezależnie od tego, kto woła `copyWith`;
+- **komenda**: `setStatus`/`setCustomStatus` zastąpione jedną
+  `setStatusColumn({status, customStatusId})` — jeden wymiar, jedna operacja
+  i jedno odświeżenie; „Pokaż wszystkie” i wybór kolumny idą tą samą drogą
+  (wcześniej czyszczenie szło dwiema ścieżkami, a między nimi tablica była
+  zawężona do jednego filtra);
+- **grupowanie**: `setGrouping` zdejmuje filtr, którego kontrolka znika w danym
+  widoku — wejście w widok osób czyści filtr wykonawcy (jak dotąd), a **powrót
+  do widoków statusów czyści filtr statusu**, bo kolumna sama jest tam statusem
+  i ukrytego filtra nie da się zmienić z UI;
+- **backend**: `KanbanBoardReader` i `KanbanAssigneeBoardReader` odrzucają żądanie
+  z oboma wymiarami naraz (`EnsureSingleStatusDimension`) komunikatem
+  „Filtr statusu Kanban wskazuje jednocześnie status systemowy i własny; wybierz
+  jeden z nich.” — zamiast po cichu AND-ować predykaty i zwracać pustą tablicę.
+  Walidacja jest w walidatorach tablicy i kolumny, więc dotyczy też kursora.
+
+Testy: front `status to jeden wymiar: własny zdejmuje systemowy jedną operacją`
+(sprawdza też, że „Pokaż wszystkie” odświeża tablicę **dokładnie raz**) oraz
+`powrót do widoku statusów zdejmuje filtr statusu`; backend
+`SystemAndCustomStatusFilterTogetherAreRejected` i
+`StatusBoardRejectsSystemAndCustomStatusFilterTogether` (oba readery, żądanie
+tablicy i żądanie kolumny). **Kontrole mutacyjne**: po zdjęciu niezmiennika
+z `copyWith` test frontu failuje (`Expected: null Actual: inProgress`), a po
+usunięciu czyszczenia w `setGrouping` — `powrót do widoku statusów` failuje tak
+samo.
+
+**2 [P1] Backfill gęstości wycofany.** Review słusznie zauważył, że migracja
+`CompactDefaultKanbanCardDensity` nadpisywała także świadome wybory, bo
+w zapisanych wierszach nie da się odróżnić wartości domyślnej od jawnej.
+Migracja jest **usunięta z łańcucha** (`dotnet ef database update` na poprzednią,
+`dotnet ef migrations remove`; historia migracji kończy się teraz na
+`20260920173627_AddStorageFileVersionChangedBy`), a snapshot wrócił do stanu
+poprzedniego. Zmiana domyślnej wartości w kodzie zostaje — obejmuje nowe projekty
+i projekty bez zapisanych ustawień, a istniejące zachowują swoje gęstości i mogą
+je zmienić w ustawieniach projektu. Decyzja właściciela jest więc zapisana jako:
+**domyślna wartość tak, backfill nie**.
+
+Komendy i wyniki: backend `dotnet test --filter
+"FullyQualifiedName~Kanban|FullyQualifiedName~Project"` → **236/236 PASS**, a
+test wydajności `ReadLatencyAndQueryCountStayBoundedAcrossMemberScales` przechodzi
+w izolacji (10 s) — jego pojedynczy fail w trakcie przebiegu był skutkiem
+obciążenia maszyny (równolegle szły frontowe bramki i build web), nie regresją;
+`dotnet test --filter "FullyQualifiedName~Kanban"` → **86/86 PASS**;
+front `flutter test` → **1385/1385 PASS**; `flutter analyze lib test` → No issues
+found; `flutter build web --wasm` → `✓ Built build/web`; `git diff --check`
+czysty w obu repo. Wpis `KANBAN-ASSIGNEE-BACKEND2` ma
+zaktualizowany akapit o gęstości (backfill wycofany), żeby dokument nie opisywał
+stanu, który już nie istnieje.

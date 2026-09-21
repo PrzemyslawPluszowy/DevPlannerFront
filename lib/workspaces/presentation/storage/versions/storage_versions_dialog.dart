@@ -6,6 +6,8 @@ import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/versions/cubit/storage_versions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/versions/cubit/storage_versions_state.dart';
 import 'package:flutter/material.dart';
@@ -40,24 +42,33 @@ final class StorageVersionsDialog extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-    create: (_) {
-      final cubit = StorageVersionsCubit(
-        fileId: file.id,
-        fileName: file.originalFileName,
-        expectedVersion: file.version,
-        repository: repository,
-        downloadTransport: downloadTransport,
-      );
-      unawaited(cubit.load());
-      return cubit;
-    },
-    child: _StorageVersionsView(file: file),
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) {
+          final cubit = StorageVersionsCubit(
+            fileId: file.id,
+            fileName: file.originalFileName,
+            expectedVersion: file.version,
+            repository: repository,
+            downloadTransport: downloadTransport,
+          );
+          unawaited(cubit.load());
+          return cubit;
+        },
+      ),
+      // Podgląd wersji korzysta z tych samych rendererów co podgląd pliku,
+      // więc nie powstaje drugi zestaw powierzchni podglądu.
+      BlocProvider(create: (_) => StoragePreviewCubit(repository: repository)),
+    ],
+    child: _StorageVersionsView(file: file, repository: repository),
   );
 }
 
 final class _StorageVersionsView extends StatelessWidget {
-  const _StorageVersionsView({required this.file});
+  const _StorageVersionsView({required this.file, required this.repository});
+
+  final StorageRepository repository;
 
   final StorageFileResponse file;
 
@@ -99,6 +110,18 @@ final class _StorageVersionsView extends StatelessWidget {
                             : Wrap(
                                 children: [
                                   IconButton(
+                                    key: ValueKey(
+                                      'preview-version-${version.version}',
+                                    ),
+                                    icon: const Icon(Icons.visibility_outlined),
+                                    tooltip: context
+                                        .l10n
+                                        .storageVersionPreviewAction,
+                                    onPressed: () => unawaited(
+                                      _preview(context, version.version),
+                                    ),
+                                  ),
+                                  IconButton(
                                     icon: const Icon(AppIcons.download),
                                     tooltip: context.l10n.storageDownloadAction,
                                     onPressed: () => unawaited(
@@ -131,6 +154,27 @@ final class _StorageVersionsView extends StatelessWidget {
       ),
     ],
   );
+
+  /// Pokazuje wersję historyczną w podglądzie tylko do odczytu.
+  ///
+  /// Przywrócenie nie jest tu wywoływane: oglądanie starej treści nie może
+  /// zmienić bieżącego pliku.
+  Future<void> _preview(BuildContext context, int version) async {
+    final previewCubit = context.read<StoragePreviewCubit>();
+    await previewCubit.prepareVersionPreview(file: file, version: version);
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: previewCubit,
+        child: StoragePreviewDialog(
+          file: file,
+          repository: repository,
+          version: version,
+        ),
+      ),
+    );
+  }
 
   Future<void> _restore(BuildContext context, int version) async {
     final restored = await context.read<StorageVersionsCubit>().restore(

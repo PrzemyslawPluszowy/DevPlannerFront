@@ -121,6 +121,35 @@ final class StorageSelectionCubit extends Cubit<StorageSelectionState> {
     emit(const StorageSelectionState());
   }
 
+  /// Zawęża zaznaczenie do elementów, które nadal są na liście.
+  ///
+  /// Odświeżenie po zdarzeniu realtime zmienia zawartość folderu, więc element
+  /// usunięty przez inną osobę nie może zostać zaznaczony: akcje zbiorcze
+  /// pokazywałyby wtedy uprawnienia do plików, których już nie ma. Świeże
+  /// odpowiedzi podmieniają też uprawnienia elementów, które zostały — plik
+  /// udostępniony w międzyczasie ma inne `canDelete` niż przed chwilą.
+  void retain({
+    required List<StorageFileResponse> allFiles,
+    required List<StorageFolderResponse> allFolders,
+  }) {
+    final fileIds = allFiles.map((file) => file.id).toSet();
+    final folderIds = allFolders.map((folder) => folder.id).toSet();
+    final anchorId = state.anchorId;
+    _emitWithPermissions(
+      selectedFiles: Set<String>.from(state.selectedFileIds)
+        ..removeWhere((id) => !fileIds.contains(id)),
+      selectedFolders: Set<String>.from(state.selectedFolderIds)
+        ..removeWhere((id) => !folderIds.contains(id)),
+      anchorId:
+          anchorId != null &&
+              (fileIds.contains(anchorId) || folderIds.contains(anchorId))
+          ? anchorId
+          : null,
+      allFiles: allFiles,
+      allFolders: allFolders,
+    );
+  }
+
   void _emitWithPermissions({
     required Set<String> selectedFiles,
     required Set<String> selectedFolders,

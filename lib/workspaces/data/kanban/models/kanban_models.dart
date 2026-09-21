@@ -71,11 +71,84 @@ abstract class KanbanTaskCardResponse with _$KanbanTaskCardResponse {
     @Default(false) bool isPinned,
     @Default(0) int watcherCount,
     @Default(false) bool isWatchedByMe,
+    List<String>? assigneeUserIds,
   }) = _KanbanTaskCardResponse;
 
   /// Odtwarza kartę z JSON.
   factory KanbanTaskCardResponse.fromJson(Map<String, dynamic> json) =>
       _$KanbanTaskCardResponseFromJson(json);
+}
+
+/// Kolumna jednej osoby albo grupa zadań bez głównego wykonawcy.
+@Freezed(makeCollectionsUnmodifiable: false)
+abstract class AssigneeKanbanGroupResponse with _$AssigneeKanbanGroupResponse {
+  /// Tworzy grupę kart widoku grupowanego po osobach.
+  const factory AssigneeKanbanGroupResponse({
+    String? assigneeUserId,
+    required String displayName,
+    String? avatarUrl,
+    @Default(false) bool isCurrentUser,
+    required int totalTaskCount,
+    required List<KanbanTaskCardResponse> tasks,
+    String? nextCursor,
+  }) = _AssigneeKanbanGroupResponse;
+
+  /// Odtwarza grupę z JSON.
+  factory AssigneeKanbanGroupResponse.fromJson(Map<String, dynamic> json) =>
+      _$AssigneeKanbanGroupResponseFromJson(json);
+}
+
+/// Snapshot tablicy Kanban pogrupowanej po osobach.
+@Freezed(makeCollectionsUnmodifiable: false)
+abstract class AssigneeKanbanBoardResponse with _$AssigneeKanbanBoardResponse {
+  /// Tworzy konfigurację i grupy osób tablicy.
+  const factory AssigneeKanbanBoardResponse({
+    required String projectId,
+    required KanbanSwimlaneMode grouping,
+    required int settingsVersion,
+    required List<KanbanCardField> visibleCardFields,
+    required KanbanCardDensity defaultCardDensity,
+    required List<AssigneeKanbanGroupResponse> groups,
+  }) = _AssigneeKanbanBoardResponse;
+
+  /// Odtwarza tablicę grup z JSON.
+  factory AssigneeKanbanBoardResponse.fromJson(Map<String, dynamic> json) =>
+      _$AssigneeKanbanBoardResponseFromJson(json);
+}
+
+/// Payload zmiany głównego wykonawcy karty.
+@freezed
+abstract class ChangeKanbanPrimaryAssigneePayload
+    with _$ChangeKanbanPrimaryAssigneePayload {
+  /// Przekazuje docelową osobę i wersję karty.
+  const factory ChangeKanbanPrimaryAssigneePayload({
+    String? targetUserId,
+    required int expectedVersion,
+  }) = _ChangeKanbanPrimaryAssigneePayload;
+
+  /// Odtwarza payload z JSON; Freezed dokłada `toJson` z tego samego generatora.
+  factory ChangeKanbanPrimaryAssigneePayload.fromJson(
+    Map<String, dynamic> json,
+  ) => _$ChangeKanbanPrimaryAssigneePayloadFromJson(json);
+}
+
+/// Wynik zmiany głównego wykonawcy wraz z licznikami obu grup.
+@freezed
+abstract class ChangeKanbanPrimaryAssigneeResponse
+    with _$ChangeKanbanPrimaryAssigneeResponse {
+  /// Tworzy wynik zmiany wykonawcy.
+  const factory ChangeKanbanPrimaryAssigneeResponse({
+    required KanbanTaskCardResponse task,
+    String? previousAssigneeUserId,
+    required int previousGroupTaskCount,
+    String? targetAssigneeUserId,
+    required int targetGroupTaskCount,
+  }) = _ChangeKanbanPrimaryAssigneeResponse;
+
+  /// Odtwarza wynik z JSON.
+  factory ChangeKanbanPrimaryAssigneeResponse.fromJson(
+    Map<String, dynamic> json,
+  ) => _$ChangeKanbanPrimaryAssigneeResponseFromJson(json);
 }
 
 /// Pojedyncza kolumna tablicy Kanban.

@@ -21,14 +21,38 @@ final class StorageOfficeEditorActionsCubit
     this._repository,
     this._downloadTransport,
     this._uploadTransport,
-    this._hostController,
-  ) : super(const StorageOfficeEditorActionsState());
+    this._hostController, {
+    this.confirmationInterval = const Duration(milliseconds: 1500),
+    this.confirmationTimeout = const Duration(seconds: 20),
+  }) : _baselineVersion = _file.version,
+       _confirmationFloor = _file.version,
+       super(const StorageOfficeEditorActionsState());
 
   final StorageFileResponse _file;
   final StorageRepository _repository;
   final DownloadTransport _downloadTransport;
   final UploadTransport _uploadTransport;
   final StorageOnlyOfficeHostController _hostController;
+
+  /// Wersja pliku w chwili otwarcia sesji.
+  final int _baselineVersion;
+
+  /// Próg potwierdzenia bieżącego oczekiwania.
+  ///
+  /// Startuje z wersji z chwili otwarcia, a po każdym potwierdzonym zapisie
+  /// przesuwa się na potwierdzoną wersję. Bez tego drugi zapis w tej samej sesji
+  /// „potwierdzałby się” wersją utworzoną przez pierwszy, zanim backend zdąży
+  /// zapisać nową treść.
+  int _confirmationFloor = 0;
+
+  /// Odstęp kontroli potwierdzenia i okno, po którym zapis uznajemy za
+  /// niepotwierdzony, zamiast pokazywać użytkownikowi fałszywe „zapisano”.
+  final Duration confirmationInterval;
+  final Duration confirmationTimeout;
+
+  Timer? _confirmationTimer;
+  DateTime? _confirmationDeadline;
+  bool _confirmationInFlight = false;
 
   /// Prosi osadzony edytor o wygenerowanie pliku w formacie źródłowym.
   Future<void> requestDownload() async {
@@ -164,8 +188,135 @@ final class StorageOfficeEditorActionsCubit
   }
 
   /// Zwalnia rezerwację, gdy użytkownik odmówił wymuszonego zamknięcia.
+  /// Zapisuje status połączenia sesji zgłoszony przez dokument.
+  void sessionReady() {
+    emit(state.copyWith(isSessionReady: true));
+  }
+
+  /// Zapisuje status dokumentu zgłoszony przez OnlyOffice.
+  ///
+  /// Brak lokalnych zmian to jeszcze nie zapis: callback może lecieć, zostać
+  /// odrzucony albo czekać na skanowanie. Dlatego przejście na „bez zmian”
+  /// włącza kontrolę potwierdzenia po stronie backendu, a „zapisano” pojawia się
+  /// dopiero z nową wersją pliku.
+  void documentStateChanged({required bool isModified}) {
+    if (isModified) {
+      _stopConfirmationWatch();
+      emit(
+        state.copyWith(
+          hasUnsavedChanges: true,
+          saveConfirmation: StorageOfficeSaveConfirmation.none,
+        ),
+      );
+      return;
+    }
+
+    final editedBefore = state.hasUnsavedChanges;
+    emit(
+      state.copyWith(
+        hasUnsavedChanges: false,
+        saveConfirmation: editedBefore
+            ? StorageOfficeSaveConfirmation.awaitingServer
+            : state.saveConfirmation,
+      ),
+    );
+    if (editedBefore) {
+      _resetConfirmationFloor();
+      _startConfirmationWatch();
+    }
+  }
+
+  /// Pilnuje, czy backend potwierdził nową wersję pliku.
+  void _startConfirmationWatch() {
+    _confirmationTimer?.cancel();
+    _confirmationDeadline = DateTime.now().add(confirmationTimeout);
+    _confirmationTimer = Timer.periodic(
+      confirmationInterval,
+      (_) => unawaited(_confirmSavedVersion()),
+    );
+  }
+
+  void _stopConfirmationWatch() {
+    _confirmationTimer?.cancel();
+    _confirmationTimer = null;
+    _confirmationDeadline = null;
+  }
+
+  /// Ustawia próg potwierdzenia dla kolejnego oczekiwania.
+  ///
+  /// Progiem jest ostatnia wersja znana jako zapisana: potwierdzona w tej sesji
+  /// albo ta, na której sesję otwarto. Dzięki temu każdy zapis wymaga własnej,
+  /// nowszej wersji z backendu.
+  void _resetConfirmationFloor() {
+    _confirmationFloor = state.confirmedVersion ?? _baselineVersion;
+  }
+
+  /// Pyta o szczegóły pliku i potwierdza zapis tylko wyższą wersją.
+  Future<void> _confirmSavedVersion() async {
+    if (isClosed || _confirmationInFlight) return;
+    if (_confirmationDeadline case final deadline?
+        when DateTime.now().isAfter(deadline)) {
+      _stopConfirmationWatch();
+      emit(
+        state.copyWith(
+          saveConfirmation: StorageOfficeSaveConfirmation.unconfirmed,
+        ),
+      );
+      return;
+    }
+
+    _confirmationInFlight = true;
+    try {
+      final result = await _repository.getFileDetails(_file.id);
+      if (isClosed) return;
+      final version = result.fold((_) => null, (details) => details.file.version);
+      if (version == null || version <= _confirmationFloor) return;
+      _stopConfirmationWatch();
+      emit(
+        state.copyWith(
+          hasSavedChanges: true,
+          saveConfirmation: StorageOfficeSaveConfirmation.confirmed,
+          confirmedVersion: version,
+        ),
+      );
+    } finally {
+      _confirmationInFlight = false;
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    _stopConfirmationWatch();
+    return super.close();
+  }
+
   void cancelClosing() {
     if (!isClosed) emit(state.copyWith(isClosing: false));
+  }
+
+  /// Czy edytor zgłosił brak zmian, ale backend nie potwierdził jeszcze wersji.
+  bool get isAwaitingSaveConfirmation =>
+      state.saveConfirmation == StorageOfficeSaveConfirmation.awaitingServer;
+
+  /// Czeka na potwierdzenie zapisu, maksymalnie przez okno kontroli.
+  ///
+  /// Zamknięcie modala nie może przerwać oczekiwania wcześniej, niż backend
+  /// zdąży potwierdzić wersję: inaczej webowy BFF bez kanału realtime odświeży
+  /// listę przed callbackiem zapisu i pokaże starą wersję. Zwraca `true`, gdy
+  /// wersja została potwierdzona, `false` przy braku potwierdzenia w oknie.
+  Future<bool> waitForConfirmedSave() async {
+    if (!isAwaitingSaveConfirmation) {
+      return state.saveConfirmation == StorageOfficeSaveConfirmation.confirmed;
+    }
+    // Kontrola chodzi cyklicznie; tu czekamy na jej wynik, ale nie dłużej niż
+    // okno kontroli plus jeden odstęp, żeby nie zawiesić zamknięcia na zawsze.
+    final deadline = DateTime.now().add(confirmationTimeout);
+    while (!isClosed &&
+        state.saveConfirmation == StorageOfficeSaveConfirmation.awaitingServer &&
+        DateTime.now().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+    return state.saveConfirmation == StorageOfficeSaveConfirmation.confirmed;
   }
 
   Future<OnlyOfficeDownload> _resolveCopyDownload({

@@ -30,13 +30,9 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
         ),
       ),
       (ticket) {
-        final rawUrl = ticket.previewUrl ?? ticket.downloadUrl;
-        final authenticated = Uri.tryParse(rawUrl)?.hasScheme != true;
-        final previewUrl = authenticated
-            ? Uri.parse(AppEnv.apiBaseUrlFor(AppApiModule.workspaces))
-                  .resolve(rawUrl)
-                  .toString()
-            : rawUrl;
+        final previewUrl = _absolutePreviewUrl(
+          ticket.previewUrl ?? ticket.downloadUrl,
+        );
         emit(
           StoragePreviewReady(
             file: file,
@@ -49,6 +45,50 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
         );
       },
     );
+  }
+
+  /// Przygotowuje podgląd wskazanej wersji historycznej.
+  ///
+  /// Korzysta z biletu wersji, więc oglądanie starej treści nie zmienia
+  /// bieżącego pliku: żadne przywrócenie nie jest tu wywoływane, a edytor
+  /// biurowy pozostaje zamknięty (otwierałby bieżącą wersję, nie historyczną).
+  Future<void> prepareVersionPreview({
+    required StorageFileResponse file,
+    required int version,
+  }) async {
+    emit(StoragePreviewLoading(file: file));
+
+    final kind = resolveKind(file);
+    final ticketResult = await repository.getFileVersionDownloadTicket(
+      fileId: file.id,
+      version: version,
+    );
+    if (isClosed) return;
+
+    ticketResult.fold(
+      (err) => emit(StoragePreviewFailure(file: file, message: err.message)),
+      (ticket) {
+        final previewUrl = _absolutePreviewUrl(ticket.downloadUrl);
+        emit(
+          StoragePreviewReady(
+            file: file,
+            kind: kind,
+            previewUrl: previewUrl,
+            version: version,
+          ),
+        );
+      },
+    );
+  }
+
+  /// Zamienia względny URL strumienia na bezwzględny wobec API modułu.
+  String _absolutePreviewUrl(String rawUrl) {
+    final authenticated = Uri.tryParse(rawUrl)?.hasScheme != true;
+    return authenticated
+        ? Uri.parse(
+            AppEnv.apiBaseUrlFor(AppApiModule.workspaces),
+          ).resolve(rawUrl).toString()
+        : rawUrl;
   }
 
   /// Rozpoznaje renderer na podstawie MIME oraz rozszerzenia pliku.

@@ -9,23 +9,26 @@ import 'package:flutter_test/flutter_test.dart';
 /// przypadku w osobnym pliku chroni go przed mockiem z sąsiedniego testu,
 /// który rejestruje się na cały proces.
 void main() {
-  test('treats missing persistence as an empty preference, not a failure', () async {
-    final store = SharedPreferencesTasksProjectViewStore(
-      currentUserId: () => 'user-1',
-    );
+  test(
+    'treats missing persistence as an empty preference, not a failure',
+    () async {
+      final store = SharedPreferencesTasksProjectViewStore(
+        currentUserId: () => 'user-1',
+      );
 
-    await store.load();
+      await store.load();
 
-    expect(store.viewFor(workspaceId: 'ws-1', projectId: 'proj-1'), isNull);
+      expect(store.viewFor(workspaceId: 'ws-1', projectId: 'proj-1'), isNull);
 
-    // Zapis nadal działa w pamięci sesji, więc wybór widoku obowiązuje
-    // do końca uruchomienia klienta.
-    await store.write(
-      workspaceId: 'ws-1',
-      projectId: 'proj-1',
-      view: 'kanban',
-    );
+      // Zapis nadal działa w pamięci sesji, więc wybór widoku obowiązuje
+      // do końca uruchomienia klienta.
+      await store.write(
+        workspaceId: 'ws-1',
+        projectId: 'proj-1',
+        view: 'kanban',
+      );
 
-    expect(store.viewFor(workspaceId: 'ws-1', projectId: 'proj-1'), 'kanban');
-  });
+      expect(store.viewFor(workspaceId: 'ws-1', projectId: 'proj-1'), 'kanban');
+    },
+  );
 }

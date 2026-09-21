@@ -67,5 +67,8 @@ app.*.map.json
 
 sentry.properties
 
+# Artefakty nieudanych goldenów (`flutter test --update-goldens` zostawia je
+# obok plików wzorcowych); nigdy nie commitujemy obrazów diff.
+**/failures/
 # Private visual references supplied by the owner; never publish originals.
 /docs/design/reference-local/

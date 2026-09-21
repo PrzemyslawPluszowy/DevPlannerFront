@@ -29,6 +29,7 @@ class AppTextField extends StatelessWidget {
     this.inlineLabel,
     this.enabled = true,
     this.readOnly = false,
+    this.autofocus = false,
     this.obscureText = false,
     this.maxLines = 1,
     this.minLines,
@@ -60,6 +61,7 @@ class AppTextField extends StatelessWidget {
   final AppControlSize size;
   final bool enabled;
   final bool readOnly;
+  final bool autofocus;
   final bool obscureText;
   final int maxLines;
   final int? minLines;
@@ -126,6 +128,7 @@ class AppTextField extends StatelessWidget {
       focusNode: focusNode,
       enabled: enabled,
       readOnly: readOnly,
+      autofocus: autofocus,
       obscureText: obscureText,
       maxLines: maxLines,
       minLines: minLines,

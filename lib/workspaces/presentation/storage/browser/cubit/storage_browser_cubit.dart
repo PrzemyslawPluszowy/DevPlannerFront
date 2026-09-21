@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
@@ -20,11 +21,15 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
   StorageBrowserCubit({
     required this.repository,
     StorageScope initialScope = const StorageScope.personal(),
-    StorageViewMode initialViewMode = StorageViewMode.grid,
+    StorageViewMode initialViewMode = StorageViewMode.list,
+    StorageSortCriteria initialSort = const StorageSortCriteria(),
+    StorageDensity initialDensity = StorageDensity.comfortable,
   }) : super(
          StorageBrowserInitial(
            scope: initialScope,
+           sort: initialSort,
            viewMode: initialViewMode,
+           density: initialDensity,
          ),
        );
 
@@ -33,135 +38,216 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
   String? _searchQuery;
   final Map<String, String?> _folderParents = {};
 
+  /// Liczba trwających odczytów listy; zdarzenie realtime nie wchodzi w drogę
+  /// ładowaniu, które już leci.
+  int _loadDepth = 0;
+
+  /// Czy w trakcie ładowania przyszło zdarzenie, które wymaga odświeżenia.
+  bool _refreshPending = false;
+
+  /// Największy limit, jaki przyjmuje lista plików. Odświeżenie w miejscu chce
+  /// pokryć to, co już widać, ale nie może przekroczyć limitu kontraktu.
+  static const _maxRefreshLimit = 100;
+
   /// Ładuje dane dla bieżącego zakresu i folderu.
   Future<void> load({bool showLoading = true}) async {
-    final requestGeneration = ++_requestGeneration;
-    final scope = currentScope;
-    final filter = currentFilter;
-    final sort = currentSort;
-    final viewMode = currentViewMode;
+    await _loadListing(showLoading: showLoading, failureAsState: true);
+  }
 
-    if (showLoading) {
-      emit(
-        StorageBrowserLoading(
-          scope: scope,
-          filter: filter,
-          sort: sort,
-          viewMode: viewMode,
-        ),
-      );
+  /// Odświeża bieżący widok po zdarzeniu realtime.
+  ///
+  /// Zdarzenie zmienia dane, nie nawigację: zakres, folder, sortowanie, widok,
+  /// filtr i zapytanie zostają. Liczba wczytanych pozycji jest zachowana przez
+  /// `limit`, bo zwinięcie listy do pierwszej strony przewinęłoby widok i
+  /// zgubiło zaznaczenie. Błąd nie podmienia listy na ekran awarii — wraca do
+  /// wołającego, który pokazuje trwały banner, a użytkownik nie traci tego, co
+  /// ma na ekranie.
+  ///
+  /// Zwraca `null`, gdy odświeżenie się udało albo nie było czego odświeżać.
+  Future<ApiError?> refreshFromRealtime() async {
+    if (_loadDepth > 0) {
+      // Trwające ładowanie mogło wystartować przed zmianą, więc nie zamiata
+      // sprawy: odświeżenie wróci zaraz po jego zakończeniu.
+      _refreshPending = true;
+      return null;
     }
+    final currentState = state;
+    if (currentState is! StorageBrowserReady &&
+        currentState is! StorageBrowserEmpty) {
+      return null;
+    }
+    final loaded = currentState is StorageBrowserReady
+        ? currentState.files.length
+        : 0;
+    final query = _searchQuery;
+    return query == null
+        ? _loadListing(
+            showLoading: false,
+            failureAsState: false,
+            minimumItems: loaded,
+          )
+        : _loadSearch(
+            query,
+            showLoading: false,
+            failureAsState: false,
+            minimumItems: loaded,
+          );
+  }
 
-    StorageFolderResponse? folderDetails;
-    var breadcrumbs = [
-      StorageBreadcrumbItem(
-        name: StorageBreadcrumbResolver(repository).rootName(scope),
-      ),
-    ];
-    if (scope.folderId != null) {
-      try {
-        final resolved = await StorageBreadcrumbResolver(repository)
-            .resolve(scope);
-        folderDetails = resolved.currentFolder;
-        breadcrumbs = resolved.breadcrumbs;
-      } on Exception {
-        // Brak przodka nie może ukryć zawartości dostępnego folderu.
+  Future<ApiError?> _loadListing({
+    required bool showLoading,
+    required bool failureAsState,
+    int? minimumItems,
+  }) async {
+    _loadDepth++;
+    try {
+      final requestGeneration = ++_requestGeneration;
+      final scope = currentScope;
+      final filter = currentFilter;
+      final sort = currentSort;
+      final viewMode = currentViewMode;
+      final density = currentDensity;
+
+      if (showLoading) {
+        emit(
+          StorageBrowserLoading(
+            scope: scope,
+            filter: filter,
+            sort: sort,
+            viewMode: viewMode,
+            density: density,
+          ),
+        );
       }
-      if (isClosed || requestGeneration != _requestGeneration) return;
-    }
 
-    final foldersResult = await repository.listFolders(
-      scope: scope,
-      parentFolderId: scope.folderId,
-    );
-    if (isClosed || requestGeneration != _requestGeneration) return;
-
-    if (foldersResult.isLeft()) {
-      foldersResult.leftMap((err) {
-        if (err.statusCode == 403) {
-          emit(
-            StorageBrowserForbidden(
-              scope: scope,
-              message: err.message,
-            ),
-          );
-        } else {
-          emit(
-            StorageBrowserFailure(
-              scope: scope,
-              message: err.message,
-              statusCode: err.statusCode,
-              backendCode: err.backendCode,
-            ),
-          );
-        }
-      });
-      return;
-    }
-
-    final filesResult = await repository.listFiles(
-      scope: scope,
-      folderId: scope.folderId,
-      filter: filter,
-      query: _searchQuery,
-    );
-    if (isClosed || requestGeneration != _requestGeneration) return;
-
-    if (filesResult.isLeft()) {
-      filesResult.leftMap((err) {
-        if (err.statusCode == 403) {
-          emit(
-            StorageBrowserForbidden(
-              scope: scope,
-              message: err.message,
-            ),
-          );
-        } else {
-          emit(
-            StorageBrowserFailure(
-              scope: scope,
-              message: err.message,
-              statusCode: err.statusCode,
-              backendCode: err.backendCode,
-            ),
-          );
-        }
-      });
-      return;
-    }
-
-    final folders = foldersResult.getOrElse(() => <StorageFolderResponse>[]);
-    final filesPage = filesResult.getOrElse(
-      () => const CursorPageResponse<StorageFileResponse>(items: []),
-    );
-    final files = filesPage.items;
-    if (folders.isEmpty && files.isEmpty) {
-      emit(
-        StorageBrowserEmpty(
-          scope: scope,
-          currentFolder: folderDetails,
-          breadcrumbs: breadcrumbs,
-          filter: filter,
-          sort: sort,
-          viewMode: viewMode,
-          searchQuery: _searchQuery,
+      StorageFolderResponse? folderDetails;
+      var breadcrumbs = [
+        StorageBreadcrumbItem(
+          name: StorageBreadcrumbResolver(repository).rootName(scope),
         ),
+      ];
+      if (scope.folderId != null) {
+        try {
+          final resolved = await StorageBreadcrumbResolver(
+            repository,
+          ).resolve(scope);
+          folderDetails = resolved.currentFolder;
+          breadcrumbs = resolved.breadcrumbs;
+        } on Object {
+          // Brak przodka nie może ukryć zawartości dostępnego folderu. Łapiemy
+          // każdą awarię tego kroku, bo niezłapany błąd zostawiłby eksplorator
+          // w nieskończonym stanie ładowania.
+        }
+        if (isClosed || requestGeneration != _requestGeneration) return null;
+      }
+
+      final foldersResult = await repository.listFolders(
+        scope: scope,
+        parentFolderId: scope.folderId,
       );
-    } else {
-      emit(
-        StorageBrowserReady(
-          scope: scope,
-          currentFolder: folderDetails,
-          breadcrumbs: breadcrumbs,
-          folders: StorageFormatters.sortFolders(folders, sort),
-          files: StorageFormatters.sortFiles(files, sort),
-          nextCursor: filesPage.nextCursor,
-          filter: filter,
-          sort: sort,
-          viewMode: viewMode,
-          searchQuery: _searchQuery,
-        ),
+      if (isClosed || requestGeneration != _requestGeneration) return null;
+
+      if (foldersResult.isLeft()) {
+        final error = foldersResult.fold<ApiError?>(
+          (err) => err,
+          (_) => null,
+        );
+        if (!failureAsState) return error;
+        foldersResult.leftMap((err) {
+          if (err.statusCode == 403) {
+            emit(StorageBrowserForbidden(scope: scope, message: err.message));
+          } else {
+            emit(
+              StorageBrowserFailure(
+                scope: scope,
+                message: err.message,
+                statusCode: err.statusCode,
+                backendCode: err.backendCode,
+                apiCode: err.apiCode,
+                traceId: err.traceId,
+              ),
+            );
+          }
+        });
+        return error;
+      }
+
+      final filesResult = await repository.listFiles(
+        scope: scope,
+        folderId: scope.folderId,
+        limit: _minimumLimit(minimumItems),
+        filter: filter,
+        query: _searchQuery,
       );
+      if (isClosed || requestGeneration != _requestGeneration) return null;
+
+      if (filesResult.isLeft()) {
+        final error = filesResult.fold<ApiError?>((err) => err, (_) => null);
+        if (!failureAsState) return error;
+        filesResult.leftMap((err) {
+          if (err.statusCode == 403) {
+            emit(StorageBrowserForbidden(scope: scope, message: err.message));
+          } else {
+            emit(
+              StorageBrowserFailure(
+                scope: scope,
+                message: err.message,
+                statusCode: err.statusCode,
+                backendCode: err.backendCode,
+                apiCode: err.apiCode,
+                traceId: err.traceId,
+              ),
+            );
+          }
+        });
+        return error;
+      }
+
+      final folders = foldersResult.getOrElse(() => <StorageFolderResponse>[]);
+      final filesPage = filesResult.getOrElse(
+        () => const CursorPageResponse<StorageFileResponse>(items: []),
+      );
+      final files = filesPage.items;
+      // Stan końcowy czyta bieżące pola widoku: żądanie poszło z wartościami
+      // sprzed zmiany, ale użytkownik mógł w trakcie przełączyć widok albo
+      // sortowanie i ekran ma pokazać jego wybór, a nie stan sprzed kliknięcia.
+      final displaySort = currentSort;
+      final displayViewMode = currentViewMode;
+      final displayDensity = currentDensity;
+      if (folders.isEmpty && files.isEmpty) {
+        emit(
+          StorageBrowserEmpty(
+            scope: scope,
+            currentFolder: folderDetails,
+            breadcrumbs: breadcrumbs,
+            filter: filter,
+            sort: displaySort,
+            viewMode: displayViewMode,
+            density: displayDensity,
+            searchQuery: _searchQuery,
+          ),
+        );
+      } else {
+        emit(
+          StorageBrowserReady(
+            scope: scope,
+            currentFolder: folderDetails,
+            breadcrumbs: breadcrumbs,
+            folders: StorageFormatters.sortFolders(folders, displaySort),
+            files: StorageFormatters.sortFiles(files, displaySort),
+            nextCursor: filesPage.nextCursor,
+            filter: filter,
+            sort: displaySort,
+            viewMode: displayViewMode,
+            density: displayDensity,
+            searchQuery: _searchQuery,
+          ),
+        );
+      }
+      return null;
+    } finally {
+      _loadDepth--;
+      _runPendingRefresh();
     }
   }
 
@@ -210,7 +296,9 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
     emit(
       StorageBrowserInitial(
         scope: scope,
+        sort: currentSort,
         viewMode: currentViewMode,
+        density: currentDensity,
       ),
     );
     await load();
@@ -238,66 +326,108 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
 
   /// Zmienia filtry wyszukiwania.
   Future<void> setFilter(StorageBrowserFilter filter) async {
-    final s = state;
-    if (s is StorageBrowserReady) {
-      emit(s.copyWith(filter: filter));
-    } else if (s is StorageBrowserEmpty) {
-      emit(
-        StorageBrowserEmpty(
-          scope: s.scope,
-          currentFolder: s.currentFolder,
-          breadcrumbs: s.breadcrumbs,
-          filter: filter,
-          sort: s.sort,
-          viewMode: s.viewMode,
-        ),
-      );
-    }
+    _applyViewFields(filter: filter);
     await load();
   }
 
   /// Zmienia kryteria sortowania.
+  ///
+  /// W stanie pustym i początkowym nie ma czego przeliczać, ale wybór musi
+  /// zostać zapamiętany — inaczej pasek poleceń pokazywałby jedno kryterium,
+  /// a pierwsze załadowanie wyników sortowałoby po innym.
   void setSort(StorageSortCriteria sort) {
-    final s = state;
-    if (s is StorageBrowserReady) {
-      emit(
-        s.copyWith(
-          sort: sort,
-          folders: StorageFormatters.sortFolders(s.folders, sort),
-          files: StorageFormatters.sortFiles(s.files, sort),
-        ),
-      );
-    }
+    _applyViewFields(sort: sort);
+  }
+
+  /// Ustawia tryb widoku wskazany przez przełącznik Lista/Siatka.
+  void setViewMode(StorageViewMode mode) {
+    if (currentViewMode == mode) return;
+    _applyViewFields(viewMode: mode);
   }
 
   /// Przełącza tryb widoku (siatka / lista).
   void toggleViewMode() {
-    final newMode = currentViewMode == StorageViewMode.grid
-        ? StorageViewMode.list
-        : StorageViewMode.grid;
+    _applyViewFields(
+      viewMode: currentViewMode == StorageViewMode.grid
+          ? StorageViewMode.list
+          : StorageViewMode.grid,
+    );
+  }
+
+  /// Ustawia gęstość wierszy listy.
+  void setDensity(StorageDensity density) {
+    if (currentDensity == density) return;
+    _applyViewFields(density: density);
+  }
+
+  /// Zapisuje pola widoku w bieżącym stanie.
+  ///
+  /// Jedno miejsce obsługuje filtry, sortowanie, tryb widoku i gęstość, więc
+  /// każda z tych zmian zachowuje pozostałe pola zamiast je resetować. Stan bez
+  /// listy nie ma czego przeliczać, więc zmiana jest tam pomijana.
+  void _applyViewFields({
+    StorageBrowserFilter? filter,
+    StorageSortCriteria? sort,
+    StorageViewMode? viewMode,
+    StorageDensity? density,
+  }) {
     final s = state;
-    if (s is StorageBrowserReady) {
-      emit(s.copyWith(viewMode: newMode));
-    } else if (s is StorageBrowserEmpty) {
-      emit(
-        StorageBrowserEmpty(
-          scope: s.scope,
-          currentFolder: s.currentFolder,
-          breadcrumbs: s.breadcrumbs,
-          filter: s.filter,
-          sort: s.sort,
-          viewMode: newMode,
-        ),
-      );
-    } else if (s is StorageBrowserInitial) {
-      emit(
-        StorageBrowserInitial(
-          scope: s.scope,
-          filter: s.filter,
-          sort: s.sort,
-          viewMode: newMode,
-        ),
-      );
+    switch (s) {
+      case StorageBrowserReady():
+        final nextSort = sort ?? s.sort;
+        emit(
+          s.copyWith(
+            filter: filter ?? s.filter,
+            sort: nextSort,
+            viewMode: viewMode ?? s.viewMode,
+            density: density ?? s.density,
+            folders: sort == null
+                ? null
+                : StorageFormatters.sortFolders(s.folders, nextSort),
+            files: sort == null
+                ? null
+                : StorageFormatters.sortFiles(s.files, nextSort),
+          ),
+        );
+      case StorageBrowserEmpty():
+        emit(
+          StorageBrowserEmpty(
+            scope: s.scope,
+            currentFolder: s.currentFolder,
+            breadcrumbs: s.breadcrumbs,
+            filter: filter ?? s.filter,
+            sort: sort ?? s.sort,
+            viewMode: viewMode ?? s.viewMode,
+            density: density ?? s.density,
+            searchQuery: s.searchQuery,
+          ),
+        );
+      case StorageBrowserInitial():
+        emit(
+          StorageBrowserInitial(
+            scope: s.scope,
+            filter: filter ?? s.filter,
+            sort: sort ?? s.sort,
+            viewMode: viewMode ?? s.viewMode,
+            density: density ?? s.density,
+          ),
+        );
+      case StorageBrowserLoading():
+        emit(
+          StorageBrowserLoading(
+            scope: s.scope,
+            currentFolder: s.currentFolder,
+            breadcrumbs: s.breadcrumbs,
+            folders: s.folders,
+            files: s.files,
+            filter: filter ?? s.filter,
+            sort: sort ?? s.sort,
+            viewMode: viewMode ?? s.viewMode,
+            density: density ?? s.density,
+          ),
+        );
+      case StorageBrowserFailure() || StorageBrowserForbidden():
+        break;
     }
   }
 
@@ -321,65 +451,124 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
       );
     }
 
-    emit(
-      StorageBrowserLoading(
-        scope: currentScope,
-        filter: currentFilter,
-        sort: currentSort,
-        viewMode: currentViewMode,
-      ),
+    await _loadSearch(
+      effectiveQuery,
+      showLoading: true,
+      failureAsState: true,
     );
+  }
 
-    final filesResult = await repository.listFiles(
-      scope: currentScope,
-      folderId: currentScope.folderId,
-      filter: currentFilter,
-      query: effectiveQuery,
-    );
-    if (isClosed || requestGeneration != _requestGeneration) return;
+  /// Odczytuje wynik zapytania bez listy folderów; wspólny dla wyszukiwania
+  /// i odświeżenia po zdarzeniu realtime, gdy zapytanie jest aktywne.
+  Future<ApiError?> _loadSearch(
+    String? query, {
+    required bool showLoading,
+    required bool failureAsState,
+    int? minimumItems,
+  }) async {
+    _loadDepth++;
+    try {
+      final requestGeneration = ++_requestGeneration;
 
-    filesResult.fold(
-      (err) => emit(
-        StorageBrowserFailure(
-          scope: currentScope,
-          message: err.message,
-          statusCode: err.statusCode,
-        ),
-      ),
-      (page) {
-        final files = page.items;
-        final breadcrumbs = [
-          StorageBreadcrumbItem(
-            name: StorageBreadcrumbResolver(repository).rootName(currentScope),
+      if (showLoading) {
+        emit(
+          StorageBrowserLoading(
+            scope: currentScope,
+            filter: currentFilter,
+            sort: currentSort,
+            viewMode: currentViewMode,
+            density: currentDensity,
           ),
-        ];
-        if (files.isEmpty) {
-          emit(
-            StorageBrowserEmpty(
+        );
+      }
+
+      final filesResult = await repository.listFiles(
+        scope: currentScope,
+        folderId: currentScope.folderId,
+        limit: _minimumLimit(minimumItems),
+        filter: currentFilter,
+        query: query,
+      );
+      if (isClosed || requestGeneration != _requestGeneration) return null;
+
+      if (filesResult.isLeft()) {
+        final error = filesResult.fold<ApiError?>((err) => err, (_) => null);
+        if (!failureAsState) return error;
+        filesResult.leftMap(
+          (err) => emit(
+            StorageBrowserFailure(
               scope: currentScope,
-              breadcrumbs: breadcrumbs,
-              filter: currentFilter,
-              sort: currentSort,
-              viewMode: currentViewMode,
-              searchQuery: effectiveQuery,
+              message: err.message,
+              statusCode: err.statusCode,
+              backendCode: err.backendCode,
+              apiCode: err.apiCode,
+              traceId: err.traceId,
             ),
-          );
-        } else {
-          emit(
-            StorageBrowserReady(
-              scope: currentScope,
-              breadcrumbs: breadcrumbs,
-              folders: const [],
-              files: StorageFormatters.sortFiles(files, currentSort),
-              nextCursor: page.nextCursor,
-              filter: currentFilter,
-              sort: currentSort,
-              viewMode: currentViewMode,
-              searchQuery: effectiveQuery,
-            ),
-          );
-        }
-      },
-    );
+          ),
+        );
+        return error;
+      }
+
+      final page = filesResult.getOrElse(
+        () => const CursorPageResponse<StorageFileResponse>(items: []),
+      );
+      final files = page.items;
+      final breadcrumbs = [
+        StorageBreadcrumbItem(
+          name: StorageBreadcrumbResolver(repository).rootName(currentScope),
+        ),
+      ];
+      if (files.isEmpty) {
+        emit(
+          StorageBrowserEmpty(
+            scope: currentScope,
+            breadcrumbs: breadcrumbs,
+            filter: currentFilter,
+            sort: currentSort,
+            viewMode: currentViewMode,
+            density: currentDensity,
+            searchQuery: query,
+          ),
+        );
+      } else {
+        emit(
+          StorageBrowserReady(
+            scope: currentScope,
+            breadcrumbs: breadcrumbs,
+            folders: const [],
+            files: StorageFormatters.sortFiles(files, currentSort),
+            nextCursor: page.nextCursor,
+            filter: currentFilter,
+            sort: currentSort,
+            viewMode: currentViewMode,
+            density: currentDensity,
+            searchQuery: query,
+          ),
+        );
+      }
+      return null;
+    } finally {
+      _loadDepth--;
+      _runPendingRefresh();
+    }
+  }
+
+  /// Limit odczytu pokrywający to, co już widać; `null` zostawia limit kontraktu.
+  int? _minimumLimit(int? minimumItems) {
+    if (minimumItems == null || minimumItems <= 0) return null;
+    return minimumItems > _maxRefreshLimit ? _maxRefreshLimit : minimumItems;
+  }
+
+  /// Domyka odświeżenie, które przyszło w trakcie ładowania.
+  void _runPendingRefresh() {
+    if (!_refreshPending) return;
+    _refreshPending = false;
+    if (isClosed) return;
+    final currentState = state;
+    if (currentState is! StorageBrowserReady &&
+        currentState is! StorageBrowserEmpty) {
+      return;
+    }
+    unawaited(refreshFromRealtime());
   }
 }

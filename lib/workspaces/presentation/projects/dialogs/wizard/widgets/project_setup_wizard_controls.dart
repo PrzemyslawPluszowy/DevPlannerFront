@@ -4,13 +4,24 @@ import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dart';
 import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_creation.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/l10n/project_setup_wizard_l10n.dart';
+import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/widgets/project_setup_help_button.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Etykieta sekcji kreatora projektu.
+///
+/// Jednozdaniowy skutek ustawienia ([hint]) zostaje pod etykietą, a znak
+/// zapytania otwiera dłuższe objaśnienie pojęcia. Dzięki temu decyzję można
+/// podjąć bez czytania pomocy, a pomoc wyjaśnia to, czego etykieta nie mieści.
 class ProjectSetupSectionLabel extends StatelessWidget {
   /// Tworzy etykietę sekcji.
-  const ProjectSetupSectionLabel(this.label, {this.hint, super.key});
+  const ProjectSetupSectionLabel(
+    this.label, {
+    this.hint,
+    this.helpTitle,
+    this.helpBody,
+    super.key,
+  });
 
   /// Tekst etykiety.
   final String label;
@@ -18,18 +29,34 @@ class ProjectSetupSectionLabel extends StatelessWidget {
   /// Opcjonalne wyjaśnienie pod etykietą.
   final String? hint;
 
+  /// Nagłówek objaśnienia po znaku zapytania.
+  final String? helpTitle;
+
+  /// Treść objaśnienia po znaku zapytania.
+  final String? helpBody;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final helpTitle = this.helpTitle;
+    final helpBody = this.helpBody;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: context.text.labelMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colors.onSurfaceVariant,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: context.text.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ),
+            if (helpTitle != null && helpBody != null)
+              ProjectSetupHelpButton(title: helpTitle, body: helpBody),
+          ],
         ),
         if (hint case final value?) ...[
           Gaps.h2,
@@ -80,6 +107,10 @@ class ProjectSetupFieldError extends StatelessWidget {
 }
 
 /// Karta wyboru jednej opcji kroku kreatora.
+///
+/// Karta ma trzy czytelne stany: zwykły, hover/focus i wybrany. Wybrany stan
+/// dostaje akcentowy pasek i wyraźniejszą obwódkę, żeby nie polegał wyłącznie na
+/// subtelnej zmianie tła.
 class ProjectSetupChoiceCard extends StatelessWidget {
   /// Tworzy kartę wyboru.
   const ProjectSetupChoiceCard({
@@ -117,71 +148,99 @@ class ProjectSetupChoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final accent = colors.primary;
     return Semantics(
       selected: selected,
       button: true,
-      child: InkWell(
-        onTap: enabled ? onSelected : null,
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-        child: Container(
-          padding: const EdgeInsets.all(Sizes.p12),
-          decoration: BoxDecoration(
-            color: selected
-                ? colors.primaryContainer.withValues(alpha: 0.4)
-                : colors.surfaceContainerLowest,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            border: Border.all(
-              color: selected ? colors.primary : colors.outlineVariant,
-              width: selected ? 1.5 : 1,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: const BorderRadius.all(Radius.circular(Sizes.p12)),
+        child: InkWell(
+          onTap: enabled ? onSelected : null,
+          borderRadius: const BorderRadius.all(Radius.circular(Sizes.p12)),
+          hoverColor: colors.primary.withValues(alpha: 0.06),
+          focusColor: colors.primary.withValues(alpha: 0.12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            decoration: BoxDecoration(
+              color: selected
+                  ? colors.primaryContainer.withValues(alpha: 0.4)
+                  : colors.surfaceContainerLowest,
+              borderRadius: const BorderRadius.all(Radius.circular(Sizes.p12)),
+              border: Border.all(
+                color: selected ? accent : colors.outlineVariant,
+                width: selected ? 1.5 : 1,
+              ),
             ),
-          ),
-          child: Opacity(
-            opacity: enabled ? 1 : 0.55,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (icon case final value?) ...[
-                      Icon(
-                        value,
-                        size: 18,
-                        color: selected
-                            ? colors.primary
-                            : colors.onSurfaceVariant,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 3,
+                    decoration: BoxDecoration(
+                      color: selected ? accent : Colors.transparent,
+                      borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(Sizes.p12),
                       ),
-                      Gaps.w8,
-                    ],
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: context.text.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(Sizes.p12),
+                      child: Opacity(
+                        opacity: enabled ? 1 : 0.55,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (icon case final value?) ...[
+                                  Icon(
+                                    value,
+                                    size: 18,
+                                    color: selected
+                                        ? accent
+                                        : colors.onSurfaceVariant,
+                                  ),
+                                  Gaps.w8,
+                                ],
+                                Expanded(
+                                  child: Text(
+                                    title,
+                                    style: context.text.labelLarge?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  selected
+                                      ? Symbols.radio_button_checked
+                                      : Symbols.radio_button_unchecked,
+                                  size: 18,
+                                  color: selected ? accent : colors.outline,
+                                ),
+                              ],
+                            ),
+                            Gaps.h4,
+                            Text(
+                              description,
+                              style: context.text.bodySmall?.copyWith(
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                            if (trailing case final value?) ...[
+                              Gaps.h8,
+                              value,
+                            ],
+                          ],
                         ),
                       ),
                     ),
-                    Icon(
-                      selected
-                          ? Symbols.radio_button_checked
-                          : Symbols.radio_button_unchecked,
-                      size: 18,
-                      color: selected ? colors.primary : colors.outline,
-                    ),
-                  ],
-                ),
-                Gaps.h4,
-                Text(
-                  description,
-                  style: context.text.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
                   ),
-                ),
-                if (trailing case final value?) ...[
-                  Gaps.h8,
-                  value,
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -198,6 +257,7 @@ class ProjectSetupCheckCard extends StatelessWidget {
     required this.description,
     required this.checked,
     required this.onChanged,
+    this.rule,
     this.enabled = true,
     super.key,
   });
@@ -214,6 +274,9 @@ class ProjectSetupCheckCard extends StatelessWidget {
   /// Zmiana zaznaczenia.
   final ValueChanged<bool> onChanged;
 
+  /// Konkretna reguła opcji, np. „Gdy… → wtedy…” automatyzacji.
+  final Widget? rule;
+
   /// Czy opcję można zaznaczyć.
   final bool enabled;
 
@@ -223,22 +286,59 @@ class ProjectSetupCheckCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: Sizes.p8),
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-        border: Border.all(color: colors.outlineVariant),
-      ),
-      child: CheckboxListTile(
-        value: checked,
-        onChanged: enabled ? (value) => onChanged(value ?? false) : null,
-        controlAffinity: ListTileControlAffinity.leading,
-        contentPadding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
-        title: Text(
-          title,
-          style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+        color: checked
+            ? colors.primaryContainer.withValues(alpha: 0.28)
+            : colors.surfaceContainerLowest,
+        borderRadius: const BorderRadius.all(Radius.circular(Sizes.p12)),
+        border: Border.all(
+          color: checked ? colors.primary : colors.outlineVariant,
+          width: checked ? 1.4 : 1,
         ),
-        subtitle: Text(
-          description,
-          style: context.text.bodySmall?.copyWith(
-            color: colors.onSurfaceVariant,
+      ),
+      child: InkWell(
+        onTap: enabled ? () => onChanged(!checked) : null,
+        borderRadius: const BorderRadius.all(Radius.circular(Sizes.p12)),
+        hoverColor: colors.primary.withValues(alpha: 0.06),
+        focusColor: colors.primary.withValues(alpha: 0.12),
+        child: Padding(
+          padding: const EdgeInsets.all(Sizes.p10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Checkbox(
+                value: checked,
+                onChanged: enabled
+                    ? (value) => onChanged(value ?? false)
+                    : null,
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              Gaps.w8,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: context.text.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Gaps.h2,
+                    Text(
+                      description,
+                      style: context.text.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                    if (rule case final value?) ...[
+                      Gaps.h6,
+                      value,
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -158,6 +158,24 @@ abstract interface class StorageRepository {
     required String folderId,
   });
 
+  /// Pobiera placementy folderu, czyli referencje plików umieszczonych w nim.
+  ///
+  /// Lista plików nie niesie identyfikatora placementu, więc przeniesienie
+  /// istniejącej referencji wymaga odczytania placementów folderu źródłowego.
+  Future<Either<ApiError, List<StorageFilePlacementResponse>>>
+  listFolderPlacements(String folderId);
+
+  /// Przenosi istniejący placement do innego folderu w tym samym kontekście.
+  ///
+  /// [expectedVersion] pochodzi z pola `version` placementu; konflikt wersji
+  /// zwraca `storage.placement_conflict`, a nie nadpisuje cudzej zmiany.
+  Future<Either<ApiError, StorageFilePlacementResponse>> moveFilePlacement({
+    required String placementId,
+    required String targetFolderId,
+    required int expectedVersion,
+    String? idempotencyKey,
+  });
+
   /// Usuwa powiązanie pliku z folderem (placement).
   Future<Either<ApiError, Unit>> deleteFilePlacement({
     required String fileId,

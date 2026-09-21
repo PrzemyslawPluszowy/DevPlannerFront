@@ -77,6 +77,7 @@ window.addEventListener('message',function(e){
 });
 config.events=Object.assign({},config.events,{
   onDocumentReady:function(){send('ready');},
+  onDocumentStateChange:function(event){send('modified',event&&event.data?'1':'0');},
   onError:function(event){send('error',event.data&&event.data.errorCode);},
   onWarning:function(event){send('warning',event.data&&event.data.warningCode);},
   onRequestClose:function(){send('close');},

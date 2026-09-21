@@ -9,6 +9,8 @@ import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_editor_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_editor_actions_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_office_close_confirmation.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_office_status_label.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_onlyoffice_host.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -75,6 +77,24 @@ final class StorageOfficeEditorView extends StatelessWidget {
   Future<void> _close(BuildContext context) async {
     final actions = context.read<StorageOfficeEditorActionsCubit>();
     if (!actions.beginClosing()) return;
+    final canClose = await confirmStorageOfficeClose(
+      context,
+      hasUnsavedChanges: actions.state.hasUnsavedChanges,
+      isAwaitingSaveConfirmation: actions.isAwaitingSaveConfirmation,
+    );
+    if (!context.mounted) return;
+    if (!canClose) {
+      actions.cancelClosing();
+      return;
+    }
+    // Zamknięcie nie może wyprzedzić potwierdzenia zapisu: odświeżenie listy
+    // wykonane przed callbackiem pokazałoby starą wersję pliku, zwłaszcza
+    // w kompozycji bez kanału realtime. Czekanie jest ograniczone oknem kontroli,
+    // a decyzja użytkownika o zamknięciu nadal obowiązuje.
+    if (actions.isAwaitingSaveConfirmation) {
+      await actions.waitForConfirmedSave();
+      if (!context.mounted) return;
+    }
     try {
       await hostController.closeEditor().timeout(const Duration(seconds: 30));
     } on Object {
@@ -170,7 +190,10 @@ final class _StorageOfficeEditorAppBar extends StatelessWidget
         StorageOfficeEditorActionsState
       >(
         builder: (context, actions) => AppBar(
-          title: _StorageOfficeEditorTitle(fileName: file.originalFileName),
+          title: _StorageOfficeEditorTitle(
+            fileName: file.originalFileName,
+            status: StorageOfficeStatusLabel(actions: actions),
+          ),
           leading: IconButton(
             icon: const Icon(AppIcons.close),
             tooltip: context.l10n.close,
@@ -227,9 +250,13 @@ final class _StorageOfficeEditorAppBar extends StatelessWidget
 }
 
 final class _StorageOfficeEditorTitle extends StatelessWidget {
-  const _StorageOfficeEditorTitle({required this.fileName});
+  const _StorageOfficeEditorTitle({
+    required this.fileName,
+    required this.status,
+  });
 
   final String fileName;
+  final Widget status;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -245,6 +272,8 @@ final class _StorageOfficeEditorTitle extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ),
+      const SizedBox(width: 12),
+      status,
     ],
   );
 }
@@ -329,6 +358,13 @@ final class _StorageOfficeEditorBody extends StatelessWidget {
             session: session,
             hostController: hostController,
             onCloseRequested: onClose,
+            // Dokument sam raportuje połączenie i stan zapisu; bez tego ekran
+            // nie wie, czy użytkownik widzi zapisane zmiany.
+            onDocumentReady: () =>
+                context.read<StorageOfficeEditorActionsCubit>().sessionReady(),
+            onDocumentStateChanged: (isModified) => context
+                .read<StorageOfficeEditorActionsCubit>()
+                .documentStateChanged(isModified: isModified),
             onPrintRequested: () => context
                 .read<StorageOfficeEditorActionsCubit>()
                 .requestPrint(sessionToken: session.token),
@@ -339,16 +375,16 @@ final class _StorageOfficeEditorBody extends StatelessWidget {
                   format: saveAs.fileType,
                   suggestedTitle: saveAs.title,
                 ),
-        onDownloadRequested: (download) {
-          final actions = context.read<StorageOfficeEditorActionsCubit>();
-          if (actions.state.isPrinting) return;
-          unawaited(
-            actions.downloadGeneratedFile(
-              download,
-              sessionToken: session.token,
-            ),
-          );
-        },
+            onDownloadRequested: (download) {
+              final actions = context.read<StorageOfficeEditorActionsCubit>();
+              if (actions.state.isPrinting) return;
+              unawaited(
+                actions.downloadGeneratedFile(
+                  download,
+                  sessionToken: session.token,
+                ),
+              );
+            },
           ),
         },
       );

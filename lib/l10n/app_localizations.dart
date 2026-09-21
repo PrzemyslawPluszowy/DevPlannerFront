@@ -1148,6 +1148,42 @@ abstract class AppLocalizations {
   /// **'Ways of working'**
   String get projectSetupStepWorkingStyleTitle;
 
+  /// No description provided for @projectSetupStepBasicsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, description and the look of the project.'**
+  String get projectSetupStepBasicsSubtitle;
+
+  /// No description provided for @projectSetupStepAccessSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who will see the project and with which role.'**
+  String get projectSetupStepAccessSubtitle;
+
+  /// No description provided for @projectSetupStepWorkflowSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The statuses that tasks will move through.'**
+  String get projectSetupStepWorkflowSubtitle;
+
+  /// No description provided for @projectSetupStepWorkingStyleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Default view, schedule and board settings.'**
+  String get projectSetupStepWorkingStyleSubtitle;
+
+  /// No description provided for @projectSetupStepStarterFeaturesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automations created together with the project.'**
+  String get projectSetupStepStarterFeaturesSubtitle;
+
+  /// No description provided for @projectSetupStepSummarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the plan and create the project.'**
+  String get projectSetupStepSummarySubtitle;
+
   /// No description provided for @projectSetupStepStarterFeaturesTitle.
   ///
   /// In en, this message translates to:
@@ -1199,13 +1235,13 @@ abstract class AppLocalizations {
   /// No description provided for @projectSetupTemplatesUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'The template catalog is not available in this session.'**
+  /// **'We cannot load project templates right now.'**
   String get projectSetupTemplatesUnavailable;
 
   /// No description provided for @projectSetupTemplatesUnavailableReason.
   ///
   /// In en, this message translates to:
-  /// **'No project template port is wired in.'**
+  /// **'Try again in a moment. If the problem repeats, report it to your administrator.'**
   String get projectSetupTemplatesUnavailableReason;
 
   /// No description provided for @projectSetupTemplatesRetry.
@@ -1337,13 +1373,13 @@ abstract class AppLocalizations {
   /// No description provided for @projectSetupAccessMembersUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'The workspace member list is not available in this session.'**
+  /// **'We cannot load the workspace member list right now.'**
   String get projectSetupAccessMembersUnavailable;
 
   /// No description provided for @projectSetupAccessMembersUnavailableReason.
   ///
   /// In en, this message translates to:
-  /// **'No workspace member port is wired in.'**
+  /// **'Try again in a moment. If the problem repeats, report it to your administrator. You can also add members after creating the project.'**
   String get projectSetupAccessMembersUnavailableReason;
 
   /// No description provided for @projectSetupAccessMembersRetry.
@@ -1397,7 +1433,7 @@ abstract class AppLocalizations {
   /// No description provided for @projectSetupWorkflowCatalogDescription.
   ///
   /// In en, this message translates to:
-  /// **'A ready-made set of columns from the backend catalog.'**
+  /// **'A ready-made set of columns matched to the type of work.'**
   String get projectSetupWorkflowCatalogDescription;
 
   /// No description provided for @projectSetupWorkflowCatalogLegend.
@@ -1997,7 +2033,7 @@ abstract class AppLocalizations {
   /// No description provided for @projectSetupSummaryPlanStale.
   ///
   /// In en, this message translates to:
-  /// **'The draft changed after the plan was built.'**
+  /// **'Settings changed since the plan was built.'**
   String get projectSetupSummaryPlanStale;
 
   /// No description provided for @projectSetupSummaryWarningsLegend.
@@ -2011,6 +2047,528 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The template will bring the tasks, labels and fields shown in the plan.'**
   String get projectSetupSummaryTemplateCounts;
+
+  /// No description provided for @projectSetupPreviewLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Project preview'**
+  String get projectSetupPreviewLegend;
+
+  /// No description provided for @projectSetupPreviewUntitledProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled project'**
+  String get projectSetupPreviewUntitledProject;
+
+  /// No description provided for @projectSetupPreviewTemplateBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Template: {name}'**
+  String projectSetupPreviewTemplateBadge(String name);
+
+  /// No description provided for @projectSetupPreviewRefreshing.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing the preview'**
+  String get projectSetupPreviewRefreshing;
+
+  /// No description provided for @projectSetupPreviewLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the template preview…'**
+  String get projectSetupPreviewLoading;
+
+  /// No description provided for @projectSetupPreviewRetryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again. If the problem repeats, report it to your administrator.'**
+  String get projectSetupPreviewRetryHint;
+
+  /// No description provided for @projectSetupPreviewMoreTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more tasks'**
+  String projectSetupPreviewMoreTasks(int count);
+
+  /// No description provided for @projectSetupPreviewMoreItems.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String projectSetupPreviewMoreItems(int count);
+
+  /// No description provided for @projectSetupPreviewWipBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'WIP {limit}'**
+  String projectSetupPreviewWipBadge(int limit);
+
+  /// No description provided for @projectSetupPreviewColumnTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Task'**
+  String get projectSetupPreviewColumnTask;
+
+  /// No description provided for @projectSetupPreviewColumnStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get projectSetupPreviewColumnStatus;
+
+  /// No description provided for @projectSetupPreviewColumnPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get projectSetupPreviewColumnPriority;
+
+  /// No description provided for @projectSetupPreviewEmptyBoardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to preview yet'**
+  String get projectSetupPreviewEmptyBoardTitle;
+
+  /// No description provided for @projectSetupPreviewEmptyBoardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This option brings no custom columns. The board will be created from the system statuses.'**
+  String get projectSetupPreviewEmptyBoardBody;
+
+  /// No description provided for @projectSetupPreviewColumnsFromTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns from the template'**
+  String get projectSetupPreviewColumnsFromTemplate;
+
+  /// No description provided for @projectSetupPreviewColumnsFromTemplateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Names, colours and WIP limits come straight from the template. You will see them in the project right after it is created.'**
+  String get projectSetupPreviewColumnsFromTemplateBody;
+
+  /// No description provided for @projectSetupPreviewColumnsExplicit.
+  ///
+  /// In en, this message translates to:
+  /// **'Your columns'**
+  String get projectSetupPreviewColumnsExplicit;
+
+  /// No description provided for @projectSetupPreviewColumnsExplicitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You define these columns yourself. They will appear in the project in the order given.'**
+  String get projectSetupPreviewColumnsExplicitBody;
+
+  /// No description provided for @projectSetupPreviewColumnsPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns confirmed by the plan'**
+  String get projectSetupPreviewColumnsPlan;
+
+  /// No description provided for @projectSetupPreviewColumnsPlanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The plan confirms these columns plus {count} system statuses that are always created.'**
+  String projectSetupPreviewColumnsPlanBody(int count);
+
+  /// No description provided for @projectSetupPreviewColumnsSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System statuses'**
+  String get projectSetupPreviewColumnsSystem;
+
+  /// No description provided for @projectSetupPreviewColumnsSystemBody.
+  ///
+  /// In en, this message translates to:
+  /// **'System columns ({count}) are created in every new project. You will see their names and colours once it is created.'**
+  String projectSetupPreviewColumnsSystemBody(int count);
+
+  /// No description provided for @projectSetupPreviewColumnsSystemNoCount.
+  ///
+  /// In en, this message translates to:
+  /// **'System columns are created in every new project; you will see their names and colours once it is created.'**
+  String get projectSetupPreviewColumnsSystemNoCount;
+
+  /// No description provided for @projectSetupPreviewColumnsCatalogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A ready-made status layout: {name}. You will see the columns in the project once it is created.'**
+  String projectSetupPreviewColumnsCatalogBody(String name);
+
+  /// No description provided for @projectSetupPreviewMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who will see the project'**
+  String get projectSetupPreviewMembersTitle;
+
+  /// No description provided for @projectSetupPreviewMembersShared.
+  ///
+  /// In en, this message translates to:
+  /// **'All active workspace members.'**
+  String get projectSetupPreviewMembersShared;
+
+  /// No description provided for @projectSetupPreviewMembersPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited people: {count}.'**
+  String projectSetupPreviewMembersPrivate(int count);
+
+  /// No description provided for @projectSetupPreviewMembersPrivateNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you for now. You can add members now or later.'**
+  String get projectSetupPreviewMembersPrivateNone;
+
+  /// No description provided for @projectSetupPreviewBoardSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board settings'**
+  String get projectSetupPreviewBoardSettingsTitle;
+
+  /// No description provided for @projectSetupPreviewListSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'List settings'**
+  String get projectSetupPreviewListSettingsTitle;
+
+  /// No description provided for @projectSetupPreviewVisibleFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible fields: {count}'**
+  String projectSetupPreviewVisibleFields(int count);
+
+  /// No description provided for @projectSetupPreviewRecipesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automations'**
+  String get projectSetupPreviewRecipesTitle;
+
+  /// No description provided for @projectSetupPreviewRecipesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No automation selected. You can add them later.'**
+  String get projectSetupPreviewRecipesNone;
+
+  /// No description provided for @projectSetupPreviewRecipeWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get projectSetupPreviewRecipeWhen;
+
+  /// No description provided for @projectSetupPreviewRecipeThen.
+  ///
+  /// In en, this message translates to:
+  /// **'then'**
+  String get projectSetupPreviewRecipeThen;
+
+  /// No description provided for @projectSetupPreviewWarningsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The plan contains warnings: {count}. See them above the “Create project” button.'**
+  String projectSetupPreviewWarningsBody(int count);
+
+  /// No description provided for @projectSetupRecipeCriticalToBlockedTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'a task has a critical priority'**
+  String get projectSetupRecipeCriticalToBlockedTrigger;
+
+  /// No description provided for @projectSetupRecipeCriticalToBlockedAction.
+  ///
+  /// In en, this message translates to:
+  /// **'set the status to blocked'**
+  String get projectSetupRecipeCriticalToBlockedAction;
+
+  /// No description provided for @projectSetupRecipeDueSoonHighPriorityTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'a task is due within two days'**
+  String get projectSetupRecipeDueSoonHighPriorityTrigger;
+
+  /// No description provided for @projectSetupRecipeDueSoonHighPriorityAction.
+  ///
+  /// In en, this message translates to:
+  /// **'raise the priority to high'**
+  String get projectSetupRecipeDueSoonHighPriorityAction;
+
+  /// No description provided for @projectSetupRecipeDoneClearDueDateTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'a task is completed'**
+  String get projectSetupRecipeDoneClearDueDateTrigger;
+
+  /// No description provided for @projectSetupRecipeDoneClearDueDateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'clear the task due date'**
+  String get projectSetupRecipeDoneClearDueDateAction;
+
+  /// No description provided for @projectSetupRecipeDoneCreateReviewSubtaskTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'a task is completed'**
+  String get projectSetupRecipeDoneCreateReviewSubtaskTrigger;
+
+  /// No description provided for @projectSetupRecipeDoneCreateReviewSubtaskAction.
+  ///
+  /// In en, this message translates to:
+  /// **'add a subtask reviewing the result'**
+  String get projectSetupRecipeDoneCreateReviewSubtaskAction;
+
+  /// No description provided for @projectSetupHelpSwimlanesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board lanes'**
+  String get projectSetupHelpSwimlanesTitle;
+
+  /// No description provided for @projectSetupHelpSwimlanesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Lanes split the board into horizontal sections, for example one per assignee or priority. They do not change the task status.'**
+  String get projectSetupHelpSwimlanesBody;
+
+  /// No description provided for @projectSetupHelpWipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WIP limit'**
+  String get projectSetupHelpWipTitle;
+
+  /// No description provided for @projectSetupHelpWipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The maximum number of tasks that can sit in this column at the same time.'**
+  String get projectSetupHelpWipBody;
+
+  /// No description provided for @projectSetupHelpStatusCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Status category'**
+  String get projectSetupHelpStatusCategoryTitle;
+
+  /// No description provided for @projectSetupHelpStatusCategoryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The category tells reports whether a task is waiting, in progress or finished. You can name the column however you like.'**
+  String get projectSetupHelpStatusCategoryBody;
+
+  /// No description provided for @projectSetupHelpCascadeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dependency cascade'**
+  String get projectSetupHelpCascadeTitle;
+
+  /// No description provided for @projectSetupHelpCascadeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When one task moves its due date, the system can move the tasks that depend on it as well.'**
+  String get projectSetupHelpCascadeBody;
+
+  /// No description provided for @projectSetupHelpCapacityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily capacity'**
+  String get projectSetupHelpCapacityTitle;
+
+  /// No description provided for @projectSetupHelpCapacityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes of work planned per person per day. This setting applies to the whole workspace.'**
+  String get projectSetupHelpCapacityBody;
+
+  /// No description provided for @projectSetupHelpVisibilityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Private visibility'**
+  String get projectSetupHelpVisibilityTitle;
+
+  /// No description provided for @projectSetupHelpVisibilityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the members you add will see the project. People managing the workspace keep access according to their permissions.'**
+  String get projectSetupHelpVisibilityBody;
+
+  /// No description provided for @projectSetupHelpAutomationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automations'**
+  String get projectSetupHelpAutomationsTitle;
+
+  /// No description provided for @projectSetupHelpAutomationsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules run an action after a specific event. You can turn them off later.'**
+  String get projectSetupHelpAutomationsBody;
+
+  /// No description provided for @projectSetupHelpCatalogWorkflowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog workflow template'**
+  String get projectSetupHelpCatalogWorkflowTitle;
+
+  /// No description provided for @projectSetupHelpCatalogWorkflowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A ready-made status layout, not a full project template with tasks.'**
+  String get projectSetupHelpCatalogWorkflowBody;
+
+  /// No description provided for @projectSetupHelpDensityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Card density'**
+  String get projectSetupHelpDensityTitle;
+
+  /// No description provided for @projectSetupHelpDensityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Decides how much detail and spacing a card has on the board.'**
+  String get projectSetupHelpDensityBody;
+
+  /// No description provided for @projectSetupHelpMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial members'**
+  String get projectSetupHelpMembersTitle;
+
+  /// No description provided for @projectSetupHelpMembersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'People who will see the project straight away. You can change their roles after the project is created.'**
+  String get projectSetupHelpMembersBody;
+
+  /// No description provided for @projectSetupHelpPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project preview'**
+  String get projectSetupHelpPreviewTitle;
+
+  /// No description provided for @projectSetupHelpPreviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The preview shows a slice of what will be created: real tasks, columns and labels from the selected template.'**
+  String get projectSetupHelpPreviewBody;
+
+  /// No description provided for @projectSetupHelpSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Help: {title}'**
+  String projectSetupHelpSemantics(String title);
+
+  /// No description provided for @projectSetupAppearanceLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Project appearance'**
+  String get projectSetupAppearanceLegend;
+
+  /// No description provided for @projectSetupAppearanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon and colour shown in the project tree and in the project header.'**
+  String get projectSetupAppearanceHint;
+
+  /// No description provided for @projectSetupAccessMembersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the people who should see the project right away.'**
+  String get projectSetupAccessMembersHint;
+
+  /// No description provided for @projectSetupAccessSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected people: {count}'**
+  String projectSetupAccessSelectedCount(int count);
+
+  /// No description provided for @projectSetupStatusesLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom columns'**
+  String get projectSetupStatusesLegend;
+
+  /// No description provided for @projectSetupStatusesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, colour, category and WIP limit make up a single board column.'**
+  String get projectSetupStatusesHint;
+
+  /// No description provided for @projectSetupSummaryDecisionsLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Your decisions'**
+  String get projectSetupSummaryDecisionsLegend;
+
+  /// No description provided for @projectSetupSummaryChangeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get projectSetupSummaryChangeButton;
+
+  /// No description provided for @projectSetupWorkflowOptionColumnsLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns in this option'**
+  String get projectSetupWorkflowOptionColumnsLegend;
+
+  /// No description provided for @projectSetupWorkflowSystemPreviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'These columns are created in every new project.'**
+  String get projectSetupWorkflowSystemPreviewHint;
+
+  /// No description provided for @projectSetupWorkflowCatalogPreviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a ready-made layout from the list — the preview on the right shows its columns once you select it.'**
+  String get projectSetupWorkflowCatalogPreviewHint;
+
+  /// No description provided for @projectSetupWorkflowExplicitPreviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You add your own columns below.'**
+  String get projectSetupWorkflowExplicitPreviewHint;
+
+  /// No description provided for @projectSetupPreviewMoreColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} columns'**
+  String projectSetupPreviewMoreColumns(int count);
+
+  /// No description provided for @projectSetupWorkingStyleAdjustBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Also adjust board settings'**
+  String get projectSetupWorkingStyleAdjustBoard;
+
+  /// No description provided for @projectSetupWorkingStyleAdjustList.
+  ///
+  /// In en, this message translates to:
+  /// **'Also adjust list settings'**
+  String get projectSetupWorkingStyleAdjustList;
+
+  /// No description provided for @projectSetupWorkingStyleCollapseBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse board settings'**
+  String get projectSetupWorkingStyleCollapseBoard;
+
+  /// No description provided for @projectSetupWorkingStyleCollapseList.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse list settings'**
+  String get projectSetupWorkingStyleCollapseList;
+
+  /// No description provided for @projectSetupWorkingStyleHiddenDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'The other view\'s settings go into the project with default values; you will see them in the summary.'**
+  String get projectSetupWorkingStyleHiddenDefaults;
+
+  /// No description provided for @projectSetupPreviewColumnsApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches the server plan'**
+  String get projectSetupPreviewColumnsApproved;
+
+  /// No description provided for @projectSetupPreviewColumnsApprovedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The server checked the template version and will create the project with exactly this content: columns, tasks and labels come straight from the template, and the plan does not change its workflow.'**
+  String get projectSetupPreviewColumnsApprovedBody;
 
   /// No description provided for @projectSetupErrorTitle.
   ///
@@ -2063,19 +2621,19 @@ abstract class AppLocalizations {
   /// No description provided for @projectSetupErrorValidation.
   ///
   /// In en, this message translates to:
-  /// **'The backend rejected the wizard data. Fix the highlighted values.'**
+  /// **'The wizard data could not be saved. Fix the highlighted values.'**
   String get projectSetupErrorValidation;
 
   /// No description provided for @projectSetupErrorUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'The wizard has no configured project creation port.'**
+  /// **'Creating projects is unavailable right now. Try again in a moment; if the problem repeats, report it to your administrator.'**
   String get projectSetupErrorUnavailable;
 
   /// No description provided for @projectResourceUnavailableMessage.
   ///
   /// In en, this message translates to:
-  /// **'This form has no backend connection in this session, so nothing was saved.'**
+  /// **'We have no server connection right now, so nothing was saved. Try again in a moment.'**
   String get projectResourceUnavailableMessage;
 
   /// No description provided for @projectSetupErrorCancelled.
@@ -10688,6 +11246,54 @@ abstract class AppLocalizations {
   /// **'By milestone'**
   String get tasksKanbanSwimlaneMilestone;
 
+  /// No description provided for @tasksBoardGroupBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Group by'**
+  String get tasksBoardGroupBy;
+
+  /// No description provided for @tasksBoardGroupByStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get tasksBoardGroupByStatus;
+
+  /// No description provided for @tasksBoardCurrentUserBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get tasksBoardCurrentUserBadge;
+
+  /// No description provided for @tasksBoardMoveToPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to person'**
+  String get tasksBoardMoveToPerson;
+
+  /// No description provided for @tasksBoardLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get tasksBoardLoadMore;
+
+  /// No description provided for @tasksBoardUnassignedDropTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove every assignee?'**
+  String get tasksBoardUnassignedDropTitle;
+
+  /// No description provided for @tasksBoardUnassignedDropBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropping the card here removes all assignees from the task. The task status does not change.'**
+  String get tasksBoardUnassignedDropBody;
+
+  /// No description provided for @tasksBoardUnassignedDropConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove assignees'**
+  String get tasksBoardUnassignedDropConfirm;
+
   /// No description provided for @tasksKanbanCardDensity.
   ///
   /// In en, this message translates to:
@@ -11053,6 +11659,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All people'**
   String get tasksBoardFilterAllPeople;
+
+  /// No description provided for @tasksBoardAssigneeColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'People columns'**
+  String get tasksBoardAssigneeColumns;
+
+  /// No description provided for @tasksBoardAssigneeColumnsHideEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide empty columns'**
+  String get tasksBoardAssigneeColumnsHideEmpty;
+
+  /// No description provided for @tasksBoardAssigneeColumnsShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all columns'**
+  String get tasksBoardAssigneeColumnsShowAll;
+
+  /// No description provided for @tasksBoardAssigneeColumnsAllHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'All columns hidden — show them'**
+  String get tasksBoardAssigneeColumnsAllHidden;
+
+  /// No description provided for @tasksBoardActiveFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Active filters:'**
+  String get tasksBoardActiveFilters;
 
   /// No description provided for @tasksBoardMoveBlockedByFilter.
   ///
@@ -15548,6 +16184,96 @@ abstract class AppLocalizations {
   /// **'Recent'**
   String get storageRecent;
 
+  /// No description provided for @storageFilterActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active filter:'**
+  String get storageFilterActiveLabel;
+
+  /// No description provided for @storageFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get storageFilterAll;
+
+  /// No description provided for @storageFilterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get storageFilterClear;
+
+  /// No description provided for @storageFilterDateMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get storageFilterDateMonth;
+
+  /// No description provided for @storageFilterDateSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Date added'**
+  String get storageFilterDateSection;
+
+  /// No description provided for @storageFilterDateToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get storageFilterDateToday;
+
+  /// No description provided for @storageFilterDateWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get storageFilterDateWeek;
+
+  /// No description provided for @storageFilterMenuLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get storageFilterMenuLabel;
+
+  /// No description provided for @storageFilterStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get storageFilterStatusCompleted;
+
+  /// No description provided for @storageFilterStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get storageFilterStatusFailed;
+
+  /// No description provided for @storageFilterStatusNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not analysed'**
+  String get storageFilterStatusNone;
+
+  /// No description provided for @storageFilterStatusProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing'**
+  String get storageFilterStatusProcessing;
+
+  /// No description provided for @storageFilterStatusQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued'**
+  String get storageFilterStatusQueued;
+
+  /// No description provided for @storageFilterStatusSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis status'**
+  String get storageFilterStatusSection;
+
+  /// No description provided for @storageFilterTypeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'File type'**
+  String get storageFilterTypeSection;
+
   /// No description provided for @storageFavorites.
   ///
   /// In en, this message translates to:
@@ -15896,6 +16622,24 @@ abstract class AppLocalizations {
   /// **'No users with an active local account were found.'**
   String get storageUserSearchNoResults;
 
+  /// No description provided for @storageViewDensityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Row density'**
+  String get storageViewDensityLabel;
+
+  /// No description provided for @storageViewDensityComfortable.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfortable'**
+  String get storageViewDensityComfortable;
+
+  /// No description provided for @storageViewDensityCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get storageViewDensityCompact;
+
   /// No description provided for @storageAddShareButton.
   ///
   /// In en, this message translates to:
@@ -16028,6 +16772,42 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get storageShareAction;
 
+  /// No description provided for @storageShareAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'Author: {identifier}'**
+  String storageShareAuthor(Object identifier);
+
+  /// No description provided for @storageShareExpiresAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires: {date}'**
+  String storageShareExpiresAt(Object date);
+
+  /// No description provided for @storageShareLinkSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Public link'**
+  String get storageShareLinkSection;
+
+  /// No description provided for @storageSharePeopleSection.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get storageSharePeopleSection;
+
+  /// No description provided for @storageShareProjectSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get storageShareProjectSection;
+
+  /// No description provided for @storageShareWorkspaceSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace'**
+  String get storageShareWorkspaceSection;
+
   /// No description provided for @storageAddFavoriteAction.
   ///
   /// In en, this message translates to:
@@ -16105,6 +16885,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The editor did not confirm a safe close. Closing anyway may lose unsaved changes. Close the document?'**
   String get storageOfficeCloseUnconfirmed;
+
+  /// No description provided for @storageOfficeCloseUnsavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The document has changes that have not been confirmed by a save yet. Closing the editor may lose them.'**
+  String get storageOfficeCloseUnsavedBody;
+
+  /// No description provided for @storageOfficeCloseUnsavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close without saving?'**
+  String get storageOfficeCloseUnsavedTitle;
+
+  /// No description provided for @storageOfficeConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get storageOfficeConnected;
+
+  /// No description provided for @storageOfficeConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get storageOfficeConnecting;
+
+  /// No description provided for @storageOfficeSavedChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get storageOfficeSavedChanges;
+
+  /// No description provided for @storageOfficeUnsavedChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved changes'**
+  String get storageOfficeUnsavedChanges;
 
   /// No description provided for @storageOfficeSessionFailure.
   ///
@@ -16189,6 +17005,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More options'**
   String get storageMoreOptionsTooltip;
+
+  /// No description provided for @storageMoveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to…'**
+  String get storageMoveAction;
+
+  /// No description provided for @storageMoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Move here'**
+  String get storageMoveConfirm;
+
+  /// No description provided for @storageMoveDialogNoSubfolders.
+  ///
+  /// In en, this message translates to:
+  /// **'No subfolders. Pick this folder or go up.'**
+  String get storageMoveDialogNoSubfolders;
+
+  /// No description provided for @storageMoveDialogRoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Root folder'**
+  String get storageMoveDialogRoot;
+
+  /// No description provided for @storageMoveDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to folder'**
+  String get storageMoveDialogTitle;
 
   /// No description provided for @storageClearCompletedTooltip.
   ///
@@ -16358,6 +17204,24 @@ abstract class AppLocalizations {
   /// **'No saved file versions.'**
   String get storageVersionsEmpty;
 
+  /// No description provided for @storageVersionPreviewBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} — preview'**
+  String storageVersionPreviewBadge(Object version);
+
+  /// No description provided for @storageVersionPreviewAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview version'**
+  String get storageVersionPreviewAction;
+
+  /// No description provided for @storageVersionPreviewOfficeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'A historical version of an office document cannot be previewed in this session. Download the file to see it.'**
+  String get storageVersionPreviewOfficeUnavailable;
+
   /// No description provided for @storageVersionLabel.
   ///
   /// In en, this message translates to:
@@ -16417,6 +17281,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Some items could not be deleted.'**
   String get storagePartialDeleteFailed;
+
+  /// No description provided for @storagePartialMoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items could not be moved.'**
+  String get storagePartialMoveFailed;
 
   /// No description provided for @storageDeleteSelectedFailed.
   ///
@@ -17951,6 +18821,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create template'**
   String get projectsTemplateCreateAction;
+
+  /// No description provided for @storageOfficeSavingChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the server…'**
+  String get storageOfficeSavingChanges;
+
+  /// No description provided for @storageOfficeSaveUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Save not confirmed'**
+  String get storageOfficeSaveUnconfirmed;
+
+  /// No description provided for @storageOfficeCloseAwaitingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for the save to be confirmed?'**
+  String get storageOfficeCloseAwaitingTitle;
+
+  /// No description provided for @storageOfficeCloseAwaitingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The editor has no local changes left, but the backend has not confirmed a new version yet. Closing now may show the list with the previous version of the file.'**
+  String get storageOfficeCloseAwaitingBody;
+
+  /// No description provided for @storageOfficeCloseWaitForSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait'**
+  String get storageOfficeCloseWaitForSave;
 }
 
 class _AppLocalizationsDelegate

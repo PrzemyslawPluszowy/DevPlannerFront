@@ -185,12 +185,15 @@ final class ProjectResourceCreationDialogs {
     builder: (dialogContext) => AlertDialog(
       icon: const Icon(Icons.cloud_off_outlined),
       title: Text(title),
-      content: Text(AppLocalizations.of(dialogContext)!
-          .projectResourceUnavailableMessage),
+      content: Text(
+        AppLocalizations.of(dialogContext)!.projectResourceUnavailableMessage,
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(),
-          child: Text(AppLocalizations.of(dialogContext)!.workspacesCancelButton),
+          child: Text(
+            AppLocalizations.of(dialogContext)!.workspacesCancelButton,
+          ),
         ),
       ],
     ),

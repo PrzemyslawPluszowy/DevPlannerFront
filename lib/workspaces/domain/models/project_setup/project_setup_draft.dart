@@ -199,7 +199,10 @@ final class ProjectSetupDraft {
     this.scheduleMode = AutoScheduleMode.manual,
     this.capacityMinutes,
     this.boardSwimlaneMode = KanbanSwimlaneMode.none,
-    this.boardDensity = KanbanCardDensity.comfortable,
+    // Domyślnie Compact — tak samo jak domyślna gęstość projektu w Backendzie
+    // (`ProjectKanbanSettings`), żeby kreator nie wysyłał jawnie szerszej
+    // tablicy niż ta, którą dostaje projekt bez zmian w kroku sposobu pracy.
+    this.boardDensity = KanbanCardDensity.compact,
     this.boardVisibleFields = const <KanbanCardField>{
       KanbanCardField.assignee,
       KanbanCardField.dueDate,

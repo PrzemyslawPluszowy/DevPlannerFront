@@ -41,10 +41,20 @@ final class StorageDocumentMutationSuccess
 final class StorageDocumentMutationFailure
     extends StorageDocumentMutationState {
   /// Tworzy stan błędu.
-  const StorageDocumentMutationFailure(this.message);
+  const StorageDocumentMutationFailure(
+    this.message, {
+    this.apiCode,
+    this.traceId,
+  });
 
   /// Komunikat do pokazania użytkownikowi.
   final String message;
+
+  /// Opcjonalny stabilny kod kontraktu.
+  final String? apiCode;
+
+  /// Opcjonalny identyfikator śledzenia żądania.
+  final String? traceId;
 
   @override
   List<Object?> get props => [message];

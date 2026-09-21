@@ -570,6 +570,29 @@ class AppLocalizationsPl extends AppLocalizations {
   String get projectSetupStepWorkingStyleTitle => 'Sposób pracy';
 
   @override
+  String get projectSetupStepBasicsSubtitle => 'Nazwa, opis i wygląd projektu.';
+
+  @override
+  String get projectSetupStepAccessSubtitle =>
+      'Kto zobaczy projekt i z jaką rolą.';
+
+  @override
+  String get projectSetupStepWorkflowSubtitle =>
+      'Statusy, w których będą przechodzić zadania.';
+
+  @override
+  String get projectSetupStepWorkingStyleSubtitle =>
+      'Domyślny widok, harmonogram i ustawienia tablicy.';
+
+  @override
+  String get projectSetupStepStarterFeaturesSubtitle =>
+      'Automatyzacje, które powstaną razem z projektem.';
+
+  @override
+  String get projectSetupStepSummarySubtitle =>
+      'Sprawdź plan i utwórz projekt.';
+
+  @override
   String get projectSetupStepStarterFeaturesTitle => 'Funkcje startowe';
 
   @override
@@ -598,11 +621,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupTemplatesUnavailable =>
-      'Katalog szablonów nie jest dostępny w tej sesji.';
+      'Nie możemy teraz pobrać szablonów projektów.';
 
   @override
   String get projectSetupTemplatesUnavailableReason =>
-      'Brak wpiętego portu szablonów projektów.';
+      'Spróbuj ponownie za chwilę. Jeśli problem się powtórzy, zgłoś go administratorowi.';
 
   @override
   String get projectSetupTemplatesRetry => 'Ponów pobieranie szablonów';
@@ -685,11 +708,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupAccessMembersUnavailable =>
-      'Lista członków workspace nie jest dostępna w tej sesji.';
+      'Nie możemy teraz pobrać listy członków workspace.';
 
   @override
   String get projectSetupAccessMembersUnavailableReason =>
-      'Brak wpiętego portu członków workspace.';
+      'Spróbuj ponownie za chwilę. Jeśli problem się powtórzy, zgłoś go administratorowi. Członków możesz też dodać po utworzeniu projektu.';
 
   @override
   String get projectSetupAccessMembersRetry => 'Ponów pobieranie członków';
@@ -721,7 +744,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupWorkflowCatalogDescription =>
-      'Gotowy zestaw kolumn z katalogu Backendu.';
+      'Gotowy zestaw kolumn dobrany do typu pracy.';
 
   @override
   String get projectSetupWorkflowCatalogLegend => 'Szablon katalogowy';
@@ -1023,7 +1046,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get projectSetupSummarySchedule => 'Harmonogram';
 
   @override
-  String get projectSetupSummaryCapacity => 'Dziennea pojemność';
+  String get projectSetupSummaryCapacity => 'Dzienna pojemność';
 
   @override
   String projectSetupSummaryCapacityValue(int minutes) {
@@ -1048,7 +1071,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupSummaryPlanStale =>
-      'Draft zmienił się od czasu zbudowania planu.';
+      'Ustawienia zmieniły się od czasu zbudowania planu.';
 
   @override
   String get projectSetupSummaryWarningsLegend => 'Ostrzeżenia';
@@ -1056,6 +1079,331 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get projectSetupSummaryTemplateCounts =>
       'Szablon wniesie zadania, etykiety i pola widoczne w planie.';
+
+  @override
+  String get projectSetupPreviewLegend => 'Podgląd projektu';
+
+  @override
+  String get projectSetupPreviewUntitledProject => 'Projekt bez nazwy';
+
+  @override
+  String projectSetupPreviewTemplateBadge(String name) {
+    return 'Szablon: $name';
+  }
+
+  @override
+  String get projectSetupPreviewRefreshing => 'Odświeżanie podglądu';
+
+  @override
+  String get projectSetupPreviewLoading => 'Pobieranie podglądu szablonu…';
+
+  @override
+  String get projectSetupPreviewRetryHint =>
+      'Spróbuj ponownie. Jeśli problem się powtórzy, zgłoś go administratorowi.';
+
+  @override
+  String projectSetupPreviewMoreTasks(int count) {
+    return '+$count więcej zadań';
+  }
+
+  @override
+  String projectSetupPreviewMoreItems(int count) {
+    return '+$count więcej';
+  }
+
+  @override
+  String projectSetupPreviewWipBadge(int limit) {
+    return 'WIP $limit';
+  }
+
+  @override
+  String get projectSetupPreviewColumnTask => 'Zadanie';
+
+  @override
+  String get projectSetupPreviewColumnStatus => 'Status';
+
+  @override
+  String get projectSetupPreviewColumnPriority => 'Priorytet';
+
+  @override
+  String get projectSetupPreviewEmptyBoardTitle => 'Brak kolumn do pokazania';
+
+  @override
+  String get projectSetupPreviewEmptyBoardBody =>
+      'Ten wariant nie wnosi własnych kolumn. Tablica powstanie ze statusów systemowych.';
+
+  @override
+  String get projectSetupPreviewColumnsFromTemplate => 'Kolumny z szablonu';
+
+  @override
+  String get projectSetupPreviewColumnsFromTemplateBody =>
+      'Nazwy, kolory i limity WIP pochodzą wprost z szablonu. Zobaczysz je w projekcie zaraz po utworzeniu.';
+
+  @override
+  String get projectSetupPreviewColumnsExplicit => 'Twoje kolumny';
+
+  @override
+  String get projectSetupPreviewColumnsExplicitBody =>
+      'Te kolumny zdefiniujesz sam. Pojawią się w projekcie w podanej kolejności.';
+
+  @override
+  String get projectSetupPreviewColumnsPlan => 'Kolumny zatwierdzone w planie';
+
+  @override
+  String projectSetupPreviewColumnsPlanBody(int count) {
+    return 'Plan potwierdza te kolumny oraz $count statusów systemowych, które powstają zawsze.';
+  }
+
+  @override
+  String get projectSetupPreviewColumnsSystem => 'Statusy systemowe';
+
+  @override
+  String projectSetupPreviewColumnsSystemBody(int count) {
+    return 'Kolumny systemowe ($count) powstają w każdym nowym projekcie. Ich nazwy i kolory zobaczysz po jego utworzeniu.';
+  }
+
+  @override
+  String get projectSetupPreviewColumnsSystemNoCount =>
+      'Systemowe kolumny powstaną w każdym nowym projekcie; nazwy i kolory zobaczysz po jego utworzeniu.';
+
+  @override
+  String projectSetupPreviewColumnsCatalogBody(String name) {
+    return 'Gotowy układ statusów: $name. Kolumny zobaczysz w projekcie po jego utworzeniu.';
+  }
+
+  @override
+  String get projectSetupPreviewMembersTitle => 'Kto zobaczy projekt';
+
+  @override
+  String get projectSetupPreviewMembersShared =>
+      'Wszyscy aktywni członkowie workspace.';
+
+  @override
+  String projectSetupPreviewMembersPrivate(int count) {
+    return 'Zaproszone osoby: $count.';
+  }
+
+  @override
+  String get projectSetupPreviewMembersPrivateNone =>
+      'Na razie tylko Ty. Członków możesz dodać teraz albo później.';
+
+  @override
+  String get projectSetupPreviewBoardSettingsTitle => 'Ustawienia tablicy';
+
+  @override
+  String get projectSetupPreviewListSettingsTitle => 'Ustawienia listy';
+
+  @override
+  String projectSetupPreviewVisibleFields(int count) {
+    return 'Widoczne pola: $count';
+  }
+
+  @override
+  String get projectSetupPreviewRecipesTitle => 'Automatyzacje';
+
+  @override
+  String get projectSetupPreviewRecipesNone =>
+      'Nie wybrano żadnej automatyzacji. Możesz je dodać później.';
+
+  @override
+  String get projectSetupPreviewRecipeWhen => 'Gdy';
+
+  @override
+  String get projectSetupPreviewRecipeThen => 'wtedy';
+
+  @override
+  String projectSetupPreviewWarningsBody(int count) {
+    return 'Plan zawiera ostrzeżenia: $count. Zobacz je nad przyciskiem „Utwórz projekt”.';
+  }
+
+  @override
+  String get projectSetupRecipeCriticalToBlockedTrigger =>
+      'zadanie ma priorytet krytyczny';
+
+  @override
+  String get projectSetupRecipeCriticalToBlockedAction =>
+      'ustaw status zablokowany';
+
+  @override
+  String get projectSetupRecipeDueSoonHighPriorityTrigger =>
+      'termin zadania wypada w ciągu dwóch dni';
+
+  @override
+  String get projectSetupRecipeDueSoonHighPriorityAction =>
+      'podnieś priorytet do wysokiego';
+
+  @override
+  String get projectSetupRecipeDoneClearDueDateTrigger =>
+      'zadanie zostanie ukończone';
+
+  @override
+  String get projectSetupRecipeDoneClearDueDateAction =>
+      'wyczyść termin zadania';
+
+  @override
+  String get projectSetupRecipeDoneCreateReviewSubtaskTrigger =>
+      'zadanie zostanie ukończone';
+
+  @override
+  String get projectSetupRecipeDoneCreateReviewSubtaskAction =>
+      'dodaj podzadanie z przeglądem rezultatu';
+
+  @override
+  String get projectSetupHelpSwimlanesTitle => 'Tory na tablicy';
+
+  @override
+  String get projectSetupHelpSwimlanesBody =>
+      'Tory dzielą tablicę na poziome sekcje, np. osobno dla każdego wykonawcy lub priorytetu. Nie zmieniają statusu zadania.';
+
+  @override
+  String get projectSetupHelpWipTitle => 'Limit WIP';
+
+  @override
+  String get projectSetupHelpWipBody =>
+      'Maksymalna liczba zadań, które mogą jednocześnie znajdować się w tej kolumnie.';
+
+  @override
+  String get projectSetupHelpStatusCategoryTitle => 'Kategoria statusu';
+
+  @override
+  String get projectSetupHelpStatusCategoryBody =>
+      'Kategoria pomaga raportom rozumieć, czy zadanie czeka, trwa, czy jest zakończone. Nazwę kolumny możesz ustawić dowolnie.';
+
+  @override
+  String get projectSetupHelpCascadeTitle => 'Kaskada zależności';
+
+  @override
+  String get projectSetupHelpCascadeBody =>
+      'Gdy termin jednego zadania się przesunie, system może automatycznie przesunąć zadania od niego zależne.';
+
+  @override
+  String get projectSetupHelpCapacityTitle => 'Dzienna pojemność';
+
+  @override
+  String get projectSetupHelpCapacityBody =>
+      'Liczba minut pracy planowana dziennie na osobę. To ustawienie dotyczy całego workspace.';
+
+  @override
+  String get projectSetupHelpVisibilityTitle => 'Widoczność prywatna';
+
+  @override
+  String get projectSetupHelpVisibilityBody =>
+      'Projekt zobaczą tylko dodani członkowie. Osoby zarządzające workspace mają dostęp zgodnie ze swoimi uprawnieniami.';
+
+  @override
+  String get projectSetupHelpAutomationsTitle => 'Automatyzacje';
+
+  @override
+  String get projectSetupHelpAutomationsBody =>
+      'Reguły wykonują akcję po konkretnym zdarzeniu. Można je później wyłączyć.';
+
+  @override
+  String get projectSetupHelpCatalogWorkflowTitle =>
+      'Katalogowy szablon workflow';
+
+  @override
+  String get projectSetupHelpCatalogWorkflowBody =>
+      'Gotowy układ statusów, nie pełny szablon projektu z zadaniami.';
+
+  @override
+  String get projectSetupHelpDensityTitle => 'Gęstość karty';
+
+  @override
+  String get projectSetupHelpDensityBody =>
+      'Określa, ile szczegółów i odstępów ma karta na tablicy.';
+
+  @override
+  String get projectSetupHelpMembersTitle => 'Startowi członkowie';
+
+  @override
+  String get projectSetupHelpMembersBody =>
+      'Osoby, które od razu zobaczą projekt. Ich role możesz zmienić po utworzeniu projektu.';
+
+  @override
+  String get projectSetupHelpPreviewTitle => 'Podgląd projektu';
+
+  @override
+  String get projectSetupHelpPreviewBody =>
+      'Podgląd pokazuje wycinek tego, co powstanie: prawdziwe zadania, kolumny i etykiety z wybranego szablonu.';
+
+  @override
+  String projectSetupHelpSemantics(String title) {
+    return 'Pomoc: $title';
+  }
+
+  @override
+  String get projectSetupAppearanceLegend => 'Wygląd projektu';
+
+  @override
+  String get projectSetupAppearanceHint =>
+      'Ikona i kolor widoczne w drzewie projektów oraz w nagłówku projektu.';
+
+  @override
+  String get projectSetupAccessMembersHint =>
+      'Zaznacz osoby, które od razu zobaczą projekt.';
+
+  @override
+  String projectSetupAccessSelectedCount(int count) {
+    return 'Wybrane osoby: $count';
+  }
+
+  @override
+  String get projectSetupStatusesLegend => 'Kolumny własne';
+
+  @override
+  String get projectSetupStatusesHint =>
+      'Nazwa, kolor, kategoria i limit WIP tworzą jedną kolumnę tablicy.';
+
+  @override
+  String get projectSetupSummaryDecisionsLegend => 'Twoje decyzje';
+
+  @override
+  String get projectSetupSummaryChangeButton => 'Zmień';
+
+  @override
+  String get projectSetupWorkflowOptionColumnsLegend => 'Kolumny tej opcji';
+
+  @override
+  String get projectSetupWorkflowSystemPreviewHint =>
+      'Te kolumny powstają w każdym nowym projekcie.';
+
+  @override
+  String get projectSetupWorkflowCatalogPreviewHint =>
+      'Gotowy układ dobierzesz z listy — podgląd po prawej pokaże jego kolumny po wybraniu.';
+
+  @override
+  String get projectSetupWorkflowExplicitPreviewHint =>
+      'Własne kolumny dodasz poniżej.';
+
+  @override
+  String projectSetupPreviewMoreColumns(int count) {
+    return '+$count kolumn';
+  }
+
+  @override
+  String get projectSetupWorkingStyleAdjustBoard =>
+      'Dostosuj także ustawienia tablicy';
+
+  @override
+  String get projectSetupWorkingStyleAdjustList =>
+      'Dostosuj także ustawienia listy';
+
+  @override
+  String get projectSetupWorkingStyleCollapseBoard => 'Zwiń ustawienia tablicy';
+
+  @override
+  String get projectSetupWorkingStyleCollapseList => 'Zwiń ustawienia listy';
+
+  @override
+  String get projectSetupWorkingStyleHiddenDefaults =>
+      'Ustawienia drugiego widoku trafią do projektu z wartościami domyślnymi; zobaczysz je w podsumowaniu.';
+
+  @override
+  String get projectSetupPreviewColumnsApproved => 'Zgodne z planem serwera';
+
+  @override
+  String get projectSetupPreviewColumnsApprovedBody =>
+      'Serwer sprawdził wersję szablonu i utworzy projekt dokładnie z tej zawartości: kolumny, zadania i etykiety pochodzą wprost z szablonu, a plan nie zmienia jego workflow.';
 
   @override
   String get projectSetupErrorTitle => 'Nie udało się wykonać operacji';
@@ -1092,15 +1440,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupErrorValidation =>
-      'Backend odrzucił dane kreatora. Popraw wskazane wartości.';
+      'Nie udało się zapisać danych kreatora. Popraw wskazane wartości.';
 
   @override
   String get projectSetupErrorUnavailable =>
-      'Kreator nie ma skonfigurowanego portu tworzenia projektu.';
+      'Tworzenie projektu nie jest teraz dostępne. Spróbuj ponownie za chwilę; jeśli problem się powtórzy, zgłoś go administratorowi.';
 
   @override
   String get projectResourceUnavailableMessage =>
-      'Ten formularz nie ma połączenia z backendem w tej sesji, więc nic nie zostało zapisane.';
+      'Nie mamy teraz połączenia z serwerem, więc nic nie zostało zapisane. Spróbuj ponownie za chwilę.';
 
   @override
   String get projectSetupErrorCancelled =>
@@ -6060,6 +6408,31 @@ class AppLocalizationsPl extends AppLocalizations {
   String get tasksKanbanSwimlaneMilestone => 'Według kamienia milowego';
 
   @override
+  String get tasksBoardGroupBy => 'Grupuj według';
+
+  @override
+  String get tasksBoardGroupByStatus => 'Status';
+
+  @override
+  String get tasksBoardCurrentUserBadge => 'Ty';
+
+  @override
+  String get tasksBoardMoveToPerson => 'Przenieś do osoby';
+
+  @override
+  String get tasksBoardLoadMore => 'Wczytaj więcej';
+
+  @override
+  String get tasksBoardUnassignedDropTitle => 'Usunąć wszystkich wykonawców?';
+
+  @override
+  String get tasksBoardUnassignedDropBody =>
+      'Upuszczenie karty tutaj usunie wszystkich wykonawców zadania. Status zadania się nie zmieni.';
+
+  @override
+  String get tasksBoardUnassignedDropConfirm => 'Usuń wykonawców';
+
+  @override
   String get tasksKanbanCardDensity => 'Gęstość kart';
 
   @override
@@ -6253,6 +6626,22 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tasksBoardFilterAllPeople => 'Wszystkie osoby';
+
+  @override
+  String get tasksBoardAssigneeColumns => 'Kolumny osób';
+
+  @override
+  String get tasksBoardAssigneeColumnsHideEmpty => 'Ukryj puste kolumny';
+
+  @override
+  String get tasksBoardAssigneeColumnsShowAll => 'Pokaż wszystkie kolumny';
+
+  @override
+  String get tasksBoardAssigneeColumnsAllHidden =>
+      'Wszystkie kolumny ukryte — pokaż je';
+
+  @override
+  String get tasksBoardActiveFilters => 'Aktywne filtry:';
 
   @override
   String get tasksBoardMoveBlockedByFilter =>
@@ -8703,6 +9092,51 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageRecent => 'Ostatnie';
 
   @override
+  String get storageFilterActiveLabel => 'Aktywny filtr:';
+
+  @override
+  String get storageFilterAll => 'Wszystkie';
+
+  @override
+  String get storageFilterClear => 'Wyczyść';
+
+  @override
+  String get storageFilterDateMonth => 'Ostatnie 30 dni';
+
+  @override
+  String get storageFilterDateSection => 'Data dodania';
+
+  @override
+  String get storageFilterDateToday => 'Dziś';
+
+  @override
+  String get storageFilterDateWeek => 'Ostatnie 7 dni';
+
+  @override
+  String get storageFilterMenuLabel => 'Filtry';
+
+  @override
+  String get storageFilterStatusCompleted => 'Gotowe';
+
+  @override
+  String get storageFilterStatusFailed => 'Błąd';
+
+  @override
+  String get storageFilterStatusNone => 'Bez analizy';
+
+  @override
+  String get storageFilterStatusProcessing => 'W trakcie';
+
+  @override
+  String get storageFilterStatusQueued => 'W kolejce';
+
+  @override
+  String get storageFilterStatusSection => 'Status analizy';
+
+  @override
+  String get storageFilterTypeSection => 'Typ pliku';
+
+  @override
   String get storageFavorites => 'Ulubione';
 
   @override
@@ -8902,6 +9336,15 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie znaleziono użytkowników z aktywnym kontem lokalnym.';
 
   @override
+  String get storageViewDensityLabel => 'Gęstość wierszy';
+
+  @override
+  String get storageViewDensityComfortable => 'Wygodna';
+
+  @override
+  String get storageViewDensityCompact => 'Kompaktowa';
+
+  @override
   String get storageAddShareButton => 'Dodaj';
 
   @override
@@ -8976,6 +9419,28 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageShareAction => 'Udostępnij';
 
   @override
+  String storageShareAuthor(Object identifier) {
+    return 'Autor: $identifier';
+  }
+
+  @override
+  String storageShareExpiresAt(Object date) {
+    return 'Wygasa: $date';
+  }
+
+  @override
+  String get storageShareLinkSection => 'Link publiczny';
+
+  @override
+  String get storageSharePeopleSection => 'Osoby';
+
+  @override
+  String get storageShareProjectSection => 'Projekt';
+
+  @override
+  String get storageShareWorkspaceSection => 'Workspace';
+
+  @override
   String get storageAddFavoriteAction => 'Dodaj do ulubionych';
 
   @override
@@ -9018,6 +9483,25 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get storageOfficeCloseUnconfirmed =>
       'Edytor nie potwierdził bezpiecznego zamknięcia. Zamknięcie mimo tego może spowodować utratę niezapisanych zmian. Czy zamknąć dokument?';
+
+  @override
+  String get storageOfficeCloseUnsavedBody =>
+      'Dokument ma zmiany, które nie zostały jeszcze potwierdzone zapisem. Zamknięcie edytora może je utracić.';
+
+  @override
+  String get storageOfficeCloseUnsavedTitle => 'Zamknąć bez zapisu?';
+
+  @override
+  String get storageOfficeConnected => 'Połączono';
+
+  @override
+  String get storageOfficeConnecting => 'Łączenie…';
+
+  @override
+  String get storageOfficeSavedChanges => 'Zapisano';
+
+  @override
+  String get storageOfficeUnsavedChanges => 'Niezapisane zmiany';
 
   @override
   String get storageOfficeSessionFailure =>
@@ -9066,6 +9550,22 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageMoreOptionsTooltip => 'Więcej opcji';
+
+  @override
+  String get storageMoveAction => 'Przenieś do…';
+
+  @override
+  String get storageMoveConfirm => 'Przenieś tutaj';
+
+  @override
+  String get storageMoveDialogNoSubfolders =>
+      'Brak podfolderów. Wybierz ten folder albo przejdź wyżej.';
+
+  @override
+  String get storageMoveDialogRoot => 'Katalog główny';
+
+  @override
+  String get storageMoveDialogTitle => 'Przenieś do folderu';
 
   @override
   String get storageClearCompletedTooltip => 'Wyczyść zakończone';
@@ -9181,6 +9681,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageVersionsEmpty => 'Brak zapisanych wersji pliku.';
 
   @override
+  String storageVersionPreviewBadge(Object version) {
+    return 'Wersja $version — podgląd';
+  }
+
+  @override
+  String get storageVersionPreviewAction => 'Podgląd wersji';
+
+  @override
+  String get storageVersionPreviewOfficeUnavailable =>
+      'Podgląd historycznej wersji dokumentu biurowego nie jest dostępny w tej sesji. Pobierz plik, aby ją zobaczyć.';
+
+  @override
   String storageVersionLabel(int version) {
     return 'Wersja $version';
   }
@@ -9217,6 +9729,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get storagePartialDeleteFailed =>
       'Część elementów nie mogła zostać usunięta.';
+
+  @override
+  String get storagePartialMoveFailed =>
+      'Nie udało się przenieść części elementów.';
 
   @override
   String get storageDeleteSelectedFailed =>
@@ -10096,4 +10612,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectsTemplateCreateAction => 'Utwórz szablon';
+
+  @override
+  String get storageOfficeSavingChanges => 'Oczekiwanie na zapis…';
+
+  @override
+  String get storageOfficeSaveUnconfirmed => 'Zapis niepotwierdzony';
+
+  @override
+  String get storageOfficeCloseAwaitingTitle =>
+      'Poczekać na potwierdzenie zapisu?';
+
+  @override
+  String get storageOfficeCloseAwaitingBody =>
+      'Edytor nie ma już lokalnych zmian, ale backend nie potwierdził jeszcze nowej wersji. Zamknięcie teraz może pokazać listę ze starą wersją pliku.';
+
+  @override
+  String get storageOfficeCloseWaitForSave => 'Poczekaj';
 }

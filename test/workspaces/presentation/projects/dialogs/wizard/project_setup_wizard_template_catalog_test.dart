@@ -48,26 +48,26 @@ void main() {
 
     expect(tester.takeException(), isNull);
     // Karty pokazują dane katalogu jeszcze przed pobraniem podglądu.
-    expect(find.text('Szablon startowy'), findsOneWidget);
-    expect(find.text('Marketing'), findsOneWidget);
-    expect(find.text('Wersja 3'), findsOneWidget);
-    expect(find.text('Wersja 7'), findsOneWidget);
+    expect(findInControls('Szablon startowy'), findsOneWidget);
+    expect(findInControls('Marketing'), findsOneWidget);
+    expect(findInControls('Wersja 3'), findsOneWidget);
+    expect(findInControls('Wersja 7'), findsOneWidget);
     // Karta, której podglądu nie pobrano, nie ogłasza porażki.
     expect(find.text('Nie udało się pobrać podglądu szablonu.'), findsNothing);
     expect(templates.detailsRequests, isEmpty);
 
-    await tester.tap(find.text('Szablon startowy'));
+    await tester.tap(findInControls('Szablon startowy'));
     await tester.pumpAndSettle();
 
     expect(templates.detailsRequests, <String>['template-1']);
-    expect(find.text('Opis z podglądu'), findsOneWidget);
-    expect(find.text('Zadania: 6'), findsOneWidget);
-    expect(find.text('Etykiety: 3'), findsOneWidget);
-    expect(find.text('Pola: 2'), findsOneWidget);
-    expect(find.text('Własne statusy: 7'), findsOneWidget);
+    expect(findInControls('Opis z podglądu'), findsOneWidget);
+    expect(findInControls('Zadania: 6'), findsOneWidget);
+    expect(findInControls('Etykiety: 3'), findsOneWidget);
+    expect(findInControls('Pola: 2'), findsOneWidget);
+    expect(findInControls('Własne statusy: 7'), findsOneWidget);
     // Liczby i wersja pochodzą z podglądu, a nie z wpisu katalogu.
-    expect(find.text('Wersja 9'), findsOneWidget);
-    expect(find.text('Wersja 3'), findsNothing);
+    expect(findInControls('Wersja 9'), findsOneWidget);
+    expect(findInControls('Wersja 3'), findsNothing);
   });
 
   testWidgets('podgląd szablonu jest pamiętany per templateId', (tester) async {
@@ -80,19 +80,19 @@ void main() {
     );
     await _openWizard(tester, templates: templates);
 
-    await tester.tap(find.text('Szablon startowy'));
+    await tester.tap(findInControls('Szablon startowy'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('2. Podstawy'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('1. Sposób startu'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Szablon startowy'));
+    await tester.tap(findInControls('Szablon startowy'));
     await tester.pumpAndSettle();
 
     // Powrót do tego samego szablonu nie pobiera podglądu drugi raz, więc karta
     // nie miga skeletonem.
     expect(templates.detailsRequests, <String>['template-1']);
-    await tester.tap(find.text('Marketing'));
+    await tester.tap(findInControls('Marketing'));
     await tester.pumpAndSettle();
     expect(templates.detailsRequests, <String>['template-1', 'template-2']);
   });
@@ -119,17 +119,19 @@ void main() {
     );
     await _openWizard(tester, templates: templates);
 
-    await tester.tap(find.text('Szablon startowy'));
+    await tester.tap(findInControls('Szablon startowy'));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
+    // Komunikat błędu pokazuje karta szablonu i panel podglądu — oba mówią to
+    // samo, a użytkownik nie szuka błędu po omacku.
     expect(
       find.text('Podgląd szablonu jest chwilowo niedostępny.'),
-      findsOneWidget,
+      findsNWidgets(2),
     );
     // Wybór szablonu nadal działa, a krok się nie wywraca.
-    expect(find.text('Marketing'), findsOneWidget);
-    expect(find.text('Wersja 7'), findsOneWidget);
+    expect(findInControls('Marketing'), findsOneWidget);
+    expect(findInControls('Wersja 7'), findsOneWidget);
   });
 
   testWidgets('błąd katalogu pokazuje powód i pozwala ponowić pobranie', (
@@ -154,7 +156,7 @@ void main() {
     await tester.tap(find.text('Ponów pobieranie szablonów'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Szablon po ponowieniu'), findsOneWidget);
+    expect(findInControls('Szablon po ponowieniu'), findsOneWidget);
   });
 
   testWidgets('pusty katalog nie wywraca kroku startu', (tester) async {

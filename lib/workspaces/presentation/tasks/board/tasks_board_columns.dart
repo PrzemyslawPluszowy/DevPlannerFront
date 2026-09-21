@@ -9,6 +9,7 @@ class KanbanColumnWidget extends StatefulWidget {
     required this.density,
     required this.selectedTaskIds,
     required this.pendingTaskIds,
+    this.failedTaskIds = const <String>{},
     required this.memberProfilesByUserId,
     required this.isCollapsed,
     required this.onToggleCollapsed,
@@ -24,6 +25,9 @@ class KanbanColumnWidget extends StatefulWidget {
   final KanbanCardDensity density;
   final Set<String> selectedTaskIds;
   final Set<String> pendingTaskIds;
+
+  /// Karty po nieudanym zapisie; prezentacja pokazuje na nich obrys błędu.
+  final Set<String> failedTaskIds;
   final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final bool isCollapsed;
   final VoidCallback onToggleCollapsed;
@@ -99,15 +103,12 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
     }
     final colors = context.colors;
     final accent = TaskBoardColorParser.parse(widget.column.color);
-    return Container(
-      width: KanbanCardTokens.columnWidthStandard,
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLow,
-        borderRadius: .circular(10),
-        border: .all(
-          color: colors.outlineVariant.withValues(alpha: .35),
-        ),
-      ),
+    return KanbanColumnSurface(
+      // Ten sam gradient i podświetlenie ramki co w widoku osób, z akcentem
+      // wziętym z koloru statusu.
+      accent: accent,
+      density: widget.density,
+      footer: _QuickCreateTask(column: widget.column),
       child: Column(
         children: [
           Container(
@@ -167,30 +168,21 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
         column: widget.column,
         targetIndex: 0,
         expand: true,
-        child: Column(
-          children: [
-            Padding(
-              padding: const .only(top: 24, bottom: 8),
-              child: Text(
-                context.l10n.tasksColumnEmpty,
-                style: context.text.bodySmall?.copyWith(
-                  color: context.colors.onSurfaceVariant,
-                ),
-              ),
+        child: Padding(
+          padding: const .only(top: 24, bottom: 8),
+          child: Text(
+            context.l10n.tasksColumnEmpty,
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurfaceVariant,
             ),
-            _QuickCreateTask(column: widget.column),
-          ],
+          ),
         ),
       );
     }
 
     final hasExtra = widget.isLoadingMore || widget.loadError != null;
     final extraCount = hasExtra ? 1 : 0;
-    final totalCount =
-        tasks.length * 2 +
-        1 +
-        extraCount +
-        1; // +1 dla _QuickCreateTask pod kartami
+    final totalCount = tasks.length * 2 + 1 + extraCount;
 
     return ListView.builder(
       controller: _controller,
@@ -198,13 +190,6 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
       itemCount: totalCount,
       itemBuilder: (context, index) {
         final contentLength = tasks.length * 2 + 1;
-        if (index == totalCount - 1) {
-          // Quick create bezpośrednio pod ostatnią kartą / drop zone
-          return Padding(
-            padding: const .only(top: 2),
-            child: _QuickCreateTask(column: widget.column),
-          );
-        }
         if (index == contentLength && widget.isLoadingMore) {
           return const Center(
             child: Padding(
@@ -273,6 +258,7 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
           column: widget.column,
           targetIndex: index ~/ 2 + 1,
           child: _DraggableTaskCard(
+            hasError: widget.failedTaskIds.contains(task.id),
             task: task,
             workspaceId: widget.workspaceId,
             projectId: widget.projectId,

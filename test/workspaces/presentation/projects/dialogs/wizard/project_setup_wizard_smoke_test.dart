@@ -38,14 +38,20 @@ void main() {
       // Kreator nie ma portu szablonów ani członków, a mimo to pokazuje pełny
       // krok startu: brak portu jest jawnym powodem, nie brakiem treści.
       expect(
-        find.text('Katalog szablonów nie jest dostępny w tej sesji.'),
+        findInControls('Nie możemy teraz pobrać szablonów projektów.'),
         findsOneWidget,
       );
+      // Powód mówi, co użytkownik może zrobić, a nie jakiej klasy brakuje
+      // w kompozycji aplikacji.
       expect(
-        find.text('Brak wpiętego portu szablonów projektów.'),
+        findInControls(
+          'Spróbuj ponownie za chwilę. Jeśli problem się powtórzy, '
+          'zgłoś go administratorowi.',
+        ),
         findsOneWidget,
       );
-      expect(find.text('Pusty projekt'), findsOneWidget);
+      expect(find.textContaining('portu'), findsNothing);
+      expect(findInControls('Pusty projekt'), findsOneWidget);
       expect(setups.previewRequests, isEmpty);
       expect(setups.createRequests, isEmpty);
     },
@@ -71,7 +77,10 @@ void main() {
       expect(find.byType(ProjectCreationWizard), findsNothing);
       expect(find.text('Nowy projekt'), findsOneWidget);
       expect(
-        find.text('Kreator nie ma skonfigurowanego portu tworzenia projektu.'),
+        find.text(
+          'Tworzenie projektu nie jest teraz dostępne. Spróbuj ponownie '
+          'za chwilę; jeśli problem się powtórzy, zgłoś go administratorowi.',
+        ),
         findsOneWidget,
       );
       expect(find.text('Anuluj'), findsOneWidget);
@@ -101,15 +110,12 @@ void main() {
     expect(find.textContaining('Krok 3 z 7'), findsOneWidget);
     // Krok dostępu bez portu członków jest jawnie niedostępny z powodem.
     expect(
-      find.text('Lista członków workspace nie jest dostępna w tej sesji.'),
+      findInControls('Nie możemy teraz pobrać listy członków workspace.'),
       findsOneWidget,
     );
-    expect(
-      find.text('Brak wpiętego portu członków workspace.'),
-      findsOneWidget,
-    );
-    expect(find.text('Dla wszystkich w workspace'), findsOneWidget);
-    expect(find.text('Prywatny'), findsOneWidget);
+    expect(find.textContaining('portu'), findsNothing);
+    expect(findInControls('Dla wszystkich w workspace'), findsOneWidget);
+    expect(findInControls('Prywatny'), findsOneWidget);
   });
 
   testWidgets(
@@ -136,7 +142,9 @@ void main() {
       // Bez portu członków i sesji rola jest nieznana, więc zapis pojemności
       // jest wyłączony z jawnym powodem zamiast pokazywać kontrolkę bez skutku.
       expect(
-        find.text('Zmiana pojemności wymaga roli Admin albo Owner w workspace.'),
+        find.text(
+          'Zmiana pojemności wymaga roli Admin albo Owner w workspace.',
+        ),
         findsOneWidget,
       );
       expect(find.text('Minuty na dzień'), findsNothing);
@@ -144,38 +152,41 @@ void main() {
     },
   );
 
-  testWidgets('krok dostępu z portem członków i bez portu sesji renderuje listę', (
-    tester,
-  ) async {
-    await pumpProjectSetupApp(
+  testWidgets(
+    'krok dostępu z portem członków i bez portu sesji renderuje listę',
+    (
       tester,
-      open: (context) => ProjectResourceCreationDialogs.showCreateProject(
-        context,
-        workspaceId: kProjectSetupWorkspaceId,
-        repository: FakeSessionProjectsRepository(
-          FakeProjectSetupsRepository(),
+    ) async {
+      await pumpProjectSetupApp(
+        tester,
+        open: (context) => ProjectResourceCreationDialogs.showCreateProject(
+          context,
+          workspaceId: kProjectSetupWorkspaceId,
+          repository: FakeSessionProjectsRepository(
+            FakeProjectSetupsRepository(),
+          ),
+          membersRepository: FakeWorkspaceMembersRepository(
+            members: <WorkspaceMemberResponse>[
+              workspaceMember(userId: 'user-aaaaaaaa'),
+              workspaceMember(
+                userId: 'user-bbbbbbbb',
+                role: WorkspaceRole.admin,
+              ),
+            ],
+          ),
+          onCreated: () {},
         ),
-        membersRepository: FakeWorkspaceMembersRepository(
-          members: <WorkspaceMemberResponse>[
-            workspaceMember(userId: 'user-aaaaaaaa'),
-            workspaceMember(
-              userId: 'user-bbbbbbbb',
-              role: WorkspaceRole.admin,
-            ),
-          ],
-        ),
-        onCreated: () {},
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('3. Dostęp'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('3. Dostęp'));
+      await tester.pumpAndSettle();
 
-    expect(tester.takeException(), isNull);
-    // Brak portu sesji nie blokuje kroku: wiersz twórcy pokazuje samą plakietkę.
-    expect(find.text('Ty — Owner'), findsOneWidget);
-    expect(find.text('Użytkownik (user-aaa…)'), findsOneWidget);
-    expect(find.text('Użytkownik (user-bbb…)'), findsOneWidget);
-  });
+      expect(tester.takeException(), isNull);
+      // Brak portu sesji nie blokuje kroku: wiersz twórcy pokazuje samą plakietkę.
+      expect(find.text('Ty — Owner'), findsOneWidget);
+      expect(find.text('Użytkownik (user-aaa…)'), findsOneWidget);
+      expect(find.text('Użytkownik (user-bbb…)'), findsOneWidget);
+    },
+  );
 }

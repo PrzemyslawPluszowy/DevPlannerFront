@@ -318,6 +318,7 @@ final class TasksBoardBulkCommands {
       current.copyWith(
         board: current.board.copyWith(columns: columns),
         pendingTaskIds: {...current.pendingTaskIds}..remove(task.id),
+        failedTaskIds: {...current.failedTaskIds, task.id},
         error: TasksViewError(code: errorMessage),
       ),
     );
@@ -358,6 +359,7 @@ final class TasksBoardBulkCommands {
       current.copyWith(
         board: current.board.copyWith(columns: columns),
         pendingTaskIds: {...current.pendingTaskIds}..remove(taskId),
+        failedTaskIds: {...current.failedTaskIds}..remove(taskId),
       ),
     );
   }

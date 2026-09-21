@@ -279,14 +279,26 @@ final class DevPlannerTasksTheme extends ThemeExtension<DevPlannerTasksTheme> {
   ) {
     if (other is! DevPlannerTasksTheme) return this;
     return DevPlannerTasksTheme(
-      projectTitleText: TextStyle.lerp(projectTitleText, other.projectTitleText, t)!,
+      projectTitleText: TextStyle.lerp(
+        projectTitleText,
+        other.projectTitleText,
+        t,
+      )!,
       dataText: TextStyle.lerp(dataText, other.dataText, t)!,
       dataStrongText: TextStyle.lerp(dataStrongText, other.dataStrongText, t)!,
       cardTitleText: TextStyle.lerp(cardTitleText, other.cardTitleText, t)!,
       controlText: TextStyle.lerp(controlText, other.controlText, t)!,
       metaText: TextStyle.lerp(metaText, other.metaText, t)!,
-      contextRowHeight: lerpDouble(contextRowHeight, other.contextRowHeight, t)!,
-      commandRowHeight: lerpDouble(commandRowHeight, other.commandRowHeight, t)!,
+      contextRowHeight: lerpDouble(
+        contextRowHeight,
+        other.contextRowHeight,
+        t,
+      )!,
+      commandRowHeight: lerpDouble(
+        commandRowHeight,
+        other.commandRowHeight,
+        t,
+      )!,
       tableHeaderHeight: lerpDouble(
         tableHeaderHeight,
         other.tableHeaderHeight,

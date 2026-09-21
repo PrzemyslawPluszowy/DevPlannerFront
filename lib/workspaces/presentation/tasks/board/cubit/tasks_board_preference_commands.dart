@@ -114,8 +114,9 @@ final class TasksBoardPreferenceCommands {
             );
             if (batch.any((intent) => intent is _QuickFilterIntent)) {
               // Szybki filtr zawęża karty po stronie Backendu, więc sama zmiana
-              // preferencji nie wystarcza: tablica musi wrócić po świeży zestaw.
-              await _context.reloadBoard(force: true);
+              // preferencji nie wystarcza: aktywny wariant tablicy musi wrócić
+              // po świeży zestaw — także wtedy, gdy to grupowanie po osobach.
+              await _context.reloadActiveBoard(force: true);
             }
           case _PreferenceFailed(:final error, :final preference):
             _serverBase = preference;
@@ -339,7 +340,7 @@ final class TasksBoardPreferenceCommands {
       },
       (_) async {
         created = true;
-        await _context.reloadBoard(force: true);
+        await _context.reloadActiveBoard(force: true);
       },
     );
     return created;
@@ -370,7 +371,7 @@ final class TasksBoardPreferenceCommands {
         return false;
       },
       (_) async {
-        await _context.reloadBoard(force: true);
+        await _context.reloadActiveBoard(force: true);
         return true;
       },
     );

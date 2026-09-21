@@ -9,6 +9,7 @@ import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
+import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
@@ -20,6 +21,8 @@ import 'package:devplanner/workspaces/domain/repositories/storage_repository.dar
 import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/toolbar/storage_breadcrumbs.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -273,9 +276,11 @@ void main() {
     );
   });
 
-  testWidgets('workspace files route renders the real read-only browser', (
+  testWidgets('workspace Files route renders the one full Files shell', (
     tester,
   ) async {
+    await tester.binding.setSurfaceSize(const Size(1920, 1080));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     final auth = AuthComposition.unavailable();
     auth.session.setSignedIn(
       const AuthUser(userId: 'user-1', login: 'user', displayName: 'User'),
@@ -319,7 +324,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Moje pliki'), findsOneWidget);
+    // Pełny host: sidebar zakresów i pasek wyszukiwania są częścią trasy
+    // workspace, a nie tylko ekranu plików osobistych.
+    expect(find.byType(StorageShellPage), findsOneWidget);
+    expect(find.text('Udostępnione mi'), findsOneWidget);
+    expect(find.text('Kosz'), findsOneWidget);
+    expect(find.byType(StorageBreadcrumbs), findsOneWidget);
+    expect(
+      find.widgetWithText(TextField, 'Szukaj plików i folderów...'),
+      findsOneWidget,
+    );
     verify(
       () => repository.listFolders(
         scope: const StorageScope.workspace(workspaceId),
@@ -377,6 +391,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // Ten sam pełny host co dla plików osobistych i workspace.
+    expect(find.byType(StorageShellPage), findsOneWidget);
+    expect(find.byType(StorageBreadcrumbs), findsOneWidget);
     verify(
       () => repository.listFolders(
         scope: const StorageScope.project(
@@ -432,14 +449,118 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // Ten sam pełny host co dla workspace i projektu.
+    expect(find.byType(StorageShellPage), findsOneWidget);
+    expect(find.byType(StorageBreadcrumbs), findsOneWidget);
     verify(
       () => repository.listFolders(scope: const StorageScope.personal()),
     ).called(1);
   });
 
+  testWidgets('folder deep link opens the folder inside the Files shell', (
+    tester,
+  ) async {
+    final auth = AuthComposition.unavailable();
+    auth.session.setSignedIn(
+      const AuthUser(userId: 'user-1', login: 'user', displayName: 'User'),
+    );
+    final repository = _MockStorageRepository();
+    const folderId = '550e8400-e29b-41d4-a716-4466554400aa';
+    when(() => repository.getFolder(folderId)).thenAnswer(
+      (_) async => right(
+        StorageFolderResponse(
+          id: folderId,
+          name: 'Umowy',
+          folderType: StorageFolderType.personal,
+          itemCount: 0,
+          updatedAtUtc: DateTime.utc(2026, 9, 18),
+          accessLevel: StorageEffectiveAccessLevel.owner,
+          canRead: true,
+          canComment: true,
+          canEdit: true,
+          canShare: true,
+          canDelete: true,
+        ),
+      ),
+    );
+    when(
+      () => repository.listFolders(
+        scope: any(named: 'scope'),
+        parentFolderId: any(named: 'parentFolderId'),
+      ),
+    ).thenAnswer((_) async => right(const <StorageFolderResponse>[]));
+    when(
+      () => repository.listFiles(
+        scope: any(named: 'scope'),
+        folderId: any(named: 'folderId'),
+        cursor: any(named: 'cursor'),
+        limit: any(named: 'limit'),
+        query: any(named: 'query'),
+        filter: any(named: 'filter'),
+      ),
+    ).thenAnswer(
+      (_) async => right(
+        const CursorPageResponse<StorageFileResponse>(items: []),
+      ),
+    );
+    final router = DevPlannerRouter(
+      initialLocation: '${DevPlannerRouteCatalog.myFiles}?folder=$folderId',
+      auth: auth,
+      storageRepository: repository,
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        locale: const Locale('pl'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: router.config,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(StorageShellPage), findsOneWidget);
+    expect(find.text('Umowy'), findsOneWidget);
+    // Deep link ładuje zawartość wskazanego folderu dokładnie raz.
+    verify(() => repository.getFolder(folderId)).called(1);
+    verify(
+      () => repository.listFolders(
+        scope: const StorageScope.personal(folderId: folderId),
+        parentFolderId: folderId,
+      ),
+    ).called(1);
+
+    // Back z otwartego folderu wraca do katalogu nadrzędnego tego samego
+    // zakresu, zamiast opuszczać moduł Pliki.
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+    expect(
+      router.config.routerDelegate.currentConfiguration.uri.toString(),
+      DevPlannerRouteCatalog.myFiles,
+    );
+    // Powrót ładuje katalog nadrzędny dokładnie raz: zakres z adresu adoptuje
+    // istniejący Cubit, więc nie powstaje drugie, zbędne żądanie listy.
+    verifyNever(
+      () => repository.listFolders(
+        scope: const StorageScope.personal(folderId: folderId),
+        parentFolderId: folderId,
+      ),
+    );
+    final backLoad = verify(
+      () => repository.listFolders(
+        scope: const StorageScope.personal(),
+        parentFolderId: captureAny(named: 'parentFolderId'),
+      ),
+    ).captured;
+    expect(backLoad, [isNull]);
+  });
+
   testWidgets('desktop Files route composes the real upload action', (
     tester,
   ) async {
+    await tester.binding.setSurfaceSize(const Size(1920, 1080));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     final auth = AuthComposition.unavailable();
     auth.session.setSignedIn(
       const AuthUser(userId: 'user-1', login: 'user', displayName: 'User'),
@@ -490,13 +611,20 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // Desktop dostaje pełny zestaw akcji chrome'u: CTA wysyłania i menu
+    // tworzenia. Etykiety tworzenia są pozycjami menu, więc sprawdzamy
+    // kontrolkę, a nie jej rozłożone pozycje.
     expect(find.text('Prześlij pliki'), findsOneWidget);
-    expect(find.text('Utwórz'), findsOneWidget);
+    expect(find.byKey(const ValueKey('storage_upload_action')), findsOneWidget);
+    expect(find.byKey(const ValueKey('storage_create_menu')), findsOneWidget);
+    expect(find.byType(StorageShellPage), findsOneWidget);
   });
 
   testWidgets('Web BFF Files route fails closed for upload composition', (
     tester,
   ) async {
+    await tester.binding.setSurfaceSize(const Size(1920, 1080));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     final auth = AuthComposition.unavailable();
     auth.session.setSignedIn(
       const AuthUser(userId: 'user-1', login: 'user', displayName: 'User'),
@@ -545,8 +673,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // Ten sam pełny shell renderuje się także na Web/BFF, ale bez żadnej akcji
+    // mutującej: brak bezpiecznego źródła Bearera nie może zamienić się w
+    // widoczną, martwą akcję.
+    expect(find.byType(StorageShellPage), findsOneWidget);
+    expect(find.text('Udostępnione mi'), findsOneWidget);
     expect(find.text('Prześlij pliki'), findsNothing);
-    expect(find.text('Utwórz'), findsNothing);
+    expect(find.text('Nowy folder'), findsNothing);
+    expect(find.text('Nowy dokument'), findsNothing);
   });
 
   testWidgets('invalid workspace id is a typed unavailable route state', (
@@ -667,7 +801,9 @@ void main() {
     await tester.tap(filesNode);
     await tester.pumpAndSettle();
 
-    expect(find.text('Moje pliki'), findsOneWidget);
+    // Po wejściu w pliki workspace trasa nadal renderuje ten sam pełny host
+    // Files, a nie uboższy, równoległy ekran.
+    expect(find.byType(StorageShellPage), findsOneWidget);
   });
 
   testWidgets(

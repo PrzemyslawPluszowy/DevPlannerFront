@@ -9,6 +9,9 @@ mixin _DevPlannerRouterPages {
   DevPlannerHttpTransport? get httpTransport;
   ProjectsGateway? get _resolvedProjectsGateway;
   StorageRepository? get _resolvedStorageRepository;
+  StorageViewPreferenceStore get _resolvedStorageViewPreferenceStore;
+  StorageUserDirectoryPort? get _resolvedStorageUserDirectory;
+  StorageRealtimeClientFactory? get _resolvedStorageRealtimeClientFactory;
   TaskViewRepository? get _resolvedTaskViewRepository;
   TasksBoardComposition? get _resolvedTasksBoardComposition;
   TasksDetailsComposition? get _resolvedTasksDetailsComposition;
@@ -43,6 +46,13 @@ mixin _DevPlannerRouterPages {
     );
   }
 
+  /// Składa jeden pełny host modułu Files dla plików osobistych, workspace
+  /// i projektu. Zakres zmienia dane, breadcrumbs i dozwolone akcje, ale nie
+  /// przełącza użytkownika na uboższą, równoległą implementację ekranu.
+  ///
+  /// O widoczności akcji mutujących decyduje kompozycja transportu, nie widget:
+  /// Web/BFF nie ma bezpiecznego źródła Bearera dla bezpośrednich transferów,
+  /// dlatego pozostaje read-only, a desktop otrzymuje pełny zestaw uprawnień.
   Widget _storageBrowserRoutePage(
     StorageScope scope, {
     required ValueChanged<String> onOpenFileDetails,
@@ -53,19 +63,21 @@ mixin _DevPlannerRouterPages {
         failure: StorageWorkspaceFilesRouteFailure.repositoryUnavailable,
       );
     }
-    final desktopUpload = _desktopStorageUploadComposition;
-    return StorageReadOnlyBrowserPage(
-      repository: repository,
+    final desktopComposition = _desktopStorageUploadComposition;
+    return StorageShellPage(
       initialScope: scope,
-      filePicker: desktopUpload ? const FilePickerPortImpl() : null,
-      uploadTransport: desktopUpload ? PresignedUploadTransport() : null,
-      downloadTransport: desktopUpload ? const DownloadTransportImpl() : null,
-      allowDownload: desktopUpload,
-      allowVersionManagement: desktopUpload,
-      allowSharing: desktopUpload,
-      allowFolderCreation: desktopUpload,
-      allowFolderRename: desktopUpload,
-      allowDeletion: desktopUpload,
+      storageRepository: repository,
+      capabilities: desktopComposition
+          ? StorageShellCapabilities.desktop
+          : StorageShellCapabilities.readOnly,
+      filePicker: desktopComposition ? const FilePickerPortImpl() : null,
+      uploadTransport: desktopComposition ? PresignedUploadTransport() : null,
+      downloadTransport: desktopComposition
+          ? const DownloadTransportImpl()
+          : null,
+      viewPreferenceStore: _resolvedStorageViewPreferenceStore,
+      userDirectory: _resolvedStorageUserDirectory,
+      realtimeClientFactory: _resolvedStorageRealtimeClientFactory,
       onOpenFileDetails: onOpenFileDetails,
     );
   }

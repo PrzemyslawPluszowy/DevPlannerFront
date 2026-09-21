@@ -27,6 +27,8 @@ final class KanbanRepositoryImpl extends ApiRepository
       assigneeUserId: filter.assigneeUserId,
       priority: filter.priority?.wireValue,
       milestoneId: filter.milestoneId,
+      status: filter.status?.wireValue,
+      customStatusId: filter.customStatusId,
     ),
     fallbackMessage: 'Nie udało się pobrać tablicy Kanban.',
     parsingMessage: 'Backend zwrócił nieprawidłową tablicę Kanban.',
@@ -59,6 +61,8 @@ final class KanbanRepositoryImpl extends ApiRepository
       assigneeUserId: query.assigneeUserId,
       priority: query.priority?.wireValue,
       milestoneId: query.milestoneId,
+      statusFilter: query.status?.wireValue,
+      customStatusId: query.customStatusId,
     ),
     fallbackMessage: 'Nie udało się pobrać kolumny Kanban.',
   );
@@ -80,6 +84,8 @@ final class KanbanRepositoryImpl extends ApiRepository
       assigneeUserId: query.assigneeUserId,
       priority: query.priority?.wireValue,
       milestoneId: query.milestoneId,
+      status: query.status?.wireValue,
+      customStatus: query.customStatusId,
     ),
     fallbackMessage: 'Nie udało się pobrać własnej kolumny Kanban.',
   );
@@ -93,6 +99,81 @@ final class KanbanRepositoryImpl extends ApiRepository
   }) => guardApiCall(
     () => _api.move(workspaceId, projectId, taskId, payload),
     fallbackMessage: 'Nie udało się przenieść zadania.',
+  );
+
+  @override
+  Future<Either<ApiError, AssigneeKanbanBoardResponse>> getAssigneeBoard({
+    required String workspaceId,
+    required String projectId,
+    KanbanBoardFilter filter = KanbanBoardFilter.none,
+  }) => guardApiCall(
+    () => _api.getAssigneeBoard(
+      workspaceId,
+      projectId,
+      assigneeUserId: filter.assigneeUserId,
+      priority: filter.priority?.wireValue,
+      milestoneId: filter.milestoneId,
+      status: filter.status?.wireValue,
+      customStatusId: filter.customStatusId,
+    ),
+    fallbackMessage: 'Nie udało się pobrać tablicy osób.',
+    parsingMessage: 'Backend zwrócił nieprawidłową tablicę osób.',
+  );
+
+  @override
+  Future<Either<ApiError, CursorPageResponse<KanbanTaskCardResponse>>>
+  getAssigneeGroup({
+    required String workspaceId,
+    required String projectId,
+    String? assigneeUserId,
+    KanbanColumnQuery query = const KanbanColumnQuery(),
+  }) => guardApiCall(
+    () => assigneeUserId == null
+        ? _api.getUnassignedGroup(
+            workspaceId,
+            projectId,
+            cursor: query.cursor,
+            limit: query.limit,
+            assigneeUserId: query.assigneeUserId,
+            priority: query.priority?.wireValue,
+            milestoneId: query.milestoneId,
+            status: query.status?.wireValue,
+            customStatusId: query.customStatusId,
+          )
+        : _api.getAssigneeGroup(
+            workspaceId,
+            projectId,
+            assigneeUserId,
+            cursor: query.cursor,
+            limit: query.limit,
+            assigneeUserIdFilter: query.assigneeUserId,
+            priority: query.priority?.wireValue,
+            milestoneId: query.milestoneId,
+            status: query.status?.wireValue,
+            customStatusId: query.customStatusId,
+          ),
+    fallbackMessage: 'Nie udało się pobrać kolumny osoby.',
+  );
+
+  @override
+  Future<Either<ApiError, ChangeKanbanPrimaryAssigneeResponse>>
+  changePrimaryAssignee({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String? targetUserId,
+    required int expectedVersion,
+  }) => guardApiCall(
+    () => _api.changePrimaryAssignee(
+      workspaceId,
+      projectId,
+      taskId,
+      ChangeKanbanPrimaryAssigneePayload(
+        targetUserId: targetUserId,
+        expectedVersion: expectedVersion,
+      ),
+    ),
+    fallbackMessage: 'Nie udało się zmienić wykonawcy zadania.',
   );
 
   @override

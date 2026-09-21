@@ -46,6 +46,7 @@ final class TasksBoardRouteFixture {
     required this.boardResult,
     this.pendingBoard,
     this.groupedListResult,
+    this.assigneeBoardResult,
     ProjectSettingsFixture? projectSettings,
   }) : settings =
            projectSettings ??
@@ -67,6 +68,9 @@ final class TasksBoardRouteFixture {
 
   /// Odpowiedź listy grup; `null` oznacza pusty wynik.
   final Either<ApiError, ProjectTaskGroupedListResponse>? groupedListResult;
+
+  /// Odpowiedź tablicy grupowanej po osobach; `null` oznacza brak grup.
+  final Either<ApiError, AssigneeKanbanBoardResponse>? assigneeBoardResult;
 
   /// Porty centrum ustawień projektu, które nagłówek Tasks otwiera jawnie.
   final ProjectSettingsFixture settings;
@@ -133,6 +137,26 @@ final class TasksBoardRouteFixture {
         filter: any(named: 'filter'),
       ),
     ).thenAnswer((_) => pendingBoard ?? Future.value(boardResult));
+    when(
+      () => kanban.getAssigneeBoard(
+        workspaceId: workspaceId,
+        projectId: projectId,
+        filter: any(named: 'filter'),
+      ),
+    ).thenAnswer(
+      (_) async =>
+          assigneeBoardResult ??
+          Right<ApiError, AssigneeKanbanBoardResponse>(
+            AssigneeKanbanBoardResponse(
+              projectId: projectId,
+              grouping: KanbanSwimlaneMode.assignee,
+              settingsVersion: 1,
+              visibleCardFields: const [],
+              defaultCardDensity: KanbanCardDensity.comfortable,
+              groups: const [],
+            ),
+          ),
+    );
     when(
       () => kanban.getUserPreference(
         workspaceId: workspaceId,
@@ -323,6 +347,47 @@ const kanbanBoardResultWithColumns = Right<ApiError, KanbanBoardResponse>(
   ),
 );
 
+/// Tablica osób z dwiema kolumnami: pustą „Nieprzypisane” i kolumną osoby.
+const assigneeKanbanBoardResult = Right<ApiError, AssigneeKanbanBoardResponse>(
+  AssigneeKanbanBoardResponse(
+    projectId: 'project-1',
+    grouping: KanbanSwimlaneMode.assignee,
+    settingsVersion: 1,
+    visibleCardFields: [],
+    defaultCardDensity: KanbanCardDensity.comfortable,
+    groups: [
+      AssigneeKanbanGroupResponse(
+        displayName: 'Nieprzypisane',
+        totalTaskCount: 0,
+        tasks: [],
+      ),
+      AssigneeKanbanGroupResponse(
+        assigneeUserId: 'user-1',
+        displayName: 'Marta',
+        isCurrentUser: true,
+        totalTaskCount: 1,
+        tasks: [
+          KanbanTaskCardResponse(
+            id: 'task-1',
+            number: 7,
+            taskCode: 'TASK-7',
+            title: 'Karta osoby',
+            status: ProjectTaskStatus.todo,
+            priority: TaskPriority.normal,
+            position: 1000,
+            checklistTotal: 0,
+            checklistCompleted: 0,
+            attachmentCount: 0,
+            version: 1,
+            primaryAssigneeUserId: 'user-1',
+            assigneeUserIds: ['user-1'],
+          ),
+        ],
+      ),
+    ],
+  ),
+);
+
 final class _MockKanbanRepository extends Mock implements KanbanRepository {}
 
 final class _MockTasksRepository extends Mock implements TasksRepository {}
@@ -339,12 +404,14 @@ final class _MockTaskTemplateRepository extends Mock
 final class _MockProjectMemberProfilesRepository extends Mock
     implements ProjectMemberProfilesRepository {}
 
-final class _MockProjectsRepository extends Mock implements ProjectsRepository {}
+final class _MockProjectsRepository extends Mock
+    implements ProjectsRepository {}
 
 final class _MockTaskMetadataRepository extends Mock
     implements TaskMetadataRepository {}
 
-final class _MockTaskViewRepository extends Mock implements TaskViewRepository {}
+final class _MockTaskViewRepository extends Mock
+    implements TaskViewRepository {}
 
 final class _MockTaskListConfigurationRepository extends Mock
     implements TaskListConfigurationRepository {}

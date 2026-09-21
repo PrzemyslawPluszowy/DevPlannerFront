@@ -26,12 +26,16 @@ class _KanbanApi implements KanbanApi {
     String? assigneeUserId,
     String? priority,
     String? milestoneId,
+    String? status,
+    String? customStatusId,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'assigneeUserId': assigneeUserId,
       r'priority': priority,
       r'milestoneId': milestoneId,
+      r'status': status,
+      r'customStatusId': customStatusId,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
@@ -97,6 +101,8 @@ class _KanbanApi implements KanbanApi {
     String? assigneeUserId,
     String? priority,
     String? milestoneId,
+    String? statusFilter,
+    String? customStatusId,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
@@ -105,6 +111,8 @@ class _KanbanApi implements KanbanApi {
       r'assigneeUserId': assigneeUserId,
       r'priority': priority,
       r'milestoneId': milestoneId,
+      r'status': statusFilter,
+      r'customStatusId': customStatusId,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
@@ -143,6 +151,8 @@ class _KanbanApi implements KanbanApi {
     String? assigneeUserId,
     String? priority,
     String? milestoneId,
+    String? status,
+    String? customStatus,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
@@ -151,6 +161,8 @@ class _KanbanApi implements KanbanApi {
       r'assigneeUserId': assigneeUserId,
       r'priority': priority,
       r'milestoneId': milestoneId,
+      r'status': status,
+      r'customStatusId': customStatus,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
@@ -160,6 +172,147 @@ class _KanbanApi implements KanbanApi {
           .compose(
             _dio.options,
             '/api/v1/workspaces/${workspaceId}/projects/${projectId}/kanban/columns/custom/${customStatusId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late CursorPageResponse<KanbanTaskCardResponse> _value;
+    try {
+      _value = CursorPageResponse<KanbanTaskCardResponse>.fromJson(
+        _result.data!,
+        (json) => KanbanTaskCardResponse.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<AssigneeKanbanBoardResponse> getAssigneeBoard(
+    String workspaceId,
+    String projectId, {
+    String? assigneeUserId,
+    String? priority,
+    String? milestoneId,
+    String? status,
+    String? customStatusId,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'assigneeUserId': assigneeUserId,
+      r'priority': priority,
+      r'milestoneId': milestoneId,
+      r'status': status,
+      r'customStatusId': customStatusId,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<AssigneeKanbanBoardResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/workspaces/${workspaceId}/projects/${projectId}/kanban/assignees',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late AssigneeKanbanBoardResponse _value;
+    try {
+      _value = AssigneeKanbanBoardResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CursorPageResponse<KanbanTaskCardResponse>> getAssigneeGroup(
+    String workspaceId,
+    String projectId,
+    String assigneeUserId, {
+    String? cursor,
+    int? limit,
+    String? assigneeUserIdFilter,
+    String? priority,
+    String? milestoneId,
+    String? status,
+    String? customStatusId,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'cursor': cursor,
+      r'limit': limit,
+      r'assigneeUserId': assigneeUserIdFilter,
+      r'priority': priority,
+      r'milestoneId': milestoneId,
+      r'status': status,
+      r'customStatusId': customStatusId,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<CursorPageResponse<KanbanTaskCardResponse>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/workspaces/${workspaceId}/projects/${projectId}/kanban/assignees/${assigneeUserId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late CursorPageResponse<KanbanTaskCardResponse> _value;
+    try {
+      _value = CursorPageResponse<KanbanTaskCardResponse>.fromJson(
+        _result.data!,
+        (json) => KanbanTaskCardResponse.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CursorPageResponse<KanbanTaskCardResponse>> getUnassignedGroup(
+    String workspaceId,
+    String projectId, {
+    String? cursor,
+    int? limit,
+    String? assigneeUserId,
+    String? priority,
+    String? milestoneId,
+    String? status,
+    String? customStatusId,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'cursor': cursor,
+      r'limit': limit,
+      r'assigneeUserId': assigneeUserId,
+      r'priority': priority,
+      r'milestoneId': milestoneId,
+      r'status': status,
+      r'customStatusId': customStatusId,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<CursorPageResponse<KanbanTaskCardResponse>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/workspaces/${workspaceId}/projects/${projectId}/kanban/assignees/unassigned',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -301,6 +454,39 @@ class _KanbanApi implements KanbanApi {
     late MoveKanbanTaskResponse _value;
     try {
       _value = MoveKanbanTaskResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ChangeKanbanPrimaryAssigneeResponse> changePrimaryAssignee(
+    String workspaceId,
+    String projectId,
+    String taskId,
+    ChangeKanbanPrimaryAssigneePayload payload,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(payload.toJson());
+    final _options = _setStreamType<ChangeKanbanPrimaryAssigneeResponse>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/workspaces/${workspaceId}/projects/${projectId}/kanban/tasks/${taskId}/primary-assignee',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ChangeKanbanPrimaryAssigneeResponse _value;
+    try {
+      _value = ChangeKanbanPrimaryAssigneeResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

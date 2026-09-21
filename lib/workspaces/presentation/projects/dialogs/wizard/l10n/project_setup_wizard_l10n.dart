@@ -1,6 +1,7 @@
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_setup_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_visibility.dart';
@@ -8,6 +9,8 @@ import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart
 import 'package:devplanner/workspaces/data/shared/enums/task_status_category.dart';
 import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_creation.dart';
 import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_draft.dart';
+import 'package:flutter/widgets.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 /// Tłumaczenia kreatora projektu.
 ///
@@ -29,6 +32,20 @@ final class ProjectSetupWizardL10n {
         ProjectSetupStep.starterFeatures =>
           l10n.projectSetupStepStarterFeaturesTitle,
         ProjectSetupStep.summary => l10n.projectSetupStepSummaryTitle,
+      };
+
+  /// Krótki opis kroku kreatora pokazywany w nagłówku.
+  static String stepSubtitle(AppLocalizations l10n, ProjectSetupStep step) =>
+      switch (step) {
+        ProjectSetupStep.start => l10n.projectSetupStepStartSubtitle,
+        ProjectSetupStep.basics => l10n.projectSetupStepBasicsSubtitle,
+        ProjectSetupStep.access => l10n.projectSetupStepAccessSubtitle,
+        ProjectSetupStep.workflow => l10n.projectSetupStepWorkflowSubtitle,
+        ProjectSetupStep.workingStyle =>
+          l10n.projectSetupStepWorkingStyleSubtitle,
+        ProjectSetupStep.starterFeatures =>
+          l10n.projectSetupStepStarterFeaturesSubtitle,
+        ProjectSetupStep.summary => l10n.projectSetupStepSummarySubtitle,
       };
 
   /// Nazwa katalogowego szablonu workflow.
@@ -68,6 +85,51 @@ final class ProjectSetupWizardL10n {
           l10n.projectSetupRecipeDoneCreateReviewSubtaskDescription,
         _ => key,
       };
+
+  /// Zdarzenie, po którym działa przepis automatyzacji.
+  ///
+  /// Podgląd pokazuje przepis jako regułę „Gdy… → wtedy…”, więc zdarzenie i
+  /// akcja są osobnymi tekstami, a nie jednym opisem do przeczytania w całości.
+  static String recipeTrigger(AppLocalizations l10n, String key) =>
+      switch (key) {
+        'critical-to-blocked' =>
+          l10n.projectSetupRecipeCriticalToBlockedTrigger,
+        'due-soon-high-priority' =>
+          l10n.projectSetupRecipeDueSoonHighPriorityTrigger,
+        'done-clear-due-date' => l10n.projectSetupRecipeDoneClearDueDateTrigger,
+        'done-create-review-subtask' =>
+          l10n.projectSetupRecipeDoneCreateReviewSubtaskTrigger,
+        _ => l10n.projectSetupPreviewRecipeWhen,
+      };
+
+  /// Akcja wykonywana przez przepis automatyzacji.
+  static String recipeAction(AppLocalizations l10n, String key) =>
+      switch (key) {
+        'critical-to-blocked' => l10n.projectSetupRecipeCriticalToBlockedAction,
+        'due-soon-high-priority' =>
+          l10n.projectSetupRecipeDueSoonHighPriorityAction,
+        'done-clear-due-date' => l10n.projectSetupRecipeDoneClearDueDateAction,
+        'done-create-review-subtask' =>
+          l10n.projectSetupRecipeDoneCreateReviewSubtaskAction,
+        _ => l10n.projectSetupPreviewRecipeThen,
+      };
+
+  /// Nazwa roli członka projektu.
+  static String projectRole(AppLocalizations l10n, ProjectRole role) =>
+      switch (role) {
+        ProjectRole.owner => l10n.projectSettingsMemberRoleOwner,
+        ProjectRole.admin => l10n.projectSettingsMemberRoleAdmin,
+        ProjectRole.member => l10n.projectSettingsMemberRoleMember,
+        ProjectRole.observer => l10n.projectSettingsMemberRoleObserver,
+      };
+
+  /// Ikona roli członka projektu w liście wyboru.
+  static IconData projectRoleIcon(ProjectRole role) => switch (role) {
+    ProjectRole.owner => Symbols.workspace_premium,
+    ProjectRole.admin => Symbols.shield_person,
+    ProjectRole.member => Symbols.person,
+    ProjectRole.observer => Symbols.visibility,
+  };
 
   /// Nazwa kategorii analitycznej jawnego statusu.
   static String statusCategory(

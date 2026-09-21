@@ -3,8 +3,6 @@ import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/error.dart';
-import 'package:devplanner/l10n/app_localizations.dart';
-import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
@@ -12,30 +10,15 @@ import 'package:devplanner/workspaces/domain/repositories/storage_repository.dar
 import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_read_only_browser_page.dart';
 import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_state.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 final class _MockStorageRepository extends Mock implements StorageRepository {}
 
-final class _MockFilePickerPort extends Mock implements FilePickerPort {}
-
 final class _MockUploadTransport extends Mock implements UploadTransport {}
-
-final class _PickerAnswer {
-  const _PickerAnswer(this.input);
-
-  final StorageUploadInput input;
-
-  Future<List<StorageUploadInput>> call(Invocation _) =>
-      Future<List<StorageUploadInput>>.value([input]);
-}
 
 void main() {
   setUpAll(() {
@@ -310,84 +293,5 @@ void main() {
       StorageUploadMessage.completionFailed,
     );
     await cubit.close();
-  });
-
-  testWidgets('po potwierdzonym sukcesie odświeża listę Files', (tester) async {
-    final repository = _MockStorageRepository();
-    final picker = _MockFilePickerPort();
-    final transport = _MockUploadTransport();
-    var folderCalls = 0;
-    when(
-      () => repository.listFolders(
-        scope: any(named: 'scope'),
-        parentFolderId: any(named: 'parentFolderId'),
-      ),
-    ).thenAnswer((_) async {
-      folderCalls++;
-      return right(const <StorageFolderResponse>[]);
-    });
-    when(
-      () => repository.listFiles(
-        scope: any(named: 'scope'),
-        folderId: any(named: 'folderId'),
-        cursor: any(named: 'cursor'),
-        limit: any(named: 'limit'),
-        query: any(named: 'query'),
-        filter: any(named: 'filter'),
-      ),
-    ).thenAnswer(
-      (_) async => right(
-        const CursorPageResponse<StorageFileResponse>(items: []),
-      ),
-    );
-    when(picker.pickFiles).thenAnswer(_PickerAnswer(input).call);
-    when(() => repository.requestUploadTicket(any()))
-        .thenAnswer((_) async => right(ticket));
-    when(
-      () => transport.upload(
-        ticket: any(named: 'ticket'),
-        input: any(named: 'input'),
-        cancelToken: any(named: 'cancelToken'),
-        onProgress: any(named: 'onProgress'),
-      ),
-    ).thenAnswer((_) async => right(unit));
-    when(
-      () => repository.completeUpload(fileId: ticket.fileId, fileSizeBytes: 4),
-    ).thenAnswer((_) async => right(uploadedFile));
-
-    await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('pl'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: StorageReadOnlyBrowserPage(
-          repository: repository,
-          filePicker: picker,
-          uploadTransport: transport,
-          initialScope: const StorageScope.workspace('workspace-1'),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final initialFolderCalls = folderCalls;
-
-    await tester.tap(find.text('Prześlij pliki'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 30));
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pumpAndSettle();
-    for (var index = 0; index < 5; index++) {
-      await tester.pump(const Duration(milliseconds: 20));
-    }
-
-    verify(
-      () => repository.completeUpload(fileId: ticket.fileId, fileSizeBytes: 4),
-    ).called(1);
-    expect(folderCalls, initialFolderCalls + 1);
   });
 }

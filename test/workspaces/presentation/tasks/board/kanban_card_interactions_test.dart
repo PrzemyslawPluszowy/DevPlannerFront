@@ -151,6 +151,51 @@ void main() {
         expect(find.text('Enter ↵'), findsOneWidget);
       },
     );
+
+    testWidgets(
+      'karta bez podzadań pokazuje akcję dodania, bez nagłówka z licznikiem',
+      (tester) async {
+        tester.view.physicalSize = const Size(1280, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final card = _createSampleCard(subtaskTotal: 0, subtaskCompleted: 0);
+
+        await tester.pumpWidget(
+          _buildCardTestApp(
+            child: SizedBox(
+              width: 300,
+              child: KanbanCardSubtasksSection(
+                task: card,
+                workspaceId: 'w-1',
+                projectId: 'p-1',
+                memberProfilesByUserId: const {},
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(const ValueKey('subtasks_add_button')),
+          findsOneWidget,
+          reason:
+              'zadanie bez podzadań nie miało żadnej akcji dodania na karcie',
+        );
+        expect(
+          find.textContaining('(0/0)'),
+          findsNothing,
+          reason: 'pusty licznik i pasek postępu byłyby szumem',
+        );
+
+        // Jedno dotknięcie akcji ma postawić pole nazwy, a nie wymagać dwóch.
+        await tester.tap(find.byKey(const ValueKey('subtasks_add_button')));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(TextField), findsOneWidget);
+      },
+    );
   });
 
   group('Kanban Subtasks Interactions & Non-bubbling', () {

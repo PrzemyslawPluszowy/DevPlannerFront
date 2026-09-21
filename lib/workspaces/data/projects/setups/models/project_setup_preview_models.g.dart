@@ -291,6 +291,12 @@ _ProjectSetupPreviewResponse _$ProjectSetupPreviewResponseFromJson(
         (e) => ProjectSetupWarningResponse.fromJson(e as Map<String, dynamic>),
       )
       .toList(),
+  tasks: (json['tasks'] as List<dynamic>?)
+      ?.map(
+        (e) =>
+            ProjectSetupTaskPreviewResponse.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
 );
 
 Map<String, dynamic> _$ProjectSetupPreviewResponseToJson(
@@ -305,9 +311,28 @@ Map<String, dynamic> _$ProjectSetupPreviewResponseToJson(
   'defaultDailyCapacityMinutes': instance.defaultDailyCapacityMinutes,
   'automationRecipes': instance.automationRecipes,
   'warnings': instance.warnings,
+  'tasks': instance.tasks,
 };
 
 const _$ProjectSetupSourceKindEnumMap = {
   ProjectSetupSourceKind.blank: 'Blank',
   ProjectSetupSourceKind.projectTemplate: 'ProjectTemplate',
+};
+
+_ProjectSetupTaskPreviewResponse _$ProjectSetupTaskPreviewResponseFromJson(
+  Map<String, dynamic> json,
+) => _ProjectSetupTaskPreviewResponse(
+  title: json['title'] as String,
+  statusName: json['statusName'] as String,
+  priority: json['priority'] as String,
+  labels: (json['labels'] as List<dynamic>).map((e) => e as String).toList(),
+);
+
+Map<String, dynamic> _$ProjectSetupTaskPreviewResponseToJson(
+  _ProjectSetupTaskPreviewResponse instance,
+) => <String, dynamic>{
+  'title': instance.title,
+  'statusName': instance.statusName,
+  'priority': instance.priority,
+  'labels': instance.labels,
 };

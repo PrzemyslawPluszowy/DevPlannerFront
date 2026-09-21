@@ -71,7 +71,7 @@ void main() {
     await tester.pumpAndSettle();
     _expectStep(tester, 2);
     // Draft przeżył cofanie: pole nadal pokazuje wpisaną nazwę.
-    expect(find.text('Wdrożenie DevPlanner'), findsOneWidget);
+    expect(findInControls('Wdrożenie DevPlanner'), findsOneWidget);
 
     await tester.tap(find.text('Dalej'));
     await tester.pumpAndSettle();
@@ -138,7 +138,7 @@ void main() {
     expect(find.text('Utwórz projekt'), findsOneWidget);
     expect(find.text('Pomiń do podsumowania'), findsNothing);
     expect(find.text('Pusty projekt'), findsOneWidget);
-    expect(find.text('Projekt skrócony'), findsOneWidget);
+    expect(findInControls('Projekt skrócony'), findsOneWidget);
     expect(setups.previewRequests, hasLength(1));
     expect(setups.previewRequests.single.project.name, 'Projekt skrócony');
     // Kroki opcjonalne nie znikają z planu: wartości domyślne trafiają do
@@ -179,6 +179,12 @@ void main() {
     await tester.tap(find.text('5. Sposób pracy'));
     await tester.pumpAndSettle();
     _expectStep(tester, 5);
+    // Krok pokazuje ustawienia wybranego widoku, a pola kafelka należą do
+    // tablicy — odsłaniamy ją jak użytkownik (przycisk bywa pod zgięciem).
+    await tester.ensureVisible(find.text('Dostosuj także ustawienia tablicy'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dostosuj także ustawienia tablicy'));
+    await tester.pumpAndSettle();
     expect(
       find.text('Wybierz co najmniej jedno pole widoczne na kafelku.'),
       findsNothing,

@@ -12,4 +12,12 @@ abstract interface class TasksBoardCommandContext {
 
   void publish(TasksBoardState state);
   Future<void> reloadBoard({bool force});
+
+  /// Odświeża wariant tablicy widoczny na ekranie: grupowanie po statusach
+  /// albo po osobach.
+  ///
+  /// Sama zmiana preferencji (np. szybkiego filtra) nie wystarcza, bo zawartość
+  /// kolumn liczy Backend: gdy użytkownik patrzy na tablicę osób, musi wrócić po
+  /// świeże grupy, a nie tylko po kolumny statusów.
+  Future<void> reloadActiveBoard({bool force});
 }

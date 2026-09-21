@@ -32,6 +32,8 @@ final class StorageFolderMutationCubit
           message: err.message,
           statusCode: err.statusCode,
           backendCode: err.backendCode,
+          apiCode: err.apiCode,
+          traceId: err.traceId,
         ),
       ),
       (folder) => emit(
@@ -62,6 +64,8 @@ final class StorageFolderMutationCubit
           message: err.message,
           statusCode: err.statusCode,
           backendCode: err.backendCode,
+          apiCode: err.apiCode,
+          traceId: err.traceId,
         ),
       ),
       (folder) => emit(
@@ -92,6 +96,8 @@ final class StorageFolderMutationCubit
           message: err.message,
           statusCode: err.statusCode,
           backendCode: err.backendCode,
+          apiCode: err.apiCode,
+          traceId: err.traceId,
         ),
       ),
       (folder) => emit(
@@ -116,6 +122,8 @@ final class StorageFolderMutationCubit
           message: err.message,
           statusCode: err.statusCode,
           backendCode: err.backendCode,
+          apiCode: err.apiCode,
+          traceId: err.traceId,
         ),
       ),
       (_) => emit(

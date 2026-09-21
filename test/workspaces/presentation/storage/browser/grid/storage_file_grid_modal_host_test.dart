@@ -11,6 +11,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cub
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,7 +85,10 @@ void main() {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(24),
-                        child: StorageFileGrid(files: [_sampleFile]),
+                        child: StorageFileGrid(
+                          files: [_sampleFile],
+                          capabilities: StorageShellCapabilities.desktop,
+                        ),
                       ),
                     ],
                   ),
@@ -144,6 +148,7 @@ void main() {
             BlocProvider<StorageFileMutationCubit>.value(value: mutationCubit),
             BlocProvider<StoragePreviewCubit>.value(value: previewCubit),
             BlocProvider<StorageSelectionCubit>.value(value: selectionCubit),
+            RepositoryProvider<StorageRepository>.value(value: repository),
           ],
           child: MaterialApp(
             navigatorKey: rootNavigatorKey,

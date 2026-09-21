@@ -61,10 +61,10 @@ class _KanbanColumnsViewportState extends State<KanbanColumnsViewport> {
     child: Actions(
       actions: {
         PreviousKanbanColumnIntent: CallbackAction<PreviousKanbanColumnIntent>(
-          onInvoke: (_) => _scrollBy(-318),
+          onInvoke: (_) => _scrollBy(-_columnStep),
         ),
         NextKanbanColumnIntent: CallbackAction<NextKanbanColumnIntent>(
-          onInvoke: (_) => _scrollBy(318),
+          onInvoke: (_) => _scrollBy(_columnStep),
         ),
       },
       child: FocusTraversalGroup(
@@ -83,10 +83,18 @@ class _KanbanColumnsViewportState extends State<KanbanColumnsViewport> {
             thumbVisibility: true,
             trackVisibility: true,
             interactive: true,
+            thickness: KanbanCardTokens.boardScrollbarThickness,
+            // Dolne pasmo należy do paska: kolumny kończą się nad nim, więc
+            // przeciąganie paska nie zasłania ich krawędzi.
             child: ListView.separated(
               controller: _controller,
               primary: false,
-              padding: const .all(KanbanCardTokens.boardGutter),
+              padding: const .fromLTRB(
+                KanbanCardTokens.boardGutter,
+                KanbanCardTokens.boardGutter,
+                KanbanCardTokens.boardGutter,
+                KanbanCardTokens.boardScrollbarReserve,
+              ),
               scrollDirection: Axis.horizontal,
               itemCount: widget.state.board.columns.length,
               separatorBuilder: (_, _) =>
@@ -132,6 +140,11 @@ class _KanbanColumnsViewportState extends State<KanbanColumnsViewport> {
       ),
     ),
   );
+
+  /// Krok przewijania klawiszami: jedna kolumna w bieżącej gęstości plus odstęp.
+  double get _columnStep =>
+      KanbanCardTokens.columnWidthFor(widget.state.board.defaultCardDensity) +
+      KanbanCardTokens.columnGap;
 
   void _scrollBy(double delta) {
     if (!_controller.hasClients) return;

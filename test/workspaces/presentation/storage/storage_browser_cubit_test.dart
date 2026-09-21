@@ -74,7 +74,69 @@ void main() {
       final cubit = StorageBrowserCubit(repository: repository);
       expect(cubit.state, isA<StorageBrowserInitial>());
       expect(cubit.currentScope, equals(const StorageScope.personal()));
-      expect(cubit.currentViewMode, equals(StorageViewMode.grid));
+      // Domyślny widok modułu to lista, zgodnie z kształtem ekranu plików.
+      expect(cubit.currentViewMode, equals(StorageViewMode.list));
+      expect(cubit.currentDensity, equals(StorageDensity.comfortable));
+      await cubit.close();
+    });
+
+    test(
+      'konstruktor przyjmuje widok, sortowanie i gęstość z preferencji',
+      () async {
+        final cubit = StorageBrowserCubit(
+          repository: repository,
+          initialViewMode: StorageViewMode.grid,
+          initialSort: const StorageSortCriteria(
+            field: StorageSortField.name,
+            direction: StorageSortDirection.ascending,
+          ),
+          initialDensity: StorageDensity.compact,
+        );
+        expect(cubit.currentViewMode, equals(StorageViewMode.grid));
+        expect(
+          cubit.currentSort,
+          equals(
+            const StorageSortCriteria(
+              field: StorageSortField.name,
+              direction: StorageSortDirection.ascending,
+            ),
+          ),
+        );
+        expect(cubit.currentDensity, equals(StorageDensity.compact));
+        await cubit.close();
+      },
+    );
+
+    test('zmiana zakresu zachowuje sortowanie i gęstość użytkownika', () async {
+      when(
+        () => repository.listFolders(
+          scope: any(named: 'scope'),
+          parentFolderId: any(named: 'parentFolderId'),
+        ),
+      ).thenAnswer((_) async => right(const <StorageFolderResponse>[]));
+      when(
+        () => repository.listFiles(
+          scope: any(named: 'scope'),
+          folderId: any(named: 'folderId'),
+          cursor: any(named: 'cursor'),
+          limit: any(named: 'limit'),
+          query: any(named: 'query'),
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer(
+        (_) async => right(
+          const CursorPageResponse<StorageFileResponse>(items: []),
+        ),
+      );
+
+      final cubit = StorageBrowserCubit(
+        repository: repository,
+        initialSort: const StorageSortCriteria(field: StorageSortField.size),
+        initialDensity: StorageDensity.compact,
+      );
+      await cubit.setScope(const StorageScope.recent());
+      expect(cubit.currentSort.field, equals(StorageSortField.size));
+      expect(cubit.currentDensity, equals(StorageDensity.compact));
       await cubit.close();
     });
 
@@ -189,11 +251,13 @@ void main() {
 
     test('toggleViewMode przełącza tryb widoku', () async {
       final cubit = StorageBrowserCubit(repository: repository);
-      expect(cubit.currentViewMode, equals(StorageViewMode.grid));
-      cubit.toggleViewMode();
       expect(cubit.currentViewMode, equals(StorageViewMode.list));
       cubit.toggleViewMode();
       expect(cubit.currentViewMode, equals(StorageViewMode.grid));
+      cubit.toggleViewMode();
+      expect(cubit.currentViewMode, equals(StorageViewMode.list));
+      cubit.setViewMode(StorageViewMode.list);
+      expect(cubit.currentViewMode, equals(StorageViewMode.list));
       await cubit.close();
     });
 

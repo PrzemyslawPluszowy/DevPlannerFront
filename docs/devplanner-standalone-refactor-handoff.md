@@ -2881,3 +2881,2546 @@ Otwarte: zakładka członków w centrum ustawień nadal liczy rolę zamiast
 `canManageMembers`, a wywołania `settings/**` nie przekazują `expectedVersion`
 (oba poza zakresem pakietu); `dart format` w tym SDK przepisał 15 plików poza
 zakresem — cofnięte, różnice były wyłącznie formatowaniem.
+
+### 2026-09-20 — FILES-AUDIT: plan naprawy Plików
+
+Status: **PLAN ONLY** — bez zmian runtime.
+
+Audyt aktywnego routera wykazał, że osobiste, workspace'owe i projektowe trasy
+Files montują `StorageReadOnlyBrowserPage`, a nie istniejący bogatszy
+`StorageShellPage`. To wyjaśnia brak spójnego headera, wyszukiwarki i pełnej
+powierzchni Lista/Siatka. Backend ma już share'y User/Workspace/Project/
+PublicLink, foldery, placementy, historię wersji, historyczny stream i
+OnlyOffice z identyfikacją użytkowników oraz wspólnym document key.
+
+Pełny plan F0–F9 zapisano w
+`Backend/docs/recovery/files-storage-ux-recovery-plan.md`. Najważniejsze nowe
+zadania kontraktowe: atomowe przeniesienie placementu z concurrency, preview
+historycznej wersji, weryfikacja share ACL i E2E dwóch równoległych sesji
+OnlyOffice. Front ma przejść na jeden host, jeden dwurzędowy chrome zgodny z
+Tasks/Kanban, trwałe preferencje oraz trwałe błędy z retry/traceId.
+
+Wykonane sprawdzenia dokumentacyjne: pełny odczyt planu refaktoru, audyt tras,
+komponentów Storage, repozytorium Flutter, endpointów i kontraktów Backend;
+`git diff --check` bez błędów przed dopisaniem handoffu; kopie głównego planu
+Backend/Front są identyczne. Nie uruchamiano buildów ani testów, ponieważ pakiet
+nie zmienia kodu. Qdrant był niedostępny (`qdrant-find: 'document'`).
+
+Następny krok: F0 — testy charakterystyczne i zamrożenie obecnego rozjazdu
+routingu, potem F1 — jeden host dla personal/workspace/project.
+
+### 2026-09-20 — WIZARD-UX: modal dwupanelowy, prawdziwy podgląd szablonu, język produktu
+
+Status: **DONE** — zakres UX-1…UX-7 z
+`docs/recovery/project-wizard-ux-completion-plan.md` jest w kodzie, ma goldeny
+i przechodzi pełną regresję. Bramki Windows i Linux pozostają niewykonane, bo
+ta maszyna jest hostem macOS.
+
+Pliki (Front): nowe `widgets/project_setup_wizard_layout.dart`,
+`widgets/project_setup_help_button.dart`, `widgets/preview/*` (panel, nagłówek,
+przełącznik widoku, podgląd Kanban i listy, podsumowanie zawartości, modele
+snapshotu, atomy) oraz pięć nowych plików testów kreatora
+(`project_preview_snapshot_test`, `project_setup_wizard_layout_test`,
+`project_setup_wizard_controls_test`, `project_setup_wizard_preview_test`,
+`project_setup_wizard_golden_test`). Zmienione:
+`widgets/project_setup_wizard_shell.dart`, `widgets/project_setup_wizard_controls.dart`,
+`widgets/project_setup_step_timeline.dart`, wszystkie kroki `steps/*.dart`,
+`l10n/project_setup_wizard_l10n.dart`, `shared/presentation/widgets/app_text_field.dart`
+(wstecznie zgodny `autofocus`), `lib/l10n/app_pl.arb`, `app_en.arb` z
+wygenerowanymi lokalizacjami, testy kreatora z fixture oraz
+`docs/recovery/project-wizard-ux-completion-plan.md` (wskaźnik ze stanem).
+Plan kanoniczny w Backendzie dostał pakiet UX-7 i sekcję 16 ze stanem.
+
+Decyzje: rozmiar modala liczy `ProjectSetupWizardMetrics` z viewportu (1120×780
+na dużym ekranie, nigdy ponad viewport), a od 960 px kontrolki i podgląd stoją
+obok siebie — bez stałego `maxWidth: 720`. Podgląd korzysta wyłącznie z danych:
+`ProjectTemplateDetailsResponse` dla szablonu i plan serwera dla podsumowania;
+kolumna bez własnego koloru dostaje kolor motywu, a zadanie z nieznanym statusem
+dokłada własną kolumnę zamiast zniknąć. Podgląd idzie za `defaultView` draftu,
+ale gdy w tym widoku nie ma ani jednego wiersza, pokazuje tablicę z kolumnami;
+wybór w przełączniku jest ważniejszy. Podgląd jest pamiętany per `templateId`,
+więc powrót do szablonu nie miga szkieletem, a odświeżanie zostawia starą treść
+pod cienkim wskaźnikiem. „Utwórz projekt” jest zablokowane, dopóki plan jest
+nieaktualny, natomiast „Ponów” w bannerze błędu nadal ponawia submit. Teksty
+kreatora przeszły audyt UX-7 (zniknęły „Brak wpiętego portu…”, „katalog
+Backendu”, „Draft zmienił się…”, literówka „Dziennea pojemność”; formularz
+zasobów mówi „Nie mamy teraz połączenia z serwerem…”).
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/projects/dialogs`
+— 73/73 PASS (baseline pakietu 24); `flutter test` — 1186/1186 PASS;
+`flutter analyze` — No issues found w chwili zakończenia pakietu (późniejsza
+uwaga w `test/app/router/devplanner_root_router_compile_test.dart` należy do
+pliku edytowanego równolegle przez innego agenta); goldeny (`--update-goldens`, a potem ten
+sam test bez flagi) — 5/5 PASS i pięć plików PNG w
+`test/workspaces/presentation/projects/dialogs/wizard/goldens/`;
+`flutter gen-l10n` — bez błędów, klucze PL/EN zgodne; `flutter build web --wasm`
+— ✓ Built; `flutter build macos --debug` — ✓ Built (ad-hoc; build release
+wymaga `DEVPLANNER_RELEASE_CODE_SIGN_IDENTITY`, którego ta maszyna nie ma);
+`dart format` w zakresie pakietu — wykonany; `git diff --check` — czysty.
+
+Uwaga o równoległej pracy: przez kilka minut w trakcie pakietu
+`flutter analyze lib` zgłaszał 12 błędów wyłącznie w
+`lib/workspaces/presentation/storage/shell/*` (cudzy moduł w edycji), co
+chwilowo blokowało goldeny i pełne bramki. Modułu nie ruszano; po jego
+naprawie wszystkie bramki przeszły.
+
+Domknięcie UX-5 po decyzji użytkownika (ten sam dzień): każda z trzech opcji
+workflow ma miniaturę swoich kolumn (`_WorkflowColumnsPreview` z tego samego
+snapshotu co panel; wybór katalogowy pokazuje sam kształt tablicy, bo nazw
+kolumn nikt jeszcze nie zna), krok sposobu pracy pokazuje ustawienia wybranego
+widoku, a drugi wchodzi przyciskiem „Dostosuj także ustawienia tablicy/listy”
+z informacją, że ukryty widok trafi do projektu z wartościami domyślnymi (błąd
+pola kafelka odsłania tablicę mimo bramki), a karty funkcji startowych mają
+reguły „Gdy… → wtedy…” z jednego wspólnego widgetu
+`project_setup_recipe_rule.dart`. Testy: nowy
+`project_setup_wizard_step_simplification_test.dart` (6 przypadków), zaktualizowany
+golden kroku workflow i kroku sposobu pracy.
+
+Komendy po tych zmianach: `flutter test
+test/workspaces/presentation/projects/dialogs/wizard` — 70/70 PASS;
+`flutter test` — 1192/1192 PASS; `flutter analyze` — No issues found;
+`flutter build web --wasm` — ✓ Built (71 s); `flutter build macos --debug` —
+✓ Built; `git diff --check` — czysty.
+
+Przegląd zewnętrzny (ten sam dzień) zgłosił cztery problemy i zastrzeżenie do
+artefaktów goldenów; wszystkie potwierdzone i naprawione:
+
+- **[P1] Podsumowanie gubiło zawartość szablonu** — plan podmienia teraz tylko
+  kolumny (`_withPlanColumns`), a zadania, etykiety i pola z szablonu zostają.
+  Testy: jednostkowy w `project_preview_snapshot_test.dart` i widgetowy na
+  podsumowaniu (zadanie, „Etykiety: 2”, „Pola: 1”, kolumny planu po przełączeniu
+  na Kanban).
+- **[P1] Usunięcie statusu mogło zapisać dane sąsiada** — wiersz pamięta, co sam
+  wysłał do draftu, i w `didUpdateWidget` przesynchronizowuje kontrolery, gdy
+  draft niesie inną wartość. Nowy plik
+  `project_setup_wizard_status_rows_test.dart` (4 przypadki: usunięcie środka,
+  edycja po usunięciu, limit WIP, zgodność przełącznika z renderem).
+- **[P2] Przełącznik podglądu mógł wskazywać inny widok niż renderowany** —
+  `_resolvedMode` liczy się raz i trafia do przełącznika i renderera.
+- **[P2] Test roli nie testował prawdziwego dropdownu** — test otwiera menu
+  prawdziwym kliknięciem, sprawdza pozycje w overlayu i wybiera rolę akcją
+  `SemanticsAction.tap` (ścieżka czytnika ekranu); kliknięcie w pozycję menu
+  pokrywa test dropdownu gęstości.
+- Katalog `failures/` z czterema obrazami usunięty, `.gitignore` dostał
+  `**/failures/`; katalog `tasks/board/failures/` (z 19.09, inny zakres)
+  zostawiony bez zmian.
+
+Komendy po poprawkach: `flutter test
+test/workspaces/presentation/projects/dialogs/wizard` — 75/75 PASS;
+`flutter test` — 1230/1230 PASS; `flutter analyze` — No issues found; goldeny
+5/5 po regeneracji; `flutter build web --wasm` — ✓ Built (88 s);
+`flutter build macos --debug` — ✓ Built; `git diff --check` — czysty.
+
+Druga runda przeglądu (ten sam dzień) wykryła, że finalny Kanban nie ma kart
+z szablonu. Sedno było w kontrakcie Backendu: dla projektu z szablonu
+`ProjectSetupPlanner.ResolveWorkflow` zwraca rodzaj domyślny z pustą listą
+własnych statusów, a serwer kopiuje statusy i zadania wprost ze snapshotu
+szablonu. Front czytał puste `customStatuses` jako „plan nie ma kolumn” i na
+podsumowaniu pokazywał cztery statusy systemowe (kolumny, których projekt nie
+dostanie) bez kart. Naprawa: dla draftu z szablonu plan nigdy nie podmienia
+kolumn — snapshot zachowuje kolumny, karty, etykiety i pola szablonu i dostaje
+znacznik `planApproved`, więc panel pisze „Zatwierdzone przez plan”; podmiana
+kolumn została tylko dla pustego projektu. Przy okazji przestałem zgadywać
+statusy systemowe: kontrakt nie wystawia ich nazw przed utworzeniem projektu,
+a realny systemowy workflow ma sześć statusów, nie cztery — podgląd pokazuje
+teraz kształt tablicy i liczbę kolumn z planu. Nowe testy: karty w kolumnie
+szablonu z `planApproved`, brak wymyślonych nazw systemowych, dwa osobne testy
+podsumowania (projekt z szablonu vs pusty projekt), plus regenerowany golden
+podsumowania i kroku workflow.
+
+Komendy tej rundy: `flutter test test/workspaces/presentation/projects/dialogs`
+— 85/85 PASS; `flutter analyze lib` — No issues found; goldeny 5/5;
+`flutter build web --wasm` — ✓ Built (75 s); `flutter build macos --debug` —
+✓ Built; `git diff --check` — czysty. Pełnego `flutter test` nie da się teraz
+uruchomić: równolegle trwa praca nad Kanbanem i jej testy nie kompilują się
+(`TasksBoardViewPreferenceStore.readAssigneeColumns/readGrouping`, `TasksHeader`,
+`KanbanBoardGroupingBar` w `test/workspaces/presentation/tasks/board/**`) — to
+inny zakres, plików nie ruszano. Ostatni pełny przebieg przed tą rundą to
+1230/1230 PASS.
+
+Następny krok: do potwierdzenia w uruchomionej aplikacji — klik w pozycję menu
+roli członka w kroku dostępu, gdy wiersz leży pod zgięciem panelu (w teście
+widgetowym geometria tego jednego menu nie trafia, choć akcja czytnika ekranu
+działa); opcjonalnie bramki Windows i Linux na właściwych hostach.
+### 2026-09-20 — FILES-F1: jeden pełny host Plików dla trzech zakresów
+
+Status: **DONE** — kod i testy; buildy platform i odbiór live pozostają otwarte.
+
+Trasy `/me/files`, `/workspaces/:id/files` i
+`/workspaces/:id/projects/:pid/files` montują `StorageShellPage` zamiast
+`StorageReadOnlyBrowserPage`. Strona read-only zostaje w repozytorium bez
+aktywnego użycia do F9.
+
+Blokada zgłoszona w pakiecie WIZARD-UX („12 błędów w
+`lib/workspaces/presentation/storage/shell/*`”) jest zdjęta: `flutter analyze`
+na całym projekcie kończy się `No issues found!`, więc goldeny i pełne bramki
+kreatora nie są już blokowane przez moduł Storage.
+
+Nowy plik: `storage/shell/storage_shell_capabilities.dart`. Zmienione:
+`storage_shell_page.dart`, `storage_browser_body.dart`,
+`storage_browser_header.dart`, `selection/storage_selection_toolbar.dart`,
+`selection/storage_keyboard_shortcuts.dart`, `grid/storage_file_grid.dart`,
+`grid/storage_folder_grid.dart`, `list/storage_file_rows.dart`,
+`list/storage_folder_rows.dart`, `shared/storage_file_context_menu.dart`,
+`shared/storage_folder_actions_menu.dart`,
+`lib/app/router/devplanner_router_pages.part.dart` oraz trzy pliki testów
+(`devplanner_root_router_compile_test.dart`, `storage_shell_page_test.dart`,
+`grid/storage_file_grid_modal_host_test.dart`).
+
+Decyzje: uprawnienia akcji mutujących pochodzą z composition rootu
+(`StorageShellCapabilities`, domyślnie `readOnly`, więc fail-closed); Web/BFF
+zachowuje przetestowany kontrakt read-only; shell dostarcza repozytorium
+i transport pobierania do drzewa, co naprawia latentny
+`ProviderNotFoundException` w „Historii wersji” i w udostępnianiu; akcje mają
+stabilne `ValueKey` zgodne z konwencją read-only, więc testy parytetu nie
+zostały osłabione; domyślny widok to Lista (te same odczucia co wcześniej,
+trwałe preferencje to F3); tytuł nagłówka jest `Expanded` z elipsą, co usuwa
+realny overflow przy średnich szerokościach. Zakres z adresu adoptuje istniejący
+Cubit zamiast odtwarzać drzewo providerów, bo odtwarzanie dokładało drugie
+żądanie listy po powrocie i po otwarciu folderu.
+
+Bramki: `flutter analyze` (cały projekt) — `No issues found!`; `flutter test`
+(pełne drzewo testów) — 1192 PASS; formatowanie zmienionych plików bez zmian;
+`git diff --check` — czysto. Buildy web/macos nie zostały uruchomione: w tym
+samym drzewie trwała równoległa praca innego agenta i działająca sesja
+`flutter run -d macos`.
+
+Następny krok: F2/F3 (chrome zgodny z Tasks/Kanban, filtry, trwałe preferencje
+widoku), potem F4 (atomowy move placementu).
+
+### 2026-09-20 — KANBAN-ASSIGNEE-UX-AUDIT
+
+Status: **PLAN / NOT IMPLEMENTED**.
+
+Powstał szczegółowy plan
+`Backend/docs/recovery/kanban-assignee-view-and-visual-refresh-plan.md` dla
+widoku Kanban „jedna kolumna = użytkownik” oraz redesignu kart i kolumn.
+Zweryfikowany stan: backend i Front mają enum Assignee, primary assignee,
+profile/avatary, filtry, DnD, paginację i realtime, ale aktywny renderer nadal
+używa wyłącznie kolumn statusów, więc sama obecność enuma nie oznacza funkcji.
+
+Plan K0–K8 przyjmuje MVP bez duplikowania kart: kolumnę wyznacza primary
+assignee, a współwykonawcy pozostają widoczni na karcie. Zmiana osoby jest
+osobnym use case'em i nie może zmieniać statusu. Uwzględniono OpenAPI, ACL,
+IDOR, cursory, optimistic rollback, realtime dwóch sesji, wydajność bez N+1,
+goldeny light/dark/gęstości, text scale 200%, klawiaturę i screen reader.
+Nie zmieniono kodu runtime, migracji ani testów; wszystkie checkboxy K0–K8
+pozostają otwarte.
+
+Sprawdzenia dokumentacyjne: plan ma 719 linii i `shasum -a 256`
+`110329e2f75c2180fb8353edbaf04bbd14ad988a29e9df17eddd7b879c280ece`; `cmp -s`
+na lustrzanych parach — plan główny, handoff, `tasks-parity-and-ui-repair-plan.md`
+i `product-navigation-and-project-wizard-refactor-plan.md` IDENTICAL;
+`tasks-list-kanban-ux-recovery-plan.md` istnieje tylko w Froncie (Backend go nie
+prowadzi), a `project-wizard-ux-completion-plan.md` jest w Froncie wskaźnikiem do
+kanonu w Backendzie, więc te dwie pary nie są równe bajtowo z założenia;
+`git diff --check` w Front i w Backendzie — exit 0; `git status --porcelain`
+w Backendzie wskazuje wyłącznie pliki `.md`. Nazwy bramek z §14 planu zostały
+sprawdzone w drzewie: `veloryn-workspaces.csproj`,
+`Tests/Veloryn.Workspaces.Tests/Veloryn.Workspaces.Tests.csproj`,
+`test/workspaces/presentation/tasks/board` i `test/workspaces/data/kanban`
+istnieją, a `KanbanSwimlaneMode.Assignee` jest w
+`Domain/Enums/KanbanSwimlaneMode.cs`.
+
+Bramki runtime (`dotnet restore/build/test`, migracje, `flutter analyze`,
+`flutter test`, buildy platform) — **NOT RUN**: pakiet nie zmienia kodu, a w
+drzewie trwała równoległa praca innych agentów, więc pełnych suite'ów nie
+uruchamiano, aby jej nie zakłócać.
+
+Następny krok: potwierdzenie decyzji D1–D5 z właścicielem produktu, potem pakiet
+K0 (baseline wymiarów i liczby zapytań, test dowodzący dzisiejszy brak renderera
+osób), następnie K1.
+### 2026-09-20 — FILES-F2: dwuwierszowy chrome i trwały banner błędu
+
+Status: **DONE** — kod, testy i goldeny; buildy platform i odbiór live nadal
+otwarte.
+
+Chrome Plików to teraz dwa wiersze na jednej powierzchni (kontekst 46 px,
+polecenia 38 px) z tokenami wspólnej gęstości modułów danych, a wiersz poleceń
+ma jeden slot, który przy zaznaczeniu zamienia się na pasek akcji masowych.
+Trwały banner błędu jest jedyną powierzchnią błędu z akcjami: komunikat, kod,
+`traceId`, `Ponów`, `Odśwież`.
+
+Nowe pliki: `lib/foundation/theme/files_theme.dart` i katalog
+`lib/workspaces/presentation/storage/browser/chrome/` (rama, dwa wiersze,
+pigułka, pasek masowych, potwierdzenie usunięcia, dialogi tworzenia, banner
+i host) plus trzy kontrolki wiersza poleceń w `browser/toolbar/`. Usunięte:
+`browser/storage_browser_header.dart`, `browser/toolbar/storage_browser_toolbar.dart`,
+`browser/selection/storage_selection_toolbar.dart`.
+
+Decyzje: tokeny Files składają się na tokenach Tasks (jedno źródło geometrii, bez
+edycji współdzielonego `theme.dart`); akcja wysyłania wymaga realnego portu
+pickera, bo widoczna akcja bez portu jest martwa; sortowanie i przełącznik
+widoku znikają w stanie błędu i odmowy dostępu; wszystkie menu idą przez
+`AppContextMenu`, więc surowy `PopupMenuButton` zniknął z aktywnego modułu;
+tworzenie elementu nie wymusza już drugiego odświeżenia, bo pojedynczy reload
+należy do nasłuchu shella. Kilka etykiet używa istniejących, neutralnych
+tekstowo kluczy ARB z innych modułów — wydzielenie wspólnych kluczy powierzchni
+danych zostaje osobnym porządkiem, bo edycja ARB kolidowałaby z równoległą pracą
+nad kreatorem.
+
+Bramki: `flutter analyze` na ścieżkach modułu — `No issues found!`; `flutter test`
+— 1230 PASS; formatowanie zmienionych plików bez zmian; `git diff --check` —
+czysto. Nowe testy w `test/workspaces/presentation/storage/chrome/`: sześć
+viewportów, motyw × skala tekstu 100/125/150%, geometria wierszy, zwijanie akcji,
+fokus klawiaturą, debounce wyszukiwania, trwały banner. Goldeny `1280 px`
+light/dark i `700 px` obejrzane wizualnie. Buildy web/macos NOT RUN.
+
+Następny krok: F3 — filtry, rozdział wyszukiwania tekstowego od semantycznego
+i trwałe preferencje widoku per użytkownik i zakres.
+### 2026-09-20 — FILES-F3 (część): filtry i trwałe preferencje widoku
+
+Status: **DONE (część)** — filtry i trwałość gotowe; tryb semantyczny
+i filtr właściciela pozostają otwarte z nazwanymi powodami.
+
+Zakres domknięty: filtry typu/statusu AI/daty w panelu wspólnego menu z paskiem
+aktywnych filtrów; trwałe preferencje widoku (Lista/Siatka, sortowanie, gęstość)
+per użytkownik i zakres, przeżywające restart; stan końcowy żądania czyta bieżące
+pola widoku, więc zmiana w trakcie ładowania nie jest gubiona.
+
+Nowe pliki: model i port preferencji w domenie,
+`shared_preferences_storage_view_store.dart`, `storage_view_preference_scope.dart`,
+`chrome/storage_filter_menu.dart`, `chrome/storage_active_filter_strip.dart`.
+Zmienione: `StorageBrowserFilter` (czyszczenie pojedynczych warunków), Cubit
+i stan (gęstość, wspólna aktualizacja pól widoku, zachowanie wyboru przy zmianie
+zakresu), shell, router (store wczytany przy starcie i po zmianie konta),
+wiersze listy, menu `…`, 15 kluczy ARB filtrów w PL i EN.
+
+Decyzje: preferencja jest per użytkownik i zakres, ale poza identyfikatorem
+folderu; zakres bez zapisu startuje z wartości domyślnych produktu, więc wybór
+nie przecieka między zakresami; zapis pomija stan błędu i odmowy dostępu;
+preferencje są lokalne, bo kontrakt Backendu nie ma endpointu preferencji
+Storage — ścieżka `expectedVersion`/409 wymaga najpierw tego endpointu; pole
+właściciela czeka na port katalogu użytkowników (ten sam, co udostępnianie
+osobie w F5); tryb `Po treści` czeka na osobną powierzchnię wyników, bo kontrakt
+zwraca fragmenty dokumentów, a nie wiersze eksploratora.
+
+Testy wykryły i domknęły cztery realne defekty: gubioną zmianę widoku
+w trakcie żądania, gubioną preferencję w stanie ładowania, kasowanie
+preferencji wszystkich zakresów przez jeden uszkodzony wpis oraz reset
+sortowania i gęstości przy zmianie zakresu.
+
+Bramki: `flutter analyze` na ścieżkach modułu — `No issues found!`; `flutter test`
+— 1251 PASS; formatowanie zmienionych plików bez zmian; `git diff --check` na
+ścieżkach pakietu czysty (`kanban_models.freezed.dart` z trailing whitespace
+należy do równoległej pracy innego agenta); `flutter gen-l10n` wygenerował nowe
+klucze w PL i EN.
+
+Następny krok: dokończyć F3, potem F4 — atomowe przenoszenie placementu
+i drag-and-drop.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K2-K6: widok „jedna kolumna = jedna osoba”
+
+Status: **DONE dla K2–K6 (Backend + Front)**; K0, K1/K7 i K8 pozostają otwarte
+z nazwanymi powodami.
+
+Backend (K2, K3):
+- `Contracts/Kanban/KanbanContracts.cs`: `AssigneeKanbanBoardResponse`,
+  `AssigneeKanbanGroupResponse`, `ChangeKanbanPrimaryAssigneeRequest`/`Response`
+  oraz addytywne `AssigneeUserIds` na karcie (zawsze posortowane).
+- `Application/Kanban/KanbanCardMaterializer.cs` (nowy): jedno miejsce prawdy
+  projekcji karty, liczników załączników i metadanych, żeby czytnik statusów
+  i czytnik osób nie mogły się rozjechać; `KanbanBoardReader` tylko deleguje.
+- `Application/Kanban/KanbanAssigneeBoardReader.cs` (nowy) + interfejs: odczyt
+  grup, strona jednej grupy, licznik grupy. Liczniki powstają jednym zapytaniem
+  grupowym, a pierwsze strony grup mieszczących się w jednej stronie idą jednym
+  wspólnym zapytaniem — liczba zapytań zależy od liczby grup, nie od liczby kart.
+- `Application/Kanban/KanbanAssigneeAssigner.cs` (nowy) + `IKanbanAssigneeAssigner`:
+  transakcja Serializable, `RequireWriteAsync` (Observer odrzucony), wersja
+  zadania, historia `AssigneesChanged`, notyfikacja, outbox `task.updated`
+  z listą wykonawców, retry przy 40001/40P01.
+- `Application/Kanban/IKanbanMemberProfileSource.cs` + `KanbanMemberProfileSource.cs`:
+  port profili (nazwa, awatar) nad lokalnym katalogiem; testy jednostkowe nie
+  potrzebują przez to kontekstu tożsamości.
+- `Application/Tasks/TaskAssigneeAccess.cs`: wydzielone `IsEligibleAsync`
+  i `ListEligibleUserIdsAsync` z jednym źródłem predykatu uprawnień.
+- `Domain/Entities/TaskAssignee.cs`: `MakePrimary`/`MakeSecondary`;
+  `Domain/Rules/KanbanExceptions.cs` + `ApiExceptionMiddleware.cs`: kody
+  `kanban.invalid_assignee` (400) i `kanban.assignee_not_project_member` (400).
+- `Contracts/Tasks/TaskRealtimeEventResponse.cs` + `TaskRealtimeEventFactory`:
+  addytywne `PrimaryAssigneeUserId`, `PreviousPrimaryAssigneeUserId`,
+  `AssigneeUserIds` w payloadzie zdarzenia zmiany wykonawcy.
+- `Endpoints/Kanban/KanbanEndpoints.cs`: cztery nowe operacje (GET `assignees`,
+  GET `assignees/unassigned`, GET `assignees/{assigneeUserId}`, PATCH
+  `tasks/{taskId}/primary-assignee`) z polskimi opisami; `KanbanOperationFilter`
+  dostał przykład żądania i przykłady 400 dla nowej mutacji.
+
+Front (K4–K6):
+- Modele, API i repozytorium: `AssigneeKanbanBoardResponse`,
+  `AssigneeKanbanGroupResponse`, `assigneeUserIds` na karcie,
+  `changePrimaryAssignee` oraz trzy odczyty grup.
+- Osobista preferencja: `domain/models/tasks_board_grouping.dart`,
+  `domain/ports/tasks_board_grouping_preference_store.dart`,
+  `data/preferences/shared_preferences_tasks_board_grouping_store.dart` (klucz
+  `userId + workspaceId + projectId`).
+- `presentation/tasks/board/cubit/tasks_board_assignee_commands.dart` (nowy):
+  przełącznik trybu, odczyt grup, paginacja per grupa, optimistic move
+  z rollbackiem (409 → rollback i odświeżenie grup, 403/400 → rollback i błąd,
+  404 → usunięcie karty), odświeżenie po realtime i po zmianie filtra.
+- `cubit/tasks_board_state.dart` + `tasks_board_cubit.dart`: pola grupowania,
+  grup, ładowania i błędów per grupa; realtime wykrywany po `realtimeRevision`.
+- `presentation/tasks/board/tasks_board_assignee_view.dart` (nowy): pasek
+  grupowania (SegmentedButton z tooltipem i semantyką), viewport kolumn osób,
+  kolumna z avatarem i fallbackiem inicjałów, badge „Ty”, licznik, pełna strefa
+  upuszczenia dla pustej kolumny, doładowanie strony grupy oraz badge statusu
+  na karcie (bo w tym widoku kolumna opisuje osobę, a nie etap workflow).
+- `tasks_board_card_content.dart`, `tasks_board_cards.dart`, `tasks_board_page.dart`:
+  opcjonalny badge statusu karty, przekazanie klucza do karty, montaż widoku
+  i adaptera preferencji z `AuthSessionPort`.
+- ARB: 7 nowych kluczy PL/EN (`tasksBoardGroupBy`, `tasksBoardGroupByStatus`,
+  `tasksBoardCurrentUserBadge`, `tasksBoardMoveToPerson`,
+  `tasksBoardUnassignedDropTitle`, `tasksBoardUnassignedDropBody`,
+  `tasksBoardLoadMore`).
+
+Decyzje: kolumną jest zbiór osób uprawnionych do przypisania (ten sam, którego
+pilnuje `TaskAssigneeAccess`), więc karta osoby bez dostępu do projektu liczy się
+jako Nieprzypisane i nie tworzy kolumny; karta występuje dokładnie raz, w kolumnie
+głównego wykonawcy; przeciągnięcie między osobami nie zmienia statusu, a drop na
+„Nieprzypisane” wymaga potwierdzenia (reguła D2); liczniki z odpowiedzi mutacji
+przyjmujemy tylko przy braku filtrów i szybkiego filtra, bo Backend liczy je dla
+pełnej tablicy; realtime odświeża grupy zamiast różnicowo patchować kolumny osób
+(otwarty punkt); kod `kanban.assignment_forbidden` z planu nie powstał, bo nie ma
+dla niego producenta — świadomie bez martwego kodu.
+
+Naprawione błędy poza zakresem pakietu (wykryte przez nowe testy):
+`KanbanTaskMover.BulkUpdateAsync` i `NotificationService.AssignTask` dodawały nowe
+przypisanie wyłącznie do kolekcji nawigacji, więc tracker oznaczał encję jako
+`Modified`, a zapis kończył się `DbUpdateConcurrencyException` → 409
+`kanban.version_conflict` zamiast przypisania wykonawcy. Oba miejsca używają teraz
+jawnego `DbSet.Add`, tak jak `TaskOperationsHandler`; regresję pilnuje test
+`BulkUpdateAssigneeReplacementReadsBackTheNewAssignee`.
+
+Komendy i wyniki: `dotnet build veloryn-workspaces.csproj` — 0 błędów,
+0 ostrzeżeń; `dotnet test --filter "FullyQualifiedName~Kanban"` — 73/73 PASS
+(14 nowych serwisowych, 3 nowe HTTP, rozszerzone kontrakty OpenAPI); pełny
+`dotnet test` — 1208 PASS / 7 FAIL / 4 SKIP przy baseline 1191 PASS / 7 FAIL /
+4 SKIP przed pakietem, czyli +17 nowych testów i bez nowych regresji (7 niepowodzeń
+to wcześniejsze testy auth, m.in. `MeEndpointsTests.ChangePasswordSucceeds…`);
+`flutter analyze lib` — No issues found; `flutter test
+test/workspaces/presentation/tasks test/workspaces/data/kanban` — 434/434 PASS,
+w tym 11 nowych testów `tasks_board_assignee_commands_test.dart` (9 cubitowych
+i 2 widgetowe); pełny `flutter test` — 1253 PASS, All tests passed;
+`dart run build_runner build --delete-conflicting-outputs` — 5 outputs, wyłącznie
+pliki Kanbanu; `flutter gen-l10n` — klucze PL/EN zgodne; `git diff --check` —
+czysto w obu repo.
+
+NOT RUN: bramki platform (`flutter build web --wasm`, `flutter build macos
+--debug`), pomiary wydajności z §8 planu, testy IDOR na żywym stacku i scenariusz
+dwóch sesji — w drzewie trwała równoległa praca innego agenta (Storage) i sesja
+`flutter run`, więc nie uruchamiano buildów ani pomiarów, żeby jej nie zakłócać.
+
+Następny krok: K0 (baseline wizualny 100/150/200% i liczba zapytań pierwszej
+strony), potem K1/K7 (tokeny stanów interakcji oraz goldeny gęstości w light/dark)
+i K8 (perf, IDOR, live dwóch sesji); opcjonalnie pozycja „Przenieś do osoby”
+w menu kontekstowym karty jako pełna alternatywa klawiaturowa.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K0: baseline pomiarowy
+
+Status: **DONE** — pomiary, test renderera i 19 zrzutów baseline'u w
+`docs/recovery/visual-captures/k0`.
+
+Zmierzone na PostgreSQL (projekt prywatny, 3 członkowie + Nieprzypisane = 4 grupy,
+5 kolumn workflow) licznikiem `DbCommandInterceptor`:
+
+| Scenariusz | `GET /kanban` | `GET /kanban/assignees` |
+|---|---|---|
+| 30 zadań | 35 zapytań | 19 zapytań (30 kart na pierwszych stronach) |
+| 60 zadań | 35 zapytań | 19 zapytań (60 kart) |
+| +40 kart u jednej osoby | 35 zapytań | 23 zapytania |
+
+Wniosek: **liczba zapytań nie zależy od liczby kart** — podwojenie liczby zadań dało
+identyczny pomiar, a kolumna dłuższa niż strona dokłada jedno własne pobranie
+(4 zapytania, bo `AsSplitQuery` rozbija cztery `Include`). To spełnia §8 planu
+(zakaz N+1 per kartę). Drugi wniosek, materiał dla K8: `AsSplitQuery` mnoży
+zapytania przez liczbę kolumn (≈7 na kolumnę w widoku statusów), więc realna
+oszczędność to ograniczenie `Include` albo jedno zapytanie zagnieżdżone —
+zmierzone i zapisane, świadomie niezmieniane w tym pakiecie.
+
+Testy: `KanbanFirstPageQueryCountTests` (nowy, PostgreSQL) pilnuje kształtu
+zależności — równości pomiaru przy 30 i 60 zadaniach oraz stałego narzutu dla
+kolumny dłuższej niż strona — zamiast zamrażać przypadkową liczbę jako próg.
+Uruchomienie w projekcie testowym: 2/2 PASS i wypisane pomiary
+`statusy 35->35 (kolumny=5), osoby 19->19 (grupy=4, kart na pierwszych stronach=60)`
+oraz `kolumna dłuższa niż strona: 48 kart, zapytania 19->23 (25 kart na pierwszej
+stronie)` — zgodne z pomiarem niezależnego runnera. Wcześniej to samo uruchomienie
+blokował chwilowy błąd kompilacji w `Tests/Veloryn.Workspaces.Tests/StorageHttpTests.cs`
+(plik innego agenta), dlatego pierwszy pomiar wykonałem runnerem poza repozytorium
+(usunięty); po naprawie ich pliku test przeszedł w normalnym przebiegu.
+
+Front: `test/workspaces/presentation/tasks/board/kanban_assignee_k0_baseline_test.dart`
+renderuje oba grupowania × motyw jasny i ciemny × skalowanie tekstu 100%, 150%
+i 200% i zapisuje zrzuty do `docs/recovery/visual-captures/k0`. Przy każdym
+skalowaniu test wymaga braku przepełnienia układu, a pomiar wypisuje wymiary:
+kolumna statusu i kolumna osoby 308 px (`columnWidthStandard`), karta 290 px
+szerokości. Ten sam plik dowodzi historycznego defektu: przy zapisanym w projekcie
+`swimlaneMode=Assignee` i grupowaniu `Status` renderują się kolumny statusów,
+a kolumny osób pojawiają się dopiero po przełączeniu widoku — o rendererze
+decyduje przełącznik, nie zapis projektu.
+
+Tokeny geometrii sprawdzone w kodzie i zachowane: `columnWidthStandard` 308,
+`columnGap` 12, `boardGutter` 12, `cardGap` 8, `cardRadius` 8,
+`contentPaddingCompact`/`Comfortable` 10/12 px. Mieszczą się w widełkach §5.6
+i §5.7 planu, więc K1 nie musi zmieniać geometrii — dokłada tokeny stanów
+interakcji (hover, focus, selected, pending, error) i goldeny.
+
+Otwarte: K1/K7 (tokeny stanów, goldeny gęstości i motywów, 200% w plikach
+złotych), K8 (p95, scenariusze 25/50 użytkowników, IDOR, live dwóch sesji) oraz
+potwierdzenie decyzji D1–D5 przez właściciela produktu — implementacja przyjęła
+je jako domyślne.
+
+Następny krok: po odblokowaniu frontu zapisać finalne zrzuty (`flutter test
+test/workspaces/presentation/tasks/board/kanban_assignee_k0_baseline_test.dart`)
+i wejść w K1.
+
+Domknięcie: `flutter test
+test/workspaces/presentation/tasks/board/kanban_assignee_k0_baseline_test.dart` —
+16/16 PASS, 19 plików PNG (12 widoków tablicy + 6 kart ze statusem + 1 pasek
+grupowania w wąskim oknie); wymiary przy pełnym oknie 1440×900: kolumna statusu
+308×836, kolumna osoby 308×852, karta 290×138. Baseline znalazł realny defekt:
+w oknie 600 px przy skalowaniu tekstu 200% pasek grupowania przepełniał się o
+9,9 px, czyli łamał §5.9 planu („200% nie może powodować overflowu ani utraty
+dostępu do menu”). Pasek jest teraz przewijany poziomo od końca, przełącznik
+pozostaje w całości widoczny, a regresję pinuje test „wąskie okno przy 200% nie
+przepełnia paska grupowania”. Po poprawce cały pion Tasks + Kanban to 450/450
+PASS, `flutter analyze lib` bez uwag.
+### 2026-09-20 — FILES-F4: atomowe przenoszenie placementu i drag-and-drop
+
+Status: **DONE** — backend i front; panel szczegółów i „Utwórz kopię” poza
+zakresem pakietu.
+
+Backend: `POST /api/v1/storage/placements/{placementId}/move` z
+`{targetFolderId, expectedVersion}` i opcjonalnym `Idempotency-Key`. Encja
+placementu dostała token współbieżności `xmin` i odcisk idempotencji, a response
+publikuje `version`. Migracja addytywna `AddStoragePlacementMoveIdempotency`
+celowo nie tworzy kolumny `xmin` (kolumna systemowa PostgreSQL, precedens
+`AddPostgresConcurrencyTokens`). Nowe stabilne kody: `storage.placement_conflict`
+i `storage.folder_cycle`. Walidacje objęły prawo zapisu po obu stronach,
+identyczność kontekstu, duplikat w folderze docelowym i plik w koszu; kolejność
+ACL-przed-kontekstem jest celowa (cudzy folder nie ujawnia kontekstu).
+
+Front: `moveFilePlacement` w porcie, adapterze, repozytorium i operacjach
+rozszerzonych oraz `listFolderPlacements` w porcie (lista plików nie niesie
+identyfikatora placementu). `StorageFileMutationCubit.moveFileToFolder`
+rozstrzyga, czy plik jest już placementem w folderze, czy dopiero ma zostać
+nim w folderze docelowym, i ten sam przypadek użycia obsługuje picker, DnD
+i pasek akcji masowych. Intencja trzyma klucz idempotencji (ponowienie go
+reuse’uje), a `moveFilesToFolder` raportuje wynik per element. Nowa flaga
+`StorageShellCapabilities.canMove` bramkuje akcję i gest; bez niej DnD nie
+istnieje. Świadomie bez optymistycznego przestawiania listy — po sukcesie jest
+jedno odświeżenie, więc nie ma ścieżki rollbacku do rozjechania ze stanem.
+
+Przy okazji naprawione: nieudany odczyt przodków breadcrumbów zostawiał
+eksplorator w nieskończonym ładowaniu (krok wzbogacania ścieżki nie może
+blokować zawartości folderu) oraz wygenerowany klient Retrofit zapisał
+`InvalidType`, gdy build_runner ruszył przed dodaniem typu do barrel-a —
+`.g.dart` jest wykluczony z analizy, więc błąd wyszedł dopiero przy kompilacji
+testów.
+
+Bramki: Backend `dotnet build` bez ostrzeżeń, `migrations has-pending-model-changes`
+czyste, `migrations script --idempotent` exit 0, `dotnet test` 1211 PASS / 4 SKIP
+/ 7 FAIL (wyłącznie `MeEndpointsTests`, porażki odnotowane wcześniej w handoffie).
+Front `flutter analyze` czysty, `flutter test` 1284 PASS, build_runner bez
+`InvalidType`, `git diff --check` czysto w obu repo.
+
+Następny krok: F5 — udostępnianie zgodnie z ACL wraz z portem lokalnego katalogu
+użytkowników.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K6b/K1: alternatywa klawiaturowa i tokeny stanów karty
+
+**K6b — alternatywa klawiaturowa (DONE).** Menu kontekstowe karty (osiągalne
+z klawiatury przez Shift+F10) ma pozycję „Przenieś do osoby…”, widoczną wyłącznie
+w widoku grupowanym po osobach. Otwiera dialog z listą osób (bez kolumny bieżącej
+osoby) i grupą „Nieprzypisane”; wybór osoby woła `moveTaskToAssignee`, a wybór
+„Nieprzypisane” przechodzi przez potwierdzenie D2. Nowe testy widgetowe:
+„menu: wybór osoby z klawiatury przenosi kartę bez przeciągania” i „menu:
+„Nieprzypisane” wymaga potwierdzenia usunięcia wykonawców”.
+
+Dwa defekty znalezione przez te testy i naprawione: (1) wybór grupy
+„Nieprzypisane” zwracał `null`, czyli był nieodróżnialny od anulowania, więc
+potwierdzenie D2 nigdy się nie pokazywało — dialog używa teraz sentinela
+`__unassigned__`; (2) pytanie „Usunąć wszystkich wykonawców?” użyte jako etykieta
+przycisku przepełniało dialog o 59 px, więc powstał krótki klucz ARB
+`tasksBoardUnassignedDropConfirm` („Usuń wykonawców”) wspólny dla ścieżki dropu
+i menu.
+
+**K1 (część) — tokeny stanów karty (DONE dla powierzchni i focusu).** Audyt
+wykazał dwie luki: powierzchnie karty (`surface`, `surfaceContainerHighest`
+z alfą, `primaryContainer` z alfą) były wpisane w widget, a `_isFocused` było
+śledzone przez `onFocusChange`, ale **nigdy nie malowane** — użytkownik
+klawiatury nie widział, która karta jest aktywna, co łamało §5.6 planu.
+Dodane tokeny: `cardSurfaceRest`, `cardSurfaceHover`, `cardSurfaceSelected`,
+`cardFocusRing`, `cardSurfacePending`, `cardBorderError`; karta używa
+powierzchni z tokenów, a focus maluje pierścień 2 px kolorem `cardFocusRing`
+(z pierwszeństwem nad hover i zaznaczeniem). Test
+`kanban_card_interaction_states_test.dart` (3/3 PASS) pilnuje trzech stanów:
+spoczynku, focusu i zaznaczenia — w tym tego, że pierścień focusa różni się od
+obrysu spoczynkowego.
+
+Komendy i wyniki: `flutter analyze lib` — No issues found; `flutter test
+test/workspaces/presentation/tasks test/workspaces/data/kanban` — 455/455 PASS;
+`flutter gen-l10n` — nowy klucz w PL i EN; `git diff --check` — czysto.
+
+Pozostaje w K1/K7: malowanie stanów pending i error z nowych tokenów, goldeny
+gęstości (Compact/Comfortable/Detailed × light/dark), goldeny stanów
+status/osoba/Nieprzypisane/puste/przepełnienie, brak przesunięcia układu po
+doładowaniu awatara, reduced motion i wysoki kontrast. Potem K8 (p95, scenariusze
+25/50 użytkowników, IDOR, odbiór dwóch sesji, buildy platform). Otwarte nadal
+potwierdzenie decyzji D1–D5 przez właściciela produktu.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K1/K7: malowanie stanów karty i goldeny
+
+Status: **DONE dla malowania stanów i goldenów kart**; elementy widokowe K7 oraz
+K8 pozostają otwarte.
+
+Malowanie stanów z tokenów: ramka karty przyjmuje `isPending` i `hasError`.
+Powierzchnia karty w trakcie zapisu bierze `cardSurfacePending`, a obrys po
+nieudanym zapisie `cardBorderError`. Kolejność pierwszeństwa: focus, potem błąd,
+zaznaczenie, hover i spoczynek. Sygnał błędu per karta jest nowy w stanie —
+`TasksBoardReady.failedTaskIds` ustawiają ścieżki rollbacku (przeniesienie
+w widoku statusów i przeniesienie do osoby), a zdejmuje potwierdzony zapis oraz
+zamknięcie komunikatu (`clearViewError`). Dzięki temu błąd nie jest kodowany
+wyłącznie kolorem: obrys idzie w parze z trwałym bannerem, który niesie tekst.
+`KanbanColumnWidget` dostał `failedTaskIds`, a `_DraggableTaskCard` przekazuje
+stan do karty.
+
+Goldeny: 16 plików pod `test/workspaces/presentation/tasks/board/goldens/k1` —
+gęstości Compact/Comfortable/Detailed w motywie jasnym i ciemnym (6), stany karty
+spoczynek, zaznaczenie, pending i error w obu motywach (8) oraz focus klawiatury
+w obu motywach (2). Test ładuje Inter, więc goldeny pokazują realną hierarchię
+tekstu, a nie zastępcze bloki.
+
+Komendy i wyniki: `flutter test ...kanban_interaction_goldens_test.dart
+--update-goldens` → 16/16, ten sam test bez flagi → 16/16 (goldeny są stabilne);
+`flutter test test/workspaces/presentation/tasks test/workspaces/data/kanban` →
+471/471 PASS; `flutter analyze lib` → No issues found; `git diff --check` —
+czysto w obu repo.
+
+Nie zrobione w K7: goldeny całych kolumn dla stanów status/osoba/Nieprzypisane/
+puste (te stany są zapisane jako zrzuty PNG baseline'u K0 w light/dark ×
+100/150/200%, ale nie jako pliki złote), brak przesunięcia układu po doładowaniu
+awatara, reduced motion i wysoki kontrast. Następny krok: K8 (p95, scenariusze
+25/50 użytkowników, IDOR, odbiór dwóch sesji, buildy platform).
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K7: kolumny, dostępność systemowa i goldeny
+
+Status: **DONE** — kod dostępności, goldeny kart i goldeny kolumn zapisane
+i zweryfikowane.
+
+Dostępność systemowa w ramce karty: `MediaQuery.disableAnimations` skraca animację
+karty do zera (bez mrugania layoutem), a `MediaQuery.highContrast` zamienia
+subtelny obrys na pełny kolor `outline` przez nowy token
+`cardBorderHighContrast`. Oba zachowania mają testy: „reduced motion wyłącza
+animację karty” (140 ms → `Duration.zero`) i „wysoki kontrast wzmacnia obrys
+karty”.
+
+Goldeny kolumn: dodane przypadki `status`, `assignee`, `unassigned` i `empty`
+w motywie jasnym i ciemnym (8 plików) oraz `high-contrast-light`. Test
+„awatar nie przesuwa układu przed i po jego wczytaniu” mierzy nagłówek kolumny
+z URL-em awatara i bez niego i wymaga dokładnie tego samego rozmiaru 28×28 —
+czyli fallback inicjałów i błąd wczytania obrazu nie zmieniają układu.
+
+Komendy i wyniki: `flutter test ...kanban_interaction_goldens_test.dart
+--update-goldens` → 28/28, ten sam test bez flagi → 28/28 (25 plików goldenów
+w `goldens/k1`, w tym `column-status-*`, `column-assignee-*`,
+`column-unassigned-*` i `column-empty-*`); `flutter test
+test/workspaces/presentation/tasks test/workspaces/data/kanban` → 483/483 PASS;
+`flutter analyze lib` → No issues found; `git diff --check` — czysto.
+Pierwszy przebieg zakończył się niepowodzeniem dwóch goldenów kolumny statusu,
+bo pętla brała `groups.first` także dla kolumny bez grup — poprawka jest
+w kodzie, a pełny przebieg po niej przeszedł. Zapis pierwotnie blokował chwilowy
+błąd kompilacji w module Storage innego agenta; po jego naprawie zadanie
+dokończyło pracę bez ingerencji w cudze pliki.
+
+Pozostaje: K8 (p95, scenariusze 25/50 użytkowników, IDOR, odbiór dwóch sesji,
+buildy platform) oraz potwierdzenie decyzji D1–D5 przez właściciela produktu.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8: IDOR i pomiary wydajności
+
+Status: **DONE dla IDOR i pomiarów**; **defekt wydajności nazwany i zmierzony**,
+a odbiór dwóch sesji i buildy platform pozostają NOT RUN.
+
+IDOR (PostgreSQL, `KanbanAssigneeSecurityAndPerformanceTests`, 3/3 PASS):
+obcy projekt w tym samym workspace → `project.not_found`; cudzy workspace z moim
+identyfikatorem projektu → `workspace.not_found`; obca osoba jako kolumna →
+`kanban.assignee_not_project_member`; mutacja na obcym zadaniu →
+`task.not_found`; próba przypisania mojego zadania osobie spoza projektu (przy
+bieżącej wersji zadania) → `kanban.assignee_not_project_member`. Każdy przypadek
+kończy się wyjątkiem, czyli brakiem jakiejkolwiek częściowej odpowiedzi.
+
+Wydajność odczytu tablicy osób (§8, 20 prób po rozgrzewce, PostgreSQL):
+
+| Scenariusz | p95 osób | Zapytania | p95 statusów | Relacja |
+|---|---|---|---|---|
+| 5 os. / 100 zadań | 32,9 ms | 19 (6 grup) | 91,6 ms | 0,36x |
+| 25 os. / 1000 zadań | 306,4 ms | 119 (26 grup) | 58,9 ms | 5,20x |
+| 50 os. / 5000 zadań | 1288,9 ms | 219 (51 grup) | 56,2 ms | 22,95x |
+
+Scenariusz 30% nieprzypisanych: 334 zadania w „Nieprzypisane”, 666 przypisanych,
+119 zapytań; filtr bez wyników: 10 zapytań i 26 grup z zerowym licznikiem.
+
+**Defekt nazwany:** koszt rośnie o stałą liczbę zapytań na długą grupę (jedno
+pobranie kart rozbite przez `AsSplitQuery` na pięć zapytań), więc przy 50 osobach
+p95 sięga 1,3 s, czyli ~23x tablica statusów. To narusza domyślny cel §8 („brak
+regresji większej niż 20% dla porównywalnej liczby zwróconych kart”). Zmierzone
+i opisane, ale nie zmieniane w tym pakiecie: naprawa wymaga przepisania pobrania
+kart dla długich grup (jedno zapytanie na grupę bez `AsSplitQuery` albo wspólne
+zapytanie dla wszystkich długich grup) i ponownego pomiaru. To następny krok
+optymalizacyjny, a nie kosmetyka.
+
+NOT RUN: odbiór dwóch sesji na żywym stacku (wymaga dwóch uwierzytelnionych sesji
+i decyzji użytkownika o sposobie logowania) oraz buildy platform
+(`flutter build web --wasm`, `flutter build macos --debug`, Windows i Linux na
+właściwych hostach). Ścieżka realtime jest pokryta testami backendu: mutacja
+zapisuje history i wpis outboxa w tej samej transakcji, a payload niesie nowego
+i poprzedniego wykonawcę oraz pełną listę przypisań.
+
+Komendy: `dotnet build Tests/Veloryn.Workspaces.Tests` — 0 błędów;
+`dotnet test --filter FullyQualifiedName~KanbanAssigneeSecurityAndPerformanceTests`
+— 3/3 PASS z wypisanymi pomiarami.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8b: optymalizacja odczytu grup osób
+
+Status: **DONE dla optymalizacji**; cel §8 „brak regresji większej niż 20%”
+nadal **nieosiągnięty** — opisany jako FAIL z nazwanym następnym krokiem.
+
+Zmiana: pobranie kart w widoku osób nie dzieli się już na cztery zapytania na
+grupę (`AsSplitQuery`), tylko pobiera kartę z kolekcjami jednym zapytaniem
+z joins. Kolekcje kart jednej strony są małe, więc iloczyn kartezjański jest
+ograniczony, a znika mnożnik ×5 na każdą długą grupę.
+
+Pomiar po zmianie (te same scenariusze, 20 prób po rozgrzewce):
+
+| Scenariusz | p95 osób | Zapytania | p95 statusów | Relacja |
+|---|---|---|---|---|
+| 5 os. / 100 zadań | 38,8 ms | 16 (6 grup) | 91,8 ms | 0,42x |
+| 25 os. / 1000 zadań | 243,7 ms | 41 (26 grup) | 44,2 ms | 5,51x |
+| 50 os. / 5000 zadań | 480,5 ms | 66 (51 grup) | 44,9 ms | 10,71x |
+
+Efekt: przy 50 osobach p95 spadło z 1288,9 ms do 480,5 ms (2,7x szybciej),
+a liczba zapytań z 219 do 66 (3,3x mniej); relacja do tablicy statusów spadła
+z 22,95x do 10,71x. To wciąż powyżej celu 20%, więc pozycja zostaje otwarta:
+koszt nadal rośnie liniowo z liczbą grup (jedno zapytanie na długą grupę), a jego
+usunięcie wymaga wyboru pierwszej strony każdej grupy jednym zapytaniem
+(`ROW_NUMBER() OVER (PARTITION BY …)`, czyli `FromSql` z własną projekcją) albo
+świadomej decyzji, że pierwsza strona grup jest pobierana partiami po N grup.
+Bez tego nie da się zejść do ~50 ms przy 51 grupach.
+
+Regresja: `dotnet test --filter FullyQualifiedName~Kanban` — 78/78 PASS, czyli
+zmiana nie ruszyła kontraktu, ACL ani paginacji.
+### 2026-09-20 — FILES-F5: udostępnianie w czterech trybach
+
+Status: **DONE (część)** — macierz potwierdzona, dialog ma cztery tryby; live na
+dwóch kontach w F8/F9.
+
+Backend: macierz User/Workspace (tylko workspace pliku, autor co najmniej
+Observer)/Project (tylko projekt pliku, autor z odczytem)/PublicLink (hasło
+i wygaśnięcie, hasło tylko dla linku) jest przetestowana jednym testem HTTP.
+Doszedł stabilny kod `storage.share_forbidden` (odmowa przy udostępnianiu nie
+miesza się już z brakiem dostępu do pliku, który nadal zwraca
+`storage_file.forbidden`) oraz kontrola eskalacji: grant nie może przekroczyć
+poziomu autora — dziś zabezpieczenie zapasowe, bo `CanShare` mają tylko
+właściciel i edytor z prawem dzielenia. Udostępnianie folderu do
+workspace/projektu świadomie pominięte: to osobna decyzja kontraktowa, a plan
+zabrania udawać ją lokalnym filtrem.
+
+Front: `StorageDesktopSharingDialog` ma sekcje Osoby/Workspace/Projekt/Link
+publiczny i listę grantów z poziomem, autorem i wygaśnięciem. Sekcja osób
+korzysta z nowego `StorageUserDirectoryPort` (adapter nad repozytorium
+Workspaces) — poza workspace'em mówi wprost, że katalog nie jest dostępny, a brak
+portu nie pokazuje pola bez wyników. Port wędruje do modala jawnie, bo modal jest
+montowany na rootowym overlayu; ta sama poprawka objęła repozytorium Storage,
+które dialog wcześniej czytał z kontekstu. Filtr właściciela z F3 jest domknięty
+tym samym portem.
+
+Bramki: Backend `dotnet build` czysty, `dotnet test` 1212 PASS / 4 SKIP / 7 FAIL
+(te same wcześniejsze porażki `MeEndpointsTests`). Front `flutter analyze`
+czysty, `flutter test` 1319 PASS, `git diff --check` czysto w obu repo.
+
+Następny krok: F6 — OnlyOffice i współedycja dwóch osób na żywym środowisku.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8c: identyfikatory pierwszej strony bez pobierania kart
+
+Status: **DONE dla zmiany i pomiaru**; cel §8 „brak regresji większej niż 20%”
+nadal **FAIL** jako nazwany kompromis architektoniczny.
+
+Zmiana: pierwsza strona każdej grupy pobierana jest teraz jako **same
+identyfikatory** — jedno zapytanie na grupę, bez kart i bez ich kolekcji
+(wcześniej każda długa grupa pobierała karty i cztery ich kolekcje). Montaż grup
+korzysta z licznika zbiorczego, żeby stwierdzić, czy istnieje kolejna strona,
+więc znika też sztuczne pobieranie `limit + 1`.
+
+Pomiar po zmianie (te same scenariusze, 20 prób po rozgrzewce):
+
+| Scenariusz | p95 osób | Zapytania | p95 statusów | Relacja |
+|---|---|---|---|---|
+| 5 os. / 100 zadań | ~30 ms | 16 | ~90 ms | <1x |
+| 25 os. / 1000 zadań | 87,5 ms | 42 (26 grup) | 72,4 ms | 1,21x |
+| 50 os. / 5000 zadań | 394,5 ms | 67 (51 grup) | 39,6 ms | 9,95x |
+
+Droga od punktu wyjścia: p95 przy 50 osobach spadło z 1288,9 ms przez 480,5 ms do
+394,5 ms (3,3x szybciej), liczba zapytań z 219 przez 66 do 67, a relacja do
+tablicy statusów z 22,95x przez 10,71x do 9,95x. Przy 25 osobach relacja to już
+1,21x, czyli praktycznie cel planu; problem koncentruje się w scenariuszu
+50 osób / 51 grup.
+
+**Wycofana próba (ważna dla następnego agenta):** przepisanie pobrania na jedno
+zapytanie z `ROW_NUMBER() OVER (PARTITION BY główny wykonawca …)` przez
+`SqlQueryRaw` zostało zaimplementowane i skompilowane, ale **12 z 78 testów
+Kanban padło**: provider InMemory, na którym działają testy serwisowe (większość
+testów zachowania, ACL i paginacji), nie tłumaczy surowego SQL, więc cała ścieżka
+odczytu omijała te testy. Dodanie ścieżki awaryjnej dla InMemory usuwało awarię,
+ale surowy SQL nadal wymagał powtórzenia wszystkich predykatów filtrów tablicy
+i szybkiego filtra obok ich wersji EF — dwa źródła prawdy o tym samym zbiorze,
+co łamie zasadę jednej predykaty opisującej liczniki, karty i kursor. Dlatego
+surowy SQL został wycofany, a zostawiona ścieżka wyłącznie EF.
+
+Kompromis do rozstrzygnięcia przez właściciela technicznego: zejście do ~1x
+wymaga albo surowego SQL z powtórzonymi filtrami, albo wsparcia EF dla okien
+partycjonowanych, albo zmiany kontraktu odczytu (np. strony grup pobierane
+partiami po N grup zamiast pojedynczo). Każdy wariant wymaga osobnego pakietu
+z pomiarem przed i po — bez tego nie ma dowodu, że nie pogarsza czegoś innego.
+
+Regresja: `dotnet test --filter FullyQualifiedName~Kanban` — 78/78 PASS (w tym
+testy kształtu liczby zapytań i pomiarowe), `git diff --check` czysty.
+### 2026-09-20 — FILES-F6: edytor OnlyOffice podłączony do listy
+
+Status: **DONE (część)**; **live E2E dwóch kont: NOT RUN** (brak żywego
+OnlyOffice i drugiego konta w tej sesji).
+
+Akcja `Otwórz dokument` (menu kontekstowe + menu pliku w siatce) otwiera
+`StorageOfficeEditorDialog` wprost, tylko dla plików z `canEditOnline`. Po
+zamknięciu sesji lista jest wczytywana ponownie, bo OnlyOffice zapisuje wersję po
+własnym callbacku. Mostek przekazuje `onDocumentStateChange`, więc edytor
+pokazuje stan: łączenie / połączony / zmiany czekające na zapis, a zamknięcie
+przy niepotwierdzonych zmianach wymaga potwierdzenia.
+
+Nowe: `chrome/storage_open_document_action.dart`,
+`office/widgets/storage_office_status_label.dart`,
+`office/widgets/storage_office_close_confirmation.dart`. Zmienione: builder HTML
+(zdarzenie stanu dokumentu), kontroler i host (przekazanie sygnałów), stan
+i Cubit akcji edytora (status sesji, zmiany, potwierdzony zapis), widok edytora
+(delegacja zamknięcia, wskaźnik w nagłówku), menu pliku, 6 kluczy ARB.
+
+Status i potwierdzenie zamknięcia są wydzielone, żeby dały się przetestować bez
+osadzonego WebView. Podgląd przekazuje repozytorium jawnie (ta sama kruchość, co
+naprawiona w F5 w dialogu udostępniania). Ścieżka podglądu nie odświeża listy
+sama — podgląd ma pięć miejsc konstrukcji, więc odświeżenie dołączy razem
+z przebudową panelu szczegółów (F7).
+
+Bramki: `flutter analyze` czysty, `flutter test` 1331 PASS, `git diff --check`
+czysto; backend bez zmian w tym pakiecie.
+
+**NOT RUN:** live E2E dwóch kont (współedycja + spójna historia wersji) oraz
+obecność współedytorów w UI — wymagają żywego serwera dokumentów.
+
+Następny krok: F7 — podgląd i pobranie poprzedniej wersji bez przywracania.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8d: wariant grupowy zmierzony i wycofany (78/78 PASS)
+
+Status: **ZASTĄPIONY przez K8e** — pomiar zachowany, wariant wdrożony po
+rozdzieleniu strony grupy „Nieprzypisane” od klucza partycji (patrz wpis K8e).
+
+Próba: zastąpić pętlę „jedno zapytanie o identyfikatory na grupę” jednym
+zapytaniem EF z grupowaniem i `Take` w projekcji
+(`GroupBy(primary).Select(g => g.OrderBy(Position, Id).Take(25).Select(Id))`),
+które EF tłumaczy na `ROW_NUMBER` w partycji. Wybrano czysty LINQ, a nie surowy
+SQL, właśnie po to, żeby provider InMemory nadal wykonywał tę samą ścieżkę
+odczytu w testach serwisowych.
+
+Wynik pomiaru (te same scenariusze, 20 prób po rozgrzewce) — to najlepszy
+rezultat z wszystkich prób:
+
+| Scenariusz | p95 osób | Zapytania | p95 statusów | Relacja |
+|---|---|---|---|---|
+| 5 os. / 100 zadań | 32,8 ms | 17 | 80,9 ms | 0,41x |
+| 25 os. / 1000 zadań | 41,8 ms | 17 | 70,8 ms | 0,59x |
+| 50 os. / 5000 zadań | 80,4 ms | 17 | 46,4 ms | 1,73x |
+
+Liczba zapytań jest stała (17) niezależnie od liczby grup, a p95 przy 50 osobach
+spadło z 394,5 ms do 80,4 ms. Przy porównywalnej liczbie zwracanych kart (5–6
+grup) odczyt osób jest **szybszy** od tablicy statusów, czyli cel „brak regresji
+większej niż 20% dla porównywalnej liczby zwróconych kart” jest tam spełniony;
+pozostaje 1,73x przy 51 grupach i 1275 kartach, czyli przy dziesięciokrotnie
+większej liczbie kart niż tablica statusów.
+
+Dlaczego mimo to wycofane: wariant gubił jedną z trzech kart w teście HTTP
+`AssigneeBoardGroupsCardsByPrimaryAssigneeForEveryProjectRole` (asercja „każda
+karta występuje dokładnie raz” widziała 2 z 3). Podział na partycje sprawia, że
+grupa „Nieprzypisane” zbiera karty z kilku partycji (brak wykonawcy i wykonawca
+bez dostępu), więc strona tej grupy wymaga własnego składania — przycięcie do
+rozmiaru strony tego nie naprawiło, a pełna diagnoza i poprawka nie zmieściły się
+w tym przebiegu. Zgodnie z zasadą „nie zostawiać czerwonego drzewa” wróciłem do
+poprzedniej, zweryfikowanej pętli: `dotnet test --filter
+FullyQualifiedName~Kanban` — **78/78 PASS**.
+
+Następny krok dla tego celu (zostawiony jako gotowy przepis): wrócić do wariantu
+grupowego i rozdzielić składanie strony grupy „Nieprzypisane” od klucza partycji —
+karty z partycji „brak wykonawcy” i z partycji wykonawców bez dostępu mają
+tworzyć jedną, wspólną stronę tej grupy, sortowaną po (Position, Id) i przyciętą
+do 25. Wtedy pomiar powinien zostać na poziomie 17 zapytań i ~80 ms p95.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8e: wariant grupowy wdrożony, cel §8 spełniony
+
+Status: **DONE** — odczyt tablicy osób ma stałą liczbę zapytań, a cel
+„brak regresji większej niż 20% dla porównywalnej liczby zwróconych kart” jest
+spełniony; 78/78 testów Kanban PASS.
+
+Rozwiązanie błędu z K8d: strona grupy „Nieprzypisane” jest składana osobnym
+zapytaniem (`InAssigneeGroup`, czyli sprawdzona ścieżka z jednym źródłem
+predykaty), a kwerenda grupowa obsługuje wyłącznie kolumny osób uprawnionych do
+przypisania. Dzięki temu żadna karta nie ginie, a liczba rund do bazy nie rośnie
+z liczbą grup: grupowanie z `Take` w projekcji tłumaczy się na `ROW_NUMBER`
+w partycji, bez surowego SQL — więc provider InMemory nadal wykonuje tę samą
+ścieżkę w testach serwisowych.
+
+Pomiar końcowy (te same scenariusze, 20 prób po rozgrzewce):
+
+| Scenariusz | p95 osób | Zapytania | p95 statusów | Relacja |
+|---|---|---|---|---|
+| 5 os. / 100 zadań | 36,6 ms | 18 | 81,0 ms | 0,45x |
+| 25 os. / 1000 zadań | 64,8 ms | 18 | 90,4 ms | 0,72x |
+| 50 os. / 5000 zadań | 102,3 ms | 18 | 39,3 ms | 2,61x |
+
+Cała droga: p95 1288,9 ms → 480,5 ms → 394,5 ms → 102,3 ms, zapytania
+219 → 66 → 67 → 18. Przy porównywalnej liczbie zwracanych kart (5 i 25 osób,
+czyli 150 i 650 kart wobec 125 w tablicy statusów) odczyt osób jest szybszy od
+tablicy statusów — 0,45x i 0,72x — więc cel planu jest spełniony; scenariusz
+50 osób zwraca 1275 kart (dziesięciokrotnie więcej niż tablica statusów) i tam
+relacja wynosi 2,61x przy 102 ms na pierwszy ekran.
+
+Regresja: `dotnet test --filter FullyQualifiedName~Kanban` — **78/78 PASS**,
+w tym test HTTP, który w wariancie bez rozdzielenia stron gubił kartę, testy
+kształtu liczby zapytań i testy pomiarowe. `git diff --check` czysty.
+### 2026-09-20 — FILES-F7: podgląd wersji historycznej bez przywracania
+
+Status: **DONE** dla podglądu i pobrania; wpięcie w legacy stronę szczegółów
+czeka na F9.
+
+`StoragePreviewCubit.prepareVersionPreview` bierze bilet wskazanej wersji i
+renderuje ją tymi samymi powierzchniami co bieżący plik. Testy przypinają, że
+podgląd wersji nie sięga `restoreFileVersion` ani biletu bieżącej wersji.
+Dialog wersji ma akcję `Podgląd wersji` (`preview-version-<n>`), a podgląd
+historyczny jest jawnie tylko do odczytu: plakietka `Wersja N — podgląd`
+i brak edytora biurowego, bo jego sesja dotyczy bieżącej wersji i mogłaby
+nadpisać bieżący plik.
+
+Podgląd ma teraz jedno wejście dla listy, siatki, menu kontekstowego i skrótów
+(`showStoragePreview`): rootowy host modala, porty przekazane jawnie i
+odświeżenie listy po zamknięciu sesji edytora. To domyka lukę z F6 i usuwa
+różnicę między siatką a listą (jedno miejsce używało hosta, drugie zwykłego
+`showDialog`). Nowe: `browser/chrome/storage_preview_action.dart`; zmienione:
+Cubit i stan podglądu, dialog podglądu, dialog wersji, grid, wiersze, menu
+kontekstowe, skróty, 3 klucze ARB.
+
+Historia wersji zostaje w dialogu (plan dopuszcza obie ścieżki), a statyczna
+lista w legacy `storage_file_details_page.dart` czeka na F9 — inwestycja w tę
+stronę przed cleanupem byłaby stratą.
+
+Bramki: `flutter analyze` czysty, `flutter test` 1335 PASS, `git diff --check`
+czysto; backend bez zmian w tym pakiecie.
+
+Następny krok: F8 — realtime, trwałe bannery i testy 401/revoke oraz IDOR/ACL.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8f: bramki platform na tym hoście
+
+Status: **DONE dla web i macOS**; Windows i Linux pozostają **NOT RUN** (brak
+hosta), a odbiór dwóch sesji pozostaje otwarty, bo wymaga dwóch uwierzytelnionych
+kont.
+
+Komendy i wyniki na tym hoście (macOS, po pełnym `flutter analyze lib` bez uwag):
+- `flutter build web --wasm` → **✓ Built build/web** (90,4 s kompilacji; fonty
+  tree-shaken),
+- `flutter build macos --debug` → **✓ Built
+  build/macos/Build/Products/Debug/DevPlanner.app**.
+
+Windows i Linux: **NOT RUN** — ta maszyna jest hostem macOS, więc zgodnie
+z AGENTS.md brak hosta platformy jest niewykonaną bramką, nie sukcesem.
+`flutter build macos` w trybie release nadal wymaga
+`DEVPLANNER_RELEASE_CODE_SIGN_IDENTITY`, którego ta maszyna nie ma (ad-hoc
+działa w trybie debug).
+
+Odbiór dwóch sesji: **NOT RUN** — wymaga dwóch uwierzytelnionych kont na
+uruchomionym stacku, a sposób logowania w tym środowisku jest decyzją
+użytkownika (zapisaną w pamięci projektu jako ograniczenie lokalnego środowiska
+odbioru). Ścieżkę serwerową realtime pokrywają testy backendu: mutacja zmiany
+wykonawcy zapisuje historię i wpis transactional outbox w tej samej transakcji,
+a payload niesie nowego i poprzedniego wykonawcę oraz pełną listę przypisań;
+worker dostarcza zdarzenie do grupy projektu (`project:{projectId}`).
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8g: runbook odbioru dla właściciela produktu
+
+Status: **DOSTARCZONY** — dwie ostatnie bramki (potwierdzenie D1–D5 i odbiór
+dwóch sesji) są przygotowane do domknięcia przez użytkownika w kilka minut.
+
+Powstał `Backend/docs/recovery/kanban-assignee-acceptance-runbook.md`:
+- tabela D1–D5 z tym, co jest wdrożone i co trzeba by zmienić, gdyby decyzja
+  była inna (żeby potwierdzenie było świadome, a nie domyślne),
+- podniesienie stacku (`Backend/start-local.sh`; sprawdzone 2026-09-20:
+  PostgreSQL na 5440 działa, API na 5072 i Mailpit na 8025 wymagają startu),
+- utworzenie i aktywacja drugiego konta (`POST /api/v1/admin/users`,
+  `POST …/activation-email`, token z Mailpita, `POST /api/v1/auth/activate`),
+- scenariusz dwóch sesji z kryteriami odbioru: karta zmienia kolumnę na obu
+  ekranach bez odświeżenia, status pozostaje bez zmian, przełącznik grupowania
+  wraca jako preferencja osobista,
+- wariant bez GUI po HTTP/SignalR, dla przypadku braku zgody na podgląd ekranu.
+
+Środowisko: PostgreSQL `127.0.0.1:5440` UP, API `localhost:5072` DOWN, Mailpit
+`8025` DOWN — bramki platform (web i macOS) są już wykonane (wpis K8f), więc
+pozostaje wyłącznie odbiór live i decyzje produktowe.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8h: próba odbioru live — blokada logowania
+
+Status: **NOT RUN** — odbiór dwóch sesji nie odbył się; poniżej dokładna blokada
+i jedyna droga jej usunięcia.
+
+Co wykonano: `Backend/start-local.sh` podniósł API na `http://localhost:5072`
+(PostgreSQL `127.0.0.1:5440` już działał). Ręczne `dotnet run` bez środowiska
+skryptu kończy się dokładnie tym błędem, który opisuje pamięć projektu
+(`WORKSPACES_STORAGE_ENDPOINT musi być poprawnym adresem HTTP(S)`), więc używany
+jest wyłącznie `start-local.sh`.
+
+Blokada: lokalna konfiguracja wymaga originu **`https://localhost:8100`** —
+`.env.local` ustawia `DEVPLANNER_OPENIDDICT_ISSUER=https://localhost:8100/`
+i `DEVPLANNER_BFF_REDIRECT_URI=https://localhost:8100/bff/auth/callback`, a
+`start-local.sh` wiąże wyłącznie HTTP 5072 (profil `http` w `launchSettings.json`;
+profil `https` wskazuje z kolei 7034). Skutek: `/bff/auth/start` przekierowuje na
+`https://localhost:8100/connect/authorize`, gdzie nic nie nasłuchuje, więc łańcuch
+logowania nie domyka się przez curl. Nadpisanie issueru na `http://localhost:5072/`
+przenosi przekierowanie na ten sam origin, ale hop `authorize` → formularz
+logowania nie zwraca HTML z tokenem antyforgery (brak `__RequestVerificationToken`
+i `ReturnUrl`), więc POST `/auth/login` odpowiada 400.
+
+Co odblokuje odbiór (jedna z dwóch dróg, obie jednorazowe):
+1. Podnieść API na originie z konfiguracji: certyfikat deweloperski
+   (`dotnet dev-certs https --check` — istnieje) i URL
+   `ASPNETCORE_URLS="https://localhost:8100;http://localhost:5072"` przekazany do
+   procesu, który uruchamia `start-local.sh`; albo
+2. Uruchomić kształt desktop-auth z pamięci projektu: issuer i redirect na
+   `https://localhost:5173`, `WORKSPACES_SMTP_ENABLED=true`, Mailpit na 8025 —
+   ta ścieżka była już raz przejściowa end-to-end 2026-09-19.
+
+Po odblokowaniu scenariusz jest w runbooku
+`Backend/docs/recovery/kanban-assignee-acceptance-runbook.md` (krok 4), wraz
+z wariantem bez GUI: sesja A trzyma połączenie na `/api/v1/realtime/tasks`,
+sesja B woła `PATCH …/kanban/tasks/{taskId}/primary-assignee`, a sesja A ma
+otrzymać `task.updated` z `primaryAssigneeUserId`,
+`previousPrimaryAssigneeUserId` i `assigneeUserIds`.
+
+Obserwacja niezwiązana z pakietem: log API pokazuje błąd workera retencji
+kreatora (`relation "veloryn_workspaces.project_setup_idempotency_records" does
+not exist`) — lokalna baza deweloperska nie ma tej tabeli; nie dotyczy Kanbanu,
+ale warto odnotować przy najbliższym pakiecie dotykającym migracji.
+
+Środowisko pozostawione jako zasób: API działa na `http://localhost:5072`,
+PostgreSQL na 5440; zatrzymanie: `pkill -f veloryn-workspaces`.
+### 2026-09-20 — FILES-F8 (część) i F9 (część): trwałe błędy, gate buildów
+
+F8 domknięte: mutacje (upload, przenoszenie, udostępnianie, tworzenie dokumentu,
+kosz) raportują błąd **trwałym bannerem** z komunikatem, stabilnym kodem
+i `traceId` oraz `Ponów`/`Odśwież`, zamiast SnackBara, który znikał razem
+z kodem. `Ponów` jest tylko tam, gdzie ponowienie jest bezpieczne: konflikt
+przeniesienia wraca z tym samym kluczem idempotencji (test to przypina),
+a utworzenie dokumentu z zachowaną intencją; usunięcie i udostępnienie mają
+wyłącznie `Odśwież`. Stany błędów mutacji niosą teraz `apiCode` i `traceId`.
+Nowe: `browser/chrome/storage_mutation_error.dart`.
+
+F8 realtime **NOT DONE**: audyt Backendu pokazał, że kanał mają Tasks, Chat
+i Wiki, a Storage nie ma ani huba, ani outboxu. Dodanie go to nowy hub,
+menedżer połączeń, typowane zdarzenia, encja outbox z migracją, worker, DI
+i zmiany sygnatur handlerów — a jego odbiór wymaga dwóch żywych sesji, czyli
+tego samego dowodu, którego brakuje w F6. Nie zbudowano tego po omacku w drzewie
+z równoległą pracą innego agenta (dotyka m.in. plików rejestracji DI i mapowania
+błędów). Kontrakt do dodania: §3.2.6 planu.
+
+F9: `flutter build web --wasm` uruchomiony (exit 0). `flutter build macos`
+**NOT RUN** — żywa sesja `flutter run -d macos` innego agenta pisze do tego
+samego `build/macos`. Cleanup read-only browsera **NOT RUN** — atomowy:
+najpierw migracja 6 plików testów pionowych na harness shella, potem usunięcie
+~9 plików; usunięcie bez migracji skasowałoby pokrycie (potwierdzenia usunięcia,
+pobranie i zapis pliku, kolejka uploadu).
+
+Bramki: `flutter analyze` czysty, `flutter test` 1338 PASS, `flutter build web
+--wasm` exit 0, `git diff --check` czysto w obu repo; backend bez zmian w tym
+pakiecie.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8i: blokada originu usunięta, łańcuch BFF domyka się
+
+Status: **częściowo DONE** — przyczyna blokady z K8h znaleziona i usunięta,
+łańcuch logowania działa do strony logowania; dokończenie odbioru (drugie konto,
+SignalR, mutacja) pozostaje do wykonania według recepty poniżej.
+
+**Prawdziwa przyczyna** nie leżała w porcie, lecz w rejestracji klienta:
+zarejestrowany klient BFF ma redirect `https://localhost:5173/bff/auth/callback`
+(ślad po przebiegu desktop-auth z 2026-09-19), a `.env.local` wskazuje 8100.
+OpenIddict odrzucał żądanie komunikatem
+`error:invalid_request … The specified 'redirect_uri' is not valid for this client
+application (ID2043)`, jeszcze zanim cokolwiek musiało nasłuchiwać na 8100.
+
+**Działająca recepta** (wykonana, krok po kroku):
+1. kopia `start-local.sh` z podmienionym URL-em —
+   `dotnet run --urls "https://localhost:5173;http://0.0.0.0:5072"` (skrypt podaje
+   URL argumentem CLI, więc `ASPNETCORE_URLS` nie ma efektu; kopię uruchamia się
+   z katalogu `Backend`, bo skrypt liczy ścieżki od własnej lokalizacji),
+2. zmienne przed startem: `DEVPLANNER_OPENIDDICT_ISSUER=https://localhost:5173/`,
+   `DEVPLANNER_BFF_REDIRECT_URI=https://localhost:5173/bff/auth/callback`,
+   `DEVPLANNER_BFF_ALLOWED_ORIGINS__0=https://localhost:5173`,
+   `WORKSPACES_PUBLIC_BASE_URL=https://localhost:5173`,
+3. `GET /bff/auth/start?returnTo=%2Fworkspaces` → 302 na `/connect/authorize`,
+   ten hop z `curl -L` zwraca **200 i formularz logowania**
+   (`DevPlanner — logowanie`, `__RequestVerificationToken` + `ReturnUrl`),
+4. `POST /auth/login` z tokenem, `ReturnUrl`, loginem i hasłem → **302** z
+   kontynuacją łańcucha do `/connect/authorize` (kod autoryzacyjny).
+
+Pozostaje dokończyć (mechaniczne, w tej kolejności): domknąć przekierowania po
+`POST /auth/login` (`curl -L` na zwróconym `Location`) i potwierdzić tożsamość
+`GET /api/v1/me` → 200; utworzyć konto B przez `POST /api/v1/admin/users` →
+`POST …/activation-email` → token z Mailpita (`http://localhost:8025`) →
+`POST /api/v1/auth/activate`; dodać konto B do workspace i projektu; następnie
+odbior: sesja A trzyma połączenie na `/api/v1/realtime/tasks`
+(`SubscribeProject(workspaceId, projectId)`), sesja B woła
+`PATCH …/kanban/tasks/{taskId}/primary-assignee`, a sesja A ma otrzymać
+`task.updated` z `primaryAssigneeUserId`, `previousPrimaryAssigneeUserId`
+i `assigneeUserIds`.
+
+Środowisko pozostawione jako zasób: API działa na `https://localhost:5173`
+i `http://localhost:5072` w kształcie desktop-auth; zatrzymanie:
+`pkill -f veloryn-workspaces`. Kopia skryptu startowego została usunięta
+z repozytorium po uruchomieniu.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8j: sesja A zalogowana, blokada na aktywacji konta B
+
+Status: **częściowo DONE** — łańcuch BFF domknięty i potwierdzony, konto B
+utworzone, ale nie aktywowane; odbiór realtime nadal **NOT RUN**.
+
+**Dowiedzione komendami:**
+- `GET /api/v1/me` → **200** i pełna tożsamość administratora
+  (`userId f650dd7e-c4ad-4565-b95b-1aaf8143dc3f`, `login misiek440`,
+  `roles ["SystemAdmin"]`, `permissions ["audit.read","users.manage","users.read"]`).
+  Łańcuch: `/bff/auth/start` → `/connect/authorize` → formularz logowania (200,
+  `__RequestVerificationToken` 155 znaków + `ReturnUrl`) → `POST /auth/login`
+  (302 na kontynuację) → `curl -L` na `Location` → sesja BFF w jarze.
+- `POST /api/v1/admin/users` → **201**: konto `kanban-b-1789899185`,
+  `userId 59a2186f-818e-4bfb-8366-f5724d50e20f`, status `PendingActivation`,
+  rola `User`.
+
+**Nowa blokada:** `POST /api/v1/admin/users/{id}/activation-email` odpowiada
+**503**, a Mailpit (`http://localhost:8025`, kontener `backend-mailpit-1` działa)
+nie ma żadnej wiadomości. Próbowano: ponowienie po wstaniu kontenera Mailpit oraz
+restart API z `WORKSPACES_SMTP_ENABLED=true`,
+`AccountRecoveryEmailDelivery__Enabled=true`,
+`AccountRecoveryEmailDelivery__PublicBaseUrl=https://localhost:5173/` — nadal
+503. W `Endpoints/` nie ma endpointu pozwalającego administratorowi ustawić hasło
+wprost (grep po `admin/users/{userId}/password|reset|activate` — brak trafień),
+więc bez działającej wysyłki nie da się aktywować drugiego konta i nie ma sesji B.
+
+Do sprawdzenia przez następną sesję (kolejność): log SMTP w `/tmp/stack5173b.log`
+i konfiguracja `WORKSPACES_SMTP_*` w `start-local.sh` (skrypt ustawia odbiorcę
+i nadawcę, ale nie widać przełącznika włączającego wysyłkę w tym przebiegu);
+alternatywnie aktywować konto B przez ścieżkę zaproszenia do workspace, jeśli
+pozwala ona ustawić hasło zapraszanemu.
+
+Pozostaje też sam odbiór realtime: sesja A musi otworzyć połączenie na
+`/api/v1/realtime/tasks` i wywołać `SubscribeProject(workspaceId, projectId)`
+(protokół JSON po long pollingu wystarcza: `POST …/negotiate?negotiateVersion=1`
+→ `POST …?id=<token>` z handshake → inwokacja metody → `GET …?id=<token>`), a
+sesja B wykonać `PATCH …/kanban/tasks/{taskId}/primary-assignee`; kryterium to
+`task.updated` z `primaryAssigneeUserId`, `previousPrimaryAssigneeUserId`
+i `assigneeUserIds` na sesji A.
+
+Środowisko: API działa na `https://localhost:5173` i `http://localhost:5072`
+z włączonym SMTP; Mailpit na 8025; stop: `pkill -f veloryn-workspaces`. Kopia
+skryptu startowego usunięta z repozytorium.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8k: 503 zawężone do jednej funkcji
+
+**Zdiagnozowane:** odpowiedź to `{"code":"auth.delivery_unavailable","message":"Bezpieczna wysyłka e-maila jest chwilowo niedostępna.","traceId":"0HNOMVVTJ1092:00000001"}`, a jej źródło to
+`Application/Auth/Recovery/AccountRecoveryService.cs:121` — endpoint zwraca 503,
+gdy `AccountRecoveryEmailOutbox.StageAsync(...)` nie zwróci `Queued`
+(`AccountRecoveryOutcome.DeliveryUnavailable`). Mailpit działa
+(`http://localhost:8025`, kontener `backend-mailpit-1`), a uruchomienie API
+z `WORKSPACES_SMTP_ENABLED=true`, `AccountRecoveryEmailDelivery__Enabled=true`
+i `AccountRecoveryEmailDelivery__PublicBaseUrl=https://localhost:5173/` nadal nie
+kolejkuje wiadomości, więc warunek blokujący siedzi w konfiguracji bindowanej
+przez staging (do sprawdzenia: `Extensions/AccountRecoveryServiceExtensions.cs`
+i opcje, które czyta `StageAsync`). Sama treść komunikatu i kod są stabilne, więc
+to nie defekt logiki, tylko brakujący przełącznik środowiska.
+
+**Stan odbioru:** sesja A zalogowana (`/api/v1/me` → 200, SystemAdmin), konto B
+utworzone (201, `PendingActivation`), aktywacja zatrzymana na tym 503. Bez
+aktywnego konta B nie ma drugiej sesji, więc scenariusz realtime
+(`negotiate` → `SubscribeProject` na sesji A, `PATCH …/primary-assignee` na
+sesji B, kryterium `task.updated` z `primaryAssigneeUserId`,
+`previousPrimaryAssigneeUserId`, `assigneeUserIds`) pozostaje **NOT RUN**.
+
+**Drogi dokończenia (obie krótkie):** znaleźć przełącznik, który czyta
+`StageAsync` (najpewniej w `Extensions/AccountRecoveryServiceExtensions.cs`),
+włączyć go i powtórzyć `POST …/activation-email`; albo sprawdzić, czy zaproszenie
+do workspace pozwala zapraszanemu ustawić hasło — wtedy konto B wchodzi bez
+poczty. Dalej scenariusz z runbooka `kanban-assignee-acceptance-runbook.md`.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8l: przełącznik wysyłki znaleziony, start blokuje cudzy plik
+
+**Przyczyna 503 ustalona w całości.** `DurableAccountRecoveryEmailOutbox.StageAsync`
+zwraca `Unavailable`, gdy którykolwiek warunek nie zachodzi:
+`AccountRecoveryEmailDelivery.Enabled`, `AccountRecoveryEmailDelivery.HasValidBaseUrl`
+(https), `SmtpOptions.IsConfigured` albo bieżąca transakcja. `SmtpOptions.IsConfigured`
+to koniunkcja `Enabled && Host && Port && SenderAddress`
+(`Infrastructure/Notifications/SmtpOptions.cs:21`), a `start-local.sh` ustawia
+wyłącznie odbiorcę testowego i nadawcę (linie 105–106) — **hosta, portu i
+przełącznika `Enabled` nie ustawia wcale**, więc wysyłka była wyłączona, mimo że
+Mailpit działał. Pełny zestaw kluczy do uruchomienia odbioru:
+`WORKSPACES_SMTP_ENABLED=true`, `WORKSPACES_SMTP_HOST=127.0.0.1`,
+`WORKSPACES_SMTP_PORT=1025`, `WORKSPACES_SMTP_SENDER_ADDRESS=<nadawca>`,
+`WORKSPACES_SMTP_ALLOW_UNVERIFIED_RECIPIENTS=true`,
+`AccountRecoveryEmailDelivery__Enabled=true`,
+`AccountRecoveryEmailDelivery__PublicBaseUrl=https://localhost:5173/` — plus znany
+już z K8i kształt originu (`https://localhost:5173`, redirect klienta BFF).
+
+**Nowa blokada (cudza, chwilowa):** restart API z tym zestawem nie doszedł do
+skutku, bo projekt przestał się kompilować w pliku innego agenta —
+`Endpoints/Storage/StorageEndpoints.cs(1787,26): error CS1503: Argument 4: nie
+można przekonwertować z „long" na „int?"`. Zgodnie z zasadą nieingerowania
+w cudze pliki w trakcie edycji nie poprawiam tego; **API jest teraz zatrzymane**
+(`pkill -f veloryn-workspaces`), PostgreSQL i Mailpit działają.
+
+**Do wykonania po naprawie ich pliku (krótka sekwencja):** start z powyższymi
+zmiennymi → `/tmp/login.sh` (sesja A) → `POST …/activation-email` dla konta
+`59a2186f-818e-4bfb-8366-f5724d50e20f` → token z Mailpita
+(`http://localhost:8025`) → `POST /api/v1/auth/activate` z hasłem → dodanie konta
+B do workspace i projektu → scenariusz realtime: sesja A `negotiate` +
+`SubscribeProject(workspaceId, projectId)`, sesja B
+`PATCH …/kanban/tasks/{taskId}/primary-assignee`, kryterium: `task.updated`
+z `primaryAssigneeUserId`, `previousPrimaryAssigneeUserId`, `assigneeUserIds`.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8m: wysyłka działa, aktywacja odrzuca token
+
+**Potwierdzone:** `POST /api/v1/admin/users/{id}/activation-email` odpowiada teraz
+**202**, a wiadomość faktycznie dochodzi do Mailpita — po restarcie API z
+`WORKSPACES_SMTP_ENABLED=true`, `WORKSPACES_SMTP_HOST=127.0.0.1`,
+`WORKSPACES_SMTP_PORT=1025`, nadawcą, `WORKSPACES_SMTP_ALLOW_UNVERIFIED_RECIPIENTS=true`,
+`AccountRecoveryEmailDelivery__Enabled=true` i `PublicBaseUrl=https://localhost:5173/`.
+Brakujący przełącznik z K8l był więc rzeczywiście przyczyną 503 (`SmtpOptions.IsConfigured`
+wymaga hosta, portu i `Enabled`, których `start-local.sh` nie ustawia).
+
+**Nowy problem:** `POST /api/v1/auth/activate` odrzuca token z treści maila
+(link `https://localhost:5173/activate?token=5xJpRxOzdPDHvj0AXjHKZAnoRCbngv1xYCp4GijtN-I`)
+odpowiedzią **400 `auth.reset_invalid`** — „Token resetu jest nieprawidłowy albo
+wygasł". Ten sam 400 pojawił się dla tokenu wyciągniętego z treści wiadomości
+w pierwszej próbie, więc problem nie jest w samym wyciąganiu. Kandydaci do
+sprawdzenia w następnym kroku: pole żądania oczekiwane przez endpoint
+(`token` vs inna nazwa), wymagany `userId` w ciele, albo ochrona tokenu kluczami
+DataProtection, które w tym środowisku nie są trwałe między uruchomieniami —
+jeśli klucze się rotują, token zakolejkowany w jednym przebiegu nie da się
+odtworzyć w kolejnym i trzeba kolejkować i aktywować w tym samym procesie.
+
+**Stan odbioru:** sesja A zalogowana (`GET /api/v1/me` → 200, SystemAdmin), konto
+B `PendingActivation`, sesja B nie powstała, więc scenariusz realtime
+(`negotiate` + `SubscribeProject` na sesji A, `PATCH …/primary-assignee` na sesji
+B, kryterium `task.updated` z `primaryAssigneeUserId`,
+`previousPrimaryAssigneeUserId`, `assigneeUserIds`) pozostaje **NOT RUN**.
+
+Środowisko: API działa na `https://localhost:5173` i `http://localhost:5072`
+z włączoną wysyłką; Mailpit na 8025; stop: `pkill -f veloryn-workspaces`.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8n: konto B aktywowane, sesja B zalogowana
+
+**Rozwiązanie problemu z K8m:** endpoint `POST /api/v1/auth/activate` przyjmuje
+`CompletePasswordResetRequest` z polami **`Token` i `NewPassword`**
+(`Contracts/Auth/AccountRecoveryContracts.cs:13`), a nie `password`. To był mój
+błąd w żądaniu, nie problem z tokenem ani z kluczami DataProtection — po
+poprawieniu pola aktywacja zwróciła **204**, a hasło ustawiło się poprawnie.
+
+**Dowiedzione komendami:**
+- `POST /api/v1/auth/activate` z `{"token":"…","newPassword":"…"}` → **204**,
+- logowanie konta B przez BFF (`/tmp/login.sh … kanban-b-1789899185`) →
+  `GET /api/v1/me` → **200** z tożsamością
+  `userId 59a2186f-818e-4bfb-8366-f5724d50e20f`, `login kanban-b-1789899185`,
+  `roles ["User"]`, `permissions []`.
+
+Dwie sesje są więc gotowe: A = `misiek440` (SystemAdmin), B = `kanban-b-…` (User).
+Do odbioru realtime brakuje już tylko dwóch rzeczy:
+1. **wspólnego projektu** — konto B nie ma jeszcze członkostwa, więc trzeba je
+   zaprosić z sesji A (`POST /api/v1/workspaces/{ws}/invitations` z `{userId, role}`
+   i akceptacja na sesji B — projekt bez członkostwa w workspace jest odrzucany),
+   a projekt musi mieć co najmniej jedną kartę Kanban;
+2. **scenariusza**: sesja A otwiera połączenie na `/api/v1/realtime/tasks`
+   (`POST …/negotiate?negotiateVersion=1` z ciasteczkami i nagłówkiem
+   `X-DevPlanner-CSRF` oraz pochodzeniem `https://localhost:5173`, potem
+   `POST …?id=<connectionToken>` z handshakeiem JSON i inwokacja
+   `SubscribeProject(workspaceId, projectId)`), sesja B wykonuje
+   `PATCH …/kanban/tasks/{taskId}/primary-assignee` z `expectedVersion` i bieżącą
+   wersją zadania, a sesja A odbiera `task.updated` z `primaryAssigneeUserId`,
+   `previousPrimaryAssigneeUserId` i `assigneeUserIds`.
+
+Środowisko: API na `https://localhost:5173` i `http://localhost:5072` z włączoną
+wysyłką, Mailpit na 8025, PostgreSQL na 5440; hasło konta B:
+`KanbanB-Local#2026`; stop: `pkill -f veloryn-workspaces`.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8o: konto B w workspace, brakuje projektu i SignalR
+
+**Dowiedzione:** `POST /api/v1/workspaces/{ws}/invitations` z sesji A (rola
+`Member`, `userId 59a2186f-…`) → **201**, zaproszenie `b3dd6275-4a5c-4f0f-aa91-6a405ed73ef6`
+w workspace `9c0f5fd5-f505-4b92-bc8e-5302b73ec0d3`, a następnie
+`POST /api/v1/workspaces/{ws}/invitations/{id}/accept` z sesji B → **200**, czyli
+konto B jest członkiem workspace.
+
+**Co zostało do odbioru:** wskazanie projektu z co najmniej jedną kartą Kanban
+(odczyt listy projektów i tablicy zakończył się błędem parsowania w moim skrypcie,
+bo zmienna z identyfikatorem projektu była pusta — nie jest to błąd API),
+dodanie konta B do tego projektu, a potem scenariusz realtime: sesja A
+`POST /api/v1/realtime/tasks/negotiate?negotiateVersion=1` (ciasteczka +
+`X-DevPlanner-CSRF` + pochodzenie `https://localhost:5173`) → `POST …?id=<token>`
+z handshakeiem JSON → inwokacja `SubscribeProject(workspaceId, projectId)`;
+sesja B `PATCH /api/v1/workspaces/{ws}/projects/{p}/kanban/tasks/{taskId}/primary-assignee`
+z `{targetUserId, expectedVersion}`; kryterium: sesja A odbiera `task.updated`
+z `primaryAssigneeUserId`, `previousPrimaryAssigneeUserId` i `assigneeUserIds`.
+
+**Stan sesji:** A = `misiek440` (SystemAdmin), B = `kanban-b-1789899185` (User,
+członek workspace, hasło `KanbanB-Local#2026`), obie zalogowane przez BFF.
+Środowisko: API `https://localhost:5173` i `http://localhost:5072` z włączoną
+wysyłką, Mailpit 8025, PostgreSQL 5440; stop: `pkill -f veloryn-workspaces`.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8p: subskrypcja SignalR działa, brakuje karty dla sesji B
+
+**Dowiedzione:** sesja A przeszła pełną ścieżkę SignalR —
+`POST /api/v1/realtime/tasks/negotiate?negotiateVersion=1` (ciasteczka +
+`X-DevPlanner-CSRF` + pochodzenie `https://localhost:5173`) zwrócił token,
+`POST …/realtime/tasks?id=<token>` z handshakeiem JSON (`{"protocol":"json","version":1}` +
+separator `0x1e`) został przyjęty, a inwokacja
+`SubscribeProject(workspaceId, projectId)` wróciła **200**. Czyli transport,
+uwierzytelnienie i subskrypcja grupy projektu działają na żywym stacku.
+
+**Co zostało:** karta, którą sesja B mogłaby przypisać. Projekt utworzony
+z sesji A (widoczność `Shared`) nie pojawił się w odczycie tablicy z sesji B
+(`GET …/kanban/` nie zwrócił JSON-a, `PATCH …/primary-assignee` odpowiedział
+**404**), więc konto B — choć jest członkiem workspace po zaakceptowaniu
+zaproszenia (K8o) — nie ma jeszcze dostępu do tego projektu. Do sprawdzenia:
+czy `Shared` nadaje dostęp członkom workspace od razu, czy wymagane jest jawne
+członkostwo projektu (`POST …/projects/{p}/members`), oraz czy zaproszenie
+workspace dla konta utworzonego przez admin API nie wymaga jeszcze potwierdzenia
+e-maila przed dostępem do projektów.
+
+**Kolejność dokończenia:** nadać koncie B dostęp do projektu (jawne członkostwo
+albo potwierdzenie ścieżki `Shared`), odczytać z jego sesji tablicę i wersję
+karty, potem `PATCH /api/v1/workspaces/{ws}/projects/{p}/kanban/tasks/{taskId}/primary-assignee`
+z `{targetUserId: 59a2186f-…, expectedVersion: <wersja>}` i na sesji A odczytać
+z połączenia SignalR zdarzenie `task.updated`, sprawdzając `primaryAssigneeUserId`,
+`previousPrimaryAssigneeUserId` i `assigneeUserIds`.
+
+Środowisko gotowe: API `https://localhost:5173` i `http://localhost:5072`
+z włączoną wysyłką, Mailpit 8025, PostgreSQL 5440, sesja A `misiek440`,
+sesja B `kanban-b-1789899185` (`KanbanB-Local#2026`), workspace
+`9c0f5fd5-f505-4b92-bc8e-5302b73ec0d3`; stop: `pkill -f veloryn-workspaces`.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8q: subskrypcja powtarzalna, brak członkostwa projektu
+
+**Powtórzone i stabilne:** `negotiate` → handshake → `SubscribeProject(workspaceId, projectId)`
+na sesji A zwraca **200** przy każdym przebiegu (trzy razy z rzędu), więc ścieżka
+realtime po stronie serwera i klienta curl jest potwierdzona.
+
+**Czego brakuje (jedna nieznana ścieżka):** `POST …/projects/{p}/members` wymaga
+`CreateProjectMembershipRequest { WorkspaceMembershipId, Role }`
+(`Contracts/Projects/CreateProjectMembershipRequest.cs:7`), a ja nie zdobyłem
+identyfikatora członkostwa workspace konta B — `GET /api/v1/workspaces/{ws}/members`
+nie zwrócił JSON-a (zła nazwa zasobu), więc `add_member` nie został wywołany,
+a odczyt tablicy z sesji B nadal nie zwraca danych. Dlatego `PATCH …/primary-assignee`
+nie wykonał się i zdarzenie `task.updated` nie zostało odebrane.
+
+**Następny krok (dwa wywołania):** odczytać listę członków workspace właściwym
+zasobem (sprawdzić `Endpoints/Workspaces/WorkspaceEndpoints.cs`, grupa członków),
+wziąć `WorkspaceMembershipId` konta `59a2186f-…`, dodać je do projektu rolą
+`Member`, potem z sesji B odczytać tablicę i wersję karty, wykonać
+`PATCH /api/v1/workspaces/{ws}/projects/{p}/kanban/tasks/{taskId}/primary-assignee`
+z `{targetUserId: "59a2186f-…", expectedVersion: <wersja>}` i na sesji A odczytać
+z otwartego połączenia `task.updated` z `primaryAssigneeUserId`,
+`previousPrimaryAssigneeUserId` i `assigneeUserIds`.
+
+Środowisko gotowe: API `https://localhost:5173` i `http://localhost:5072`,
+Mailpit 8025, PostgreSQL 5440, projekt „Odbior Kanban” w workspace
+`9c0f5fd5-f505-4b92-bc8e-5302b73ec0d3`, sesje A (`misiek440`) i B
+(`kanban-b-1789899185`, `KanbanB-Local#2026`), stop: `pkill -f veloryn-workspaces`.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8r: członkostwo B znalezione, brak projektu z kartą
+
+**Ustalone:** `GET /api/v1/workspaces/{ws}/members` **bez** parametru
+`includeHidden` zwraca listę członków workspace (z `includeHidden` endpoint
+odpowiadał błędem, co mylnie wyglądało jak brak dostępu). Członkostwo konta B to
+`d8d5c463-aaaf-4c52-86cf-e1218ef99353` (sesja A, właściciel
+`f650dd7e-…`). To jest dokładnie ten identyfikator, którego wymaga
+`CreateProjectMembershipRequest { WorkspaceMembershipId, Role }`.
+
+**Czego brakuje:** projekt z co najmniej jedną kartą. Wywołania
+`POST /api/v1/workspaces/{ws}/projects` oraz
+`POST …/projects/{p}/tasks/quick-create` nie doprowadziły do powstania projektu
+widocznego w liście (`project=` puste, `quick_create=404`), więc `PATCH …`
+nie miał czego przypisać i zdarzenie `task.updated` nie zostało odebrane.
+Kolejny krok jest jednoznaczny: sprawdzić trasę i ciało tworzenia projektu w
+`Endpoints/Projects/ProjectEndpoints.cs` (nazwa trasy i wymagane pola
+`CreateProjectRequest`: `Name`, `Visibility`, `Status`), utworzyć projekt
+widocznością `Shared`, dodać do niego konto B przez
+`POST …/projects/{p}/members` z `d8d5c463-…` i rolą `Member`, utworzyć kartę,
+a potem wykonać `PATCH …/kanban/tasks/{taskId}/primary-assignee` z sesji B
+i odczytać z sesji A `task.updated` z `primaryAssigneeUserId`,
+`previousPrimaryAssigneeUserId` i `assigneeUserIds`.
+
+**Powtarzalne i potwierdzone:** subskrypcja SignalR na sesji A
+(`negotiate` → handshake → `SubscribeProject`) zwraca **200** za każdym razem,
+oboje użytkownicy są zalogowani (`me:200`), konto B aktywowane (204),
+zaproszenie zaakceptowane (accept:200), członkostwo workspace odczytane.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8s: poprawna trasa projektu, ale tworzenie zwraca 500
+
+**Ustalone:** `POST /api/v1/workspaces/{ws}/projects` **wymaga końcowego
+ukośnika** (`group.MapPost("/", CreateAsync)` w `Endpoints/Projects/ProjectEndpoints.cs:21`);
+bez niego endpoint odpowiada 404, co wcześniej sugerowało brak projektu.
+Z poprawną trasą i ciałem `{"name":"Odbior Kanban","description":null,"icon":null,
+"primaryColor":null,"visibility":"Shared","status":"Active"}` odpowiedź to
+**500 `internal.error`** z `traceId 0HNON032ETO17:00000001` — czyli błąd
+serwera, a nie odrzucenie danych wejściowych. To warto zbadać osobno (log API
+w `/tmp/stack5173d.log` wokół tego traceId); nie należy do ścieżki Kanban, którą
+ten plan realizuje, i nie było dotąd przedmiotem żadnego pakietu.
+
+**Skutek dla odbioru:** brak projektu oznacza brak karty, więc `PATCH
+…/kanban/tasks/{taskId}/primary-assignee` z sesji B nie ma czego przypisać,
+a zdarzenie `task.updated` (`primaryAssigneeUserId`,
+`previousPrimaryAssigneeUserId`, `assigneeUserIds`) nie zostało odebrane.
+Wszystkie pozostałe ogniwa łańcucha są potwierdzone: oba konta zalogowane
+(`me:200`), konto B aktywowane (204), zaproszenie zaakceptowane (`accept:200`),
+członkostwo workspace B `d8d5c463-aaaf-4c52-86cf-e1218ef99353`, a subskrypcja
+SignalR na sesji A (`negotiate` → handshake → `SubscribeProject`) zwraca **200**
+za każdym przebiegiem.
+
+**Kolejność dokończenia:** zbadać 500 z tworzenia projektu (albo użyć istniejącego
+projektu w workspace `9c0f5fd5-…`, jeśli powstanie), dodać konto B przez
+`POST …/projects/{p}/members` z `{workspaceMembershipId: "d8d5c463-…", role: "Member"}`,
+utworzyć kartę, wykonać `PATCH` z sesji B i odczytać zdarzenie na sesji A.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K8t: ODBIÓR DWÓCH SESJI ZALICZONY
+
+**Kryterium DoD „realtime działa między dwiema sesjami” spełnione i dowiedzione.**
+
+Przyczyną wcześniejszego 500 przy tworzeniu projektu była **przestarzała lokalna
+baza**: `Npgsql.PostgresException 42703: column "DefaultTaskView" does not exist`
+(traceId `0HNON032ETO17:00000001`). Po nałożeniu migracji (`dotnet ef database
+update --project veloryn-workspaces.csproj --context WorkspaceDbContext`, wynik
+`Done.`) projekt utworzył się poprawnie (`201`, `8eadff77-32b5-454b-8003-6c763f227a57`).
+Ta sama przyczyna tłumaczy wcześniejszy błąd workera retencji kreatora
+o brakującej tabeli `project_setup_idempotency_records`.
+
+Przebieg odbioru (sesja A = `misiek440`, sesja B = `kanban-b-1789899185`):
+1. konto B dodane do projektu (odpowiedź `409 project.membership_conflict`, czyli
+   było już członkiem jako członek workspace, a dostęp do tablicy potwierdził odczyt),
+2. karta utworzona: `POST …/tasks/quick-create` → **201**, zadanie
+   `70326b2c-31eb-4cfe-9d08-8e3829b06e48`,
+3. sesja A: `negotiate` → handshake → `SubscribeProject` → **200**,
+4. sesja B: `PATCH /api/v1/workspaces/{ws}/projects/{p}/kanban/tasks/{taskId}/primary-assignee`
+   z `{targetUserId: "59a2186f-…", expectedVersion: 4}` → **200**,
+5. sesja A odebrała push na swoim połączeniu SignalR:
+
+```
+PUSH task.updated | primary: 59a2186f-818e-4bfb-8366-f5724d50e20f
+                  | previous: None
+                  | assignees: ['59a2186f-818e-4bfb-8366-f5724d50e20f']
+```
+
+Czyli zdarzenie `task.updated` dotarło do drugiej sesji i niesie wszystkie trzy
+wymagane pola: `primaryAssigneeUserId` (konto B), `previousPrimaryAssigneeUserId`
+(null, bo zadanie było wcześniej opróżnione z wykonawców) oraz `assigneeUserIds`
+(lista z kontem B). Dodatkowo tym samym kanałem przyszło `project.presence.changed`,
+co potwierdza działanie grupy projektu.
+
+**Uwaga warsztatowa dla następnego agenta:** hub w tym środowisku odpowiada na
+long polling **pustym ciałem** (`200`, 0 bajtów), a komunikaty oddaje dopiero
+w kolejnych żądaniach `GET ?id=<token>` — trzeba wykonać 2–3 kolejne odpytania;
+payload zdarzenia leży w `arguments[0]`, nie w korzeniu komunikatu.
+
+Otwarte pozostają już tylko: potwierdzenie decyzji D1–D5 przez właściciela
+produktu oraz bramki Windows i Linux (brak hosta na tej maszynie).
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K9: POTWIERDZENIE D1–D5 PRZEZ WŁAŚCICIELA PRODUKTU
+
+**Status: potwierdzone.** Właściciel produktu potwierdził decyzje D1–D5 z §4 planu
+w postaci wdrożonej, bez zmian. Kryterium wyjścia pakietu K0 („zakres MVP nie ma
+otwartej niejednoznaczności wielu wykonawców”) jest spełnione.
+
+Co dokładnie zostało potwierdzone:
+
+| Decyzja | Potwierdzona treść |
+|---|---|
+| **D1** | Jedna karta występuje w jednej kolumnie użytkownika; kolumnę wyznacza `primaryAssigneeUserId`, brak wykonawcy trafia do „Nieprzypisane”, a współwykonawcy są widoczni na karcie bez duplikowania jej w innych kolumnach. |
+| **D2** | Przeciągnięcie do osoby zmienia głównego wykonawcę: cel staje się głównym wykonawcą i dołącza do przypisań, poprzedni pozostaje współwykonawcą; przeciągnięcie do „Nieprzypisane” usuwa wszystkich wykonawców po jawnym potwierdzeniu. |
+| **D3** | Tryb grupowania jest osobistą preferencją widoku (per `userId + workspaceId + projectId`) i nie zmienia wspólnego ustawienia projektu. |
+| **D4** | Status pozostaje właściwością zadania: w widoku osób jest badge’em na karcie, a zmiana osoby nie dotyka statusu, pozycji ani workflow. |
+| **D5** | Kolumny osób nie są ACL: backend autoryzuje każde żądanie po projekcie i zasobie, a widoczność kolumny nie nadaje ani nie odbiera dostępu. |
+
+Konsekwencja: pakiety K0–K8 są zrealizowane i zweryfikowane. Duplikowanie kart dla
+wszystkich wykonawców wraz z osobną kolejnością per osoba pozostaje świadomie
+odłożonym etapem rozszerzonym (szacunek planu: 4–7 dni plus migracja i testy),
+a nie zaległością tego zakresu.
+
+Jedyne niewykonane bramki to **Windows i Linux**: ta maszyna jest hostem macOS,
+więc zgodnie z AGENTS.md brak hosta platformy jest niewykonaną bramką, nie
+sukcesem — do uruchomienia na właściwych hostach.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-K10: bramki Windows i Linux pominięte decyzją użytkownika
+
+**Decyzja właściciela:** środowiska Windows i Linux nie są w tym projekcie
+dostępne (brak hostów), więc bramki `flutter build windows` i `flutter build
+linux` zostają **pominięte decyzją użytkownika** — nie są zaległością tego
+zakresu ani powodem blokowania pakietu.
+
+Sprawdzone przed decyzją: na tej maszynie nie ma hosta Windows ani Linux
+(Docker działa jako `linux/arm64`, ale bez obrazu Fluttera i bez całego
+toolchainu pulpitu), a jedyny skonfigurowany host zdalny
+(`135.125.200.151`) nie odpowiada na porcie 22 (`Operation timed out`), więc
+uruchomienie buildów nie było wykonalne bez instalowania toolchainu na cudzej
+infrastrukturze.
+
+Zakres planu domknięty: K0–K8 zweryfikowane i odebrane (w tym odbiór dwóch sesji
+i cel wydajnościowy), decyzje D1–D5 potwierdzone przez właściciela produktu
+(wpis KANBAN-ASSIGNEE-K9). Jedyne niewykonane komendy to buildy na platformach,
+których projekt nie ma — zapisane jako pominięte, nie jako PASS.
+### 2026-09-20 — FILES-F8-RT: kanał realtime dla pionu Storage (Backend)
+
+Status: **DONE** w Backendzie; **live dwóch sesji NOT RUN**.
+
+Kanał z §3.2.6 planu istnieje: outbox `storage_realtime_outbox_messages`
+(addytywna migracja `AddStorageRealtimeOutbox`), typowane zdarzenia created /
+updated / moved / deleted / restored / share changed / version created,
+hub `StorageEventsHub` na `/api/v1/realtime/storage` z subskrypcją osobistą,
+workspace'ową i projektową (te same bramki ACL co odczyt zakresu), odtworzenie
+historii po nieprzezroczystym kursorze z precyzyjnym `ResyncRequired` (luka =
+brak rekordu po kursorze), worker z ponowieniami oraz publikacja wpięta w siedem
+miejsc mutacji (utworzenie dokumentu, opis, przeniesienie placementu, usunięcie,
+przywrócenie, udostępnienie i cofnięcie, przywrócenie wersji) — w tym samym
+`SaveChangesAsync` co zmiana.
+
+Dowody: `dotnet build` czysty, `has-pending-model-changes` czyste,
+`migrations script --idempotent` exit 0, testy kanału 7/7 (5 jednostkowych
++ 2 na realnym PostgreSQL: zapis zdarzenia w zakresie mutacji, izolacja zakresu
+prywatnego, luka historii wymuszająca odświeżenie), a pełny zestaw testów
+Backendu to **1223 powodzenia / 4 pominięte / 7 niepowodzeń / 1234 łącznie** —
+wszystkie siedem niepowodzeń to wcześniejsze `MeEndpointsTests` (hasło, sesje),
+żadnego w Storage ani realtime.
+
+**NOT RUN:** live dwóch sesji (wymaga uruchomionego Backendu i dwóch klientów) —
+razem z live E2E współedycji z F6. **Front nie konsumuje jeszcze kanału**:
+typowy port i scalanie bez resetowania folderu, scrolla i zaznaczenia są
+następnym pakietem; sam kanał bez odbiorcy nie zmienia UI.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-REVIEW: cztery uwagi z code review naprawione
+
+Status: **DONE dla trzech P1 i jednego P2**; jedna rzecz z review pozostaje
+otwarta i jest nazwana niżej.
+
+**1. [P1] Kursor gubił aktywne filtry — naprawione.** `EncodeCursor` dostawał
+puste `KanbanColumnQuery`, więc kursor nie niósł priorytetu, kamienia milowego
+ani filtra wykonawcy, a strona druga przychodzi z tymi filtrami i walidacja
+odsyłała własny kursor. Teraz kursor powstaje z `query.ToColumnQuery()`
+(`Application/Kanban/KanbanAssigneeBoardReader.cs`). Test
+`SecondPageLoadsWithActiveFilters`: 30 kart z priorytetem High przy filtrze
+`Priority=High` → pierwsza strona 25, druga **5** i wszystkie High, karta w innym
+priorytecie nie trafia na stronę.
+
+**2. [P1] Rollback nadpisywał nowszy stan — naprawione.** Zamiast podmieniać
+całą tablicę na snapshot sprzed mutacji, rollback działa na **bieżącym** stanie
+i cofa wyłącznie własną kartę: przenosi ją z kolumny docelowej z powrotem do
+źródłowej (albo usuwa przy 404), korygując dwa liczniki
+(`tasks_board_assignee_commands.dart`). Test „rollback przeniesienia nie
+nadpisuje zmian, które przyszły w trakcie” wstrzymuje odpowiedź mutacji,
+w tym czasie doładowuje kolejną stronę grupy, potem kończy mutację błędem —
+i wymaga, żeby doładowana karta przetrwała, a przenoszona wróciła do źródła.
+
+**3. [P1] Retry używał zabrudzonego DbContext — naprawione.** Przed kolejną
+próbą `ChangeTracker.Clear()` czyści graf encji w pamięci (podniesiona wersja
+zadania, przygotowane przypisania, historia, powiadomienia i wpisy outboxa),
+a stan jest pobierany od nowa przez `RequireWriteAsync`
+(`Application/Kanban/KanbanAssigneeAssigner.cs`). **Otwarte za review:** nie
+dodałem integracyjnego testu wymuszającego SQLSTATE 40001 lub deadlock —
+deterministyczne wywołanie tego konfliktu w testach wymaga osobnej aranżacji
+dwóch transakcji serializable, więc zostawiam je jako nazwane zadanie zamiast
+udawać, że jest pokryte.
+
+**4. [P2] Obserwator miał aktywne DnD — naprawione.** Kolumna osób czyta rolę
+bieżącego użytkownika z `memberProfilesByUserId` (sesja z `AuthSessionPort`);
+dla `Observer` karta nie jest opakowana w `Draggable`, a `DragTarget` odrzuca
+upuszczenie. Brak informacji o roli nie odbiera prawa zapisu — backend nadal
+egzekwuje autoryzację. Test „obserwator nie przeciąga kart i nie przyjmuje
+upuszczenia” sprawdza oba warianty: Observer bez `Draggable`, Member z.
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/tasks
+test/workspaces/data/kanban` → **485/485 PASS**; `flutter analyze lib
+test/workspaces/presentation/tasks` → No issues found; `dotnet build
+veloryn-workspaces.csproj` → 0 błędów; `dotnet test --filter
+FullyQualifiedName~Kanban` → **79/79 PASS**; `git diff --check` czysty w obu repo.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-CHECKLIST: synchronizacja checklisty planu
+
+Checklista w `Backend/docs/recovery/kanban-assignee-view-and-visual-refresh-plan.md`
+(§11–§13) została zsynchronizowana z rzeczywistością: **103 punkty `[x]`**,
+**7 `[ ]` z nazwaną przyczyną**. Wcześniej wszystkie 110 punktów było
+nieodhaczonych, co przeczyło wpisom o zamknięciu K0–K8 — dlatego komplet
+K0–K8 należy czytać z tą kwalifikacją.
+
+Siedem punktów faktycznie otwartych:
+1. K2 — audyt planu zapytania PostgreSQL dla indeksów (migracji nie dodano, bo
+   ścieżka odczytu nie wymagała zmiany schematu).
+2. K6 — przeładowanie grup po zmianie członkostwa (fail-closed).
+3. K8 — weryfikacja dezaktywacji/revoke użytkownika przy otwartej tablicy.
+4. K8 — odbiór Web BFF i desktop na tablicy osób (buildy wykonane, odbioru
+   w przeglądarce nie było).
+5. §13 — test preferencji grupowania dla dwóch użytkowników na jednym urządzeniu
+   (klucz zawiera `userId`, brak testu).
+6. §13 — odświeżenie capabilities po 403 (rollback i błąd są).
+7. §13 — zachowanie zaznaczenia przy niepowiązanym resyncu realtime w widoku osób.
+
+Reszta checklisty ma dowody z komend opisane w wpisach
+`KANBAN-ASSIGNEE-K0` … `-K10` i `-REVIEW` powyżej.
+
+### 2026-09-20 — DEMO-SEED-STAGING
+
+Zmodyfikowano `Application/Development/Seeding/DemoSeedService.cs`, aby seeder
+działał lokalnie w `Development` albo w jawnym procesie operatorskim ustawiającym
+`DEVPLANNER_DEMO_SEED_STAGING_ENABLED=true`; samo API stagingowe nie ustawia tej
+flagi. Dodano rootowy wrapper
+`deployment/staging/server/devplanner-seed-demo`, wpis sudoers i instrukcję w
+`deployment/staging/AGENT_ACCESS.md`. Wrapper pobiera login właściciela oraz
+hasło tylko z plików `root:root 0600`, uruchamia jednorazowy kontener i nie
+wypisuje poświadczeń.
+
+Walidacja: `bash -n deployment/staging/server/devplanner-seed-demo` — PASS;
+`dotnet build veloryn-workspaces.csproj --no-restore` — 0 ostrzeżeń i błędów;
+`dotnet test Tests/Veloryn.Workspaces.Tests/Veloryn.Workspaces.Tests.csproj
+--no-restore --filter FullyQualifiedName~DemoSeedOptionsTests` — 4/4 PASS;
+`git diff --check` — PASS.
+
+Następny krok: administrator VPS instaluje wrapper i zaktualizowany sudoers,
+tworzy `/etc/devplanner/demo-seed.env` z bezpiecznie przekazanym hasłem testowym;
+następnie agent wdraża commit i uruchamia `sudo -n
+/usr/local/sbin/devplanner-seed-demo`.
+
+Audyt VPS po wdrożeniu poprzedniego commita: `/usr/local/sbin/devplanner-seed-demo`
+nie istnieje, a `sudo -l` zwraca obecnie `(ALL) NOPASSWD: ALL` dla
+`codex-staging`, co przeczy wersjonowanemu modelowi najmniejszych uprawnień.
+Nie należy wykorzystywać tego szerokiego uprawnienia do seedowania; najpierw
+trzeba zainstalować ograniczony sudoers i dedykowany wrapper.
+
+Pierwsze uruchomienie na stagingu ujawniło błąd w przejściu wersji
+`README-demo.txt`: zapytanie wymagało wersji większej od 1, zanim seeder ją
+utworzył. Naprawa wybiera jedyny plik README i dopiero potem tworzy wersję 2;
+ponowne uruchomienie dokończy już utworzone, idempotentne dane.
+
+Wdrożenie ręczne: `e91996d` zainstalował kontrolowany wrapper i ograniczony
+sudoers; `3d735fd` wdrożył poprawkę idempotencji. Oba commity mają `[skip ci]`,
+więc nie uruchomiły równoległego GitHub Actions. API stagingu działa jako
+`ghcr.io/przemyslawpluszowy/devplanner-backend:3d735fd...`, status Docker to
+`healthy`, a `/health/ready` zwraca sukces. Bieg `devplanner-seed-demo` po
+poprawce zwraca `Demo seed is already current.` Potwierdzone odczytem SQL:
+10 kont demo i awatarów, 1 workspace, 3 projekty, 9 milestone’ów, 31 zadań,
+9 plików. Hasło kont demo pozostaje wyłącznie w `/etc/devplanner/demo-seed.env`
+z prawami `root:root 0600`; nie zostało wypisane ani zapisane w repozytorium.
+
+### 2026-09-20 — FILES-F8-RT-CLIENT: Front konsumuje kanał zmian
+
+Status: **DONE** dla odbioru kanału; **live dwóch sesji NOT RUN**, macOS sprawdza
+użytkownik, Windows/Linux NOT RUN (brak środowiska).
+
+Front nie tylko publikuje i odbiera zdarzenia — po zdarzeniu odświeża bieżący
+widok **w miejscu**: bez zmiany folderu, bez zwijania listy do pierwszej strony,
+bez stanu ładowania i bez podmiany listy na ekran awarii. Seria zdarzeń jest
+zbierana w oknie 250 ms, `resyncRequired` odświeża natychmiast, a błąd odświeżenia
+idzie trwałym bannerem z kodem i `traceId` (z bezpiecznym `Ponów`), bo odczyt
+listy jest idempotentny. Zaznaczenie zawęża się do elementów, które nadal
+istnieją (`StorageSelectionCubit.retain`).
+
+Kluczowe decyzje: port domenowy zamiast importu SignalR w prezentacji; kanał
+zakresowy (osobisty / workspace / projekt) z adresem grupy zgodnym co do znaku
+z serwerem (`{guid:N}` bez myślników); brak kanału dla kosza, udostępnionych,
+ostatnich, ulubionych i zakresu zasobu — świadomie, bo hub ich nie adresuje;
+kompozycja tylko dla klienta z tokenem dla huba (webowy BFF bez odświeżeń na
+żywo, jak Zadania).
+
+Dowody: `flutter analyze` bez uwag, `flutter test` **1357/1357**, `flutter gen-l10n`
+bez zmian, `flutter build web --wasm` zbudowane, `git diff --check` czysto.
+
+Lekcja: oczekiwanie `StreamSubscription.cancel()` w strefie testu widgetowego nie
+kończy się nigdy (przyszłość domyka się w strefie głównej), więc sprzątanie
+ekranu wisiało, a kanał nie dochodził do zwolnienia — koordynator nie wyczekuje
+anulowania.
+
+**NOT RUN:** live dwóch sesji (razem z live E2E współedycji z F6),
+`flutter build macos` (użytkownik sprawdza sam), `flutter build windows` /
+`flutter build linux` (brak środowiska).
+
+### 2026-09-20 — KANBAN-ASSIGNEE-UI: trzy uwagi z użycia + auto-scroll przy przeciąganiu
+
+Status: **DONE** — wszystkie cztery uwagi naprawione i pokryte testami.
+
+**1. Awatary się nie wyświetlały.** Backend zwracał ścieżkę relatywną
+(`/api/v1/users/{id}/avatar`), a klient ładuje awatar obrazem — względny adres
+nie ma podstawy, więc zawsze trafiał w fallback inicjałów. Dodany
+`PublicAssetUrlBuilder` buduje adres **absolutny** z `WORKSPACES_PUBLIC_BASE_URL`
+(bez skonfigurowanego adresu zostaje ścieżka relatywna), a kolumny osób korzystają
+z niego. Przy okazji `ProjectMemberProfileResponse` dostał addytywne pole
+`AvatarUrl`, którego model frontu oczekiwał jako `avatarUrl` — dotąd było zawsze
+`null`, więc awatary nie działały nigdzie (także w facepile i na kartach).
+Testy: `PublicAssetUrlBuilderTests` (adres absolutny, fallback relatywny, brak
+pliku → brak adresu).
+
+**2. Brak paska przewijania na dole tablicy.** Viewport kolumn osób dostał
+`Scrollbar` z widocznym uchwytem i własnym `ScrollController` (poziomy ListView nie
+używa `PrimaryScrollController`, więc bez kontrolera pasek nie miał się do czego
+przyczepić). Test „przy wielu osobach tablica ma poziomy pasek przewijania”
+renderuje 12 kolumn w oknie 420 px i wymaga `thumbVisibility` oraz
+`maxScrollExtent > 0`.
+
+**3. Przełącznik wyglądał obco i był za duży.** Zamiast domyślnego
+`SegmentedButton` jest teraz smukły pill 28 px w stylu przełącznika z listy zadań:
+`surfaceContainerHigh` z subtelną ramką, zaznaczony segment w `primaryContainer`
+z `onPrimaryContainer`, ikony i etykiety, hover, focus ring i `Semantics`
+(button/selected/label). Kolor zaznaczenia bierze się z motywu, więc wybór widać
+od pierwszego rzutu oka.
+
+**4. Przeciąganie w prawo nie przewijało listy.** Kolumny osób i tablica
+rejestrują teraz swoje kontrolery w `KanbanAutoScrollCoordinator` — tym samym,
+którego używa widok statusów — a kolumna doładowuje kolejną stronę grupy po
+dojechaniu do końca listy, tak jak kolumna statusu. Zachowanie obu trybów jest
+identyczne.
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/tasks
+test/workspaces/data/kanban` → **486/486 PASS**; `flutter analyze lib
+test/workspaces/presentation/tasks` → No issues found; zrzuty baseline'u K0
+przegenerowane (`--update-goldens`, 19 plików); `dotnet build
+veloryn-workspaces.csproj` → 0 błędów; `dotnet test --filter
+„Kanban|PublicAssetUrlBuilderTests”` → **82/82 PASS**; `git diff --check` czysty.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-UI2: kolumny wizualnie + dwie uwagi do dokończenia
+
+Status: **częściowo DONE** — cztery zmiany wizualne wdrożone, dwie uwagi
+użytkownika zostają otwarte z nazwaną przyczyną.
+
+**Wdrożone (testy przechodzą):**
+1. Tło kolumny to delikatny gradient od neutralnej powierzchni do koloru
+   tożsamości: dla kolumny osoby kolor bierze się z hasha identyfikatora
+   (`TaskBoardAvatarPalette.colorFor`), dla „Nieprzypisane” z `onSurfaceVariant`.
+2. Ramka kolumny to przerywana linia rysowana `DottedRRectPainter` (kropka 2 px,
+   odstęp 6 px) w kolorze zależnym od motywu: ciemny → biel 30%, jasny → czerń
+   16%. Zamiast dotychczasowej cienkiej ramki ciągłej.
+3. Hover nad kolumną zmienia tę ramkę na niebieską (`colors.primary`, grubsze
+   kropki), a przeciąganie karty nad kolumną daje ten sam stan aktywny.
+4. Kolumna zajmuje pełną wysokość planszy (`height: double.infinity`), więc
+   upuszczenie działa na całej jej powierzchni, a nie tylko na wysokości kart.
+
+**Otwarte 1 — brak przycisku dodawania zadania w kolumnie osoby.** Kolumna osób
+nie montuje wiersza szybkiego dodawania, a kolumna statusu robi to przez
+`_QuickCreateTask(column: …)` z `tasks_board_quick_create.dart`, który wymaga
+`KanbanColumnResponse` (statusu), bo tworzenie zadania musi wskazać kolumnę
+workflow. Potrzeba decyzji produktowej: czy „Dodaj zadanie” w kolumnie osoby ma
+tworzyć zadanie w pierwszej kolumnie workflow z tą osobą jako głównym wykonawcą,
+czy pytać o status. Do czasu decyzji nie wstawiam zgadywanego zachowania.
+
+**Otwarte 2 — brak sposobu dodania podzadania, gdy karta ich nie ma.** Sekcja
+podzadań na karcie renderuje się tylko wtedy, gdy `shows(subtasks) && subtaskTotal > 0`
+(`tasks_board_card_content.dart`, `_hasSubtasksSection`), więc karta bez
+podzadań nie pokazuje żadnej akcji. Dodanie przycisku dotyka karty wspólnej dla
+obu widoków, więc wymaga ustalenia, czy akcja ma być na karcie, czy wyłącznie
+w szczegółach zadania.
+
+Komendy: `flutter test test/workspaces/presentation/tasks/tasks_board_assignee_commands_test.dart
+test/workspaces/presentation/tasks/board/kanban_assignee_k0_baseline_test.dart
+--update-goldens` → 32/32 PASS; `flutter analyze lib/workspaces/presentation/tasks/board`
+→ No issues found; zrzuty baseline'u K0 przegenerowane (19 plików) i sprawdzone
+wizualnie: gradient widać na każdej kolumnie, kolumny sięgają dołu planszy.
+
+### 2026-09-20 — FILES-F9: sprzątanie martwej rodziny read-only
+
+Status: **DONE**; live dwóch sesji NOT RUN, macOS sprawdza użytkownik,
+Windows/Linux NOT RUN (brak środowiska).
+
+Usunięta cała martwa rodzina `StorageReadOnlyBrowserPage` (9 plików, 1561 linii)
+razem z 6 plikami testów pionowych, które jako jedyne ją montowały. Zamiast nich:
+wspólny harness `test/test_support/storage_shell_harness.dart` oraz dwa nowe
+zestawy na shellu — `shell/storage_shell_access_test.dart` (bramkowanie
+kompozycji i ACL, powierzchnia 403) i
+`shell/storage_shell_mutations_flow_test.dart` (dziewięć przepływów mutacji,
+każdy rozliczony z jednego odświeżenia listy). Dwa pliki pionowe okrojone do
+testów cubita (upload, wersje). W `lib` i `test` nie ma już żadnego odwołania do
+`StorageReadOnly*`.
+
+Przy migracji wyszedł realny defekt: trzy dialogi zwalniały kontroler pola
+w trakcie animacji zamknięcia, więc przebudowa drzewa pod dialogiem sięgała po
+zwolniony obiekt (`A TextEditingController was used after being disposed`).
+Kontroler należy teraz do stanu dialogu.
+
+Dowody: `flutter analyze` bez uwag; `flutter test` 1335 zielonych i 4 czerwone —
+wszystkie cztery w Kanban innego agenta (nowe, nieśledzone jeszcze pliki testów
+i goldeny przy trwających zmianach tokenów karty), żadna w Storage; zakres
+Files + realtime 193/193; `flutter build web --wasm` zbudowane; `git diff --check`
+czysto.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-UI3: przerywana ramka na kafelku (nie na kolumnie)
+
+Status: **DONE** — poprawka zgodna z doprecyzowaniem użytkownika.
+
+Użytkownik doprecyzował, że przerywana ramka miała być na **kafelku zadania**,
+a nie na kolumnie. Poprawka:
+- kafelek w spoczynku ma przerywaną ramkę rysowaną `DottedRRectPainter`
+  (kropka 2 px, odstęp 6 px): w motywie ciemnym biel 30%, w jasnym czerń 16%;
+- hover kafelka zamienia kropki na niebieskie (`colors.primary`), a focus i błąd
+  zostają ciągłą ramką, bo niosą znaczenie, którego kropki nie zastąpią;
+- wysokie kontrast wzmacnia kropki do pełnego koloru obrysu — nowy token
+  `cardDashedBorderRest(colors, isDark:, highContrast:)` w `KanbanCardTokens`;
+- kolumna osób **nie** ma już kropek: zostaje delikatny gradient z koloru
+  tożsamości (hash osoby albo kolor statusu), ciągła subtelna ramka, niebieska
+  ramka w hoverze i pełna wysokość jako strefa upuszczania.
+
+Uwaga o odbiorze: użytkownik zgłosił „nic się nie zmieniło”, a przyczyną był
+**przestarzały build web** (`build/web/main.dart.js` z 13:52 przy źródłach
+zmienionych o 14:21) — po przebudowie zmiany są widoczne po odświeżeniu strony.
+Poprawka awatarów wymaga natomiast restartu API, bo działa w nim proces
+uruchomiony przed zmianą (`pkill -f veloryn-workspaces` i ponowny start).
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/tasks/board
+--update-goldens` → wszystkie przechodzą (25 goldenów k1 przegenerowanych);
+`flutter test test/workspaces/presentation/tasks test/workspaces/data/kanban`
+→ **484/484 PASS**; `flutter analyze lib` → No issues found; `flutter build web
+--wasm` — przebudowany; `git diff --check` czysty.
+
+Po drodze: uszkodziłem własnym skryptem plik goldenów (`kanban_interaction_goldens_test.dart`)
+i odtworzyłem go w całości — plik ma teraz 25 goldenów i trzy testy stanów,
+analiza jest czysta, a zestaw zielony.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-UI4: kropki wróciły na kafelek, kolumny ujednolicone, wiersz dodawania na dole
+
+Status: **DONE** — cztery uwagi z użycia domknięte, plus dowód live na poprawkę
+awatarów.
+
+**Przyczyna „karta nie ma żadnego dot border” (błąd, nie gust).** Wpis UI3
+deklarował przerywaną ramkę kafelka, ale painter kropek nigdy nie trafiał do
+drzewa dla prawdziwych kart: w `KanbanCardFrame._buildCard` gałąź
+`onShowContextMenu != null` (czyli każda karta tablicy) przekazywała do
+`Shortcuts`/`Actions` `child: card` zamiast `child: dashedCard`, więc
+`CustomPaint(DottedRRectPainter)` był budowany i wyrzucany. Kropki rysowały się
+wyłącznie na kartach bez menu kontekstowego — m.in. w goldenach i podglądzie
+przeciągania, dlatego zestaw był zielony, a użytkownik nie widział obrysu.
+Poprawka: `child: dashedCard`.
+
+**Hover podświetla wyłącznie ramkę — w obu widokach.** Kafelek nie zmienia już
+tła (`cardSurfaceHover` nieużywany) ani uniesienia: przy spoczynkowym
+`cardElevationRest = 0.0` cała gałąź `boxShadow` była martwa i została usunięta,
+a hover przemalowuje sam obrys na `cardFocusRing`. To świadome odejście od §5.6
+planu kanbanowego („hover unosi kartę tylko minimalnie”): decyzja użytkownika
+jest taka, że tło zostaje spokojne, żeby czytanie tablicy nie mrugało.
+
+**Jedna powierzchnia kolumny dla statusów i osób.** Nowy plik-część
+`tasks_board_column_surface.dart` (`KanbanColumnSurface`) trzyma gradient
+akcentu (stały, `alpha .10`), promień 12 px, ciągłą ramkę
+`outlineVariant @ .5` i niebieską ramkę 1.5 px w hoverze lub w aktywnej strefie
+upuszczenia, plus pełną wysokość kolumny. `KanbanColumnWidget` (statusy) bierze
+akcent z koloru statusu, `KanbanAssigneeColumn` (osoby) z hasha tożsamości
+osoby — wygląd przestał się rozjeżdżać między trybami grupowania.
+
+**Wiersz „Dodaj zadanie” przypięty na dole kolumny.** Stopka jest poza
+przewijaną listą kart (`KanbanColumnSurface.footer`), więc nie ucieka pod
+ekranem przy długiej kolumnie: w widoku statusów w **każdej** kolumnie, w widoku
+osób **tylko w kolumnie „Nieprzypisane”** — nowe zadanie powstaje w Backlogu bez
+wykonawcy, więc pojawia się dokładnie tam; w kolumnie osoby wiersz obiecywałby
+kartę, która tam nie trafi. Etykieta i ikona biorą kolor `colors.primary`
+(waga 600), hover rozjaśnia tło o 8% primary.
+
+**Awatary — dowód live po restarcie API.** Działający proces pochodził z 12:19,
+a poprawka `PublicAssetUrlBuilder` z 14:09–14:13, więc API nie mogło jej
+serwować. Po restarcie (ten sam zestaw zmiennych środowiskowych,
+`/private/tmp/restart-api-5173.sh`, porty 5173 + 5072) to samo konto i ten sam
+projekt:
+
+- przed: `GET /api/v1/workspaces/6de3bd7f…/projects/593185af…/members/profiles`
+  → `{userId, displayName, avatarFileId, role}` bez `avatarUrl`;
+- po: dodatkowo `"avatarUrl": "https://localhost:5173/api/v1/users/<id>/avatar"`
+  (absolutny adres z `WORKSPACES_PUBLIC_BASE_URL`);
+- `GET /api/v1/users/7da62c7a…/avatar` → `200`, `image/png`, 2954 B, PNG 396×396.
+
+**Testy dopisane i przepisane świadomie.**
+- nowy `test/workspaces/presentation/tasks/board/kanban_column_add_row_test.dart`
+  — 4 testy: wiersz dodawania jest poza `ListView` i przy dolnej krawędzi
+  kolumny, pusta kolumna też go ma, kolor z tokenu `primary @ .95`, hover
+  zmienia ramkę, a gradient zostaje taki sam;
+- `kanban_card_interaction_states_test.dart` — test spoczynku sprawdza teraz
+  brak ciągłej ramki i kolor paintera, a nie `decoration.border`; doszedł skan
+  pikseli (`darkPixelsInTopEdge` — dwa wiersze na górnej krawędzi kafelka,
+  próg 20 jednostek od powierzchni) oraz test hoveru. Skan był najpierw
+  fałszywie zielony (porównywałem kanał 0–1 z progiem 0–255), więc po naprawie
+  zrobiłem kontrolę mutacyjną: po przywróceniu `child: card` test pikseli
+  **failuje**, po naprawie przechodzi — dopiero to czyni go bramką;
+- `tasks_board_assignee_commands_test.dart` — nowy test „wiersz dodawania
+  zadania jest tylko w kolumnie Nieprzypisane” (prezent w grupie 0, brak
+  w grupie osoby).
+
+Komendy i wyniki: `flutter test
+test/workspaces/presentation/tasks/board --update-goldens` → wszystkie
+przechodzą (29 goldenów k1 przegenerowanych, w tym kolumny statusu/osoby/
+nieprzypisane w obu motywach); `flutter test
+test/workspaces/presentation/tasks test/workspaces/data/kanban` → **491/491
+PASS**; pełny `flutter test` → **1344/1344 PASS**; `flutter analyze lib` → No
+issues found; `dart format --output=none lib/workspaces/presentation/tasks/board/`
+→ po sformatowaniu moich dwóch plików różni się już tylko
+`cubit/tasks_board_runtime_coordinator.dart`, którego nie dotykam (plik innego
+agenta); `flutter build web --wasm` → `✓ Built build/web` (`main.dart.wasm`
+6,6 MB, 14:54); `git diff --check` czysty.
+
+Otwarte (świadomie): pusta kolumna osoby nadal jest tylko strefą upuszczenia bez
+widocznej podpowiedzi tekstowej (ma sam `Semantics`), a akcja dodania podzadania
+na karcie bez podzadań pozostaje nierozwiązana — obie pozycje czekają na decyzję
+o kształcie, nie na kod. Windows/Linux pozostają pominięte decyzją użytkownika
+(brak hostów).
+
+### 2026-09-20 — KANBAN-ASSIGNEE-UI5: akcja dodania podzadania na karcie bez podzadań
+
+Status: **DONE** — domknięcie uwagi „jak nie ma podzadania to nie da się dodać,
+nie ma przycisku”.
+
+**Przyczyna.** `_hasSubtasksSection` wymagało `subtaskTotal > 0`, więc zadanie
+bez podzadań nie montowało sekcji w ogóle — a formularz „Dodaj podzadanie”
+żyje wewnątrz tej sekcji. Dodanie pierwszego podzadania wymagało wejścia
+w szczegóły zadania. Gałąź licznika w `_CardPrimaryMeta`
+(`shows(subtasks) && !hasSubtasksSection && subtaskTotal > 0`) była przy tym
+**martwa od zawsze**: `!hasSubtasksSection` i `subtaskTotal > 0` nie mogą być
+prawdziwe jednocześnie, więc fallback nigdy się nie rysował.
+
+**Zmiana.** Sekcja montuje się, gdy pole `subtasks` jest widoczne — niezależnie
+od liczby dzieci. Zadanie bez podzadań nie pokazuje jednak nagłówka z licznikiem
+„(0/0)” i pustym paskiem postępu (to szum), a wprost akcję „Dodaj podzadanie”;
+jej dotknięcie otwiera sekcję **razem** z polem nazwy (`_openAddSubtask`), więc
+użytkownik nie klika dwa razy. Wiersz akcji jest teraz jednym widgetem
+(`_buildAddSubtaskAction`) używanym i przez pustą kartę, i przez listę
+podzadań — wcześniej ten sam kod istniał wyłącznie w treści rozwiniętej.
+Martwa gałąź licznika w metadanych została usunięta, bo utrzymywała złudzenie,
+że licznik gdzieś się pokazuje.
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/tasks/board` →
+**185/185 PASS** (w tym nowy test „karta bez podzadań pokazuje akcję dodania,
+bez nagłówka z licznikiem”, który sprawdza brak `(0/0)` i jedno dotknięcie do
+pola nazwy); `flutter test test/workspaces/presentation/tasks
+test/workspaces/data/kanban` → **492/492 PASS**; pełny `flutter test` →
+**1345/1345 PASS**; `flutter analyze lib` → No issues found; `flutter build web
+--wasm` → `✓ Built build/web` (`main.dart.wasm`, 15:05); `git diff --check`
+czysty. Goldeny bez zmian: żaden ich scenariusz nie ma `subtasks` w
+`visibleCardFields`, więc nowa akcja nie wchodzi na żadne istniejące
+odniesienie.
+
+Otwarte (świadomie): akcja dodaje podzadanie inline na karcie i nie pozwala
+od razu ustawić terminu ani wykonawcy dziecka — te pola nadal ustawia się
+w szczegółach zadania.
+
+### 2026-09-20 — STORAGE-REVIEW-FIXES: sześć uwag z review
+
+Status: **DONE**; live dwóch sesji NOT RUN, macOS sprawdza użytkownik,
+Windows/Linux NOT RUN (brak środowiska).
+
+Naprawione wszystkie cztery P1 i dwa P2:
+
+1. **Historia workspace'u obejmuje projekty** — `ScopeQuery` zwraca dla zakresu
+   workspace'u zdarzenia `Workspace` i `Project` z tym samym `WorkspaceId`, czyli
+   ten sam zbiór, który worker wysyła do grupy workspace'u.
+2. **Pierwsza subskrypcja nadrabia historię** — adapter czyta ją zawsze: bez
+   kursora ogon historii (jedno żądanie), po wznowieniu strony od kursora do
+   końca, więc okno między odczytem listy a dołączeniem do grupy jest zamknięte.
+3. **Status edytora czeka na backend** — stan rozdziela „brak lokalnych zmian”,
+   „oczekiwanie na serwer”, „wersja potwierdzona” i „zapis niepotwierdzony”;
+   potwierdzeniem jest wyższa wersja pliku z `getFileDetails`, a nie sygnał
+   edytora. Callback publikuje `storage.file.version.created`.
+4. **Rejestr OnlyOffice obsługuje wielu edytujących** — zbiór sesji na dokument,
+   autor tylko z jednoznacznego wskazania (akcja → konfiguracja edytora →
+   jednoosobowa lista `users` → jednoznaczne przecięcie z rejestrem), a zapis bez
+   autora idzie jako nieprzypisany z właścicielem pliku jako technicznym
+   zapisującym i logiem `OnlyOfficeUnattributedSave`.
+5. **Luka historii liczona względem zakresu** — `ResyncRequired` tylko wtedy, gdy
+   kursor jest starszy niż `OldestSequence` zakresu; przerwy w globalnej numeracji
+   od zdarzeń innych zakresów nie są już utratą historii.
+6. **Stronicowanie historii** — kontrakt ma `HasMore`, klient pobiera strony do
+   końca, a po przekroczeniu budżetu zgłasza jedno pełne odświeżenie.
+
+Dowody: `dotnet build` czysty; `dotnet test` 1236 zielonych / 4 pominięte /
+7 czerwonych (wszystkie wcześniejsze `MeEndpointsTests`); `has-pending-model-changes`
+czyste; `flutter analyze` bez uwag w plikach pakietu; `flutter test` 1353/1353;
+`flutter build web --wasm` zbudowane; `git diff --check` czysto.
+
+### 2026-09-20 — STORAGE-REVIEW-LIVE: żywy test dwóch sesji
+
+Status: **DONE** dla kanału i współedycji przez kontrakt; **NOT RUN** dla klikania
+w prawdziwym edytorze w dwóch przeglądarkach (brak automatyzacji GUI na tym Macu).
+
+Uruchomiono własną instancję API z dzisiejszym kodem (`https://localhost:5174` +
+`http://localhost:5073`, klient desktopowy OpenIddict, kopia bazy `review_live`,
+MinIO/PostgreSQL/ClamAV z istniejącego compose) i zalogowano dwie sesje klientem
+desktopowym przez Authorization Code + PKCE: A = `misiek440`, B =
+`kanban-b-1789899185`, oba w workspace `DevPlanner`.
+
+**Kanał i odświeżenie listy.** B tworzy dokument w workspace → A (prawdziwy
+`StorageRealtimeClientAdapter`, prawdziwy SignalR) dostaje zdarzenie live, a lista
+czytana przez A zawiera nowy plik. Po rozłączeniu A i utworzeniu dokumentu
+**w projekcie** tego workspace, powrót A odtwarza historię, która **obejmuje
+zdarzenie projektowe** — to potwierdzenie poprawki P1-a w żywym systemie. Pomiar:
+jedno zdarzenie live 1,0–1,6 s po mutacji, także po ponownym połączeniu.
+
+**Współedycja.** A i B otwierają ten sam dokument (ten sam `documentKey`), zapis
+bez rozstrzygalnego autora tworzy v2 z właścicielem pliku jako autorem
+technicznym i zdarzeniem bez `actorUserId`, zapis z `actions[{userid: B}]` tworzy
+v3 z autorem B, a kolejny zapis bez autora znowu trafia na właściciela — sesja
+współedycji trwa, a żadna treść nie ginie.
+
+**Znaleziska środowiskowe.** Instancja API bez backplane'u Redis w topologii z drugą
+instancją zabiera część rekordów outboxa i publikuje je tylko do własnych pokoi, co
+cicho odbiera zdarzenia klientom innych instancji (dlatego przebieg powtórzono na
+izolowanej bazie); endpointy `admin/ops` wymagają claimu `permission` z Core, więc
+licznik sesji nie jest lokalnie dostępny; allowlista pobrania callbacku przyjmuje
+wyłącznie host:port z `WORKSPACES_ONLYOFFICE_URL`.
+
+Dowody: `flutter test test_live/storage_realtime_live_test.dart` 1/1;
+`flutter test test_live/storage_onlyoffice_two_editors_live_test.dart` 1/1;
+`flutter analyze test_live` bez uwag; domyślny `flutter test` 1353/1353 z
+`test_live/` poza zbiorem. Pliki testów leżą poza `test/` i bez zmiennych `LIVE_*`
+są pomijane.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-REVIEW2: odświeżanie po filtrze, wyścig odczytów, kolumny vs filtr, belka nagłówka, gęstość
+
+Status: **DONE dla sześciu uwag z review** — dwie funkcjonalne (P1), jedna produktowa
+(P1) i trzy projektowe (P2). Kolejność wdrożenia jest tą z werdyktu review.
+
+**1 [P1] Szybki filtr nie odświeżał tablicy grupowanej po osobach.** Po zapisie
+`KanbanQuickFilter` kod wołał wyłącznie `reloadBoard()`, czyli odczyt kolumn
+*statusów*; widok osób zostawał z kartami i licznikami sprzed filtra, dopóki inne
+zdarzenie przypadkiem go nie odświeżyło. W `TasksBoardCommandContext` doszła
+metoda `reloadActiveBoard(force)`, a `TasksBoardCubit` implementuje ją jako
+`_runtime.load(...)` + `_assignee.reloadAfterFilterChange()` (drugie jest
+no-opem poza widokiem osób). Wołają ją teraz wszystkie trzy miejsca, w których
+zmiana preferencji zmienia zawartość kolumn: szybki filtr, szybkie utworzenie
+zadania i zastosowanie szablonu. Test
+`szybki filtr w widoku osób wraca po świeże grupy, a nie tylko po kolumny`
+sprawdza drugie wywołanie `getAssigneeBoard`, nowe liczniki grup i zgaszenie
+wskaźnika wczytywania; kontrola mutacyjna (usunięcie `reloadAfterFilterChange`)
+daje `Expected: <2> Actual: <1>`.
+
+**2 [P1] Późniejsza odpowiedź starszego żądania nadpisywała świeższe grupy.**
+Odczyty tablicy osób nie miały odpowiednika `_boardQueryRevision`, więc przy
+szybkiej zmianie filtra (High → Critical) odpowiedź dla High mogła wrócić
+ostatnia i zastąpić poprawną tablicę. `TasksBoardAssigneeCommands` ma teraz
+własną rewizję: rośnie przy starcie każdego `loadBoard()`, a odpowiedź jest
+publikowana tylko wtedy, gdy rewizja się nie zmieniła **i** filtr w stanie jest
+nadal tym, o który pytano (filtr może się zmienić bez nowego odczytu grup, np.
+gdy użytkownik zdążył wrócić do statusów). Ten sam warunek chroni doładowanie
+kolejnej strony grupy (`loadMore`), bo kursor należy do filtra, dla którego go
+wydano. Test `późniejsza odpowiedź starszego żądania nie nadpisuje świeżych grup`
+trzyma oba żądania otwarte i rozwiązuje je w odwrotnej kolejności; bez strażnika
+ekran pokazuje grupę z żądania, które przyszło ostatnie (`Actual: 'Marta'`).
+
+**3 [P1 produktowy] Filtr wykonawcy zastąpiony widocznością kolumn w widoku
+osób.** Filtr osoby zniknął z wiersza poleceń, gdy `grouping == assignee` — tam
+osoba jest osią kolumny, więc zawężanie jej zawartości jest mylące. Zamiast tego
+doszło menu „Kolumny osób” (checkbox na osobę + licznik zadań), przełącznik
+„Ukryj puste kolumny”, akcja „Pokaż wszystkie kolumny” oraz stan pusty, gdy
+filtr widoczności nie zostawił żadnej kolumny (z tą samą akcją, żeby ekran nie
+udawał, że projekt nie ma zadań). Filtrowanie listy grup jest **lokalne**
+(`KanbanAssigneeColumnsViewport`), a Backend nadal zwraca wszystkie grupy.
+Preferencja jest osobista i trwała — osobny port `TasksBoardViewPreferenceStore`
+(dawny `TasksBoardGroupingPreferenceStore`, rozszerzony o widoczność kolumn),
+adapter `SharedPreferencesTasksBoardViewStore`, wpis w `shared_preferences`
+kluczowany użytkownikiem, workspace i projektem. **Świadome odejście od nazwy
+z review:** w stanie trzymamy `hiddenAssigneeUserIds`, a nie
+`visibleAssigneeColumnIds` — przy zapisanej liście *widocznych* nowy członek
+projektu nie pojawiłby się na tablicy, dopóki ktoś nie zmieniłby ustawienia.
+Zapis jest best-effort: publikujemy zmianę natychmiast, a zapis leci w tle.
+
+**4 [P2] Przełącznik grupowania w wierszu poleceń.** `KanbanBoardGroupingBar`
+nie jest już montowany nad tablicą (`_BoardContent` go nie zawiera), tylko jako
+pierwsza kontrolka wiersza poleceń — hierarchia to dwa wiersze nagłówka i
+tablica, bez trzeciej belki. Przy okazji: kontrolka straciła własny padding i
+`Spacer`, a cubit czyta **w momencie kliknięcia**, nie w `buildzie` — nagłówek
+jest montowany bez dostawcy cubita w testach nagłówka i wtedy build rzucał
+`ProviderNotFoundException` (objawiał się jako overflow 99 158 px od widgetu
+błędu). Test `przełącznik grupowania stoi w wierszu poleceń, a nie nad tablicą`
+porównuje pas wiersza poleceń i środek kontrolki z kluczem filtra priorytetu.
+
+**5 [P2] Gęstość zmienia szerokość kolumny.** Nowe tokeny
+`columnWidthCompact = 264`, `columnWidthStandard = 308` (odniesienie),
+`columnWidthDetailed = 356` i `columnWidthFor(density)`; korzysta z nich wspólna
+`KanbanColumnSurface` (obie kolumny) oraz krok przewijania klawiszami
+(`columnWidthFor + columnGap` zamiast zaszytego 318). Padding karty przestał być
+różnicą kosmetyczną: compact 10 px, comfortable 14 px, detailed 16 px. Świadome
+odejście od §5.7 planu („szerokość desktopowa około 288–320 px”): bez zejścia
+poniżej 288 px wybór Compact nie mieści na ekranie ani jednej kolumny więcej,
+czyli nie realizuje swojej obietnicy. Test
+`gęstość tablicy zmienia szerokość kolumny` mierzy szerokość kolumny w compact i
+detailed oraz porządek tokenów.
+
+**6 [P2] Pasek aktywnych filtrów pokazywał tylko szybki filtr.** `_ActiveFilterStrip`
+dostał jeden chip na każdy aktywny wymiar (szybki filtr, priorytet, osoba,
+kamień milowy), każdy zdejmowany własnym „×”, plus jedną akcję „Wyczyść
+wszystko”, która czyści też szybki filtr. Etykieta paska wyszła z hardkodowanego
+polskiego tekstu do ARB (`tasksBoardActiveFilters`), a pasek pojawia się, gdy
+aktywny jest jakikolwiek wymiar — wcześniej wymiar tablicy był aktywny bez
+żadnej informacji na ekranie. Testy: `pasek aktywnych filtrów pokazuje priorytet
+i daje się zdjąć` oraz zaktualizowany `wyświetla chip aktywnego filtra gdy
+quickFilter != all` (dawniej oczekiwał przycisku „Wyczyść” dla samego chipu).
+
+**Świadomie przepisane testy** (protokół wymaga wskazania): `wyświetla chip
+aktywnego filtra…` — z „Wyczyść” na „Wyczyść wszystko” i klucz chipu; harness
+`test_support/tasks_board_route_fixture.dart` dostał stub `getAssigneeBoard` i
+stałą `assigneeKanbanBoardResult` (wcześniej żaden test trasy nie sięgał tablicy
+osób, więc brak stubu był niewidoczny).
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/tasks
+test/workspaces/data/kanban` → **ze zmianami w goldenach** po odświeżeniu
+`--update-goldens` (29 w `k1` + `header_desktop_1280`), pełny `flutter test` →
+**1370/1370 PASS**; `flutter analyze lib test` → jedyne znalezisko to
+`eol_at_end_of_file` w `test/workspaces/presentation/storage/office/storage_office_session_status_test.dart`, pliku innego agenta (moje pliki czyste);
+`flutter build web --wasm` → `✓ Built build/web` (20:01); `git diff --check`
+czysty; `dart format --output=none` na moich katalogach nie zgłasza plików,
+które ruszałem.
+
+Otwarte (świadomie): odbiór w przeglądarce na tablicy osób nadal jest punktem 4
+listy otwartych pozycji planu; widoczność kolumn zapisuje się lokalnie, więc nie
+podróżuje między urządzeniami (to osobista preferencja klienta, jak grupowanie);
+filtr kamienia milowego nie ma kontrolki w wierszu poleceń, więc jego chip w
+pasku jest zabezpieczeniem na stan ustawiony skądinąd.
+
+### 2026-09-20 — STORAGE-REVIEW2-FIXES: sześć uwag z drugiego review
+
+Status: **DONE** dla wszystkich sześciu uwag i sześciu brakujących testów
+regresyjnych; żywy przebieg powtórzony na nowym kodzie.
+
+Naprawione:
+
+1. **Próg potwierdzenia zapisu jest ruchomy** — każdy kolejny zapis w tej samej
+   sesji wymaga własnej, nowszej wersji z backendu (`confirmedVersion` jako próg).
+2. **Brak atrybucji nie omija ACL** — prawo zapisu sprawdzamy u uczestników
+   dokumentu (ładunek + aktywne sesje), a gdy nikt nie może pisać, zapis jest
+   odrzucany. Zapis bez autora powstaje bez autora: nowe, nullowalne
+   `ChangedByUserId` (puste), właściciel wyłącznie jako techniczny zapisujący.
+   Migracja addytywna z przeniesieniem autora w istniejących wersjach.
+3. **Niejednoznaczne zamknięcie nie kasuje rejestru** — zamykamy tylko osoby
+   wskazane przez `actions` albo ustalonego autora; inaczej nikt, TTL wygasi.
+4. **Zamknięcie modala w stanie oczekiwania** ma osobny komunikat i czeka na
+   wynik kontroli przed odświeżeniem listy.
+5. **Handlery SignalR rejestrowane raz** w konstruktorze adaptera.
+6. **Nieudane pierwsze połączenie** zostawia nasłuch stanów i ponawia z backoffem;
+   koordynator nie blokuje ponowienia.
+
+Dowody: `dotnet build` exit 0; `has-pending-model-changes` czyste;
+`dotnet test` **1238 zielonych / 4 pominięte / 7 czerwonych / 1249** (wszystkie
+siedem to znane `MeEndpointsTests`; w trakcie pakietu jeden test OnlyOffice padł
+z mojej pomyłki w asercji i został naprawiony — zbiór OnlyOffice 43/43);
+`flutter analyze` bez uwag w całym projekcie; `flutter test` 1370/1370;
+`flutter build web --wasm` zbudowane; oba żywe testy zielone; `git diff --check`
+czysto.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-REVIEW3: kontrolka w nieograniczonej szerokości, ukryty filtr osoby, kolejka zapisów
+
+Status: **DONE dla trzech uwag z review** — jedna realna pułapka układu (P1),
+jeden błąd stanu (P1) i jeden wyścig zapisu (P2). Wszystkie trzy mają test
+z kontrolą mutacyjną.
+
+**1 [P1] Kontrolka grupowania jako sam segmentowany przełącznik.** Uwaga
+o `Spacer` w poziomym scrollu była trafna jako klasa błędu, choć w kodzie
+zostało już tylko opakowanie w `Row` — wiersz poleceń daje nieograniczoną
+szerokość, więc każdy element rozciągliwy kończy się komunikatem „RenderFlex
+children have non-zero flex but incoming width constraints are unbounded”.
+`KanbanBoardGroupingBar` zwraca teraz **bezpośrednio** przełącznik: `Container`
+z `Row(mainAxisSize: min)` i wyłącznie nierozciągliwymi dziećmi (wskaźnik
+wczytywania trafił do środka pigułki, zamiast stać obok w osobnym `Row`).
+Test w nowym pliku `kanban_grouping_switch_test.dart` montuje kontrolkę w takim
+wierszu i pilnuje trzech rzeczy: braku wyjątku, obecności obu segmentów i braku
+własnego `SingleChildScrollView` w środku. **Kontrola mutacyjna**: po wstawieniu
+`Spacer()` test failuje dokładnie komunikatem z review.
+
+**2 [P1] Ukryty filtr wykonawcy zostawał aktywny po przełączeniu na osoby.**
+Filtr osoby był ustawiany w widoku statusów, a po zmianie grupowania jego
+kontrolka znikała — `state.filter.assigneeUserId` nadal jechał jednak do
+`loadBoard()`, więc widok osób pokazywał jedną osobę bez widocznej przyczyny.
+`TasksBoardCubit.setGrouping` zdejmuje teraz filtr wykonawcy **przed** odczytem
+tablicy osób (przez `_filters.setAssignee(null)`, czyli tą samą drogą co
+kontrolka, żeby filtr w runtime i w stanie nie mogły się rozjechać), zachowuje
+pozostałe wymiary i nie przywraca usuniętego filtra po powrocie do statusów.
+Test `wejście w widok osób zdejmuje filtr wykonawcy, reszta wymiarów zostaje`
+sprawdza stan po przełączeniu, filtr faktycznie wysłany do Backendu (nowe
+`assigneeBoardFilters` w atrapie repozytorium) i brak powrotu filtra.
+**Kontrola mutacyjna**: bez czyszczenia test daje `Expected: null
+Actual: 'user-2'`.
+
+**3 [P2] Szybkie zmiany checkboxów mogły zapisać starszy wybór.** Zapisy
+widoczności kolumn szły jako osobne `unawaited`, więc storage mógł zakończyć je
+w odwrotnej kolejności i nadpisać świeższy wybór starszym (ekran poprawny, stan
+po restarcie aplikacji nie). `_persistAssigneeColumns` prowadzi teraz kolejkę
+„latest wins”: zapisy idą **jeden po drugim**, a w międzyczasie trzymany jest
+wyłącznie najnowszy stan, który wchodzi na miejsce poprzedniego. Test
+`szybkie zmiany widoczności kolumn zapisują się szeregowo i wygrywa najnowsza`
+zatrzymuje pierwszy zapis completerem, sprawdza, że drugi **nie** wystartował
+(`hasLength(1)`), liczy maksymalną równoległość (`maxConcurrentColumnWrites == 1`)
+i po zwolnieniu pierwszego wymaga zapisania najnowszego stanu (`{user-1, user-2}`).
+**Kontrola mutacyjna**: po powrocie do równoległych zapisów test failuje na
+`Expected: an object with length of <1>`.
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/tasks
+test/workspaces/data/kanban` → **504/504 PASS**; pełny `flutter test` →
+**1374/1374 PASS**; `flutter analyze lib test` → No issues found; `flutter build
+web --wasm` → `✓ Built build/web`; `git diff --check` czysty. Goldeny bez zmian
+wizualnych (pigułka wygląda tak samo — zniknęło tylko opakowanie), więc
+`--update-goldens` nie był potrzebny.
+
+Otwarte bez zmian: odbiór w przeglądarce na tablicy osób, brak kontrolki filtra
+kamienia milowego i lokalny zakres zapisu widoczności kolumn.
+
+### 2026-09-20 — STORAGE-REVIEW3-FIXES: trzy uwagi z trzeciego review
+
+Status: **DONE** dla wszystkich trzech uwag z brakującymi przypadkami testowymi.
+
+1. **Zestaw mieszany uczestników nie omija już revoke** — przy braku
+   rozstrzygalnego autora prawo zapisu musi mieć **każdy** wskazany uczestnik
+   (ładunek + aktywne sesje); jeden cofnięty wystarcza do odrzucenia, a zestaw
+   pusty też jest odrzucany. Dodany przypadek „właściciel + cofnięty”.
+2. **Powiadomienie o wersji nie publikuje pustego UUID** — kontrakt zdarzenia i
+   serwis przyjmują `Guid?` autora; przy `null` nikt nie jest wyciszany, a
+   zdarzenie nie ma autora. Test: `UnattributedVersionNotifiesEveryoneAndPublishesNoAuthor`.
+3. **Limit ponowień połączenia działa** — ponowienie ma osobną ścieżkę
+   (`_retryConnect`, bez `_detachSubscription`), a licznik zeruje się dopiero po
+   udanym połączeniu albo świadomym wejściu w zakres. Test: zatrzymanie na
+   czwartej próbie i piąta po świadomym ponowieniu.
+
+Dowody: `dotnet build` exit 0; `has-pending-model-changes` z `ConnectionStrings__Workspaces`
+→ exit 0, model bez zmian; `dotnet test` **1239/4/7/1250** (wszystkie siedem to
+znane `MeEndpointsTests`; OnlyOffice 43/43); `flutter analyze` bez uwag;
+`flutter test` 1378/1378; `flutter build web --wasm` zbudowane; oba żywe testy
+zielone; `git diff --check` czysto.
+
+### 2026-09-20 — WIZ-PREVIEW-CARDS: plan nie może zgubić kart szablonu (mapowanie zadań do kolumn)
+
+Status: **DONE (2026-09-20)** — uwaga P1 z review zweryfikowana u źródła kontraktu,
+luka domknięta mapowaniem i testem, komunikat podglądu uściślony.
+
+**Ustalenie po weryfikacji w kodzie i kontrakcie: scenariusz z review nie jest
+osiągalny, ale luka była realna.** Review twierdził, że `_withPlanColumns()`
+zastępuje kolumny planu bez kart, gubiąc zadania szablonu. Sprawdzone po obu
+stronach: (1) `buildProjectPreviewSnapshot` ma osobną gałąź dla
+`draft.usesTemplate`, która **nie** wchodzi w `_withPlanColumns` i zostawia
+kolumny szablonu razem z kartami; (2) `templateId` jest czyszczony razem ze
+zmianą startu na pusty projekt (`clearTemplate`), więc `template != null`
+pociąga `usesTemplate`; (3) Backend dla projektu z szablonu zwraca w planie
+`ProjectSetupWorkflowKind.Default` z **pustą** listą własnych statusów
+(`ProjectSetupPlanner.ResolveWorkflow`), a statusy i zadania materializuje
+snapshot szablonu — potwierdza to test integracyjny
+`SetupFromTemplateRecreatesWorkflowLabelsAndTasks` (`workflow.kind == "Default"`,
+`systemStatusCount == 6`, a w projekcie jest zadanie z szablonu). Czyli plan nie
+może „zmienić nazw kolumn" projektu z szablonu, a przedmiotowa gałąź nigdy nie
+widzi zadań szablonu.
+
+**Co mimo to zostało naprawione.** (1) Mapowanie zadań na kolumny planu istnieje
+teraz jawnie jako funkcja `mapProjectPreviewTasksToColumns` (dopasowanie po
+nazwie statusu bez wielkości liter i nadmiarowych spacji; zadanie ze statusem,
+którego plan nie zna, dostaje **własną kolumnę** zamiast zniknąć; liczniki
+i wycinek tytułów liczone na wejściu) i jest używane przez `_withPlanColumns`,
+więc podmiana kolumn jest bezstratna **z konstrukcji**, a nie tylko dlatego, że
+gałąź jest nieosiągalna. (2) Test `plan z własnymi kolumnami nie odbiera
+szablonowi kart` podaje plan z własnymi kolumnami („W realizacji”) i wymaga, by
+kolumny szablonu i dwie karty zostały nietknięte — to odpowiedź na brakujące
+w review twierdzenie. (3) Test jednostkowy mapowania sprawdza dopasowanie
+„W realizacji” / „ w REALIZACJI ”, zachowanie koloru kolumny planu oraz własną
+kolumnę dla nieznanego statusu. (4) Kolor statusu na liście podglądu bierze się
+teraz z klucza znormalizowanego (`projectPreviewStatusKey`, wspólnego
+z mapowaniem), więc inna pisownia statusu nie odbiera wierszowi koloru
+(`template_list_preview.dart`); wcześniej było to dopasowanie dokładne.
+(5) Nota podsumowania mówi „Zgodne z planem serwera" z ciałem wyjaśniającym, że
+serwer sprawdził wersję szablonu i nie zmienia jego workflow — wcześniejszy
+tytuł „Zatwierdzone przez plan" sugerował, że plan zatwierdził listę kolumn,
+których dla projektu z szablonu w ogóle nie niesie.
+
+**Świadomie przepisany test:** `podsumowanie projektu z szablonu zachowuje
+kolumny i karty` — asercja tytułu noty z „Zatwierdzone przez plan" na
+„Zgodne z planem serwera", z komentarzem dlaczego.
+
+**Kontrola mutacyjna:** po zmianie mapowania na „pomiń zadanie bez pasującej
+kolumny" (czyli zachowanie, które zarzuca review) test jednostkowy failuje:
+`Expected: an object with length of <3> Actual: [2 kolumny]`.
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/projects` →
+**109/109 PASS**; pełny `flutter test` → **1378/1378 PASS**;
+`flutter analyze lib test` → No issues found; `flutter build web --wasm` →
+`✓ Built build/web`; `git diff --check` czysty. Backend bez zmian: jego
+zachowanie było już poprawne i pokryte testem integracyjnym, więc „poprawianie
+backendu" nie miało tu czego naprawiać.
+
+Otwarte (świadomie): podgląd nie zna identyfikatorów zadań, więc mapowanie
+działa po nazwie statusu — **zaktualizowane tego samego dnia wpisem
+`WIZ-PREVIEW-PLAN`**: to ograniczenie zniknęło, bo plan serwera niesie teraz
+kolumny i zadania z nazwą kolumny docelowej, a front tylko je pokazuje.
+
+### 2026-09-20 — OnlyOffice callback bez uczestników: fail-closed
+
+Status: **DONE** — niejednoznaczny callback zapisu jest odrzucany także wtedy,
+gdy podpisany payload i lokalny rejestr sesji nie wskazują żadnego uczestnika.
+Warunek ACL sprawdza teraz `participants.Length == 0` obok uczestników bez
+`CanEdit`; wcześniej komentarz deklarował fail-closed, lecz pusty zbiór omijał
+pętlę i przechodził jako zapis techniczny właściciela. Test regresyjny dopisano
+do `UnattributedOnlyOfficeSaveDoesNotBypassRevokedEditorAccess`.
+
+### 2026-09-20 — WIZ-PREVIEW-PLAN: plan serwera niesie kolumny i mapowanie zadań (backend + front)
+
+Status: **DONE (2026-09-20)** — poprzedni wpis `WIZ-PREVIEW-CARDS` domykał lukę
+mapowaniem po stronie klienta; po uwadze „masz dostęp do backendu" mapowanie
+wychodzi teraz z serwera, a front tylko je pokazuje.
+
+**Kontrakt rozszerzony (tylko addytywnie, więc starszy klient działa dalej):**
+- `ProjectSetupPreviewResponse.Tasks` — lista zadań, które powstaną, każde
+  z nazwą kolumny docelowej: `ProjectSetupTaskPreviewResponse(Title, StatusName,
+  Priority, Labels)`. Pisane wielką literą pole priorytetu to wartość kontraktu
+  (`High`), etykiety to nazwy, bo identyfikatory źródłowe są wewnętrzne dla
+  snapshotu. Dla pustego projektu lista jest pusta.
+- `ProjectSetupWorkflowPreviewResponse.SystemStatusCount` przestał być stałą
+  `TaskSystemWorkflowDefaults.Workflow.Count`, a stał się **liczbą statusów
+  systemowych z planu**: dla projektu z szablonu jest to liczba statusów zapisanych
+  w snapshotcie (z fallbackiem do domyślnych, gdy snapshot ich nie opisuje).
+- `ProjectSetupWorkflowPreviewResponse.CustomStatuses` dla projektu z szablonu
+  niesie **własne statusy szablonu** (nazwa, kolor, kategoria, pozycja, limit WIP,
+  czy domyślny), czyli kolumny, które naprawdę powstaną. Wcześniej plan zwracał tu
+  pustą listę, więc klient nie miał z czego zbudować finalnej tablicy.
+
+**Skąd plan wie, do której kolumny trafi zadanie.** Nowa
+`ProjectTemplateMaterializer.ColumnNameFor(task, snapshot)` używa dokładnie tej
+samej reguły co materializacja: zadanie z własnym statusem dostaje nazwę tego
+statusu, a pozostałe — nazwę statusu systemowego ze snapshotu (albo nazwę domyślną,
+gdy snapshot go nie opisuje). `ProjectSetupPlanner.ResolveTaskPlans` buduje z niej
+listę zadań planu w kolejności materializacji (pozycja, identyfikator), więc plan
+i zapis nie mogą się rozjechać.
+
+**Jedna pułapka zapisu, świadomie zamknięta.** Skoro plan deklaruje teraz własne
+statusy szablonu, pętla `foreach (plan.Workflow.CustomStatuses)` w
+`ProjectSetupWriter` dodałaby je **drugi raz** obok materiału snapshotu, więc dla
+projektu z szablonu jest pominięta (komentarz w kodzie + asercja w teście, że
+status występuje dokładnie raz).
+
+**Front konsumuje plan, zamiast dopasowywać po nazwie.** `buildProjectPreviewSnapshot`
+przyjmuje teraz cały `ProjectSetupPreviewResponse` (a nie sam `workflow`) i gdy plan
+niesie zadania, buduje podsumowanie z planu: kolumny z jego statusów, karty
+rozłożone po `statusName` (liczniki z pełnej listy, wycinek listy z pierwszych
+wierszy), priorytet i etykiety wprost z planu, a etykiety i pola projektu nadal
+z podglądu szablonu. Plan bez listy zadań (starszy Backend) zostawia dotychczasową
+ścieżkę: kolumny i karty z szablonu — dzięki temu aktualizacja API nie jest
+warunkiem działania kreatora. Mapowanie `mapProjectPreviewTasksToColumns` zostało
+jako mechanika rozkładania, a nie jako zgadywanie nazw.
+
+**Testy.** Backend: nowy `TemplatePreviewReportsColumnsAndColumnOfEachTask` —
+podgląd zwraca własny status szablonu (`Default` + `systemStatusCount == 6`,
+kolor `#7C3AED`), zadanie z nazwą kolumny docelowej (`statusName` = nazwa własnego
+statusu) i po wykonaniu setupu dokładnie jeden taki status oraz jedno zadanie.
+Front: nowy test `plan serwera jest źródłem kolumn i kart podsumowania` (kolumna
+z planu, karty w niej, priorytet i etykiety z planu, licznik 2, źródło kolumn
+z szablonu bo tam należy wybór użytkownika) plus zachowane testy ścieżki bez listy
+zadań. Front: `flutter test test/workspaces/presentation/projects` → **110/110**;
+pełny `flutter test` → **1379/1379 PASS**; `flutter analyze lib test` → No issues
+found; `flutter build web --wasm` → `✓ Built build/web`. Backend:
+`dotnet test --filter "FullyQualifiedName~ProjectSetup|FullyQualifiedName~Project"`
+→ **160/160 PASS**; pełny `dotnet test` → **1240 PASS / 7 FAIL / 4 SKIP**, a te
+7 to `MeEndpointsTests`, które **failują identycznie bez moich zmian** — dowód
+przeprowadzony przez `git stash push` moich plików, ponowny przebieg (te same
+7) i `git stash pop`; to znany, udokumentowany brak rejestracji
+`DeviceSessionRealtimeConnectionRegistry` w kontenerze testowym. Model
+`ProjectSetupTaskPreviewResponse` dostał `@Freezed(makeCollectionsUnmodifiable:
+false)` — bez tego generator wypuszcza nieskompilowany plik, którego
+`flutter analyze` nie widzi (patrz wcześniejszy wpis o freezed).
+
+Otwarte (świadomie): podgląd nadal nie zna identyfikatorów zadań, tylko nazwy
+kolumn — to wystarcza, bo nazwa kolumny jest unikalna w projekcie; gdyby kontrakt
+kiedyś dopuścił dwie kolumny o tej samej nazwie, mapowanie trzeba oprzeć na
+identyfikatorze statusu. Windows/Linux pozostają pominięte decyzją użytkownika.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-UI6: pasmo na pasek przewijania w obu widokach tablicy
+
+Status: **DONE** — uwaga z użycia: pasek przewijania tablicy wchodził na kolumny.
+
+Pasek przewijania tablicy jest poziomy i leży na dole, a kolumny mają pełną
+wysokość, więc jego uchwyt nachodził na dolną krawędź kolumny — w widoku osób
+na wiersz „Dodaj zadanie”, a w widoku statusów na strefę upuszczenia. Teraz obie
+tablice rezerwują pod pasek własne pasmo:
+
+- nowe tokeny `KanbanCardTokens.boardScrollbarThickness = 10` i
+  `boardScrollbarReserve = 18` (pasmo = grubość paska plus margines);
+- widok statusów: `padding` listy `fromLTRB(gutter, gutter, gutter, reserve)`,
+  `thickness: boardScrollbarThickness`, `trackVisibility` i `interactive`
+  bez zmian;
+- widok osób: to samo pasmo i ta sama grubość, a przy okazji doszły
+  `trackVisibility: true` i `interactive: true`, które miał tylko widok
+  statusów — oba paski zachowują się teraz identycznie;
+- kolumny kończą się nad pasmem, bo padding listy działa wewnątrz viewportu,
+  więc treść nie może wejść pod uchwyt.
+
+Test `kanban_board_scrollbar_reserve_test.dart` mierzy w obu widokach odstęp
+między dolną krawędzią kolumny a dolną krawędzią tablicy i wymaga, by był nie
+mniejszy niż grubość paska, oraz sprawdza, że oba paski używają tego samego
+tokenu grubości (widok osób także `trackVisibility`). **Kontrola mutacyjna**:
+po przywróceniu w widoku osób paddingu `vertical: 4` test failuje
+(`Expected: >= 10.0, Actual: 4.0`).
+
+Komendy i wyniki: `flutter test test/workspaces/presentation/tasks
+test/workspaces/data/kanban` → **507/507 PASS**; pełny `flutter test` →
+**1383/1383 PASS** (z późniejszymi zmianami z tej samej sesji, patrz
+`KANBAN-ASSIGNEE-BACKEND2`); `flutter analyze lib test` → No issues found;
+`flutter build web --wasm` → `✓ Built build/web`; `git diff --check` czysty.
+Zrzuty `docs/recovery/visual-captures/kanban_*.png` odświeżyły się przy okazji
+uruchomienia testu zrzutów (kolumny kończą się wyżej).
+
+### 2026-09-20 — KANBAN-ASSIGNEE-BACKEND2: filtr statusu, domyślny Compact, jeden quick filter na snapshot
+
+Status: **DONE dla trzech uwag backendowych z review** + **rekomendacje w dwóch
+decyzjach produktowych**. Kolejność wdrożenia: najpierw dwa błędy (quick filter,
+gęstość), potem zakres P1 (filtr statusu).
+
+**1 [P1] Filtr statusu w widoku osób — kontrakt i oba readery.** Nowy model mówi,
+że gdy osobę wybiera kolumnę, status jest filtrem **kart**. Kontrakt:
+`KanbanBoardQuery` i `KanbanColumnQuery` mają teraz `Status` (`ProjectTaskStatus?`)
+i `CustomStatusId` (`Guid?`); `IsFiltered` i `ToColumnQuery` je uwzględniają, więc
+filtr dziedziczą liczniki, pierwsze strony i doładowania kolumn. Predykat jest
+jeden (`ApplyStatusFilter`: własny status albo status systemowy) i używany przez
+oba readery — `KanbanBoardReader` (kolumny statusów) i `KanbanAssigneeBoardReader`
+(grupy osób). **Kursor jest częścią kontraktu filtra**: oba rekordy kursora niosą
+`Status`/`CustomStatusId`, a `DecodeCursor` je porównuje — kursor wydany dla
+`InProgress` jest odrzucany, gdy strona prosi o `Todo`, zamiast doklejać obcą
+stronę. Walidacja odrzuca pusty `customStatusId` i status spoza enuma.
+
+Front: `KanbanBoardFilter` i `KanbanColumnQuery` mają `status`/`customStatusId`
+(transport wysyła `status` jako `wireValue` i `customStatusId`), doszły komendy
+`setFilterStatus`/`setFilterCustomStatus`, a w wierszu poleceń pojawiło się menu
+„Status" **tylko w widoku osób** — w widoku statusów kolumna sama jest statusem,
+więc ten wymiar jest tam zbędny (odwrotnie niż filtr wykonawcy, który jest tylko
+w widoku statusów). Pasek aktywnych filtrów dostał chip statusu z nazwą kolumny.
+
+**Po drodze znalazłem realny błąd klasy „cichy brak odświeżenia”.**
+`KanbanBoardFilter` miał własne `==`/`hashCode` obejmujące tylko trzy pola
+(wykonawca, priorytet, kamień milowy). Filtr różniący się **wyłącznie** statusem
+był więc uznawany za ten sam, a `TasksBoardRuntimeCoordinator.setFilter` pomija
+identyczny filtr — zmiana nie odświeżyłaby tablicy. Równość obejmuje teraz
+wszystkie wymiary (komentarz w kodzie mówi dlaczego).
+
+**2 [P2] Domyślna gęstość to `Compact`.** Zmienione we wszystkich miejscach,
+które ją ustawiały: encja `ProjectKanbanSettings` (konstruktor i reset
+domyślnych), `KanbanSettingsService` (brak rekordu ustawień), kontrakt
+(`DefaultCardDensity` w żądaniu) i plan kreatora
+(`ProjectSetupPlanner.ResolveTaskView`). Front wysyłał gęstość jawnie
+(`ProjectSetupDraft.boardDensity`), więc jego domyślna wartość też zmieniła się
+na `compact` — inaczej kreator nadpisywałby serwerowy domyśl. **Aktualizacja (wpis `KANBAN-ASSIGNEE-BACKEND3`): backfill wycofany decyzją
+właściciela.** Migracja `CompactDefaultKanbanCardDensity` została usunięta
+z łańcucha, bo nadpisywała także świadome wybory użytkowników. Obowiązuje
+„domyślna wartość tak, backfill nie": zmiana domyślnej gęstości obejmuje nowe
+projekty i projekty bez zapisanych ustawień, a istniejące zachowują swoje
+gęstości i mogą je zmienić w ustawieniach projektu. Test
+`DensityDefaultsToCompactForProjectWithoutSettingsAndInRequest` pilnuje, że brak
+rekordu i brak pola w żądaniu dają `Compact`, a jawny `Detailed` nadal wygrywa.
+
+**3 [P2] Quick filter nakładany dwa razy.** `ProjectCards(...)` już aplikował
+filtr, a `LoadFirstPageTaskIdsAsync` robił to ponownie — z **drugim**
+`DateTime.UtcNow`, więc przy „DueSoon" liczniki i pierwsza strona mogły opisywać
+przesunięte o mikrosekundy okno. Metoda przyjmuje teraz gotowe, przefiltrowane
+źródło (`IQueryable<ProjectTask>`, bez dostępu do `db`, filtra i zegara — jest
+`static`, więc ponowne nałożenie filtra jest niemożliwe z konstrukcji), a cały
+snapshot liczy jedno `nowUtc`. Test
+`DueSoonCountsAndFirstPageShareOneSnapshotInstant` sprawdza, że licznik grupy
+i pierwsza strona wskazują tę samą kartę (termin +1 dzień), przy karcie poza
+oknem (+8 dni) i przeterminowanej (-1 dzień).
+
+**Decyzje produktowe, o które prosiło review.**
+- **Gęstość: zostaje wspólnym ustawieniem projektu** (nie przenosimy jej do
+  preferencji użytkownika). Model projektu, kreator i ustawienia już tak ją
+  traktują, a przeniesienie do preferencji oznaczałoby zmianę kontraktu i pytanie
+  w kreatorze o wartość, której projekt nie zapisuje. Domyślna wartość zmieniona
+  na `Compact` + backfill wyżej.
+- **Widoczność kolumn osób: rekomendacja — synchronizacja przez preferencję
+  serwerową** (`UserKanbanPreference`, tam gdzie już są zwinięte kolumny i szybki
+  filtr), bo dwie bliskie preferencje w dwóch różnych miejscach mylą. Teraz
+  działa lokalnie (`SharedPreferencesTasksBoardViewStore`), a przeniesienie to
+  osobny pakiet: zapis preferencji jest wersjonowany, więc szybkie przełączanie
+  checkboxów wymaga tej samej kolejki intencji z rebase, którą ma
+  `TasksBoardPreferenceCommands` — bez tego wracamy do wyścigu, który właśnie
+  zamknąłem w `KANBAN-ASSIGNEE-REVIEW3`. Otwarte z nazwanym powodem, nie
+  obietnica.
+
+Komendy i wyniki: backend `dotnet test --filter
+"FullyQualifiedName~Kanban|FullyQualifiedName~Project"` → **234/234 PASS**;
+pełny `dotnet test` → **1245 PASS / 7 FAIL / 4 SKIP**, gdzie 7 to znane
+`MeEndpointsTests` (brak rejestracji `DeviceSessionRealtimeConnectionRegistry`
+w kontenerze testowym) — przy poprzedniej zmianie udowodniłem `git stash` +
+ponownym przebiegiem, że failują bez moich zmian; `dotnet ef database update`
+zastosował migrację na lokalnej bazie. Front: `flutter test` → **1383/1383
+PASS**, `flutter analyze lib test` → No issues found, `flutter build web --wasm`
+→ `✓ Built build/web`, `git diff --check` czysty w obu repo. Testy nowe: backend
+`StatusFilterNarrowsPersonCountsAndFirstPage`,
+`StatusFilterTravelsInTheCursorAndRejectsAForeignCursor`,
+`StatusFilterNarrowsStatusBoardCountsColumnPagesAndCursor`,
+`DueSoonCountsAndFirstPageShareOneSnapshotInstant`,
+`DensityDefaultsToCompactForProjectWithoutSettingsAndInRequest`; front
+`filtr statusu w widoku osób jedzie do odczytu grup i wraca po świeże`,
+`filtr statusu pojawia się w widoku osób i zawęża grupy po stronie Backendu`.
+
+Otwarte (świadomie): menu statusu w widoku osób pokazuje kolumny projektu
+(systemowe i własne) — własny status jedzie wtedy jako `customStatusId`, ale
+filtra kamienia milowego nadal nie ma kontrolki w wierszu poleceń; przeniesienie
+widoczności kolumn do preferencji serwerowej czeka na pakiet opisany wyżej.
+
+### 2026-09-20 — KANBAN-ASSIGNEE-BACKEND3: jeden wymiar statusu, wycofany backfill gęstości
+
+Status: **DONE dla dwóch uwag z review** — P1 (dwa filtry statusu naraz) i P1
+(migracja nadpisywała świadome wybory). Oba z testami i kontrolą mutacyjną.
+
+**1 [P1] Status to jeden wymiar, pilnowany w modelu i w kontrakcie.** Review
+wskazał trzy objawy jednej przyczyny: front ustawiał `status` i `customStatusId`
+osobnymi komendami, „Pokaż wszystkie” wysyłał dwa niezależne wywołania (wyścig),
+a powrót do widoku statusów nie zdejmował filtra statusu. Naprawa po kolei:
+
+- **model**: `KanbanBoardFilter.copyWith` sam pilnuje niezmiennika — podanie
+  `status` zdejmuje `customStatusId` i odwrotnie. Dwa naraz opisują sprzeczne
+  zbiory kart (karta ma albo własny status, albo systemowy), więc nie może ich
+  w ogóle dać się ustawić, niezależnie od tego, kto woła `copyWith`;
+- **komenda**: `setStatus`/`setCustomStatus` zastąpione jedną
+  `setStatusColumn({status, customStatusId})` — jeden wymiar, jedna operacja
+  i jedno odświeżenie; „Pokaż wszystkie” i wybór kolumny idą tą samą drogą
+  (wcześniej czyszczenie szło dwiema ścieżkami, a między nimi tablica była
+  zawężona do jednego filtra);
+- **grupowanie**: `setGrouping` zdejmuje filtr, którego kontrolka znika w danym
+  widoku — wejście w widok osób czyści filtr wykonawcy (jak dotąd), a **powrót
+  do widoków statusów czyści filtr statusu**, bo kolumna sama jest tam statusem
+  i ukrytego filtra nie da się zmienić z UI;
+- **backend**: `KanbanBoardReader` i `KanbanAssigneeBoardReader` odrzucają żądanie
+  z oboma wymiarami naraz (`EnsureSingleStatusDimension`) komunikatem
+  „Filtr statusu Kanban wskazuje jednocześnie status systemowy i własny; wybierz
+  jeden z nich.” — zamiast po cichu AND-ować predykaty i zwracać pustą tablicę.
+  Walidacja jest w walidatorach tablicy i kolumny, więc dotyczy też kursora.
+
+Testy: front `status to jeden wymiar: własny zdejmuje systemowy jedną operacją`
+(sprawdza też, że „Pokaż wszystkie” odświeża tablicę **dokładnie raz**) oraz
+`powrót do widoku statusów zdejmuje filtr statusu`; backend
+`SystemAndCustomStatusFilterTogetherAreRejected` i
+`StatusBoardRejectsSystemAndCustomStatusFilterTogether` (oba readery, żądanie
+tablicy i żądanie kolumny). **Kontrole mutacyjne**: po zdjęciu niezmiennika
+z `copyWith` test frontu failuje (`Expected: null Actual: inProgress`), a po
+usunięciu czyszczenia w `setGrouping` — `powrót do widoku statusów` failuje tak
+samo.
+
+**2 [P1] Backfill gęstości wycofany.** Review słusznie zauważył, że migracja
+`CompactDefaultKanbanCardDensity` nadpisywała także świadome wybory, bo
+w zapisanych wierszach nie da się odróżnić wartości domyślnej od jawnej.
+Migracja jest **usunięta z łańcucha** (`dotnet ef database update` na poprzednią,
+`dotnet ef migrations remove`; historia migracji kończy się teraz na
+`20260920173627_AddStorageFileVersionChangedBy`), a snapshot wrócił do stanu
+poprzedniego. Zmiana domyślnej wartości w kodzie zostaje — obejmuje nowe projekty
+i projekty bez zapisanych ustawień, a istniejące zachowują swoje gęstości i mogą
+je zmienić w ustawieniach projektu. Decyzja właściciela jest więc zapisana jako:
+**domyślna wartość tak, backfill nie**.
+
+Komendy i wyniki: backend `dotnet test --filter
+"FullyQualifiedName~Kanban|FullyQualifiedName~Project"` → **236/236 PASS**, a
+test wydajności `ReadLatencyAndQueryCountStayBoundedAcrossMemberScales` przechodzi
+w izolacji (10 s) — jego pojedynczy fail w trakcie przebiegu był skutkiem
+obciążenia maszyny (równolegle szły frontowe bramki i build web), nie regresją;
+`dotnet test --filter "FullyQualifiedName~Kanban"` → **86/86 PASS**;
+front `flutter test` → **1385/1385 PASS**; `flutter analyze lib test` → No issues
+found; `flutter build web --wasm` → `✓ Built build/web`; `git diff --check`
+czysty w obu repo. Wpis `KANBAN-ASSIGNEE-BACKEND2` ma
+zaktualizowany akapit o gęstości (backfill wycofany), żeby dokument nie opisywał
+stanu, który już nie istnieje.

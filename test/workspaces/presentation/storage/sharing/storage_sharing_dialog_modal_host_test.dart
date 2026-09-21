@@ -63,6 +63,7 @@ void main() {
                           onPressed: () => StorageSharingDialog.show(
                             context,
                             file: _sampleFile,
+                            repository: storageRepository,
                           ),
                           child: const Text('Udostępnij'),
                         ),

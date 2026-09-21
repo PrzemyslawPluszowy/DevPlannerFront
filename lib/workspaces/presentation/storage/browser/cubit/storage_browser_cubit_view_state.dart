@@ -32,6 +32,16 @@ extension StorageBrowserCubitViewState on StorageBrowserCubit {
     StorageBrowserForbidden() => const StorageBrowserFilter(),
   };
 
+  /// Pobiera aktualną gęstość wierszy.
+  StorageDensity get currentDensity => switch (state) {
+    StorageBrowserInitial(:final density) => density,
+    StorageBrowserLoading(:final density) => density,
+    StorageBrowserReady(:final density) => density,
+    StorageBrowserEmpty(:final density) => density,
+    StorageBrowserFailure() => StorageDensity.comfortable,
+    StorageBrowserForbidden() => StorageDensity.comfortable,
+  };
+
   /// Pobiera aktualne sortowanie.
   StorageSortCriteria get currentSort => switch (state) {
     StorageBrowserInitial(:final sort) => sort,

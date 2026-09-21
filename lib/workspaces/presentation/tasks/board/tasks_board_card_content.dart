@@ -13,6 +13,9 @@ class KanbanTaskCard extends StatelessWidget {
     required this.density,
     required this.isSelected,
     required this.memberProfilesByUserId,
+    this.statusBadge,
+    this.isPending = false,
+    this.hasError = false,
     this.focusNode,
     super.key,
   });
@@ -24,21 +27,31 @@ class KanbanTaskCard extends StatelessWidget {
   final KanbanCardDensity density;
   final bool isSelected;
   final Map<String, ProjectMemberProfile> memberProfilesByUserId;
+
+  /// Status karty jako badge; widok osób pokazuje go, bo tam kolumna opisuje
+  /// osobę, a nie etap workflow.
+  final KanbanCardStatusBadge? statusBadge;
+
+  /// Czy zapis tej karty trwa (stan pending z tokenów).
+  final bool isPending;
+
+  /// Czy ostatni zapis tej karty się nie udał (stan error z tokenów).
+  final bool hasError;
   final FocusNode? focusNode;
 
   bool get _isCompact => density == KanbanCardDensity.compact;
   bool get _isDetailed => density == KanbanCardDensity.detailed;
   bool shows(KanbanCardField field) => visibleCardFields.contains(field);
-  bool get _hasSubtasksSection =>
-      shows(KanbanCardField.subtasks) && task.subtaskTotal > 0;
+
+  /// Sekcja podzadań jest montowana zawsze, gdy pole jest widoczne — także dla
+  /// zadania bez podzadań, bo inaczej karta nie ma żadnej akcji dodania
+  /// (a licznik w metadanych nigdy się nie pokazywał).
+  bool get _hasSubtasksSection => shows(KanbanCardField.subtasks);
 
   bool get _hasPrimaryMeta =>
       (shows(KanbanCardField.assignee) && task.primaryAssigneeUserId != null) ||
       (shows(KanbanCardField.dueDate) && task.dueAtUtc != null) ||
-      (shows(KanbanCardField.checklist) && task.checklistTotal > 0) ||
-      (shows(KanbanCardField.subtasks) &&
-          !_hasSubtasksSection &&
-          task.subtaskTotal > 0);
+      (shows(KanbanCardField.checklist) && task.checklistTotal > 0);
 
   bool get _hasDetailedMeta =>
       (shows(KanbanCardField.timeTracking) &&
@@ -83,6 +96,8 @@ class KanbanTaskCard extends StatelessWidget {
 
     return KanbanCardFrame(
       isSelected: isSelected,
+      isPending: isPending,
+      hasError: hasError,
       focusNode: focusNode,
       padding: contentPadding,
       semanticsLabel: context.l10n.tasksOpenTask(task.taskCode, task.title),
@@ -113,6 +128,10 @@ class KanbanTaskCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: KanbanCardTokens.parentTitle(context),
             ),
+            if (statusBadge != null) ...[
+              SizedBox(height: spacing),
+              _CardStatusBadge(badge: statusBadge!),
+            ],
             if (shows(KanbanCardField.labels) &&
                 (task.labels ?? const []).isNotEmpty) ...[
               SizedBox(height: spacing),

@@ -84,6 +84,9 @@ _KanbanTaskCardResponse _$KanbanTaskCardResponseFromJson(
   isPinned: json['isPinned'] as bool? ?? false,
   watcherCount: (json['watcherCount'] as num?)?.toInt() ?? 0,
   isWatchedByMe: json['isWatchedByMe'] as bool? ?? false,
+  assigneeUserIds: (json['assigneeUserIds'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
 );
 
 Map<String, dynamic> _$KanbanTaskCardResponseToJson(
@@ -117,6 +120,7 @@ Map<String, dynamic> _$KanbanTaskCardResponseToJson(
   'isPinned': instance.isPinned,
   'watcherCount': instance.watcherCount,
   'isWatchedByMe': instance.isWatchedByMe,
+  'assigneeUserIds': instance.assigneeUserIds,
 };
 
 const _$ProjectTaskStatusEnumMap = {
@@ -133,6 +137,127 @@ const _$TaskPriorityEnumMap = {
   TaskPriority.normal: 'Normal',
   TaskPriority.high: 'High',
   TaskPriority.critical: 'Critical',
+};
+
+_AssigneeKanbanGroupResponse _$AssigneeKanbanGroupResponseFromJson(
+  Map<String, dynamic> json,
+) => _AssigneeKanbanGroupResponse(
+  assigneeUserId: json['assigneeUserId'] as String?,
+  displayName: json['displayName'] as String,
+  avatarUrl: json['avatarUrl'] as String?,
+  isCurrentUser: json['isCurrentUser'] as bool? ?? false,
+  totalTaskCount: (json['totalTaskCount'] as num).toInt(),
+  tasks: (json['tasks'] as List<dynamic>)
+      .map((e) => KanbanTaskCardResponse.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  nextCursor: json['nextCursor'] as String?,
+);
+
+Map<String, dynamic> _$AssigneeKanbanGroupResponseToJson(
+  _AssigneeKanbanGroupResponse instance,
+) => <String, dynamic>{
+  'assigneeUserId': instance.assigneeUserId,
+  'displayName': instance.displayName,
+  'avatarUrl': instance.avatarUrl,
+  'isCurrentUser': instance.isCurrentUser,
+  'totalTaskCount': instance.totalTaskCount,
+  'tasks': instance.tasks,
+  'nextCursor': instance.nextCursor,
+};
+
+_AssigneeKanbanBoardResponse _$AssigneeKanbanBoardResponseFromJson(
+  Map<String, dynamic> json,
+) => _AssigneeKanbanBoardResponse(
+  projectId: json['projectId'] as String,
+  grouping: $enumDecode(_$KanbanSwimlaneModeEnumMap, json['grouping']),
+  settingsVersion: (json['settingsVersion'] as num).toInt(),
+  visibleCardFields: (json['visibleCardFields'] as List<dynamic>)
+      .map((e) => $enumDecode(_$KanbanCardFieldEnumMap, e))
+      .toList(),
+  defaultCardDensity: $enumDecode(
+    _$KanbanCardDensityEnumMap,
+    json['defaultCardDensity'],
+  ),
+  groups: (json['groups'] as List<dynamic>)
+      .map(
+        (e) => AssigneeKanbanGroupResponse.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
+);
+
+Map<String, dynamic> _$AssigneeKanbanBoardResponseToJson(
+  _AssigneeKanbanBoardResponse instance,
+) => <String, dynamic>{
+  'projectId': instance.projectId,
+  'grouping': _$KanbanSwimlaneModeEnumMap[instance.grouping]!,
+  'settingsVersion': instance.settingsVersion,
+  'visibleCardFields': instance.visibleCardFields
+      .map((e) => _$KanbanCardFieldEnumMap[e]!)
+      .toList(),
+  'defaultCardDensity':
+      _$KanbanCardDensityEnumMap[instance.defaultCardDensity]!,
+  'groups': instance.groups,
+};
+
+const _$KanbanSwimlaneModeEnumMap = {
+  KanbanSwimlaneMode.none: 'None',
+  KanbanSwimlaneMode.assignee: 'Assignee',
+  KanbanSwimlaneMode.priority: 'Priority',
+  KanbanSwimlaneMode.milestone: 'Milestone',
+};
+
+const _$KanbanCardFieldEnumMap = {
+  KanbanCardField.assignee: 'Assignee',
+  KanbanCardField.dueDate: 'DueDate',
+  KanbanCardField.labels: 'Labels',
+  KanbanCardField.checklist: 'Checklist',
+  KanbanCardField.subtasks: 'Subtasks',
+  KanbanCardField.timeTracking: 'TimeTracking',
+  KanbanCardField.blockers: 'Blockers',
+  KanbanCardField.coverAttachment: 'CoverAttachment',
+  KanbanCardField.customFields: 'CustomFields',
+};
+
+const _$KanbanCardDensityEnumMap = {
+  KanbanCardDensity.compact: 'Compact',
+  KanbanCardDensity.comfortable: 'Comfortable',
+  KanbanCardDensity.detailed: 'Detailed',
+};
+
+_ChangeKanbanPrimaryAssigneePayload
+_$ChangeKanbanPrimaryAssigneePayloadFromJson(Map<String, dynamic> json) =>
+    _ChangeKanbanPrimaryAssigneePayload(
+      targetUserId: json['targetUserId'] as String?,
+      expectedVersion: (json['expectedVersion'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$ChangeKanbanPrimaryAssigneePayloadToJson(
+  _ChangeKanbanPrimaryAssigneePayload instance,
+) => <String, dynamic>{
+  'targetUserId': instance.targetUserId,
+  'expectedVersion': instance.expectedVersion,
+};
+
+_ChangeKanbanPrimaryAssigneeResponse
+_$ChangeKanbanPrimaryAssigneeResponseFromJson(Map<String, dynamic> json) =>
+    _ChangeKanbanPrimaryAssigneeResponse(
+      task: KanbanTaskCardResponse.fromJson(
+        json['task'] as Map<String, dynamic>,
+      ),
+      previousAssigneeUserId: json['previousAssigneeUserId'] as String?,
+      previousGroupTaskCount: (json['previousGroupTaskCount'] as num).toInt(),
+      targetAssigneeUserId: json['targetAssigneeUserId'] as String?,
+      targetGroupTaskCount: (json['targetGroupTaskCount'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$ChangeKanbanPrimaryAssigneeResponseToJson(
+  _ChangeKanbanPrimaryAssigneeResponse instance,
+) => <String, dynamic>{
+  'task': instance.task,
+  'previousAssigneeUserId': instance.previousAssigneeUserId,
+  'previousGroupTaskCount': instance.previousGroupTaskCount,
+  'targetAssigneeUserId': instance.targetAssigneeUserId,
+  'targetGroupTaskCount': instance.targetGroupTaskCount,
 };
 
 _KanbanColumnResponse _$KanbanColumnResponseFromJson(
@@ -203,31 +328,6 @@ Map<String, dynamic> _$KanbanBoardResponseToJson(
   'defaultCardDensity':
       _$KanbanCardDensityEnumMap[instance.defaultCardDensity]!,
   'columns': instance.columns,
-};
-
-const _$KanbanSwimlaneModeEnumMap = {
-  KanbanSwimlaneMode.none: 'None',
-  KanbanSwimlaneMode.assignee: 'Assignee',
-  KanbanSwimlaneMode.priority: 'Priority',
-  KanbanSwimlaneMode.milestone: 'Milestone',
-};
-
-const _$KanbanCardFieldEnumMap = {
-  KanbanCardField.assignee: 'Assignee',
-  KanbanCardField.dueDate: 'DueDate',
-  KanbanCardField.labels: 'Labels',
-  KanbanCardField.checklist: 'Checklist',
-  KanbanCardField.subtasks: 'Subtasks',
-  KanbanCardField.timeTracking: 'TimeTracking',
-  KanbanCardField.blockers: 'Blockers',
-  KanbanCardField.coverAttachment: 'CoverAttachment',
-  KanbanCardField.customFields: 'CustomFields',
-};
-
-const _$KanbanCardDensityEnumMap = {
-  KanbanCardDensity.compact: 'Compact',
-  KanbanCardDensity.comfortable: 'Comfortable',
-  KanbanCardDensity.detailed: 'Detailed',
 };
 
 _MoveKanbanTaskPayload _$MoveKanbanTaskPayloadFromJson(

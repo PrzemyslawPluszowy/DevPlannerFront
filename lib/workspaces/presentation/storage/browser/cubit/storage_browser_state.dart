@@ -2,16 +2,14 @@ import 'package:devplanner/workspaces/data/storage/models/storage_contract_model
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/domain/storage/models/storage_view_preference.dart';
 import 'package:equatable/equatable.dart';
 
-/// Tryb prezentacji elementów w eksploratorze plików.
-enum StorageViewMode {
-  /// Widok siatki (kafelki z podglądem / ikoną).
-  grid,
-
-  /// Widok listy (wiersze tabelaryczne).
-  list,
-}
+// Tryb widoku i gęstość są zapisywane w preferencjach użytkownika, więc ich
+// kontrakt żyje w domenie. Eksport utrzymuje stabilny punkt importu dla
+// dotychczasowych konsumentów stanu.
+export 'package:devplanner/workspaces/domain/storage/models/storage_view_preference.dart'
+    show StorageDensity, StorageViewMode;
 
 /// Element ścieżki okruszków w eksploratorze plików.
 class StorageBreadcrumbItem extends Equatable {
@@ -47,7 +45,8 @@ class StorageBrowserInitial extends StorageBrowserState {
     required this.scope,
     this.filter = const StorageBrowserFilter(),
     this.sort = const StorageSortCriteria(),
-    this.viewMode = StorageViewMode.grid,
+    this.viewMode = StorageViewMode.list,
+    this.density = StorageDensity.comfortable,
   });
 
   /// Aktualny zakres.
@@ -62,8 +61,11 @@ class StorageBrowserInitial extends StorageBrowserState {
   /// Tryb widoku (siatka/lista).
   final StorageViewMode viewMode;
 
+  /// Gęstość wierszy listy.
+  final StorageDensity density;
+
   @override
-  List<Object?> get props => [scope, filter, sort, viewMode];
+  List<Object?> get props => [scope, filter, sort, viewMode, density];
 }
 
 /// Stan ładowania danych w eksploratorze.
@@ -77,7 +79,8 @@ class StorageBrowserLoading extends StorageBrowserState {
     this.files = const [],
     this.filter = const StorageBrowserFilter(),
     this.sort = const StorageSortCriteria(),
-    this.viewMode = StorageViewMode.grid,
+    this.viewMode = StorageViewMode.list,
+    this.density = StorageDensity.comfortable,
   });
 
   /// Aktualny zakres.
@@ -104,6 +107,9 @@ class StorageBrowserLoading extends StorageBrowserState {
   /// Tryb widoku.
   final StorageViewMode viewMode;
 
+  /// Gęstość wierszy listy.
+  final StorageDensity density;
+
   @override
   List<Object?> get props => [
     scope,
@@ -114,6 +120,7 @@ class StorageBrowserLoading extends StorageBrowserState {
     filter,
     sort,
     viewMode,
+    density,
   ];
 }
 
@@ -130,7 +137,8 @@ class StorageBrowserReady extends StorageBrowserState {
     this.isLoadingMore = false,
     this.filter = const StorageBrowserFilter(),
     this.sort = const StorageSortCriteria(),
-    this.viewMode = StorageViewMode.grid,
+    this.viewMode = StorageViewMode.list,
+    this.density = StorageDensity.comfortable,
     this.searchQuery,
   });
 
@@ -164,6 +172,9 @@ class StorageBrowserReady extends StorageBrowserState {
   /// Wybrany tryb widoku (siatka lub lista).
   final StorageViewMode viewMode;
 
+  /// Gęstość wierszy listy.
+  final StorageDensity density;
+
   /// Opcjonalna fraza tekstowa wyszukiwania.
   final String? searchQuery;
 
@@ -184,6 +195,7 @@ class StorageBrowserReady extends StorageBrowserState {
     StorageBrowserFilter? filter,
     StorageSortCriteria? sort,
     StorageViewMode? viewMode,
+    StorageDensity? density,
     String? searchQuery,
     bool clearSearchQuery = false,
   }) => StorageBrowserReady(
@@ -199,6 +211,7 @@ class StorageBrowserReady extends StorageBrowserState {
     filter: filter ?? this.filter,
     sort: sort ?? this.sort,
     viewMode: viewMode ?? this.viewMode,
+    density: density ?? this.density,
     searchQuery: clearSearchQuery ? null : (searchQuery ?? this.searchQuery),
   );
 
@@ -214,6 +227,7 @@ class StorageBrowserReady extends StorageBrowserState {
     filter,
     sort,
     viewMode,
+    density,
     searchQuery,
   ];
 }
@@ -227,7 +241,8 @@ class StorageBrowserEmpty extends StorageBrowserState {
     required this.breadcrumbs,
     this.filter = const StorageBrowserFilter(),
     this.sort = const StorageSortCriteria(),
-    this.viewMode = StorageViewMode.grid,
+    this.viewMode = StorageViewMode.list,
+    this.density = StorageDensity.comfortable,
     this.searchQuery,
   });
 
@@ -249,6 +264,9 @@ class StorageBrowserEmpty extends StorageBrowserState {
   /// Tryb widoku.
   final StorageViewMode viewMode;
 
+  /// Gęstość wierszy listy.
+  final StorageDensity density;
+
   /// Fraza wyszukiwania.
   final String? searchQuery;
 
@@ -260,6 +278,7 @@ class StorageBrowserEmpty extends StorageBrowserState {
     filter,
     sort,
     viewMode,
+    density,
     searchQuery,
   ];
 }
@@ -272,6 +291,8 @@ class StorageBrowserFailure extends StorageBrowserState {
     required this.message,
     this.statusCode,
     this.backendCode,
+    this.apiCode,
+    this.traceId,
   });
 
   /// Zakres, przy którym wystąpił błąd.
@@ -283,11 +304,24 @@ class StorageBrowserFailure extends StorageBrowserState {
   /// Opcjonalny kod HTTP.
   final int? statusCode;
 
-  /// Opcjonalny kod błędu backendu.
+  /// Opcjonalny numeryczny kod błędu backendu.
   final int? backendCode;
 
+  /// Opcjonalny stabilny kod kontraktu, np. `storage.version_conflict`.
+  final String? apiCode;
+
+  /// Opcjonalny identyfikator śledzenia żądania, pokazywany w bannerze błędu.
+  final String? traceId;
+
   @override
-  List<Object?> get props => [scope, message, statusCode, backendCode];
+  List<Object?> get props => [
+    scope,
+    message,
+    statusCode,
+    backendCode,
+    apiCode,
+    traceId,
+  ];
 }
 
 /// Stan odmowy uprawnień do danego zakresu/folderu (403 Forbidden).

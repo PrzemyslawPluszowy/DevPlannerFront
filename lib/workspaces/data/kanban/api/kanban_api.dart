@@ -27,6 +27,8 @@ abstract class KanbanApi {
     @Query('assigneeUserId') String? assigneeUserId,
     @Query('priority') String? priority,
     @Query('milestoneId') String? milestoneId,
+    @Query('status') String? status,
+    @Query('customStatusId') String? customStatusId,
   });
 
   /// Pobiera zapisaną konfigurację kolumn i kart tablicy Kanban.
@@ -49,6 +51,10 @@ abstract class KanbanApi {
     @Query('assigneeUserId') String? assigneeUserId,
     @Query('priority') String? priority,
     @Query('milestoneId') String? milestoneId,
+    // Nazwa różni się od parametru ścieżki `status`: ten opisuje kolumnę,
+    // a filtr zawęża karty w kolumnie.
+    @Query('status') String? statusFilter,
+    @Query('customStatusId') String? customStatusId,
   });
 
   /// Pobiera cursorową stronę kart własnej kolumny workflow.
@@ -64,6 +70,53 @@ abstract class KanbanApi {
     @Query('assigneeUserId') String? assigneeUserId,
     @Query('priority') String? priority,
     @Query('milestoneId') String? milestoneId,
+    @Query('status') String? status,
+    @Query('customStatusId') String? customStatus,
+  });
+
+  /// Pobiera tablicę pogrupowaną po osobach: Nieprzypisane, bieżący użytkownik, pozostali.
+  @GET('/api/v1/workspaces/{workspaceId}/projects/{projectId}/kanban/assignees')
+  Future<AssigneeKanbanBoardResponse> getAssigneeBoard(
+    @Path('workspaceId') String workspaceId,
+    @Path('projectId') String projectId, {
+    @Query('assigneeUserId') String? assigneeUserId,
+    @Query('priority') String? priority,
+    @Query('milestoneId') String? milestoneId,
+    @Query('status') String? status,
+    @Query('customStatusId') String? customStatusId,
+  });
+
+  /// Pobiera cursorową stronę kolumny jednej osoby.
+  @GET(
+    '/api/v1/workspaces/{workspaceId}/projects/{projectId}/kanban/assignees/{assigneeUserId}',
+  )
+  Future<CursorPageResponse<KanbanTaskCardResponse>> getAssigneeGroup(
+    @Path('workspaceId') String workspaceId,
+    @Path('projectId') String projectId,
+    @Path('assigneeUserId') String assigneeUserId, {
+    @Query('cursor') String? cursor,
+    @Query('limit') int? limit,
+    @Query('assigneeUserId') String? assigneeUserIdFilter,
+    @Query('priority') String? priority,
+    @Query('milestoneId') String? milestoneId,
+    @Query('status') String? status,
+    @Query('customStatusId') String? customStatusId,
+  });
+
+  /// Pobiera cursorową stronę grupy zadań bez głównego wykonawcy.
+  @GET(
+    '/api/v1/workspaces/{workspaceId}/projects/{projectId}/kanban/assignees/unassigned',
+  )
+  Future<CursorPageResponse<KanbanTaskCardResponse>> getUnassignedGroup(
+    @Path('workspaceId') String workspaceId,
+    @Path('projectId') String projectId, {
+    @Query('cursor') String? cursor,
+    @Query('limit') int? limit,
+    @Query('assigneeUserId') String? assigneeUserId,
+    @Query('priority') String? priority,
+    @Query('milestoneId') String? milestoneId,
+    @Query('status') String? status,
+    @Query('customStatusId') String? customStatusId,
   });
 
   /// Zastępuje ustawienia tablicy Kanban projektu.
@@ -105,6 +158,17 @@ abstract class KanbanApi {
     @Path('projectId') String projectId,
     @Path('taskId') String taskId,
     @Body() MoveKanbanTaskPayload payload,
+  );
+
+  /// Zmienia wyłącznie głównego wykonawcę karty, bez zmiany statusu.
+  @PATCH(
+    '/api/v1/workspaces/{workspaceId}/projects/{projectId}/kanban/tasks/{taskId}/primary-assignee',
+  )
+  Future<ChangeKanbanPrimaryAssigneeResponse> changePrimaryAssignee(
+    @Path('workspaceId') String workspaceId,
+    @Path('projectId') String projectId,
+    @Path('taskId') String taskId,
+    @Body() ChangeKanbanPrimaryAssigneePayload payload,
   );
 
   /// Pobiera osobiste preferencje tablicy Kanban.

@@ -60,40 +60,95 @@ class _KanbanBoardFilters extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(width: tasksTheme.controlGap),
-        TasksCommandMenu(
-          key: const ValueKey('board_filter_assignee'),
-          icon: Symbols.people_alt,
-          label: context.l10n.tasksBoardFilterAssignee,
-          activeLabel: filter.assigneeUserId == null
-              ? null
-              : _KanbanBoardFiltersHelpers.profileName(
-                  state.memberProfilesByUserId[filter.assigneeUserId],
-                ),
-          leading: _KanbanBoardFiltersHelpers.avatar(
-            context,
-            state.memberProfilesByUserId[filter.assigneeUserId],
-          ),
-          options: [
-            AppContextMenuOption<String>(
-              value: _KanbanBoardFiltersHelpers.all,
-              label: context.l10n.tasksBoardFilterAllPeople,
-              icon: Symbols.groups_rounded,
-              selected: filter.assigneeUserId == null,
-            ),
-            for (final profile in profiles)
+        // W grupowaniu po osobach status jest filtrem kart: kolumnę opisuje
+        // osoba, więc „pokaż tylko to, co jest w toku” zawęża karty w każdej
+        // kolumnie. W widoku statusów ten wymiar jest zbędny — kolumna sama
+        // jest statusem, a jej wybór należy do nagłówka kolumny.
+        if (state.grouping == TasksBoardGrouping.assignee) ...[
+          SizedBox(width: tasksTheme.controlGap),
+          TasksCommandMenu(
+            key: const ValueKey('board_filter_status'),
+            icon: Symbols.view_column_rounded,
+            label: context.l10n.tasksListStatus,
+            activeLabel: _KanbanBoardFiltersHelpers.statusLabel(context, state),
+            options: [
               AppContextMenuOption<String>(
-                value: profile.userId,
-                label: _KanbanBoardFiltersHelpers.profileName(profile),
-                selected: filter.assigneeUserId == profile.userId,
+                value: _KanbanBoardFiltersHelpers.all,
+                label: context.l10n.tasksListAll,
+                selected:
+                    filter.status == null && filter.customStatusId == null,
               ),
-          ],
-          onSelected: (value) => unawaited(
-            context.read<TasksBoardCubit>().setFilterAssignee(
-              value == _KanbanBoardFiltersHelpers.all ? null : value,
+              for (final column in state.board.columns)
+                AppContextMenuOption<String>(
+                  value: column.customStatusId ?? column.status.wireValue,
+                  label: column.displayName,
+                  icon: Symbols.view_column_rounded,
+                  selected: column.customStatusId != null
+                      ? filter.customStatusId == column.customStatusId
+                      : filter.status == column.status,
+                ),
+            ],
+            onSelected: (value) {
+              final cubit = context.read<TasksBoardCubit>();
+              // Jeden wymiar, jedna operacja: „wszystkie” i wybór kolumny idą
+              // tą samą drogą, więc nie ma stanu pośredniego z dwoma filtrami.
+              if (value == _KanbanBoardFiltersHelpers.all) {
+                unawaited(cubit.setFilterStatusColumn());
+                return;
+              }
+              final isCustom = state.board.columns.any(
+                (column) => column.customStatusId == value,
+              );
+              unawaited(
+                cubit.setFilterStatusColumn(
+                  customStatusId: isCustom ? value : null,
+                  status: isCustom
+                      ? null
+                      : _KanbanBoardFiltersHelpers.statusOf(value),
+                ),
+              );
+            },
+          ),
+        ],
+        // W grupowaniu po osobach nie ma filtra wykonawcy: osoba jest tam
+        // kolumną, więc jej zawężanie ucinałoby zawartość kolumny w miejscu,
+        // w którym użytkownik oczekuje ukrycia całej kolumny.
+        if (state.grouping != TasksBoardGrouping.assignee) ...[
+          SizedBox(width: tasksTheme.controlGap),
+          TasksCommandMenu(
+            key: const ValueKey('board_filter_assignee'),
+            icon: Symbols.people_alt,
+            label: context.l10n.tasksBoardFilterAssignee,
+            activeLabel: filter.assigneeUserId == null
+                ? null
+                : _KanbanBoardFiltersHelpers.profileName(
+                    state.memberProfilesByUserId[filter.assigneeUserId],
+                  ),
+            leading: _KanbanBoardFiltersHelpers.avatar(
+              context,
+              state.memberProfilesByUserId[filter.assigneeUserId],
+            ),
+            options: [
+              AppContextMenuOption<String>(
+                value: _KanbanBoardFiltersHelpers.all,
+                label: context.l10n.tasksBoardFilterAllPeople,
+                icon: Symbols.groups_rounded,
+                selected: filter.assigneeUserId == null,
+              ),
+              for (final profile in profiles)
+                AppContextMenuOption<String>(
+                  value: profile.userId,
+                  label: _KanbanBoardFiltersHelpers.profileName(profile),
+                  selected: filter.assigneeUserId == profile.userId,
+                ),
+            ],
+            onSelected: (value) => unawaited(
+              context.read<TasksBoardCubit>().setFilterAssignee(
+                value == _KanbanBoardFiltersHelpers.all ? null : value,
+              ),
             ),
           ),
-        ),
+        ],
         if (filter.isActive) ...[
           SizedBox(width: tasksTheme.controlGap),
           TasksCommandButton(
@@ -116,6 +171,32 @@ class _KanbanBoardFiltersHelpers {
   /// Znacznik pozycji „wszystkie”; `select` zwraca `null` także po zamknięciu
   /// menu bez wyboru, więc potrzebujemy własnej wartości.
   static const String all = '__tasks_board_filter_all__';
+
+  /// Nazwa aktywnego filtra statusu; `null`, gdy wymiar nie jest ustawiony.
+  static String? statusLabel(BuildContext context, TasksBoardReady state) {
+    final customId = state.filter.customStatusId;
+    if (customId != null) {
+      return state.board.columns
+          .where((column) => column.customStatusId == customId)
+          .map((column) => column.displayName)
+          .firstOrNull;
+    }
+    final status = state.filter.status;
+    if (status == null) return null;
+    return state.board.columns
+            .where((column) => column.status == status)
+            .map((column) => column.displayName)
+            .firstOrNull ??
+        status.wireValue;
+  }
+
+  /// Status systemowy zapisany w wartości pozycji menu.
+  static ProjectTaskStatus? statusOf(String value) {
+    for (final status in ProjectTaskStatus.values) {
+      if (status.wireValue == value) return status;
+    }
+    return null;
+  }
 
   static TaskPriority? priorityOf(String value) {
     if (value == all) return null;

@@ -323,6 +323,14 @@ abstract class StorageApi {
     @Body() CreateStorageFilePlacementPayload payload,
   );
 
+  /// Przenosi placement do innego folderu w tym samym kontekście.
+  @POST('/api/v1/storage/placements/{placementId}/move')
+  Future<StorageFilePlacementResponse> moveFilePlacement(
+    @Path('placementId') String placementId,
+    @Body() MoveStorageFilePlacementPayload payload, {
+    @Header('Idempotency-Key') String? idempotencyKey,
+  });
+
   /// Usuwa placement pliku.
   @DELETE('/api/v1/storage/files/{fileId}/placements/{placementId}')
   Future<void> deleteFilePlacement(

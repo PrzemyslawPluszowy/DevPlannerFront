@@ -27,6 +27,8 @@ class StorageOnlyOfficeHost extends StatefulWidget {
     this.onSaveAsRequested,
     this.onPrintRequested,
     this.onCloseRequested,
+    this.onDocumentReady,
+    this.onDocumentStateChanged,
     super.key,
   });
 
@@ -48,6 +50,13 @@ class StorageOnlyOfficeHost extends StatefulWidget {
   final VoidCallback? onPrintRequested;
 
   final VoidCallback? onCloseRequested;
+
+  /// Wywoływane, gdy dokument jest gotowy i sesja jest połączona.
+  final VoidCallback? onDocumentReady;
+
+  /// Wywoływane przy zmianie stanu dokumentu: `true` to zmiany niepotwierdzone
+  /// zapisem, `false` to stan zapisany.
+  final ValueChanged<bool>? onDocumentStateChanged;
 
   @override
   State<StorageOnlyOfficeHost> createState() => _StorageOnlyOfficeHostState();
@@ -82,6 +91,8 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
       widget.hostController?._attach(controller);
       await controller
           .initialize(
+            onDocumentReady: widget.onDocumentReady,
+            onDocumentStateChanged: widget.onDocumentStateChanged,
             onCloseRequested: () {
               widget.hostController?._approveClose();
               widget.onCloseRequested?.call();

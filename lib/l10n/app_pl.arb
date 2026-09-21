@@ -132,11 +132,7 @@
   "workspacesRequestFailedMessage": "Serwer nie zwrócił listy workspace’ów. Spróbuj ponownie.",
   "workspacesInvalidResponseMessage": "Serwer zwrócił nieprawidłowe dane workspace’ów.",
   "workspacesHttpStatus": "Kod HTTP: {statusCode}",
-  "@workspacesHttpStatus": {
-    "placeholders": {
-      "statusCode": {"type": "int"}
-    }
-  },
+  "@workspacesHttpStatus": {"placeholders": {"statusCode": {"type": "int"}}},
   "workspacesRefresh": "Odśwież",
   "workspacesRetry": "Spróbuj ponownie",
   "workspacesCreatePrivateWorkspace": "Utwórz prywatny workspace",
@@ -166,12 +162,7 @@
   "projectSetupWizardTitle": "Nowy projekt",
   "projectSetupWizardSubtitle": "Kreator prowadzi przez konfigurację projektu. Kroki 3-6 możesz pominąć.",
   "projectSetupStepCounter": "Krok {current} z {total}",
-  "@projectSetupStepCounter": {
-    "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
-    }
-  },
+  "@projectSetupStepCounter": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
   "projectSetupNextButton": "Dalej",
   "projectSetupBackButton": "Wstecz",
   "projectSetupSkipToSummaryButton": "Pomiń do podsumowania",
@@ -186,6 +177,12 @@
   "projectSetupStepAccessTitle": "Dostęp",
   "projectSetupStepWorkflowTitle": "Workflow",
   "projectSetupStepWorkingStyleTitle": "Sposób pracy",
+  "projectSetupStepBasicsSubtitle": "Nazwa, opis i wygląd projektu.",
+  "projectSetupStepAccessSubtitle": "Kto zobaczy projekt i z jaką rolą.",
+  "projectSetupStepWorkflowSubtitle": "Statusy, w których będą przechodzić zadania.",
+  "projectSetupStepWorkingStyleSubtitle": "Domyślny widok, harmonogram i ustawienia tablicy.",
+  "projectSetupStepStarterFeaturesSubtitle": "Automatyzacje, które powstaną razem z projektem.",
+  "projectSetupStepSummarySubtitle": "Sprawdź plan i utwórz projekt.",
   "projectSetupStepStarterFeaturesTitle": "Funkcje startowe",
   "projectSetupStepSummaryTitle": "Podsumowanie",
   "projectSetupStartBlankTitle": "Pusty projekt",
@@ -194,29 +191,19 @@
   "projectSetupStartTemplateDescription": "Odtwarza projekt razem z zadaniami, etykietami, polami i workflow zapisanymi w szablonie.",
   "projectSetupTemplatesLoading": "Pobieranie szablonów…",
   "projectSetupTemplatesEmpty": "W tym workspace nie ma jeszcze szablonów projektów.",
-  "projectSetupTemplatesUnavailable": "Katalog szablonów nie jest dostępny w tej sesji.",
-  "projectSetupTemplatesUnavailableReason": "Brak wpiętego portu szablonów projektów.",
+  "projectSetupTemplatesUnavailable": "Nie możemy teraz pobrać szablonów projektów.",
+  "projectSetupTemplatesUnavailableReason": "Spróbuj ponownie za chwilę. Jeśli problem się powtórzy, zgłoś go administratorowi.",
   "projectSetupTemplatesRetry": "Ponów pobieranie szablonów",
   "projectSetupTemplateTasksCount": "Zadania: {count}",
-  "@projectSetupTemplateTasksCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupTemplateTasksCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupTemplateLabelsCount": "Etykiety: {count}",
-  "@projectSetupTemplateLabelsCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupTemplateLabelsCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupTemplateFieldsCount": "Pola: {count}",
-  "@projectSetupTemplateFieldsCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupTemplateFieldsCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupTemplateStatusesCount": "Własne statusy: {count}",
-  "@projectSetupTemplateStatusesCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupTemplateStatusesCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupTemplateVersionLabel": "Wersja {version}",
-  "@projectSetupTemplateVersionLabel": {
-    "placeholders": {"version": {"type": "int"}}
-  },
+  "@projectSetupTemplateVersionLabel": {"placeholders": {"version": {"type": "int"}}},
   "projectSetupTemplatePreviewLoading": "Pobieranie podglądu szablonu…",
   "projectSetupTemplatePreviewFailed": "Nie udało się pobrać podglądu szablonu.",
   "projectSetupProjectStatusLabel": "Status projektu",
@@ -232,20 +219,18 @@
   "projectSetupAccessMembersLegend": "Startowi członkowie",
   "projectSetupAccessMembersLoading": "Pobieranie członków workspace…",
   "projectSetupAccessMembersEmpty": "Brak innych aktywnych członków workspace.",
-  "projectSetupAccessMembersUnavailable": "Lista członków workspace nie jest dostępna w tej sesji.",
-  "projectSetupAccessMembersUnavailableReason": "Brak wpiętego portu członków workspace.",
+  "projectSetupAccessMembersUnavailable": "Nie możemy teraz pobrać listy członków workspace.",
+  "projectSetupAccessMembersUnavailableReason": "Spróbuj ponownie za chwilę. Jeśli problem się powtórzy, zgłoś go administratorowi. Członków możesz też dodać po utworzeniu projektu.",
   "projectSetupAccessMembersRetry": "Ponów pobieranie członków",
   "projectSetupAccessMemberLabel": "Użytkownik ({prefix}…)",
-  "@projectSetupAccessMemberLabel": {
-    "placeholders": {"prefix": {"type": "String"}}
-  },
+  "@projectSetupAccessMemberLabel": {"placeholders": {"prefix": {"type": "String"}}},
   "projectSetupAccessRoleLabel": "Rola",
   "projectSetupWorkflowFromTemplateTitle": "Workflow z szablonu",
   "projectSetupWorkflowFromTemplateDescription": "Projekt z szablonu używa statusów zapisanych w szablonie. Zmienisz je po utworzeniu projektu.",
   "projectSetupWorkflowDefaultTitle": "Standardowy",
   "projectSetupWorkflowDefaultDescription": "Systemowe statusy zadań projektu.",
   "projectSetupWorkflowCatalogTitle": "Katalogowy szablon",
-  "projectSetupWorkflowCatalogDescription": "Gotowy zestaw kolumn z katalogu Backendu.",
+  "projectSetupWorkflowCatalogDescription": "Gotowy zestaw kolumn dobrany do typu pracy.",
   "projectSetupWorkflowCatalogLegend": "Szablon katalogowy",
   "projectSetupWorkflowCatalogStandard": "Standardowy",
   "projectSetupWorkflowCatalogMarketing": "Marketing",
@@ -325,61 +310,147 @@
   "projectSetupSummarySource": "Źródło",
   "projectSetupSummarySourceBlank": "Pusty projekt",
   "projectSetupSummarySourceTemplate": "Szablon: {name}",
-  "@projectSetupSummarySourceTemplate": {
-    "placeholders": {"name": {"type": "String"}}
-  },
+  "@projectSetupSummarySourceTemplate": {"placeholders": {"name": {"type": "String"}}},
   "projectSetupSummaryName": "Nazwa",
   "projectSetupSummaryVisibility": "Widoczność",
   "projectSetupSummaryStatus": "Status",
   "projectSetupSummaryMembers": "Członkowie",
   "projectSetupSummaryMembersShared": "Wszyscy aktywni członkowie workspace",
   "projectSetupSummaryMembersCount": "{count} osób",
-  "@projectSetupSummaryMembersCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupSummaryMembersCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupSummaryWorkflow": "Workflow",
   "projectSetupSummaryWorkflowDefault": "Statusy systemowe",
   "projectSetupSummaryWorkflowCatalog": "Szablon katalogowy: {name}",
-  "@projectSetupSummaryWorkflowCatalog": {
-    "placeholders": {"name": {"type": "String"}}
-  },
+  "@projectSetupSummaryWorkflowCatalog": {"placeholders": {"name": {"type": "String"}}},
   "projectSetupSummaryWorkflowExplicit": "{count} własnych statusów",
-  "@projectSetupSummaryWorkflowExplicit": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupSummaryWorkflowExplicit": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupSummaryWorkflowFromTemplate": "Z szablonu projektu",
   "projectSetupSummaryView": "Domyślny widok Zadania",
   "projectSetupSummarySchedule": "Harmonogram",
-  "projectSetupSummaryCapacity": "Dziennea pojemność",
+  "projectSetupSummaryCapacity": "Dzienna pojemność",
   "projectSetupSummaryCapacityValue": "{minutes} min",
-  "@projectSetupSummaryCapacityValue": {
-    "placeholders": {"minutes": {"type": "int"}}
-  },
+  "@projectSetupSummaryCapacityValue": {"placeholders": {"minutes": {"type": "int"}}},
   "projectSetupSummaryBoard": "Tablica Kanban",
   "projectSetupSummaryRecipes": "Automatyzacje",
   "projectSetupSummaryRecipesNone": "Brak",
   "projectSetupSummaryPlanLoading": "Budowanie planu…",
   "projectSetupSummaryPlanUnavailable": "Plan nie został jeszcze zbudowany.",
-  "projectSetupSummaryPlanStale": "Draft zmienił się od czasu zbudowania planu.",
+  "projectSetupSummaryPlanStale": "Ustawienia zmieniły się od czasu zbudowania planu.",
   "projectSetupSummaryWarningsLegend": "Ostrzeżenia",
   "projectSetupSummaryTemplateCounts": "Szablon wniesie zadania, etykiety i pola widoczne w planie.",
+  "projectSetupPreviewLegend": "Podgląd projektu",
+  "projectSetupPreviewUntitledProject": "Projekt bez nazwy",
+  "projectSetupPreviewTemplateBadge": "Szablon: {name}",
+  "@projectSetupPreviewTemplateBadge": {"placeholders": {"name": {"type": "String"}}},
+  "projectSetupPreviewRefreshing": "Odświeżanie podglądu",
+  "projectSetupPreviewLoading": "Pobieranie podglądu szablonu…",
+  "projectSetupPreviewRetryHint": "Spróbuj ponownie. Jeśli problem się powtórzy, zgłoś go administratorowi.",
+  "projectSetupPreviewMoreTasks": "+{count} więcej zadań",
+  "@projectSetupPreviewMoreTasks": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewMoreItems": "+{count} więcej",
+  "@projectSetupPreviewMoreItems": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewWipBadge": "WIP {limit}",
+  "@projectSetupPreviewWipBadge": {"placeholders": {"limit": {"type": "int"}}},
+  "projectSetupPreviewColumnTask": "Zadanie",
+  "projectSetupPreviewColumnStatus": "Status",
+  "projectSetupPreviewColumnPriority": "Priorytet",
+  "projectSetupPreviewEmptyBoardTitle": "Brak kolumn do pokazania",
+  "projectSetupPreviewEmptyBoardBody": "Ten wariant nie wnosi własnych kolumn. Tablica powstanie ze statusów systemowych.",
+  "projectSetupPreviewColumnsFromTemplate": "Kolumny z szablonu",
+  "projectSetupPreviewColumnsFromTemplateBody": "Nazwy, kolory i limity WIP pochodzą wprost z szablonu. Zobaczysz je w projekcie zaraz po utworzeniu.",
+  "projectSetupPreviewColumnsExplicit": "Twoje kolumny",
+  "projectSetupPreviewColumnsExplicitBody": "Te kolumny zdefiniujesz sam. Pojawią się w projekcie w podanej kolejności.",
+  "projectSetupPreviewColumnsPlan": "Kolumny zatwierdzone w planie",
+  "projectSetupPreviewColumnsPlanBody": "Plan potwierdza te kolumny oraz {count} statusów systemowych, które powstają zawsze.",
+  "@projectSetupPreviewColumnsPlanBody": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewColumnsSystem": "Statusy systemowe",
+  "projectSetupPreviewColumnsSystemBody": "Kolumny systemowe ({count}) powstają w każdym nowym projekcie. Ich nazwy i kolory zobaczysz po jego utworzeniu.",
+  "projectSetupPreviewColumnsSystemNoCount": "Systemowe kolumny powstaną w każdym nowym projekcie; nazwy i kolory zobaczysz po jego utworzeniu.",
+  "@projectSetupPreviewColumnsSystemBody": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewColumnsCatalogBody": "Gotowy układ statusów: {name}. Kolumny zobaczysz w projekcie po jego utworzeniu.",
+  "@projectSetupPreviewColumnsCatalogBody": {"placeholders": {"name": {"type": "String"}}},
+  "projectSetupPreviewMembersTitle": "Kto zobaczy projekt",
+  "projectSetupPreviewMembersShared": "Wszyscy aktywni członkowie workspace.",
+  "projectSetupPreviewMembersPrivate": "Zaproszone osoby: {count}.",
+  "@projectSetupPreviewMembersPrivate": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewMembersPrivateNone": "Na razie tylko Ty. Członków możesz dodać teraz albo później.",
+  "projectSetupPreviewBoardSettingsTitle": "Ustawienia tablicy",
+  "projectSetupPreviewListSettingsTitle": "Ustawienia listy",
+  "projectSetupPreviewVisibleFields": "Widoczne pola: {count}",
+  "@projectSetupPreviewVisibleFields": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewRecipesTitle": "Automatyzacje",
+  "projectSetupPreviewRecipesNone": "Nie wybrano żadnej automatyzacji. Możesz je dodać później.",
+  "projectSetupPreviewRecipeWhen": "Gdy",
+  "projectSetupPreviewRecipeThen": "wtedy",
+  "projectSetupPreviewWarningsBody": "Plan zawiera ostrzeżenia: {count}. Zobacz je nad przyciskiem „Utwórz projekt”.",
+  "@projectSetupPreviewWarningsBody": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupRecipeCriticalToBlockedTrigger": "zadanie ma priorytet krytyczny",
+  "projectSetupRecipeCriticalToBlockedAction": "ustaw status zablokowany",
+  "projectSetupRecipeDueSoonHighPriorityTrigger": "termin zadania wypada w ciągu dwóch dni",
+  "projectSetupRecipeDueSoonHighPriorityAction": "podnieś priorytet do wysokiego",
+  "projectSetupRecipeDoneClearDueDateTrigger": "zadanie zostanie ukończone",
+  "projectSetupRecipeDoneClearDueDateAction": "wyczyść termin zadania",
+  "projectSetupRecipeDoneCreateReviewSubtaskTrigger": "zadanie zostanie ukończone",
+  "projectSetupRecipeDoneCreateReviewSubtaskAction": "dodaj podzadanie z przeglądem rezultatu",
+  "projectSetupHelpSwimlanesTitle": "Tory na tablicy",
+  "projectSetupHelpSwimlanesBody": "Tory dzielą tablicę na poziome sekcje, np. osobno dla każdego wykonawcy lub priorytetu. Nie zmieniają statusu zadania.",
+  "projectSetupHelpWipTitle": "Limit WIP",
+  "projectSetupHelpWipBody": "Maksymalna liczba zadań, które mogą jednocześnie znajdować się w tej kolumnie.",
+  "projectSetupHelpStatusCategoryTitle": "Kategoria statusu",
+  "projectSetupHelpStatusCategoryBody": "Kategoria pomaga raportom rozumieć, czy zadanie czeka, trwa, czy jest zakończone. Nazwę kolumny możesz ustawić dowolnie.",
+  "projectSetupHelpCascadeTitle": "Kaskada zależności",
+  "projectSetupHelpCascadeBody": "Gdy termin jednego zadania się przesunie, system może automatycznie przesunąć zadania od niego zależne.",
+  "projectSetupHelpCapacityTitle": "Dzienna pojemność",
+  "projectSetupHelpCapacityBody": "Liczba minut pracy planowana dziennie na osobę. To ustawienie dotyczy całego workspace.",
+  "projectSetupHelpVisibilityTitle": "Widoczność prywatna",
+  "projectSetupHelpVisibilityBody": "Projekt zobaczą tylko dodani członkowie. Osoby zarządzające workspace mają dostęp zgodnie ze swoimi uprawnieniami.",
+  "projectSetupHelpAutomationsTitle": "Automatyzacje",
+  "projectSetupHelpAutomationsBody": "Reguły wykonują akcję po konkretnym zdarzeniu. Można je później wyłączyć.",
+  "projectSetupHelpCatalogWorkflowTitle": "Katalogowy szablon workflow",
+  "projectSetupHelpCatalogWorkflowBody": "Gotowy układ statusów, nie pełny szablon projektu z zadaniami.",
+  "projectSetupHelpDensityTitle": "Gęstość karty",
+  "projectSetupHelpDensityBody": "Określa, ile szczegółów i odstępów ma karta na tablicy.",
+  "projectSetupHelpMembersTitle": "Startowi członkowie",
+  "projectSetupHelpMembersBody": "Osoby, które od razu zobaczą projekt. Ich role możesz zmienić po utworzeniu projektu.",
+  "projectSetupHelpPreviewTitle": "Podgląd projektu",
+  "projectSetupHelpPreviewBody": "Podgląd pokazuje wycinek tego, co powstanie: prawdziwe zadania, kolumny i etykiety z wybranego szablonu.",
+  "projectSetupHelpSemantics": "Pomoc: {title}",
+  "@projectSetupHelpSemantics": {"placeholders": {"title": {"type": "String"}}},
+  "projectSetupAppearanceLegend": "Wygląd projektu",
+  "projectSetupAppearanceHint": "Ikona i kolor widoczne w drzewie projektów oraz w nagłówku projektu.",
+  "projectSetupAccessMembersHint": "Zaznacz osoby, które od razu zobaczą projekt.",
+  "projectSetupAccessSelectedCount": "Wybrane osoby: {count}",
+  "@projectSetupAccessSelectedCount": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupStatusesLegend": "Kolumny własne",
+  "projectSetupStatusesHint": "Nazwa, kolor, kategoria i limit WIP tworzą jedną kolumnę tablicy.",
+  "projectSetupSummaryDecisionsLegend": "Twoje decyzje",
+  "projectSetupSummaryChangeButton": "Zmień",
+  "projectSetupWorkflowOptionColumnsLegend": "Kolumny tej opcji",
+  "projectSetupWorkflowSystemPreviewHint": "Te kolumny powstają w każdym nowym projekcie.",
+  "projectSetupWorkflowCatalogPreviewHint": "Gotowy układ dobierzesz z listy — podgląd po prawej pokaże jego kolumny po wybraniu.",
+  "projectSetupWorkflowExplicitPreviewHint": "Własne kolumny dodasz poniżej.",
+  "projectSetupPreviewMoreColumns": "+{count} kolumn",
+  "@projectSetupPreviewMoreColumns": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupWorkingStyleAdjustBoard": "Dostosuj także ustawienia tablicy",
+  "projectSetupWorkingStyleAdjustList": "Dostosuj także ustawienia listy",
+  "projectSetupWorkingStyleCollapseBoard": "Zwiń ustawienia tablicy",
+  "projectSetupWorkingStyleCollapseList": "Zwiń ustawienia listy",
+  "projectSetupWorkingStyleHiddenDefaults": "Ustawienia drugiego widoku trafią do projektu z wartościami domyślnymi; zobaczysz je w podsumowaniu.",
+  "projectSetupPreviewColumnsApproved": "Zgodne z planem serwera",
+  "projectSetupPreviewColumnsApprovedBody": "Serwer sprawdził wersję szablonu i utworzy projekt dokładnie z tej zawartości: kolumny, zadania i etykiety pochodzą wprost z szablonu, a plan nie zmienia jego workflow.",
   "projectSetupErrorTitle": "Nie udało się wykonać operacji",
   "projectSetupErrorCodeLabel": "Kod: {code}",
-  "@projectSetupErrorCodeLabel": {
-    "placeholders": {"code": {"type": "String"}}
-  },
+  "@projectSetupErrorCodeLabel": {"placeholders": {"code": {"type": "String"}}},
   "projectSetupErrorTraceIdLabel": "Identyfikator śledzenia: {traceId}",
-  "@projectSetupErrorTraceIdLabel": {
-    "placeholders": {"traceId": {"type": "String"}}
-  },
+  "@projectSetupErrorTraceIdLabel": {"placeholders": {"traceId": {"type": "String"}}},
   "projectSetupErrorConflictIdempotency": "Ten klucz operacji został już użyty dla innego żądania. Kolejna próba użyje nowego klucza.",
   "projectSetupErrorConflictInProgress": "Operacja o tym samym kluczu jest jeszcze przetwarzana. Spróbuj ponownie za chwilę.",
   "projectSetupErrorTemplateVersion": "Szablon projektu zmienił się w innej sesji. Podgląd szablonu został odświeżony — sprawdź podsumowanie i spróbuj ponownie.",
   "projectSetupErrorForbidden": "Nie masz uprawnień do utworzenia projektu w tym workspace.",
   "projectSetupErrorNotFound": "Workspace albo szablon nie jest już dostępny.",
-  "projectSetupErrorValidation": "Backend odrzucił dane kreatora. Popraw wskazane wartości.",
-  "projectSetupErrorUnavailable": "Kreator nie ma skonfigurowanego portu tworzenia projektu.",
-  "projectResourceUnavailableMessage": "Ten formularz nie ma połączenia z backendem w tej sesji, więc nic nie zostało zapisane.",
+  "projectSetupErrorValidation": "Nie udało się zapisać danych kreatora. Popraw wskazane wartości.",
+  "projectSetupErrorUnavailable": "Tworzenie projektu nie jest teraz dostępne. Spróbuj ponownie za chwilę; jeśli problem się powtórzy, zgłoś go administratorowi.",
+  "projectResourceUnavailableMessage": "Nie mamy teraz połączenia z serwerem, więc nic nie zostało zapisane. Spróbuj ponownie za chwilę.",
   "projectSetupErrorCancelled": "Operacja została anulowana przed wysłaniem.",
   "projectSetupWarningMembersIgnoredForShared": "Projekt współdzielony widzą wszyscy członkowie workspace, dlatego lista startowych członków zostanie pominięta.",
   "projectSetupWarningPrivateMembersLimited": "Projekt prywatny będzie widoczny wyłącznie dla Ciebie, dopóki nie dodasz członków.",
@@ -451,21 +522,9 @@
   "workspacesMyPrivateSectionLabel": "Prywatne",
   "workspacesMyWorkspacesSection": "Moje workspace’y",
   "workspacesFavoritesSection": "Ulubione ({count})",
-  "@workspacesFavoritesSection": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@workspacesFavoritesSection": {"placeholders": {"count": {"type": "int"}}},
   "workspacesTeamWorkspacesSection": "Przestrzenie zespołowe ({count})",
-  "@workspacesTeamWorkspacesSection": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@workspacesTeamWorkspacesSection": {"placeholders": {"count": {"type": "int"}}},
   "workspacesAllWorkspacesSection": "Wszystkie workspace’y",
   "workspacesHiddenWorkspacesLabel": "Ukryte workspace’y",
   "workspacesOwnerBadge": "Właściciel",
@@ -488,30 +547,14 @@
   "dashboardCollapsedTrayTitle": "Zasobnik pulpitu",
   "dashboardCollapsedTraySubtitle": "Elementy ukryte z powodu małego rozmiaru okna. Zwiększ rozmiar okna, aby automatycznie przywrócić je na pulpit.",
   "dashboardCollapsedTrayWidgets": "Widgety ({count})",
-  "@dashboardCollapsedTrayWidgets": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardCollapsedTrayWidgets": {"placeholders": {"count": {"type": "int"}}},
   "dashboardCollapsedTrayShortcuts": "Skróty ({count})",
-  "@dashboardCollapsedTrayShortcuts": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardCollapsedTrayShortcuts": {"placeholders": {"count": {"type": "int"}}},
   "dashboardCollapsedTrayNoItems": "Wszystkie elementy mieszczą się na ekranie.",
   "dashboardWidgetRefreshTooltip": "Odśwież",
   "dashboardWidgetResizeTitle": "Zmień rozmiar",
   "dashboardWidgetResizeLabel": "Rozmiar {size}",
-  "@dashboardWidgetResizeLabel": {
-    "placeholders": {
-      "size": {}
-    }
-  },
+  "@dashboardWidgetResizeLabel": {"placeholders": {"size": {}}},
   "dashboardWidgetRemoveAction": "Usuń z pulpitu",
   "dashboardWidgetBringToFront": "Przesuń na wierzch",
   "dashboardWidgetSendToBack": "Przesuń pod spód",
@@ -555,13 +598,7 @@
   "dashboardActiveInventoriesRetryLabel": "Spróbuj ponownie",
   "dashboardActiveInventoriesEmptyTitle": "Brak inwentaryzacji w toku",
   "dashboardActiveInventoriesSheetsLabel": "Arkusze: {count}",
-  "@dashboardActiveInventoriesSheetsLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardActiveInventoriesSheetsLabel": {"placeholders": {"count": {"type": "int"}}},
   "dashboardBhpUsersName": "BHP: pracownicy",
   "dashboardBhpUsersDescription": "Szybki podgląd pracowników BHP z przejściem do modułu listy pracowników.",
   "dashboardBhpUsersCategory": "BHP",
@@ -571,38 +608,14 @@
   "dashboardBhpUsersEmptyMessage": "Nie znaleziono żadnych aktywnych pracowników.",
   "dashboardBhpUsersNoPositionLabel": "Bez stanowiska",
   "dashboardBhpUsersDeadlineOverdueLabel": "po {days} dni",
-  "@dashboardBhpUsersDeadlineOverdueLabel": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardBhpUsersDeadlineOverdueLabel": {"placeholders": {"days": {"type": "int"}}},
   "dashboardBhpUsersDeadlineTodayLabel": "dziś",
   "dashboardBhpUsersDeadlineUpcomingLabel": "za {days} dni",
-  "@dashboardBhpUsersDeadlineUpcomingLabel": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardBhpUsersDeadlineUpcomingLabel": {"placeholders": {"days": {"type": "int"}}},
   "dashboardBhpUsersDeadlineOverdueCountLabel": "{count} po terminie",
-  "@dashboardBhpUsersDeadlineOverdueCountLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardBhpUsersDeadlineOverdueCountLabel": {"placeholders": {"count": {"type": "int"}}},
   "dashboardBhpUsersDeadlineUpcomingCountLabel": "{count} wkrótce",
-  "@dashboardBhpUsersDeadlineUpcomingCountLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardBhpUsersDeadlineUpcomingCountLabel": {"placeholders": {"count": {"type": "int"}}},
   "dashboardBhpUsersDeadlineOkLabel": "ok",
   "dashboardBhpPositionsName": "BHP: stanowiska",
   "dashboardBhpPositionsDescription": "Szybki podgląd stanowisk BHP z wejściem do pełnej listy stanowisk.",
@@ -709,13 +722,9 @@
   "inventoryInventoriesSubtitle": "Lista aktywnych i archiwalnych rekordów.",
   "inventoryNew": "Nowa",
   "inventorySectionAssetState": "Stan ST",
-  "@inventorySectionAssetState": {
-    "description": "Tytuł sekcji ekranu listy stanów środków trwałych (stan ST)."
-  },
+  "@inventorySectionAssetState": {"description": "Tytuł sekcji ekranu listy stanów środków trwałych (stan ST)."},
   "inventoryCurrentState": "Aktualny stan",
-  "@inventoryCurrentState": {
-    "description": "Etykieta kolumny pokazującej aktualny stan źródłowy elementu arkusza inwentaryzacji."
-  },
+  "@inventoryCurrentState": {"description": "Etykieta kolumny pokazującej aktualny stan źródłowy elementu arkusza inwentaryzacji."},
   "inventorySectionLocations": "Miejsca",
   "inventorySectionCompanies": "Firmy",
   "inventorySidebarSubtitle": "Zarządzaj zasobami i spisami",
@@ -724,20 +733,10 @@
   "inventoryNoNumber": "Bez numeru",
   "inventoryDateRangeLabel": "Zakres",
   "inventoryPeopleCount": "{count} osób",
-  "@inventoryPeopleCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryPeopleCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryFetchErrorTitle": "Błąd pobierania",
   "inventoryActionNotConnected": "Akcja \"{label}\" zostanie podpięta do API.",
-  "@inventoryActionNotConnected": {
-    "placeholders": {
-      "label": {}
-    }
-  },
+  "@inventoryActionNotConnected": {"placeholders": {"label": {}}},
   "inventoryOverviewTitle": "Stan ST",
   "inventoryOverviewSubtitle": "Szybkie filtrowanie i lista środków trwałych.",
   "inventorySearch": "Szukaj",
@@ -753,11 +752,7 @@
   "inventorySearchSheetsAction": "Przeszukaj arkusze",
   "inventorySearchSheetsTitle": "Wyszukiwanie w arkuszach",
   "inventorySearchSheetsSubtitle": "Inwentaryzacja {number}",
-  "@inventorySearchSheetsSubtitle": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventorySearchSheetsSubtitle": {"placeholders": {"number": {}}},
   "inventorySearchSheetsHint": "Nr ewidencyjny, nazwa, osoba lub kod...",
   "inventorySearchSheetsSortByRegisterNumber": "Nr ewid.",
   "inventorySearchSheetsSortByName": "Nazwa",
@@ -765,62 +760,25 @@
   "inventorySearchSheetsStartTitle": "Zacznij wyszukiwanie",
   "inventorySearchSheetsStartMessage": "Wpisz co najmniej 2 znaki, aby przeszukać wszystkie arkusze tej inwentaryzacji.",
   "inventorySearchSheetsResultsCount": "Grupy: {groups}, trafienia: {matches}",
-  "@inventorySearchSheetsResultsCount": {
-    "placeholders": {
-      "groups": {
-        "type": "int"
-      },
-      "matches": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySearchSheetsResultsCount": {"placeholders": {"groups": {"type": "int"}, "matches": {"type": "int"}}},
   "inventorySearchSheetsMatchesCount": "{count} trafień",
-  "@inventorySearchSheetsMatchesCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySearchSheetsMatchesCount": {"placeholders": {"count": {"type": "int"}}},
   "inventorySearchSheetsCurrentSheet": "Bieżący arkusz",
   "inventorySearchSheetsFocusCurrentAction": "Pokaż w arkuszu",
   "inventorySearchSheetsOpenSheetAction": "Otwórz arkusz",
   "inventorySearchSheetsToDisposeStatus": "Do likwidacji",
   "inventoryPresenceConflictsTitle": "Konflikty obecności",
   "inventoryPresenceConflictsSubtitle": "Inwentaryzacja {number}",
-  "@inventoryPresenceConflictsSubtitle": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventoryPresenceConflictsSubtitle": {"placeholders": {"number": {}}},
   "inventoryPresenceConflictsLoadingLabel": "Sprawdzam konflikty",
   "inventoryPresenceConflictsRetryLabel": "Pokaż konflikty",
   "inventoryPresenceConflictsEmptyBadge": "Brak wykrytych konfliktów",
   "inventoryPresenceConflictsDetectedAction": "{count} konfliktów",
-  "@inventoryPresenceConflictsDetectedAction": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryPresenceConflictsDetectedAction": {"placeholders": {"count": {"type": "int"}}},
   "inventoryPresenceConflictsResultsCount": "Konflikty: {count}",
-  "@inventoryPresenceConflictsResultsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryPresenceConflictsResultsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryPresenceConflictsArkuszeCount": "{count} arkusze",
-  "@inventoryPresenceConflictsArkuszeCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryPresenceConflictsArkuszeCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryPresenceConflictsEmptyTitle": "Brak wykrytych konfliktów",
   "inventoryPresenceConflictsEmptyMessage": "Ta inwentaryzacja nie ma obecnie żadnych środków trwałych wykrytych w wielu arkuszach jako nie-brak.",
   "inventoryName": "Nazwa",
@@ -832,11 +790,7 @@
   "inventoryLocation": "Miejsce",
   "inventoryState": "Stan",
   "inventoryUnknownWithCode": "Nieznany ({code})",
-  "@inventoryUnknownWithCode": {
-    "placeholders": {
-      "code": {}
-    }
-  },
+  "@inventoryUnknownWithCode": {"placeholders": {"code": {}}},
   "inventoryPurchaseDate": "Data zakupu",
   "inventoryValueP": "Wartość P",
   "inventoryAssetDetailsTitle": "Szczegóły środka trwałego",
@@ -856,42 +810,20 @@
   "inventoryNoResultsTitle": "Brak wyników",
   "inventoryLocationsNoResultsMessage": "Nie znaleziono gałęzi spełniających filtr.",
   "inventoryCompanyWithId": "Oddział {id}",
-  "@inventoryCompanyWithId": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryCompanyWithId": {"placeholders": {"id": {"type": "int"}}},
   "inventoryLocationsCount": "{count} miejsc",
-  "@inventoryLocationsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryLocationsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryCode": "Kod",
   "inventoryCompaniesTitle": "Firmy",
   "inventoryCompaniesSubtitle": "Lista zarejestrowanych firm w słowniku inwentaryzacji.",
   "inventoryCompaniesEmptyTitle": "Brak firm",
   "inventoryCompaniesEmptyMessage": "Nie znaleziono żadnych firm w słowniku.",
   "inventoryCompanyIdLabel": "ID firmy: {id}",
-  "@inventoryCompanyIdLabel": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryCompanyIdLabel": {"placeholders": {"id": {"type": "int"}}},
   "inventoryCompanyDeletedMessage": "Firma została usunięta.",
   "inventoryDetailsTitle": "Szczegóły inwentaryzacji",
   "inventoryNumberLabel": "Numer: {number}",
-  "@inventoryNumberLabel": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventoryNumberLabel": {"placeholders": {"number": {}}},
   "inventoryDetailsLoadErrorTitle": "Nie udało się pobrać szczegółów inwentaryzacji",
   "retry": "Ponów próbę",
   "save": "Zapisz",
@@ -904,11 +836,7 @@
   "inventorySheetDatesSavedMessage": "Daty arkusza zostały zapisane.",
   "inventoryReportsTitle": "Raporty",
   "inventoryReportsSubtitle": "Inwentaryzacja {number}",
-  "@inventoryReportsSubtitle": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventoryReportsSubtitle": {"placeholders": {"number": {}}},
   "inventoryReportsIntro": "Raporty liczone są na wszystkich elementach arkuszy przypiętych do wybranej inwentaryzacji.",
   "inventoryReportsListTitle": "Lista raportów",
   "inventoryReportsBundleTitle": "Komplet PDF",
@@ -1030,13 +958,7 @@
   "inventoryDeleteItemTitle": "Usuń element arkusza",
   "inventoryDeleteItemSubtitle": "Operacja usuwa wskazany element z aktualnego arkusza.",
   "inventoryDeleteItemDetailsMessage": "Element ID: {id}\nNumer ewidencyjny: {register}\nNazwa: {name}",
-  "@inventoryDeleteItemDetailsMessage": {
-    "placeholders": {
-      "id": {},
-      "register": {},
-      "name": {}
-    }
-  },
+  "@inventoryDeleteItemDetailsMessage": {"placeholders": {"id": {}, "register": {}, "name": {}}},
   "inventoryDeleteItemSuccessMessage": "Element arkusza został usunięty.",
   "inventoryDeleteUnlockHint": "Wpisz Excellent, aby odblokować usunięcie.",
   "inventoryDeleteItemUnlockLabel": "Potwierdzenie usunięcia",
@@ -1050,11 +972,7 @@
   "inventorySheetEndTimeLabel": "Godzina zakończenia",
   "frameworkGalleryTitle": "Galeria komponentów frameworka",
   "frameworkActionToast": "Akcja: {label}",
-  "@frameworkActionToast": {
-    "placeholders": {
-      "label": {}
-    }
-  },
+  "@frameworkActionToast": {"placeholders": {"label": {}}},
   "frameworkNewDocumentTitle": "Nowy dokument",
   "frameworkNewDocumentSubtitle": "Wariant side sheet z prawej strony.",
   "frameworkClose": "Zamknij",
@@ -1110,23 +1028,9 @@
   "frameworkListTileDailyReport": "Raport dzienny",
   "frameworkListTileMonthlyReport": "Raport miesięczny",
   "frameworkTableRowHover": "Hover: {name}",
-  "@frameworkTableRowHover": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@frameworkTableRowHover": {"placeholders": {"name": {}}},
   "frameworkTableRowTap": "Kliknięto wiersz #{index}: {name} | {status} | {count} | {owner}",
-  "@frameworkTableRowTap": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      },
-      "name": {},
-      "status": {},
-      "count": {},
-      "owner": {}
-    }
-  },
+  "@frameworkTableRowTap": {"placeholders": {"index": {"type": "int"}, "name": {}, "status": {}, "count": {}, "owner": {}}},
   "frameworkTableName": "Nazwa",
   "frameworkTableStatus": "Status",
   "frameworkTableItems": "Pozycje",
@@ -1155,13 +1059,7 @@
   "bhpDashboardOverdueSubtitle": "Aktywne wydania wymagające reakcji.",
   "bhpDashboardUpcomingTitle": "Nadchodzące",
   "bhpDashboardUpcomingSubtitle": "Alerty w najbliższych {months} mies.",
-  "@bhpDashboardUpcomingSubtitle": {
-    "placeholders": {
-      "months": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpDashboardUpcomingSubtitle": {"placeholders": {"months": {"type": "int"}}},
   "bhpDashboardSnapshotTitle": "Snapshot",
   "bhpDashboardSnapshotSubtitle": "Czas wygenerowania danych dashboardu.",
   "bhpDashboardOverdueTableTitle": "Wydania po terminie",
@@ -1175,16 +1073,7 @@
   "bhpUsersTitle": "Pracownicy BHP",
   "bhpUsersSectionSubtitle": "Lista kart pracowników i ich aktualnego statusu.",
   "bhpUsersSubtitle": "Aktywni: {active}, archiwalni: {archived}",
-  "@bhpUsersSubtitle": {
-    "placeholders": {
-      "active": {
-        "type": "int"
-      },
-      "archived": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUsersSubtitle": {"placeholders": {"active": {"type": "int"}, "archived": {"type": "int"}}},
   "bhpUsersErrorTitle": "Nie udało się załadować pracowników",
   "bhpUsersEmptyTitle": "Brak pracowników",
   "bhpUsersEmptyMessage": "Lista pracowników BHP jest pusta.",
@@ -1193,40 +1082,17 @@
   "bhpUsersNoActiveMessage": "Na liście nie ma teraz aktywnych pracowników.",
   "bhpUsersNoArchivedMessage": "Na liście nie ma teraz zarchiwizowanych pracowników.",
   "bhpUsersSearchResultsSummary": "Wyniki: {visible} z {total}",
-  "@bhpUsersSearchResultsSummary": {
-    "placeholders": {
-      "visible": {},
-      "total": {}
-    }
-  },
+  "@bhpUsersSearchResultsSummary": {"placeholders": {"visible": {}, "total": {}}},
   "bhpUsersClearSearchAction": "Wyczyść wyszukiwanie",
   "bhpUsersBulkSelectLabel": "Masowe akcje",
   "bhpUsersBulkSelectedCount": "{count, plural, =1{Wybrano 1 pracownika} other{Wybrano {count} pracowników}}",
-  "@bhpUsersBulkSelectedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUsersBulkSelectedCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpUsersBulkChangePositionAction": "Zmień stanowisko",
   "bhpUsersBulkChangePositionTitle": "Masowa zmiana stanowiska",
   "bhpUsersBulkChangePositionConfirm": "Zmień stanowisko dla {count} pracowników",
-  "@bhpUsersBulkChangePositionConfirm": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUsersBulkChangePositionConfirm": {"placeholders": {"count": {"type": "int"}}},
   "bhpUsersBulkSuccessMessage": "Pomyślnie zmieniono stanowisko dla {count} pracowników.",
-  "@bhpUsersBulkSuccessMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUsersBulkSuccessMessage": {"placeholders": {"count": {"type": "int"}}},
   "bhpUsersDataQualityLabel": "Dane",
   "bhpUsersDataQualityComplete": "Komplet",
   "bhpUsersDataQualityMissingPosition": "Brak stanowiska",
@@ -1236,16 +1102,7 @@
   "bhpPositionsTitle": "Stanowiska BHP",
   "bhpPositionsSectionSubtitle": "Słownik stanowisk wykorzystywany w kartach pracowników.",
   "bhpPositionsSubtitle": "Aktywne: {active}, wszystkie: {total}",
-  "@bhpPositionsSubtitle": {
-    "placeholders": {
-      "active": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionsSubtitle": {"placeholders": {"active": {"type": "int"}, "total": {"type": "int"}}},
   "bhpPositionsErrorTitle": "Nie udało się załadować stanowisk",
   "bhpPositionsEmptyTitle": "Brak stanowisk",
   "bhpPositionsEmptyMessage": "Słownik stanowisk nie zawiera jeszcze danych.",
@@ -1255,17 +1112,9 @@
   "bhpPositionsRestoreAction": "Przywróć",
   "bhpPositionsRestoreTitle": "Przywróć stanowisko",
   "bhpPositionsRestoreMessage": "Stanowisko {name} zostanie ponownie włączone do aktywnego słownika.",
-  "@bhpPositionsRestoreMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPositionsRestoreMessage": {"placeholders": {"name": {}}},
   "bhpPositionsRestoreSuccess": "Przywrócono stanowisko {name}.",
-  "@bhpPositionsRestoreSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPositionsRestoreSuccess": {"placeholders": {"name": {}}},
   "bhpPositionsAddAndStandardAction": "Dodaj i standard",
   "bhpPositionsEditStandardAction": "Edytuj standard",
   "bhpPositionsOpenStandardAction": "Standard wyposażenia",
@@ -1273,57 +1122,27 @@
   "bhpPositionStandardsLoadErrorTitle": "Nie udało się załadować standardu stanowiska",
   "bhpPositionStandardsPositionLabel": "Stanowisko",
   "bhpPositionStandardsItemsCount": "Pozycji: {count}",
-  "@bhpPositionStandardsItemsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionStandardsItemsCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpPositionStandardsActiveCount": "Aktywne: {count}",
-  "@bhpPositionStandardsActiveCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionStandardsActiveCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpPositionStandardsEquipmentPoolCount": "Kart do wyboru: {count}",
-  "@bhpPositionStandardsEquipmentPoolCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionStandardsEquipmentPoolCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpPositionStandardsEmptyTitle": "Brak pozycji standardu",
   "bhpPositionStandardsEmptyMessage": "To stanowisko nie ma jeszcze przypisanego wyposażenia.",
   "bhpPositionStandardsAddAction": "Dodaj pozycję",
   "bhpPositionStandardsArchiveAction": "Ustaw nieaktywne",
   "bhpPositionStandardsArchiveTitle": "Ustaw pozycję standardu jako nieaktywną",
   "bhpPositionStandardsArchiveMessage": "Pozycja {symbol} zostanie ustawiona jako nieaktywna tylko na tej karcie standardu stanowiska.",
-  "@bhpPositionStandardsArchiveMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpPositionStandardsArchiveMessage": {"placeholders": {"symbol": {}}},
   "bhpPositionStandardsArchiveSuccess": "Pozycja standardu została ustawiona jako nieaktywna.",
   "bhpPositionStandardsRestoreAction": "Ustaw aktywne",
   "bhpPositionStandardsRestoreTitle": "Ustaw pozycję standardu jako aktywną",
   "bhpPositionStandardsRestoreMessage": "Pozycja {symbol} zostanie ustawiona jako aktywna tylko na tej karcie standardu stanowiska.",
-  "@bhpPositionStandardsRestoreMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpPositionStandardsRestoreMessage": {"placeholders": {"symbol": {}}},
   "bhpPositionStandardsRestoreSuccess": "Pozycja standardu została ustawiona jako aktywna.",
   "bhpPositionStandardsDeleteTitle": "Usuń pozycję standardu",
   "bhpPositionStandardsDeleteMessage": "Pozycja {symbol} zostanie trwale usunięta tylko z tej karty standardu stanowiska.",
-  "@bhpPositionStandardsDeleteMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpPositionStandardsDeleteMessage": {"placeholders": {"symbol": {}}},
   "bhpPositionStandardsDeleteSuccess": "Usunięto pozycję standardu.",
   "bhpPositionStandardEditorCreateTitle": "Dodaj pozycję standardu",
   "bhpPositionStandardEditorEditTitle": "Edytuj pozycję standardu",
@@ -1342,16 +1161,7 @@
   "bhpEquipmentStatusActiveTooltip": "Karta wyposażenia jest aktywna i może być używana w standardach.",
   "bhpEquipmentStatusInactiveTooltip": "Karta wyposażenia jest nieaktywna i nie trafia do nowych wydań.",
   "bhpEquipmentSubtitle": "Aktywne: {active}, wszystkie: {total}",
-  "@bhpEquipmentSubtitle": {
-    "placeholders": {
-      "active": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpEquipmentSubtitle": {"placeholders": {"active": {"type": "int"}, "total": {"type": "int"}}},
   "bhpEquipmentErrorTitle": "Nie udało się załadować wyposażenia",
   "bhpEquipmentEmptyTitle": "Brak wyposażenia",
   "bhpEquipmentEmptyMessage": "Katalog wyposażenia nie zawiera jeszcze danych.",
@@ -1359,57 +1169,23 @@
   "bhpEquipmentSetInactiveAction": "Ustaw nieaktywne",
   "bhpEquipmentSetInactiveTitle": "Ustaw kartę jako nieaktywną",
   "bhpEquipmentSetInactiveMessage": "Karta {symbol} zostanie wyłączona z aktywnego katalogu wyposażenia.",
-  "@bhpEquipmentSetInactiveMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpEquipmentSetInactiveMessage": {"placeholders": {"symbol": {}}},
   "bhpEquipmentSetInactiveSuccess": "Karta {symbol} została ustawiona jako nieaktywna.",
-  "@bhpEquipmentSetInactiveSuccess": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpEquipmentSetInactiveSuccess": {"placeholders": {"symbol": {}}},
   "bhpEquipmentSetActiveAction": "Ustaw aktywne",
   "bhpEquipmentSetActiveTitle": "Ustaw kartę jako aktywną",
   "bhpEquipmentSetActiveMessage": "Karta {symbol} wróci do aktywnego katalogu wyposażenia.",
-  "@bhpEquipmentSetActiveMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpEquipmentSetActiveMessage": {"placeholders": {"symbol": {}}},
   "bhpEquipmentSetActiveSuccess": "Karta {symbol} została ustawiona jako aktywna.",
-  "@bhpEquipmentSetActiveSuccess": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpEquipmentSetActiveSuccess": {"placeholders": {"symbol": {}}},
   "bhpEquipmentImpactSetInactiveDescription": "Zmiana statusu tej karty na nieaktywną wyłączy wszystkie aktywne przypisania tego wyposażenia na stanowiskach.",
   "bhpEquipmentImpactSetActiveDescription": "Możesz tylko aktywować kartę globalnie albo dodatkowo zaznaczyć, które nieaktywne przypisania stanowisk mają zostać przywrócone.",
   "bhpEquipmentImpactActiveLinksCount": "Aktywne przypisania: {count}",
-  "@bhpEquipmentImpactActiveLinksCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpEquipmentImpactActiveLinksCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpEquipmentImpactInactiveLinksCount": "Nieaktywne przypisania: {count}",
-  "@bhpEquipmentImpactInactiveLinksCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpEquipmentImpactInactiveLinksCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpEquipmentImpactSelectedLinksCount": "Do przywrócenia: {count}",
-  "@bhpEquipmentImpactSelectedLinksCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpEquipmentImpactSelectedLinksCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpEquipmentImpactInactiveSection": "Stanowiska, które zostaną wyłączone",
   "bhpEquipmentImpactActiveSection": "Nieaktywne przypisania możliwe do przywrócenia",
   "bhpEquipmentImpactActiveHint": "Zaznacz tylko te przypisania, które mają wrócić razem z aktywacją karty globalnej.",
@@ -1440,13 +1216,7 @@
   "bhpStatusArchived": "Archiwalny",
   "bhpUserIssuesTitle": "Wydania pracownika",
   "bhpUserIssuesSubtitle": "Historia wydań BHP i ekwiwalentów dla: {name}",
-  "@bhpUserIssuesSubtitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@bhpUserIssuesSubtitle": {"placeholders": {"name": {"type": "String"}}},
   "bhpUserIssuesEmptyTitle": "Brak wydań",
   "bhpUserIssuesEmptyMessage": "Pracownik nie posiada żadnych zarejestrowanych wydań wyposażenia.",
   "bhpUserIssuesErrorTitle": "Nie udało się załadować wydań",
@@ -1474,27 +1244,15 @@
   "bhpUserIssuesInactiveStatusTooltip": "Wydanie zostało zakończone.\nSprzęt nie jest już w użyciu i zwalnia normę na stanowisku.",
   "bhpUserIssuesRepeatAction": "Dodaj ponownie",
   "bhpUserIssuesActionsForSymbol": "Akcje dla: {symbol}",
-  "@bhpUserIssuesActionsForSymbol": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpUserIssuesActionsForSymbol": {"placeholders": {"symbol": {}}},
   "bhpUserIssuesActionsForIssue": "Akcje dla wydania",
   "bhpUserIssuesDeleteIssueTitle": "Usuń wydanie",
   "bhpUserIssuesDeleteIssueMessage": "Czy na pewno chcesz usunąć wydanie {item}? Operacja jest nieodwracalna.",
-  "@bhpUserIssuesDeleteIssueMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpUserIssuesDeleteIssueMessage": {"placeholders": {"item": {}}},
   "bhpUserIssuesDeleteIssueSuccess": "Wydanie zostało usunięte.",
   "bhpUserIssuesRepeatIssueTitle": "Dodaj ponownie",
   "bhpUserIssuesRepeatIssueMessage": "Czy na pewno chcesz automatycznie powtórzyć wydanie {item}?",
-  "@bhpUserIssuesRepeatIssueMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpUserIssuesRepeatIssueMessage": {"placeholders": {"item": {}}},
   "bhpUserIssuesRepeatIssueSuccess": "Wydanie zostało powtórzone.",
   "bhpUserIssuesBulkRepeatAction": "Wydaj ponownie zaznaczone",
   "bhpUserIssuesBulkRepeatTitle": "Potwierdź ponowne wydanie",
@@ -1506,34 +1264,16 @@
   "bhpUserIssuesBulkRepeatEmptyTitle": "Brak pozycji do ponownego wydania",
   "bhpUserIssuesBulkRepeatEmptyMessage": "Nie zaznaczono żadnych aktywnych pozycji do ponownego wydania.",
   "bhpUserIssuesBulkRepeatSelectedCount": "Zaznaczono: {count}",
-  "@bhpUserIssuesBulkRepeatSelectedCount": {
-    "placeholders": {
-      "count": {}
-    }
-  },
+  "@bhpUserIssuesBulkRepeatSelectedCount": {"placeholders": {"count": {}}},
   "bhpUserIssuesBulkRepeatSubmitAction": "Wydaj ponownie",
   "bhpUserIssuesBulkRepeatSelectionRequired": "Zaznacz przynajmniej jedną aktywną pozycję do ponownego wydania.",
   "bhpUserIssuesBulkRepeatSuccess": "Ponownie wydano {count} pozycji.",
-  "@bhpUserIssuesBulkRepeatSuccess": {
-    "placeholders": {
-      "count": {}
-    }
-  },
+  "@bhpUserIssuesBulkRepeatSuccess": {"placeholders": {"count": {}}},
   "bhpUserIssuesBulkRepeatItemSubtitle": "Przydział: {assignedAt} • Zamknięcie: {closedAt} • Ilość: {quantity}",
-  "@bhpUserIssuesBulkRepeatItemSubtitle": {
-    "placeholders": {
-      "assignedAt": {},
-      "closedAt": {},
-      "quantity": {}
-    }
-  },
+  "@bhpUserIssuesBulkRepeatItemSubtitle": {"placeholders": {"assignedAt": {}, "closedAt": {}, "quantity": {}}},
   "bhpUserIssuesOpenPositionDetails": "Otwórz szczegóły stanowiska",
   "bhpUserIssuesPrintCardError": "Błąd podczas generowania wydruku karty: {error}",
-  "@bhpUserIssuesPrintCardError": {
-    "placeholders": {
-      "error": {}
-    }
-  },
+  "@bhpUserIssuesPrintCardError": {"placeholders": {"error": {}}},
   "bhpUserIssuesActionAdd": "Dodaj wydanie",
   "bhpUserIssuesActionFromStandard": "Generuj ze standardu",
   "bhpUserIssuesActionClose": "Zakończ wydanie",
@@ -1577,39 +1317,17 @@
   "bhpIssueEquivalentDeleteAction": "Usuń ekwiwalent",
   "bhpIssueEquivalentDeleteSuccess": "Ekwiwalent został usunięty.",
   "bhpIssueEquivalentDeleteMessage": "Czy usunąć ekwiwalent dla: {item}? Operacja wyczyści datę i kwotę ekwiwalentu, ale nie usunie samego wydania.",
-  "@bhpIssueEquivalentDeleteMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpIssueEquivalentDeleteMessage": {"placeholders": {"item": {}}},
   "bhpIssueValidationPositiveQuantity": "Podaj poprawną ilość większą od 0.",
   "bhpAssignFromStandardTitle": "Dopisz ze standardu",
   "bhpAssignFromStandardLoadErrorTitle": "Nie udało się wczytać standardu",
   "bhpAssignFromStandardDescription": "Poniżej widzisz pozycje ze standardu stanowiska. Zaznaczone pozycje zostaną dopisane, a pozycje już aktywne są zablokowane.",
   "bhpAssignFromStandardSelectedCount": "Do dodania: {count}",
-  "@bhpAssignFromStandardSelectedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpAssignFromStandardSelectedCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpAssignFromStandardLockedCount": "Już aktywne: {count}",
-  "@bhpAssignFromStandardLockedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpAssignFromStandardLockedCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpAssignFromStandardInactiveCount": "Nieaktywne: {count}",
-  "@bhpAssignFromStandardInactiveCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpAssignFromStandardInactiveCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpAssignFromStandardSectionAddable": "Do dodania",
   "bhpAssignFromStandardSectionLocked": "Już aktywne",
   "bhpAssignFromStandardSectionInactive": "Nieaktywne",
@@ -1634,30 +1352,16 @@
   "bhpPositionStandardUnselectedStatus": "Brak wyboru",
   "bhpPositionStandardLoadingStandard": "Wczytywanie standardu...",
   "bhpPositionStandardStandardCount": "Pozycji standardu: {count}",
-  "@bhpPositionStandardStandardCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionStandardStandardCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpPositionStandardPreviewLabel": "Podgląd standardu: {name}",
-  "@bhpPositionStandardPreviewLabel": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPositionStandardPreviewLabel": {"placeholders": {"name": {}}},
   "bhpPositionStandardEmptyStandardTitle": "Brak standardu",
   "bhpPositionStandardEmptyStandardMessage": "Dla wybranego stanowiska nie ma jeszcze przypisanych pozycji.",
   "bhpAddUserTitle": "Dodaj pracownika",
   "bhpAddUserSubtitle": "Nowa karta pracownika BHP z przypisanym stanowiskiem.",
   "bhpAddUserLoadErrorTitle": "Nie udało się przygotować formularza",
   "bhpAddUserSuccessMessage": "Pracownik {name} został dodany.",
-  "@bhpAddUserSuccessMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpAddUserSuccessMessage": {"placeholders": {"name": {}}},
   "bhpAddUserBaseSectionTitle": "Dane podstawowe",
   "bhpAddUserBaseSectionDescription": "Pola wymagane do utworzenia karty pracownika.",
   "bhpAddUserFirstNameLabel": "Imię",
@@ -1678,11 +1382,7 @@
   "bhpAddUserPotentialDuplicateTitle": "Podobny pracownik już istnieje",
   "bhpAddUserPotentialDuplicateMessage": "Znaleziono pracowników o takich samych danych podstawowych. Sprawdź listę przed zapisem.",
   "bhpAddUserPotentialDuplicateBannerMessage": "Podobne rekordy: {users}. Możesz zapisać dalej, ale warto to sprawdzić.",
-  "@bhpAddUserPotentialDuplicateBannerMessage": {
-    "placeholders": {
-      "users": {}
-    }
-  },
+  "@bhpAddUserPotentialDuplicateBannerMessage": {"placeholders": {"users": {}}},
   "bhpAddUserPotentialDuplicateConfirmAction": "Dodaj mimo to",
   "bhpAddUserPotentialDuplicateCancelAction": "Wróć do formularza",
   "bhpAddUserInvalidEmploymentDatesMessage": "Data zakończenia pracy nie może być wcześniejsza niż data rozpoczęcia.",
@@ -1694,46 +1394,25 @@
   "bhpEditUserBaseSectionDescription": "Zaktualizuj dane podstawowe i parametry używane w wydaniach BHP.",
   "bhpEditUserSubmitAction": "Zapisz zmiany",
   "bhpEditUserSuccessMessage": "Pracownik {name} został zaktualizowany.",
-  "@bhpEditUserSuccessMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpEditUserSuccessMessage": {"placeholders": {"name": {}}},
   "bhpPreviewNoAssignedPosition": "Brak przypisanego stanowiska",
   "bhpPreviewDescription": "To jest tymczasowy modal pod workflow pracownika. Następny krok to pełny detal z wydaniami.",
   "bhpPreviewIssuesAction": "Wydania",
   "bhpPreviewEditPendingMessage": "Edycja pracownika nie jest jeszcze podłączona.",
   "bhpPreviewArchivedMessage": "Pracownik {name} został zarchiwizowany.",
-  "@bhpPreviewArchivedMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPreviewArchivedMessage": {"placeholders": {"name": {}}},
   "bhpPreviewRestoreAction": "Przywróć",
   "bhpPreviewRestoreEmployeeMessage": "Przywrócenie odblokuje pracownika. Jeśli ma przeszłą datę zakończenia pracy, zostanie ona wyczyszczona.",
   "bhpPreviewRestoredMessage": "Pracownik {name} został przywrócony.",
-  "@bhpPreviewRestoredMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPreviewRestoredMessage": {"placeholders": {"name": {}}},
   "bhpPreviewForceDeleteAction": "Usuń z bazy",
   "bhpForceDeleteUserConfirmTitle": "Usuń pracownika z bazy",
   "bhpForceDeleteUserConfirmBody": "Ta operacja fizycznie i nieodwracalnie usunie pracownika {name} (ID: {id}) wraz ze wszystkimi powiązanymi wydaniami wyposażenia z bazy danych.",
-  "@bhpForceDeleteUserConfirmBody": {
-    "placeholders": {
-      "name": {},
-      "id": {}
-    }
-  },
+  "@bhpForceDeleteUserConfirmBody": {"placeholders": {"name": {}, "id": {}}},
   "bhpForceDeleteUnlockLabel": "Aby odblokować usunięcie, wpisz: Excellent2026",
   "bhpForceDeleteUnlockHint": "Wpisz Excellent2026, aby odblokować usunięcie.",
   "bhpPreviewForceDeletedMessage": "Pracownik {name} został usunięty z bazy danych.",
-  "@bhpPreviewForceDeletedMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPreviewForceDeletedMessage": {"placeholders": {"name": {}}},
   "bhpIssueConfirmStandardTitle": "Generowanie wyposażenia ze standardu",
   "bhpIssueConfirmStandardMessage": "Czy na pewno chcesz wygenerować wyposażenie BHP ze standardu stanowiska dla tego pracownika?\n\nSystem sprawdzi przypisane normy dla jego stanowiska i automatycznie utworzy brakujące, aktywne wydania. Istniejące, niezakończone wydania nie zostaną zdublowane.",
   "bhpIssueConfirmStandardAction": "Generuj",
@@ -1741,37 +1420,17 @@
   "edit": "Edytuj",
   "inventoryEditCommissionTitle": "Edytuj komisje",
   "inventoryCommissionForInventory": "Komisja inwentaryzacji {number}",
-  "@inventoryCommissionForInventory": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventoryCommissionForInventory": {"placeholders": {"number": {}}},
   "inventoryNoAssignedCommissionTitle": "Brak przypisanej komisji",
   "inventoryNoAssignedCommissionMessage": "Do tej inwentaryzacji nie przypisano jeszcze komisji.",
   "inventoryUserWithId": "Użytkownik #{id}",
-  "@inventoryUserWithId": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryUserWithId": {"placeholders": {"id": {"type": "int"}}},
   "inventoryNoSheetsTitle": "Brak arkuszy",
   "inventoryNoSheetsMessage": "Dodaj pierwszy arkusz dla tej inwentaryzacji.",
   "inventorySheetWithId": "Arkusz #{id}",
-  "@inventorySheetWithId": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySheetWithId": {"placeholders": {"id": {"type": "int"}}},
   "inventoryCommissionForSheet": "Komisja arkusza {label}",
-  "@inventoryCommissionForSheet": {
-    "placeholders": {
-      "label": {}
-    }
-  },
+  "@inventoryCommissionForSheet": {"placeholders": {"label": {}}},
   "inventoryNoAssignedLocation": "Brak przypisanego miejsca",
   "inventoryItemsLabel": "Elementy",
   "inventoryLocationLevelLabel": "Lvl miejsca",
@@ -1779,35 +1438,17 @@
   "end": "Koniec",
   "inventorySheetCommissionNone": "Komisja arkusza: brak",
   "inventorySheetCommissionWithMembers": "Komisja arkusza: {members}",
-  "@inventorySheetCommissionWithMembers": {
-    "placeholders": {
-      "members": {}
-    }
-  },
+  "@inventorySheetCommissionWithMembers": {"placeholders": {"members": {}}},
   "inventoryDeleteCompanyTitle": "Usuń firmę",
   "inventoryDeleteCompanySubtitle": "Operacja usunięcia firmy jest nieodwracalna.",
   "inventoryDeleteCompanyConfirmTitle": "Czy na pewno chcesz usunąć tę firmę?",
   "inventoryDeleteCompanyConfirmBody": "Firma: {name}\nID firmy: {id}\nTej operacji nie można cofnąć.",
-  "@inventoryDeleteCompanyConfirmBody": {
-    "placeholders": {
-      "name": {},
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDeleteCompanyConfirmBody": {"placeholders": {"name": {}, "id": {"type": "int"}}},
   "inventoryDeleteTitle": "Usuń inwentaryzację",
   "inventoryDeleteSubtitle": "Operacja usunięcia inwentaryzacji jest nieodwracalna.",
   "inventoryDeleteConfirmTitle": "Czy na pewno chcesz usunąć tę inwentaryzację?",
   "inventoryDeleteConfirmBody": "Inwentaryzacja: {number}\nID: {id}\nTej operacji nie można cofnąć.",
-  "@inventoryDeleteConfirmBody": {
-    "placeholders": {
-      "number": {},
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDeleteConfirmBody": {"placeholders": {"number": {}, "id": {"type": "int"}}},
   "inventoryDeleteUnlockLabel": "Potwierdzenie",
   "inventoryDeletedMessage": "Inwentaryzacja została usunięta.",
   "inventorySnapshotRefreshButton": "Odswiez snapshot",
@@ -1826,29 +1467,13 @@
   "inventorySnapshotRefreshFailureTitle": "Odświeżenie nie powiodło się",
   "inventorySnapshotRefreshSuccessTitle": "Odświeżenie zakończone",
   "inventorySnapshotRefreshSuccessMessage": "Zakończono odświeżanie. Sukces: {okCount}, błędy: {errorCount}.",
-  "@inventorySnapshotRefreshSuccessMessage": {
-    "placeholders": {
-      "okCount": {
-        "type": "int"
-      },
-      "errorCount": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySnapshotRefreshSuccessMessage": {"placeholders": {"okCount": {"type": "int"}, "errorCount": {"type": "int"}}},
   "inventorySnapshotRefreshProcessingAction": "Przetwarzanie...",
   "inventoryCloseTitle": "Zamknij inwentaryzację",
   "inventoryCloseSubtitle": "Po zamknięciu nie będzie już można edytować danych.",
   "inventoryCloseConfirmTitle": "Czy na pewno chcesz zamknąć tę inwentaryzację?",
   "inventoryCloseConfirmBody": "Inwentaryzacja: {number}\nID: {id}\nStatus zostanie zmieniony na zakończona (2).",
-  "@inventoryCloseConfirmBody": {
-    "placeholders": {
-      "number": {},
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryCloseConfirmBody": {"placeholders": {"number": {}, "id": {"type": "int"}}},
   "inventoryCloseDateLabel": "Data zakończenia (data_do)",
   "inventoryCloseUnlockLabel": "Potwierdzenie zamknięcia",
   "inventoryCloseUnlockHint": "Wpisz Excellent, aby odblokować zamknięcie.",
@@ -1859,14 +1484,7 @@
   "inventoryDeleteSheetSubtitle": "Operacja usunięcia arkusza jest nieodwracalna.",
   "inventoryDeleteSheetConfirmTitle": "Czy na pewno chcesz usunąć ten arkusz?",
   "inventoryDeleteSheetConfirmBody": "Arkusz: {number}\nID: {id}\nTej operacji nie można cofnąć.",
-  "@inventoryDeleteSheetConfirmBody": {
-    "placeholders": {
-      "number": {},
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDeleteSheetConfirmBody": {"placeholders": {"number": {}, "id": {"type": "int"}}},
   "inventoryDeleteSheetBlockedMessage": "Nie można usunąć arkusza zakończonej inwentaryzacji (status=2).",
   "inventorySheetDeletedMessage": "Arkusz został usunięty.",
   "inventoryArchiveTitle": "Archiwum",
@@ -1889,13 +1507,7 @@
   "no": "Nie",
   "inventoryEditSheetItemTitle": "Edytuj element arkusza",
   "inventoryEditSheetItemSubtitle": "{name} ({register}) | KK: {barcode}",
-  "@inventoryEditSheetItemSubtitle": {
-    "placeholders": {
-      "name": {},
-      "register": {},
-      "barcode": {}
-    }
-  },
+  "@inventoryEditSheetItemSubtitle": {"placeholders": {"name": {}, "register": {}, "barcode": {}}},
   "inventoryItemSavedMessage": "Zapisano zmiany elementu.",
   "inventoryInventoryStateShort": "Stan inwent.",
   "inventoryInventoryStateNone": "Brak",
@@ -1910,18 +1522,10 @@
   "inventoryNewPerson": "Nowa osoba",
   "inventoryNewName": "Nowa nazwa",
   "inventoryLocalRemarksHint": "Uwagi",
-  "@inventoryLocalRemarksHint": {
-    "description": "Placeholder pola uwag elementu arkusza edytowanych przez backendowe uwagi_loc."
-  },
+  "@inventoryLocalRemarksHint": {"description": "Placeholder pola uwag elementu arkusza edytowanych przez backendowe uwagi_loc."},
   "inventoryNewBarcodeMaxLengthError": "Nowy kod kreskowy może mieć maksymalnie 64 znaki.",
   "inventoryAddSheetToInventory": "Dodaj arkusz do inwentaryzacji #{inventoryId}",
-  "@inventoryAddSheetToInventory": {
-    "placeholders": {
-      "inventoryId": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryAddSheetToInventory": {"placeholders": {"inventoryId": {"type": "int"}}},
   "inventoryLoadLocationsErrorTitle": "Nie udało się załadować miejsc",
   "inventoryOptionalCommission": "Komisja (opcjonalnie)",
   "inventorySearchByNameOrLoginHint": "Wyszukaj osobę po nazwie lub loginie...",
@@ -1930,21 +1534,9 @@
   "inventoryNoLocationsTitle": "Brak miejsc",
   "inventoryLocationsBackendEmptyMessage": "Backend nie zwrócił miejsc dla tej inwentaryzacji.",
   "inventoryIdWithValue": "ID {id}",
-  "@inventoryIdWithValue": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryIdWithValue": {"placeholders": {"id": {"type": "int"}}},
   "inventoryLocationWithId": "Miejsce: {id}",
-  "@inventoryLocationWithId": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryLocationWithId": {"placeholders": {"id": {"type": "int"}}},
   "inventorySelectLocationBeforeCreateError": "Wybierz miejsce w drzewie przed utworzeniem arkusza.",
   "inventoryInvalidCommissionFormatError": "Lista komisji ma niepoprawny format.",
   "inventorySheetDetailsTitle": "Szczegóły arkusza",
@@ -1966,16 +1558,7 @@
   "inventoryRegisterNumberRequiredError": "Nr ewidencyjny jest wymagany.",
   "inventoryAssetStateLabel": "Status ST",
   "inventoryResultsCount": "Wyniki: {filtered}/{total}",
-  "@inventoryResultsCount": {
-    "placeholders": {
-      "filtered": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryResultsCount": {"placeholders": {"filtered": {"type": "int"}, "total": {"type": "int"}}},
   "inventoryNoItemsTitle": "Brak elementów",
   "inventoryNoSearchResultsTitle": "Brak wyników wyszukiwania",
   "inventoryHideFinished": "Ukryj zakończone",
@@ -2032,13 +1615,7 @@
   "bhpStatisticsUsersCaption": "Unikalne osoby objęte ruchem",
   "bhpStatisticsDominantTypeCaptionNone": "Brak danych",
   "bhpStatisticsDominantTypeCaptionMany": "{count} razy",
-  "@bhpStatisticsDominantTypeCaptionMany": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpStatisticsDominantTypeCaptionMany": {"placeholders": {"count": {"type": "int"}}},
   "bhpStatisticsTopEquipmentTitle": "Najczęściej wydawane elementy",
   "bhpStatisticsTopUsersTitle": "Najbardziej aktywni pracownicy",
   "bhpStatisticsMonthEmptyMessage": "Brak danych dla wybranego miesiąca.",
@@ -2102,13 +1679,7 @@
   "bhpStatisticsIssuesEquivalentCountTooltip": "To liczba przypadków, w których zamiast wydania zarejestrowano ekwiwalent.",
   "bhpStatisticsIssuesComparisonLoading": "Trwa pobieranie porównania...",
   "bhpStatisticsIssuesTableOperationsSuffix": "{count} operacji",
-  "@bhpStatisticsIssuesTableOperationsSuffix": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpStatisticsIssuesTableOperationsSuffix": {"placeholders": {"count": {"type": "int"}}},
   "bhpIssueOperationsTabOperations": "Operacje",
   "bhpIssueOperationsTabStatistics": "Statystyki",
   "bhpIssueOperationsStatisticsTitle": "Statystyki miesięczne",
@@ -2124,13 +1695,7 @@
   "bhpIssueOperationsStatisticsUsersCaption": "Unikalne osoby objęte ruchem",
   "bhpIssueOperationsStatisticsDominantTypeCaptionNone": "Brak danych",
   "bhpIssueOperationsStatisticsDominantTypeCaptionMany": "{count} razy",
-  "@bhpIssueOperationsStatisticsDominantTypeCaptionMany": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpIssueOperationsStatisticsDominantTypeCaptionMany": {"placeholders": {"count": {"type": "int"}}},
   "bhpIssueOperationsStatisticsTopEquipmentTitle": "Najczęściej wydawane elementy",
   "bhpIssueOperationsStatisticsTopUsersTitle": "Najbardziej aktywni pracownicy",
   "bhpIssueOperationsStatisticsNoMonthItemsMessage": "Brak danych dla wybranego miesiąca.",
@@ -2152,40 +1717,20 @@
   "bhpUserIssuesBlockedBannerMessage": "Pracownik nie może obecnie otrzymywać wydań. Sprawdź status pracownika i stanowiska.",
   "bhpUserIssuesCompliantBannerTitle": "Zgodne ze standardem",
   "bhpUserIssuesCompliantBannerMessage": "Wszystkie aktywne pozycje standardu są pokryte aktywnymi wydaniami. Aktywnych wydań: {count}.",
-  "@bhpUserIssuesCompliantBannerMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUserIssuesCompliantBannerMessage": {"placeholders": {"count": {"type": "int"}}},
   "bhpUserIssuesMissingBannerTitle": "Braki względem standardu",
   "bhpUserIssuesMissingBannerMessage": "Brakuje {count} pozycji wymaganych przez standard stanowiska. Uzupełnij je w sekcji \"Do wydania wg standardu\".",
-  "@bhpUserIssuesMissingBannerMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUserIssuesMissingBannerMessage": {"placeholders": {"count": {"type": "int"}}},
   "bhpUserIssuesNoNameFallback": "Brak nazwy",
   "bhpUserIssuesRenewAction": "Wydaj ponownie",
   "bhpUserIssuesIssueStandardConfirmTitle": "Wydać pozycję standardu",
   "bhpUserIssuesIssueStandardConfirmMessage": "Czy chcesz wydać pozycję {item} zgodnie ze standardem stanowiska?",
-  "@bhpUserIssuesIssueStandardConfirmMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpUserIssuesIssueStandardConfirmMessage": {"placeholders": {"item": {}}},
   "bhpUserIssuesIssueStandardConfirmAction": "Wydaj",
   "bhpUserIssuesIssueStandardSuccess": "Pozycja została wydana zgodnie ze standardem.",
   "bhpUserIssuesRenewActiveTitle": "Wydaj ponownie",
   "bhpUserIssuesRenewActiveMessage": "Poprzednie aktywne wydanie {item} zostanie automatycznie zamknięte, a nowe wydanie zostanie utworzone od dziś. Kontynuować?",
-  "@bhpUserIssuesRenewActiveMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpUserIssuesRenewActiveMessage": {"placeholders": {"item": {}}},
   "bhpUserIssuesRenewActiveAction": "Wydaj ponownie",
   "bhpUserIssuesRenewActiveSuccess": "Utworzono nowe wydanie, a poprzednie zostało zamknięte.",
   "bhpUserIssuesPrintSelectTitle": "Wybierz pozycje do wydruku",
@@ -2196,13 +1741,7 @@
   "bhpUserIssuesPrintEmptyMessage": "Dla tego pracownika nie ma jeszcze wydań do zaznaczenia.",
   "bhpUserIssuesPrintSelectedAction": "Drukuj zaznaczone",
   "bhpUserIssuesPrintIssueLabelFallback": "Pozycja #{id}",
-  "@bhpUserIssuesPrintIssueLabelFallback": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUserIssuesPrintIssueLabelFallback": {"placeholders": {"id": {"type": "int"}}},
   "bhpUserIssuesLastIssueLabel": "Ostatnie wydanie",
   "bhpUserIssueInfoSubtitle": "Karta wyposażenia",
   "bhpUserIssueInfoNoEquipmentTitle": "Brak karty wyposażenia",
@@ -2232,26 +1771,11 @@
   "bhpUserIssuesPdfHeadLabel": "Obwód głowy",
   "bhpUserIssuesPdfFootLabel": "Długość stopy",
   "bhpUserIssuesPdfPageLabel": "Strona {current} / {total}",
-  "@bhpUserIssuesPdfPageLabel": {
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUserIssuesPdfPageLabel": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
   "bhpIssueFormEquipmentRequired": "Wyposażenie jest wymagane.",
   "bhpIssueNoEquipmentFallback": "Brak wyposażenia",
   "bhpIssueCardFallback": "Karta #{id}",
-  "@bhpIssueCardFallback": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpIssueCardFallback": {"placeholders": {"id": {"type": "int"}}},
   "bhpIssueUnknownEquipmentFallback": "Nieznane wyposażenie",
   "bhpIssueEquivalentHelperExisting": "Możesz zmienić datę i kwotę ekwiwalentu. Data nie może być wcześniejsza niż data przydziału.",
   "bhpIssueEquivalentHelperOpen": "Ekwiwalent możesz wpisać także dla otwartego wydania. Data nie może być wcześniejsza niż data przydziału.",
@@ -2265,21 +1789,13 @@
   "bhpDeleteUserTitle": "Usuń pracownika",
   "bhpDeleteUserSubtitle": "Operacja usuwa pracownika z aktywnej listy przez archiwizację.",
   "bhpDeleteUserConfirmMessage": "Czy na pewno chcesz usunąć {name}?",
-  "@bhpDeleteUserConfirmMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpDeleteUserConfirmMessage": {"placeholders": {"name": {}}},
   "bhpDeleteUserArchiveMessage": "Operacja nieodwracalnie usuwa pracownika i całą historię BHP z bazy.",
   "bhpArchiveUserAction": "Archiwizuj",
   "bhpArchiveUserTitle": "Archiwizuj pracownika",
   "bhpArchiveUserSubtitle": "Operacja usuwa pracownika z aktywnej listy, ale nie kasuje jego historii BHP.",
   "bhpArchiveUserConfirmMessage": "Czy na pewno chcesz zarchiwizować {name}?",
-  "@bhpArchiveUserConfirmMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpArchiveUserConfirmMessage": {"placeholders": {"name": {}}},
   "bhpArchiveUserMessage": "Pracownik zostanie przeniesiony do archiwum i zniknie z aktywnej listy. Historię BHP będzie można dalej przeglądać, a pracownika później przywrócić.",
   "bhpStatisticsComparisonsTabMetrics": "Wskaźniki roczne",
   "bhpStatisticsComparisonsTabProducts": "Produkty",
@@ -2288,13 +1804,7 @@
   "bhpStatisticsComparisonsMetricsSubtitle": "Zestawienie najważniejszych wskaźników BHP dla wybranego roku oraz dwóch lat wstecz.",
   "bhpStatisticsComparisonsTableColumnMetric": "Wskaźnik",
   "bhpStatisticsComparisonsYearLabel": "Rok {year}",
-  "@bhpStatisticsComparisonsYearLabel": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpStatisticsComparisonsYearLabel": {"placeholders": {"year": {"type": "int"}}},
   "bhpStatisticsComparisonsProductsTitle": "Porównanie wydań produktów (artykułów BHP)",
   "bhpStatisticsComparisonsProductsSubtitle": "Zestawienie zapotrzebowania na poszczególne produkty w formacie: Liczba wydań (Ilość sztuk).",
   "bhpStatisticsComparisonsTableColumnProduct": "Produkt / Artykuł BHP",
@@ -2318,30 +1828,14 @@
   "settingsSectionPlaceholderBody": "Struktura jest już gotowa pod przyszłe ustawienia globalne.",
   "inventorySurplusConflictsTitle": "Konflikty nadwyżek",
   "inventorySurplusConflictsSubtitle": "Inwentaryzacja {number}",
-  "@inventorySurplusConflictsSubtitle": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventorySurplusConflictsSubtitle": {"placeholders": {"number": {}}},
   "inventorySurplusConflictsLoadingLabel": "Sprawdzam nadwyżki",
   "inventorySurplusConflictsRetryLabel": "Pokaż nadwyżki",
   "inventorySurplusConflictsEmptyBadge": "Brak konfliktów nadwyżek",
   "inventorySurplusConflictsDetectedAction": "{count} nadwyżek bez pary",
-  "@inventorySurplusConflictsDetectedAction": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySurplusConflictsDetectedAction": {"placeholders": {"count": {"type": "int"}}},
   "inventorySurplusConflictsResultsCount": "Nadwyżki bez pary: {count}",
-  "@inventorySurplusConflictsResultsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySurplusConflictsResultsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventorySurplusConflictsEmptyTitle": "Brak konfliktów nadwyżek",
   "inventorySurplusConflictsEmptyMessage": "Ta inwentaryzacja nie ma obecnie żadnych nadwyżek bez odpowiadającego braku w innych arkuszach.",
   "inventorySurplusConflictsMatchBasisLabel": "Parowanie po",
@@ -2351,69 +1845,27 @@
   "inventoryDuplicateConflictsSubtitle": "Wykryte duplikaty numerów ewidencyjnych w stan_st.",
   "inventoryDuplicateConflictsRetryLabel": "Pokaż duplikaty",
   "inventoryDuplicateConflictsSummary": "Grupy: {groups} • Rekordy: {records}",
-  "@inventoryDuplicateConflictsSummary": {
-    "placeholders": {
-      "groups": {},
-      "records": {}
-    }
-  },
+  "@inventoryDuplicateConflictsSummary": {"placeholders": {"groups": {}, "records": {}}},
   "inventoryDuplicateConflictsDetected": "Wykryto {count} grup duplikatów",
-  "@inventoryDuplicateConflictsDetected": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDuplicateConflictsDetected": {"placeholders": {"count": {"type": "int"}}},
   "inventoryDuplicateConflictsVisibleResults": "Widoczne: {groups} grup • {records} rekordów",
-  "@inventoryDuplicateConflictsVisibleResults": {
-    "placeholders": {
-      "groups": {
-        "type": "int"
-      },
-      "records": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDuplicateConflictsVisibleResults": {"placeholders": {"groups": {"type": "int"}, "records": {"type": "int"}}},
   "inventoryDuplicateConflictsFetchError": "Nie udało się pobrać duplikatów stan_st.",
   "inventoryDuplicateConflictsEmptyTitle": "Brak duplikatów numerów ewidencyjnych",
   "inventoryDuplicateConflictsEmptyMessage": "W aktualnym snapshotcie stan_st nie znaleziono duplikatów numerów ewidencyjnych.",
   "inventoryDuplicateGroupRecordsCount": "{count} rekordy",
-  "@inventoryDuplicateGroupRecordsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDuplicateGroupRecordsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryDuplicateCompaniesLabel": "Firmy: {list}",
-  "@inventoryDuplicateCompaniesLabel": {
-    "placeholders": {
-      "list": {}
-    }
-  },
+  "@inventoryDuplicateCompaniesLabel": {"placeholders": {"list": {}}},
   "inventoryDuplicateVariantsLabel": "Warianty: {variants}",
-  "@inventoryDuplicateVariantsLabel": {
-    "placeholders": {
-      "variants": {}
-    }
-  },
+  "@inventoryDuplicateVariantsLabel": {"placeholders": {"variants": {}}},
   "inventoryDuplicateCopiedRegisterToast": "Skopiowano numer ewidencyjny.",
   "inventoryImport": "Import",
   "inventoryDeleteStockTitle": "Usuń środek trwały",
   "inventoryDeleteStockSubtitle": "Operacja usuwa rekord ze snapshotu stanów środków trwałych.",
   "inventoryDeleteStockConfirmTitle": "Czy na pewno chcesz usunąć ten rekord?",
   "inventoryDeleteStockConfirmBody": "Rekord ID: {id}\nNumer ewidencyjny: {register}\nNazwa: {name}",
-  "@inventoryDeleteStockConfirmBody": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      },
-      "register": {},
-      "name": {}
-    }
-  },
+  "@inventoryDeleteStockConfirmBody": {"placeholders": {"id": {"type": "int"}, "register": {}, "name": {}}},
   "inventoryDeleteStockHelper": "Przepisz numer ewidencyjny i pełną nazwę. Wielkość liter nie ma znaczenia.",
   "inventoryDeleteStockRegisterLabel": "Numer ewidencyjny",
   "inventoryDeleteStockNameLabel": "Pełna nazwa",
@@ -2428,52 +1880,16 @@
   "inventoryTreeNoLocationsTitle": "Brak miejsc do pokazania",
   "inventoryTreeNoLocationsMessage": "Ta inwentaryzacja nie ma jeszcze przypisanych miejsc.",
   "inventoryTreeNodesSummary": "Węzły: {count}",
-  "@inventoryTreeNodesSummary": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryTreeNodesSummary": {"placeholders": {"count": {"type": "int"}}},
   "inventoryTreeNodesAmbiguousSummary": "Węzły: {count} • niejednoznaczne: {ambiguous}",
-  "@inventoryTreeNodesAmbiguousSummary": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "ambiguous": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryTreeNodesAmbiguousSummary": {"placeholders": {"count": {"type": "int"}, "ambiguous": {"type": "int"}}},
   "inventoryTreeCompanySummary": "{places, plural, =1{1 miejsce} few{{places} miejsca} other{{places} miejsc}} • {sheets} z arkuszem",
-  "@inventoryTreeCompanySummary": {
-    "placeholders": {
-      "places": {
-        "type": "int"
-      },
-      "sheets": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryTreeCompanySummary": {"placeholders": {"places": {"type": "int"}, "sheets": {"type": "int"}}},
   "inventoryTreeCompanyAmbiguousSuffix": " • są niejednoznaczne",
   "inventoryProductsCount": "{count, plural, =1{1 produkt} few{{count} produkty} other{{count} produktów}}",
-  "@inventoryProductsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryProductsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryTreeIncompleteTitle": "Niewykonane ({count})",
-  "@inventoryTreeIncompleteTitle": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryTreeIncompleteTitle": {"placeholders": {"count": {"type": "int"}}},
   "inventoryTreeStatusAmbiguous": "Niejednoznaczne",
   "inventoryTreeStatusCompleted": "Wykonano",
   "inventoryTreeStatusMissingSheet": "Brak arkusza",
@@ -2485,24 +1901,9 @@
   "inventoryProductsEmptyTitle": "Brak produktów",
   "inventoryProductsEmptyMessage": "To miejsce nie ma aktywnych produktów w snapshotcie stan_st.",
   "inventoryProductsShownSummary": "Pokazano {visible} z {total} produktów",
-  "@inventoryProductsShownSummary": {
-    "placeholders": {
-      "visible": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryProductsShownSummary": {"placeholders": {"visible": {"type": "int"}, "total": {"type": "int"}}},
   "inventoryProductsSummary": "Produkty: {total}",
-  "@inventoryProductsSummary": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryProductsSummary": {"placeholders": {"total": {"type": "int"}}},
   "inventoryShowingLastDataTitle": "Pokazuję ostatnie dane",
   "tasksBoardTitle": "Zadania projektu",
   "tasksBoardErrorTitle": "Nie udało się otworzyć tablicy",
@@ -2611,6 +2012,14 @@
   "tasksKanbanSwimlaneAssignee": "Według osoby przypisanej",
   "tasksKanbanSwimlanePriority": "Według priorytetu",
   "tasksKanbanSwimlaneMilestone": "Według kamienia milowego",
+  "tasksBoardGroupBy": "Grupuj według",
+  "tasksBoardGroupByStatus": "Status",
+  "tasksBoardCurrentUserBadge": "Ty",
+  "tasksBoardMoveToPerson": "Przenieś do osoby",
+  "tasksBoardLoadMore": "Wczytaj więcej",
+  "tasksBoardUnassignedDropTitle": "Usunąć wszystkich wykonawców?",
+  "tasksBoardUnassignedDropBody": "Upuszczenie karty tutaj usunie wszystkich wykonawców zadania. Status zadania się nie zmieni.",
+  "tasksBoardUnassignedDropConfirm": "Usuń wykonawców",
   "tasksKanbanCardDensity": "Gęstość kart",
   "tasksKanbanDensityCompact": "Kompaktowa",
   "tasksKanbanDensityComfortable": "Wygodna",
@@ -2674,6 +2083,11 @@
   "tasksListPriority": "Priorytet",
   "tasksBoardFilterAssignee": "Osoba",
   "tasksBoardFilterAllPeople": "Wszystkie osoby",
+  "tasksBoardAssigneeColumns": "Kolumny osób",
+  "tasksBoardAssigneeColumnsHideEmpty": "Ukryj puste kolumny",
+  "tasksBoardAssigneeColumnsShowAll": "Pokaż wszystkie kolumny",
+  "tasksBoardAssigneeColumnsAllHidden": "Wszystkie kolumny ukryte — pokaż je",
+  "tasksBoardActiveFilters": "Aktywne filtry:",
   "tasksBoardMoveBlockedByFilter": "Nie można przenieść karty do kolumny, której zawartość ukrywa aktywny filtr. Wyczyść filtry i spróbuj ponownie.",
   "tasksListTask": "Zadanie",
   "tasksListOwner": "Właściciel",
@@ -2724,24 +2138,11 @@
   "tasksArchiveAction": "Archiwizuj",
   "tasksSelectTask": "Wybierz zadanie {taskCode}",
   "tasksOpenTask": "Otwórz zadanie {taskCode}: {title}",
-  "@tasksOpenTask": {
-    "placeholders": {
-      "taskCode": {},
-      "title": {}
-    }
-  },
+  "@tasksOpenTask": {"placeholders": {"taskCode": {}, "title": {}}},
   "tasksExpandColumn": "Rozwiń kolumnę {name}",
-  "@tasksExpandColumn": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@tasksExpandColumn": {"placeholders": {"name": {}}},
   "tasksDropAtEnd": "Upuść zadanie na końcu kolumny {name}",
-  "@tasksDropAtEnd": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
+  "@tasksDropAtEnd": {"placeholders": {"name": {"type": "String"}}},
   "@tasksSelectTask": {"placeholders": {"taskCode": {"type": "String"}}},
   "tasksPinTask": "Przypnij zadanie",
   "tasksUnpinTask": "Odepnij zadanie",
@@ -2792,22 +2193,12 @@
   "taskDetailsHistoryActorAutomation": "Automatyzacja",
   "taskDetailsHistoryActorUser": "Użytkownik",
   "taskDetailsHistoryVersion": "w.{version}",
-  "@taskDetailsHistoryVersion": {
-    "placeholders": {
-      "version": {
-        "type": "int"
-      }
-    }
-  },
+  "@taskDetailsHistoryVersion": {"placeholders": {"version": {"type": "int"}}},
   "taskDetailsRecurrence": "Cykliczność",
   "taskDetailsConfigureRecurrence": "Skonfiguruj",
   "taskDetailsRecurrenceNotConfigured": "To zadanie nie jest cykliczne.",
   "taskDetailsRecurrenceEvery": "co {count}",
-  "@taskDetailsRecurrenceEvery": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
+  "@taskDetailsRecurrenceEvery": {"placeholders": {"count": {"type": "int"}}},
   "taskDetailsRecurrenceActive": "Aktywna",
   "taskDetailsRecurrencePaused": "Wstrzymana",
   "taskDetailsRecurrenceMode": "Tryb harmonogramu",
@@ -3075,11 +2466,7 @@
   "tasksSavedViewsRename": "Zmień nazwę",
   "tasksSavedViewsDelete": "Usuń widok",
   "tasksSavedViewsDeleteDescription": "Czy na pewno chcesz usunąć widok „{name}”?",
-  "@tasksSavedViewsDeleteDescription": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@tasksSavedViewsDeleteDescription": {"placeholders": {"name": {}}},
   "tasksSavedViewsName": "Nazwa widoku",
   "tasksSavedViewsLayout": "Układ",
   "tasksSavedViewsSort": "Sortowanie",
@@ -3177,31 +2564,13 @@
   "tasksRecurrenceDeleteSuccess": "Pomyślnie usunięto cykliczność zadania",
   "taskRecurrenceIntervalDaily": "Codziennie",
   "taskRecurrenceIntervalDays": "Co {interval} dni",
-  "@taskRecurrenceIntervalDays": {
-    "placeholders": {
-      "interval": {
-        "type": "int"
-      }
-    }
-  },
+  "@taskRecurrenceIntervalDays": {"placeholders": {"interval": {"type": "int"}}},
   "taskRecurrenceIntervalWeekly": "Co tydzień",
   "taskRecurrenceIntervalWeeks": "Co {interval} tyg.",
-  "@taskRecurrenceIntervalWeeks": {
-    "placeholders": {
-      "interval": {
-        "type": "int"
-      }
-    }
-  },
+  "@taskRecurrenceIntervalWeeks": {"placeholders": {"interval": {"type": "int"}}},
   "taskRecurrenceIntervalMonthly": "Co miesiąc",
   "taskRecurrenceIntervalMonths": "Co {interval} mies.",
-  "@taskRecurrenceIntervalMonths": {
-    "placeholders": {
-      "interval": {
-        "type": "int"
-      }
-    }
-  },
+  "@taskRecurrenceIntervalMonths": {"placeholders": {"interval": {"type": "int"}}},
   "taskRecurrenceHeader": "Powtarzanie zadania",
   "taskRecurrenceFrequencyLabel": "Częstotliwość powtórzeń",
   "taskRecurrencePresetWorkdays": "W dni robocze",
@@ -3227,13 +2596,7 @@
   "tasksListMoreOptionsTooltip": "Więcej opcji",
   "tasksListKeyCopiedTooltip": "Skopiowano klucz zadania do schowka",
   "tasksListAddInGroupTooltip": "Dodaj zadanie w grupie: {group}",
-  "@tasksListAddInGroupTooltip": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
+  "@tasksListAddInGroupTooltip": {"placeholders": {"group": {"type": "String"}}},
   "tasksListQuickCreateTitle": "Nowe zadanie",
   "tasksListQuickCreateHint": "Wpisz tytuł nowego zadania...",
   "tasksListQuickCreateButton": "Utwórz",
@@ -3403,13 +2766,7 @@
   "projectSettingsTemplateDetailsCustomFields": "Pola niestandardowe",
   "projectSettingsTemplateDetailsLabels": "Etykiety",
   "projectSettingsTemplateDetailsTasks": "Zadania startowe ({count})",
-  "@projectSettingsTemplateDetailsTasks": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@projectSettingsTemplateDetailsTasks": {"placeholders": {"count": {"type": "int"}}},
   "projectSettingsTemplateDetailsNoTasks": "Brak zdefiniowanych zadań startowych.",
   "projectSettingsTemplateDetailsNoFields": "Brak zdefiniowanych pól niestandardowych.",
   "projectSettingsTemplateDetailsNoLabels": "Brak zdefiniowanych etykiet.",
@@ -3418,13 +2775,7 @@
   "projectSettingsTemplateCreateDialogDesc": "Bieżący projekt wraz ze statusami workflow, polami własnymi i zadaniami startowymi zostanie zapisany jako szablon wielokrotnego użytku.",
   "projectSettingsTemplateApplyDialogDesc": "Na podstawie tego szablonu zostanie utworzony nowy projekt ze wszystkimi statusami, polami niestandardowymi i zadaniami.",
   "projectSettingsTemplateUpdatedLabel": "Zaktualizowano: {date}",
-  "@projectSettingsTemplateUpdatedLabel": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
+  "@projectSettingsTemplateUpdatedLabel": {"placeholders": {"date": {"type": "String"}}},
   "projectUserHubTitle": "Moje Centrum Projektu",
   "projectUserHubTabProfile": "Mój Profil",
   "projectUserHubTabPreferences": "Moje Preferencje",
@@ -3472,13 +2823,7 @@
   "tasksListEstimatedMinutes": "Estymata",
   "tasksListActualMinutes": "Czas rzeczywisty",
   "tasksListResizeColumnTooltip": "Zmień szerokość kolumny: {name}",
-  "@tasksListResizeColumnTooltip": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@tasksListResizeColumnTooltip": {"placeholders": {"name": {"type": "String"}}},
   "tasksListColumnsTitle": "Dostosuj kolumny",
   "tasksListColumnsSubtitle": "Zarządzaj widocznością i kolejnością kolumn na liście",
   "tasksListColumnsSearchHint": "Szukaj kolumn...",
@@ -3516,6 +2861,21 @@
   "storageMyFiles": "Moje pliki",
   "storageSharedWithMe": "Udostępnione mi",
   "storageRecent": "Ostatnie",
+  "storageFilterActiveLabel": "Aktywny filtr:",
+  "storageFilterAll": "Wszystkie",
+  "storageFilterClear": "Wyczyść",
+  "storageFilterDateMonth": "Ostatnie 30 dni",
+  "storageFilterDateSection": "Data dodania",
+  "storageFilterDateToday": "Dziś",
+  "storageFilterDateWeek": "Ostatnie 7 dni",
+  "storageFilterMenuLabel": "Filtry",
+  "storageFilterStatusCompleted": "Gotowe",
+  "storageFilterStatusFailed": "Błąd",
+  "storageFilterStatusNone": "Bez analizy",
+  "storageFilterStatusProcessing": "W trakcie",
+  "storageFilterStatusQueued": "W kolejce",
+  "storageFilterStatusSection": "Status analizy",
+  "storageFilterTypeSection": "Typ pliku",
   "storageFavorites": "Ulubione",
   "storageTrash": "Kosz",
   "storageNewFolder": "Nowy folder",
@@ -3529,13 +2889,7 @@
   "storageSortSizeDesc": "Największe",
   "storageSortSizeAsc": "Najmniejsze",
   "storageSelectedCount": "{count, plural, =1{Zaznaczono 1 element} few{Zaznaczono {count} elementy} many{Zaznaczono {count} elementów} other{Zaznaczono {count} elementów}}",
-  "@storageSelectedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@storageSelectedCount": {"placeholders": {"count": {"type": "int"}}},
   "storageDownloadZip": "Pobierz ZIP",
   "storageDeleteSelected": "Usuń zaznaczone",
   "storageRestoreSelected": "Przywróć",
@@ -3573,24 +2927,21 @@
   "storageMutationConflict": "Folder o tej nazwie już istnieje.",
   "storageMutationValidation": "Wprowadź prawidłową nazwę folderu.",
   "storageShareTitle": "Udostępnij: {fileName}",
-  "@storageShareTitle": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      }
-    }
-  },
+  "@storageShareTitle": {"placeholders": {"fileName": {"type": "String"}}},
   "storageActiveShares": "Aktywne udostępnienia",
   "storageNoActiveShares": "Brak aktywnych udostępnień poza właścicielem.",
   "storageShareUserLabel": "Użytkownik: {identifier}",
-  "@storageShareUserLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "@storageShareUserLabel": {"placeholders": {"identifier": {"type": "String"}}},
   "storageShareWorkspaceLabel": "Workspace: {identifier}",
-  "@storageShareWorkspaceLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "@storageShareWorkspaceLabel": {"placeholders": {"identifier": {"type": "String"}}},
   "storageShareProjectLabel": "Projekt: {identifier}",
-  "@storageShareProjectLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "@storageShareProjectLabel": {"placeholders": {"identifier": {"type": "String"}}},
   "storageUserInputHint": "Identyfikator użytkownika / e-mail",
   "storageUserSearchWorkspaceRequired": "Wyszukiwanie lokalnego katalogu jest dostępne dla plików workspace lub projektu.",
   "storageUserSearchNoResults": "Nie znaleziono użytkowników z aktywnym kontem lokalnym.",
+  "storageViewDensityLabel": "Gęstość wierszy",
+  "storageViewDensityComfortable": "Wygodna",
+  "storageViewDensityCompact": "Kompaktowa",
   "storageAddShareButton": "Dodaj",
   "storagePublicLinkTitle": "Link publiczny",
   "storagePublicLinkSubtitle": "Umożliwia dostęp bez logowania z wybranymi prawami",
@@ -3603,10 +2954,10 @@
   "storageHidePassword": "Ukryj hasło",
   "storagePublicShareDownload": "Pobierz plik",
   "storagePublicShareDownloadStarted": "Rozpoczęto pobieranie: {fileName}",
-  "@storagePublicShareDownloadStarted": {"placeholders":{"fileName":{"type":"String"}}},
+  "@storagePublicShareDownloadStarted": {"placeholders": {"fileName": {"type": "String"}}},
   "storagePublicLinkNoExpiry": "Bez daty wygaśnięcia",
   "storagePublicLinkExpires": "Wygasa {date}",
-  "@storagePublicLinkExpires": {"placeholders":{"date":{"type":"String"}}},
+  "@storagePublicLinkExpires": {"placeholders": {"date": {"type": "String"}}},
   "storageCopyPublicLink": "Kopiuj link publiczny",
   "storageGenerateLinkButton": "Generuj link",
   "storageLinkCopied": "Link skopiowany do schowka",
@@ -3615,14 +2966,17 @@
   "storageAccessEditor": "Edycja",
   "storageAccessOwner": "Właściciel",
   "storageShareAction": "Udostępnij",
+  "storageShareAuthor": "Autor: {identifier}",
+  "storageShareExpiresAt": "Wygasa: {date}",
+  "storageShareLinkSection": "Link publiczny",
+  "storageSharePeopleSection": "Osoby",
+  "storageShareProjectSection": "Projekt",
+  "storageShareWorkspaceSection": "Workspace",
   "storageAddFavoriteAction": "Dodaj do ulubionych",
   "storageRemoveFavoriteAction": "Usuń z ulubionych",
   "storageDownloadAction": "Pobierz",
   "storageDownloadSuccess": "Pobrano plik: {fileName} do folderu Pobrane",
-  "@storageDownloadSuccess": {
-    "description": "Potwierdzenie zapisania pliku w desktopowym folderze Pobrane.",
-    "placeholders": {"fileName": {"type": "String"}}
-  },
+  "@storageDownloadSuccess": {"description": "Potwierdzenie zapisania pliku w desktopowym folderze Pobrane.", "placeholders": {"fileName": {"type": "String"}}},
   "storageDeleteAction": "Usuń",
   "storageOpenOfficeAction": "Otwórz dokument",
   "storageOfficeEditMode": "Tryb edycji",
@@ -3632,41 +2986,40 @@
   "storageOfficeHostFailure": "Nie udało się załadować osadzonego edytora OnlyOffice.",
   "storageOfficeDownloadFailure": "Nie udało się przygotować pobrania dokumentu. Sprawdź połączenie z OnlyOffice i spróbuj ponownie.",
   "storageOfficeCloseUnconfirmed": "Edytor nie potwierdził bezpiecznego zamknięcia. Zamknięcie mimo tego może spowodować utratę niezapisanych zmian. Czy zamknąć dokument?",
+  "storageOfficeCloseUnsavedBody": "Dokument ma zmiany, które nie zostały jeszcze potwierdzone zapisem. Zamknięcie edytora może je utracić.",
+  "storageOfficeCloseUnsavedTitle": "Zamknąć bez zapisu?",
+  "storageOfficeConnected": "Połączono",
+  "storageOfficeConnecting": "Łączenie…",
+  "storageOfficeSavedChanges": "Zapisano",
+  "storageOfficeUnsavedChanges": "Niezapisane zmiany",
   "storageOfficeSessionFailure": "Nie udało się uruchomić sesji edytora OnlyOffice",
   "storageOfficePrintAction": "Drukuj",
   "storageOfficePrinting": "Przygotowywanie wydruku…",
   "storageOfficePrintFailure": "Nie udało się wydrukować dokumentu.",
   "storageOfficeDownloadSuccess": "Pobrano plik: {fileName} do folderu Pobrane",
-  "@storageOfficeDownloadSuccess": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      }
-    }
-  },
+  "@storageOfficeDownloadSuccess": {"placeholders": {"fileName": {"type": "String"}}},
   "storageOfficeSaveCopyAction": "Zapisz kopię w Storage",
   "storageOfficeSavingCopy": "Zapisywanie kopii w Storage…",
   "storageOfficeSaveCopySuccess": "Zapisano kopię „{fileName}” w Storage",
-  "@storageOfficeSaveCopySuccess": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      }
-    }
-  },
+  "@storageOfficeSaveCopySuccess": {"placeholders": {"fileName": {"type": "String"}}},
   "storageOfficeSaveCopyFailure": "Nie udało się zapisać kopii dokumentu w Storage.",
   "storageCloseOffice": "Zamknij dokument",
   "storageSortTooltip": "Sortowanie",
   "storageListViewTooltip": "Widok listy",
   "storageGridViewTooltip": "Widok siatki",
   "storageMoreOptionsTooltip": "Więcej opcji",
+  "storageMoveAction": "Przenieś do…",
+  "storageMoveConfirm": "Przenieś tutaj",
+  "storageMoveDialogNoSubfolders": "Brak podfolderów. Wybierz ten folder albo przejdź wyżej.",
+  "storageMoveDialogRoot": "Katalog główny",
+  "storageMoveDialogTitle": "Przenieś do folderu",
   "storageClearCompletedTooltip": "Wyczyść zakończone",
   "storageCancelUploadTooltip": "Anuluj wysyłanie",
   "storageRetryUploadTooltip": "Ponów transfer",
   "storageErrorTitle": "Wystąpił błąd",
   "storageForbiddenTitle": "Brak uprawnień",
   "storagePreviewError": "Błąd podglądu: {message}",
-  "@storagePreviewError": {"placeholders":{"message":{"type":"String"}}},
+  "@storagePreviewError": {"placeholders": {"message": {"type": "String"}}},
   "storageImageLoadError": "Nie udało się załadować obrazu.",
   "storageOfficeDescription": "Dokument pakietu biurowego gotowy do pracy w OnlyOffice.",
   "storagePdfDescription": "Dokument PDF można otworzyć w bezpiecznym podglądzie systemowym.",
@@ -3680,20 +3033,23 @@
   "storageOpenText": "Otwórz treść",
   "storageRemoveShareTooltip": "Usuń uprawnienie",
   "storageShareAccessLabel": "Prawa: {access}",
-  "@storageShareAccessLabel": {"placeholders":{"access":{"type":"String"}}},
+  "@storageShareAccessLabel": {"placeholders": {"access": {"type": "String"}}},
   "storageFolderTitle": "Katalog",
   "storageWorkspaceFilesTitle": "Pliki workspace",
   "storageProjectFilesTitle": "Pliki projektu",
-  "storageAttachmentsTitle": "Załączniki"
-  ,"storageFilesCount": "{count, plural, =1{1 plik} few{{count} pliki} many{{count} plików} other{{count} pliku}}",
-  "@storageFilesCount": {"placeholders":{"count":{"type":"int"}}},
+  "storageAttachmentsTitle": "Załączniki",
+  "storageFilesCount": "{count, plural, =1{1 plik} few{{count} pliki} many{{count} plików} other{{count} pliku}}",
+  "@storageFilesCount": {"placeholders": {"count": {"type": "int"}}},
   "storageFoldersTitle": "Foldery",
   "storageItemsCount": "{count, plural, =1{1 element} few{{count} elementy} many{{count} elementów} other{{count} elementu}}",
-  "@storageItemsCount": {"placeholders":{"count":{"type":"int"}}}
-  ,"storageVersionsTitle": "Historia wersji",
+  "@storageItemsCount": {"placeholders": {"count": {"type": "int"}}},
+  "storageVersionsTitle": "Historia wersji",
   "storageVersionsEmpty": "Brak zapisanych wersji pliku.",
+  "storageVersionPreviewBadge": "Wersja {version} — podgląd",
+  "storageVersionPreviewAction": "Podgląd wersji",
+  "storageVersionPreviewOfficeUnavailable": "Podgląd historycznej wersji dokumentu biurowego nie jest dostępny w tej sesji. Pobierz plik, aby ją zobaczyć.",
   "storageVersionLabel": "Wersja {version}",
-  "@storageVersionLabel": {"placeholders":{"version":{"type":"int"}}},
+  "@storageVersionLabel": {"placeholders": {"version": {"type": "int"}}},
   "storageUploadFileTooLarge": "Plik przekracza limit rozmiaru 20 MB.",
   "storageUploadCancelledByUser": "Anulowano przez użytkownika.",
   "storageUploadCancelled": "Wysyłka anulowana.",
@@ -3701,14 +3057,15 @@
   "storageUploadTicketReservationFailed": "Nie udało się zarezerwować biletu uploadu.",
   "storageUploadTransferFailed": "Błąd przesyłania danych.",
   "storageUploadCompletionFailed": "Nie udało się zatwierdzić pliku.",
-  "storageUploadPlacementFailed": "Plik przesłano, ale nie dodano go do wybranego folderu."
-  ,"storagePartialDeleteFailed": "Część elementów nie mogła zostać usunięta.",
+  "storageUploadPlacementFailed": "Plik przesłano, ale nie dodano go do wybranego folderu.",
+  "storagePartialDeleteFailed": "Część elementów nie mogła zostać usunięta.",
+  "storagePartialMoveFailed": "Nie udało się przenieść części elementów.",
   "storageDeleteSelectedFailed": "Nie udało się usunąć wybranych elementów.",
   "globalChatEmptyTitle": "Brak rozmów",
   "globalChatEmptyMessage": "Twoje aktywne rozmowy pojawią się tutaj.",
   "globalChatLoadFailureTitle": "Nie udało się pobrać rozmów",
   "globalChatConversationFallback": "Rozmowa {identifier}",
-  "@globalChatConversationFallback": {"placeholders":{"identifier":{"type":"String"}}},
+  "@globalChatConversationFallback": {"placeholders": {"identifier": {"type": "String"}}},
   "globalChatGroupProject": "Projekt",
   "globalChatGroupWorkspace": "Workspace",
   "globalChatGroupPrivate": "Prywatne",
@@ -3720,13 +3077,7 @@
   "chatComposerPlainMode": "Zwykły tekst",
   "chatComposerRichMode": "Formatowany tekst",
   "chatComposerReplyTo": "Odpowiedź na: {message}",
-  "@chatComposerReplyTo": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
+  "@chatComposerReplyTo": {"placeholders": {"message": {"type": "String"}}},
   "chatComposerCancelReply": "Anuluj odpowiedź",
   "chatComposerReplyAction": "Odpowiedz",
   "chatThreadTitle": "Wątek",
@@ -3767,7 +3118,7 @@
   "globalNotificationsReplyAccessRevoked": "Dostęp do tej rozmowy został odebrany. Szkic odpowiedzi został usunięty.",
   "globalNotificationsReplyFailed": "Nie udało się wysłać odpowiedzi",
   "globalNotificationsUnreadCount": "{count} nieprzeczytanych powiadomień",
-  "@globalNotificationsUnreadCount": {"placeholders":{"count":{"type":"int"}}},
+  "@globalNotificationsUnreadCount": {"placeholders": {"count": {"type": "int"}}},
   "notificationPreferencesOpen": "Preferencje powiadomień",
   "notificationPreferencesTitle": "Preferencje powiadomień",
   "notificationPreferencesDeliveryTitle": "Dostarczanie e-mail",
@@ -3798,9 +3149,9 @@
   "notificationPreferencesDigestDescription": "Tylko do odczytu: podsumowanie aktualnie widocznych grup powiadomień.",
   "notificationPreferencesDigestEmpty": "Brak powiadomień w digescie.",
   "notificationPreferencesDigestSummary": "Digest zawiera {count} grup powiadomień",
-  "@notificationPreferencesDigestSummary": {"placeholders":{"count":{"type":"int"}}},
+  "@notificationPreferencesDigestSummary": {"placeholders": {"count": {"type": "int"}}},
   "notificationPreferencesDigestCount": "{count} powiadomień",
-  "@notificationPreferencesDigestCount": {"placeholders":{"count":{"type":"int"}}},
+  "@notificationPreferencesDigestCount": {"placeholders": {"count": {"type": "int"}}},
   "chatNotificationSettingsGlobalTitle": "Powiadomienia Chat",
   "chatNotificationSettingsGlobalDescription": "Wybierz kanały, którymi mają docierać powiadomienia z globalnego czatu.",
   "chatNotificationSettingsChannelInApp": "W aplikacji",
@@ -3818,13 +3169,7 @@
   "resourceChatFileAction": "Czat pliku",
   "resourceChatFileDescription": "Otwórz autoryzowaną rozmowę dotyczącą tego udostępnionego pliku.",
   "resourceChatFileHeader": "Plik: {fileName} · Właściciel: {ownerUserId} · Dostęp: {accessLevel}",
-  "@resourceChatFileHeader": {
-    "placeholders": {
-      "fileName": {"type": "String"},
-      "ownerUserId": {"type": "String"},
-      "accessLevel": {"type": "String"}
-    }
-  },
+  "@resourceChatFileHeader": {"placeholders": {"fileName": {"type": "String"}, "ownerUserId": {"type": "String"}, "accessLevel": {"type": "String"}}},
   "chatDiscussionTitle": "Nazwana dyskusja",
   "chatDiscussionNameLabel": "Nazwa dyskusji",
   "chatDiscussionOpen": "Otwórz dyskusję",
@@ -3841,12 +3186,7 @@
   "chatMessageRevisionsTitle": "Historia edycji",
   "chatMessageRevisionsEmpty": "Ta wiadomość nie ma wcześniejszych wersji.",
   "chatMessageRevisionVersion": "Wersja {version} → {newVersion}",
-  "@chatMessageRevisionVersion": {
-    "placeholders": {
-      "version": {"type": "int"},
-      "newVersion": {"type": "int"}
-    }
-  },
+  "@chatMessageRevisionVersion": {"placeholders": {"version": {"type": "int"}, "newVersion": {"type": "int"}}},
   "chatThreadLoadOlder": "Wczytaj starsze odpowiedzi",
   "chatAttachmentsEmpty": "Nie wybrano załączników",
   "chatAttachmentsAdd": "Dodaj pliki",
@@ -3856,11 +3196,7 @@
   "chatAttachmentStatusClean": "Czysty",
   "chatAttachmentStatusInfected": "Zainfekowany",
   "chatAttachmentStatusFailed": "Niepowodzenie",
-  "@chatDiscussionReady": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
+  "@chatDiscussionReady": {"placeholders": {"name": {"type": "String"}}},
   "meProfileTitle": "Mój profil",
   "meProfileSubtitle": "Zarządzaj swoimi danymi, hasłem i aktywnymi sesjami",
   "mePersonalSectionTitle": "Dane profilu",
@@ -3893,25 +3229,13 @@
   "meSessionsSectionSubtitle": "Zalogowane urządzenia i przeglądarki powiązane z Twoim kontem",
   "meSessionCurrentBadge": "Bieżąca sesja",
   "meSessionCreated": "Utworzono: {date}",
-  "@meSessionCreated": {
-    "placeholders": {
-      "date": {"type": "String"}
-    }
-  },
+  "@meSessionCreated": {"placeholders": {"date": {"type": "String"}}},
   "meSessionLastSeen": "Ostatnia aktywność: {date}",
-  "@meSessionLastSeen": {
-    "placeholders": {
-      "date": {"type": "String"}
-    }
-  },
+  "@meSessionLastSeen": {"placeholders": {"date": {"type": "String"}}},
   "meSessionRevokeButton": "Zakończ sesję",
   "meSessionRevokeConfirmTitle": "Zakończyć tę sesję?",
   "meSessionRevokeConfirmMessage": "Sesja na urządzeniu \"{device}\" zostanie unieważniona, a użytkownik wylogowany.",
-  "@meSessionRevokeConfirmMessage": {
-    "placeholders": {
-      "device": {"type": "String"}
-    }
-  },
+  "@meSessionRevokeConfirmMessage": {"placeholders": {"device": {"type": "String"}}},
   "meSessionRevokeConfirmAction": "Zakończ sesję",
   "meSessionRevokedSuccess": "Sesja została pomyślnie zakończona.",
   "meSessionsEmpty": "Brak aktywnych sesji do wyświetlenia.",
@@ -3919,7 +3243,6 @@
   "meProfileRetry": "Spróbuj ponownie",
   "meUnavailableTitle": "Profil niedostępny",
   "meUnavailableMessage": "Usługa profilu nie jest jeszcze skonfigurowana.",
-
   "projectsTreeMenuTooltip": "Menu projektu",
   "projectsTreeDragHandle": "Zmień kolejność projektu",
   "projectsTreeLoadFailureFallback": "Nie udało się pobrać projektów.",
@@ -4002,5 +3325,10 @@
   "projectsTemplateDialogBody": "Szablon {projectName} zapisze aktualną konfigurację projektu: workflow, etykiety, pola niestandardowe i aktywne zadania.",
   "projectsTemplateNameLabel": "Nazwa szablonu",
   "projectsTemplateNameRequired": "Wpisz nazwę szablonu.",
-  "projectsTemplateCreateAction": "Utwórz szablon"
+  "projectsTemplateCreateAction": "Utwórz szablon",
+  "storageOfficeSavingChanges": "Oczekiwanie na zapis…",
+  "storageOfficeSaveUnconfirmed": "Zapis niepotwierdzony",
+  "storageOfficeCloseAwaitingTitle": "Poczekać na potwierdzenie zapisu?",
+  "storageOfficeCloseAwaitingBody": "Edytor nie ma już lokalnych zmian, ale backend nie potwierdził jeszcze nowej wersji. Zamknięcie teraz może pokazać listę ze starą wersją pliku.",
+  "storageOfficeCloseWaitForSave": "Poczekaj"
 }

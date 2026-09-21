@@ -138,6 +138,24 @@ class _KanbanCardSubtasksSectionState extends State<KanbanCardSubtasksSection>
     }
   }
 
+  /// Otwiera sekcję od razu w trybie dodawania.
+  ///
+  /// Karta bez podzadań pokazuje samą akcję „Dodaj podzadanie” (nagłówek
+  /// z licznikiem „(0/0)” i pustym paskiem postępu nic nie wnosi), a jej
+  /// dotknięcie ma postawić kursor w polu nazwy, a nie kazać klikać dwa razy.
+  void _openAddSubtask() {
+    final reducedMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    _isExpanded.value = true;
+    _isAddingSubtask.value = true;
+    if (reducedMotion) {
+      _chevronController.value = 1.0;
+    } else {
+      _chevronController.forward();
+    }
+    unawaited(_cubit.loadInitial());
+  }
+
   Future<void> _submitNewSubtask() async {
     final title = _subtaskController.text.trim();
     if (title.isEmpty) return;
@@ -196,103 +214,111 @@ class _KanbanCardSubtasksSectionState extends State<KanbanCardSubtasksSection>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Nagłówek sekcji: jeden dostępny przycisk z obracanym chevronem, licznikiem i progress barem
-                  ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: toggleMinHeight),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Semantics(
-                        button: true,
-                        expanded: isExpanded,
-                        label:
-                            '${context.l10n.tasksSubtasksTitle} ($completed/$total)',
-                        child: InkWell(
-                          key: const ValueKey('subtasks_toggle_button'),
-                          onTap: _toggleExpanded,
-                          borderRadius: BorderRadius.circular(6),
-                          hoverColor: colors.surfaceContainerHighest.withValues(
-                            alpha: .5,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              children: [
-                                RotationTransition(
-                                  turns: _chevronAnimation,
-                                  child: Icon(
-                                    Symbols.keyboard_arrow_right_rounded,
-                                    size: 16,
-                                    color: colors.onSurfaceVariant,
-                                  ),
+                  // Zadanie bez podzadań nie ma czego zwijać: nagłówek
+                  // z licznikiem „(0/0)” i pustym paskiem postępu byłby
+                  // szumem, więc karta pokazuje wprost akcję dodania.
+                  if (total == 0 && !isExpanded)
+                    _buildAddSubtaskAction(context, onTap: _openAddSubtask)
+                  else ...[
+                    // Nagłówek sekcji: jeden dostępny przycisk z obracanym chevronem, licznikiem i progress barem
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: toggleMinHeight),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Semantics(
+                          button: true,
+                          expanded: isExpanded,
+                          label:
+                              '${context.l10n.tasksSubtasksTitle} ($completed/$total)',
+                          child: InkWell(
+                            key: const ValueKey('subtasks_toggle_button'),
+                            onTap: _toggleExpanded,
+                            borderRadius: BorderRadius.circular(6),
+                            hoverColor: colors.surfaceContainerHighest
+                                .withValues(
+                                  alpha: .5,
                                 ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    context.l10n.tasksSubtasksTitle,
-                                    style: KanbanCardTokens.subtasksHeader(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 4,
+                              ),
+                              child: Row(
+                                children: [
+                                  RotationTransition(
+                                    turns: _chevronAnimation,
+                                    child: Icon(
+                                      Symbols.keyboard_arrow_right_rounded,
+                                      size: 16,
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      context.l10n.tasksSubtasksTitle,
+                                      style: KanbanCardTokens.subtasksHeader(
+                                        context,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '($completed/$total)',
+                                    style: KanbanCardTokens.metaText(
                                       context,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  '($completed/$total)',
-                                  style: KanbanCardTokens.metaText(
-                                    context,
-                                    weight: .w500,
-                                  ),
-                                ),
-                                const Spacer(),
-                                // Wyrazisty, zintegrowany pasek postępu (64 × 5 px)
-                                Container(
-                                  width: 64,
-                                  height: 5,
-                                  decoration: BoxDecoration(
-                                    color: colors.outlineVariant.withValues(
-                                      alpha: .25,
-                                    ),
-                                    borderRadius: .circular(2.5),
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: .circular(2.5),
-                                    child: LinearProgressIndicator(
-                                      value: progress,
-                                      backgroundColor: Colors.transparent,
-                                      color: (completed == total && total > 0)
-                                          ? const Color(0xFF10B981)
-                                          : colors.primary,
+                                      weight: .w500,
                                     ),
                                   ),
-                                ),
-                              ],
+                                  const Spacer(),
+                                  // Wyrazisty, zintegrowany pasek postępu (64 × 5 px)
+                                  Container(
+                                    width: 64,
+                                    height: 5,
+                                    decoration: BoxDecoration(
+                                      color: colors.outlineVariant.withValues(
+                                        alpha: .25,
+                                      ),
+                                      borderRadius: .circular(2.5),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: .circular(2.5),
+                                      child: LinearProgressIndicator(
+                                        value: progress,
+                                        backgroundColor: Colors.transparent,
+                                        color: (completed == total && total > 0)
+                                            ? const Color(0xFF10B981)
+                                            : colors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // Rozwijana zawartość z animacją
-                  AnimatedSize(
-                    duration: reducedMotion
-                        ? Duration.zero
-                        : KanbanCardTokens.expandDuration,
-                    curve: KanbanCardTokens.expandCurve,
-                    alignment: Alignment.topCenter,
-                    clipBehavior: Clip.antiAlias,
-                    child: isExpanded
-                        ? ValueListenableBuilder<bool>(
-                            valueListenable: _isAddingSubtask,
-                            builder: (context, isAdding, _) =>
-                                _buildExpandedContent(context, state),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
+                    // Rozwijana zawartość z animacją
+                    AnimatedSize(
+                      duration: reducedMotion
+                          ? Duration.zero
+                          : KanbanCardTokens.expandDuration,
+                      curve: KanbanCardTokens.expandCurve,
+                      alignment: Alignment.topCenter,
+                      clipBehavior: Clip.antiAlias,
+                      child: isExpanded
+                          ? ValueListenableBuilder<bool>(
+                              valueListenable: _isAddingSubtask,
+                              builder: (context, isAdding, _) =>
+                                  _buildExpandedContent(context, state),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
                 ],
               );
             },

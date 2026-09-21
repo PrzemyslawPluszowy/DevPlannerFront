@@ -127,64 +127,148 @@ class _KanbanQuickFilterMenu extends StatelessWidget {
   }
 }
 
-/// Pasek z usuwalnym chipem aktywnego filtra.
+/// Pasek aktywnych filtrów: jeden chip na każdy aktywny wymiar.
+///
+/// Wcześniej pasek pokazywał wyłącznie szybki filtr, więc priorytet albo osoba
+/// zawężały tablicę bez żadnej informacji na ekranie.
 class _ActiveFilterStrip extends StatelessWidget {
   const _ActiveFilterStrip({
-    required this.filter,
-    required this.onClear,
+    required this.quickFilter,
+    required this.boardFilter,
+    required this.assigneeLabel,
+    required this.statusLabel,
+    required this.onClearQuickFilter,
+    required this.onClearPriority,
+    required this.onClearAssignee,
+    required this.onClearMilestone,
+    required this.onClearStatus,
+    required this.onClearAll,
   });
 
-  final KanbanQuickFilter filter;
-  final VoidCallback onClear;
+  final KanbanQuickFilter quickFilter;
+  final KanbanBoardFilter boardFilter;
+
+  /// Nazwa wybranej osoby; `null`, gdy profilu nie ma w stanie.
+  final String? assigneeLabel;
+
+  /// Nazwa wybranego statusu (kolumny); `null`, gdy wymiar nie jest ustawiony.
+  final String? statusLabel;
+
+  final VoidCallback onClearQuickFilter;
+  final VoidCallback onClearPriority;
+  final VoidCallback onClearAssignee;
+  final VoidCallback onClearMilestone;
+  final VoidCallback onClearStatus;
+  final VoidCallback onClearAll;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final l10n = context.l10n;
+    final priority = boardFilter.priority;
 
-    return Row(
-      children: [
-        Icon(
-          Symbols.filter_alt_rounded,
-          size: Sizes.p16,
-          color: colors.onSurfaceVariant,
-        ),
-        const SizedBox(width: Sizes.p6),
-        Text(
-          'Aktywny filtr:',
-          style: context.text.labelSmall?.copyWith(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          Icon(
+            Symbols.filter_alt_rounded,
+            size: Sizes.p16,
             color: colors.onSurfaceVariant,
           ),
-        ),
-        const SizedBox(width: Sizes.p6),
-        InputChip(
-          label: Text(_TasksHeaderHelpers.quickFilterLabel(context, filter)),
-          onDeleted: onClear,
-          deleteIconColor: colors.onSecondaryContainer,
-          backgroundColor: colors.secondaryContainer,
-          labelStyle: context.text.labelSmall?.copyWith(
-            color: colors.onSecondaryContainer,
-            fontWeight: FontWeight.w600,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: Sizes.p4),
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        const SizedBox(width: Sizes.p6),
-        TextButton(
-          onPressed: onClear,
-          style: TextButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
-          ),
-          child: Text(
-            l10n.tasksListClearValue,
+          const SizedBox(width: Sizes.p6),
+          Text(
+            l10n.tasksBoardActiveFilters,
             style: context.text.labelSmall?.copyWith(
-              color: colors.primary,
-              fontWeight: FontWeight.w700,
+              color: colors.onSurfaceVariant,
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: Sizes.p6),
+          if (quickFilter != KanbanQuickFilter.all) ...[
+            _ActiveFilterChip(
+              key: const ValueKey('board_active_filter_quick'),
+              label: _TasksHeaderHelpers.quickFilterLabel(context, quickFilter),
+              onDeleted: onClearQuickFilter,
+            ),
+            const SizedBox(width: Sizes.p6),
+          ],
+          if (priority != null) ...[
+            _ActiveFilterChip(
+              key: const ValueKey('board_active_filter_priority'),
+              label: _TasksHeaderHelpers.boardPriorityLabel(context, priority),
+              onDeleted: onClearPriority,
+            ),
+            const SizedBox(width: Sizes.p6),
+          ],
+          if (boardFilter.assigneeUserId case final assigneeUserId?) ...[
+            _ActiveFilterChip(
+              key: const ValueKey('board_active_filter_assignee'),
+              label: assigneeLabel ?? assigneeUserId,
+              onDeleted: onClearAssignee,
+            ),
+            const SizedBox(width: Sizes.p6),
+          ],
+          if (statusLabel case final status?) ...[
+            _ActiveFilterChip(
+              key: const ValueKey('board_active_filter_status'),
+              label: status,
+              onDeleted: onClearStatus,
+            ),
+            const SizedBox(width: Sizes.p6),
+          ],
+          if (boardFilter.milestoneId case final milestoneId?) ...[
+            _ActiveFilterChip(
+              key: const ValueKey('board_active_filter_milestone'),
+              label: '${l10n.tasksKanbanSwimlaneMilestone}: $milestoneId',
+              onDeleted: onClearMilestone,
+            ),
+            const SizedBox(width: Sizes.p6),
+          ],
+          TextButton(
+            onPressed: onClearAll,
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
+            ),
+            child: Text(
+              l10n.tasksListClearAllFilters,
+              style: context.text.labelSmall?.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pojedynczy aktywny wymiar filtra w pasku pod nagłówkiem.
+class _ActiveFilterChip extends StatelessWidget {
+  const _ActiveFilterChip({
+    required this.label,
+    required this.onDeleted,
+    super.key,
+  });
+
+  final String label;
+  final VoidCallback onDeleted;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return InputChip(
+      label: Text(label),
+      onDeleted: onDeleted,
+      deleteIconColor: colors.onSecondaryContainer,
+      backgroundColor: colors.secondaryContainer,
+      labelStyle: context.text.labelSmall?.copyWith(
+        color: colors.onSecondaryContainer,
+        fontWeight: FontWeight.w600,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: Sizes.p4),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

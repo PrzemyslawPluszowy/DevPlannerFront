@@ -65,6 +65,8 @@ class StorageFolderMutationFailure extends StorageFolderMutationState {
   const StorageFolderMutationFailure({
     required this.message,
     this.statusCode,
+    this.apiCode,
+    this.traceId,
     this.backendCode,
   });
 
@@ -74,9 +76,21 @@ class StorageFolderMutationFailure extends StorageFolderMutationState {
   /// Opcjonalny kod HTTP.
   final int? statusCode;
 
+  /// Opcjonalny stabilny kod kontraktu.
+  final String? apiCode;
+
+  /// Opcjonalny identyfikator śledzenia żądania.
+  final String? traceId;
+
   /// Opcjonalny kod błędu backendu.
   final int? backendCode;
 
   @override
-  List<Object?> get props => [message, statusCode, backendCode];
+  List<Object?> get props => [
+    message,
+    statusCode,
+    backendCode,
+    apiCode,
+    traceId,
+  ];
 }

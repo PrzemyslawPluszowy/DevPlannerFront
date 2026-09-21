@@ -107,26 +107,36 @@ class StorageBrowserFilter extends Equatable {
       ownerUserId != null;
 
   /// Tworzy kopię z zaktualizowanymi polami.
+  ///
+  /// Flagi `clear*` zdejmują pojedynczy warunek: bez nich filtru nie dałoby się
+  /// rozluźnić, bo `null` znaczy tu „zostaw jak jest”, a nie „wyczyść”.
   StorageBrowserFilter copyWith({
     String? mimeType,
+    bool clearMimeType = false,
     String? extension,
+    bool clearExtension = false,
     String? aiTag,
     StorageAiStatus? aiStatus,
+    bool clearAiStatus = false,
     int? minSizeBytes,
     int? maxSizeBytes,
     DateTime? createdFromUtc,
+    bool clearCreatedFromUtc = false,
     DateTime? createdToUtc,
     String? ownerUserId,
+    bool clearOwnerUserId = false,
   }) => StorageBrowserFilter(
-    mimeType: mimeType ?? this.mimeType,
-    extension: extension ?? this.extension,
+    mimeType: clearMimeType ? null : (mimeType ?? this.mimeType),
+    extension: clearExtension ? null : (extension ?? this.extension),
     aiTag: aiTag ?? this.aiTag,
-    aiStatus: aiStatus ?? this.aiStatus,
+    aiStatus: clearAiStatus ? null : (aiStatus ?? this.aiStatus),
     minSizeBytes: minSizeBytes ?? this.minSizeBytes,
     maxSizeBytes: maxSizeBytes ?? this.maxSizeBytes,
-    createdFromUtc: createdFromUtc ?? this.createdFromUtc,
+    createdFromUtc: clearCreatedFromUtc
+        ? null
+        : (createdFromUtc ?? this.createdFromUtc),
     createdToUtc: createdToUtc ?? this.createdToUtc,
-    ownerUserId: ownerUserId ?? this.ownerUserId,
+    ownerUserId: clearOwnerUserId ? null : (ownerUserId ?? this.ownerUserId),
   );
 
   @override

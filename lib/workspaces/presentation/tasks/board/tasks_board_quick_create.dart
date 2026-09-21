@@ -192,17 +192,19 @@ class _QuickCreateTaskState extends State<_QuickCreateTask> {
             if (mounted) _focusNode.requestFocus();
           });
         },
-        hoverColor: colors.surfaceContainerHighest.withValues(alpha: .45),
+        hoverColor: colors.primary.withValues(alpha: .08),
         child: SizedBox(
           height: 34,
           child: Padding(
             padding: const .symmetric(horizontal: Sizes.p8),
             child: Row(
               children: [
+                // Wiersz dodawania jest akcją kolumny, więc nosi kolor akcentu
+                // motywu, a nie wyłącznie szarość metadanych.
                 Icon(
                   Symbols.add_rounded,
                   size: Sizes.p18,
-                  color: colors.onSurfaceVariant.withValues(alpha: .75),
+                  color: colors.primary.withValues(alpha: .9),
                 ),
                 const SizedBox(width: Sizes.p6),
                 Expanded(
@@ -210,8 +212,8 @@ class _QuickCreateTaskState extends State<_QuickCreateTask> {
                     context.l10n.tasksQuickCreate,
                     style: context.text.bodySmall?.copyWith(
                       fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: colors.onSurfaceVariant.withValues(alpha: .85),
+                      fontWeight: FontWeight.w600,
+                      color: colors.primary.withValues(alpha: .95),
                     ),
                   ),
                 ),

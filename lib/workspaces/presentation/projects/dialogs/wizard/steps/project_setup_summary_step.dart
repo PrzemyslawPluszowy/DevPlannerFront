@@ -3,6 +3,7 @@ import 'package:devplanner/core/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/projects/setups/models/project_setup_preview_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_setup_enums.dart';
+import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_draft.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/cubit/project_setup_wizard_cubit.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/cubit/project_setup_wizard_state.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/wizard/l10n/project_setup_wizard_l10n.dart';
@@ -134,6 +135,7 @@ class _PlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final cubit = context.read<ProjectSetupWizardCubit>();
     final template = plan.template;
     return Container(
       width: double.infinity,
@@ -145,17 +147,21 @@ class _PlanCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ProjectSetupSectionLabel(l10n.projectSetupSummaryLegend),
+          ProjectSetupSectionLabel(l10n.projectSetupSummaryDecisionsLegend),
           Gaps.h8,
           _Row(
             label: l10n.projectSetupSummarySource,
             value: template == null
                 ? l10n.projectSetupSummarySourceBlank
                 : l10n.projectSetupSummarySourceTemplate(template.name),
+            onChange: () => cubit.goToStep(ProjectSetupStep.start),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           _Row(
             label: l10n.projectSetupSummaryName,
             value: plan.project.name,
+            onChange: () => cubit.goToStep(ProjectSetupStep.basics),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           _Row(
             label: l10n.projectSetupSummaryVisibility,
@@ -163,6 +169,8 @@ class _PlanCard extends StatelessWidget {
               l10n,
               plan.project.visibility,
             ),
+            onChange: () => cubit.goToStep(ProjectSetupStep.access),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           _Row(
             label: l10n.projectSetupSummaryStatus,
@@ -170,6 +178,8 @@ class _PlanCard extends StatelessWidget {
               l10n,
               plan.project.status,
             ),
+            onChange: () => cubit.goToStep(ProjectSetupStep.basics),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           _Row(
             label: l10n.projectSetupSummaryMembers,
@@ -178,10 +188,14 @@ class _PlanCard extends StatelessWidget {
                 : l10n.projectSetupSummaryMembersCount(
                     plan.project.memberCount,
                   ),
+            onChange: () => cubit.goToStep(ProjectSetupStep.access),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           _Row(
             label: l10n.projectSetupSummaryWorkflow,
             value: _workflowLabel(l10n, plan.workflow),
+            onChange: () => cubit.goToStep(ProjectSetupStep.workflow),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           _Row(
             label: l10n.projectSetupSummaryView,
@@ -189,6 +203,8 @@ class _PlanCard extends StatelessWidget {
               l10n,
               plan.taskView.defaultView,
             ),
+            onChange: () => cubit.goToStep(ProjectSetupStep.workingStyle),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           _Row(
             label: l10n.projectSetupSummaryBoard,
@@ -202,15 +218,21 @@ class _PlanCard extends StatelessWidget {
                 plan.taskView.boardSwimlaneMode,
               ),
             ].join(' · '),
+            onChange: () => cubit.goToStep(ProjectSetupStep.workingStyle),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           _Row(
             label: l10n.projectSetupSummarySchedule,
             value: _scheduleLabel(l10n, plan.scheduleMode),
+            onChange: () => cubit.goToStep(ProjectSetupStep.workingStyle),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           if (plan.defaultDailyCapacityMinutes case final minutes?)
             _Row(
               label: l10n.projectSetupSummaryCapacity,
               value: l10n.projectSetupSummaryCapacityValue(minutes),
+              onChange: () => cubit.goToStep(ProjectSetupStep.workingStyle),
+              changeLabel: l10n.projectSetupSummaryChangeButton,
             ),
           _Row(
             label: l10n.projectSetupSummaryRecipes,
@@ -220,6 +242,8 @@ class _PlanCard extends StatelessWidget {
                     for (final recipe in plan.automationRecipes)
                       ProjectSetupWizardL10n.recipeName(l10n, recipe.key),
                   ].join(', '),
+            onChange: () => cubit.goToStep(ProjectSetupStep.starterFeatures),
+            changeLabel: l10n.projectSetupSummaryChangeButton,
           ),
           if (template != null) ...[
             Gaps.h8,
@@ -292,10 +316,21 @@ class _PlanCard extends StatelessWidget {
 }
 
 class _Row extends StatelessWidget {
-  const _Row({required this.label, required this.value});
+  const _Row({
+    required this.label,
+    required this.value,
+    this.onChange,
+    this.changeLabel,
+  });
 
   final String label;
   final String value;
+
+  /// Powrót do kroku, w którym można zmienić tę decyzję.
+  final VoidCallback? onChange;
+
+  /// Etykieta akcji „Zmień”.
+  final String? changeLabel;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -304,7 +339,7 @@ class _Row extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 190,
+          width: 170,
           child: Text(
             label,
             style: context.text.bodySmall?.copyWith(
@@ -320,6 +355,22 @@ class _Row extends StatelessWidget {
             ),
           ),
         ),
+        if (onChange case final callback?)
+          SizedBox(
+            width: 72,
+            child: Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton(
+                onPressed: callback,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
+                  minimumSize: const Size(0, 28),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(changeLabel ?? ''),
+              ),
+            ),
+          ),
       ],
     ),
   );

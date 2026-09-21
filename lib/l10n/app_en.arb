@@ -132,11 +132,7 @@
   "workspacesRequestFailedMessage": "The server did not return the workspace list. Try again.",
   "workspacesInvalidResponseMessage": "The server returned invalid workspace data.",
   "workspacesHttpStatus": "HTTP status: {statusCode}",
-  "@workspacesHttpStatus": {
-    "placeholders": {
-      "statusCode": {"type": "int"}
-    }
-  },
+  "@workspacesHttpStatus": {"placeholders": {"statusCode": {"type": "int"}}},
   "workspacesRefresh": "Refresh",
   "workspacesRetry": "Try again",
   "workspacesCreatePrivateWorkspace": "Create private workspace",
@@ -166,12 +162,7 @@
   "projectSetupWizardTitle": "New project",
   "projectSetupWizardSubtitle": "The wizard walks through the project configuration. You can skip steps 3-6.",
   "projectSetupStepCounter": "Step {current} of {total}",
-  "@projectSetupStepCounter": {
-    "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
-    }
-  },
+  "@projectSetupStepCounter": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
   "projectSetupNextButton": "Next",
   "projectSetupBackButton": "Back",
   "projectSetupSkipToSummaryButton": "Skip to summary",
@@ -186,6 +177,12 @@
   "projectSetupStepAccessTitle": "Access",
   "projectSetupStepWorkflowTitle": "Workflow",
   "projectSetupStepWorkingStyleTitle": "Ways of working",
+  "projectSetupStepBasicsSubtitle": "Name, description and the look of the project.",
+  "projectSetupStepAccessSubtitle": "Who will see the project and with which role.",
+  "projectSetupStepWorkflowSubtitle": "The statuses that tasks will move through.",
+  "projectSetupStepWorkingStyleSubtitle": "Default view, schedule and board settings.",
+  "projectSetupStepStarterFeaturesSubtitle": "Automations created together with the project.",
+  "projectSetupStepSummarySubtitle": "Review the plan and create the project.",
   "projectSetupStepStarterFeaturesTitle": "Starter features",
   "projectSetupStepSummaryTitle": "Summary",
   "projectSetupStartBlankTitle": "Blank project",
@@ -194,29 +191,19 @@
   "projectSetupStartTemplateDescription": "Recreates the project together with the tasks, labels, fields and workflow stored in the template.",
   "projectSetupTemplatesLoading": "Loading templates…",
   "projectSetupTemplatesEmpty": "This workspace has no project templates yet.",
-  "projectSetupTemplatesUnavailable": "The template catalog is not available in this session.",
-  "projectSetupTemplatesUnavailableReason": "No project template port is wired in.",
+  "projectSetupTemplatesUnavailable": "We cannot load project templates right now.",
+  "projectSetupTemplatesUnavailableReason": "Try again in a moment. If the problem repeats, report it to your administrator.",
   "projectSetupTemplatesRetry": "Retry loading templates",
   "projectSetupTemplateTasksCount": "Tasks: {count}",
-  "@projectSetupTemplateTasksCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupTemplateTasksCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupTemplateLabelsCount": "Labels: {count}",
-  "@projectSetupTemplateLabelsCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupTemplateLabelsCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupTemplateFieldsCount": "Fields: {count}",
-  "@projectSetupTemplateFieldsCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupTemplateFieldsCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupTemplateStatusesCount": "Custom statuses: {count}",
-  "@projectSetupTemplateStatusesCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupTemplateStatusesCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupTemplateVersionLabel": "Version {version}",
-  "@projectSetupTemplateVersionLabel": {
-    "placeholders": {"version": {"type": "int"}}
-  },
+  "@projectSetupTemplateVersionLabel": {"placeholders": {"version": {"type": "int"}}},
   "projectSetupTemplatePreviewLoading": "Loading the template preview…",
   "projectSetupTemplatePreviewFailed": "Could not load the template preview.",
   "projectSetupProjectStatusLabel": "Project status",
@@ -232,20 +219,18 @@
   "projectSetupAccessMembersLegend": "Starter members",
   "projectSetupAccessMembersLoading": "Loading workspace members…",
   "projectSetupAccessMembersEmpty": "There are no other active workspace members.",
-  "projectSetupAccessMembersUnavailable": "The workspace member list is not available in this session.",
-  "projectSetupAccessMembersUnavailableReason": "No workspace member port is wired in.",
+  "projectSetupAccessMembersUnavailable": "We cannot load the workspace member list right now.",
+  "projectSetupAccessMembersUnavailableReason": "Try again in a moment. If the problem repeats, report it to your administrator. You can also add members after creating the project.",
   "projectSetupAccessMembersRetry": "Retry loading members",
   "projectSetupAccessMemberLabel": "User ({prefix}…)",
-  "@projectSetupAccessMemberLabel": {
-    "placeholders": {"prefix": {"type": "String"}}
-  },
+  "@projectSetupAccessMemberLabel": {"placeholders": {"prefix": {"type": "String"}}},
   "projectSetupAccessRoleLabel": "Role",
   "projectSetupWorkflowFromTemplateTitle": "Workflow from the template",
   "projectSetupWorkflowFromTemplateDescription": "A templated project uses the statuses stored in the template. You can change them after the project is created.",
   "projectSetupWorkflowDefaultTitle": "Standard",
   "projectSetupWorkflowDefaultDescription": "System task statuses of the project.",
   "projectSetupWorkflowCatalogTitle": "Catalog template",
-  "projectSetupWorkflowCatalogDescription": "A ready-made set of columns from the backend catalog.",
+  "projectSetupWorkflowCatalogDescription": "A ready-made set of columns matched to the type of work.",
   "projectSetupWorkflowCatalogLegend": "Catalog template",
   "projectSetupWorkflowCatalogStandard": "Standard",
   "projectSetupWorkflowCatalogMarketing": "Marketing",
@@ -325,61 +310,147 @@
   "projectSetupSummarySource": "Source",
   "projectSetupSummarySourceBlank": "Blank project",
   "projectSetupSummarySourceTemplate": "Template: {name}",
-  "@projectSetupSummarySourceTemplate": {
-    "placeholders": {"name": {"type": "String"}}
-  },
+  "@projectSetupSummarySourceTemplate": {"placeholders": {"name": {"type": "String"}}},
   "projectSetupSummaryName": "Name",
   "projectSetupSummaryVisibility": "Visibility",
   "projectSetupSummaryStatus": "Status",
   "projectSetupSummaryMembers": "Members",
   "projectSetupSummaryMembersShared": "All active workspace members",
   "projectSetupSummaryMembersCount": "{count} people",
-  "@projectSetupSummaryMembersCount": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupSummaryMembersCount": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupSummaryWorkflow": "Workflow",
   "projectSetupSummaryWorkflowDefault": "System statuses",
   "projectSetupSummaryWorkflowCatalog": "Catalog template: {name}",
-  "@projectSetupSummaryWorkflowCatalog": {
-    "placeholders": {"name": {"type": "String"}}
-  },
+  "@projectSetupSummaryWorkflowCatalog": {"placeholders": {"name": {"type": "String"}}},
   "projectSetupSummaryWorkflowExplicit": "{count} custom statuses",
-  "@projectSetupSummaryWorkflowExplicit": {
-    "placeholders": {"count": {"type": "int"}}
-  },
+  "@projectSetupSummaryWorkflowExplicit": {"placeholders": {"count": {"type": "int"}}},
   "projectSetupSummaryWorkflowFromTemplate": "From the project template",
   "projectSetupSummaryView": "Default Tasks view",
   "projectSetupSummarySchedule": "Schedule",
   "projectSetupSummaryCapacity": "Daily capacity",
   "projectSetupSummaryCapacityValue": "{minutes} min",
-  "@projectSetupSummaryCapacityValue": {
-    "placeholders": {"minutes": {"type": "int"}}
-  },
+  "@projectSetupSummaryCapacityValue": {"placeholders": {"minutes": {"type": "int"}}},
   "projectSetupSummaryBoard": "Kanban board",
   "projectSetupSummaryRecipes": "Automations",
   "projectSetupSummaryRecipesNone": "None",
   "projectSetupSummaryPlanLoading": "Building the plan…",
   "projectSetupSummaryPlanUnavailable": "The plan has not been built yet.",
-  "projectSetupSummaryPlanStale": "The draft changed after the plan was built.",
+  "projectSetupSummaryPlanStale": "Settings changed since the plan was built.",
   "projectSetupSummaryWarningsLegend": "Warnings",
   "projectSetupSummaryTemplateCounts": "The template will bring the tasks, labels and fields shown in the plan.",
+  "projectSetupPreviewLegend": "Project preview",
+  "projectSetupPreviewUntitledProject": "Untitled project",
+  "projectSetupPreviewTemplateBadge": "Template: {name}",
+  "@projectSetupPreviewTemplateBadge": {"placeholders": {"name": {"type": "String"}}},
+  "projectSetupPreviewRefreshing": "Refreshing the preview",
+  "projectSetupPreviewLoading": "Loading the template preview…",
+  "projectSetupPreviewRetryHint": "Try again. If the problem repeats, report it to your administrator.",
+  "projectSetupPreviewMoreTasks": "+{count} more tasks",
+  "@projectSetupPreviewMoreTasks": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewMoreItems": "+{count} more",
+  "@projectSetupPreviewMoreItems": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewWipBadge": "WIP {limit}",
+  "@projectSetupPreviewWipBadge": {"placeholders": {"limit": {"type": "int"}}},
+  "projectSetupPreviewColumnTask": "Task",
+  "projectSetupPreviewColumnStatus": "Status",
+  "projectSetupPreviewColumnPriority": "Priority",
+  "projectSetupPreviewEmptyBoardTitle": "Nothing to preview yet",
+  "projectSetupPreviewEmptyBoardBody": "This option brings no custom columns. The board will be created from the system statuses.",
+  "projectSetupPreviewColumnsFromTemplate": "Columns from the template",
+  "projectSetupPreviewColumnsFromTemplateBody": "Names, colours and WIP limits come straight from the template. You will see them in the project right after it is created.",
+  "projectSetupPreviewColumnsExplicit": "Your columns",
+  "projectSetupPreviewColumnsExplicitBody": "You define these columns yourself. They will appear in the project in the order given.",
+  "projectSetupPreviewColumnsPlan": "Columns confirmed by the plan",
+  "projectSetupPreviewColumnsPlanBody": "The plan confirms these columns plus {count} system statuses that are always created.",
+  "@projectSetupPreviewColumnsPlanBody": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewColumnsSystem": "System statuses",
+  "projectSetupPreviewColumnsSystemBody": "System columns ({count}) are created in every new project. You will see their names and colours once it is created.",
+  "projectSetupPreviewColumnsSystemNoCount": "System columns are created in every new project; you will see their names and colours once it is created.",
+  "@projectSetupPreviewColumnsSystemBody": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewColumnsCatalogBody": "A ready-made status layout: {name}. You will see the columns in the project once it is created.",
+  "@projectSetupPreviewColumnsCatalogBody": {"placeholders": {"name": {"type": "String"}}},
+  "projectSetupPreviewMembersTitle": "Who will see the project",
+  "projectSetupPreviewMembersShared": "All active workspace members.",
+  "projectSetupPreviewMembersPrivate": "Invited people: {count}.",
+  "@projectSetupPreviewMembersPrivate": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewMembersPrivateNone": "Only you for now. You can add members now or later.",
+  "projectSetupPreviewBoardSettingsTitle": "Board settings",
+  "projectSetupPreviewListSettingsTitle": "List settings",
+  "projectSetupPreviewVisibleFields": "Visible fields: {count}",
+  "@projectSetupPreviewVisibleFields": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupPreviewRecipesTitle": "Automations",
+  "projectSetupPreviewRecipesNone": "No automation selected. You can add them later.",
+  "projectSetupPreviewRecipeWhen": "When",
+  "projectSetupPreviewRecipeThen": "then",
+  "projectSetupPreviewWarningsBody": "The plan contains warnings: {count}. See them above the “Create project” button.",
+  "@projectSetupPreviewWarningsBody": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupRecipeCriticalToBlockedTrigger": "a task has a critical priority",
+  "projectSetupRecipeCriticalToBlockedAction": "set the status to blocked",
+  "projectSetupRecipeDueSoonHighPriorityTrigger": "a task is due within two days",
+  "projectSetupRecipeDueSoonHighPriorityAction": "raise the priority to high",
+  "projectSetupRecipeDoneClearDueDateTrigger": "a task is completed",
+  "projectSetupRecipeDoneClearDueDateAction": "clear the task due date",
+  "projectSetupRecipeDoneCreateReviewSubtaskTrigger": "a task is completed",
+  "projectSetupRecipeDoneCreateReviewSubtaskAction": "add a subtask reviewing the result",
+  "projectSetupHelpSwimlanesTitle": "Board lanes",
+  "projectSetupHelpSwimlanesBody": "Lanes split the board into horizontal sections, for example one per assignee or priority. They do not change the task status.",
+  "projectSetupHelpWipTitle": "WIP limit",
+  "projectSetupHelpWipBody": "The maximum number of tasks that can sit in this column at the same time.",
+  "projectSetupHelpStatusCategoryTitle": "Status category",
+  "projectSetupHelpStatusCategoryBody": "The category tells reports whether a task is waiting, in progress or finished. You can name the column however you like.",
+  "projectSetupHelpCascadeTitle": "Dependency cascade",
+  "projectSetupHelpCascadeBody": "When one task moves its due date, the system can move the tasks that depend on it as well.",
+  "projectSetupHelpCapacityTitle": "Daily capacity",
+  "projectSetupHelpCapacityBody": "Minutes of work planned per person per day. This setting applies to the whole workspace.",
+  "projectSetupHelpVisibilityTitle": "Private visibility",
+  "projectSetupHelpVisibilityBody": "Only the members you add will see the project. People managing the workspace keep access according to their permissions.",
+  "projectSetupHelpAutomationsTitle": "Automations",
+  "projectSetupHelpAutomationsBody": "Rules run an action after a specific event. You can turn them off later.",
+  "projectSetupHelpCatalogWorkflowTitle": "Catalog workflow template",
+  "projectSetupHelpCatalogWorkflowBody": "A ready-made status layout, not a full project template with tasks.",
+  "projectSetupHelpDensityTitle": "Card density",
+  "projectSetupHelpDensityBody": "Decides how much detail and spacing a card has on the board.",
+  "projectSetupHelpMembersTitle": "Initial members",
+  "projectSetupHelpMembersBody": "People who will see the project straight away. You can change their roles after the project is created.",
+  "projectSetupHelpPreviewTitle": "Project preview",
+  "projectSetupHelpPreviewBody": "The preview shows a slice of what will be created: real tasks, columns and labels from the selected template.",
+  "projectSetupHelpSemantics": "Help: {title}",
+  "@projectSetupHelpSemantics": {"placeholders": {"title": {"type": "String"}}},
+  "projectSetupAppearanceLegend": "Project appearance",
+  "projectSetupAppearanceHint": "Icon and colour shown in the project tree and in the project header.",
+  "projectSetupAccessMembersHint": "Select the people who should see the project right away.",
+  "projectSetupAccessSelectedCount": "Selected people: {count}",
+  "@projectSetupAccessSelectedCount": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupStatusesLegend": "Custom columns",
+  "projectSetupStatusesHint": "Name, colour, category and WIP limit make up a single board column.",
+  "projectSetupSummaryDecisionsLegend": "Your decisions",
+  "projectSetupSummaryChangeButton": "Change",
+  "projectSetupWorkflowOptionColumnsLegend": "Columns in this option",
+  "projectSetupWorkflowSystemPreviewHint": "These columns are created in every new project.",
+  "projectSetupWorkflowCatalogPreviewHint": "Pick a ready-made layout from the list — the preview on the right shows its columns once you select it.",
+  "projectSetupWorkflowExplicitPreviewHint": "You add your own columns below.",
+  "projectSetupPreviewMoreColumns": "+{count} columns",
+  "@projectSetupPreviewMoreColumns": {"placeholders": {"count": {"type": "int"}}},
+  "projectSetupWorkingStyleAdjustBoard": "Also adjust board settings",
+  "projectSetupWorkingStyleAdjustList": "Also adjust list settings",
+  "projectSetupWorkingStyleCollapseBoard": "Collapse board settings",
+  "projectSetupWorkingStyleCollapseList": "Collapse list settings",
+  "projectSetupWorkingStyleHiddenDefaults": "The other view's settings go into the project with default values; you will see them in the summary.",
+  "projectSetupPreviewColumnsApproved": "Matches the server plan",
+  "projectSetupPreviewColumnsApprovedBody": "The server checked the template version and will create the project with exactly this content: columns, tasks and labels come straight from the template, and the plan does not change its workflow.",
   "projectSetupErrorTitle": "The operation could not be completed",
   "projectSetupErrorCodeLabel": "Code: {code}",
-  "@projectSetupErrorCodeLabel": {
-    "placeholders": {"code": {"type": "String"}}
-  },
+  "@projectSetupErrorCodeLabel": {"placeholders": {"code": {"type": "String"}}},
   "projectSetupErrorTraceIdLabel": "Trace id: {traceId}",
-  "@projectSetupErrorTraceIdLabel": {
-    "placeholders": {"traceId": {"type": "String"}}
-  },
+  "@projectSetupErrorTraceIdLabel": {"placeholders": {"traceId": {"type": "String"}}},
   "projectSetupErrorConflictIdempotency": "This operation key was already used for a different request. The next attempt uses a new key.",
   "projectSetupErrorConflictInProgress": "An operation with the same key is still in progress. Try again in a moment.",
   "projectSetupErrorTemplateVersion": "The project template changed in another session. Its preview was refreshed — review the summary and try again.",
   "projectSetupErrorForbidden": "You are not allowed to create a project in this workspace.",
   "projectSetupErrorNotFound": "The workspace or the template is no longer available.",
-  "projectSetupErrorValidation": "The backend rejected the wizard data. Fix the highlighted values.",
-  "projectSetupErrorUnavailable": "The wizard has no configured project creation port.",
-  "projectResourceUnavailableMessage": "This form has no backend connection in this session, so nothing was saved.",
+  "projectSetupErrorValidation": "The wizard data could not be saved. Fix the highlighted values.",
+  "projectSetupErrorUnavailable": "Creating projects is unavailable right now. Try again in a moment; if the problem repeats, report it to your administrator.",
+  "projectResourceUnavailableMessage": "We have no server connection right now, so nothing was saved. Try again in a moment.",
   "projectSetupErrorCancelled": "The operation was cancelled before it was sent.",
   "projectSetupWarningMembersIgnoredForShared": "Every workspace member sees a shared project, so the starter member list will be skipped.",
   "projectSetupWarningPrivateMembersLimited": "A private project stays visible only to you until you add members.",
@@ -451,21 +522,9 @@
   "workspacesMyPrivateSectionLabel": "Private",
   "workspacesMyWorkspacesSection": "My workspaces",
   "workspacesFavoritesSection": "Favorites ({count})",
-  "@workspacesFavoritesSection": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@workspacesFavoritesSection": {"placeholders": {"count": {"type": "int"}}},
   "workspacesTeamWorkspacesSection": "Team spaces ({count})",
-  "@workspacesTeamWorkspacesSection": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@workspacesTeamWorkspacesSection": {"placeholders": {"count": {"type": "int"}}},
   "workspacesAllWorkspacesSection": "All workspaces",
   "workspacesHiddenWorkspacesLabel": "Hidden workspaces",
   "workspacesOwnerBadge": "Owner",
@@ -488,30 +547,14 @@
   "dashboardCollapsedTrayTitle": "Desktop Tray",
   "dashboardCollapsedTraySubtitle": "Items hidden due to small window size. Increase the window size to automatically restore them to the desktop.",
   "dashboardCollapsedTrayWidgets": "Widgets ({count})",
-  "@dashboardCollapsedTrayWidgets": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardCollapsedTrayWidgets": {"placeholders": {"count": {"type": "int"}}},
   "dashboardCollapsedTrayShortcuts": "Shortcuts ({count})",
-  "@dashboardCollapsedTrayShortcuts": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardCollapsedTrayShortcuts": {"placeholders": {"count": {"type": "int"}}},
   "dashboardCollapsedTrayNoItems": "All items fit on the screen.",
   "dashboardWidgetRefreshTooltip": "Refresh",
   "dashboardWidgetResizeTitle": "Change size",
   "dashboardWidgetResizeLabel": "Size {size}",
-  "@dashboardWidgetResizeLabel": {
-    "placeholders": {
-      "size": {}
-    }
-  },
+  "@dashboardWidgetResizeLabel": {"placeholders": {"size": {}}},
   "dashboardWidgetRemoveAction": "Remove from desktop",
   "dashboardWidgetBringToFront": "Bring to front",
   "dashboardWidgetSendToBack": "Send to back",
@@ -555,13 +598,7 @@
   "dashboardActiveInventoriesRetryLabel": "Try again",
   "dashboardActiveInventoriesEmptyTitle": "No active inventories",
   "dashboardActiveInventoriesSheetsLabel": "Sheets: {count}",
-  "@dashboardActiveInventoriesSheetsLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardActiveInventoriesSheetsLabel": {"placeholders": {"count": {"type": "int"}}},
   "dashboardBhpUsersName": "BHP: employees",
   "dashboardBhpUsersDescription": "Quick preview of BHP employees with a shortcut to the employee list module.",
   "dashboardBhpUsersCategory": "BHP",
@@ -571,38 +608,14 @@
   "dashboardBhpUsersEmptyMessage": "No active employees were found.",
   "dashboardBhpUsersNoPositionLabel": "No position",
   "dashboardBhpUsersDeadlineOverdueLabel": "{days} days overdue",
-  "@dashboardBhpUsersDeadlineOverdueLabel": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardBhpUsersDeadlineOverdueLabel": {"placeholders": {"days": {"type": "int"}}},
   "dashboardBhpUsersDeadlineTodayLabel": "today",
   "dashboardBhpUsersDeadlineUpcomingLabel": "in {days} days",
-  "@dashboardBhpUsersDeadlineUpcomingLabel": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardBhpUsersDeadlineUpcomingLabel": {"placeholders": {"days": {"type": "int"}}},
   "dashboardBhpUsersDeadlineOverdueCountLabel": "{count} overdue",
-  "@dashboardBhpUsersDeadlineOverdueCountLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardBhpUsersDeadlineOverdueCountLabel": {"placeholders": {"count": {"type": "int"}}},
   "dashboardBhpUsersDeadlineUpcomingCountLabel": "{count} soon",
-  "@dashboardBhpUsersDeadlineUpcomingCountLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@dashboardBhpUsersDeadlineUpcomingCountLabel": {"placeholders": {"count": {"type": "int"}}},
   "dashboardBhpUsersDeadlineOkLabel": "ok",
   "dashboardBhpPositionsName": "BHP: positions",
   "dashboardBhpPositionsDescription": "Quick preview of BHP positions with a shortcut to the full position list.",
@@ -709,13 +722,9 @@
   "inventoryInventoriesSubtitle": "List of active and archived records.",
   "inventoryNew": "New",
   "inventorySectionAssetState": "Asset state",
-  "@inventorySectionAssetState": {
-    "description": "Section title for the fixed asset state overview screen."
-  },
+  "@inventorySectionAssetState": {"description": "Section title for the fixed asset state overview screen."},
   "inventoryCurrentState": "Current state",
-  "@inventoryCurrentState": {
-    "description": "Column label for the source current state of an inventory sheet item."
-  },
+  "@inventoryCurrentState": {"description": "Column label for the source current state of an inventory sheet item."},
   "inventorySectionLocations": "Locations",
   "inventorySectionCompanies": "Companies",
   "inventorySidebarSubtitle": "Manage assets and inventory sheets",
@@ -724,20 +733,10 @@
   "inventoryNoNumber": "No number",
   "inventoryDateRangeLabel": "Range",
   "inventoryPeopleCount": "{count} people",
-  "@inventoryPeopleCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryPeopleCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryFetchErrorTitle": "Fetch error",
   "inventoryActionNotConnected": "Action \"{label}\" will be connected to API.",
-  "@inventoryActionNotConnected": {
-    "placeholders": {
-      "label": {}
-    }
-  },
+  "@inventoryActionNotConnected": {"placeholders": {"label": {}}},
   "inventoryOverviewTitle": "Asset state",
   "inventoryOverviewSubtitle": "Quick filtering and fixed assets list.",
   "inventorySearch": "Search",
@@ -753,11 +752,7 @@
   "inventorySearchSheetsAction": "Search sheets",
   "inventorySearchSheetsTitle": "Search across sheets",
   "inventorySearchSheetsSubtitle": "Inventory {number}",
-  "@inventorySearchSheetsSubtitle": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventorySearchSheetsSubtitle": {"placeholders": {"number": {}}},
   "inventorySearchSheetsHint": "Register no., name, person or barcode...",
   "inventorySearchSheetsSortByRegisterNumber": "Reg. no.",
   "inventorySearchSheetsSortByName": "Name",
@@ -765,90 +760,37 @@
   "inventorySearchSheetsStartTitle": "Start searching",
   "inventorySearchSheetsStartMessage": "Type at least 2 characters to search across all sheets in this inventory.",
   "inventorySearchSheetsResultsCount": "Groups: {groups}, matches: {matches}",
-  "@inventorySearchSheetsResultsCount": {
-    "placeholders": {
-      "groups": {
-        "type": "int"
-      },
-      "matches": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySearchSheetsResultsCount": {"placeholders": {"groups": {"type": "int"}, "matches": {"type": "int"}}},
   "inventorySearchSheetsMatchesCount": "{count} matches",
-  "@inventorySearchSheetsMatchesCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySearchSheetsMatchesCount": {"placeholders": {"count": {"type": "int"}}},
   "inventorySearchSheetsCurrentSheet": "Current sheet",
   "inventorySearchSheetsFocusCurrentAction": "Show in sheet",
   "inventorySearchSheetsOpenSheetAction": "Open sheet",
   "inventorySearchSheetsToDisposeStatus": "To dispose",
   "inventoryPresenceConflictsTitle": "Presence conflicts",
   "inventoryPresenceConflictsSubtitle": "Inventory {number}",
-  "@inventoryPresenceConflictsSubtitle": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventoryPresenceConflictsSubtitle": {"placeholders": {"number": {}}},
   "inventoryPresenceConflictsLoadingLabel": "Checking conflicts",
   "inventoryPresenceConflictsRetryLabel": "Show conflicts",
   "inventoryPresenceConflictsEmptyBadge": "No conflicts detected",
   "inventoryPresenceConflictsDetectedAction": "{count} conflicts",
-  "@inventoryPresenceConflictsDetectedAction": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryPresenceConflictsDetectedAction": {"placeholders": {"count": {"type": "int"}}},
   "inventoryPresenceConflictsResultsCount": "Conflicts: {count}",
-  "@inventoryPresenceConflictsResultsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryPresenceConflictsResultsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryPresenceConflictsArkuszeCount": "{count} sheets",
-  "@inventoryPresenceConflictsArkuszeCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryPresenceConflictsArkuszeCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryPresenceConflictsEmptyTitle": "No conflicts detected",
   "inventoryPresenceConflictsEmptyMessage": "This inventory currently has no fixed assets detected in multiple sheets as present entries.",
   "inventorySurplusConflictsTitle": "Surplus conflicts",
   "inventorySurplusConflictsSubtitle": "Inventory {number}",
-  "@inventorySurplusConflictsSubtitle": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventorySurplusConflictsSubtitle": {"placeholders": {"number": {}}},
   "inventorySurplusConflictsLoadingLabel": "Checking surplus conflicts",
   "inventorySurplusConflictsRetryLabel": "Show surplus conflicts",
   "inventorySurplusConflictsEmptyBadge": "No surplus conflicts",
   "inventorySurplusConflictsDetectedAction": "{count} unpaired surpluses",
-  "@inventorySurplusConflictsDetectedAction": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySurplusConflictsDetectedAction": {"placeholders": {"count": {"type": "int"}}},
   "inventorySurplusConflictsResultsCount": "Unpaired surpluses: {count}",
-  "@inventorySurplusConflictsResultsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySurplusConflictsResultsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventorySurplusConflictsEmptyTitle": "No surplus conflicts",
   "inventorySurplusConflictsEmptyMessage": "This inventory currently has no surplus entries without a matching missing item in other sheets.",
   "inventorySurplusConflictsMatchBasisLabel": "Matched by",
@@ -858,18 +800,11 @@
   "inventoryDuplicateConflictsSubtitle": "Duplicate register numbers detected in stan_st.",
   "inventoryDuplicateConflictsRetryLabel": "Show duplicates",
   "inventoryDuplicateConflictsSummary": "Groups: {groups} • Records: {records}",
-  "@inventoryDuplicateConflictsSummary": {
-    "placeholders": {"groups": {}, "records": {}}
-  },
+  "@inventoryDuplicateConflictsSummary": {"placeholders": {"groups": {}, "records": {}}},
   "inventoryDuplicateConflictsDetected": "Detected {count} duplicate groups",
   "@inventoryDuplicateConflictsDetected": {"placeholders": {"count": {"type": "int"}}},
   "inventoryDuplicateConflictsVisibleResults": "Visible: {groups} groups • {records} records",
-  "@inventoryDuplicateConflictsVisibleResults": {
-    "placeholders": {
-      "groups": {"type": "int"},
-      "records": {"type": "int"}
-    }
-  },
+  "@inventoryDuplicateConflictsVisibleResults": {"placeholders": {"groups": {"type": "int"}, "records": {"type": "int"}}},
   "inventoryDuplicateConflictsFetchError": "Failed to fetch stan_st duplicates.",
   "inventoryDuplicateConflictsEmptyTitle": "No duplicate register numbers",
   "inventoryDuplicateConflictsEmptyMessage": "No duplicate register numbers were found in the current stan_st snapshot.",
@@ -890,11 +825,7 @@
   "inventoryLocation": "Location",
   "inventoryState": "State",
   "inventoryUnknownWithCode": "Unknown ({code})",
-  "@inventoryUnknownWithCode": {
-    "placeholders": {
-      "code": {}
-    }
-  },
+  "@inventoryUnknownWithCode": {"placeholders": {"code": {}}},
   "inventoryPurchaseDate": "Purchase date",
   "inventoryValueP": "Value P",
   "inventoryAssetDetailsTitle": "Asset details",
@@ -914,42 +845,20 @@
   "inventoryNoResultsTitle": "No results",
   "inventoryLocationsNoResultsMessage": "No branches matching the filter were found.",
   "inventoryCompanyWithId": "Branch {id}",
-  "@inventoryCompanyWithId": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryCompanyWithId": {"placeholders": {"id": {"type": "int"}}},
   "inventoryLocationsCount": "{count} locations",
-  "@inventoryLocationsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryLocationsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryCode": "Code",
   "inventoryCompaniesTitle": "Companies",
   "inventoryCompaniesSubtitle": "List of registered companies in inventory dictionary.",
   "inventoryCompaniesEmptyTitle": "No companies",
   "inventoryCompaniesEmptyMessage": "No companies were found in the dictionary.",
   "inventoryCompanyIdLabel": "Company ID: {id}",
-  "@inventoryCompanyIdLabel": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryCompanyIdLabel": {"placeholders": {"id": {"type": "int"}}},
   "inventoryCompanyDeletedMessage": "Company has been deleted.",
   "inventoryDetailsTitle": "Inventory details",
   "inventoryNumberLabel": "Number: {number}",
-  "@inventoryNumberLabel": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventoryNumberLabel": {"placeholders": {"number": {}}},
   "inventoryDetailsLoadErrorTitle": "Failed to load inventory details",
   "retry": "Retry",
   "save": "Save",
@@ -960,11 +869,7 @@
   "inventoryActionsLabel": "Actions",
   "inventoryReportsTitle": "Reports",
   "inventoryReportsSubtitle": "Inventory {number}",
-  "@inventoryReportsSubtitle": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventoryReportsSubtitle": {"placeholders": {"number": {}}},
   "inventoryReportsIntro": "Reports are calculated on all sheet items attached to the selected inventory.",
   "inventoryReportsListTitle": "Report list",
   "inventoryReportsBundleTitle": "PDF bundle",
@@ -1086,26 +991,14 @@
   "inventoryDeleteItemTitle": "Delete sheet item",
   "inventoryDeleteItemSubtitle": "This operation removes the selected item from the current sheet.",
   "inventoryDeleteItemDetailsMessage": "Item ID: {id}\nRegister number: {register}\nName: {name}",
-  "@inventoryDeleteItemDetailsMessage": {
-    "placeholders": {
-      "id": {},
-      "register": {},
-      "name": {}
-    }
-  },
+  "@inventoryDeleteItemDetailsMessage": {"placeholders": {"id": {}, "register": {}, "name": {}}},
   "inventoryDeleteItemSuccessMessage": "Sheet item has been deleted.",
   "inventoryDeleteItemUnlockLabel": "Deletion confirmation",
   "inventoryDeleteStockTitle": "Delete fixed asset",
   "inventoryDeleteStockSubtitle": "This operation removes the record from the fixed assets snapshot.",
   "inventoryDeleteStockConfirmTitle": "Are you sure you want to delete this record?",
   "inventoryDeleteStockConfirmBody": "Record ID: {id}\nRegister number: {register}\nName: {name}",
-  "@inventoryDeleteStockConfirmBody": {
-    "placeholders": {
-      "id": { "type": "int" },
-      "register": {},
-      "name": {}
-    }
-  },
+  "@inventoryDeleteStockConfirmBody": {"placeholders": {"id": {"type": "int"}, "register": {}, "name": {}}},
   "inventoryDeleteStockHelper": "Retype the register number and full name. Letter case does not matter.",
   "inventoryDeleteStockRegisterLabel": "Register number",
   "inventoryDeleteStockNameLabel": "Full name",
@@ -1121,11 +1014,7 @@
   "inventorySheetEndTimeLabel": "End time",
   "frameworkGalleryTitle": "Framework Components Gallery",
   "frameworkActionToast": "Action: {label}",
-  "@frameworkActionToast": {
-    "placeholders": {
-      "label": {}
-    }
-  },
+  "@frameworkActionToast": {"placeholders": {"label": {}}},
   "frameworkNewDocumentTitle": "New document",
   "frameworkNewDocumentSubtitle": "A right-side sheet variant.",
   "frameworkClose": "Close",
@@ -1181,19 +1070,9 @@
   "frameworkListTileDailyReport": "Daily report",
   "frameworkListTileMonthlyReport": "Monthly report",
   "frameworkTableRowHover": "Hover: {name}",
-  "@frameworkTableRowHover": {
-    "placeholders": { "name": {} }
-  },
+  "@frameworkTableRowHover": {"placeholders": {"name": {}}},
   "frameworkTableRowTap": "Tapped row #{index}: {name} | {status} | {count} | {owner}",
-  "@frameworkTableRowTap": {
-    "placeholders": {
-      "index": { "type": "int" },
-      "name": {},
-      "status": {},
-      "count": {},
-      "owner": {}
-    }
-  },
+  "@frameworkTableRowTap": {"placeholders": {"index": {"type": "int"}, "name": {}, "status": {}, "count": {}, "owner": {}}},
   "frameworkTableName": "Name",
   "frameworkTableStatus": "Status",
   "frameworkTableItems": "Items",
@@ -1222,13 +1101,7 @@
   "bhpDashboardOverdueSubtitle": "Active issues that already require action.",
   "bhpDashboardUpcomingTitle": "Upcoming",
   "bhpDashboardUpcomingSubtitle": "Alerts in the next {months} months.",
-  "@bhpDashboardUpcomingSubtitle": {
-    "placeholders": {
-      "months": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpDashboardUpcomingSubtitle": {"placeholders": {"months": {"type": "int"}}},
   "bhpDashboardSnapshotTitle": "Snapshot",
   "bhpDashboardSnapshotSubtitle": "Dashboard generation timestamp.",
   "bhpDashboardOverdueTableTitle": "Overdue issues",
@@ -1242,16 +1115,7 @@
   "bhpUsersTitle": "BHP employees",
   "bhpUsersSectionSubtitle": "Employee cards and their current status.",
   "bhpUsersSubtitle": "Active: {active}, archived: {archived}",
-  "@bhpUsersSubtitle": {
-    "placeholders": {
-      "active": {
-        "type": "int"
-      },
-      "archived": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUsersSubtitle": {"placeholders": {"active": {"type": "int"}, "archived": {"type": "int"}}},
   "bhpUsersErrorTitle": "Failed to load employees",
   "bhpUsersEmptyTitle": "No employees",
   "bhpUsersEmptyMessage": "The BHP employee list is empty.",
@@ -1260,40 +1124,17 @@
   "bhpUsersNoActiveMessage": "There are no active employees in the list right now.",
   "bhpUsersNoArchivedMessage": "There are no archived employees in the list right now.",
   "bhpUsersSearchResultsSummary": "Results: {visible} of {total}",
-  "@bhpUsersSearchResultsSummary": {
-    "placeholders": {
-      "visible": {},
-      "total": {}
-    }
-  },
+  "@bhpUsersSearchResultsSummary": {"placeholders": {"visible": {}, "total": {}}},
   "bhpUsersClearSearchAction": "Clear search",
   "bhpUsersBulkSelectLabel": "Bulk Actions",
   "bhpUsersBulkSelectedCount": "{count, plural, =1{Selected 1 employee} other{Selected {count} employees}}",
-  "@bhpUsersBulkSelectedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUsersBulkSelectedCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpUsersBulkChangePositionAction": "Change Position",
   "bhpUsersBulkChangePositionTitle": "Bulk Position Change",
   "bhpUsersBulkChangePositionConfirm": "Change position for {count} employees",
-  "@bhpUsersBulkChangePositionConfirm": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUsersBulkChangePositionConfirm": {"placeholders": {"count": {"type": "int"}}},
   "bhpUsersBulkSuccessMessage": "Successfully changed position for {count} employees.",
-  "@bhpUsersBulkSuccessMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUsersBulkSuccessMessage": {"placeholders": {"count": {"type": "int"}}},
   "bhpUsersDataQualityLabel": "Data",
   "bhpUsersDataQualityComplete": "Complete",
   "bhpUsersDataQualityMissingPosition": "Missing position",
@@ -1303,16 +1144,7 @@
   "bhpPositionsTitle": "BHP positions",
   "bhpPositionsSectionSubtitle": "Positions dictionary used in employee cards.",
   "bhpPositionsSubtitle": "Active: {active}, total: {total}",
-  "@bhpPositionsSubtitle": {
-    "placeholders": {
-      "active": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionsSubtitle": {"placeholders": {"active": {"type": "int"}, "total": {"type": "int"}}},
   "bhpPositionsErrorTitle": "Failed to load positions",
   "bhpPositionsEmptyTitle": "No positions",
   "bhpPositionsEmptyMessage": "The positions dictionary does not contain data yet.",
@@ -1322,17 +1154,9 @@
   "bhpPositionsRestoreAction": "Restore",
   "bhpPositionsRestoreTitle": "Restore position",
   "bhpPositionsRestoreMessage": "Position {name} will be re-enabled in the active dictionary.",
-  "@bhpPositionsRestoreMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPositionsRestoreMessage": {"placeholders": {"name": {}}},
   "bhpPositionsRestoreSuccess": "Position {name} has been restored.",
-  "@bhpPositionsRestoreSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPositionsRestoreSuccess": {"placeholders": {"name": {}}},
   "bhpPositionsAddAndStandardAction": "Add and standard",
   "bhpPositionsEditStandardAction": "Edit standard",
   "bhpPositionsOpenStandardAction": "Equipment standard",
@@ -1340,57 +1164,27 @@
   "bhpPositionStandardsLoadErrorTitle": "Failed to load position standard",
   "bhpPositionStandardsPositionLabel": "Position",
   "bhpPositionStandardsItemsCount": "Items: {count}",
-  "@bhpPositionStandardsItemsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionStandardsItemsCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpPositionStandardsActiveCount": "Active: {count}",
-  "@bhpPositionStandardsActiveCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionStandardsActiveCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpPositionStandardsEquipmentPoolCount": "Available cards: {count}",
-  "@bhpPositionStandardsEquipmentPoolCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionStandardsEquipmentPoolCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpPositionStandardsEmptyTitle": "No standard items",
   "bhpPositionStandardsEmptyMessage": "This position has no assigned equipment yet.",
   "bhpPositionStandardsAddAction": "Add item",
   "bhpPositionStandardsArchiveAction": "Set inactive",
   "bhpPositionStandardsArchiveTitle": "Set standard item as inactive",
   "bhpPositionStandardsArchiveMessage": "Item {symbol} will be set inactive only on this position standard card.",
-  "@bhpPositionStandardsArchiveMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpPositionStandardsArchiveMessage": {"placeholders": {"symbol": {}}},
   "bhpPositionStandardsArchiveSuccess": "The standard item has been set as inactive.",
   "bhpPositionStandardsRestoreAction": "Set active",
   "bhpPositionStandardsRestoreTitle": "Set standard item as active",
   "bhpPositionStandardsRestoreMessage": "Item {symbol} will be set active only on this position standard card.",
-  "@bhpPositionStandardsRestoreMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpPositionStandardsRestoreMessage": {"placeholders": {"symbol": {}}},
   "bhpPositionStandardsRestoreSuccess": "The standard item has been set as active.",
   "bhpPositionStandardsDeleteTitle": "Delete standard item",
   "bhpPositionStandardsDeleteMessage": "Item {symbol} will be permanently removed only from this position standard card.",
-  "@bhpPositionStandardsDeleteMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpPositionStandardsDeleteMessage": {"placeholders": {"symbol": {}}},
   "bhpPositionStandardsDeleteSuccess": "The standard item has been deleted.",
   "bhpPositionStandardEditorCreateTitle": "Add standard item",
   "bhpPositionStandardEditorEditTitle": "Edit standard item",
@@ -1409,16 +1203,7 @@
   "bhpEquipmentStatusActiveTooltip": "The equipment card is active and can be used in standards.",
   "bhpEquipmentStatusInactiveTooltip": "The equipment card is inactive and is excluded from new issues.",
   "bhpEquipmentSubtitle": "Active: {active}, total: {total}",
-  "@bhpEquipmentSubtitle": {
-    "placeholders": {
-      "active": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpEquipmentSubtitle": {"placeholders": {"active": {"type": "int"}, "total": {"type": "int"}}},
   "bhpEquipmentErrorTitle": "Failed to load equipment",
   "bhpEquipmentEmptyTitle": "No equipment",
   "bhpEquipmentEmptyMessage": "The equipment catalog does not contain data yet.",
@@ -1426,57 +1211,23 @@
   "bhpEquipmentSetInactiveAction": "Set inactive",
   "bhpEquipmentSetInactiveTitle": "Set card as inactive",
   "bhpEquipmentSetInactiveMessage": "Card {symbol} will be disabled in the active equipment catalog.",
-  "@bhpEquipmentSetInactiveMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpEquipmentSetInactiveMessage": {"placeholders": {"symbol": {}}},
   "bhpEquipmentSetInactiveSuccess": "Card {symbol} has been set as inactive.",
-  "@bhpEquipmentSetInactiveSuccess": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpEquipmentSetInactiveSuccess": {"placeholders": {"symbol": {}}},
   "bhpEquipmentSetActiveAction": "Set active",
   "bhpEquipmentSetActiveTitle": "Set card as active",
   "bhpEquipmentSetActiveMessage": "Card {symbol} will return to the active equipment catalog.",
-  "@bhpEquipmentSetActiveMessage": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpEquipmentSetActiveMessage": {"placeholders": {"symbol": {}}},
   "bhpEquipmentSetActiveSuccess": "Card {symbol} has been set as active.",
-  "@bhpEquipmentSetActiveSuccess": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpEquipmentSetActiveSuccess": {"placeholders": {"symbol": {}}},
   "bhpEquipmentImpactSetInactiveDescription": "Setting this card as inactive will disable all active assignments of this equipment across positions.",
   "bhpEquipmentImpactSetActiveDescription": "You can activate the card globally only, or additionally select which inactive position assignments should be restored.",
   "bhpEquipmentImpactActiveLinksCount": "Active assignments: {count}",
-  "@bhpEquipmentImpactActiveLinksCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpEquipmentImpactActiveLinksCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpEquipmentImpactInactiveLinksCount": "Inactive assignments: {count}",
-  "@bhpEquipmentImpactInactiveLinksCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpEquipmentImpactInactiveLinksCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpEquipmentImpactSelectedLinksCount": "To restore: {count}",
-  "@bhpEquipmentImpactSelectedLinksCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpEquipmentImpactSelectedLinksCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpEquipmentImpactInactiveSection": "Positions that will be disabled",
   "bhpEquipmentImpactActiveSection": "Inactive assignments available to restore",
   "bhpEquipmentImpactActiveHint": "Select only the assignments that should return together with global card activation.",
@@ -1507,13 +1258,7 @@
   "bhpStatusArchived": "Archived",
   "bhpUserIssuesTitle": "Employee issues",
   "bhpUserIssuesSubtitle": "BHP issues and equivalents history for: {name}",
-  "@bhpUserIssuesSubtitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@bhpUserIssuesSubtitle": {"placeholders": {"name": {"type": "String"}}},
   "bhpUserIssuesEmptyTitle": "No issues",
   "bhpUserIssuesEmptyMessage": "This employee has no registered equipment issues.",
   "bhpUserIssuesErrorTitle": "Failed to load issues",
@@ -1541,27 +1286,15 @@
   "bhpUserIssuesInactiveStatusTooltip": "The issue has been closed.\nThe equipment is no longer in use and releases the norm for the position.",
   "bhpUserIssuesRepeatAction": "Add again",
   "bhpUserIssuesActionsForSymbol": "Actions for: {symbol}",
-  "@bhpUserIssuesActionsForSymbol": {
-    "placeholders": {
-      "symbol": {}
-    }
-  },
+  "@bhpUserIssuesActionsForSymbol": {"placeholders": {"symbol": {}}},
   "bhpUserIssuesActionsForIssue": "Issue actions",
   "bhpUserIssuesDeleteIssueTitle": "Delete issue",
   "bhpUserIssuesDeleteIssueMessage": "Are you sure you want to delete issue {item}? This operation cannot be undone.",
-  "@bhpUserIssuesDeleteIssueMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpUserIssuesDeleteIssueMessage": {"placeholders": {"item": {}}},
   "bhpUserIssuesDeleteIssueSuccess": "The issue has been deleted.",
   "bhpUserIssuesRepeatIssueTitle": "Add again",
   "bhpUserIssuesRepeatIssueMessage": "Are you sure you want to automatically repeat issue {item}?",
-  "@bhpUserIssuesRepeatIssueMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpUserIssuesRepeatIssueMessage": {"placeholders": {"item": {}}},
   "bhpUserIssuesRepeatIssueSuccess": "The issue has been repeated.",
   "bhpUserIssuesBulkRepeatAction": "Issue selected again",
   "bhpUserIssuesBulkRepeatTitle": "Confirm reissue",
@@ -1573,34 +1306,16 @@
   "bhpUserIssuesBulkRepeatEmptyTitle": "No items available to repeat",
   "bhpUserIssuesBulkRepeatEmptyMessage": "No active items have been selected for reissue.",
   "bhpUserIssuesBulkRepeatSelectedCount": "Selected: {count}",
-  "@bhpUserIssuesBulkRepeatSelectedCount": {
-    "placeholders": {
-      "count": {}
-    }
-  },
+  "@bhpUserIssuesBulkRepeatSelectedCount": {"placeholders": {"count": {}}},
   "bhpUserIssuesBulkRepeatSubmitAction": "Issue again",
   "bhpUserIssuesBulkRepeatSelectionRequired": "Select at least one active item to issue again.",
   "bhpUserIssuesBulkRepeatSuccess": "Repeated {count} issues.",
-  "@bhpUserIssuesBulkRepeatSuccess": {
-    "placeholders": {
-      "count": {}
-    }
-  },
+  "@bhpUserIssuesBulkRepeatSuccess": {"placeholders": {"count": {}}},
   "bhpUserIssuesBulkRepeatItemSubtitle": "Assigned: {assignedAt} • Closed: {closedAt} • Quantity: {quantity}",
-  "@bhpUserIssuesBulkRepeatItemSubtitle": {
-    "placeholders": {
-      "assignedAt": {},
-      "closedAt": {},
-      "quantity": {}
-    }
-  },
+  "@bhpUserIssuesBulkRepeatItemSubtitle": {"placeholders": {"assignedAt": {}, "closedAt": {}, "quantity": {}}},
   "bhpUserIssuesOpenPositionDetails": "Open position details",
   "bhpUserIssuesPrintCardError": "Error while generating the card printout: {error}",
-  "@bhpUserIssuesPrintCardError": {
-    "placeholders": {
-      "error": {}
-    }
-  },
+  "@bhpUserIssuesPrintCardError": {"placeholders": {"error": {}}},
   "bhpUserIssuesActionAdd": "Add issue",
   "bhpUserIssuesActionFromStandard": "Generate from standard",
   "bhpUserIssuesActionClose": "Close Issue",
@@ -1644,39 +1359,17 @@
   "bhpIssueEquivalentDeleteAction": "Delete equivalent",
   "bhpIssueEquivalentDeleteSuccess": "Equivalent removed.",
   "bhpIssueEquivalentDeleteMessage": "Delete equivalent for: {item}? This clears the equivalent date and amount without removing the issue itself.",
-  "@bhpIssueEquivalentDeleteMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpIssueEquivalentDeleteMessage": {"placeholders": {"item": {}}},
   "bhpIssueValidationPositiveQuantity": "Enter a valid quantity greater than 0.",
   "bhpAssignFromStandardTitle": "Assign from standard",
   "bhpAssignFromStandardLoadErrorTitle": "Failed to load standard",
   "bhpAssignFromStandardDescription": "Below you can see entries from the job-position standard. Selected entries will be assigned, while already active entries are locked.",
   "bhpAssignFromStandardSelectedCount": "To add: {count}",
-  "@bhpAssignFromStandardSelectedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpAssignFromStandardSelectedCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpAssignFromStandardLockedCount": "Already active: {count}",
-  "@bhpAssignFromStandardLockedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpAssignFromStandardLockedCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpAssignFromStandardInactiveCount": "Inactive: {count}",
-  "@bhpAssignFromStandardInactiveCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpAssignFromStandardInactiveCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpAssignFromStandardSectionAddable": "To add",
   "bhpAssignFromStandardSectionLocked": "Already active",
   "bhpAssignFromStandardSectionInactive": "Inactive",
@@ -1701,30 +1394,16 @@
   "bhpPositionStandardUnselectedStatus": "No selection",
   "bhpPositionStandardLoadingStandard": "Loading standard...",
   "bhpPositionStandardStandardCount": "Standard items: {count}",
-  "@bhpPositionStandardStandardCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpPositionStandardStandardCount": {"placeholders": {"count": {"type": "int"}}},
   "bhpPositionStandardPreviewLabel": "Standard preview: {name}",
-  "@bhpPositionStandardPreviewLabel": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPositionStandardPreviewLabel": {"placeholders": {"name": {}}},
   "bhpPositionStandardEmptyStandardTitle": "No standard",
   "bhpPositionStandardEmptyStandardMessage": "No items are assigned to the selected position yet.",
   "bhpAddUserTitle": "Add employee",
   "bhpAddUserSubtitle": "New BHP employee card with assigned position.",
   "bhpAddUserLoadErrorTitle": "Failed to prepare form",
   "bhpAddUserSuccessMessage": "Employee {name} has been added.",
-  "@bhpAddUserSuccessMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpAddUserSuccessMessage": {"placeholders": {"name": {}}},
   "bhpAddUserBaseSectionTitle": "Basic data",
   "bhpAddUserBaseSectionDescription": "Required fields to create an employee card.",
   "bhpAddUserFirstNameLabel": "First name",
@@ -1745,11 +1424,7 @@
   "bhpAddUserPotentialDuplicateTitle": "A similar employee already exists",
   "bhpAddUserPotentialDuplicateMessage": "Found employees with the same basic data. Review the list before saving.",
   "bhpAddUserPotentialDuplicateBannerMessage": "Similar records: {users}. You can still save, but it is worth checking.",
-  "@bhpAddUserPotentialDuplicateBannerMessage": {
-    "placeholders": {
-      "users": {}
-    }
-  },
+  "@bhpAddUserPotentialDuplicateBannerMessage": {"placeholders": {"users": {}}},
   "bhpAddUserPotentialDuplicateConfirmAction": "Add anyway",
   "bhpAddUserPotentialDuplicateCancelAction": "Back to form",
   "bhpAddUserInvalidEmploymentDatesMessage": "Employment end date cannot be earlier than employment start date.",
@@ -1761,46 +1436,25 @@
   "bhpEditUserBaseSectionDescription": "Update basic data and parameters used in BHP issues.",
   "bhpEditUserSubmitAction": "Save changes",
   "bhpEditUserSuccessMessage": "Employee {name} has been updated.",
-  "@bhpEditUserSuccessMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpEditUserSuccessMessage": {"placeholders": {"name": {}}},
   "bhpPreviewNoAssignedPosition": "No assigned position",
   "bhpPreviewDescription": "This is a temporary modal for the employee workflow. The next step is a full detail view with issues.",
   "bhpPreviewIssuesAction": "Issues",
   "bhpPreviewEditPendingMessage": "Employee editing is not connected yet.",
   "bhpPreviewArchivedMessage": "Employee {name} has been archived.",
-  "@bhpPreviewArchivedMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPreviewArchivedMessage": {"placeholders": {"name": {}}},
   "bhpPreviewRestoreAction": "Restore",
   "bhpPreviewRestoreEmployeeMessage": "Restoring will reactivate the employee. If the employee has a past employment end date, it will be cleared.",
   "bhpPreviewRestoredMessage": "Employee {name} has been restored.",
-  "@bhpPreviewRestoredMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPreviewRestoredMessage": {"placeholders": {"name": {}}},
   "bhpPreviewForceDeleteAction": "Delete from database",
   "bhpForceDeleteUserConfirmTitle": "Delete employee from database",
   "bhpForceDeleteUserConfirmBody": "This operation will physically and irreversibly delete employee {name} (ID: {id}) along with all related equipment issues from the database.",
-  "@bhpForceDeleteUserConfirmBody": {
-    "placeholders": {
-      "name": {},
-      "id": {}
-    }
-  },
+  "@bhpForceDeleteUserConfirmBody": {"placeholders": {"name": {}, "id": {}}},
   "bhpForceDeleteUnlockLabel": "To unlock deletion, type: Excellent2026",
   "bhpForceDeleteUnlockHint": "Type Excellent2026 to unlock deletion.",
   "bhpPreviewForceDeletedMessage": "Employee {name} has been deleted from the database.",
-  "@bhpPreviewForceDeletedMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpPreviewForceDeletedMessage": {"placeholders": {"name": {}}},
   "bhpIssueConfirmStandardTitle": "Generate equipment from standard",
   "bhpIssueConfirmStandardMessage": "Are you sure you want to generate BHP equipment from the standard of this employee's job position?\n\nThe system will check the assigned standard for their position and automatically create missing, active issues. Existing active issues will not be duplicated.",
   "bhpIssueConfirmStandardAction": "Generate",
@@ -1808,37 +1462,17 @@
   "edit": "Edit",
   "inventoryEditCommissionTitle": "Edit commission",
   "inventoryCommissionForInventory": "Inventory commission {number}",
-  "@inventoryCommissionForInventory": {
-    "placeholders": {
-      "number": {}
-    }
-  },
+  "@inventoryCommissionForInventory": {"placeholders": {"number": {}}},
   "inventoryNoAssignedCommissionTitle": "No commission assigned",
   "inventoryNoAssignedCommissionMessage": "No commission has been assigned to this inventory yet.",
   "inventoryUserWithId": "User #{id}",
-  "@inventoryUserWithId": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryUserWithId": {"placeholders": {"id": {"type": "int"}}},
   "inventoryNoSheetsTitle": "No sheets",
   "inventoryNoSheetsMessage": "Add the first sheet for this inventory.",
   "inventorySheetWithId": "Sheet #{id}",
-  "@inventorySheetWithId": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySheetWithId": {"placeholders": {"id": {"type": "int"}}},
   "inventoryCommissionForSheet": "Sheet commission {label}",
-  "@inventoryCommissionForSheet": {
-    "placeholders": {
-      "label": {}
-    }
-  },
+  "@inventoryCommissionForSheet": {"placeholders": {"label": {}}},
   "inventoryNoAssignedLocation": "No assigned location",
   "inventoryItemsLabel": "Items",
   "inventoryLocationLevelLabel": "Location level",
@@ -1846,35 +1480,17 @@
   "end": "End",
   "inventorySheetCommissionNone": "Sheet commission: none",
   "inventorySheetCommissionWithMembers": "Sheet commission: {members}",
-  "@inventorySheetCommissionWithMembers": {
-    "placeholders": {
-      "members": {}
-    }
-  },
+  "@inventorySheetCommissionWithMembers": {"placeholders": {"members": {}}},
   "inventoryDeleteCompanyTitle": "Delete company",
   "inventoryDeleteCompanySubtitle": "Company deletion is irreversible.",
   "inventoryDeleteCompanyConfirmTitle": "Are you sure you want to delete this company?",
   "inventoryDeleteCompanyConfirmBody": "Company: {name}\nCompany ID: {id}\nThis operation cannot be undone.",
-  "@inventoryDeleteCompanyConfirmBody": {
-    "placeholders": {
-      "name": {},
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDeleteCompanyConfirmBody": {"placeholders": {"name": {}, "id": {"type": "int"}}},
   "inventoryDeleteTitle": "Delete inventory",
   "inventoryDeleteSubtitle": "Inventory deletion is irreversible.",
   "inventoryDeleteConfirmTitle": "Are you sure you want to delete this inventory?",
   "inventoryDeleteConfirmBody": "Inventory: {number}\nID: {id}\nThis operation cannot be undone.",
-  "@inventoryDeleteConfirmBody": {
-    "placeholders": {
-      "number": {},
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDeleteConfirmBody": {"placeholders": {"number": {}, "id": {"type": "int"}}},
   "inventoryDeleteUnlockLabel": "Confirmation",
   "inventoryDeleteUnlockHint": "Type Excellent to unlock deletion.",
   "inventoryDeletedMessage": "Inventory has been deleted.",
@@ -1894,29 +1510,13 @@
   "inventorySnapshotRefreshFailureTitle": "Refresh failed",
   "inventorySnapshotRefreshSuccessTitle": "Refresh completed",
   "inventorySnapshotRefreshSuccessMessage": "Refresh completed. Success: {okCount}, errors: {errorCount}.",
-  "@inventorySnapshotRefreshSuccessMessage": {
-    "placeholders": {
-      "okCount": {
-        "type": "int"
-      },
-      "errorCount": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventorySnapshotRefreshSuccessMessage": {"placeholders": {"okCount": {"type": "int"}, "errorCount": {"type": "int"}}},
   "inventorySnapshotRefreshProcessingAction": "Processing...",
   "inventoryCloseTitle": "Close inventory",
   "inventoryCloseSubtitle": "After closing, editing will no longer be available.",
   "inventoryCloseConfirmTitle": "Are you sure you want to close this inventory?",
   "inventoryCloseConfirmBody": "Inventory: {number}\nID: {id}\nStatus will be changed to finished (2).",
-  "@inventoryCloseConfirmBody": {
-    "placeholders": {
-      "number": {},
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryCloseConfirmBody": {"placeholders": {"number": {}, "id": {"type": "int"}}},
   "inventoryCloseDateLabel": "End date (data_do)",
   "inventoryCloseUnlockLabel": "Close confirmation",
   "inventoryCloseUnlockHint": "Type Excellent to unlock closing.",
@@ -1927,14 +1527,7 @@
   "inventoryDeleteSheetSubtitle": "Sheet deletion is irreversible.",
   "inventoryDeleteSheetConfirmTitle": "Are you sure you want to delete this sheet?",
   "inventoryDeleteSheetConfirmBody": "Sheet: {number}\nID: {id}\nThis operation cannot be undone.",
-  "@inventoryDeleteSheetConfirmBody": {
-    "placeholders": {
-      "number": {},
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryDeleteSheetConfirmBody": {"placeholders": {"number": {}, "id": {"type": "int"}}},
   "inventoryDeleteSheetBlockedMessage": "Cannot delete a sheet in a finished inventory (status=2).",
   "inventorySheetDeletedMessage": "Sheet has been deleted.",
   "inventoryArchiveTitle": "Archive",
@@ -1957,13 +1550,7 @@
   "no": "No",
   "inventoryEditSheetItemTitle": "Edit sheet item",
   "inventoryEditSheetItemSubtitle": "{name} ({register}) | BC: {barcode}",
-  "@inventoryEditSheetItemSubtitle": {
-    "placeholders": {
-      "name": {},
-      "register": {},
-      "barcode": {}
-    }
-  },
+  "@inventoryEditSheetItemSubtitle": {"placeholders": {"name": {}, "register": {}, "barcode": {}}},
   "inventoryItemSavedMessage": "Item changes have been saved.",
   "inventoryInventoryStateShort": "Inv. state",
   "inventoryInventoryStateNone": "Missing",
@@ -1978,18 +1565,10 @@
   "inventoryNewPerson": "New person",
   "inventoryNewName": "New name",
   "inventoryLocalRemarksHint": "Remarks",
-  "@inventoryLocalRemarksHint": {
-    "description": "Placeholder for sheet item remarks backed by uwagi_loc from the API."
-  },
+  "@inventoryLocalRemarksHint": {"description": "Placeholder for sheet item remarks backed by uwagi_loc from the API."},
   "inventoryNewBarcodeMaxLengthError": "New barcode can contain at most 64 characters.",
   "inventoryAddSheetToInventory": "Add sheet to inventory #{inventoryId}",
-  "@inventoryAddSheetToInventory": {
-    "placeholders": {
-      "inventoryId": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryAddSheetToInventory": {"placeholders": {"inventoryId": {"type": "int"}}},
   "inventoryLoadLocationsErrorTitle": "Failed to load locations",
   "inventoryOptionalCommission": "Commission (optional)",
   "inventorySearchByNameOrLoginHint": "Search person by name or login...",
@@ -1998,21 +1577,9 @@
   "inventoryNoLocationsTitle": "No locations",
   "inventoryLocationsBackendEmptyMessage": "Backend did not return locations for this inventory.",
   "inventoryIdWithValue": "ID {id}",
-  "@inventoryIdWithValue": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryIdWithValue": {"placeholders": {"id": {"type": "int"}}},
   "inventoryLocationWithId": "Location: {id}",
-  "@inventoryLocationWithId": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryLocationWithId": {"placeholders": {"id": {"type": "int"}}},
   "inventorySelectLocationBeforeCreateError": "Select location in the tree before creating the sheet.",
   "inventoryInvalidCommissionFormatError": "Commission list has invalid format.",
   "inventorySheetDetailsTitle": "Sheet details",
@@ -2034,16 +1601,7 @@
   "inventoryRegisterNumberRequiredError": "Register number is required.",
   "inventoryAssetStateLabel": "Asset status",
   "inventoryResultsCount": "Results: {filtered}/{total}",
-  "@inventoryResultsCount": {
-    "placeholders": {
-      "filtered": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryResultsCount": {"placeholders": {"filtered": {"type": "int"}, "total": {"type": "int"}}},
   "inventoryNoItemsTitle": "No items",
   "inventoryNoSearchResultsTitle": "No search results",
   "inventoryHideFinished": "Hide finished",
@@ -2101,13 +1659,7 @@
   "bhpStatisticsUsersCaption": "Unique people involved",
   "bhpStatisticsDominantTypeCaptionNone": "No data",
   "bhpStatisticsDominantTypeCaptionMany": "{count} times",
-  "@bhpStatisticsDominantTypeCaptionMany": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpStatisticsDominantTypeCaptionMany": {"placeholders": {"count": {"type": "int"}}},
   "bhpStatisticsTopEquipmentTitle": "Most issued items",
   "bhpStatisticsTopUsersTitle": "Most active employees",
   "bhpStatisticsMonthEmptyMessage": "No data for the selected month.",
@@ -2171,13 +1723,7 @@
   "bhpStatisticsIssuesEquivalentCountTooltip": "This is the number of cases where an equivalent was registered instead of a regular issue.",
   "bhpStatisticsIssuesComparisonLoading": "Loading comparison...",
   "bhpStatisticsIssuesTableOperationsSuffix": "{count} operations",
-  "@bhpStatisticsIssuesTableOperationsSuffix": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpStatisticsIssuesTableOperationsSuffix": {"placeholders": {"count": {"type": "int"}}},
   "bhpIssueOperationsTabOperations": "Operations",
   "bhpIssueOperationsTabStatistics": "Statistics",
   "bhpIssueOperationsStatisticsTitle": "Monthly statistics",
@@ -2193,13 +1739,7 @@
   "bhpIssueOperationsStatisticsUsersCaption": "Unique people involved in movement",
   "bhpIssueOperationsStatisticsDominantTypeCaptionNone": "No data",
   "bhpIssueOperationsStatisticsDominantTypeCaptionMany": "{count} times",
-  "@bhpIssueOperationsStatisticsDominantTypeCaptionMany": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpIssueOperationsStatisticsDominantTypeCaptionMany": {"placeholders": {"count": {"type": "int"}}},
   "bhpIssueOperationsStatisticsTopEquipmentTitle": "Most frequently issued items",
   "bhpIssueOperationsStatisticsTopUsersTitle": "Most active employees",
   "bhpIssueOperationsStatisticsNoMonthItemsMessage": "No data for the selected month.",
@@ -2221,40 +1761,20 @@
   "bhpUserIssuesBlockedBannerMessage": "The employee cannot receive issues right now. Check the employee and position status.",
   "bhpUserIssuesCompliantBannerTitle": "Compliant with standard",
   "bhpUserIssuesCompliantBannerMessage": "All active position-standard items are covered by active issues. Active issues: {count}.",
-  "@bhpUserIssuesCompliantBannerMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUserIssuesCompliantBannerMessage": {"placeholders": {"count": {"type": "int"}}},
   "bhpUserIssuesMissingBannerTitle": "Standard gaps",
   "bhpUserIssuesMissingBannerMessage": "Missing {count} items required by the position standard. Add them in the \"To issue from standard\" section.",
-  "@bhpUserIssuesMissingBannerMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUserIssuesMissingBannerMessage": {"placeholders": {"count": {"type": "int"}}},
   "bhpUserIssuesNoNameFallback": "No name",
   "bhpUserIssuesRenewAction": "Reissue",
   "bhpUserIssuesIssueStandardConfirmTitle": "Issue standard item",
   "bhpUserIssuesIssueStandardConfirmMessage": "Do you want to issue {item} according to the position standard?",
-  "@bhpUserIssuesIssueStandardConfirmMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpUserIssuesIssueStandardConfirmMessage": {"placeholders": {"item": {}}},
   "bhpUserIssuesIssueStandardConfirmAction": "Issue",
   "bhpUserIssuesIssueStandardSuccess": "The item has been issued according to the standard.",
   "bhpUserIssuesRenewActiveTitle": "Reissue",
   "bhpUserIssuesRenewActiveMessage": "The previous active issue {item} will be closed automatically and a new issue will be created today. Continue?",
-  "@bhpUserIssuesRenewActiveMessage": {
-    "placeholders": {
-      "item": {}
-    }
-  },
+  "@bhpUserIssuesRenewActiveMessage": {"placeholders": {"item": {}}},
   "bhpUserIssuesRenewActiveAction": "Reissue",
   "bhpUserIssuesRenewActiveSuccess": "A new issue has been created and the previous one has been closed.",
   "bhpUserIssuesPrintSelectTitle": "Select items to print",
@@ -2265,13 +1785,7 @@
   "bhpUserIssuesPrintEmptyMessage": "This employee has no issues to select yet.",
   "bhpUserIssuesPrintSelectedAction": "Print selected",
   "bhpUserIssuesPrintIssueLabelFallback": "Item #{id}",
-  "@bhpUserIssuesPrintIssueLabelFallback": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUserIssuesPrintIssueLabelFallback": {"placeholders": {"id": {"type": "int"}}},
   "bhpUserIssuesLastIssueLabel": "Last issue",
   "bhpUserIssueInfoSubtitle": "Equipment card",
   "bhpUserIssueInfoNoEquipmentTitle": "No equipment card",
@@ -2301,26 +1815,11 @@
   "bhpUserIssuesPdfHeadLabel": "Head circumference",
   "bhpUserIssuesPdfFootLabel": "Foot length",
   "bhpUserIssuesPdfPageLabel": "Page {current} / {total}",
-  "@bhpUserIssuesPdfPageLabel": {
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpUserIssuesPdfPageLabel": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
   "bhpIssueFormEquipmentRequired": "Equipment is required.",
   "bhpIssueNoEquipmentFallback": "No equipment",
   "bhpIssueCardFallback": "Card #{id}",
-  "@bhpIssueCardFallback": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpIssueCardFallback": {"placeholders": {"id": {"type": "int"}}},
   "bhpIssueUnknownEquipmentFallback": "Unknown equipment",
   "bhpIssueEquivalentHelperExisting": "You can change the equivalent date and amount. The date cannot be earlier than the issue date.",
   "bhpIssueEquivalentHelperOpen": "You can enter an equivalent even for an open issue. The date cannot be earlier than the issue date.",
@@ -2334,21 +1833,13 @@
   "bhpDeleteUserTitle": "Delete employee",
   "bhpDeleteUserSubtitle": "This operation removes the employee from the active list by archiving them.",
   "bhpDeleteUserConfirmMessage": "Are you sure you want to delete {name}?",
-  "@bhpDeleteUserConfirmMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpDeleteUserConfirmMessage": {"placeholders": {"name": {}}},
   "bhpDeleteUserArchiveMessage": "This operation irreversibly deletes the employee and all BHP history from the database.",
   "bhpArchiveUserAction": "Archive",
   "bhpArchiveUserTitle": "Archive employee",
   "bhpArchiveUserSubtitle": "This operation removes the employee from the active list, but it does not delete their BHP history.",
   "bhpArchiveUserConfirmMessage": "Are you sure you want to archive {name}?",
-  "@bhpArchiveUserConfirmMessage": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@bhpArchiveUserConfirmMessage": {"placeholders": {"name": {}}},
   "bhpArchiveUserMessage": "The employee will be moved to the archive and removed from the active list. Their BHP history will remain available, and the employee can be restored later.",
   "bhpStatisticsComparisonsTabMetrics": "Annual indicators",
   "bhpStatisticsComparisonsTabProducts": "Products",
@@ -2357,13 +1848,7 @@
   "bhpStatisticsComparisonsMetricsSubtitle": "Summary of key BHP indicators for the selected year and two years back.",
   "bhpStatisticsComparisonsTableColumnMetric": "Indicator",
   "bhpStatisticsComparisonsYearLabel": "Year {year}",
-  "@bhpStatisticsComparisonsYearLabel": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
+  "@bhpStatisticsComparisonsYearLabel": {"placeholders": {"year": {"type": "int"}}},
   "bhpStatisticsComparisonsProductsTitle": "Comparison of product issues (BHP items)",
   "bhpStatisticsComparisonsProductsSubtitle": "Summary of demand for individual products in the format: Number of issues (Quantity).",
   "bhpStatisticsComparisonsTableColumnProduct": "Product / BHP item",
@@ -2392,52 +1877,16 @@
   "inventoryTreeNoLocationsTitle": "No locations to display",
   "inventoryTreeNoLocationsMessage": "This inventory has no assigned locations yet.",
   "inventoryTreeNodesSummary": "Nodes: {count}",
-  "@inventoryTreeNodesSummary": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryTreeNodesSummary": {"placeholders": {"count": {"type": "int"}}},
   "inventoryTreeNodesAmbiguousSummary": "Nodes: {count} • ambiguous: {ambiguous}",
-  "@inventoryTreeNodesAmbiguousSummary": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "ambiguous": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryTreeNodesAmbiguousSummary": {"placeholders": {"count": {"type": "int"}, "ambiguous": {"type": "int"}}},
   "inventoryTreeCompanySummary": "{places, plural, =1{1 location} other{{places} locations}} • {sheets} with sheets",
-  "@inventoryTreeCompanySummary": {
-    "placeholders": {
-      "places": {
-        "type": "int"
-      },
-      "sheets": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryTreeCompanySummary": {"placeholders": {"places": {"type": "int"}, "sheets": {"type": "int"}}},
   "inventoryTreeCompanyAmbiguousSuffix": " • contains ambiguous locations",
   "inventoryProductsCount": "{count, plural, =1{1 product} other{{count} products}}",
-  "@inventoryProductsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryProductsCount": {"placeholders": {"count": {"type": "int"}}},
   "inventoryTreeIncompleteTitle": "Incomplete ({count})",
-  "@inventoryTreeIncompleteTitle": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryTreeIncompleteTitle": {"placeholders": {"count": {"type": "int"}}},
   "inventoryTreeStatusAmbiguous": "Ambiguous",
   "inventoryTreeStatusCompleted": "Completed",
   "inventoryTreeStatusMissingSheet": "Missing sheet",
@@ -2449,24 +1898,9 @@
   "inventoryProductsEmptyTitle": "No products",
   "inventoryProductsEmptyMessage": "This location has no active products in the stan_st snapshot.",
   "inventoryProductsShownSummary": "Showing {visible} of {total} products",
-  "@inventoryProductsShownSummary": {
-    "placeholders": {
-      "visible": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryProductsShownSummary": {"placeholders": {"visible": {"type": "int"}, "total": {"type": "int"}}},
   "inventoryProductsSummary": "Products: {total}",
-  "@inventoryProductsSummary": {
-    "placeholders": {
-      "total": {
-        "type": "int"
-      }
-    }
-  },
+  "@inventoryProductsSummary": {"placeholders": {"total": {"type": "int"}}},
   "inventoryShowingLastDataTitle": "Showing the last available data",
   "tasksBoardTitle": "Project tasks",
   "tasksBoardErrorTitle": "Could not open the board",
@@ -2575,6 +2009,14 @@
   "tasksKanbanSwimlaneAssignee": "By assignee",
   "tasksKanbanSwimlanePriority": "By priority",
   "tasksKanbanSwimlaneMilestone": "By milestone",
+  "tasksBoardGroupBy": "Group by",
+  "tasksBoardGroupByStatus": "Status",
+  "tasksBoardCurrentUserBadge": "You",
+  "tasksBoardMoveToPerson": "Move to person",
+  "tasksBoardLoadMore": "Load more",
+  "tasksBoardUnassignedDropTitle": "Remove every assignee?",
+  "tasksBoardUnassignedDropBody": "Dropping the card here removes all assignees from the task. The task status does not change.",
+  "tasksBoardUnassignedDropConfirm": "Remove assignees",
   "tasksKanbanCardDensity": "Card density",
   "tasksKanbanDensityCompact": "Compact",
   "tasksKanbanDensityComfortable": "Comfortable",
@@ -2638,6 +2080,11 @@
   "tasksListPriority": "Priority",
   "tasksBoardFilterAssignee": "Person",
   "tasksBoardFilterAllPeople": "All people",
+  "tasksBoardAssigneeColumns": "People columns",
+  "tasksBoardAssigneeColumnsHideEmpty": "Hide empty columns",
+  "tasksBoardAssigneeColumnsShowAll": "Show all columns",
+  "tasksBoardAssigneeColumnsAllHidden": "All columns hidden — show them",
+  "tasksBoardActiveFilters": "Active filters:",
   "tasksBoardMoveBlockedByFilter": "This card cannot be moved into a column whose contents are hidden by an active filter. Clear the filters and try again.",
   "tasksListTask": "Task",
   "tasksListOwner": "Owner",
@@ -2688,24 +2135,11 @@
   "tasksArchiveAction": "Archive",
   "tasksSelectTask": "Select task {taskCode}",
   "tasksOpenTask": "Open task {taskCode}: {title}",
-  "@tasksOpenTask": {
-    "placeholders": {
-      "taskCode": {},
-      "title": {}
-    }
-  },
+  "@tasksOpenTask": {"placeholders": {"taskCode": {}, "title": {}}},
   "tasksExpandColumn": "Expand {name} column",
-  "@tasksExpandColumn": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@tasksExpandColumn": {"placeholders": {"name": {}}},
   "tasksDropAtEnd": "Drop task at the end of the {name} column",
-  "@tasksDropAtEnd": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
+  "@tasksDropAtEnd": {"placeholders": {"name": {"type": "String"}}},
   "@tasksSelectTask": {"placeholders": {"taskCode": {"type": "String"}}},
   "tasksPinTask": "Pin task",
   "tasksUnpinTask": "Unpin task",
@@ -2756,22 +2190,12 @@
   "taskDetailsHistoryActorAutomation": "Automation",
   "taskDetailsHistoryActorUser": "User",
   "taskDetailsHistoryVersion": "v{version}",
-  "@taskDetailsHistoryVersion": {
-    "placeholders": {
-      "version": {
-        "type": "int"
-      }
-    }
-  },
+  "@taskDetailsHistoryVersion": {"placeholders": {"version": {"type": "int"}}},
   "taskDetailsRecurrence": "Recurrence",
   "taskDetailsConfigureRecurrence": "Configure",
   "taskDetailsRecurrenceNotConfigured": "This task is not recurring.",
   "taskDetailsRecurrenceEvery": "every {count}",
-  "@taskDetailsRecurrenceEvery": {
-    "placeholders": {
-      "count": {"type": "int"}
-    }
-  },
+  "@taskDetailsRecurrenceEvery": {"placeholders": {"count": {"type": "int"}}},
   "taskDetailsRecurrenceActive": "Active",
   "taskDetailsRecurrencePaused": "Paused",
   "taskDetailsRecurrenceMode": "Schedule type",
@@ -3039,11 +2463,7 @@
   "tasksSavedViewsRename": "Rename",
   "tasksSavedViewsDelete": "Delete view",
   "tasksSavedViewsDeleteDescription": "Do you really want to delete the “{name}” view?",
-  "@tasksSavedViewsDeleteDescription": {
-    "placeholders": {
-      "name": {}
-    }
-  },
+  "@tasksSavedViewsDeleteDescription": {"placeholders": {"name": {}}},
   "tasksSavedViewsName": "View name",
   "tasksSavedViewsLayout": "Layout",
   "tasksSavedViewsSort": "Sort",
@@ -3141,31 +2561,13 @@
   "tasksRecurrenceDeleteSuccess": "Recurrence deleted successfully",
   "taskRecurrenceIntervalDaily": "Daily",
   "taskRecurrenceIntervalDays": "Every {interval} days",
-  "@taskRecurrenceIntervalDays": {
-    "placeholders": {
-      "interval": {
-        "type": "int"
-      }
-    }
-  },
+  "@taskRecurrenceIntervalDays": {"placeholders": {"interval": {"type": "int"}}},
   "taskRecurrenceIntervalWeekly": "Weekly",
   "taskRecurrenceIntervalWeeks": "Every {interval} weeks",
-  "@taskRecurrenceIntervalWeeks": {
-    "placeholders": {
-      "interval": {
-        "type": "int"
-      }
-    }
-  },
+  "@taskRecurrenceIntervalWeeks": {"placeholders": {"interval": {"type": "int"}}},
   "taskRecurrenceIntervalMonthly": "Monthly",
   "taskRecurrenceIntervalMonths": "Every {interval} months",
-  "@taskRecurrenceIntervalMonths": {
-    "placeholders": {
-      "interval": {
-        "type": "int"
-      }
-    }
-  },
+  "@taskRecurrenceIntervalMonths": {"placeholders": {"interval": {"type": "int"}}},
   "taskRecurrenceHeader": "Task recurrence",
   "taskRecurrenceFrequencyLabel": "Recurrence frequency",
   "taskRecurrencePresetWorkdays": "On workdays",
@@ -3191,13 +2593,7 @@
   "tasksListMoreOptionsTooltip": "More options",
   "tasksListKeyCopiedTooltip": "Task key copied to clipboard",
   "tasksListAddInGroupTooltip": "Add task in group: {group}",
-  "@tasksListAddInGroupTooltip": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      }
-    }
-  },
+  "@tasksListAddInGroupTooltip": {"placeholders": {"group": {"type": "String"}}},
   "tasksListQuickCreateTitle": "New task",
   "tasksListQuickCreateHint": "Enter new task title...",
   "tasksListQuickCreateButton": "Create",
@@ -3367,13 +2763,7 @@
   "projectSettingsTemplateDetailsCustomFields": "Custom Fields",
   "projectSettingsTemplateDetailsLabels": "Labels",
   "projectSettingsTemplateDetailsTasks": "Starter Tasks ({count})",
-  "@projectSettingsTemplateDetailsTasks": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@projectSettingsTemplateDetailsTasks": {"placeholders": {"count": {"type": "int"}}},
   "projectSettingsTemplateDetailsNoTasks": "No starter tasks defined.",
   "projectSettingsTemplateDetailsNoFields": "No custom fields defined.",
   "projectSettingsTemplateDetailsNoLabels": "No labels defined.",
@@ -3382,13 +2772,7 @@
   "projectSettingsTemplateCreateDialogDesc": "The current project, along with its workflow statuses, custom fields, and starter tasks, will be saved as a reusable template.",
   "projectSettingsTemplateApplyDialogDesc": "A new project will be created based on this template with all statuses, custom fields, and tasks.",
   "projectSettingsTemplateUpdatedLabel": "Updated: {date}",
-  "@projectSettingsTemplateUpdatedLabel": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
+  "@projectSettingsTemplateUpdatedLabel": {"placeholders": {"date": {"type": "String"}}},
   "projectUserHubTitle": "My Project Hub",
   "projectUserHubTabProfile": "My Profile",
   "projectUserHubTabPreferences": "My Preferences",
@@ -3436,13 +2820,7 @@
   "tasksListEstimatedMinutes": "Estimate",
   "tasksListActualMinutes": "Actual time",
   "tasksListResizeColumnTooltip": "Resize column: {name}",
-  "@tasksListResizeColumnTooltip": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "@tasksListResizeColumnTooltip": {"placeholders": {"name": {"type": "String"}}},
   "tasksListColumnsTitle": "Customize columns",
   "tasksListColumnsSubtitle": "Manage column visibility and order in the list",
   "tasksListColumnsSearchHint": "Search columns...",
@@ -3480,6 +2858,21 @@
   "storageMyFiles": "My files",
   "storageSharedWithMe": "Shared with me",
   "storageRecent": "Recent",
+  "storageFilterActiveLabel": "Active filter:",
+  "storageFilterAll": "All",
+  "storageFilterClear": "Clear",
+  "storageFilterDateMonth": "Last 30 days",
+  "storageFilterDateSection": "Date added",
+  "storageFilterDateToday": "Today",
+  "storageFilterDateWeek": "Last 7 days",
+  "storageFilterMenuLabel": "Filters",
+  "storageFilterStatusCompleted": "Ready",
+  "storageFilterStatusFailed": "Failed",
+  "storageFilterStatusNone": "Not analysed",
+  "storageFilterStatusProcessing": "Processing",
+  "storageFilterStatusQueued": "Queued",
+  "storageFilterStatusSection": "Analysis status",
+  "storageFilterTypeSection": "File type",
   "storageFavorites": "Favorites",
   "storageTrash": "Trash",
   "storageNewFolder": "New folder",
@@ -3493,13 +2886,7 @@
   "storageSortSizeDesc": "Largest",
   "storageSortSizeAsc": "Smallest",
   "storageSelectedCount": "{count, plural, =1{1 item selected} other{{count} items selected}}",
-  "@storageSelectedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "@storageSelectedCount": {"placeholders": {"count": {"type": "int"}}},
   "storageDownloadZip": "Download ZIP",
   "storageDeleteSelected": "Delete selected",
   "storageRestoreSelected": "Restore",
@@ -3537,24 +2924,21 @@
   "storageMutationConflict": "A folder with this name already exists.",
   "storageMutationValidation": "Enter a valid folder name.",
   "storageShareTitle": "Share: {fileName}",
-  "@storageShareTitle": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      }
-    }
-  },
+  "@storageShareTitle": {"placeholders": {"fileName": {"type": "String"}}},
   "storageActiveShares": "Active shares",
   "storageNoActiveShares": "No active shares besides owner.",
   "storageShareUserLabel": "User: {identifier}",
-  "@storageShareUserLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "@storageShareUserLabel": {"placeholders": {"identifier": {"type": "String"}}},
   "storageShareWorkspaceLabel": "Workspace: {identifier}",
-  "@storageShareWorkspaceLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "@storageShareWorkspaceLabel": {"placeholders": {"identifier": {"type": "String"}}},
   "storageShareProjectLabel": "Project: {identifier}",
-  "@storageShareProjectLabel": {"placeholders":{"identifier":{"type":"String"}}},
+  "@storageShareProjectLabel": {"placeholders": {"identifier": {"type": "String"}}},
   "storageUserInputHint": "User ID / email",
   "storageUserSearchWorkspaceRequired": "Local directory search is available for workspace or project files.",
   "storageUserSearchNoResults": "No users with an active local account were found.",
+  "storageViewDensityLabel": "Row density",
+  "storageViewDensityComfortable": "Comfortable",
+  "storageViewDensityCompact": "Compact",
   "storageAddShareButton": "Add",
   "storagePublicLinkTitle": "Public link",
   "storagePublicLinkSubtitle": "Allows access without login with selected permissions",
@@ -3567,10 +2951,10 @@
   "storageHidePassword": "Hide password",
   "storagePublicShareDownload": "Download file",
   "storagePublicShareDownloadStarted": "Download started: {fileName}",
-  "@storagePublicShareDownloadStarted": {"placeholders":{"fileName":{"type":"String"}}},
+  "@storagePublicShareDownloadStarted": {"placeholders": {"fileName": {"type": "String"}}},
   "storagePublicLinkNoExpiry": "No expiration date",
   "storagePublicLinkExpires": "Expires {date}",
-  "@storagePublicLinkExpires": {"placeholders":{"date":{"type":"String"}}},
+  "@storagePublicLinkExpires": {"placeholders": {"date": {"type": "String"}}},
   "storageCopyPublicLink": "Copy public link",
   "storageGenerateLinkButton": "Generate link",
   "storageLinkCopied": "Link copied to clipboard",
@@ -3579,14 +2963,17 @@
   "storageAccessEditor": "Editor",
   "storageAccessOwner": "Owner",
   "storageShareAction": "Share",
+  "storageShareAuthor": "Author: {identifier}",
+  "storageShareExpiresAt": "Expires: {date}",
+  "storageShareLinkSection": "Public link",
+  "storageSharePeopleSection": "People",
+  "storageShareProjectSection": "Project",
+  "storageShareWorkspaceSection": "Workspace",
   "storageAddFavoriteAction": "Add to favorites",
   "storageRemoveFavoriteAction": "Remove from favorites",
   "storageDownloadAction": "Download",
   "storageDownloadSuccess": "Downloaded file: {fileName} to Downloads",
-  "@storageDownloadSuccess": {
-    "description": "Confirmation that a desktop file was saved in Downloads.",
-    "placeholders": {"fileName": {"type": "String"}}
-  },
+  "@storageDownloadSuccess": {"description": "Confirmation that a desktop file was saved in Downloads.", "placeholders": {"fileName": {"type": "String"}}},
   "storageDeleteAction": "Delete",
   "storageOpenOfficeAction": "Open document",
   "storageOfficeEditMode": "Edit mode",
@@ -3596,41 +2983,40 @@
   "storageOfficeHostFailure": "The embedded OnlyOffice editor could not be loaded.",
   "storageOfficeDownloadFailure": "The document download could not be prepared. Check the OnlyOffice connection and try again.",
   "storageOfficeCloseUnconfirmed": "The editor did not confirm a safe close. Closing anyway may lose unsaved changes. Close the document?",
+  "storageOfficeCloseUnsavedBody": "The document has changes that have not been confirmed by a save yet. Closing the editor may lose them.",
+  "storageOfficeCloseUnsavedTitle": "Close without saving?",
+  "storageOfficeConnected": "Connected",
+  "storageOfficeConnecting": "Connecting…",
+  "storageOfficeSavedChanges": "Saved",
+  "storageOfficeUnsavedChanges": "Unsaved changes",
   "storageOfficeSessionFailure": "The OnlyOffice editor session could not be started",
   "storageCloseOffice": "Close document",
   "storageOfficePrintAction": "Print",
   "storageOfficePrinting": "Preparing print…",
   "storageOfficePrintFailure": "Failed to print document.",
   "storageOfficeDownloadSuccess": "Downloaded file: {fileName} to Downloads",
-  "@storageOfficeDownloadSuccess": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      }
-    }
-  },
+  "@storageOfficeDownloadSuccess": {"placeholders": {"fileName": {"type": "String"}}},
   "storageOfficeSaveCopyAction": "Save copy in Storage",
   "storageOfficeSavingCopy": "Saving copy in Storage…",
   "storageOfficeSaveCopySuccess": "Saved copy ”{fileName}” in Storage",
-  "@storageOfficeSaveCopySuccess": {
-    "placeholders": {
-      "fileName": {
-        "type": "String"
-      }
-    }
-  },
+  "@storageOfficeSaveCopySuccess": {"placeholders": {"fileName": {"type": "String"}}},
   "storageOfficeSaveCopyFailure": "Failed to save document copy in Storage.",
   "storageSortTooltip": "Sort",
   "storageListViewTooltip": "List view",
   "storageGridViewTooltip": "Grid view",
   "storageMoreOptionsTooltip": "More options",
+  "storageMoveAction": "Move to…",
+  "storageMoveConfirm": "Move here",
+  "storageMoveDialogNoSubfolders": "No subfolders. Pick this folder or go up.",
+  "storageMoveDialogRoot": "Root folder",
+  "storageMoveDialogTitle": "Move to folder",
   "storageClearCompletedTooltip": "Clear completed",
   "storageCancelUploadTooltip": "Cancel upload",
   "storageRetryUploadTooltip": "Retry transfer",
   "storageErrorTitle": "Something went wrong",
   "storageForbiddenTitle": "Access denied",
   "storagePreviewError": "Preview error: {message}",
-  "@storagePreviewError": {"placeholders":{"message":{"type":"String"}}},
+  "@storagePreviewError": {"placeholders": {"message": {"type": "String"}}},
   "storageImageLoadError": "The image could not be loaded.",
   "storageOfficeDescription": "Office document ready to open in OnlyOffice.",
   "storagePdfDescription": "The PDF can be opened in the secure system preview.",
@@ -3644,20 +3030,23 @@
   "storageOpenText": "Open content",
   "storageRemoveShareTooltip": "Remove permission",
   "storageShareAccessLabel": "Access: {access}",
-  "@storageShareAccessLabel": {"placeholders":{"access":{"type":"String"}}},
+  "@storageShareAccessLabel": {"placeholders": {"access": {"type": "String"}}},
   "storageFolderTitle": "Folder",
   "storageWorkspaceFilesTitle": "Workspace files",
   "storageProjectFilesTitle": "Project files",
-  "storageAttachmentsTitle": "Attachments"
-  ,"storageFilesCount": "{count, plural, =1{1 file} other{{count} files}}",
-  "@storageFilesCount": {"placeholders":{"count":{"type":"int"}}},
+  "storageAttachmentsTitle": "Attachments",
+  "storageFilesCount": "{count, plural, =1{1 file} other{{count} files}}",
+  "@storageFilesCount": {"placeholders": {"count": {"type": "int"}}},
   "storageFoldersTitle": "Folders",
   "storageItemsCount": "{count, plural, =1{1 item} other{{count} items}}",
-  "@storageItemsCount": {"placeholders":{"count":{"type":"int"}}}
-  ,"storageVersionsTitle": "Version history",
+  "@storageItemsCount": {"placeholders": {"count": {"type": "int"}}},
+  "storageVersionsTitle": "Version history",
   "storageVersionsEmpty": "No saved file versions.",
+  "storageVersionPreviewBadge": "Version {version} — preview",
+  "storageVersionPreviewAction": "Preview version",
+  "storageVersionPreviewOfficeUnavailable": "A historical version of an office document cannot be previewed in this session. Download the file to see it.",
   "storageVersionLabel": "Version {version}",
-  "@storageVersionLabel": {"placeholders":{"version":{"type":"int"}}},
+  "@storageVersionLabel": {"placeholders": {"version": {"type": "int"}}},
   "storageUploadFileTooLarge": "The file exceeds the 20 MB size limit.",
   "storageUploadCancelledByUser": "Cancelled by user.",
   "storageUploadCancelled": "Upload cancelled.",
@@ -3665,14 +3054,15 @@
   "storageUploadTicketReservationFailed": "Could not reserve an upload ticket.",
   "storageUploadTransferFailed": "Data transfer failed.",
   "storageUploadCompletionFailed": "Could not complete the file upload.",
-  "storageUploadPlacementFailed": "The file was uploaded but could not be added to the selected folder."
-  ,"storagePartialDeleteFailed": "Some items could not be deleted.",
+  "storageUploadPlacementFailed": "The file was uploaded but could not be added to the selected folder.",
+  "storagePartialDeleteFailed": "Some items could not be deleted.",
+  "storagePartialMoveFailed": "Some items could not be moved.",
   "storageDeleteSelectedFailed": "Could not delete the selected items.",
   "globalChatEmptyTitle": "No conversations",
   "globalChatEmptyMessage": "Your active conversations will appear here.",
   "globalChatLoadFailureTitle": "Could not load conversations",
   "globalChatConversationFallback": "Conversation {identifier}",
-  "@globalChatConversationFallback": {"placeholders":{"identifier":{"type":"String"}}},
+  "@globalChatConversationFallback": {"placeholders": {"identifier": {"type": "String"}}},
   "globalChatGroupProject": "Project",
   "globalChatGroupWorkspace": "Workspace",
   "globalChatGroupPrivate": "Private",
@@ -3684,13 +3074,7 @@
   "chatComposerPlainMode": "Plain text",
   "chatComposerRichMode": "Rich text",
   "chatComposerReplyTo": "Replying to: {message}",
-  "@chatComposerReplyTo": {
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
+  "@chatComposerReplyTo": {"placeholders": {"message": {"type": "String"}}},
   "chatComposerCancelReply": "Cancel reply",
   "chatComposerReplyAction": "Reply",
   "chatThreadTitle": "Thread",
@@ -3731,7 +3115,7 @@
   "globalNotificationsReplyAccessRevoked": "Access to this conversation was removed. Your reply draft was cleared.",
   "globalNotificationsReplyFailed": "Could not send reply",
   "globalNotificationsUnreadCount": "{count} unread notifications",
-  "@globalNotificationsUnreadCount": {"placeholders":{"count":{"type":"int"}}},
+  "@globalNotificationsUnreadCount": {"placeholders": {"count": {"type": "int"}}},
   "notificationPreferencesOpen": "Notification preferences",
   "notificationPreferencesTitle": "Notification preferences",
   "notificationPreferencesDeliveryTitle": "Email delivery",
@@ -3762,9 +3146,9 @@
   "notificationPreferencesDigestDescription": "A read-only summary of currently visible notification groups.",
   "notificationPreferencesDigestEmpty": "There are no notifications in the digest.",
   "notificationPreferencesDigestSummary": "Digest contains {count} notification groups",
-  "@notificationPreferencesDigestSummary": {"placeholders":{"count":{"type":"int"}}},
+  "@notificationPreferencesDigestSummary": {"placeholders": {"count": {"type": "int"}}},
   "notificationPreferencesDigestCount": "{count} notifications",
-  "@notificationPreferencesDigestCount": {"placeholders":{"count":{"type":"int"}}},
+  "@notificationPreferencesDigestCount": {"placeholders": {"count": {"type": "int"}}},
   "chatNotificationSettingsGlobalTitle": "Chat notifications",
   "chatNotificationSettingsGlobalDescription": "Choose the channels used to deliver notifications from global chat.",
   "chatNotificationSettingsChannelInApp": "In app",
@@ -3782,13 +3166,7 @@
   "resourceChatFileAction": "File chat",
   "resourceChatFileDescription": "Open the authorized conversation for this shared file.",
   "resourceChatFileHeader": "File: {fileName} · Owner: {ownerUserId} · Access: {accessLevel}",
-  "@resourceChatFileHeader": {
-    "placeholders": {
-      "fileName": {"type": "String"},
-      "ownerUserId": {"type": "String"},
-      "accessLevel": {"type": "String"}
-    }
-  },
+  "@resourceChatFileHeader": {"placeholders": {"fileName": {"type": "String"}, "ownerUserId": {"type": "String"}, "accessLevel": {"type": "String"}}},
   "chatDiscussionTitle": "Named discussion",
   "chatDiscussionNameLabel": "Discussion name",
   "chatDiscussionOpen": "Open discussion",
@@ -3805,12 +3183,7 @@
   "chatMessageRevisionsTitle": "Edit history",
   "chatMessageRevisionsEmpty": "This message has no earlier versions.",
   "chatMessageRevisionVersion": "Version {version} → {newVersion}",
-  "@chatMessageRevisionVersion": {
-    "placeholders": {
-      "version": {"type": "int"},
-      "newVersion": {"type": "int"}
-    }
-  },
+  "@chatMessageRevisionVersion": {"placeholders": {"version": {"type": "int"}, "newVersion": {"type": "int"}}},
   "chatThreadLoadOlder": "Load older replies",
   "chatAttachmentsEmpty": "No attachments selected",
   "chatAttachmentsAdd": "Add files",
@@ -3820,11 +3193,7 @@
   "chatAttachmentStatusClean": "Clean",
   "chatAttachmentStatusInfected": "Infected",
   "chatAttachmentStatusFailed": "Failed",
-  "@chatDiscussionReady": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
+  "@chatDiscussionReady": {"placeholders": {"name": {"type": "String"}}},
   "meProfileTitle": "My Profile",
   "meProfileSubtitle": "Manage your profile, password and active sessions",
   "mePersonalSectionTitle": "Profile Information",
@@ -3857,25 +3226,13 @@
   "meSessionsSectionSubtitle": "Signed in devices and browsers linked to your account",
   "meSessionCurrentBadge": "Current session",
   "meSessionCreated": "Created: {date}",
-  "@meSessionCreated": {
-    "placeholders": {
-      "date": {"type": "String"}
-    }
-  },
+  "@meSessionCreated": {"placeholders": {"date": {"type": "String"}}},
   "meSessionLastSeen": "Last seen: {date}",
-  "@meSessionLastSeen": {
-    "placeholders": {
-      "date": {"type": "String"}
-    }
-  },
+  "@meSessionLastSeen": {"placeholders": {"date": {"type": "String"}}},
   "meSessionRevokeButton": "Revoke session",
   "meSessionRevokeConfirmTitle": "Revoke this session?",
   "meSessionRevokeConfirmMessage": "The session on \"{device}\" will be revoked and signed out.",
-  "@meSessionRevokeConfirmMessage": {
-    "placeholders": {
-      "device": {"type": "String"}
-    }
-  },
+  "@meSessionRevokeConfirmMessage": {"placeholders": {"device": {"type": "String"}}},
   "meSessionRevokeConfirmAction": "Revoke session",
   "meSessionRevokedSuccess": "Session revoked successfully.",
   "meSessionsEmpty": "No active sessions to display.",
@@ -3883,7 +3240,6 @@
   "meProfileRetry": "Try again",
   "meUnavailableTitle": "Profile unavailable",
   "meUnavailableMessage": "Profile service is not configured yet.",
-
   "projectsTreeMenuTooltip": "Project menu",
   "projectsTreeDragHandle": "Reorder project",
   "projectsTreeLoadFailureFallback": "Could not load projects.",
@@ -3913,59 +3269,23 @@
   "projectsMenuReasonTransferContract": "The cross-workspace project transfer contract has not been delivered yet.",
   "projectsMenuReasonLeaveRule": "The last-owner rule is not yet available in the contract.",
   "projectsNoticePinned": "Project {projectName} pinned to the top of the tree.",
-  "@projectsNoticePinned": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsNoticePinned": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsNoticeUnpinned": "Project {projectName} unpinned.",
-  "@projectsNoticeUnpinned": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsNoticeUnpinned": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsNoticeHidden": "Project {projectName} hidden in the tree.",
-  "@projectsNoticeHidden": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsNoticeHidden": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsNoticeUnhidden": "Project {projectName} is visible again.",
-  "@projectsNoticeUnhidden": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsNoticeUnhidden": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsNoticeArchived": "Project {projectName} archived.",
-  "@projectsNoticeArchived": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsNoticeArchived": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsNoticeRestored": "Project {projectName} restored to the tree.",
-  "@projectsNoticeRestored": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsNoticeRestored": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsNoticeDeleted": "Project {projectName} permanently deleted.",
   "projectsNoticeLeft": "You left project {projectName}.",
-  "@projectsNoticeLeft": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
-  "@projectsNoticeDeleted": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsNoticeLeft": {"placeholders": {"projectName": {"type": "String"}}},
+  "@projectsNoticeDeleted": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsNoticeTemplateCreated": "Template of project {projectName} created.",
-  "@projectsNoticeTemplateCreated": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsNoticeTemplateCreated": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsNoticeUndo": "Undo",
   "projectsFailureTitle": "Project operation failed",
   "projectsFailureOperationPin": "Pinning the project",
@@ -3991,60 +3311,37 @@
   "projectsFailureKindInvalidIntent": "The operation was incomplete and was not sent.",
   "projectsFailureKindUnknown": "An unknown operation error occurred.",
   "projectsFailureCode": "Code: {code}",
-  "@projectsFailureCode": {
-    "placeholders": {
-        "code": {"type": "String"}
-    }
-  },
+  "@projectsFailureCode": {"placeholders": {"code": {"type": "String"}}},
   "projectsFailureTraceId": "Diagnostic id: {traceId}",
-  "@projectsFailureTraceId": {
-    "placeholders": {
-        "traceId": {"type": "String"}
-    }
-  },
+  "@projectsFailureTraceId": {"placeholders": {"traceId": {"type": "String"}}},
   "projectsFailureBackendMessage": "Server: {message}",
-  "@projectsFailureBackendMessage": {
-    "placeholders": {
-        "message": {"type": "String"}
-    }
-  },
+  "@projectsFailureBackendMessage": {"placeholders": {"message": {"type": "String"}}},
   "projectsFailureRetry": "Retry",
   "projectsFailureDismiss": "Dismiss message",
   "projectsArchiveConfirmTitle": "Archive this project?",
   "projectsArchiveConfirmBody": "Project {projectName} will disappear from the project tree. Its history, tasks and files are preserved, and the project can be restored from the Archive section.",
-  "@projectsArchiveConfirmBody": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsArchiveConfirmBody": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsArchiveConfirmAction": "Archive project",
   "projectsDialogCancel": "Cancel",
   "projectsDeleteConfirmTitle": "Delete this project permanently?",
   "projectsDeleteConfirmBody": "Permanently deleting project {projectName} is irreversible and removes all of its data. To confirm, type the project name.",
-  "@projectsDeleteConfirmBody": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsDeleteConfirmBody": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsDeleteConfirmFieldLabel": "Project name",
   "projectsDeleteConfirmMismatch": "The name does not match the project name.",
   "projectsDeleteConfirmAction": "Delete permanently",
   "projectsLeaveConfirmTitle": "Leave this project?",
   "projectsLeaveConfirmBody": "Leaving project {projectName} revokes your explicit project membership. A Shared project may remain visible, because access is inherited from the workspace.",
-  "@projectsLeaveConfirmBody": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsLeaveConfirmBody": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsLeaveConfirmAction": "Leave project",
   "projectsTemplateDialogTitle": "Create template from project",
   "projectsTemplateDialogBody": "The template of {projectName} will capture the current project configuration: workflow, labels, custom fields and active tasks.",
-  "@projectsTemplateDialogBody": {
-    "placeholders": {
-        "projectName": {"type": "String"}
-    }
-  },
+  "@projectsTemplateDialogBody": {"placeholders": {"projectName": {"type": "String"}}},
   "projectsTemplateNameLabel": "Template name",
   "projectsTemplateNameRequired": "Enter the template name.",
-  "projectsTemplateCreateAction": "Create template"
+  "projectsTemplateCreateAction": "Create template",
+  "storageOfficeSavingChanges": "Waiting for the server…",
+  "storageOfficeSaveUnconfirmed": "Save not confirmed",
+  "storageOfficeCloseAwaitingTitle": "Wait for the save to be confirmed?",
+  "storageOfficeCloseAwaitingBody": "The editor has no local changes left, but the backend has not confirmed a new version yet. Closing now may show the list with the previous version of the file.",
+  "storageOfficeCloseWaitForSave": "Wait"
 }

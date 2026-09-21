@@ -9,6 +9,7 @@ import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dar
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
@@ -165,6 +166,32 @@ final class _Realtime implements TaskProjectRealtime {
 }
 
 final class _KanbanRepo implements KanbanRepository {
+  @override
+  Future<Either<ApiError, AssigneeKanbanBoardResponse>> getAssigneeBoard({
+    required String workspaceId,
+    required String projectId,
+    KanbanBoardFilter filter = KanbanBoardFilter.none,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, CursorPageResponse<KanbanTaskCardResponse>>>
+  getAssigneeGroup({
+    required String workspaceId,
+    required String projectId,
+    String? assigneeUserId,
+    KanbanColumnQuery query = const KanbanColumnQuery(),
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChangeKanbanPrimaryAssigneeResponse>>
+  changePrimaryAssignee({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String? targetUserId,
+    required int expectedVersion,
+  }) async => throw UnimplementedError();
+
   @override
   Future<Either<ApiError, KanbanBoardResponse>> getBoard({
     required String workspaceId,

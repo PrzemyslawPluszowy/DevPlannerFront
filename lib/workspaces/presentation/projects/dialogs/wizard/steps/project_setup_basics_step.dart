@@ -1,5 +1,6 @@
 import 'package:devplanner/core/l10n/l10n_extensions.dart';
 import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_text_field.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_status.dart';
 import 'package:devplanner/workspaces/domain/models/project_setup/project_setup_creation.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/project_dialog_color_hex_codec.dart';
@@ -53,37 +54,27 @@ class _ProjectSetupBasicsStepState extends State<ProjectSetupBasicsStep> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ProjectSetupSectionLabel(l10n.workspacesProjectNameLabel),
-        Gaps.h6,
-        TextField(
+        AppTextField(
           controller: _nameController,
+          labelText: l10n.workspacesProjectNameLabel,
+          isRequired: true,
           autofocus: true,
+          hintText: l10n.workspacesProjectNameHint,
           textInputAction: TextInputAction.next,
+          errorText: switch (widget.state.fieldErrors[ProjectSetupField.name]) {
+            final error? => ProjectSetupWizardL10n.validationError(l10n, error),
+            _ => null,
+          },
           onChanged: cubit.setName,
-          decoration: InputDecoration(
-            hintText: l10n.workspacesProjectNameHint,
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-          ),
-        ),
-        ProjectSetupFieldError(
-          error: widget.state.fieldErrors[ProjectSetupField.name],
         ),
         Gaps.h16,
-        ProjectSetupSectionLabel(l10n.workspacesProjectDescriptionLabel),
-        Gaps.h6,
-        TextField(
+        AppTextField(
           controller: _descriptionController,
+          labelText: l10n.workspacesProjectDescriptionLabel,
+          hintText: l10n.workspacesProjectDescriptionHint,
           minLines: 2,
           maxLines: 4,
           onChanged: cubit.setDescription,
-          decoration: InputDecoration(
-            hintText: l10n.workspacesProjectDescriptionHint,
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-          ),
         ),
         Gaps.h16,
         ProjectSetupSectionLabel(l10n.projectSetupProjectStatusLabel),
@@ -103,6 +94,11 @@ class _ProjectSetupBasicsStepState extends State<ProjectSetupBasicsStep> {
           onSelectionChanged: (values) => cubit.setStatus(values.first),
         ),
         Gaps.h20,
+        ProjectSetupSectionLabel(
+          l10n.projectSetupAppearanceLegend,
+          hint: l10n.projectSetupAppearanceHint,
+        ),
+        Gaps.h12,
         WorkspaceIconPickerSection(
           selectedIconKey: draft.iconKey,
           selectedColor: _colorOf(draft.colorHex, colors.primary),

@@ -41,6 +41,32 @@ final class StorageRepositoryExtendedOperations extends ApiRepository {
     parsingMessage: 'Backend zwrócił nieprawidłowe dane powiązania pliku.',
   );
 
+  Future<Either<ApiError, List<StorageFilePlacementResponse>>>
+  listFolderPlacements(String folderId) => guardApiCall(
+    () => _api.listFolderPlacements(folderId),
+    fallbackMessage: 'Nie udało się pobrać zawartości folderu.',
+    parsingMessage: 'Backend zwrócił nieprawidłową listę powiązań plików.',
+  );
+
+  /// Przenosi placement do folderu docelowego z kontrolą wersji.
+  Future<Either<ApiError, StorageFilePlacementResponse>> moveFilePlacement({
+    required String placementId,
+    required String targetFolderId,
+    required int expectedVersion,
+    String? idempotencyKey,
+  }) => guardApiCall(
+    () => _api.moveFilePlacement(
+      placementId,
+      MoveStorageFilePlacementPayload(
+        targetFolderId: targetFolderId,
+        expectedVersion: expectedVersion,
+      ),
+      idempotencyKey: idempotencyKey,
+    ),
+    fallbackMessage: 'Nie udało się przenieść pliku do folderu.',
+    parsingMessage: 'Backend zwrócił nieprawidłowe dane przeniesienia pliku.',
+  );
+
   Future<Either<ApiError, Unit>> deleteFilePlacement({
     required String fileId,
     required String placementId,

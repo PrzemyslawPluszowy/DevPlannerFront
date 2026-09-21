@@ -230,9 +230,15 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('Aktywny filtr:'), findsOneWidget);
+        expect(find.text('Aktywne filtry:'), findsOneWidget);
         expect(find.text('Moje zadania'), findsNWidgets(2));
-        expect(find.text('Wyczyść'), findsOneWidget);
+        // Pasek ma jedną akcję czyszczącą całość; każdy wymiar zdejmuje się
+        // własnym „×” na chipie.
+        expect(find.text('Wyczyść wszystko'), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('board_active_filter_quick')),
+          findsOneWidget,
+        );
       },
     );
 

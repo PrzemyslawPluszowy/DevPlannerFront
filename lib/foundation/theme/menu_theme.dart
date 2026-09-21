@@ -179,7 +179,8 @@ final class DevPlannerMenuTheme extends ThemeExtension<DevPlannerMenuTheme> {
     divider: divider ?? this.divider,
     itemForeground: itemForeground ?? this.itemForeground,
     itemHover: itemHover ?? this.itemHover,
-    itemSelectedForeground: itemSelectedForeground ?? this.itemSelectedForeground,
+    itemSelectedForeground:
+        itemSelectedForeground ?? this.itemSelectedForeground,
     itemSelectedSurface: itemSelectedSurface ?? this.itemSelectedSurface,
     sectionForeground: sectionForeground ?? this.sectionForeground,
     destructive: destructive ?? this.destructive,
@@ -188,7 +189,10 @@ final class DevPlannerMenuTheme extends ThemeExtension<DevPlannerMenuTheme> {
   );
 
   @override
-  DevPlannerMenuTheme lerp(ThemeExtension<DevPlannerMenuTheme>? other, double t) {
+  DevPlannerMenuTheme lerp(
+    ThemeExtension<DevPlannerMenuTheme>? other,
+    double t,
+  ) {
     if (other is! DevPlannerMenuTheme) return this;
     return DevPlannerMenuTheme(
       itemText: TextStyle.lerp(itemText, other.itemText, t)!,
