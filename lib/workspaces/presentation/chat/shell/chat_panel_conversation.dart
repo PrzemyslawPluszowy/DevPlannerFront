@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
@@ -155,7 +156,7 @@ final class _ChatPanelConversationState extends State<ChatPanelConversation> {
             );
             unawaited(
               cubit.load().then((_) {
-                final target = targetMessageId;
+                final target = widget.targetMessageId;
                 if (target == null || target.isEmpty) return;
                 // Skok z wyszukiwania, zapisanych albo przypiętych: jeśli celu nie ma
                 // w pierwszej stronie, doładowujemy okno wokół niego.
