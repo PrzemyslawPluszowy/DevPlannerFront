@@ -6,8 +6,8 @@ final class ChatMessageRevision extends Equatable {
   const ChatMessageRevision({
     required this.id,
     required this.messageId,
-    required this.authorCoreUserId,
-    required this.editedByCoreUserId,
+    required this.authorUserId,
+    required this.editedByUserId,
     required this.text,
     required this.createdAtUtc,
     required this.version,
@@ -17,8 +17,12 @@ final class ChatMessageRevision extends Equatable {
 
   final String id;
   final String messageId;
-  final String authorCoreUserId;
-  final String editedByCoreUserId;
+
+  /// Local UserId autora poprzedniej treści.
+  final String authorUserId;
+
+  /// Local UserId użytkownika, który dokonał edycji.
+  final String editedByUserId;
   final String text;
   final String? deltaJson;
   final DateTime createdAtUtc;
@@ -29,8 +33,8 @@ final class ChatMessageRevision extends Equatable {
   List<Object?> get props => [
     id,
     messageId,
-    authorCoreUserId,
-    editedByCoreUserId,
+    authorUserId,
+    editedByUserId,
     text,
     deltaJson,
     createdAtUtc,

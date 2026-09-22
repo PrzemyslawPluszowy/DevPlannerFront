@@ -123,6 +123,17 @@ final class _ComposerDeliveryRepository implements ChatConversationRepository {
       ),
     );
   }
+
+  @override
+  Future<Either<ApiError, void>> markMessageDelivered({
+    required String messageId,
+  }) async => const Right(null);
+
+  @override
+  Future<Either<ApiError, void>> markConversationRead({
+    required String conversationId,
+    required String messageId,
+  }) async => const Right(null);
 }
 
 final class _FixedRandom implements Random {

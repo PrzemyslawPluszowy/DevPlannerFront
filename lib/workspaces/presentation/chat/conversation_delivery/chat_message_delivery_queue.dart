@@ -1,27 +1,36 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:crypto/crypto.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
+
 
 /// Właściciel lokalnych prób dostawy jednej rozmowy, niezależny od Cubita UI.
 ///
-/// Kolejka zachowuje `clientMessageId` i hash payloadu przez retry. Jej pamięć
-/// jest celowo lokalna dla lifecycle otwartej rozmowy; trwały magazyn offline
-/// zostaje osobnym krokiem po ustaleniu polityki szyfrowania lokalnych danych.
+/// Kolejka zachowuje `clientMessageId` i hash payloadu przez retry. Gdy dostanie
+/// magazyn trwały, intencje przeżywają restart aplikacji i są wznawiane po
+/// ponownym otwarciu rozmowy; bez magazynu działa jak dotąd, wyłącznie w pamięci.
+/// Kolejka nie ponawia automatycznie odpowiedzi 400/401/403/409, bo powtórzenie
+/// nie zmieni wyniku — te próby zostają jako `failed` do decyzji użytkownika.
 final class ChatMessageDeliveryQueue {
   /// Tworzy kolejkę na domenowym kontrakcie transportu i fabryce UUID.
   ChatMessageDeliveryQueue(
     this._repository, {
     ChatClientMessageIdFactory? idFactory,
     DateTime Function()? clock,
+    this._pendingStore,
+    this.userId = '',
   }) : _idFactory = idFactory ?? ChatClientMessageIdFactory(),
        _clock = clock ?? DateTime.now;
 
   final ChatConversationRepository _repository;
+  final ChatPendingSendStore? _pendingStore;
+
+  /// Local UserId właściciela kolejki; bez niego nic nie jest utrwalane.
+  final String userId;
   final ChatClientMessageIdFactory _idFactory;
   final DateTime Function() _clock;
   final StreamController<ChatMessage> _changes =
@@ -74,6 +83,7 @@ final class ChatMessageDeliveryQueue {
       draft.attachmentIds,
     );
     _publish(message);
+    unawaited(_persist(message, attempts: 1));
     unawaited(_deliver(message));
     return message;
   }
@@ -91,6 +101,9 @@ final class ChatMessageDeliveryQueue {
     );
     _messagesByClientId[clientMessageId] = retrying;
     _publish(retrying);
+    unawaited(
+      _persist(retrying, attempts: (_attempts[clientMessageId] ?? 1) + 1),
+    );
     unawaited(_deliver(retrying));
   }
 
@@ -98,6 +111,17 @@ final class ChatMessageDeliveryQueue {
   void clear() {
     _messagesByClientId.clear();
     _attachmentIdsByClientId.clear();
+    _attempts.clear();
+  }
+
+  /// Usuwa trwałe intencje bieżącego użytkownika przy wylogowaniu albo zmianie konta.
+  ///
+  /// Kolejna sesja nie może ponowić cudzej wysyłki, nawet jeśli keychain przetrwał.
+  Future<void> clearForSession() async {
+    clear();
+    final store = _pendingStore;
+    if (store == null || userId.isEmpty) return;
+    await store.clearForUser(userId: userId);
   }
 
   /// Zamyka strumień należący wyłącznie do tej kolejki lokalnej.
@@ -105,8 +129,90 @@ final class ChatMessageDeliveryQueue {
     _isDisposed = true;
     _messagesByClientId.clear();
     _attachmentIdsByClientId.clear();
+    _attempts.clear();
     await _changes.close();
     await _confirmations.close();
+  }
+
+  /// Wznawia trwałe intencje tej rozmowy po restarcie albo ponownym otwarciu.
+  ///
+  /// Zwraca liczbę wznowionych prób, żeby właściciel ekranu mógł to pokazać.
+  Future<int> restorePending() async {
+    final store = _pendingStore;
+    if (store == null || userId.isEmpty || _isDisposed) return 0;
+    final pending = await store.read(
+      userId: userId,
+      conversationId: _conversationId ?? '',
+    );
+    var restored = 0;
+    for (final entry in pending) {
+      if (_isDisposed) break;
+      if (_messagesByClientId.containsKey(entry.clientMessageId)) continue;
+      final message = ChatMessage(
+        id: 'local:${entry.clientMessageId}',
+        conversationId: entry.conversationId,
+        authorUserId: '',
+        clientMessageId: entry.clientMessageId,
+        text: entry.draft.text,
+        deltaJson: entry.draft.deltaJson,
+        replyToMessageId: entry.draft.replyToMessageId,
+        payloadHash: _payloadHash(
+          text: entry.draft.text,
+          deltaJson: entry.draft.deltaJson,
+          replyToMessageId: entry.draft.replyToMessageId,
+          attachmentFileIds: entry.draft.attachmentIds,
+        ),
+        version: 0,
+        createdAtUtc: _clock().toUtc(),
+        isDeleted: false,
+        deliveryState: ChatMessageDeliveryState.sending,
+      );
+      _messagesByClientId[entry.clientMessageId] = message;
+      _attachmentIdsByClientId[entry.clientMessageId] = List.unmodifiable(
+        entry.draft.attachmentIds,
+      );
+      _attempts[entry.clientMessageId] = entry.attempts;
+      _publish(message);
+      unawaited(_deliver(message));
+      restored++;
+    }
+    return restored;
+  }
+
+  /// Ustawia rozmowę, do której należą trwałe intencje kolejki.
+  void bindConversation(String conversationId) => _conversationId = conversationId;
+
+  String? _conversationId;
+
+  final Map<String, int> _attempts = <String, int>{};
+
+  Future<void> _persist(ChatMessage message, {required int attempts}) async {
+    final store = _pendingStore;
+    _attempts[message.clientMessageId] = attempts;
+    _conversationId ??= message.conversationId;
+    if (store == null || userId.isEmpty) return;
+    await store.save(
+      userId: userId,
+      pending: PendingChatSend(
+        clientMessageId: message.clientMessageId,
+        conversationId: message.conversationId,
+        attempts: attempts,
+        draft: ChatComposerDraft(
+          text: message.text,
+          deltaJson: message.deltaJson,
+          replyToMessageId: message.replyToMessageId,
+          attachmentIds:
+              _attachmentIdsByClientId[message.clientMessageId] ??
+              const <String>[],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _forget(String clientMessageId) async {
+    final store = _pendingStore;
+    if (store == null || userId.isEmpty) return;
+    await store.remove(userId: userId, clientMessageId: clientMessageId);
   }
 
   Future<void> _deliver(ChatMessage optimisticMessage) async {
@@ -167,6 +273,8 @@ final class ChatMessageDeliveryQueue {
       confirmedMessage: confirmedMessage,
     );
     _messagesByClientId[sent.clientMessageId] = sent;
+    _attempts.remove(sent.clientMessageId);
+    unawaited(_forget(sent.clientMessageId));
     _publish(sent);
     _publishDeliveryConfirmation(
       ChatMessageDeliveryConfirmation(

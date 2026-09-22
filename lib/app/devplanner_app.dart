@@ -14,6 +14,7 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/me/me.dart';
 import 'package:devplanner/workspaces/data/standalone/devplanner_standalone_runtime.dart';
+import 'package:devplanner/workspaces/data/storage/transport/presigned_upload_transport.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,9 +85,19 @@ class _DevPlannerAppState extends State<DevPlannerApp> {
     final auth = widget.auth;
     final transport = widget.httpTransport;
     if (auth != null && transport != null) {
+      // Bezpośredni transfer binarny wymaga kompozycji desktop PKCE; Web/BFF
+      // nie ma bezpiecznego źródła Bearera, więc nie dostaje portu uploadu ani
+      // pickera i panel nie pokazuje akcji, których nie da się wykonać.
+      final directTransfer =
+          !transport.isBffCookieTransport &&
+          transport.supportsStandaloneApiClients;
       _standaloneRuntime = DevPlannerStandaloneRuntime(
         auth: auth,
         transport: transport,
+        storageRepository: widget.storageRepository,
+        attachmentUploadTransport: directTransfer
+            ? PresignedUploadTransport()
+            : null,
       );
     }
   }

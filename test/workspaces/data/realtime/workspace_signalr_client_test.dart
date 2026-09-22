@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/notifications/models/notification_models.dart';
 import 'package:devplanner/workspaces/data/realtime/notifications/workspace_notifications_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/notification_enums.dart';
@@ -81,10 +82,13 @@ void main() {
       () async {
         final token = Completer<String?>();
         var calls = 0;
-        final client = WorkspaceSignalRClient('http://127.0.0.1:1/hub', () {
-          calls++;
-          return token.future;
-        });
+        final client = WorkspaceSignalRClient(
+          'http://127.0.0.1:1/hub',
+          WorkspaceRealtimeCredentials.bearer(() {
+            calls++;
+            return token.future;
+          }),
+        );
         final first = client.connect();
         final second = client.connect();
         expect(calls, 1);
@@ -105,7 +109,7 @@ void main() {
     () {
       final client = WorkspaceSignalRClient(
         'http://localhost:5072/api/v1/realtime/notifications',
-        () async => 'token',
+        WorkspaceRealtimeCredentials.bearer(() async => 'token'),
       );
 
       expect(client.state, WorkspaceSignalRConnectionState.disconnected);
@@ -174,7 +178,7 @@ void main() {
   test('po dispose klient odrzuca nowe operacje', () {
     final client = WorkspaceSignalRClient(
       'http://localhost:5072/hub',
-      () async => null,
+      WorkspaceRealtimeCredentials.bearer(() async => null),
     );
     client.dispose();
 
@@ -186,7 +190,7 @@ void main() {
     final service = WorkspaceNotificationsRealtimeService(
       client: WorkspaceSignalRClient(
         'http://localhost:5072/api/v1/realtime/notifications',
-        () async => null,
+        WorkspaceRealtimeCredentials.bearer(() async => null),
       ),
       notificationsRepository: _NotificationsRepositoryMock(),
     );

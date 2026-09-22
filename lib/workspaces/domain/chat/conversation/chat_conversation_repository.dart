@@ -16,8 +16,37 @@ abstract interface class ChatConversationRepository {
     int limit = 50,
   });
 
+  /// Pobiera okno historii wokół wskazanej wiadomości.
+  ///
+  /// Pozwala otworzyć starą wiadomość niezależnie od bieżącego kursora i liczby
+  /// stron. Brak dostępu albo nieistniejąca wiadomość w tej rozmowie wracają
+  /// wspólnym błędem, więc UI pokazuje komunikat odmowy/braku, a nie pustą listę.
+  Future<Either<ApiError, ChatMessageWindow>> loadMessageWindow({
+    required String conversationId,
+    required String messageId,
+    int before = 20,
+    int after = 20,
+  });
+
   /// Wysyła intencję o stabilnym `clientMessageId` dla idempotentnego retry.
   Future<Either<ApiError, ChatMessage>> sendConversationMessage(
     ChatSendMessageCommand command,
   );
+
+  /// Oznacza wiadomość jako doręczoną do bieżącego odbiorcy.
+  ///
+  /// Sukces HTTP `send` nie jest dowodem doręczenia, więc dostawa ma osobny
+  /// lifecycle i osobne wywołanie.
+  Future<Either<ApiError, void>> markMessageDelivered({
+    required String messageId,
+  });
+
+  /// Oznacza wiadomość jako odczytaną przez bieżącego użytkownika.
+  ///
+  /// Wywołanie należy do widoku, który faktycznie pokazał wiadomość; samo
+  /// pobranie historii nie może oznaczać odczytu.
+  Future<Either<ApiError, void>> markConversationRead({
+    required String conversationId,
+    required String messageId,
+  });
 }

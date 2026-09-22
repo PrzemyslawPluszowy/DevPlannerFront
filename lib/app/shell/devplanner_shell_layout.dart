@@ -70,77 +70,92 @@ final class _DesktopShellLayout extends StatelessWidget {
                     ),
                   ),
                 ],
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      width: collapsed
-                          ? navigationTheme.collapsedSidebarWidth
-                          : navigationTheme.sidebarWidth,
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            key: const ValueKey('devplanner-sidebar-header'),
-                            height: navigationTheme.headerHeight,
-                            child: _DevPlannerSidebarHeader(
-                              isCollapsed: collapsed,
-                              // Na wąskim oknie ten sam klawisz otwiera
-                              // i zamyka nakładkę z pełnym drzewem.
-                              onToggleSidebar: compact
-                                  ? onToggleCompactTree
-                                  : onToggleSidebar,
-                            ),
-                          ),
-                          Expanded(
-                            child: _DevPlannerSidebar(
-                              isCollapsed: collapsed,
-                              location: location,
-                              navigationCubit: navigationCubit,
-                              tasksBoardAvailable: tasksBoardAvailable,
-                              expandedNavigationNodeIds:
-                                  expandedNavigationNodeIds,
-                              onToggleNavigationNode: onToggleNavigationNode,
-                              onCreateWorkspace: onCreateWorkspace,
-                              onCreateProject: onCreateProject,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (compact && showCompactTree) const Spacer(),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          SizedBox(
-                            key: const ValueKey('devplanner-topbar'),
-                            height: navigationTheme.headerHeight,
-                            child: _DevPlannerTopBar(location: location),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              key: const ValueKey('devplanner-content-margin'),
-                              padding: const EdgeInsets.all(12),
-                              child: Material(
-                                key: const ValueKey(
-                                  'devplanner-content-canvas',
-                                ),
-                                color: shellTheme.contentSurface,
-                                clipBehavior: Clip.antiAlias,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: BorderSide(
-                                    color: shellTheme.contentBorder,
-                                  ),
-                                ),
-                                child: child,
+                // Przypięty panel rezerwuje miejsce w treści aplikacji, a nie
+                // w całym oknie: tapeta pozostaje jedną warstwą o stałym kadrze
+                // niezależnie od otwarcia, zamknięcia i przypięcia panelu.
+                AnimatedPadding(
+                  duration:
+                      MediaQuery.maybeOf(context)?.disableAnimations == true
+                      ? Duration.zero
+                      : const Duration(milliseconds: 160),
+                  curve: Curves.easeOut,
+                  padding: EdgeInsets.only(
+                    right: DevPlannerPanelsScope.reservedWidthOf(context),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        width: collapsed
+                            ? navigationTheme.collapsedSidebarWidth
+                            : navigationTheme.sidebarWidth,
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              key: const ValueKey('devplanner-sidebar-header'),
+                              height: navigationTheme.headerHeight,
+                              child: _DevPlannerSidebarHeader(
+                                isCollapsed: collapsed,
+                                // Na wąskim oknie ten sam klawisz otwiera
+                                // i zamyka nakładkę z pełnym drzewem.
+                                onToggleSidebar: compact
+                                    ? onToggleCompactTree
+                                    : onToggleSidebar,
                               ),
                             ),
-                          ),
-                        ],
+                            Expanded(
+                              child: _DevPlannerSidebar(
+                                isCollapsed: collapsed,
+                                location: location,
+                                navigationCubit: navigationCubit,
+                                tasksBoardAvailable: tasksBoardAvailable,
+                                expandedNavigationNodeIds:
+                                    expandedNavigationNodeIds,
+                                onToggleNavigationNode: onToggleNavigationNode,
+                                onCreateWorkspace: onCreateWorkspace,
+                                onCreateProject: onCreateProject,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      if (compact && showCompactTree) const Spacer(),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(
+                              key: const ValueKey('devplanner-topbar'),
+                              height: navigationTheme.headerHeight,
+                              child: _DevPlannerTopBar(location: location),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                key: const ValueKey(
+                                  'devplanner-content-margin',
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                child: Material(
+                                  key: const ValueKey(
+                                    'devplanner-content-canvas',
+                                  ),
+                                  color: shellTheme.contentSurface,
+                                  clipBehavior: Clip.antiAlias,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: BorderSide(
+                                      color: shellTheme.contentBorder,
+                                    ),
+                                  ),
+                                  child: child,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -183,7 +198,7 @@ final class _DevPlannerTopBar extends StatelessWidget {
           IconButton(
             key: const ValueKey('devplanner-open-chat-panel'),
             tooltip: l10n.workspacesSectionChat,
-            onPressed: DevPlannerPanelsScope.controllerOf(context)?.showChat,
+            onPressed: DevPlannerPanelsScope.controllerOf(context)?.toggleChat,
             icon: Icon(
               Icons.chat_bubble_outline,
               color: shellTheme.sidebarText,
@@ -193,7 +208,7 @@ final class _DevPlannerTopBar extends StatelessWidget {
             key: const ValueKey('devplanner-open-notifications-panel'),
             tooltip: l10n.globalNotificationsTitle,
             onPressed: DevPlannerPanelsScope.controllerOf(context)
-                ?.showNotifications,
+                ?.toggleNotifications,
             icon: Icon(Icons.notifications_none, color: shellTheme.sidebarText),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -342,7 +343,7 @@ class WorkspaceScopedRealtimeFactory {
     return WorkspaceScopedRealtimeService(
       client: WorkspaceSignalRClient(
         '$baseUrl/api/v1/realtime/$hub',
-        accessTokenProvider,
+        WorkspaceRealtimeCredentials.bearer(accessTokenProvider),
       ),
     );
   }

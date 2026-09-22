@@ -161,6 +161,9 @@ class _MemoryDraftRepository implements ChatDraftRepository {
     saveCalls++;
     _values['$userId:$conversationId'] = draft;
   }
+
+  @override
+  Future<void> deleteAllForUser({required String userId}) async {}
 }
 
 abstract final class _ComposerDraftFixture {

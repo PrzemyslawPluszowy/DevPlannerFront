@@ -20,6 +20,7 @@ final class ChatConversationRealtimeReduction {
 ///
 /// Sekwencja backendu jest globalnie monotoniczna, a nie ciągła per rozmowa;
 /// reducer odrzuca wyłącznie event starszy, nie interpretuje luk jako utraty.
+/// Zdarzenia pisania są pomijane, bo nie należą do historii wiadomości.
 final class ChatConversationRealtimeReducer {
   final Set<String> _seenEventIds = <String>{};
   int? _latestSequence;
@@ -30,6 +31,13 @@ final class ChatConversationRealtimeReducer {
     required ChatConversationRealtimeEvent event,
   }) {
     if (!_accept(event)) {
+      return ChatConversationRealtimeReduction(
+        decision: ChatConversationRealtimeDecision.ignored,
+        messages: messages,
+      );
+    }
+    if (event.kind == ChatConversationRealtimeEventKind.typingChanged) {
+      // Pisanie jest stanem ulotnym: nie zmienia historii i nie wymaga resyncu.
       return ChatConversationRealtimeReduction(
         decision: ChatConversationRealtimeDecision.ignored,
         messages: messages,
@@ -57,6 +65,7 @@ final class ChatConversationRealtimeReducer {
         _upsert(updated, message);
       case ChatConversationRealtimeEventKind.messageDeleted:
         _markDeleted(updated, event);
+      case ChatConversationRealtimeEventKind.typingChanged:
       case ChatConversationRealtimeEventKind.membershipChanged:
       case ChatConversationRealtimeEventKind.resyncRequired:
       case ChatConversationRealtimeEventKind.unsupported:

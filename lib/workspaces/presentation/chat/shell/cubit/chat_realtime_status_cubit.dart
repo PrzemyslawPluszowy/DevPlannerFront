@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,9 +11,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// mieszania tego stanu z historią wiadomości.
 final class ChatRealtimeStatusCubit
     extends Cubit<WorkspaceSignalRConnectionState> {
-  ChatRealtimeStatusCubit(WorkspaceChatRealtimeService realtime)
-    : super(WorkspaceSignalRConnectionState.connecting) {
-    _subscription = realtime.connectionStates.listen(emit);
+  ChatRealtimeStatusCubit(
+    Stream<WorkspaceSignalRConnectionState> connectionStates,
+  ) : super(WorkspaceSignalRConnectionState.connecting) {
+    _subscription = connectionStates.listen(emit);
   }
 
   late final StreamSubscription<WorkspaceSignalRConnectionState> _subscription;

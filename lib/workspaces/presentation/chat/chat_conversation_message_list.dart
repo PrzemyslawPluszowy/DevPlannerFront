@@ -2,6 +2,7 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/message_actions_widgets.dart';
+import 'package:devplanner/workspaces/presentation/chat/rich_text/chat_rich_text_body.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -97,7 +98,11 @@ final class _ChatConversationMessageListState
                     (widget.isSending ? index - 1 : index)];
             final isTarget = message.id == widget.targetMessageId;
             return Align(
-              key: isTarget ? _targetKey : null,
+              // Stabilny klucz po identyfikatorze wiadomości: doładowanie starszej
+              // strony nie przebudowuje wierszy ani nie gubi pozycji przewijania.
+              key: isTarget
+                  ? _targetKey
+                  : ValueKey<String>('chat-message-${message.id}'),
               alignment: Alignment.centerLeft,
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -114,11 +119,12 @@ final class _ChatConversationMessageListState
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          message.isDeleted
-                              ? context.l10n.globalChatDeletedMessage
-                              : message.text,
-                        ),
+                        child: message.isDeleted
+                            ? Text(context.l10n.globalChatDeletedMessage)
+                            : ChatRichTextBody(
+                                text: message.text,
+                                deltaJson: message.deltaJson,
+                              ),
                       ),
                       if (!message.isDeleted)
                         IconButton(

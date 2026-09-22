@@ -9,7 +9,7 @@ void main() {
   test('obserwuje reconnect i offline bez uruchamiania transportu', () async {
     final transport = ChatRealtimeTestTransport();
     final realtime = WorkspaceChatRealtimeService(client: transport);
-    final cubit = ChatRealtimeStatusCubit(realtime);
+    final cubit = ChatRealtimeStatusCubit(realtime.connectionStates);
     addTearDown(cubit.close);
     addTearDown(realtime.dispose);
 

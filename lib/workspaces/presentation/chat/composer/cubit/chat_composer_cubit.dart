@@ -1,20 +1,29 @@
 import 'dart:async';
 
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_server_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Mały owner draftu z sekwencyjną, wersjonowaną trwałością per rozmowa.
+///
+/// Lokalny secure storage chroni treść offline, a gdy kompozycja dostarczy port
+/// serwerowy, ten sam szkic trafia też na serwer — dzięki temu wskaźnik
+/// `isDraft` w skrzynce działa również na innym urządzeniu tego użytkownika.
 final class ChatComposerCubit extends Cubit<ChatComposerState> {
   ChatComposerCubit({
     this.repository,
+    this.serverRepository,
     this.userId,
     this.conversationId,
     this.debounce = const Duration(milliseconds: 350),
   }) : super(const ChatComposerState(draft: ChatComposerDraft(text: '')));
 
   final ChatDraftRepository? repository;
+
+  /// Port serwerowego szkicu; brak oznacza szkic wyłącznie lokalny.
+  final ChatServerDraftRepository? serverRepository;
   final String? userId;
   final String? conversationId;
   final Duration debounce;
@@ -41,13 +50,27 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
     final identity = _identity();
     if (identity == null) return;
     final restoreVersion = _persistenceVersion;
-    final draft = await identity.repository.read(
-      userId: identity.userId,
-      conversationId: identity.conversationId,
-    );
+    final serverDraft = await _readServerDraft(identity.conversationId);
+    final draft =
+        serverDraft ??
+        await identity.repository.read(
+          userId: identity.userId,
+          conversationId: identity.conversationId,
+        );
     if (!isClosed && restoreVersion == _persistenceVersion && draft != null) {
       emit(state.copyWith(draft: draft));
     }
+  }
+
+  /// Serwerowy szkic jest świeższy niż lokalna kopia, więc ma pierwszeństwo.
+  Future<ChatComposerDraft?> _readServerDraft(String conversationId) async {
+    final server = serverRepository;
+    if (server == null) return null;
+    final result = await server.readDraft(conversationId);
+    if (result.isLeft()) return null;
+    final draft = result.getOrElse(() => null);
+    if (draft != null) _serverDraftVersion = 1;
+    return draft;
   }
 
   void clearAfterSubmit() => unawaited(_clearPersisted());
@@ -104,6 +127,7 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
         userId: identity.userId,
         conversationId: identity.conversationId,
       );
+      await _saveServerDraft(identity.conversationId, draft, delete: true);
       return;
     }
     await identity.repository.save(
@@ -111,11 +135,51 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
       conversationId: identity.conversationId,
       draft: draft,
     );
+    await _saveServerDraft(identity.conversationId, draft);
+  }
+
+  /// Wersja serwerowego szkicu; backend odrzuca zapis ze starą wersją.
+  int _serverDraftVersion = 0;
+
+  /// Zapisuje albo usuwa szkic na serwerze; porażka nie przerywa pracy lokalnej.
+  ///
+  /// Konflikt wersji (ten sam użytkownik na dwóch urządzeniach) rozwiązuje jedno
+  /// ponowienie po odświeżeniu wersji; brak sieci zostawia szkic lokalny, więc
+  /// użytkownik nie traci treści.
+  Future<void> _saveServerDraft(
+    String conversationId,
+    ChatComposerDraft draft, {
+    bool delete = false,
+  }) async {
+    final server = serverRepository;
+    if (server == null) return;
+    if (delete) {
+      final removed = await server.deleteDraft(conversationId);
+      if (removed.isRight()) _serverDraftVersion = 0;
+      return;
+    }
+    final saved = await server.saveDraft(
+      conversationId: conversationId,
+      draft: draft,
+      version: _serverDraftVersion,
+    );
+    if (saved.isRight()) {
+      _serverDraftVersion = _serverDraftVersion + 1;
+      return;
+    }
+    final refreshed = await server.readDraft(conversationId);
+    _serverDraftVersion = refreshed.isRight() ? _serverDraftVersion + 1 : _serverDraftVersion;
+    await server.saveDraft(
+      conversationId: conversationId,
+      draft: draft,
+      version: _serverDraftVersion,
+    );
   }
 
   Future<void> _deleteCurrent() async {
     final identity = _identity();
     if (identity != null) {
+      await _saveServerDraft(identity.conversationId, state.draft, delete: true);
       await identity.repository.delete(
         userId: identity.userId,
         conversationId: identity.conversationId,

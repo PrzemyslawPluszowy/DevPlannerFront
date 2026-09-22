@@ -19,6 +19,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/data/realtime/storage/storage_realtime_client_adapter.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_realtime_event.dart';
@@ -47,7 +48,7 @@ void main() {
       final client = StorageRealtimeClientAdapter(
         WorkspaceSignalRClient(
           '$_base/api/v1/realtime/storage',
-          () async => tokenA,
+          WorkspaceRealtimeCredentials.bearer(() async => tokenA),
         ),
       );
       final events = <StorageRealtimeEvent>[];
@@ -155,7 +156,9 @@ void main() {
 
       await subscription.cancel();
     },
-    skip: _configured ? false : 'Brak LIVE_* — żywy test wymaga uruchomionego stacku.',
+    skip: _configured
+        ? false
+        : 'Brak LIVE_* — żywy test wymaga uruchomionego stacku.',
     timeout: const Timeout(Duration(minutes: 2)),
   );
 }
@@ -192,7 +195,10 @@ Future<({int statusCode, String body, String? fileId})> _createDocument({
     request.headers
       ..set(HttpHeaders.authorizationHeader, 'Bearer $token')
       // Endpoint tworzenia dokumentu wymaga klucza idempotencji.
-      ..set('Idempotency-Key', 'live-check-${DateTime.now().microsecondsSinceEpoch}')
+      ..set(
+        'Idempotency-Key',
+        'live-check-${DateTime.now().microsecondsSinceEpoch}',
+      )
       ..contentType = ContentType.json;
     request.write(jsonEncode(body));
     final response = await request.close();

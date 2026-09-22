@@ -1,5 +1,393 @@
 # DevPlanner standalone — handoff zaakceptowanego stanu
 
+## 2026-09-22 — CHAT-COMPLETION: plan pełnego podłączenia funkcji
+
+- [x] Audyt tras Chat, wzmianek, snippetów, polityki załączników, Quill i geometrii shellu; [plan F0–F6](../../Backend/docs/global-chat-completion-plan-2026-09-22.md).
+- [ ] F0–F6 pozostają do realizacji/ponownej weryfikacji względem bieżącego kodu. Dokument nie deklaruje napraw.
+- Priorytety: kompozycja inboxa, kontrakt uczestników/publikacji, dodawanie osób, status w panelu, wzmianki, pliki/zdjęcia, kod i opcjonalny pełny Quill, historia/realtime, przypięcie i tapeta.
+- Potwierdzono: pin znika przez compact panelu; padding hosta zmniejsza shell wraz z tapetą. Rozdzielić liczbę kolumn od możliwości przypięcia i rezerwację contentu od pełnego tła.
+- Zmieniono tylko dokumentację. Testów aplikacji ani deployu nie uruchamiano. Testy partiami; widgety/goldeny dopiero po akceptacji wyglądu. Następny krok: F0 oraz geometria F6, następnie pozostałe piony.
+
+## 2026-09-21 — CHAT-REVIEW-UI: korekta według referencji WhatsApp
+
+- [x] Spisano [plan UI i napraw po review](global-chat-ui-remediation-2026-09-21.md): układ rail/lista/rozmowa, popover Nowy czat, grupy, kanały, ogłoszenia i rejestr R01–R14.
+- [ ] Naprawy R01–R14, dodatkowe ryzyka, pakiety A–E i odbiór UI pozostają otwarte. Wcześniejsze wpisy G3–G7 opisują części implementacji, nie potwierdzają gotowości aktywnego panelu.
+- Decyzja użytkownika: rozpoznawalna struktura WhatsApp w prawym panelu, komponenty i kolory DevPlanner. Testy partiami; widgety i goldeny dopiero po akceptacji wyglądu.
+- Zmienione wyłącznie dokumenty: nowy plan korekt w Backend, odsyłacz/status planu bazowego oraz plan/handoff obu repo. Bez implementacji i deployu; testów aplikacji w tym pakiecie nie uruchamiano.
+- Dalsza decyzja użytkownika: UI ma osobne zakładki Pliki i Zadania / Kanban, przygotowane pod rozmowy widoczne po dodaniu/wzmiance z respektowaniem ACL; teraz projekt i stany UI, integracja później (§2.7 planu korekt).
+- Następny krok: pakiet A (ACL/liczniki/DM), następnie działający szkielet i kreator z pakietu B.
+
+### 2026-09-21 — CHAT-G4 (domknięcie): serwerowy szkic rozmowy
+
+Zakres: domknięcie luki z poprzedniego wpisu — szkic był wyłącznie lokalny, więc `isDraft`/`draftText` w skrzynce pozostawało puste, mimo że kontrakt je zwraca.
+
+Pliki (Front, nowe): `lib/workspaces/domain/chat/composer/chat_server_draft_repository.dart`, `lib/workspaces/data/chat/repositories/chat_server_draft_repository_impl.dart`, `test/workspaces/data/chat/chat_server_draft_repository_test.dart`. Zmienione: `chat_composer_cubit.dart` (port serwerowy, preferencja świeższego szkicu z serwera, zapis lokalny **i** serwerowy, jedno ponowienie po konflikcie wersji), `chat_message_composer.dart`, `chat_api_error_mapper.dart` (`chat.drafts.load_failed`, `chat.drafts.save_failed`), `global_chat_composition.dart`, `devplanner_standalone_runtime.dart`, `devplanner_global_panels_host.dart` (porty szkicu i kolejki nad oba panele), `repositories.dart`.
+
+Decyzje: lokalny secure storage zostaje jako kopia offline, a serwer jest źródłem prawdy dla wskaźnika szkicu w skrzynce. `restore()` preferuje szkic z serwera, bo jest świeższy i wspólny dla urządzeń; brak sieci nie gubi treści, bo zapis lokalny wykonuje się pierwszy. Wersja szkicu jest prowadzona po stronie cubita, a konflikt (ten sam użytkownik na dwóch urządzeniach) rozwiązuje jedno ponowienie po odświeżeniu wersji — bez pętli i bez kasowania treści użytkownika.
+
+Walidacja (uruchomione): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS 1467 (1460 przed tym domknięciem, +7 testów mapowania szkicu i zachowania composera); `git diff --check` — PASS; kontrakt OpenAPI↔Retrofit bez zmian (Swagger 463, Flutter 425).
+
+Pozostaje otwarte w G4: powierzchnie UI (menu edycji/usuwania, forward, wskaźnik dostawy/doręczenia, pokazanie pending/failed/retry/cancel) należą do G5 i G7, a test widgetowy stabilnych kluczy wiersza jest odroczony razem z goldenami do akceptacji wyglądu.
+
+## 2026-09-22 — CHAT-PANEL-UX: 30% okna na starcie, zwijanie gestem i niezawodne zamykanie
+
+Zakres: trzy uwagi użytkownika z uruchomionej aplikacji — nie dawało się zamknąć okna czatu, panel powinien zajmować około 30% szerokości okna na starcie, a przeciągnięcie uchwytu poza limit powinno zwijać panel animacją. Wszystkie zmiany są w Front.
+
+Domyślna szerokość: `ChatPanelSizeController` startuje z `defaultWidthFraction = .3` szerokości okna i idzie za oknem, dopóki użytkownik nie użyje uchwytu (`hasCustomWidth`); zakres uchwytu to teraz 320–1120 px, a zapamiętana szerokość jest nadal ograniczana do okna po jego zmianie. To zmienia §2.1 planu korekty (było „domyślnie 960, regulacja 760–1120”): próg 760 px nadal decyduje o układzie trzech kolumn, ale nie jest już minimum panelu, bo przy 30% okna panel startuje jako rail + jedna kolumna. Uchwyt jest widoczny zawsze, gdy panel nie zajmuje całego okna — to jedyna droga, żeby poszerzyć go do trzech kolumn.
+
+Modalność zależy teraz od szerokości **okna**, nie panelu: przy wąskim oknie panel zajmuje całą przestrzeń roboczą i przyciemnia treść, a przy szerokim jest wąskim panelem obok aplikacji, która pozostaje klikalna (test sprawdza kliknięcie w treść przy otwartym panelu). Wcześniej 30% startowe czyniłoby panel modalnym z przyciemnieniem, czyli wracałby zarzut z pierwszego review.
+
+Zwijanie gestem: przeciągnięcie uchwytu w prawo (zwężanie) nie schodzi poniżej minimum, ale nadwyżka ruchu jest liczona; gdy przekroczy 5% szerokości okna (`collapseDragFraction`), panel zamyka się animacją 220 ms (`TweenAnimationBuilder`), a samo dojście do minimum nie zamyka go przypadkiem. Ruch w prawo kasuje kandydata na zwinięcie, więc gest jest jednoznaczny.
+
+Zamykanie: `DevPlannerPanelsController` ma `toggleChat`/`toggleNotifications`, a przyciski w belce ich używają — ponowne naciśnięcie chowa panel (potwierdzone testem). Escape działa teraz z całego shellu: skrót wisi na warstwie (`CallbackShortcuts` nad treścią aplikacji razem z panelem), więc zamyka panel także wtedy, gdy focus jest w treści aplikacji; modal jest bliżej focusu, więc jego własne Escape nadal wygrywa. Przycisk × w nagłówku kolumny listy zostaje jako widoczna droga zamknięcia.
+
+Pliki (Front): `lib/workspaces/presentation/chat/shell/layout/chat_panel_size.dart` (30% okna, zakres 320–1120, `beginResize`/`endResize` i próg zwijania), `lib/foundation/presentation/devplanner_panels.dart` (`toggleChat`, `toggleNotifications`), `lib/app/shell/devplanner_shell_layout.dart` (belka używa przełączników), `lib/app/shell/overlays/devplanner_global_panels_host.dart` (modalność od szerokości okna, uchwyt dostępny także przy jednej kolumnie, animowane zwijanie przez notifier, Escape na całej warstwie).
+
+Testy (nowe w `test/app/shell/overlays/devplanner_modal_layer_test.dart`): panel startuje z 30% okna i nie blokuje aplikacji; ponowne naciśnięcie przycisku w belce chowa panel; Escape chowa panel, gdy focus jest w aplikacji; przeciągnięcie uchwytu poza minimum zwija panel animacją (w trakcie animacji panel jest jeszcze widoczny, po `pumpAndSettle` znika); krótkie przeciągnięcie nie zamyka panelu i szerokość podąża za uchwytem.
+
+Walidacja (uruchomione, Front): `flutter analyze` — 0 problemów; `flutter test` — PASS 1522 (+4 testy panelu/gestu); `flutter build web --wasm` — PASS; `git diff --check` — PASS.
+
+Interpretacja do potwierdzenia: „przeciągnięcie poniżej 5%” zrealizowałem jako nadwyżkę przeciągnięcia poza minimum większą niż 5% szerokości okna (gest „odciągnij i puść”), a nie jako szerokość panelu poniżej 5% okna — panel nie zniknie w połowie gestu. Jeśli intencją była szerokość panelu schodząca poniżej 5% okna (panel zwija się dopiero przy prawie zerowej szerokości), to zmiana progu jest jednolinijkowa.
+
+Następny krok: P1#3 (realtime skrzynki i badge) i P2#7 (doładowanie historii, skok po ID, odczyt tylko widocznych wiadomości).
+
+## 2026-09-22 — CHAT-REMEDIACJA: naprawy po review UI (6 ustaleń, w tym 2× P1)
+
+Zakres: ustalenia z review nowego panelu i popovera. Wszystkie dotyczyły kodu dodanego w poprzednim pakiecie, więc naprawy są w Front; backendu nie ruszano.
+
+P1 „przełączenie rozmowy może wysłać wiadomość do poprzedniej”: `ChatPanelConversation` był bezstanowy i bez klucza, więc Flutter zachowywał providery i `ChatConversationCubit` rozmowy A, gdy nagłówek pokazywał już B, a dzierżawa realtime powstawała w `build` (nowe połączenie i zgubione subskrypcje przy każdej przebudowie). Naprawa: panel jest `StatefulWidget` z `keyFor(conversationId)` używanym przez panel (gałąź odtwarza się razem z Cubitami), dzierżawa powstaje w `initState` i należy do widoku (widok tworzy ją raz i zwalnia w `dispose`; `didUpdateWidget` wymienia ją przy zmianie rozmowy, gdy wywołujący nie dał klucza), a `ChatConversationCubit` nie jest już właścicielem cudzej dzierżawy. Test `chat_panel_conversation_identity_test.dart`: „zmiana rozmowy wymienia Cubit razem z identyfikatorem” (bez klucza Cubit zostaje przy A — kontrola mutacyjna to potwierdza) oraz „dzierżawa realtime powstaje raz na rozmowę i nie wycieka” na prawdziwej `WorkspaceChatRealtimeFactory` (`openConversationCount` 1 → 1 → 0; po przeniesieniu tworzenia dzierżawy do `build` licznik zostaje na 1, czyli połączenie nigdy się nie zamyka).
+
+P1 „tworzenie DM z nowego popovera kończy się błędem”: popover startuje bez wyboru typu, a `startDirectWith` nie ustawiał `kind`, więc `submit()` czytał `state.kind!` i kończył wyjątkiem „Null check operator used on a null value”. Naprawa: `startDirectWith` sam ustawia `ChatConversationKind.direct` (kontrakt metody to „rozmowa 1:1 z tą osobą”). Test w `chat_creation_cubit_test.dart`: „klik osoby działa bez wcześniejszego wyboru typu (popover «Nowy czat»)”; kontrola mutacyjna po usunięciu ustawienia rodzaju odtwarza dokładnie ten wyjątek.
+
+P2 „poprawka pustej strony nie działa w nowym UI”: kolumna listy pokazywała „brak wyników” bez stopki i bez drogi do dalszych stron. Naprawa: przy pustej stronie z kursorem komunikat mówi wprost, że strona nie zawiera dostępnych rozmów, a są kolejne, i daje akcję doładowania (przy trwającym pobraniu wskaźnik); to samo dotyczy lokalnej frazy, która odfiltrowała całą pobraną stronę. Nowy klucz ARB `chatInboxEmptyPageMore`.
+
+P2 „zniknęło wejście do wyszukiwania wiadomości”: wróciła ikona w nagłówku kolumny listy (klucz `chat-panel-search`), która otwiera `ChatSearchCubit.open()`; pole w liście nadal filtruje wyłącznie nazwy już pobranych rozmów i to rozróżnienie jest opisane w kodzie.
+
+P2 „zakładki nie działają poprawnie w compact przy otwartej rozmowie”: układ zawsze pokazywał rozmowę, więc kliknięcie Plików czy Kanałów nie dawało efektu, dopóki użytkownik nie cofnął się z rozmowy. Naprawa: `ChatPanelSectionCubit` prowadzi teraz stan `(section, showList)`, rail ustawia `showList`, a wybór rozmowy (lista, wyszukiwanie, popover, zakładka) przechodzi przez jedną metodę `_selectConversation`, która go czyści; w szerokim panelu stan nic nie zmienia. Testy `chat_panel_section_cubit_test.dart` (4 przypadki, m.in. ponowny wybór tej samej sekcji wraca z rozmowy do listy).
+
+P2 „popover nie odświeża błędu i stanu wysyłania”: stan był czytany przez `read`, więc `isSubmitting` i kod porażki nie przebudowywały kontrolek. Naprawa: `BlocBuilder` wokół treści popovera, pasek postępu w trakcie wysyłki, blokada wierszy typów i wyników, a błąd pokazuje tekst z ARB wraz z kodem domenowym.
+
+Walidacja (uruchomione, Front): `flutter analyze` — 0 problemów; `flutter test` — PASS 1518 (+4 testy nawigacji sekcji, +2 testy tożsamości rozmowy i dzierżawy, +1 test DM z popovera); `flutter build web --wasm` — PASS; `git diff --check` — PASS. Cztery kontrole mutacyjne (klucz rozmowy, dzierżawa w `build`, rodzaj w DM) opisane wyżej; pozostałe naprawy są pokryte testami stanu i bramkami kodu.
+
+Uwaga o harnessie: pierwsza wersja testu tożsamości rozmowy montowała panel bez `Material` (`MaterialApp(home: ...)`), przez co pole tekstowe composera raportowało w testach wysokość sentinelową 100000 px. To artefakt harnessu (ten sam efekt daje gołe `TextField` w `MaterialApp`), nie produkt — oprawa testu dostała `Scaffold` i metryki są normalne.
+
+Otwarte bez zmian: P1#3 (realtime skrzynki i badge), P2#7 (doładowanie historii rozmowy, skok po ID, odczyt tylko widocznych wiadomości), R10–R14, kompozycja załączników oraz odbiór wizualny z użytkownikiem.
+
+Następny krok: P1#3 + P2#7, potem PAKIET C (R10–R13, załączniki) i odbiór wyglądu.
+
+## 2026-09-21 — CHAT-REMEDIACJA PAKIET B (UI): układ §2.1–2.4 i zakładki kontekstowe §2.7
+
+Zakres: docelowy układ komunikatora z §2.1–2.4 oraz przygotowanie zakładek Pliki i Zadania / Kanban z §2.7 — nadal bez integracji źródeł kontekstowych, zgodnie z granicą pakietu.
+
+Pliki (Front, nowe, katalog `lib/workspaces/presentation/chat/shell/layout/`): `chat_panel_section.dart` (sekcje railu mapowane na filtry skrzynki), `cubit/chat_panel_section_cubit.dart`, `chat_panel_size.dart` (960 domyślnie, 760–1120, rail 56/52, lista 304–344, próg compact 760), `chat_panel_rail.dart`, `chat_panel_scaffold.dart` (trzy kolumny powyżej progu, jedna poniżej), `chat_panel_list_pane.dart` (nagłówek sekcji, szukanie rozmów, filtry, wiersze, stopka doładowania), `chat_compose_popover.dart` (zakotwiczony „Nowy czat” na wspólnej powierzchni `AppContextMenu.showCustom`), `chat_context_source.dart` + `chat_context_conversations_pane.dart` (typowane źródło `file`/`task`, uczciwy stan i podgląd UI), `chat_saved_messages_pane.dart` (zakładki z przejściem do rozmowy). Zmienione: `chat_drawer.dart` (panel składa się z railu, listy i rozmowy; popover zastępuje `AlertDialog`; sekcja pamięta filtr skrzynki), `inbox/components/chat_inbox_row.dart` (wiersz 72 px, awatar 44, etykieta „Szkic”, prefiks autora w grupie, stan zaznaczenia), `settings/chat_global_settings_modal.dart` (ustawienia komunikatora z railu), `app/shell/overlays/devplanner_global_panels_host.dart` (geometria panelu, uchwyt zmiany szerokości, przypięcie rezerwujące miejsce, niemodalny desktop, compact sheet), `lib/l10n/app_{pl,en}.arb` (+29 kluczy).
+
+Decyzje: (1) rail jest jedynym miejscem wyboru sekcji, a sekcja to wyłącznie stan prezentacji — filtr serwerowej skrzynki ustawia osobny słuchacz, który pamięta filtr wybrany w każdej sekcji, więc przełączenie zakładki nie kasuje zaznaczonej rozmowy ani szkicu. (2) Desktop jest niemodalny: panel nie przyciemnia i nie blokuje aplikacji, a przypięcie rezerwuje szerokość w layoucie; na compact panel zajmuje całą przestrzeń roboczą, więc zamyka go Escape albo przycisk zamknięcia, a barrier zostaje dla węższych układów. (3) Kształt drzewa treści aplikacji nie zmienia się przy przypięciu (stałe `AnimatedPadding`), bo inaczej przełączenie trybu odtwarzałoby trasę i stan widoku. (4) Pliki i Zadania mają typowane źródło (`file`/`task`), uczciwy stan „Rozmowy plików/zadań będą dostępne tutaj” bez fałszywego zera nieprzeczytanych i bez spinnera, a pełne wiersze ogląda się w widocznym, oznaczonym podglądzie z danymi syntetycznymi, który nie trafia do żadnego repozytorium. (5) Wiersz rozmowy w grupie pokazuje autora z listy uczestników zwróconej przez serwer, a nazwy nigdy nie pochodzą ze `scopeKey` ani UUID.
+
+Weryfikacja (uruchomione, Front): `flutter analyze` — 0 problemów; `flutter test` — PASS 1511 (+2 testy geometrii panelu: szerokość 960 i niemodalność na desktopie, modalny arkusz na compact); `flutter gen-l10n` — PASS; `flutter build web --wasm` — PASS (`✓ Built build/web`); `git diff --check` — PASS. Nowe testy geometrii siedzą w `test/app/shell/overlays/devplanner_modal_layer_test.dart` obok testów warstwy modali.
+
+Ograniczenie dowodu: nowy układ nie ma jeszcze testów widgetowych ani goldenów i **nie został obejrzany w uruchomionej aplikacji** — plan korekty (§4) wprost odkłada widgety i goldeny do akceptacji wyglądu, a ZCode Computer Use nie ma na tej maszynie zgody na nagrywanie ekranu, więc zrzutów nie ma. To znaczy, że układ jest zaimplementowany i przechodzi bramki kodu, ale odbiór wizualny pozostaje otwarty i należy do użytkownika.
+
+Otwarte po tym pakiecie: P1#3 (realtime skrzynki i badge) i P2#7 (doładowanie historii rozmowy, skok po ID niezależny od zbudowanego wiersza, odczyt tylko dla faktycznie widocznych wiadomości) oraz R10–R14 i załączniki z pakietu C, a także trwałość szerokości panelu między uruchomieniami (dziś stan sesji) i ręczne porównanie stylu powierzchni z Tasks/Storage z §2.6.
+
+Następny krok: P1#3 + P2#7, potem PAKIET C (R10–R13, załączniki) i odbiór wizualny z użytkownikiem.
+
+## 2026-09-21 — CHAT-REMEDIACJA PAKIET B: warstwa modali nad panelem (R03) i wyścigi skrzynki
+
+Zakres: R03 z planu korekty (realny root modali nad panelem), P1#2 z review (akcje i trwała kolejka w aktywnym panelu), P2#4–P2#6 (pusty kursor, wyścig filtrów, Wstecz w kreatorze).
+
+Przyczyna R03 (sprostowanie wcześniejszego wpisu): host paneli jest montowany w `MaterialApp.router(builder:)` (`lib/app/devplanner_app.dart:121`), a `WidgetsApp` stosuje `builder` **nad** `Router`em (`packages/flutter/lib/src/widgets/app.dart:1722`). Panel jest więc rodzeństwem aktywnej trasy i nie ma żadnego przodka `Navigator` — wywołane z panelu `Navigator.of(context, rootNavigator: true)` rzuca „Navigator operation requested with a context that does not include a Navigator”. Kreator nie otwierał się nie z powodu brakującego portu, a z powodu braku Navigatora. Wcześniejsze wyjaśnienie w tym handoffie („panel jest wewnątrz treści trasy, więc modal rootowy rysuje się nad panelem”) było sprzeczne z kodem i zostało sprostowane.
+
+Naprawa: nowa warstwa `lib/app/shell/overlays/devplanner_modal_layer.dart` — host owija aplikację razem z panelem w `Navigator` (`DevPlannerModalLayer`), którego trasa-stojak (`/app`, nazwa `kDevPlannerAppRootRouteName`) zawiera całą aplikację. Modal otwarty z panelu trafia do tego samego stosu co aplikacja i maluje się nad panelem, z własnym barrierem, focusem i Escape; nie trzeba zmieniać ani `DevPlannerModalHost`, ani żadnego wywołania `showDialog`. Trasa-stojak czyta treść z `InheritedWidget` powyżej `Navigator`a, więc przebudowa hosta (np. zmiana sesji) aktualizuje aplikację w miejscu, zamiast trzymać pierwszy, nieaktualny widget trasy. `_PanelOverlay` dostał węzeł focusu od hosta, a host prosi go o focus przy otwarciu panelu — `autofocus` nie wystarczał w tym drzewie, a bez focusu w panelu Escape nie zamykał panelu. Back systemowy obsługuje `WidgetsBindingObserver.didPopRoute` hosta (obserwator rejestruje się przed routerem, bo host jest nad nim): modal zamyka się przed zmianą trasy, a poza modalem zdarzenie idzie do routera, więc zachowanie poza modalem jest niezmienione.
+
+Kontrakt warstwy (zapisany w kodzie i w docu klasy): Escape zamyka najpierw modal, a potem panel; back systemowy zamyka modal, zanim router zmieni trasę; po zamknięciu modala focus wraca do panelu (weryfikacja w teście). Zdarzenia przeglądarki (historia Web) nadal należy do routera — warstwa ich nie przechwytuje i to jest jawnie zapisane jako ograniczenie, nie udawane pokrycie.
+
+Zmiany w źródłach: `app/shell/overlays/devplanner_global_panels_host.dart` (warstwa, klucz stosu, węzeł focusu panelu, `didPopRoute`), `app/shell/overlays/devplanner_modal_layer.dart` (nowy), `presentation/chat/shell/chat_panel_conversation.dart` (`ChatMessageActionsCubit` wydany w panelu; `ChatConversationCubit` dostaje `currentUserId` i `ChatMessageDeliveryQueue` z trwałym magazynem zamiast pomijać jedno i drugie), `presentation/chat/inbox/cubit/chat_inbox_cubit.dart` (`_stateForPage`: pusta strona z `hasMore` zachowuje kursor i nie udaje braku rozmów; `_requestId`: odpowiedź wcześniejszego filtra nie zastępuje nowszej listy i nie ma emisji po zamknięciu Cubita), `presentation/chat/creation/cubit/chat_creation_cubit.dart` (Wstecz ze szczegółów wraca do wyboru typu, a nie do listy wybranych).
+
+Testy: nowy `test/app/shell/overlays/devplanner_modal_layer_test.dart` — drzewo odwzorowuje produkcję (`MaterialApp.router` z hostem w `builder`), 3 przypadki: modal z panelu otwiera się i jego akcja nie zamyka panelu, back systemowy zamyka modal, Escape zamyka najpierw modal a dopiero potem panel. `test/workspaces/presentation/chat/inbox/chat_inbox_cubit_test.dart` +3: kursor przy pustej stronie z `hasMore`, pusta strona bez `hasMore` jako prawdziwy brak rozmów, wolniejsza odpowiedź starszego filtra.
+
+Kontrola mutacyjna (dowód, że testy rozstrzygają, a nie tylko przechodzą): po odłączeniu warstwy (`_buildRootEntry` bez `DevPlannerModalLayer`) wszystkie 3 testy warstwy padają w `showGeneralDialog` na braku Navigatora — czyli dokładnie na objawie z review; po przywróceniu warstwy przechodzą. Pierwsza wersja tego testu była montowana w `MaterialApp(home:)`, gdzie panel **ma** przodka `Navigator`, i przechodziła także bez warstwy — została przepisana na `MaterialApp.router`, bo nie rozstrzygała niczego. Test wyścigu filtrów: z guardem 9 PASS w pliku, a po zastąpieniu `if (isClosed || requestId != _requestId) return;` przez `if (isClosed) return;` test „wolniejsza odpowiedź starszego filtra nie zastępuje nowszej listy” FAIL; pierwsza wersja atrapy czytała stronę po opóźnieniu, więc obie odpowiedzi niosły tę samą wartość i test nie wykrywał regresji — atrapa została poprawiona.
+
+Walidacja (uruchomione, Front): `flutter test` — PASS 1509, FAIL 0; `flutter test test/workspaces/presentation/chat` — PASS 148; `flutter test test/app/shell/overlays` — PASS 8; `flutter analyze` — 0 problemów; `git diff --check` — PASS. Backend w tym pakiecie nietknięty.
+
+Otwarte po tym pakiecie: P1#3 (realtime skrzynki i badge), P2#7 (doładowanie historii, skok po ID niezależny od zbudowanego wiersza, odczyt tylko dla faktycznie widocznych wiadomości) oraz cały układ z §2.1–2.4 (panel 960 px z regulacją 760–1120, rail, lista 72 px, zakotwiczony popover „Nowy czat”, niemodalny desktop) i §2.7 (osobne zakładki Pliki i Zadania / Kanban).
+
+Następny krok: P1#3 + P2#7, potem układ panelu z §2.1–2.4 i §2.7, na końcu PAKIET C–E (R07, R10–R13, załączniki, wspólny styl powierzchni, odbiór manualny).
+
+## 2026-09-21 — CHAT-REMEDIACJA PAKIET B (część): kreator rozmowy naprawdę działa
+
+Zakres: R04 i R05 z planu korekty — brakujący Cubit katalogu w aktywnym flow oraz zakończenie rozmowy 1:1 kliknięciem osoby.
+
+Pliki (Front, zmienione): `presentation/chat/creation/chat_creation_sheet.dart` (arkusz przyjmuje jawne `ChatDirectoryRepository` i tworzy `ChatDirectorySearchCubit` we własnym `MultiBlocProvider`), `creation/cubit/chat_creation_cubit.dart` (`startDirectWith`, `submit` idempotentny w trakcie wysyłki), `creation/participants/chat_creation_participants_step.dart` (Cubit wymagany, nie opcjonalny; 1:1 jako jednokrotny wiersz), `chat_drawer.dart` (przekazanie portu katalogu). Test: `test/workspaces/presentation/chat/creation/chat_creation_cubit_test.dart` (+2 przypadki).
+
+Decyzje: katalog dostaje własny Cubit wydany jawnie przez flow, z lifecycle zamkniętym razem z arkuszem — wyszukiwanie nie może zależeć od tego, co przypadkiem jest w kontekście panelu. Dla 1:1 nie ma osobnego kroku szczegółów: klik osoby od razu rozwiązuje istniejący DM pary albo tworzy go, a panel otwiera to, co wróciło; podwójny klik nie tworzy duplikatu, bo wysyłka jest idempotentna, dopóki trwa.
+
+Ustalenie do R03: brak przycisku nowej rozmowy w działającej aplikacji tłumaczy brakujący provider `ChatDirectoryRepository` w hoście panelu (naprawiony 2026-09-21), ale sam host modali był drugą, poważniejszą przyczyną — `DevPlannerModalHost.showDialog` używa `showGeneralDialog` z `useRootNavigator: true`, a panel nie ma przodka `Navigator` (host jest nad routerem), więc kreator nie miał gdzie się otworzyć. **Sprostowanie 2026-09-21:** zdanie z pierwotnej wersji tego wpisu, że „panel jest zamontowany wewnątrz treści trasy, więc modal rootowy rysuje się nad panelem”, było sprzeczne z kodem; warstwa modali i jej testy opisuje wpis „CHAT-REMEDIACJA PAKIET B: warstwa modali nad panelem (R03)”. R03 pozostaje otwarte do **ręcznego** przejścia kreatora, menu, edycji, potwierdzenia, Escape, focusu i resize w działającej aplikacji; sama analiza kodu nie jest odbiorem.
+
+Walidacja (uruchomione, Front): `flutter analyze` — PASS, 0 problemów; `flutter test test/workspaces/presentation/chat` — PASS 145; pełny `flutter test` nie był używany jako bramka, zgodnie z §4 planu (może uruchomić odroczone widgety). `git diff --check` — PASS.
+
+Otwarte w PAKIECIE B: R03 (ręczny przebieg w aplikacji), R06 (`ChatMessageActionsCubit` w aktywnym panelu, wersja i konflikt dla edycji/usunięcia z panelu) oraz szkielet z §2.1–2.4: rail 56 px z pozycjami Czaty/Grupy/Kanały/Pliki/Zadania/Archiwum/Zapisane/Profil/Ustawienia, lista rozmów wg §2.3 i zakotwiczony popover „Nowy czat” wg §2.4.
+
+Następny krok: R06 + szkielet panelu z §2.1–2.4, potem PAKIET C (sesyjna persystencja, realtime inbox/badge, read visibility, loadMore, skok po ID, pełny wiersz wiadomości, załączniki).
+
+## 2026-09-21 — CHAT-REMEDIACJA PAKIET A: ACL skrzynki, zakres Direct, monotoniczny znacznik odczytu
+
+Zakres: pierwszy pakiet planu korekty po review (`docs/global-chat-ui-remediation-2026-09-21.md`) — R01, R02, R09 oraz weryfikacja monotoniczności znacznika odczytu. Ten plan ma pierwszeństwo nad wcześniejszymi oznaczeniami „gotowe” G3–G7.
+
+Pliki (Backend, zmienione): `Infrastructure/Chat/ChatInboxReader.cs` (`VisibleTo` wymaga członkostwa i dostępu do zakresu; `ReadUnreadTotalsAsync` zwraca typowane wiersze `ChatInboxUnreadTotalRow` na tym samym predykacie; nowy `ReadConversationsAsync`), `Application/Chat/ChatInboxService.cs` (liczniki autoryzują zakres Resource u providera, spójnie ze stroną), `Application/Chat/ChatService.cs` (fallback Direct ograniczony do tego samego workspace/projektu, najstarsza rozmowa zamiast `SingleOrDefault`; atomiczny warunkowy UPDATE znacznika odczytu), `Domain/Entities/ChatConversationMember.cs` (`MarkRead` wyłącznie jako ścieżka dla dostawców bez `ExecuteUpdate`). Nowy test: `Tests/Veloryn.Workspaces.Tests/ChatRemediationAclTests.cs`.
+
+Decyzje: sam wiersz członkostwa nie wystarcza — każdy odczyt sprawdza też zakres, więc revoke workspace/projektu odbiera rozmowę natychmiast, bez czekania na materializację członkostwa. Licznik nieprzeczytanych używa tego samego predykatu co lista plus autoryzacji providera dla Resource, więc badge nie może pokazać rozmowy, której lista nie pokazuje. Znacznik odczytu jest monotoniczny w parze `(CreatedAtUtc, Id)`, a kolejność UUID rozstrzyga PostgreSQL, dlatego zapisuje go atomowy warunkowy `UPDATE`, a encja jest odłączana — inaczej późniejszy `SaveChanges` (stan dostarczenia) nadpisywał znacznik wartością sprzed równoległego żądania.
+
+Błąd znaleziony i naprawiony w trakcie: pierwsza wersja naprawy znacznika (odczyt znacznika w pamięci + zapis encji) była **niestabilna** — test równoległy przechodził 2 z 3 razy. Przyczyną był właśnie zapis zwrotny przez `SaveChanges`; po przejściu na pojedynczego właściciela zapisu (warunkowy UPDATE) 5 z 5 przebiegów jest zielonych. Wartością tego pakietu jest też to, że flaky test nie został zignorowany.
+
+Walidacja (uruchomione, Backend): `dotnet build veloryn-workspaces.csproj --no-restore` — PASS, 0 ostrzeżeń; `dotnet test --filter "FullyQualifiedName~Chat|~Directory|~ApiEndpointTests"` — PASS 241, FAIL 0, SKIP 3 (drugi Redis na `localhost:6380`); nowy `ChatRemediationAclTests` — 5 PASS, stabilny w 5 kolejnych przebiegach: revoke workspace (lista i liczniki), revoke projektu na kolejnych stronach, zakres Direct pary w dwóch projektach i dawne duplikaty bez 500, monotoniczność znacznika przy równych czasach, równoległe odczyty na osobnych kontekstach. `git diff --check` — PASS.
+
+Dowody dla R01/R02/R09 i monotoniczności są wpisane w samym planie korekty (wiersze oznaczone **NIE** = naprawione, z nazwami testów). Zgodnie z §4 planu punkty PAKIETU B–E pozostają otwarte, a „starsze oznaczenia G5 zamknięte nie stanowią odbioru funkcjonalnego”.
+
+Następny krok: PAKIET B — R03 (realny Navigator/overlay root i jawne zależności popupów), R04/R05 (kreator: Cubit katalogu w aktywnym flow, klik kontaktu kończy DM), R06 (Cubit akcji w panelu) oraz szkielet UI z §2.1–2.4 (rail, lista, popover „Nowy czat”), bo bez tego klik tworzenia rozmowy w działającej aplikacji nadal nie otwiera kreatora.
+
+## 2026-09-21 — CHAT-G6 (start): sesja załączników i rozpoznanie blokady kompozycji
+
+Zakres: pierwszy krok G6 — brakująca produkcyjna implementacja portu sesji załączników, która była jedyną przeszkodą w złożeniu istniejącego adaptera uploadu.
+
+Pliki (Front, nowe): `lib/workspaces/data/chat/attachments/chat_attachment_session_repository_impl.dart`, `test/workspaces/data/chat/attachments/chat_attachment_session_repository_impl_test.dart`. Zmienione: `lib/workspaces/data/chat/errors/chat_api_error_mapper.dart` (kod `chat.attachments.session_failed`).
+
+Decyzje: adapter sesji nie przechowuje i nie zwraca ticketów, URL-i presigned ani tokenów Storage — sesja domenowa ma wyłącznie identyfikator, rozmowę i wygaśnięcie, a poświadczenia Storage pozostają w warstwie data, która wykonuje upload. Porażka wydania sesji ma własny kod (`chat.attachments.session_failed`), więc UI odróżnia odmowę dostępu od błędu sieci.
+
+Walidacja (Front, uruchomione): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS 1501 (1498 przed tym pakietem; +3 testy sesji: wydanie bez ujawniania poświadczeń, anulowanie, kod odmowy z zachowanym statusem); `git diff --check` — PASS. Backend nietknięty.
+
+Rozpoznana blokada kompozycji (do domknięcia w G6): `ChatAttachmentUploadPortAdapter` wymaga trzech zależności — `ChatAttachmentSessionRepository` (właśnie dodane), `StorageRepository` i `UploadTransport`. `StorageRepositoryImpl` i `PresignedUploadTransport` powstają w routerze (`lib/app/router/devplanner_router.dart`, `devplanner_router_pages.part.dart`), a `DevPlannerStandaloneRuntime` jest konstruowany w `lib/app/devplanner_app.dart` tylko z `auth` i `transport`, więc `attachmentUploadPort` i `filePickerPort` pozostają `null` w produkcji i interfejs załączników jest bezczynny. Dwie realne przeszkody do rozstrzygnięcia, nie do obejścia: (1) runtime musi dostać `StorageRepository` i `UploadTransport` z tego samego miejsca, w którym powstaje transport sesji, żeby adapter dało się złożyć bez drugiego klienta HTTP; (2) `PresignedUploadTransport` jest dziś tworzony wyłącznie dla kompozycji desktopowej, więc trzeba jawnie ustalić, czym jest upload załącznika w Web (BFF) — albo bezpieczny transport przez BFF, albo jawne ograniczenie, zgodnie z zasadą z §6 planu o niewkładaniu prywatnej treści w nieszyfrowany magazyn przeglądarki i o nieobchodzeniu granicy sesji.
+
+Pozostaje w G6 po tej części: złożenie `ChatAttachmentUploadPortAdapter` i file pickera w kompozycji, obraz ze schowka i drag/drop na ścieżce panelu, podgląd i pobranie załącznika przez autoryzowany endpoint, limity i komunikaty błędów oraz weryfikacja reautoryzacji po revoke i cleanupu osieroconych sesji; bramka zbiorcza G3–G6 z testami Storage/AV/ACL i ręcznym upload/cancel/retry.
+
+Następny krok: złożyć adapter uploadu w kompozycji (runtime + app) razem z file pickerem i rozstrzygnąć transport uploadu dla Web.
+
+## 2026-09-21 — CHAT-G5 (część 5, zamknięcie): archiwizacja z panelu i sygnał roli
+
+Zakres: domknięcie dwóch ostatnich pozycji G5 — archiwizacja i przywracanie rozmowy z panelu oraz sygnał roli, który pozwala pokazać moderację cudzej treści bez udawania uprawnień.
+
+Pliki (Front, nowe): `test/workspaces/presentation/chat/shell/chat_panel_selection_role_test.dart`. Zmienione: `shell/cubit/chat_panel_selection_cubit.dart` (rola w stanie wyboru + `canModerate`), `shell/chat_panel_conversation.dart` i `shell/chat_panel_conversation_parts.dart` (menu archiwizacji, `canModerate` w liście wiadomości), `chat_drawer.dart` (rola przekazywana przy wyborze z listy i z wyszukiwania), `app/shell/overlays/devplanner_global_panels_host.dart` (port zarządzania rozmowami nad panelem), `lib/l10n/app_{pl,en}.arb` (+5 kluczy).
+
+Decyzje: rola pochodzi z serwerowej skrzynki (`role` w pozycji inboxa), a panel używa jej wyłącznie do ukrycia akcji moderacji — backend nadal egzekwuje uprawnienia, a brak roli daje `canModerate: false`, więc nieznana rola nie odblokowuje edycji cudzej treści. Archiwizacja wymaga potwierdzenia, bo zmienia listę rozmów; przywrócenie nie, bo jest odwracalne. Po sukcesie panel wraca do listy i odświeża skrzynkę, bo rozmowa wyszła z bieżącego widoku.
+
+Walidacja (Front, uruchomione): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS 1498 (1493 przed tym pakietem; +5 testów: role Owner/Moderator/Member/Observer, brak roli bez uprawnień, aktualizacja roli przy ponownym wyborze, archiwizacja i przywrócenie w porcie, porażka archiwizacji jako błąd); `git diff --check` — PASS; kontrakt OpenAPI↔Retrofit bez zmian (Swagger 463, Flutter 425). Backend nietknięty — endpointy archiwizacji i przywracania istnieją od początku pinu Chat.
+
+Status G5: wszystkie powierzchnie akcji z planu są zbudowane na gotowych portach — reakcje, wątki i odpowiedzi, edycja/usuwanie z `Version` i konfliktem, przypięcia, zakładki, forward, wyszukiwanie z facetami i skokiem do wiadomości, członkowie z rolami i opuszczeniem, archiwizacja i przywracanie, wyciszenie i preferencje oraz obecność z własnym statusem, statusami członków i wskaźnikiem pisania z TTL. Otwarte pozostają wyłącznie dwie rzeczy spoza zakresu implementacji: testy widgetowe i goldeny panelu (odroczone do akceptacji wyglądu) oraz weryfikacja odbioru zdarzeń z żywego huba SignalR, w tym pisania i handshake'u cookie w Web (protokół dwóch sesji w G8).
+
+Następny krok: G6 — załączniki wiadomości na istniejących attachment sessions i Storage/AV: upload adapter, stany `Clean/Ready`, progress, cancel, obraz ze schowka, drag/drop, podgląd i pobranie przez autoryzowany endpoint, limity i komunikaty błędów.
+
+## 2026-09-21 — CHAT-G5 (część 4): wskaźnik pisania z TTL
+
+Zakres: domknięcie ostatniej pozycji powierzchni obecności z G5 — pisanie w obie strony, z TTL pochodzącym z kontraktu serwera.
+
+Pliki (Front, nowe): `lib/workspaces/presentation/chat/presence/cubit/chat_typing_cubit.dart`, `lib/workspaces/presentation/chat/presence/widgets/chat_typing_indicator.dart`, `test/workspaces/presentation/chat/presence/chat_typing_cubit_test.dart`. Zmienione: `domain/chat/realtime/chat_conversation_realtime_event.dart` (rodzaj `typingChanged` + `typingUserId`, `isTyping`, `typingExpiresAtUtc`), `domain/chat/realtime/chat_conversation_realtime_client.dart` (`setTyping` w porcie), `domain/chat/realtime/chat_conversation_realtime_reducer.dart` (pisanie pomijane bez zmiany historii i bez resyncu), `data/realtime/chat/chat_realtime_event_mapper.dart` (mapowanie `chat.typing.changed` z `userId`, `isTyping`, `expiresAtUtc`), `data/realtime/chat/workspace_chat_realtime_service.dart` (handler zdarzenia, `setTyping` przez port, delegacja w dzierżawie), `presentation/chat/cubit/chat_conversation_cubit.dart` (`notifyTyping`), `presentation/chat/composer/chat_message_composer.dart` (zgłoszenie pisania przy zmianie treści i „stop” po 4 s bezczynności), `presentation/chat/shell/chat_panel_conversation.dart` (kubit pisania + wskaźnik nad composerem).
+
+Decyzje: TTL pochodzi z payloadu serwera (`ExpiresAtUtc`), a stały zapas 8 s służy tylko jako fallback, gdy serwer go nie poda — dzięki temu wskaźnik znika nawet bez zdarzenia „stop” i po zerwaniu połączenia. Pisanie jest pomijane przez reduktor historii, bo nie jest wiadomością i nie może wymuszać resyncu. Własne zdarzenia są odrzucane, bo nadawca nie jest dla siebie wskaźnikiem. `setTyping` weszło do portu subskrypcji rozmowy, więc widok i cubit nie sięgają do konkretnego serwisu SignalR, a dzierżawa przekazuje wywołanie dalej. Sygnał wychodzący jest best-effort: zerwane połączenie nie może przerwać pisania wiadomości.
+
+Walidacja (Front, uruchomione): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS 1493 (1486 przed tym pakietem; +7 testów: mapowanie zdarzenia z TTL i bez TTL, brak wpływu na historię i brak resyncu, wygaśnięcie po TTL serwera bez zdarzenia stop, natychmiastowe usunięcie po stop, pominięcie własnego pisania, brak klienta realtime); `git diff --check` — PASS; kontrakt OpenAPI↔Retrofit bez zmian (Swagger 463, Flutter 425). Backend nietknięty — kontrakt `chat.typing.changed` (`conversationId`, `userId`, `isTyping`, `expiresAtUtc`) był już w `Contracts/Chat/ChatRealtimePresenceContracts.cs` i w `ChatRealtimeConnectionManager`.
+
+Uwaga o zasięgu weryfikacji: mapowanie, TTL i reduktor są pokryte testami jednostkowymi, ale odebranie rzeczywistego zdarzenia z huba przez SignalR nie zostało sprawdzone na żywym backendzie — to należy do protokołu dwóch sesji w G8, razem z wcześniej zapisaną luką „żywy handshake SignalR w Web niezweryfikowany”.
+
+Pozostaje w G5: archiwizacja i przywracanie rozmowy z panelu oraz moderacja cudzej treści (czeka na sygnał roli z panelu). Testy widgetowe panelu pozostają odroczone do akceptacji wyglądu.
+
+Następny krok: archiwizacja/przywracanie z panelu i rola dla moderacji, potem G6 (załączniki) — albo przejście do G6 zgodnie z kolejnością planu.
+
+## 2026-09-21 — CHAT-G5 (część 3): wyciszenie, przypięte, zakładki i statusy
+
+Zakres: domknięcie kolejnych powierzchni G5 — menu rozmowy z wyciszeniem i preferencjami, widoki list przypiętych wiadomości i zakładek oraz powierzchnia obecności dla własnego statusu i statusów członków. Wskaźnik pisania pozostaje otwarty i jest opisany niżej wraz z przyczyną techniczną.
+
+Pliki (Front, nowe): `lib/workspaces/presentation/chat/settings/cubit/chat_conversation_mute_cubit.dart`, `lib/workspaces/presentation/chat/message_actions/chat_message_list_sheets.dart`, `lib/workspaces/presentation/chat/presence/chat_status_dialog.dart`, `test/workspaces/presentation/chat/settings/chat_conversation_mute_cubit_test.dart`. Zmienione: `shell/chat_panel_conversation.dart` i `shell/chat_panel_conversation_parts.dart` (menu rozmowy, wejście do własnego statusu, port akcji w nagłówku), `members/chat_members_sheet.dart` (statusy członków), `chat_drawer.dart` (port ustawień powiadomień), `app/shell/overlays/devplanner_global_panels_host.dart` (port obecności), `lib/l10n/app_{pl,en}.arb` (+19 kluczy).
+
+Decyzje: wyciszenie jest polityką serwera, a nie stanem UI — przełącznik zapisuje politykę rozmowy, a przy porażce wraca do stanu potwierdzonego przez backend, żeby nie kłamał. Menu rozmowy zbiera wyciszenie, przypięte, zakładki i preferencje, a każda pozycja ma realny skutek (listy czytają port akcji, preferencje otwierają istniejący modal montowany w rootowym hoście). Listy przypiętych i zakładek są tylko do odczytu i odpinania/usuwania po potwierdzeniu backendu, więc nie rozjeżdżają się ze stanem serwera. Statusy pokazujemy tam, gdzie są tożsamości: własny w dialogu z emoji, tekstem i DND, a statusy innych w liście członków — brak portu albo błąd zostawia wiersz bez statusu, więc lista pozostaje użyteczna.
+
+Walidacja (Front, uruchomione): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS 1486 (1483 przed tym pakietem; +3 testy wyciszenia: zapis polityki, drugie przełączenie, powrót do stanu serwera po porażce); `git diff --check` — PASS; kontrakt OpenAPI↔Retrofit bez zmian (Swagger 463, Flutter 425). Backend nietknięty.
+
+Otwarte w G5 — wskaźnik pisania (typing): nie jest zaimplementowany i wymaga zmiany w warstwie realtime, nie tylko UI. `WorkspaceChatRealtimeService` potrafi wywołać `SetTyping`, ale nie rejestruje handlera `chat.typing.changed`, a `ChatConversationRealtimeEvent` nie ma rodzaju zdarzenia dla pisania — więc odebranie cudzego pisania wymaga mapowania w `ChatRealtimeEventMapper`, nowego rodzaju zdarzenia, stanu z TTL („Statusy online/typing mają TTL”), a po stronie wychodzącej rozszerzenia portu `ChatConversationRealtimeClient` o `setTyping`, bo dziś metoda istnieje tylko w konkretnym serwisie. To spójny pakiet do wykonania jako następny krok G5, razem z pozostałymi lukami: archiwizacja i przywracanie rozmowy z panelu, moderacja cudzej treści (czeka na sygnał roli) oraz odroczone testy widgetowe.
+
+Następny krok: wskaźnik pisania (mapper + rodzaj zdarzenia + TTL + `setTyping` w porcie), potem archiwizacja z panelu i rola dla moderacji, a następnie G6 (załączniki).
+
+## 2026-09-21 — CHAT-G5 (część 2): wątek z panelu, wyszukiwanie ze skokiem, lista członków
+
+Zakres: domknięcie trzech powierzchni G5 wskazanych jako otwarte — otwieranie wątku i dyskusji z panelu, wyszukiwanie wiadomości ze skokiem do wiadomości oraz lista członków z rolami, usuwaniem i opuszczeniem rozmowy.
+
+Pliki (Front, nowe): `lib/workspaces/presentation/chat/shell/chat_thread_sheet.dart`, `lib/workspaces/presentation/chat/search/cubit/chat_search_cubit.dart`, `lib/workspaces/presentation/chat/search/components/chat_search_view.dart`, `lib/workspaces/presentation/chat/members/cubit/chat_members_cubit.dart`, `lib/workspaces/presentation/chat/members/chat_members_sheet.dart`, `test/workspaces/presentation/chat/g5_search_and_members_test.dart`. Zmienione: `chat_drawer.dart` (przycisk wyszukiwania, widok wyszukiwania w miejscu listy, wybór rozmowy z celem skoku), `shell/chat_panel_conversation.dart` i `shell/chat_panel_conversation_parts.dart` (cel skoku, podświetlenie i przewinięcie do wiadomości, przycisk członków), `shell/cubit/chat_panel_selection_cubit.dart` (stan `ChatPanelSelection` z `targetMessageId`), `app/shell/overlays/devplanner_global_panels_host.dart` (porty wątku, dyskusji, akcji, członków i wyszukiwania nad panelem), `lib/l10n/app_{pl,en}.arb` (+28 kluczy).
+
+Decyzje: panel montuje wątek i dyskusję w bocznym arkuszu rootowego hosta modali, więc porty dostają jawnie przez `RepositoryProvider` — ta sama reguła co przy kreatorze i modalach ustawień. Skok z wyszukiwania jest częścią stanu wyboru, bo powtórny wybór tej samej rozmowy musi nadal przenieść widok do wskazanej wiadomości; podświetlenie i przewinięcie działają w ramach załadowanej historii, a pozycję spoza strony otwiera doładowanie historii (ta sama granica co w pełnym widoku, jawnie zapisana w komentarzu). Widok wyszukiwania jest sterowany stanem cubita (`isOpen`), a nie stanem widgetu, więc panel nie potrzebuje własnego `setState`. Lista członków pokazuje akcje tylko rolom, które mogą je wykonać, ale decyzję zawsze podejmuje backend; po mutacji lista odświeża się bez migotania pustym stanem, a opuszczenie rozmowy zamyka arkusz.
+
+Walidacja (Front, uruchomione): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS 1483 (1473 przed tym pakietem; +10 testów: 5 wyszukiwania i 5 członków); `git diff --check` — PASS; kontrakt OpenAPI↔Retrofit bez zmian (Swagger 463, Flutter 425). Backend nietknięty.
+
+Błędy znalezione i naprawione w trakcie: (1) odświeżenie listy po mutacji nie było czekane, więc wołający mógł zobaczyć starą listę jako wynik zakończonej zmiany roli — teraz `_mutate` czeka na odświeżenie, a test to pinuje; (2) panel po mutacji migotał stanem ładowania — odświeżenie po mutacji jest ciche. Uwaga warsztatowa: przy przekształcaniu drawera w widget stanowy plik zebrał kilka nakładających się edycji; naprawiłem go punktowo (zniekształcona sygnatura `_buildPanelBody`, brakujące importy, osierocony fragment `Column`) zamiast cofać całego pliku, żeby nie stracić wcześniejszej pracy G3–G5.
+
+Otwarte w G5 (pozostaje): (1) przełącznik mute i wejście do preferencji w menu rozmowy — jest modal ustawień, brak osobnego skrótu; (2) powierzchnia obecności: własny status, status rozmówcy, wskaźnik pisania; (3) widoki list przypiętych wiadomości i zakładek; (4) archiwizacja i przywracanie rozmowy z menu panelu mimo gotowego portu; (5) moderacja cudzej treści czeka na sygnał roli z panelu (`canModerate` jest na razie `false`); (6) testy widgetowe tych powierzchni pozostają odroczone do akceptacji wyglądu.
+
+Następny krok: dokończyć G5 (mute i preferencje w menu, obecność, widoki przypiętych i zakładek, archiwizacja z panelu) albo przejść do G6 (załączniki) zgodnie z kolejnością planu.
+
+## 2026-09-21 — CHAT-G5 (część): menu akcji wiadomości, reakcje i wątki
+
+Zakres: pierwsze powierzchnie akcji na portach z G2 — menu wiadomości z realnym skutkiem, reakcje z agregatów serwera, przypięcia, zakładki, forward oraz adaptery wątku i dyskusji. Pozostałe powierzchnie G5 (wyszukiwanie, członkowie, mute, presence) pozostają otwarte i są wypisane niżej.
+
+Pliki (Front, nowe): `lib/workspaces/presentation/chat/message_actions/chat_message_action_menu.dart`, `lib/workspaces/presentation/chat/message_actions/chat_message_action_dialogs.dart`, `lib/workspaces/presentation/chat/message_actions/cubit/{chat_message_secondary_actions_cubit,chat_message_secondary_actions_state}.dart`, `lib/workspaces/data/chat/repositories/chat_thread_repository_impl.dart`, `test/workspaces/presentation/chat/message_actions/chat_message_secondary_actions_test.dart`. Zmienione: `chat_panel_conversation_parts.dart` (menu i pasek reakcji w wierszu wiadomości, odczyt stanu z kontekstu), `chat_panel_conversation.dart` (BlocProvider cubita akcji, `onOpenThread`), `chat_message.dart` (agregaty reakcji w modelu domenowym), `chat_repository_impl.dart` (mapowanie agregatów), `global_chat_composition.dart`, `devplanner_standalone_runtime.dart`, `lib/l10n/app_{pl,en}.arb` (+17 kluczy).
+
+Decyzje: akcje drugorzędne (przypięcia, zakładki, reakcje, forward) mają osobny cubit od edycji i usunięcia, bo tylko te drugie zmieniają treść i wymagają `Version` oraz rozstrzygania konfliktu. Każda pozycja menu jest wywołaniem portu; błąd wraca kodem domenowym przypisanym do wiadomości, więc menu pokazuje realny powód, a nie cichy brak skutku. Reakcje wyświetlamy z agregatu backendu (`ChatMessage.reactions`), dzięki czemu nie ma zapytania na wiadomość; pasek reakcji odróżnia własną reakcję i pozwala ją zdjąć. Dialogi (usunięcie z potwierdzeniem, edycja, wybór rozmowy do przekazania) są montowane w rootowym hoście modali, więc Escape, barrier i focus pochodzą z foundation. Edycja i usunięcie są widoczne tylko dla autora; moderacja cudzej treści czeka na sygnał roli z panelu i nie jest udawana.
+
+Walidacja (Front, uruchomione): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS 1473 (1467 przed tym pakietem, +6 testów cubita akcji: przypięcie/odpięcie, zakładka, reakcja, forward ze stabilnym `clientMessageId`, kod błędu przy wiadomości bez pętli, brak zdublowanego żądania przy równoległej akcji); `git diff --check` — PASS; kontrakt OpenAPI↔Retrofit bez zmian (Swagger 463, Flutter 425). Backend nietknięty w tym pakiecie.
+
+Otwarte w G5 (świadomie, nie „prawie gotowe”): (1) wątek nie otwiera się jeszcze z panelu — `onOpenThread` nie ma dostarczyciela w drawerze i hoście, choć `ChatThreadSidePanel` i adapter wątku są gotowe; (2) brak powierzchni wyszukiwania wiadomości (facety i skok do wiadomości) mimo gotowego portu; (3) brak powierzchni członków (lista, role, usuwanie) mimo gotowego portu; (4) brak przełącznika mute i wejścia do preferencji w menu rozmowy — modal ustawień istnieje i jest podłączony; (5) brak powierzchni obecności (własny status, status rozmówcy, wskaźnik pisania); (6) brak widoków list przypiętych i zakładek; (7) testy widgetowe tych powierzchni pozostają odroczone razem z goldenami do akceptacji wyglądu.
+
+Następny krok: dokończyć G5 — otwieranie wątku z panelu, wyszukiwanie wiadomości ze skokiem, lista członków z rolami, mute i preferencje w menu rozmowy oraz obecność i status; potem G6 (załączniki).
+
+## 2026-09-21 — CHAT-G4: niezawodność wysyłki, odczyt i trwała kolejka
+
+Zakres: cursor historii i stabilne klucze wierszy, dostawa/odczyt jako osobny lifecycle, widoczność odczytu (read tylko po faktycznym zobaczeniu), trwała kolejka wysyłki z jawnym ograniczeniem Web oraz testy bramki G4.
+
+Pliki (Front, nowe): `lib/workspaces/domain/chat/delivery/chat_pending_send_store.dart`, `lib/workspaces/data/chat/delivery/chat_pending_send_store_impl.dart`, `test/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_persistence_test.dart`, `test/workspaces/presentation/chat/chat_conversation_read_visibility_test.dart`. Zmienione: `chat_conversation_repository.dart` (+ `markMessageDelivered`, `markConversationRead`), `chat_repository_impl.dart`, `chat_api_error_mapper.dart`, `chat_message_delivery_queue.dart` (magazyn, `restorePending`, `clearForSession`, licznik prób), `chat_conversation_cubit.dart` (`currentUserId`, `markVisibleAsRead`, `restorePendingSends`, `clearForSignedOutSession`), `chat_conversation_message_list.dart` (stabilny `ValueKey` na wiadomość), `chat_panel_conversation.dart` (`_ChatPanelMessages`: odczyt tylko dla zamontowanego panelu z aktywną aplikacją + odświeżenie badge), `global_chat_composition.dart`, `devplanner_standalone_runtime.dart`, oraz pięciu fake’ów repozytorium w testach.
+
+Decyzje: doręczenie i odczyt są osobnymi wywołaniami, bo HTTP 2xx przy `send` nie jest dowodem doręczenia. Odczyt wysyła widok, nie cubit przy pobraniu historii: `markVisibleAsRead` jest idempotentne, pomija wiadomości własne, lokalne (`local:`) i usunięte, a po udanym odczycie panel odświeża serwerowy badge skrzynki. Kolejka dostała trwały magazyn intencji: desktop zapisuje w systemowym secure storage i wznawia próby po restarcie oraz po ponownym otwarciu rozmowy, Web celowo **nie utrwala niczego**, żeby treść prywatna nie trafiła do nieszyfrowanego magazynu przeglądarki — ograniczenie offline Web jest więc jawne, a nie ukryte. Magazyn nie zawiera tokenów ani `userId` w rekordzie (użytkownik jest częścią klucza), a `clearForSession` usuwa intencje przy wylogowaniu i zmianie konta. Polityka ponowień: 400/401/403/409 nie są ponawiane automatycznie, retry zostaje decyzją użytkownika.
+
+Walidacja (Front, uruchomione): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS 1460 (1447 przed tym pakietem; +8 testów trwałości/retry i +5 widoczności odczytu); `git diff --check` — PASS; porównanie OpenAPI z Retrofit — Swagger 463, Flutter 425, brakujące 40 i nadmiarowe 2 bez zmian (wszystkie poza Chat). Backend nie był w tym pakiecie zmieniany, więc jego ostatni zielony stan (278 PASS / 0 FAIL / 3 SKIP) obowiązuje bez zmian.
+
+Otwarte w G4 (świadomie, nie „prawie gotowe”): (1) drafty nie są jeszcze utrwalane po stronie serwera — composer nadal korzysta z lokalnego secure storage, więc pole `isDraft`/`draftText` w skrzynce pozostaje w produkcji puste, mimo że kontrakt je zwraca; (2) powierzchnie UI dla akcji, które mają już porty i adaptery — menu edycji/usuwania, forward, wskaźnik dostawy/doręczenia przy wiadomości — należą do G5 i dopracowania wizualnego w G7; (3) stabilny klucz wiersza i zachowanie przewijania po doładowaniu strony nie mają testu widgetowego, bo te są odroczone do akceptacji wyglądu.
+
+Następny krok: G5 — reakcje, wątki, edycja/usuwanie z menu, przypięcia, zakładki, forward i wyszukiwanie na gotowych portach, z testami ACL i braku eskalacji po G6.
+
+## 2026-09-21 — CHAT-G3 (część 3): kreator rozmowy i bramka na dwóch żywych sesjach
+
+Zakres: `creation/chooser`, `creation/participants`, `creation/details` na gotowym porcie katalogu, przycisk nowej rozmowy w nagłówku panelu oraz bramka G3 wykonana na dwóch rzeczywistych sesjach BFF z żywym backendem.
+
+Pliki (Front, nowe): `lib/workspaces/presentation/chat/creation/chat_creation_sheet.dart`, `creation/cubit/{chat_creation_cubit,chat_creation_state}.dart`, `creation/participants/chat_creation_participants_step.dart`, `creation/participants/cubit/chat_directory_search_cubit.dart`, `creation/details/chat_creation_details_step.dart`, `creation/validation/chat_creation_validation_text.dart`, `test/workspaces/presentation/chat/creation/chat_creation_cubit_test.dart`. Zmienione: `chat_drawer.dart` (nagłówek z licznikiem i akcją nowej rozmowy), `lib/l10n/app_{pl,en}.arb` (+37 kluczy każdy) i regenerowane `app_localizations*`.
+
+Pliki (Backend, nowe): `Tests/Veloryn.Workspaces.Tests/ChatCreationPostgresTests.cs`.
+
+Decyzje: kreator to jedna sesyjna ścieżka (`ChatCreationCubit`) plus osobny cubit wyszukiwania katalogu z debounce i regułą dwóch znaków; walidacja powtarza reguły backendu (1:1 dokładnie jedna osoba, grupa 1–49 osób bez twórcy, nazwa wymagana dla kanału i ogłoszeń, limit 240 znaków), a ogłoszenia blokują wybór publikacji dla wszystkich. Kreator nie tworzy nawigacji: po sukcesie zwraca rozmowę i panel ją wybiera w tym samym widoku. Globalny kanał dostaje nieprzejrzysty klucz zakresu nadany raz przy tworzeniu, bo Scope Global nie ma zakresu poza rozmową; odpowiedź zwraca klucz kanoniczny z prefiksem, więc klient nie może odesłać go jako etykiety (test to pinuje). Duplikatu 1:1 nie pilnuje UI — `POST /conversations/resolve` zwraca istniejącą rozmowę pary, a panel otwiera to, co wróciło.
+
+Bramka G3 — protokół na żywym stacku (uruchomione 2026-09-21, API `https://localhost:5173` przez BFF, sesje A = `misiek440` SystemAdmin i B = `kanban-b-1789899185` User, skrypt `/tmp/chat_g3_two_sessions.py`):
+1. `GET /api/v1/chat/users?q=kanban` z sesji A → 200, katalog zwrócił konto B bez adresu e-mail.
+2. `POST /api/v1/chat/conversations/resolve` (Direct, Global) z sesji A → 200, `scopeKey = direct:global:{B}:{A}`.
+3. `POST …/messages` z sesji A → 200.
+4. `GET /api/v1/chat/inbox` z sesji B → 200, `unreadCount = 1` z serwera, preview treści; `GET /api/v1/chat/inbox/unread-count` → `totalUnreadCount = 1`.
+5. `POST …/messages/{id}/read` z sesji B → 204, po odczycie `unreadCount = 0` i ustawiony `lastReadMessageId`.
+6. `POST /conversations/resolve` z sesji B dla tej samej pary z inną etykietą → ten sam identyfikator rozmowy (brak drugiego DM).
+7. Kanał globalny z sesji A → 200; widoczny w skrzynce twórcy, nieobecny w skrzynce B (nieczłonek).
+8. Stany błędów: za krótka fraza katalogu → 400 `validation.failed`; skrzynka bez sesji → 401 `auth.unauthorized`; `resolve` bez CSRF → 403 `auth.csrf_invalid`.
+
+Znalazienie operacyjne z żywego przebiegu: lokalna baza deweloperska nie miała zastosowanej migracji `AddChatInboxReadMarker`, więc pierwszy `resolve` zwrócił 500 (`42703: column "LastReadMessageAtUtc" ... does not exist`). Aplikacja nie migruje bazy przy starcie — `dotnet ef database update --context WorkspaceDbContext` zastosował migrację, po czym cała bramka przeszła. To samo dotyczy stagingu i wchodzi do G9. Przy okazji: w tej bazie nie było żadnych wierszy członkostwa, więc backfill migracji nie miał tu na czym pracować.
+
+Walidacja (uruchomione): backend `dotnet test --filter "~Chat|~Notification"` — PASS 278, FAIL 0, SKIP 3 (brak drugiego Redisa na `localhost:6380`), w tym 3 nowe testy tworzenia z dwiema tożsamościami; front `flutter analyze` — 0 problemów, `flutter test` — PASS 1447 (13 nowych testów kreatora i katalogu), `git diff --check` — PASS w obu repo. Zgodnie z planem testy widgetowe i goldeny panelu pozostają odroczone do akceptacji wyglądu.
+
+Otwarte w bramce G3: część wizualna (light/dark, focus, compact, zachowanie trasy w GUI) wymaga uruchomionej aplikacji i zrzutów ekranu; na tym Macu Computer Use nie ma zgody na nagrywanie ekranu, więc zrzuty nie powstają — to blokada środowiskowa, nie brak implementacji. Widget testy dopiero po akceptacji wyglądu.
+
+Środowisko: API zatrzymane po przebiegu (`pkill -f veloryn-workspaces`); do powtórzenia bramki wystarczy start w kształcie `ASPNETCORE_URLS="https://localhost:5173;http://localhost:5072"`, `DEVPLANNER_OPENIDDICT_ISSUER=https://localhost:5173/` i logowanie `/tmp/login.sh`.
+
+## 2026-09-21 — CHAT-G3 (część 2): katalog lokalnych kont odblokowuje tworzenie rozmowy
+
+Zakres: domknięcie luki backendowej wykrytej w części 1 G3. Powstał addytywny endpoint katalogu lokalnych kont dla czatu globalnego oraz port klienta, więc wybór uczestników nowej rozmowy nie wymaga już workspace ani uprawnień administracyjnych.
+
+Pliki (Backend, nowe): `Contracts/Chat/ChatDirectoryContracts.cs`, `Application/Chat/ChatDirectoryService.cs`, `Tests/Veloryn.Workspaces.Tests/ChatDirectoryServiceTests.cs`. Zmienione: `Application/Directory/LocalUserProfileQuery.cs` (nowa metoda `SearchActiveAsync`), `Endpoints/Chat/ChatEndpoints.cs` (`GET /api/v1/chat/users`, parametry `q` i `limit` z domyślnymi wartościami), `Extensions/WorkspaceServiceExtensions.cs` (DI), `Tests/.../ApiEndpointTests.cs` i `ChatOpenApiContractTests.cs`.
+
+Pliki (Front, nowe): `lib/workspaces/domain/chat/directory/{chat_directory_repository.dart,models/chat_directory_entry.dart}`, `lib/workspaces/data/chat/repositories/chat_directory_repository_impl.dart`. Zmienione: `chat_api.dart`, `chat_models.dart` (+ freezed/g), `chat_api_error_mapper.dart`, `repositories.dart`, `global_chat_composition.dart`, `devplanner_standalone_runtime.dart`, `test/workspaces/data/chat/chat_port_adapters_test.dart`.
+
+Decyzje: katalog jest globalny, bo §4.3 zabrania używania workspace jako warunku globalnego DM; jedyne wcześniejsze źródło kandydatów było zakresowe po workspace. Bezpieczeństwo: fraza od 2 do 80 znaków, limit 1–50 (domyślnie 20), wyłącznie konta aktywne i potwierdzone, własne konto wykluczone, a odpowiedź nie zawiera adresu e-mail (kontrakt to `userId`, `login`, `displayName`, `avatarUrl`). Parametry są wiązane jawnie, żeby OpenAPI pokazywało `q` i `limit` małymi literami z wartościami domyślnymi, tak jak trasy inboxa.
+
+Walidacja (Backend, uruchomione): `dotnet build veloryn-workspaces.csproj --no-restore` — PASS, 0 ostrzeżeń; `dotnet test --filter "FullyQualifiedName~Chat|~Notification|~Directory"` — PASS 288, FAIL 0, SKIP 3 (drugi Redis na `localhost:6380`); testy katalogu dowodzą braku kont nieaktywnych i niepotwierdzonych, braku e-maila w kontrakcie oraz odrzucenia frazy jednoznakowej i limitu powyżej 50.
+
+Walidacja (Front, uruchomione): `dart run build_runner build --delete-conflicting-outputs` — PASS; `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS, 1434 testy; `git diff --check` — PASS. Bramka kontraktu na świeżym OpenAPI: Swagger 463, Flutter 425, brakujące 40 i nadmiarowe 2 bez zmian, **brak luk w trasach Chat** — nowa trasa katalogu jest po obu stronach. Wygenerowany `chat_models.freezed.dart` znowu zawierał linie z trailing whitespace; znormalizowano je po regeneracji.
+
+Następny krok: `creation/chooser`, `creation/participants` i `creation/details` na froncie — typ rozmowy, wybór osób z katalogu, walidacja, duplicate DM przez `POST /conversations/resolve` i otwarcie nowej rozmowy w panelu; testy widgetowe dopiero po akceptacji wyglądu.
+
+## 2026-09-21 — CHAT-G3 (część): lista skrzynki w panelu
+
+Zakres: pierwszy pion G3 — komponenty `inbox/list` i `inbox/search` z cubitem skrzynki zastępują w panelu dotychczasową listę rozmów z kontraktu bazowego. Część tworzenia rozmowy (`creation/chooser`, `creation/participants`, `creation/details`) jest zablokowana brakiem katalogu użytkowników i opisana niżej jako luka backendowa.
+
+Pliki (Front, nowe): `lib/workspaces/presentation/chat/inbox/cubit/{chat_inbox_cubit,chat_inbox_state}.dart`, `lib/workspaces/presentation/chat/inbox/components/{chat_inbox_list,chat_inbox_row}.dart`, `lib/workspaces/data/chat/models/chat_conversation_mapper.dart`, `test/workspaces/presentation/chat/inbox/chat_inbox_cubit_test.dart`.
+
+Pliki (Front, zmienione): `chat_drawer.dart`, `chat_panel_conversation.dart`, `chat_panel_conversation_parts.dart`, `shell/cubit/chat_panel_selection_cubit.dart`, `chat_repository_impl.dart`, `chat_inbox_repository_impl.dart`, `chat_conversation_management_repository_impl.dart`, `lib/l10n/app_pl.arb`, `lib/l10n/app_en.arb` (+ regenerowane `app_localizations*`).
+
+Decyzje: kubit skrzynki ma jedną odpowiedzialność (filtr, kursor, licznik) i nie zna widgetów; fraza filtruje już pobrane pozycje, bo wyszukiwanie wiadomości po serwerze należy do G5 — lokalny filtr nie udaje wyszukiwania po serwerze. Nagłówek panelu pokazuje serwerowy agregat nieprzeczytanych, a nie sumę widocznych pozycji. Wybór rozmowy przeniesiono na model domenowy `ChatConversation`, żeby panel nie zależał od DTO transportu; powstał jeden wspólny mapper DTO→domena używany przez wszystkie adaptery (usunięto trzy duplikaty). Lista z kontraktu bazowego została wyłącznie jako fallback kompozycji bez portu skrzynki; produkcja zawsze ma port. Panele 429/limitów, goldeny i testy widgetowe pozostają odroczone do akceptacji wyglądu, dlatego dodano tylko testy kubita (6).
+
+Walidacja (Front, uruchomione): `flutter gen-l10n` — PASS; `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS, 1432 testy (1426 przed tym pakietem); `git diff --check` — PASS; porównanie OpenAPI z Retrofit — Swagger 462, Flutter 424, bez zmian. Uwaga: `dart format` na ARB przepisał całe pliki, więc je przywrócono i klucze dodano punktowo (po 29 linii na plik); formatowanie ograniczono do jawnej listy plików.
+
+Luka backendowa blokująca G3 (tworzenie rozmowy): nie istnieje endpoint katalogu lokalnych kont dla czatu globalnego. Jedyne źródło kandydatów to `GET /api/v1/workspaces/{workspaceId}/users/search`, a §4.3 planu zabrania używania workspace jako warunku rozpoczęcia globalnego DM; `/api/v1/admin/users` wymaga uprawnienia administracyjnego. Bez addytywnego endpointu (np. `GET /api/v1/chat/users?q=`) nie da się zbudować wyboru uczestników bez naruszenia granicy produktu. Następny krok: dodać ten endpoint w backendzie razem z testami ACL, a potem `creation/*` na froncie.
+
+## 2026-09-21 — CHAT-G2: rozdzielone porty klienta i jedno źródło sesji REST/SignalR
+
+Zakres: domknięcie G2 na froncie — pozostałe porty klienta, transport realtime zgodny z Web BFF (cookie + CSRF), sesyjny właściciel subskrypcji oraz czyszczenie prywatnego stanu po zakończeniu sesji.
+
+Pliki (Front, nowe): `lib/workspaces/domain/chat/management/{chat_conversation_management_repository.dart,models/chat_conversation_create_command.dart}`, `lib/workspaces/domain/chat/members/{chat_members_repository.dart,models/chat_member.dart}`, `lib/workspaces/domain/chat/search/{chat_search_repository.dart,models/chat_search_models.dart}`, `lib/workspaces/domain/chat/presence/{chat_presence_repository.dart,models/chat_user_status.dart}`, `lib/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart`, `lib/workspaces/data/chat/repositories/{chat_conversation_management,chat_members,chat_message_actions,chat_search,chat_presence}_repository_impl.dart`, `lib/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart`, testy: `chat_port_adapters_test.dart`, `workspace_realtime_credentials_test.dart`, `workspace_chat_realtime_factory_test.dart`, `secure_chat_draft_repository_test.dart`.
+
+Pliki (Front, zmienione): `chat_message_actions_repository.dart` (+ `forward`, `pins`, `bookmarks`, `reactions`), `chat_message_revision.dart` (pola `authorUserId`/`editedByUserId` zamiast dawnych nazw Core), `chat_draft_repository.dart` (+ `deleteAllForUser`), `secure_chat_draft_repository.dart`, `workspace_signalr_client.dart`, `workspace_chat_realtime_service.dart`, `storage_realtime_composition.dart`, `workspace_scoped_realtime_service.dart`, `chat_drawer.dart`, `chat_panel_conversation.dart`, `chat_conversation_page.dart`, `chat_realtime_status_cubit.dart`, `global_chat_composition.dart`, `devplanner_standalone_runtime.dart`, `chat_realtime_event_mapper.dart`.
+
+Decyzje: każdy obszar ma osobny port i adapter, więc panel nie dostaje jednego wielkiego repozytorium; modele domenowe nie zawierają pól transportu. Port `presence` obejmuje REST-owy status własny i cudzy, bo lease obecności i typing są wywołaniami huba i należą do portu subskrypcji rozmowy. Poświadczenia realtime pochodzą z tego samego transportu co REST: desktop z access tokenu PKCE, a Web z cookie BFF i nagłówka `X-DevPlanner-CSRF` przy negotiate — kod Flutter Web nadal nie czyta tokenu. Zamiast po jednym transporcie na każdy rebuild widoku jest sesyjny właściciel subskrypcji: ta sama rozmowa dostaje tę samą subskrypcję, połączenie zamyka się po ostatniej dzierżawie, a `closeAll` po zakończeniu sesji; kolejka wysyłki i historia żyją w Cubitach panelu, więc trwałym stanem prywatnym do usunięcia przy wylogowaniu są szkice w secure storage (`deleteAllForUser`). Envelope z nowszą wersją kontraktu jest mapowany na `unsupported`, co reduktor zamienia na pełny resync, zamiast stosować zdarzenie po staremu.
+
+Walidacja (Front, uruchomione): `dart run build_runner build --delete-conflicting-outputs` — PASS; `flutter gen-l10n` — PASS; `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS, 1426 testów (1396 przed tym pakietem, +30 nowych: 13 adapterów portów, 7 poświadczeń, 5 właściciela subskrypcji, 3 magazynu szkiców, 2 wersji kontraktu); `git diff --check` — PASS; `python3 tool/verify_workspaces_contracts.py /tmp/swagger2.json` — Swagger 462, Flutter 424, brakujące 40 i nadmiarowe 2 bez zmian (wszystkie poza Chat). Uwaga warsztatowa: `dart format` przepisał niezwiązany `storage_realtime_client_adapter.dart`; plik przywrócono do HEAD, a pozostałe pliki formatowano z jawnej listy.
+
+Ograniczenia i NOT RUN: ścieżka Web SignalR jest pokryta testami wyboru poświadczeń i nagłówków negotiate, ale nie została jeszcze zweryfikowana na działającym backendzie z prawdziwą przeglądarką — to zadanie G8 (dwie sesje), gdzie trzeba potwierdzić, że handshake z cookie faktycznie się autoryzuje. Nie ma też testu samego `DevPlannerStandaloneRuntime` (brak infrastruktury testowej dla runtime'u), a `flutter build macos`, GUI i staging pozostają NOT RUN.
+
+Następny krok: G3 — zastąpić listę w `chat_drawer.dart` komponentami `inbox/list`, `inbox/search`, `creation/chooser`, `creation/participants`, `creation/details` na nowych portach i pokazać działającą demonstrację na dwóch sesjach.
+
+## 2026-09-21 — CHAT-G2 (część): port ustawień powiadomień w hoście paneli
+
+Zakres: domknięcie realnej dziury kompozycji wykrytej w audycie G0 — `ChatNotificationSettingsRepositoryImpl` istniał, ale żaden composition root go nie tworzył, więc oba modale ustawień powiadomień Chat (`chat_conversation_notification_settings_modal.dart`, `notifications/preferences/notification_preferences_modal.dart`) sięgały po nieistniejący provider i kończyły się `ProviderNotFoundException` w działającej aplikacji.
+
+Pliki (Front): `lib/app/shell/overlays/devplanner_global_panels_host.dart`, `lib/workspaces/presentation/chat/global_chat_composition.dart`, `lib/workspaces/data/standalone/devplanner_standalone_runtime.dart`, `test/app/shell/overlays/global_panels_host_providers_test.dart`.
+
+Decyzje: port trafia do `DevPlannerGlobalChatComposition` i jest montowany w hoście nad `DevPlannerPanelsScope`, a nie w poddrzewie panelu, bo modale ustawień są rootowe i czytają port z kontekstu wywołującego. Przy braku kompozycji host celowo nie udostępnia portu, żeby brak adaptera nie zamienił się w cichą atrapę. To pierwszy test hosta paneli w repo (dotąd nie miał żadnego).
+
+Walidacja (Front): `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS, 1396 testów (2 nowe hosta); `git diff --check` — PASS. Bramka kontraktu bez zmian: Swagger 462, Flutter 424, brakujące 40 (poza Chat), nadmiarowe 2. NOT RUN: GUI i staging.
+
+Następny krok: pozostałe porty G2 (`conversation-management`, `message-actions`, `members`, `search`, `presence`), transport SignalR dla Web BFF (cookie/CSRF), session-scoped właściciel subskrypcji i czyszczenie prywatnego stanu po logout/401/revoke; potem G3.
+
+## 2026-09-21 — CHAT-G2 (część): port skrzynki w kliencie
+
+Zakres: pierwszy pion G2 na froncie — rozdzielony port `inbox` z adapterem, kontrakt DTO skrzynki i domknięcie luki kontraktowej z G0 (dwie brakujące trasy Retrofit). Pozostałe porty G2, transport SignalR dla Web BFF, lifecycle sesji i utwardzenie reducera pozostają otwarte.
+
+Pliki (Front): `lib/workspaces/domain/chat/inbox/chat_inbox_repository.dart`, `lib/workspaces/domain/chat/inbox/models/{chat_inbox_filter,chat_inbox_item,chat_inbox_message_preview,chat_inbox_page,chat_inbox_participant,chat_inbox_unread_count,chat_inbox_export}.dart`, `lib/workspaces/data/chat/repositories/chat_inbox_repository_impl.dart`, `lib/workspaces/data/chat/api/chat_api.dart` (+ regenerowany `.g.dart`), `lib/workspaces/data/chat/models/chat_models.dart` (+ freezed/g), `lib/workspaces/data/chat/errors/chat_api_error_mapper.dart`, `lib/workspaces/data/chat/repositories/repositories.dart`, `lib/workspaces/presentation/chat/global_chat_composition.dart`, `lib/workspaces/data/standalone/devplanner_standalone_runtime.dart`, `test/workspaces/data/chat/chat_inbox_repository_impl_test.dart`.
+
+Decyzje: `inbox` jest osobnym portem, bo skrzynka ma własny kontrakt (serwerowy licznik, kursory, znacznik odczytu) i nie może wymagać pobrania historii do policzenia badge. `markRead` należy do portu skrzynki, bo zmienia serwerowy licznik; UI nie oznacza odczytu przy samym pobraniu historii. Modele domenowe nie zawierają identyfikatorów transportu i mają własne etykiety prezentacji (`displayName`, `label`) z bezpiecznym fallbackiem do `userId`, gdy profil nie jest widoczny. Filtr jest enumem z wartościami tekstowymi kontraktu, żeby UI nie budowało zapytań.
+
+Walidacja (Front, uruchomione): `dart run build_runner build --delete-conflicting-outputs` — PASS; `flutter gen-l10n` — PASS; `flutter analyze` — PASS, 0 problemów; `flutter test` — PASS, 1394 testy (w tym 9 nowych adaptera skrzynki); `python3 tool/verify_workspaces_contracts.py /tmp/swagger2.json` — Swagger 462, Flutter 424, brakujące 40 (wyłącznie wcześniejsze luki poza Chat), nadmiarowe 2 (wcześniejszy rozjazd `auth/me` i `me/avatar`), brak luk inboxa; `git diff --check` — PASS. Uwaga warsztatowa: generator freezed 3.x odrzuca gołe `@Freezed` (plik używa `@freezed`), a wygenerowany plik zawierał 2 linie z trailing whitespace, które znormalizowano, żeby bramka `git diff --check` była czysta. NOT RUN: buildy platform (`flutter build macos`), GUI, staging, testy widgetowe i goldeny (odroczone do akceptacji wyglądu).
+
+Następny krok: dokończyć G2 — rozdzielić pozostałe porty (`conversation-management`, `message-actions`, `members`, `search`, `presence`, `settings`), doprojektować transport SignalR dla Web BFF (cookie/CSRF) i session-scoped właściciela subskrypcji oraz wyczyścić prywatny cache/draft/queue po logout/401/revoke; następnie G3 zastępuje listę w `chat_drawer.dart` komponentami inboxa.
+
+## 2026-09-21 — CHAT-G0/G1: audyt kontraktu i serwerowa skrzynka Chat
+
+Zakres G0: audyt aktywnego Chat w obu repo względem §3 planu, porównanie wygenerowanego OpenAPI z klientem Retrofit i wypisanie luk. Zakres G1: backendowa skrzynka `GET /api/v1/chat/inbox` i `GET /api/v1/chat/inbox/unread-count` z serwerowym licznikiem nieprzeczytanych, podglądem ostatniej wiadomości, kursorem i ACL. Front nie został w tym pakiecie zmieniony.
+
+Mapa §3 → stan po G0 (gotowe / wymaga podłączenia / backend gap):
+
+| §3 | Stan | Uwaga |
+| --- | --- | --- |
+| Chat z belki w panelu, trasa i formularz zachowane | gotowe | `devplanner_shell_layout.dart`, `devplanner_global_panels_host.dart`, jeden `_activePanel` wymusza wzajemne wykluczanie z Notifications |
+| Szerokość 380–640 px i tryb przypięty | wymaga podłączenia | brak preferencji i pinu; stała 420/448 px w hoście panelu |
+| Nagłówek panelu (licznik, nowa rozmowa, wyszukiwanie, menu, pin) | wymaga podłączenia | zamknięcie i Escape działają; reszta brak |
+| Lista rozmów (avatar, nazwa, ostatnia wiadomość, czas, unread, mute, draft) | backend domknięty w G1, front wymaga podłączenia | `GET /conversations` nie miał unread/preview; `/inbox` je dostarcza |
+| Wejście w rozmowę i powrót bez zmiany trasy | gotowe | `ChatPanelSelectionCubit` |
+| Historia cursorowa bez skakania | wymaga podłączenia | `listConversationMessages` zachowuje kursor, ale `ChatRepositoryImpl.listMessages` gubi `nextCursor` i hardkoduje limit 100 |
+| Composer (Enter/Shift+Enter, reply, emoji, wzmianki, załącznik, upload) | częściowo | klawiatura i szkic gotowe; emoji i wzmianki brak; `attachmentUploadPort` i `filePickerPort` są `null` w produkcji |
+| Stan per wiadomość sending/sent/failed + retry | częściowo | `ChatMessageDeliveryQueue` gotowa domenowo, brak wizualizacji i retry w UI |
+| Tworzenie 1:1/grupa/kanał/ogłoszenia + katalog + duplicate DM | backend gotowy po G1, front wymaga podłączenia | brak UI tworzenia; poprawiono drugi DM tej samej pary |
+| Menu wiadomości i rozmowy z realnym skutkiem | wymaga podłączenia | porty `ChatMessageActions`/`ChatThread`/`ChatDiscussion` zwracają `null` w produkcji |
+| Wyszukiwanie czatu i skok do wiadomości | backend gotowy, front wymaga podłączenia | `/search` i `/search/facets` istnieją, brak wywołań |
+| Unread badge z serwera, read po zobaczeniu | backend gotowy w G1, front wymaga podłączenia | `markRead` nigdy nie było wołane, brak pola unread w kontrakcie |
+| Statusy online/typing z TTL, offline/reconnecting | częściowo | realtime ma `HeartbeatPresence`/`SetTyping`, brak UI i presencji w kliencie |
+| Tokeny wizualne bez domyślnego Materialu | backend gap → G7 | popupy, menu i dialogi czatu wymagają przejścia na tokeny |
+| ARB, skala tekstu, dostępność, brak technicznych ID w panelu | backend gap → G7 | lista pokazuje dziś `scopeKey` i skrót UUID |
+
+Pliki G1 (Backend): `Contracts/Chat/ChatInboxContracts.cs`, `Infrastructure/Chat/ChatInboxReader.cs` (odczyt EF i wspólny predykat `ChatConversationVisibility.VisibleTo`), `Application/Chat/ChatInboxService.cs`, `Application/Chat/ChatInboxFilterParser.cs`, `Application/Chat/ChatConversationMapper.cs`, `Application/Chat/ChatCursor.cs`, `Application/Chat/ChatService.cs`, `Domain/Entities/ChatConversationMember.cs`, `Migrations/20260921135717_AddChatInboxReadMarker.cs`, `Endpoints/Chat/ChatEndpoints.cs`, `Extensions/WorkspaceServiceExtensions.cs`, `Tests/Veloryn.Workspaces.Tests/ChatInboxPostgresTests.cs`, `ChatOpenApiContractTests.cs`, `ApiEndpointTests.cs`.
+
+Decyzje G1: wybrano jeden kontrakt — strona snapshotu plus osobny agregat `unread-count`, bez pola agregatu w stronie. Licznik nieprzeczytanych pochodzi wyłącznie z serwerowego, monotonicznego znacznika `LastReadMessageAtUtc` zapisywanego przy odczycie, z podłogą `JoinedAtUtc`; nie używa Notifications ani lokalnego zgadywania. Podgląd używa znormalizowanej treści wyszukiwania (bez sekretów) skróconej do 240 znaków; wiadomość usunięta ma `text = null`. Kolejność jest stabilna: malejący czas ostatniej aktywności, a przy równym czasie UUID rozmowy; czas aktywności to maksimum czasu wiadomości, a dla rozmowy bez wiadomości czas jej utworzenia. Rozmowa Resource wchodzi do skrzynki tylko z aktywnym członkostwem materializowanym przy pierwszym wejściu i jest dodatkowo reautoryzowana u providera (fail-closed). Globalny Direct ma kanoniczny klucz pary, więc etykieta klienta nie tworzy drugiej rozmowy 1:1, a stare klucze nadal trafiają w tę samą rozmowę pary. Odpowiedzi w wątkach liczą się do licznika i do czasu aktywności. Migracja jest addytywna: nowa kolumna plus jednorazowy backfill `LastReadMessageAtUtc` z `LastReadMessageId`; rollback to usunięcie kolumny, bo `LastReadMessageId` pozostaje źródłem.
+
+Walidacja (Backend, uruchomione): `dotnet build veloryn-workspaces.csproj --no-restore` — PASS, 0 ostrzeżeń, 0 błędów. `dotnet test Tests/Veloryn.Workspaces.Tests/Veloryn.Workspaces.Tests.csproj --filter "FullyQualifiedName~Chat|FullyQualifiedName~Notification"` — PASS 272, FAIL 0, SKIP 3; pominięte to `ChatRedisIntegrationTests` (2) i `ChatSignalRTwoHostIntegrationTests` (1), bo wymagają drugiego Redisa na `localhost:6380`, którego lokalnie nie ma — to blokada dla weryfikacji dwóch instancji z G8, nie sukces. Bramka G0: `python3 tool/verify_workspaces_contracts.py /tmp/swagger2.json` w `Front` — Swagger 462 trasy, Flutter 422; 42 brakujące i 2 nadmiarowe. Wśród brakujących są wyłącznie 40 wcześniejszych luk poza Chat (admin/me/auth/BFF/task-list) oraz 2 nowe trasy inboxa, które G2 doda do Retrofit; nadmiarowe `GET /api/v1/auth/me` i `PUT /api/v1/me/avatar` to wcześniejszy rozjazd profilu, poza zakresem Chat. `git diff --check` w obu repo — PASS. Migracja przetestowana na PostgreSQL 5440 w każdym z 9 testów skrzynki (świeża baza + `MigrateAsync`). NOT RUN: pełna suite backendu, frontowe bramki (`flutter analyze`, `flutter test`), buildy platform, GUI, staging — pakiet nie zmienia Frontu.
+
+Następny krok: G2 — rozdzielone porty klienta i lifecycle sesji, w tym dwie metody Retrofit inboxa, transport SignalR dla Web BFF i session-scoped właściciel subskrypcji; potem G3 zastępuje listę w `chat_drawer.dart` komponentami inboxa.
+
+## 2026-09-21 — CHAT-G0: plan i oczyszczenie dokumentacji
+
+Zakres: audyt aktywnego Chat w `Backend` i `Front`; nowy `Backend/docs/global-chat-implementation-plan-2026-09-21.md` określa funkcje, luki, pakiety G0–G9, ścieżki repozytoriów, reguły UI i staging. `Backend/docs/chat-messaging-implementation-plan.md` i `Front/docs/global-shell-chat-notifications-implementation-plan-2026-09-13.md` zastąpiono odsyłaczami; przepisano `Backend/docs/chat-messaging-client-contract.md` i `Backend/docs/chat-signalr-contract.md` na lokalną tożsamość. Zaktualizowano `Backend/README.md`, `Backend/docs/implementation-status.md` i opis tagu Chat w `Backend/Infrastructure/OpenApi/ChatDocumentFilter.cs`.
+
+Decyzje: globalny prawy panel bez osobnej trasy; bieżący backend pozostaje źródłem prawdy, a G1 domyka inbox/unread. Front Web BFF nie udostępnia tokenu dla istniejącego adaptera SignalR i wymaga osobnego, zgodnego z cookie/CSRF rozwiązania. Testy uruchamiane zbiorczo po większych etapach; goldeny i testy widgetowe dopiero po akceptacji wyglądu. Ręczny deploy stagingu jest dopuszczony przez użytkownika, ale wymaga commita dostępnego dla skryptu; agent nie wykonuje commit/push bez polecenia.
+
+Walidacja: audyt kodu i dokumentacji; `git diff --check` w obu repo — PASS; `dotnet build veloryn-workspaces.csproj --no-restore` — PASS, 0 ostrzeżeń i 0 błędów. Testy, aplikacja GUI i staging — NOT RUN, ponieważ ten pakiet zmienia plan i opisy, bez implementacji funkcjonalnej. Następny krok: G0/G1 — potwierdzić OpenAPI, zaprojektować serwerowy inbox i wykonać backendową implementację.
+
+
 ## 2026-09-19 — staging: desktop auth, commit 1c11573
 
 - [x] Wdrożono Backend `1c11573fd37f1d0d42f989e11e26bb8ddcd62439`
@@ -5424,3 +5812,177 @@ found; `flutter build web --wasm` → `✓ Built build/web`; `git diff --check`
 czysty w obu repo. Wpis `KANBAN-ASSIGNEE-BACKEND2` ma
 zaktualizowany akapit o gęstości (backfill wycofany), żeby dokument nie opisywał
 stanu, który już nie istnieje.
+
+## 2026-09-22 — CHAT-F0: blokery i kontrakty komunikatora (front)
+
+Zakres: [plan F0–F6](../../Backend/docs/global-chat-completion-plan-2026-09-22.md),
+pakiet F0; zadania frontowe F0.1 i F0.3.
+
+Zmiany:
+- `lib/app/shell/overlays/devplanner_global_panels_host.dart` — `_buildChatPanel`
+  dostarcza `RepositoryProvider<ChatInboxRepository>` z
+  `composition.inboxRepository`. Gdy portu brakuje, panel zwraca jawny błąd
+  konfiguracji (`devplanner-chat-incomplete-composition`) zamiast bazowej listy
+  rozmów udającej nowy produkt (wcześniej `context.read<ChatInboxRepository?>()`
+  w `chat_drawer.dart` zwracał `null` i włączał `_LegacyConversationList`).
+- `lib/workspaces/domain/chat/management/models/chat_conversation_create_command.dart`
+  — nowe pole `postingPermission` (domyślnie `Everyone`) w `props`.
+- `lib/workspaces/data/chat/repositories/chat_conversation_management_repository_impl.dart`
+  — `createConversation` przekazuje `postingPermission` do
+  `ResolveChatConversationPayload` (wcześniej wybór AdminsOnly ginął).
+- `lib/workspaces/presentation/chat/creation/cubit/chat_creation_cubit.dart` —
+  `submit()` przenosi `state.postingPermission` do polecenia.
+- Testy: nowy przypadek „pokazuje jawny błąd konfiguracji, gdy brakuje portu
+  skrzynki” i fake `_InboxRepository` w teście hosta; asercja `postingPermission`
+  w teście adaptera; nowy test Cubita „wybór AdminsOnly w kanale trafia do
+  polecenia utworzenia”.
+
+Komendy i wyniki:
+`flutter test test/app/shell/overlays/devplanner_global_panels_host_test.dart`
+→ **4/4 PASS**;
+`flutter test test/workspaces/data/chat/chat_port_adapters_test.dart
+test/workspaces/presentation/chat/creation/chat_creation_cubit_test.dart`
+→ **32/32 PASS**.
+
+Ograniczenia: pełnego `flutter test`, goldenów i testów widgetowych nie
+uruchamiano (zgodnie z §10 planu — dopiero po akceptacji wyglądu). F0.6
+(potwierdzenie nagłówka/Nowy czat/wyszukiwania/sekcji w realnym runtime) oraz
+odbiór wizualny pozostają otwarte.
+
+Następny krok: F0.6 w uruchomionej aplikacji oraz pakiet F1 (dodawanie osób,
+profil/status w panelu bez pełnoekranowego modala).
+
+## 2026-09-22 — CHAT-F1/F6 (front): dodawanie osób, profile członków, przypięcie i tapeta
+
+Zakres: [plan F0–F6](../../Backend/docs/global-chat-completion-plan-2026-09-22.md) —
+część F1 (dodawanie osób, profile) oraz geometria F6 wykonana po F0, bo blokowała
+zgłoszenie użytkownika o znikającym przypięciu i kadrze tapety.
+
+Zmiany:
+- `lib/workspaces/presentation/chat/members/chat_add_members_view.dart` (nowy) —
+  lokalny podwidok w arkuszu członków: wyszukiwanie katalogu
+  (`ChatDirectorySearchCubit`), multiselect, chipsy wybranych, licznik wolnych
+  miejsc, oznaczenie istniejących, Dodaj/Anuluj; błąd nie zamyka widoku.
+- `chat_members_sheet.dart` — arkusz ma stan podwidoku, przekazuje
+  `ChatDirectoryRepository`, pokazuje profil (`member.label`) zamiast UUID oraz
+  przycisk „Dodaj osoby” tylko dla Owner/Moderator i nie w rozmowie 1:1.
+- `cubit/chat_members_cubit.dart` — `addMembers(List<String>)`.
+- DTO/model/adapter członka — `login`, `displayName`, `avatarUrl` + `ChatMember.label`.
+- ARB en/pl — 9 kluczy dodawania osób; `flutter gen-l10n` przeszło.
+- **F6** — `ChatPanelScaffold` ma `canPin` niezależne od trybu `compact` (wąski
+  panel na szerokim ekranie nadal się przypina); `ChatPanelSizeController.canPinAt`
+  + `minAppContentWidth = 480`; rezerwacja miejsca przeniesiona z hosta do treści
+  shella przez `DevPlannerPanelsScope.reservedWidth`, więc tapeta pozostaje jedną
+  warstwą pełnego okna i nie zmienia kadru przy pin/unpin; animacje respektują
+  `MediaQuery.disableAnimations`.
+
+Komendy i wyniki:
+`flutter analyze lib test` → No issues found; `dart format` na zmienionych plikach;
+`flutter test` jawnych ścieżek: `chat_panel_size_test.dart` **4/4**,
+`g5_search_and_members_test.dart` + `chat_port_adapters_test.dart` **27/27**,
+`test/app/shell/overlays/` + `test/workspaces/presentation/chat/shell/` **27/27**;
+`flutter build web --wasm` uruchomiony (wynik w kolejnym wpisie, jeśli różny).
+
+Ograniczenia: pełnego `flutter test`, goldenów i testów widgetowych nie uruchamiano
+zgodnie z §10 planu. Bez odbioru wizualnego: scenariusze 1280×720, 1440×900, wąskie
+okno, 100–150% tekstu, pin→resize→unpin oraz punkt kadru tapety pozostają do
+potwierdzenia na uruchomionej aplikacji. Popover statusu (F1) wymaga prymitywu
+popovera, którego host jeszcze nie ma.
+
+### Uzupełnienie CHAT-F1/F6 (2026-09-22) — bramki frontu
+
+`flutter build web --wasm` → `✓ Built build/web` (exit 0). Uruchomione jawnie:
+`flutter analyze lib test` → No issues found; `dart format` na zmienionych plikach
+bez zmian; testy domenowe/Cubita/repository/panelu: `chat_panel_size_test.dart` 4/4,
+`g5_search_and_members_test.dart` + `chat_port_adapters_test.dart` 27/27,
+`test/app/shell/overlays/` + `test/workspaces/presentation/chat/shell/` 27/27;
+`git diff --check` czysty. Backend F2 (reguła pomijania kodu we wzmiankach) opisany
+w handoffie `../Backend`; brak więc pingów z przykładów kodu bez pracy UI.
+
+### Uzupełnienie CHAT-F5 (2026-09-22) — klient okna wiadomości
+
+- `lib/workspaces/data/chat/api/chat_api.dart` — `getMessageWindow(conversationId, messageId, {before, after})`.
+- `lib/workspaces/data/chat/models/chat_models.dart` — DTO `ChatMessageWindowResponse`
+  (anchor, messages, hasMoreBefore/After, beforeCursor); `build_runner` przegenerował
+  `chat_api.g.dart` i `chat_models.freezed.dart`.
+- `test/workspaces/data/chat/global_chat_contract_test.dart` — test parsowania okna.
+
+Bramki: `flutter analyze lib test` → No issues found; `flutter test
+test/workspaces/data/chat/global_chat_contract_test.dart` → 3/3 PASS;
+`git diff --check` czysty. UI skoku do starej wiadomości pozostaje otwarte (F5).
+
+### Uzupełnienie CHAT-F1 (2026-09-22) — popover statusu bez pełnoekranowego modala
+
+- `lib/workspaces/presentation/chat/presence/chat_status_menu.dart` (nowy) —
+  `ChatStatusMenuButton`: zakotwiczony `MenuAnchor`, który najpierw pobiera
+  bieżący status konta, potem edytuje emoji/tekst/DND/wygaśnięcie (bez / 1 h /
+  24 h) i wystawia Wyczyść/Zapisz. Nie zamyka się przed potwierdzeniem zapisu;
+  błąd zostawia wartości i pokazuje kod. Nagłówek pokazuje nazwę/login i bieżący
+  status (sesja nie niesie `avatarUrl`).
+- `presence/chat_status_label.dart` — `ChatStatusLabel` przeniesiony z usuniętego
+  `chat_status_dialog.dart`; pełnoekranowy `ChatStatusDialog` usunięty.
+- Rail przyjmuje teraz `Widget? profileAction` zamiast callbacku, żeby popover
+  miał własne miejsce w drzewie; nagłówek rozmowy używa tego samego przycisku.
+- ARB en/pl: etykiety wygaśnięcia i błędu pobrania statusu; `flutter gen-l10n` OK.
+
+Bramki: `flutter analyze lib test` → No issues found; `flutter test
+test/workspaces/presentation/chat/shell/` → 28/28 PASS;
+`test/workspaces/presentation/chat/g5_search_and_members_test.dart` → PASS;
+`git diff --check` czysty. Odbiór wizualny popovera pozostaje otwarty.
+
+### Uzupełnienie CHAT-F2 (2026-09-22) — wspólny kontrakt wzmianek (front)
+
+- `lib/workspaces/domain/chat/mentions/chat_mention_codec.dart` (nowy) —
+  `ChatMentionCodec` z `tokenFor` (`@<uuid>`), `labelFor` (nazwa → login → UUID),
+  `renderText` (token → etykieta do prezentacji), `toWireText` (etykiety → tokeny
+  przy wysyłce, więc ręcznie wpisana nazwa bez wyboru osoby nie pinguje) oraz
+  `activeQuery` (wykrycie `@` z frazą, pomija e-maile i spacje). `ChatMentionReference`
+  niesie UUID + etykietę wybranej osoby.
+- `test/workspaces/domain/chat/mentions/chat_mention_codec_test.dart` — 9 testów
+  (token/etykieta, render z nieznanym ID, wykrycie frazy, samo `@`, e-mail i spacja,
+  wysyłka etykiet → tokenów, brak pinga dla ręcznej nazwy, runda render↔wysyłka).
+
+Bramki: `flutter test test/workspaces/domain/chat/mentions/chat_mention_codec_test.dart`
+→ 9/9 PASS; `flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Picker `@` w polu tekstowym (debounce, strzałki/Enter/Escape, brak wyników/offline)
+oraz badge/filtr „Wzmianki o mnie” pozostają otwarte. Serwerowa reguła pomijania
+obszarów kodu jest po stronie `../Backend`.
+
+### Uzupełnienie CHAT-F3 (2026-09-22) — załączniki podłączone w produkcyjnym runtime
+
+- `lib/workspaces/data/standalone/devplanner_standalone_runtime.dart` — runtime
+  przyjmuje `storageRepository` i `attachmentUploadTransport`; `chatComposition`
+  buduje `ChatAttachmentUploadPortAdapter` (sesja Chat + Storage + transport
+  binarny) oraz `FilePickerPortImpl` wyłącznie, gdy istnieje bezpieczna ścieżka
+  uploadu. Jawnie podane porty z konstruktora nadal mają pierwszeństwo.
+- `lib/app/devplanner_app.dart` — przekazuje `widget.storageRepository` i
+  `PresignedUploadTransport()` tylko dla kompozycji desktop PKCE
+  (`!transport.isBffCookieTransport && transport.supportsStandaloneApiClients`).
+  Web/BFF nie dostaje portu uploadu ani pickera, więc panel nie pokazuje akcji
+  bez Bearera — ten sam warunek, którego używa moduł Files.
+
+Bramki: `flutter analyze lib test` → No issues found; `dart format` na zmienionych
+plikach; `flutter build web --wasm` → PASS. Odbiór wizualny paska załączników,
+progresu/retry, wklejania i drag/drop oraz renderu multimediów w historii pozostaje
+otwarty (F3 UI), podobnie jak forward mediów.
+
+### Uzupełnienie CHAT-F4 (2026-09-22) — spójny renderer historii (delta Quill)
+
+- `lib/workspaces/domain/chat/rich_text/chat_rich_text_codec.dart` (nowy) —
+  `ChatRichTextCodec.tryParse(deltaJson)` zamienia deltę Quill na bloki (akapit,
+  listy punktowana/numerowana, cytat, blok kodu z językiem) i spany inline
+  (bold/italic/underline/strike/code, bezpieczny link HTTP/HTTPS albo ścieżka
+  aplikacji). Nieczytelna delta → `null` (UI pokazuje tekst zapasowy), osadzony
+  obiekt → znacznik „nieobsługiwana treść” bez psucia reszty.
+- `lib/workspaces/presentation/chat/rich_text/chat_rich_text_body.dart` (nowy) —
+  renderer historii: monospace, poziomy scroll, kopiowanie i zwijanie bloku
+  dłuższego niż 12 linii; zero wykonywania HTML/skryptów. Wpięty w
+  `chat_conversation_message_list.dart` i `chat_panel_conversation_parts.dart`.
+- ARB en/pl: „Kopiuj kod”, „Skopiowano”, „Pokaż całość”, „Zwiń”,
+  „[nieobsługiwana treść]”; `flutter gen-l10n` OK.
+
+Bramki: `flutter test test/workspaces/domain/chat/rich_text/chat_rich_text_codec_test.dart`
+→ 6/6 PASS; `flutter test test/workspaces/presentation/chat/shell/` → 22/22 PASS;
+`flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Pozostaje: toolbar Quill i tryb „Formatowanie/Rozwiń edytor”, „Wstaw kod”,
+snippet z długiego wklejenia i atomowość dołączania snippetu (F4 UI).

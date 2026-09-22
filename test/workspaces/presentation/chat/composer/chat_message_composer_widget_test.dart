@@ -476,6 +476,9 @@ final class _MemoryDraftRepository implements ChatDraftRepository {
     required String conversationId,
     required ChatComposerDraft draft,
   }) async => value = draft;
+
+  @override
+  Future<void> deleteAllForUser({required String userId}) async {}
 }
 
 final class _NoopDraftRepository implements ChatDraftRepository {
@@ -495,4 +498,7 @@ final class _NoopDraftRepository implements ChatDraftRepository {
     required String conversationId,
     required ChatComposerDraft draft,
   }) async {}
+
+  @override
+  Future<void> deleteAllForUser({required String userId}) async {}
 }

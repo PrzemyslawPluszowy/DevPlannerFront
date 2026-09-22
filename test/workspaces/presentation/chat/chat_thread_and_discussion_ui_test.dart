@@ -4,6 +4,7 @@ import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
@@ -277,7 +278,9 @@ abstract final class _ChatFixture {
       RepositoryProvider<WorkspaceChatRealtimeFactory>.value(
         value: WorkspaceChatRealtimeFactory(
           baseUrl: 'http://127.0.0.1:1',
-          accessTokenProvider: () async => null,
+          credentials: WorkspaceRealtimeCredentials.bearer(
+            () async => null,
+          ),
         ),
       ),
     ],
@@ -381,6 +384,17 @@ final class _ConversationRepository implements ChatConversationRepository {
     sent.add(command);
     return Right(_message('sent'));
   }
+
+  @override
+  Future<Either<ApiError, void>> markMessageDelivered({
+    required String messageId,
+  }) async => const Right(null);
+
+  @override
+  Future<Either<ApiError, void>> markConversationRead({
+    required String conversationId,
+    required String messageId,
+  }) async => const Right(null);
 }
 
 final class _DiscussionRepository implements ChatDiscussionRepository {
@@ -423,6 +437,61 @@ final class _MessageActionsRepository implements ChatMessageActionsRepository {
   Future<Either<ApiError, List<ChatMessageRevision>>> listRevisions(
     String messageId,
   ) async => const Right(<ChatMessageRevision>[]);
+
+  @override
+  Future<Either<ApiError, ChatMessage>> forwardMessage({
+    required String messageId,
+    required String targetConversationId,
+    required String clientMessageId,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChatPinnedMessage>> pinMessage({
+    required String conversationId,
+    required String messageId,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, void>> unpinMessage({
+    required String conversationId,
+    required String messageId,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, List<ChatPinnedMessage>>> listPins(
+    String conversationId,
+  ) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChatBookmark>> bookmarkMessage({
+    required String messageId,
+    String? note,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, void>> removeBookmark(String messageId) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, List<ChatBookmark>>> listBookmarks() async =>
+      throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChatMessageReaction>> addReaction({
+    required String messageId,
+    required String emoji,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, void>> removeReaction({
+    required String messageId,
+    required String emoji,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, List<ChatMessageReaction>>> listReactions(
+    String messageId,
+  ) async => throw UnimplementedError();
 }
 
 final class _AttachmentUploadPort implements ChatAttachmentUploadPort {
@@ -492,4 +561,7 @@ final class _DraftRepository implements ChatDraftRepository {
     deletedKeys.add(key);
     values.remove(key);
   }
+
+  @override
+  Future<void> deleteAllForUser({required String userId}) async {}
 }

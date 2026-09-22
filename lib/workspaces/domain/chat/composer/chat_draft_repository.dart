@@ -17,4 +17,10 @@ abstract interface class ChatDraftRepository {
     required String userId,
     required String conversationId,
   });
+
+  /// Usuwa wszystkie prywatne szkice użytkownika po zakończeniu sesji.
+  ///
+  /// Wywoływane przy wylogowaniu i unieważnieniu dostępu, żeby kolejna sesja
+  /// nie odziedziczyła treści ani załączników poprzedniego użytkownika.
+  Future<void> deleteAllForUser({required String userId});
 }

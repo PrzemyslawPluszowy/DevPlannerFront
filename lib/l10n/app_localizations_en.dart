@@ -10015,10 +10015,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatMessageActionsOpen => 'Message actions';
 
   @override
-  String get chatMessageEdit => 'Edit message';
+  String get chatMessageEdit => 'Edit';
 
   @override
-  String get chatMessageDelete => 'Delete message';
+  String get chatMessageDelete => 'Delete';
 
   @override
   String get chatMessageRevisions => 'Edit history';
@@ -10542,4 +10542,547 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageOfficeCloseWaitForSave => 'Wait';
+
+  @override
+  String get chatInboxTitle => 'Messages';
+
+  @override
+  String get chatInboxSearchHint => 'Search conversations';
+
+  @override
+  String get chatInboxSearchClear => 'Clear search';
+
+  @override
+  String get chatInboxFilterAll => 'All';
+
+  @override
+  String get chatInboxFilterUnread => 'Unread';
+
+  @override
+  String get chatInboxFilterDirect => 'Direct';
+
+  @override
+  String get chatInboxFilterGroups => 'Groups';
+
+  @override
+  String get chatInboxFilterChannels => 'Channels';
+
+  @override
+  String get chatInboxFilterArchived => 'Archived';
+
+  @override
+  String get chatInboxNoResultsTitle => 'No conversations in this view';
+
+  @override
+  String get chatInboxNoResultsMessage =>
+      'Change the filter or clear the search.';
+
+  @override
+  String chatInboxDraftPreview(String text) {
+    return 'Draft: $text';
+  }
+
+  @override
+  String get chatInboxAttachmentPreview => 'Attachment';
+
+  @override
+  String chatInboxUnreadSemantics(int count) {
+    return '$count unread messages';
+  }
+
+  @override
+  String get chatInboxMutedSemantics => 'Conversation muted';
+
+  @override
+  String get chatInboxTimeNow => 'now';
+
+  @override
+  String chatInboxTimeMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String chatInboxTimeHours(int count) {
+    return '$count h';
+  }
+
+  @override
+  String chatInboxTimeDays(int count) {
+    return '$count d';
+  }
+
+  @override
+  String get chatInboxLoadMoreFailed => 'Could not load more conversations';
+
+  @override
+  String get chatInboxRetry => 'Try again';
+
+  @override
+  String get chatInboxLoadMore => 'Load more';
+
+  @override
+  String get chatCreationTitle => 'New conversation';
+
+  @override
+  String get chatCreationStepChooser => 'Choose the conversation type';
+
+  @override
+  String get chatCreationStepParticipants => 'Choose people';
+
+  @override
+  String get chatCreationStepDetails => 'Conversation details';
+
+  @override
+  String get chatCreationKindDirect => 'Direct message';
+
+  @override
+  String get chatCreationKindDirectHint => 'A conversation with one person.';
+
+  @override
+  String get chatCreationKindGroup => 'Group';
+
+  @override
+  String get chatCreationKindGroupHint => 'Between two and fifty people.';
+
+  @override
+  String get chatCreationKindChannel => 'Channel';
+
+  @override
+  String get chatCreationKindChannelHint =>
+      'A channel where permitted members post.';
+
+  @override
+  String get chatCreationKindBroadcast => 'Announcements';
+
+  @override
+  String get chatCreationKindBroadcastHint =>
+      'Only the owner and moderators can post.';
+
+  @override
+  String get chatCreationSearchHint => 'Search people by login or name';
+
+  @override
+  String get chatCreationSearchTooShort => 'Type at least two characters.';
+
+  @override
+  String get chatCreationSearchEmpty => 'No people match this phrase.';
+
+  @override
+  String get chatCreationSelectedTitle => 'Selected people';
+
+  @override
+  String get chatCreationSelectedNone => 'No people selected yet.';
+
+  @override
+  String get chatCreationRemoveParticipant => 'Remove person';
+
+  @override
+  String get chatCreationExistingDirect =>
+      'You already have a conversation with this person';
+
+  @override
+  String get chatCreationNameLabel => 'Conversation name';
+
+  @override
+  String get chatCreationNameHint => 'Name visible to members';
+
+  @override
+  String get chatCreationPostingPermission => 'Who can post';
+
+  @override
+  String get chatCreationPostingEveryone => 'All members';
+
+  @override
+  String get chatCreationPostingAdminsOnly => 'Only the owner and moderators';
+
+  @override
+  String get chatCreationNext => 'Next';
+
+  @override
+  String get chatCreationBack => 'Back';
+
+  @override
+  String get chatCreationSubmit => 'Create conversation';
+
+  @override
+  String get chatCreationCancel => 'Cancel';
+
+  @override
+  String get chatCreationExistingReused =>
+      'Opening the existing conversation with this person.';
+
+  @override
+  String get chatCreationFailureTitle => 'Could not create the conversation';
+
+  @override
+  String get chatCreationRetry => 'Try again';
+
+  @override
+  String get chatCreationValidationNameRequired =>
+      'Provide the conversation name.';
+
+  @override
+  String get chatCreationValidationNameTooLong =>
+      'The conversation name can have at most 240 characters.';
+
+  @override
+  String get chatCreationValidationDirectOne =>
+      'A direct message requires exactly one person.';
+
+  @override
+  String get chatCreationValidationGroupRequired =>
+      'Select at least one person.';
+
+  @override
+  String get chatCreationValidationGroupTooMany =>
+      'A group can have at most fifty people.';
+
+  @override
+  String get chatCreationNewAction => 'New conversation';
+
+  @override
+  String get chatMessageActionsTooltip => 'Message actions';
+
+  @override
+  String get chatMessageReact => 'Add reaction';
+
+  @override
+  String get chatMessageForward => 'Forward';
+
+  @override
+  String get chatMessagePin => 'Pin';
+
+  @override
+  String get chatMessageUnpin => 'Unpin';
+
+  @override
+  String get chatMessageBookmark => 'Save to bookmarks';
+
+  @override
+  String get chatMessageRemoveBookmark => 'Remove from bookmarks';
+
+  @override
+  String get chatMessageForwardTitle => 'Forward message';
+
+  @override
+  String get chatMessageForwardEmpty => 'No other conversations to forward to.';
+
+  @override
+  String get chatMessageEditSave => 'Save';
+
+  @override
+  String get chatMessageDeleteConfirmTitle => 'Delete this message?';
+
+  @override
+  String get chatMessageDeleteConfirmBody =>
+      'The message will disappear for every member of the conversation.';
+
+  @override
+  String get chatMessageDeleteConfirm => 'Delete message';
+
+  @override
+  String get chatMessageReactionsEmpty => 'No reactions';
+
+  @override
+  String chatMembersTitle(String name) {
+    return 'Conversation members $name';
+  }
+
+  @override
+  String get chatMembersFallbackName => 'Conversation';
+
+  @override
+  String get chatMembersLoadFailureTitle => 'Could not load members';
+
+  @override
+  String get chatMembersYou => 'you';
+
+  @override
+  String get chatMembersActions => 'Member actions';
+
+  @override
+  String get chatMembersRemove => 'Remove from conversation';
+
+  @override
+  String get chatMembersLeave => 'Leave conversation';
+
+  @override
+  String get chatMembersAdd => 'Add people';
+
+  @override
+  String get chatMembersAddSearchHint => 'Search by name or login';
+
+  @override
+  String get chatMembersAddEmpty => 'No matching accounts';
+
+  @override
+  String get chatMembersAddExisting => 'Already in conversation';
+
+  @override
+  String get chatMembersAddSelected => 'Selected';
+
+  @override
+  String chatMembersAddFreeSlots(int count) {
+    return '$count free';
+  }
+
+  @override
+  String get chatMembersAddCapacityFull => 'The group is full';
+
+  @override
+  String get chatMembersAddConfirm => 'Add';
+
+  @override
+  String get chatMembersAddCancel => 'Cancel';
+
+  @override
+  String get chatMemberRoleOwner => 'Owner';
+
+  @override
+  String get chatMemberRoleModerator => 'Moderator';
+
+  @override
+  String get chatMemberRoleMember => 'Member';
+
+  @override
+  String get chatMemberRoleObserver => 'Read only';
+
+  @override
+  String get chatSearchHint => 'Search messages';
+
+  @override
+  String get chatSearchClose => 'Close search';
+
+  @override
+  String get chatSearchPromptTitle => 'Search messages';
+
+  @override
+  String get chatSearchPromptMessage =>
+      'Type a phrase to search the conversations you can access.';
+
+  @override
+  String chatSearchTooShort(int count) {
+    return 'Type at least $count characters';
+  }
+
+  @override
+  String chatSearchTooShortMessage(int count) {
+    return 'The phrase must have at least $count characters.';
+  }
+
+  @override
+  String get chatSearchFailureTitle => 'Search failed';
+
+  @override
+  String get chatSearchRateLimitedTitle => 'Too many requests';
+
+  @override
+  String get chatSearchEmptyTitle => 'No results';
+
+  @override
+  String get chatSearchEmptyMessage => 'No messages match this phrase.';
+
+  @override
+  String get chatSearchOpen => 'Search messages';
+
+  @override
+  String get chatPinnedTitle => 'Pinned messages';
+
+  @override
+  String get chatPinnedEmpty => 'No pinned messages.';
+
+  @override
+  String chatPinnedAt(String at) {
+    return 'Pinned: $at';
+  }
+
+  @override
+  String get chatPinnedOpen => 'Show pinned';
+
+  @override
+  String get chatBookmarksTitle => 'Saved messages';
+
+  @override
+  String get chatBookmarksEmpty => 'No saved messages.';
+
+  @override
+  String get chatBookmarksOpen => 'Show saved';
+
+  @override
+  String get chatMuteMute => 'Mute conversation';
+
+  @override
+  String get chatMuteUnmute => 'Unmute conversation';
+
+  @override
+  String get chatStatusTitle => 'Your status';
+
+  @override
+  String get chatStatusEmoji => 'Emoji';
+
+  @override
+  String get chatStatusText => 'Status';
+
+  @override
+  String get chatStatusDnd => 'Do not disturb';
+
+  @override
+  String get chatStatusSave => 'Save status';
+
+  @override
+  String get chatStatusClear => 'Clear status';
+
+  @override
+  String get chatStatusOpen => 'Set status';
+
+  @override
+  String get chatStatusPeerView => 'Peer status';
+
+  @override
+  String get chatStatusExpiry => 'Expiry';
+
+  @override
+  String get chatStatusExpiryNone => 'No expiry';
+
+  @override
+  String get chatStatusExpiryHour => 'In 1 hour';
+
+  @override
+  String get chatStatusExpiryDay => 'In 24 hours';
+
+  @override
+  String get chatStatusLoadFailure => 'Could not load the status';
+
+  @override
+  String get chatRichTextCopy => 'Copy code';
+
+  @override
+  String get chatRichTextCopied => 'Copied';
+
+  @override
+  String get chatRichTextShowMore => 'Show all';
+
+  @override
+  String get chatRichTextShowLess => 'Collapse';
+
+  @override
+  String get chatRichTextUnsupported => '[unsupported content]';
+
+  @override
+  String get chatTypingIndicator => 'typing…';
+
+  @override
+  String get chatArchiveAction => 'Archive conversation';
+
+  @override
+  String get chatRestoreAction => 'Restore conversation';
+
+  @override
+  String get chatArchiveConfirmTitle => 'Archive this conversation?';
+
+  @override
+  String get chatArchiveConfirmBody =>
+      'The conversation will leave the list and move to the archive.';
+
+  @override
+  String get chatArchiveFailure => 'Could not change the archive state.';
+
+  @override
+  String get chatPanelSectionChats => 'Chats';
+
+  @override
+  String get chatPanelSectionFiles => 'Files';
+
+  @override
+  String get chatPanelSectionTasks => 'Tasks / Kanban';
+
+  @override
+  String get chatPanelSectionSaved => 'Saved';
+
+  @override
+  String get chatPanelSectionProfile => 'Profile';
+
+  @override
+  String get chatPanelSectionSettings => 'Settings';
+
+  @override
+  String get chatPanelGlobalSettingsTitle => 'Messenger settings';
+
+  @override
+  String get chatPanelSelectConversationTitle => 'Select a conversation';
+
+  @override
+  String get chatPanelSelectConversationMessage =>
+      'Pick a conversation from the list to see its history and write a message.';
+
+  @override
+  String get chatPanelListUnavailable =>
+      'The conversation list is unavailable in this composition.';
+
+  @override
+  String get chatPanelResizeHandle => 'Resize the panel';
+
+  @override
+  String get chatPanelPinAction => 'Pin the panel width';
+
+  @override
+  String get chatPanelUnpinAction => 'Unpin the panel';
+
+  @override
+  String get chatInboxDraftLabel => 'Draft';
+
+  @override
+  String get chatComposeTitle => 'New chat';
+
+  @override
+  String get chatComposeNewGroup => 'New group';
+
+  @override
+  String get chatComposeNewChannel => 'New channel';
+
+  @override
+  String get chatComposeNewBroadcast => 'New announcements';
+
+  @override
+  String get chatComposeRecentTitle => 'Recent contacts';
+
+  @override
+  String get chatComposeSearchPrompt =>
+      'Type at least two characters to find a person.';
+
+  @override
+  String get chatFilesNotConnectedTitle =>
+      'File conversations will appear here';
+
+  @override
+  String get chatFilesNotConnectedMessage =>
+      'This tab will show conversations created on a file once someone adds you or mentions you. The Files integration is not connected yet.';
+
+  @override
+  String get chatTasksNotConnectedTitle =>
+      'Task conversations will appear here';
+
+  @override
+  String get chatTasksNotConnectedMessage =>
+      'This tab will show conversations created on a task once someone adds you or mentions you. The Kanban integration is not connected yet.';
+
+  @override
+  String get chatContextPreviewOpen => 'UI preview';
+
+  @override
+  String get chatContextPreviewLabel => 'UI preview — sample data';
+
+  @override
+  String get chatContextSourceUnavailable => 'Source unavailable';
+
+  @override
+  String get chatSavedUnavailable =>
+      'Saved messages are unavailable in this composition.';
+
+  @override
+  String get chatSavedMessageFallback => 'Saved message';
+
+  @override
+  String get chatInboxEmptyPageMore =>
+      'This page has no conversations available to you, but more pages exist.';
 }

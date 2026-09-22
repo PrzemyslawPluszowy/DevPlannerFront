@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:signalr_netcore/ihub_protocol.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 /// Stan transportu SignalR używany przez właścicieli realtime w module.
@@ -40,14 +42,16 @@ abstract interface class WorkspaceSignalRTransport {
 }
 
 final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
-  WorkspaceSignalRClient(
-    String url,
-    Future<String?> Function() accessTokenProvider,
-  ) : _url = url,
-      _accessTokenProvider = accessTokenProvider;
+  /// Tworzy klienta na poświadczeniach jednej sesji.
+  ///
+  /// Desktop dostaje access token, a Web cookie BFF z nagłówkiem CSRF; klient
+  /// nie zna różnicy poza materiałem handshake'u.
+  WorkspaceSignalRClient(String url, WorkspaceRealtimeCredentials credentials)
+    : _url = url,
+      _credentials = credentials;
 
   final String _url;
-  final Future<String?> Function() _accessTokenProvider;
+  final WorkspaceRealtimeCredentials _credentials;
   final BehaviorSubject<WorkspaceSignalRConnectionState> _states =
       BehaviorSubject.seeded(WorkspaceSignalRConnectionState.disconnected);
   HubConnection? _connection;
@@ -84,28 +88,36 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
       return;
     }
 
-    // Nie pozwalamy SignalR rozpocząć handshake'u bez tokenu. Dzięki temu
-    // wygaśnięta sesja nie tworzy anonimowego połączenia ani pętli reconnect.
-    final initialToken = (await _accessTokenProvider())?.trim() ?? '';
+    // Nie pozwalamy SignalR rozpocząć handshake'u bez poświadczenia sesji.
+    // Dzięki temu wygaśnięta sesja nie tworzy anonimowego połączenia ani pętli
+    // reconnect, a Web nie wysyła negotiate bez nagłówka CSRF.
+    final handshake = await _credentials.resolve();
     if (_disposed || generation != _generation) return;
-    if (initialToken.isEmpty) {
-      throw StateError('Nie można uruchomić SignalR bez aktywnej sesji.');
+    final headers = MessageHeaders();
+    for (final entry in handshake.headers.entries) {
+      headers.setHeaderValue(entry.key, entry.value);
     }
+    final tokenProvider = handshake.accessTokenProvider;
 
     final connection = HubConnectionBuilder()
         .withUrl(
           _url,
           options: HttpConnectionOptions(
-            accessTokenFactory: () async {
-              final token = (await _accessTokenProvider())?.trim() ?? '';
-              if (_disposed || generation != _generation) {
-                throw StateError('Połączenie SignalR zostało anulowane.');
-              }
-              if (token.isEmpty) {
-                throw StateError('Sesja wygasła podczas handshake SignalR.');
-              }
-              return token;
-            },
+            headers: headers,
+            accessTokenFactory: tokenProvider == null
+                ? null
+                : () async {
+                    final token = (await tokenProvider() ?? '').trim();
+                    if (_disposed || generation != _generation) {
+                      throw StateError('Połączenie SignalR zostało anulowane.');
+                    }
+                    if (token.isEmpty) {
+                      throw StateError(
+                        'Sesja wygasła podczas handshake SignalR.',
+                      );
+                    }
+                    return token;
+                  },
           ),
         )
         .withAutomaticReconnect(retryDelays: const [0, 2000, 5000, 10000])

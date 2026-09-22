@@ -114,6 +114,61 @@ final class _MessageActionsRepository implements ChatMessageActionsRepository {
   Future<Either<ApiError, List<ChatMessageRevision>>> listRevisions(
     String messageId,
   ) async => revisionsResult ?? const Right(<ChatMessageRevision>[]);
+
+  @override
+  Future<Either<ApiError, ChatMessage>> forwardMessage({
+    required String messageId,
+    required String targetConversationId,
+    required String clientMessageId,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChatPinnedMessage>> pinMessage({
+    required String conversationId,
+    required String messageId,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, void>> unpinMessage({
+    required String conversationId,
+    required String messageId,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, List<ChatPinnedMessage>>> listPins(
+    String conversationId,
+  ) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChatBookmark>> bookmarkMessage({
+    required String messageId,
+    String? note,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, void>> removeBookmark(String messageId) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, List<ChatBookmark>>> listBookmarks() async =>
+      throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChatMessageReaction>> addReaction({
+    required String messageId,
+    required String emoji,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, void>> removeReaction({
+    required String messageId,
+    required String emoji,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, List<ChatMessageReaction>>> listReactions(
+    String messageId,
+  ) async => throw UnimplementedError();
 }
 
 abstract final class _Fixture {

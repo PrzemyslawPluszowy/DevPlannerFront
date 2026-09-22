@@ -4,6 +4,12 @@ import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 
+/// Wersja kontraktu realtime Chat zrozumiała dla tego klienta.
+///
+/// Envelope z nowszą wersją musi trafić do pełnego resyncu zamiast być
+/// zastosowany po staremu: nieznane pole mogłoby zmienić znaczenie zdarzenia.
+const int workspaceChatRealtimeContractVersion = 1;
+
 /// Dekoduje envelope SignalR Chat do kontraktu domenowego bez przecieku JSON.
 final class ChatRealtimeEventMapper {
   /// Rozwija `payloadJson` live envelope'u do payloadu zdarzenia domenowego.
@@ -21,6 +27,8 @@ final class ChatRealtimeEventMapper {
         'sequence': normalizedEnvelope['sequence'],
       if (normalizedEnvelope['conversationId'] != null)
         'conversationId': normalizedEnvelope['conversationId'],
+      if (normalizedEnvelope['contractVersion'] != null)
+        'contractVersion': normalizedEnvelope['contractVersion'],
     };
   }
 
@@ -33,7 +41,9 @@ final class ChatRealtimeEventMapper {
     final normalizedPayload = _normalizeMap(payload);
     final conversationId = _nonEmptyString(normalizedPayload['conversationId']);
     if (conversationId == null) return null;
-    final kind = _kindFor(method);
+    final kind = _isSupportedContractVersion(normalizedPayload)
+        ? _kindFor(method)
+        : ChatConversationRealtimeEventKind.unsupported;
     final message = switch (kind) {
       ChatConversationRealtimeEventKind.messageCreated ||
       ChatConversationRealtimeEventKind.messageUpdated => _messageFrom(
@@ -50,6 +60,15 @@ final class ChatRealtimeEventMapper {
       message: message,
       messageId: _nonEmptyString(normalizedPayload['messageId']),
       messageVersion: _int(normalizedPayload['version']),
+      typingUserId: kind == ChatConversationRealtimeEventKind.typingChanged
+          ? _nonEmptyString(normalizedPayload['userId'])
+          : null,
+      isTyping: kind == ChatConversationRealtimeEventKind.typingChanged
+          ? normalizedPayload['isTyping'] == true
+          : null,
+      typingExpiresAtUtc: kind == ChatConversationRealtimeEventKind.typingChanged
+          ? _dateTime(normalizedPayload['expiresAtUtc'])
+          : null,
     );
   }
 
@@ -75,6 +94,8 @@ final class ChatRealtimeEventMapper {
             if (raw['sequence'] != null) 'sequence': raw['sequence'],
             if (raw['conversationId'] != null)
               'conversationId': raw['conversationId'],
+            if (raw['contractVersion'] != null)
+              'contractVersion': raw['contractVersion'],
           },
         ));
       }
@@ -90,10 +111,27 @@ final class ChatRealtimeEventMapper {
   String cursorForSequence(int sequence) =>
       base64Url.encode(utf8.encode('$sequence')).replaceAll('=', '');
 
+  /// Parsuje znacznik czasu UTC z payloadu; niepoprawna wartość jest `null`.
+  static DateTime? _dateTime(Object? value) {
+    if (value is! String || value.trim().isEmpty) return null;
+    final parsed = DateTime.tryParse(value);
+    return parsed?.toUtc();
+  }
+
+  /// Czy envelope deklaruje wersję kontraktu, którą ten klient rozumie.
+  ///
+  /// Brak pola oznacza kontrakt bieżący; uznajemy go za zgodny, bo replay i
+  /// starsze envelope'y huba nie muszą go powtarzać w payloadzie.
+  bool _isSupportedContractVersion(Map<String, dynamic> payload) {
+    final version = _int(payload['contractVersion']);
+    return version == null || version == workspaceChatRealtimeContractVersion;
+  }
+
   ChatConversationRealtimeEventKind _kindFor(String method) => switch (method) {
     'chat.message.created' => ChatConversationRealtimeEventKind.messageCreated,
     'chat.message.updated' => ChatConversationRealtimeEventKind.messageUpdated,
     'chat.message.deleted' => ChatConversationRealtimeEventKind.messageDeleted,
+    'chat.typing.changed' => ChatConversationRealtimeEventKind.typingChanged,
     'chat.member.access_revoked' ||
     'chat.member.added' ||
     'chat.member.left' ||

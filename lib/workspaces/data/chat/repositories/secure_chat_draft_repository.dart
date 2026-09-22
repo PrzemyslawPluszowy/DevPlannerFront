@@ -74,6 +74,25 @@ final class SecureChatDraftRepository implements ChatDraftRepository {
     }
   }
 
+  @override
+  Future<void> deleteAllForUser({required String userId}) async {
+    final prefix = _prefix(userId);
+    try {
+      final entries = await _storage.readAll();
+      for (final key in entries.keys.where(
+        (key) => key.startsWith(prefix),
+      )) {
+        await _storage.delete(key: key);
+      }
+    } on Exception {
+      // Brak dostępu do keychaina nie może zablokować wylogowania; wtedy nie ma
+      // też trwałego cache, który należałoby usunąć.
+    }
+  }
+
+  String _prefix(String userId) =>
+      'devplanner.chat_draft.v1.${Uri.encodeComponent(userId)}.';
+
   String _key(String userId, String conversationId) =>
-      'devplanner.chat_draft.v1.${Uri.encodeComponent(userId)}.${Uri.encodeComponent(conversationId)}';
+      '${_prefix(userId)}${Uri.encodeComponent(conversationId)}';
 }

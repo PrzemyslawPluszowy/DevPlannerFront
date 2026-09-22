@@ -7,6 +7,10 @@ enum ChatConversationRealtimeEventKind {
   messageUpdated,
   messageDeleted,
   membershipChanged,
+
+  /// Zmiana stanu pisania innego uczestnika; nie zmienia historii wiadomości.
+  typingChanged,
+
   resyncRequired,
   unsupported,
 }
@@ -23,6 +27,9 @@ final class ChatConversationRealtimeEvent extends Equatable {
     this.message,
     this.messageId,
     this.messageVersion,
+    this.typingUserId,
+    this.isTyping,
+    this.typingExpiresAtUtc,
   });
 
   final String? eventId;
@@ -34,6 +41,15 @@ final class ChatConversationRealtimeEvent extends Equatable {
   final String? messageId;
   final int? messageVersion;
 
+  /// UUID uczestnika, którego dotyczy stan pisania.
+  final String? typingUserId;
+
+  /// Czy uczestnik nadal pisze.
+  final bool? isTyping;
+
+  /// Koniec TTL pisania podany przez serwer albo `null`, gdy pisanie ustało.
+  final DateTime? typingExpiresAtUtc;
+
   @override
   List<Object?> get props => [
     eventId,
@@ -44,5 +60,8 @@ final class ChatConversationRealtimeEvent extends Equatable {
     message,
     messageId,
     messageVersion,
+    typingUserId,
+    isTyping,
+    typingExpiresAtUtc,
   ];
 }

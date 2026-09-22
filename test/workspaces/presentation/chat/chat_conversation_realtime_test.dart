@@ -271,6 +271,17 @@ final class _RealtimeConversationRepository
           const Left(ApiError(type: ApiErrorType.server, message: 'Brak ACK.')),
         );
   }
+
+  @override
+  Future<Either<ApiError, void>> markMessageDelivered({
+    required String messageId,
+  }) async => const Right(null);
+
+  @override
+  Future<Either<ApiError, void>> markConversationRead({
+    required String conversationId,
+    required String messageId,
+  }) async => const Right(null);
 }
 
 /// Dostarcza modele domenowe bez odwzorowywania DTO wygenerowanego API.

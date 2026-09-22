@@ -17,6 +17,16 @@ class DevPlannerPanelsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Ponowne naciśnięcie przycisku w belce chowa panel, więc przycisk działa
+  /// jak przełącznik, a nie jak akcja bez powrotu.
+  void toggleChat() =>
+      activePanel == DevPlannerPanel.chat ? close() : showChat();
+
+  /// Ponowne naciśnięcie przycisku powiadomień chowa panel.
+  void toggleNotifications() => activePanel == DevPlannerPanel.notifications
+      ? close()
+      : showNotifications();
+
   void close() {
     if (_activePanel == null) return;
     _activePanel = null;
@@ -29,6 +39,7 @@ class DevPlannerPanelsScope
   const DevPlannerPanelsScope({
     required DevPlannerPanelsController controller,
     required this.openConversation,
+    this.reservedWidth = 0,
     this.openResourceConversation,
     required super.child,
     super.key,
@@ -37,15 +48,33 @@ class DevPlannerPanelsScope
   final ValueChanged<String> openConversation;
   final ValueChanged<ResourceChatOpenRequest>? openResourceConversation;
 
+  /// Szerokość, którą przypięty panel rezerwuje na treść aplikacji.
+  ///
+  /// Shell odejmuje tę wartość od swojej treści, a nie od całego okna, dzięki
+  /// czemu tapeta pozostaje jedną pełnowymiarową warstwą pod spodem.
+  final double reservedWidth;
+
   static ValueChanged<ResourceChatOpenRequest>? openResourceConversationOf(
     BuildContext context,
   ) => context
       .dependOnInheritedWidgetOfExactType<DevPlannerPanelsScope>()
       ?.openResourceConversation;
 
+  /// Zwraca własną rezerwację miejsca dla przypiętego panelu.
+  static double reservedWidthOf(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<DevPlannerPanelsScope>()
+          ?.reservedWidth ??
+      0;
+
   /// Zwraca ownera panelu globalnego, aby shell mógł go otworzyć bez trasy.
   static DevPlannerPanelsController? controllerOf(BuildContext context) =>
       context
           .dependOnInheritedWidgetOfExactType<DevPlannerPanelsScope>()
           ?.notifier;
+
+  @override
+  bool updateShouldNotify(covariant DevPlannerPanelsScope oldWidget) =>
+      super.updateShouldNotify(oldWidget) ||
+      oldWidget.reservedWidth != reservedWidth;
 }

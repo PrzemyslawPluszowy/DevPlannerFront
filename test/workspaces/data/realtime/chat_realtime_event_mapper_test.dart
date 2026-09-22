@@ -3,6 +3,50 @@ import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('ChatRealtimeEventMapper wersja kontraktu', () {
+    test('event z nowszą wersją kontraktu trafia do resyncu', () {
+      final mapper = ChatRealtimeEventMapper();
+      final normalized = mapper.normalizeLiveEnvelope(<String, dynamic>{
+        'EventId': 'event-1',
+        'Sequence': 7,
+        'ContractVersion': workspaceChatRealtimeContractVersion + 1,
+        'PayloadJson':
+            '{"conversationId":"conversation-1","messageId":"message-1"}',
+      });
+
+      final event = mapper.map(
+        method: 'chat.message.deleted',
+        payload: normalized!,
+        isReplay: false,
+      );
+
+      expect(
+        event!.kind,
+        ChatConversationRealtimeEventKind.unsupported,
+        reason: 'nieznana wersja kontraktu nie może być zastosowana po staremu',
+      );
+      expect(event.sequence, 7, reason: 'deduplikacja musi nadal działać');
+    });
+
+    test('event bez wersji kontraktu jest zgodny wstecznie', () {
+      final mapper = ChatRealtimeEventMapper();
+      final normalized = mapper.normalizeLiveEnvelope(<String, dynamic>{
+        'EventId': 'event-2',
+        'Sequence': 8,
+        'PayloadJson':
+            '{"conversationId":"conversation-1","messageId":"message-1"}',
+      });
+
+      final event = mapper.map(
+        method: 'chat.message.deleted',
+        payload: normalized!,
+        isReplay: false,
+      );
+
+      expect(event!.kind, ChatConversationRealtimeEventKind.messageDeleted);
+    });
+  });
+
   group('ChatRealtimeEventMapper PascalCase backend envelope', () {
     test(
       'normalizuje pełny MessageCreated PayloadJson z ChatRealtimeEventFactory',

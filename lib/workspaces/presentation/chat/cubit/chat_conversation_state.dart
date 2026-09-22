@@ -24,6 +24,8 @@ final class ChatConversationReady extends ChatConversationState {
     this.isLoadingMore = false,
     this.loadError,
     this.realtimeError,
+    this.isJumpingToMessage = false,
+    this.jumpFailureCode,
   });
 
   final ChatConversation conversation;
@@ -33,9 +35,38 @@ final class ChatConversationReady extends ChatConversationState {
   final String? loadError;
   final String? realtimeError;
 
+  /// Czy trwa doładowanie okna wokół wskazanej wiadomości poza bieżącą stroną.
+  final bool isJumpingToMessage;
+
+  /// Kod domenowy nieudanego skoku do wiadomości; UI pokazuje go z ponowieniem.
+  final String? jumpFailureCode;
+
   /// Czy w historii jest przynajmniej jedna oczekująca lokalna próba wysyłki.
   bool get isSending => messages.any(
     (message) => message.deliveryState == ChatMessageDeliveryState.sending,
+  );
+
+  /// Tworzy kopię stanu z nowymi wartościami; `clearJumpFailure` usuwa kod błędu.
+  ChatConversationReady copyWith({
+    List<ChatMessage>? messages,
+    String? nextCursor,
+    bool? isLoadingMore,
+    String? loadError,
+    String? realtimeError,
+    bool? isJumpingToMessage,
+    String? jumpFailureCode,
+    bool clearJumpFailure = false,
+  }) => ChatConversationReady(
+    conversation: conversation,
+    messages: messages ?? this.messages,
+    nextCursor: nextCursor ?? this.nextCursor,
+    isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    loadError: loadError ?? this.loadError,
+    realtimeError: realtimeError ?? this.realtimeError,
+    isJumpingToMessage: isJumpingToMessage ?? this.isJumpingToMessage,
+    jumpFailureCode: clearJumpFailure
+        ? null
+        : jumpFailureCode ?? this.jumpFailureCode,
   );
 }
 

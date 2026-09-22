@@ -5,10 +5,11 @@ import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/foundation/presentation/devplanner_panels.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
-import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_request.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
@@ -123,6 +124,7 @@ void main() {
               repository: _ChatPanelRepository(),
               userId: 'user-1',
               draftRepository: _DraftRepository(),
+              inboxRepository: _InboxRepository(),
             ),
             child: Builder(
               builder: (context) => Column(
@@ -156,6 +158,44 @@ void main() {
 
       expect(find.byIcon(Symbols.open_in_new_rounded), findsNothing);
       expect(find.text('Niezmieniony ekran zadania'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'pokazuje jawny błąd konfiguracji, gdy brakuje portu skrzynki',
+    (tester) async {
+      final navigationRouter = GoRouter(
+        routes: [GoRoute(path: '/', builder: (_, _) => const SizedBox.shrink())],
+      );
+      addTearDown(navigationRouter.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DevPlannerGlobalPanelsHost(
+            navigation: DevPlannerNavigation(navigationRouter),
+            chat: DevPlannerGlobalChatComposition(
+              repository: _ChatPanelRepository(),
+              userId: 'user-1',
+              draftRepository: _DraftRepository(),
+            ),
+            child: Builder(
+              builder: (context) => TextButton(
+                onPressed: DevPlannerPanelsScope.controllerOf(context)!.showChat,
+                child: const Text('Otwórz czat bez skrzynki'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Otwórz czat bez skrzynki'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey('devplanner-chat-incomplete-composition')),
+        findsOneWidget,
+      );
+      // Zastępcza lista bazowa nie może udawać nowego produktu.
+      expect(find.text('Rozmowa projektu'), findsNothing);
     },
   );
 }
@@ -198,6 +238,9 @@ final class _DraftRepository implements ChatDraftRepository {
   }) async => null;
 
   @override
+  Future<void> deleteAllForUser({required String userId}) async {}
+
+  @override
   Future<void> save({
     required String userId,
     required String conversationId,
@@ -206,21 +249,10 @@ final class _DraftRepository implements ChatDraftRepository {
 }
 
 final class _ChatPanelRepository implements ChatRepository {
+  /// Historia i lista bazowa nie są już źródłem kolumny skrzynki.
   @override
   Future<Either<ApiError, List<ChatConversationResponse>>>
-  listConversations() async => Right([
-    ChatConversationResponse(
-      id: 'conversation-1',
-      type: ChatConversationType.channel,
-      scopeKind: ChatScopeKind.project,
-      scopeKey: 'project-1',
-      workspaceId: 'workspace-1',
-      projectId: 'project-1',
-      name: 'Rozmowa projektu',
-      version: 1,
-      createdAtUtc: DateTime.utc(2026),
-    ),
-  ]);
+  listConversations() async => const Right(<ChatConversationResponse>[]);
 
   @override
   Future<Either<ApiError, List<ChatMessageResponse>>> listMessages(
@@ -233,4 +265,55 @@ final class _ChatPanelRepository implements ChatRepository {
     required String clientMessageId,
     required String text,
   }) => throw UnimplementedError();
+}
+
+final class _InboxRepository implements ChatInboxRepository {
+  @override
+  Future<Either<ApiError, ChatInboxPage>> loadInbox({
+    ChatInboxFilter filter = ChatInboxFilter.all,
+    String? cursor,
+    int limit = 30,
+  }) async => Right(
+    ChatInboxPage(
+      hasMore: false,
+      items: [
+        ChatInboxItem(
+          conversation: ChatConversation(
+            id: 'conversation-1',
+            type: 'channel',
+            scopeKind: 'project',
+            scopeKey: 'project-1',
+            workspaceId: 'workspace-1',
+            projectId: 'project-1',
+            name: 'Rozmowa projektu',
+            version: 1,
+            createdAtUtc: DateTime.utc(2026),
+            postingPermission: 'Everyone',
+            isArchived: false,
+          ),
+          lastActivityAtUtc: DateTime.utc(2026),
+          unreadCount: 0,
+          isMuted: false,
+          isDraft: false,
+          participantCount: 1,
+        ),
+      ],
+    ),
+  );
+
+  @override
+  Future<Either<ApiError, ChatInboxUnreadCount>> loadUnreadCount() async =>
+      Right(
+        ChatInboxUnreadCount(
+          totalUnreadCount: 0,
+          unreadConversationCount: 0,
+          generatedAtUtc: DateTime.utc(2026),
+        ),
+      );
+
+  @override
+  Future<Either<ApiError, void>> markRead({
+    required String conversationId,
+    required String messageId,
+  }) async => const Right(null);
 }

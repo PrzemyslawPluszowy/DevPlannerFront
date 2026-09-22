@@ -10104,10 +10104,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatMessageActionsOpen => 'Akcje wiadomości';
 
   @override
-  String get chatMessageEdit => 'Edytuj wiadomość';
+  String get chatMessageEdit => 'Edytuj';
 
   @override
-  String get chatMessageDelete => 'Usuń wiadomość';
+  String get chatMessageDelete => 'Usuń';
 
   @override
   String get chatMessageRevisions => 'Historia edycji';
@@ -10629,4 +10629,544 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageOfficeCloseWaitForSave => 'Poczekaj';
+
+  @override
+  String get chatInboxTitle => 'Wiadomości';
+
+  @override
+  String get chatInboxSearchHint => 'Szukaj rozmów';
+
+  @override
+  String get chatInboxSearchClear => 'Wyczyść wyszukiwanie';
+
+  @override
+  String get chatInboxFilterAll => 'Wszystkie';
+
+  @override
+  String get chatInboxFilterUnread => 'Nieprzeczytane';
+
+  @override
+  String get chatInboxFilterDirect => 'Bezpośrednie';
+
+  @override
+  String get chatInboxFilterGroups => 'Grupy';
+
+  @override
+  String get chatInboxFilterChannels => 'Kanały';
+
+  @override
+  String get chatInboxFilterArchived => 'Archiwum';
+
+  @override
+  String get chatInboxNoResultsTitle => 'Brak rozmów dla tego widoku';
+
+  @override
+  String get chatInboxNoResultsMessage =>
+      'Zmień filtr albo wyczyść wyszukiwanie.';
+
+  @override
+  String chatInboxDraftPreview(String text) {
+    return 'Szkic: $text';
+  }
+
+  @override
+  String get chatInboxAttachmentPreview => 'Załącznik';
+
+  @override
+  String chatInboxUnreadSemantics(int count) {
+    return '$count nieprzeczytanych wiadomości';
+  }
+
+  @override
+  String get chatInboxMutedSemantics => 'Rozmowa wyciszona';
+
+  @override
+  String get chatInboxTimeNow => 'teraz';
+
+  @override
+  String chatInboxTimeMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String chatInboxTimeHours(int count) {
+    return '$count godz.';
+  }
+
+  @override
+  String chatInboxTimeDays(int count) {
+    return '$count dni';
+  }
+
+  @override
+  String get chatInboxLoadMoreFailed => 'Nie udało się pobrać kolejnych rozmów';
+
+  @override
+  String get chatInboxRetry => 'Spróbuj ponownie';
+
+  @override
+  String get chatInboxLoadMore => 'Pobierz więcej';
+
+  @override
+  String get chatCreationTitle => 'Nowa rozmowa';
+
+  @override
+  String get chatCreationStepChooser => 'Wybierz typ rozmowy';
+
+  @override
+  String get chatCreationStepParticipants => 'Wybierz osoby';
+
+  @override
+  String get chatCreationStepDetails => 'Szczegóły rozmowy';
+
+  @override
+  String get chatCreationKindDirect => 'Rozmowa 1:1';
+
+  @override
+  String get chatCreationKindDirectHint => 'Rozmowa z jedną osobą.';
+
+  @override
+  String get chatCreationKindGroup => 'Grupa';
+
+  @override
+  String get chatCreationKindGroupHint => 'Od dwóch do pięćdziesięciu osób.';
+
+  @override
+  String get chatCreationKindChannel => 'Kanał';
+
+  @override
+  String get chatCreationKindChannelHint =>
+      'Kanał, w którym publikują uprawnieni członkowie.';
+
+  @override
+  String get chatCreationKindBroadcast => 'Ogłoszenia';
+
+  @override
+  String get chatCreationKindBroadcastHint =>
+      'Publikować mogą wyłącznie właściciel i moderatorzy.';
+
+  @override
+  String get chatCreationSearchHint => 'Szukaj osób po loginie albo nazwie';
+
+  @override
+  String get chatCreationSearchTooShort => 'Wpisz co najmniej dwa znaki.';
+
+  @override
+  String get chatCreationSearchEmpty => 'Brak osób dla tej frazy.';
+
+  @override
+  String get chatCreationSelectedTitle => 'Wybrane osoby';
+
+  @override
+  String get chatCreationSelectedNone => 'Nie wybrano jeszcze żadnej osoby.';
+
+  @override
+  String get chatCreationRemoveParticipant => 'Usuń osobę';
+
+  @override
+  String get chatCreationExistingDirect => 'Masz już rozmowę z tą osobą';
+
+  @override
+  String get chatCreationNameLabel => 'Nazwa rozmowy';
+
+  @override
+  String get chatCreationNameHint => 'Nazwa widoczna dla członków';
+
+  @override
+  String get chatCreationPostingPermission => 'Kto może publikować';
+
+  @override
+  String get chatCreationPostingEveryone => 'Wszyscy członkowie';
+
+  @override
+  String get chatCreationPostingAdminsOnly => 'Tylko właściciel i moderatorzy';
+
+  @override
+  String get chatCreationNext => 'Dalej';
+
+  @override
+  String get chatCreationBack => 'Wstecz';
+
+  @override
+  String get chatCreationSubmit => 'Utwórz rozmowę';
+
+  @override
+  String get chatCreationCancel => 'Anuluj';
+
+  @override
+  String get chatCreationExistingReused =>
+      'Otwieram istniejącą rozmowę z tą osobą.';
+
+  @override
+  String get chatCreationFailureTitle => 'Nie udało się utworzyć rozmowy';
+
+  @override
+  String get chatCreationRetry => 'Spróbuj ponownie';
+
+  @override
+  String get chatCreationValidationNameRequired => 'Podaj nazwę rozmowy.';
+
+  @override
+  String get chatCreationValidationNameTooLong =>
+      'Nazwa rozmowy może mieć maksymalnie 240 znaków.';
+
+  @override
+  String get chatCreationValidationDirectOne =>
+      'Rozmowa 1:1 wymaga dokładnie jednej osoby.';
+
+  @override
+  String get chatCreationValidationGroupRequired =>
+      'Wybierz co najmniej jedną osobę.';
+
+  @override
+  String get chatCreationValidationGroupTooMany =>
+      'Grupa może mieć maksymalnie pięćdziesiąt osób.';
+
+  @override
+  String get chatCreationNewAction => 'Nowa rozmowa';
+
+  @override
+  String get chatMessageActionsTooltip => 'Akcje wiadomości';
+
+  @override
+  String get chatMessageReact => 'Dodaj reakcję';
+
+  @override
+  String get chatMessageForward => 'Przekaż';
+
+  @override
+  String get chatMessagePin => 'Przypnij';
+
+  @override
+  String get chatMessageUnpin => 'Odepnij';
+
+  @override
+  String get chatMessageBookmark => 'Zapisz w zakładkach';
+
+  @override
+  String get chatMessageRemoveBookmark => 'Usuń z zakładek';
+
+  @override
+  String get chatMessageForwardTitle => 'Przekaż wiadomość';
+
+  @override
+  String get chatMessageForwardEmpty => 'Brak innych rozmów do przekazania.';
+
+  @override
+  String get chatMessageEditSave => 'Zapisz';
+
+  @override
+  String get chatMessageDeleteConfirmTitle => 'Usunąć wiadomość?';
+
+  @override
+  String get chatMessageDeleteConfirmBody =>
+      'Wiadomość zniknie dla wszystkich członków rozmowy.';
+
+  @override
+  String get chatMessageDeleteConfirm => 'Usuń wiadomość';
+
+  @override
+  String get chatMessageReactionsEmpty => 'Brak reakcji';
+
+  @override
+  String chatMembersTitle(String name) {
+    return 'Członkowie rozmowy $name';
+  }
+
+  @override
+  String get chatMembersFallbackName => 'Rozmowa';
+
+  @override
+  String get chatMembersLoadFailureTitle => 'Nie udało się pobrać członków';
+
+  @override
+  String get chatMembersYou => 'Ty';
+
+  @override
+  String get chatMembersActions => 'Akcje członka';
+
+  @override
+  String get chatMembersRemove => 'Usuń z rozmowy';
+
+  @override
+  String get chatMembersLeave => 'Opuść rozmowę';
+
+  @override
+  String get chatMembersAdd => 'Dodaj osoby';
+
+  @override
+  String get chatMembersAddSearchHint => 'Szukaj po nazwie lub loginie';
+
+  @override
+  String get chatMembersAddEmpty => 'Brak pasujących kont';
+
+  @override
+  String get chatMembersAddExisting => 'Już w rozmowie';
+
+  @override
+  String get chatMembersAddSelected => 'Wybrane';
+
+  @override
+  String chatMembersAddFreeSlots(int count) {
+    return '$count wolnych';
+  }
+
+  @override
+  String get chatMembersAddCapacityFull => 'Grupa jest pełna';
+
+  @override
+  String get chatMembersAddConfirm => 'Dodaj';
+
+  @override
+  String get chatMembersAddCancel => 'Anuluj';
+
+  @override
+  String get chatMemberRoleOwner => 'Właściciel';
+
+  @override
+  String get chatMemberRoleModerator => 'Moderator';
+
+  @override
+  String get chatMemberRoleMember => 'Członek';
+
+  @override
+  String get chatMemberRoleObserver => 'Tylko odczyt';
+
+  @override
+  String get chatSearchHint => 'Szukaj wiadomości';
+
+  @override
+  String get chatSearchClose => 'Zamknij wyszukiwanie';
+
+  @override
+  String get chatSearchPromptTitle => 'Wyszukaj wiadomości';
+
+  @override
+  String get chatSearchPromptMessage =>
+      'Wpisz frazę, aby przeszukać dostępne rozmowy.';
+
+  @override
+  String chatSearchTooShort(int count) {
+    return 'Wpisz co najmniej $count znaki';
+  }
+
+  @override
+  String chatSearchTooShortMessage(int count) {
+    return 'Fraza musi mieć co najmniej $count znaki.';
+  }
+
+  @override
+  String get chatSearchFailureTitle => 'Nie udało się wyszukać';
+
+  @override
+  String get chatSearchRateLimitedTitle => 'Zbyt wiele zapytań';
+
+  @override
+  String get chatSearchEmptyTitle => 'Brak wyników';
+
+  @override
+  String get chatSearchEmptyMessage =>
+      'Nie znaleziono wiadomości dla tej frazy.';
+
+  @override
+  String get chatSearchOpen => 'Szukaj w wiadomościach';
+
+  @override
+  String get chatPinnedTitle => 'Przypięte wiadomości';
+
+  @override
+  String get chatPinnedEmpty => 'Brak przypiętych wiadomości.';
+
+  @override
+  String chatPinnedAt(String at) {
+    return 'Przypięto: $at';
+  }
+
+  @override
+  String get chatPinnedOpen => 'Pokaż przypięte';
+
+  @override
+  String get chatBookmarksTitle => 'Zapisane wiadomości';
+
+  @override
+  String get chatBookmarksEmpty => 'Brak zapisanych wiadomości.';
+
+  @override
+  String get chatBookmarksOpen => 'Pokaż zapisane';
+
+  @override
+  String get chatMuteMute => 'Wycisz rozmowę';
+
+  @override
+  String get chatMuteUnmute => 'Wyłącz wyciszenie';
+
+  @override
+  String get chatStatusTitle => 'Twój status';
+
+  @override
+  String get chatStatusEmoji => 'Emoji';
+
+  @override
+  String get chatStatusText => 'Status';
+
+  @override
+  String get chatStatusDnd => 'Nie przeszkadzać';
+
+  @override
+  String get chatStatusSave => 'Zapisz status';
+
+  @override
+  String get chatStatusClear => 'Wyczyść status';
+
+  @override
+  String get chatStatusOpen => 'Ustaw status';
+
+  @override
+  String get chatStatusPeerView => 'Status rozmówcy';
+
+  @override
+  String get chatStatusExpiry => 'Wygaśnięcie';
+
+  @override
+  String get chatStatusExpiryNone => 'Bez wygaśnięcia';
+
+  @override
+  String get chatStatusExpiryHour => 'Za godzinę';
+
+  @override
+  String get chatStatusExpiryDay => 'Za 24 godziny';
+
+  @override
+  String get chatStatusLoadFailure => 'Nie udało się pobrać statusu';
+
+  @override
+  String get chatRichTextCopy => 'Kopiuj kod';
+
+  @override
+  String get chatRichTextCopied => 'Skopiowano';
+
+  @override
+  String get chatRichTextShowMore => 'Pokaż całość';
+
+  @override
+  String get chatRichTextShowLess => 'Zwiń';
+
+  @override
+  String get chatRichTextUnsupported => '[nieobsługiwana treść]';
+
+  @override
+  String get chatTypingIndicator => 'Pisze…';
+
+  @override
+  String get chatArchiveAction => 'Archiwizuj rozmowę';
+
+  @override
+  String get chatRestoreAction => 'Przywróć rozmowę';
+
+  @override
+  String get chatArchiveConfirmTitle => 'Archiwizować rozmowę?';
+
+  @override
+  String get chatArchiveConfirmBody =>
+      'Rozmowa zniknie z listy i trafi do archiwum.';
+
+  @override
+  String get chatArchiveFailure => 'Nie udało się zmienić stanu archiwum.';
+
+  @override
+  String get chatPanelSectionChats => 'Czaty';
+
+  @override
+  String get chatPanelSectionFiles => 'Pliki';
+
+  @override
+  String get chatPanelSectionTasks => 'Zadania / Kanban';
+
+  @override
+  String get chatPanelSectionSaved => 'Zapisane';
+
+  @override
+  String get chatPanelSectionProfile => 'Profil';
+
+  @override
+  String get chatPanelSectionSettings => 'Ustawienia';
+
+  @override
+  String get chatPanelGlobalSettingsTitle => 'Ustawienia komunikatora';
+
+  @override
+  String get chatPanelSelectConversationTitle => 'Wybierz rozmowę';
+
+  @override
+  String get chatPanelSelectConversationMessage =>
+      'Wybierz rozmowę z listy, aby zobaczyć historię i napisać wiadomość.';
+
+  @override
+  String get chatPanelListUnavailable =>
+      'Lista rozmów jest niedostępna dla tej kompozycji.';
+
+  @override
+  String get chatPanelResizeHandle => 'Zmień szerokość panelu';
+
+  @override
+  String get chatPanelPinAction => 'Przypnij panel do szerokości';
+
+  @override
+  String get chatPanelUnpinAction => 'Odepnij panel';
+
+  @override
+  String get chatInboxDraftLabel => 'Szkic';
+
+  @override
+  String get chatComposeTitle => 'Nowy czat';
+
+  @override
+  String get chatComposeNewGroup => 'Nowa grupa';
+
+  @override
+  String get chatComposeNewChannel => 'Nowy kanał';
+
+  @override
+  String get chatComposeNewBroadcast => 'Nowe ogłoszenia';
+
+  @override
+  String get chatComposeRecentTitle => 'Ostatnie kontakty';
+
+  @override
+  String get chatComposeSearchPrompt =>
+      'Wpisz co najmniej dwa znaki, aby znaleźć osobę.';
+
+  @override
+  String get chatFilesNotConnectedTitle => 'Rozmowy plików będą dostępne tutaj';
+
+  @override
+  String get chatFilesNotConnectedMessage =>
+      'Zakładka pokaże rozmowy utworzone przy pliku, gdy ktoś doda Cię do rozmowy albo oznaczy wzmianką. Integracja plików nie jest jeszcze podłączona.';
+
+  @override
+  String get chatTasksNotConnectedTitle => 'Rozmowy zadań będą dostępne tutaj';
+
+  @override
+  String get chatTasksNotConnectedMessage =>
+      'Zakładka pokaże rozmowy utworzone przy zadaniu, gdy ktoś doda Cię do rozmowy albo oznaczy wzmianką. Integracja Kanban nie jest jeszcze podłączona.';
+
+  @override
+  String get chatContextPreviewOpen => 'Podgląd UI';
+
+  @override
+  String get chatContextPreviewLabel => 'Podgląd UI — dane przykładowe';
+
+  @override
+  String get chatContextSourceUnavailable => 'Źródło niedostępne';
+
+  @override
+  String get chatSavedUnavailable =>
+      'Zapisane wiadomości są niedostępne dla tej kompozycji.';
+
+  @override
+  String get chatSavedMessageFallback => 'Zapisana wiadomość';
+
+  @override
+  String get chatInboxEmptyPageMore =>
+      'Ta strona nie zawiera dostępnych rozmów, ale są kolejne.';
 }

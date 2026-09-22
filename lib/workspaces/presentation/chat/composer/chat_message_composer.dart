@@ -1,31 +1,30 @@
-// Importy są zgrupowane według warstw composera dla czytelności zależności.
-// ignore_for_file: directives_ordering
-
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_server_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_controls.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_queue_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_composer_keyboard_policy.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_message_composer_fields.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:devplanner/foundation/l10n/l10n.dart';
-import 'package:devplanner/foundation/theme/theme.dart';
-import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
-import 'package:devplanner/workspaces/presentation/chat/composer/chat_composer_keyboard_policy.dart';
-import 'package:devplanner/workspaces/presentation/chat/composer/chat_message_composer_fields.dart';
-import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
-import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_controls.dart';
-import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
-import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
-import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_queue_cubit.dart';
-import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_cubit.dart';
-import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_state.dart';
-import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
-import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
+
 
 /// Lokalny composer plain text i Quill Delta dla jednej otwartej rozmowy.
 ///
@@ -83,6 +82,8 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
   late quill.QuillController _richController;
   late bool _ownsRichController;
   StreamSubscription<ChatConversationState>? _conversationSubscription;
+  Timer? _typingStopTimer;
+  bool _isTypingReported = false;
   StreamSubscription<ChatMessageDeliveryConfirmation>?
   _deliveryConfirmationSubscription;
   ChatAttachmentComposerCoordinatorCubit? _attachmentCoordinator;
@@ -92,6 +93,7 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
     super.initState();
     _cubit = ChatComposerCubit(
       repository: widget.draftRepository,
+      serverRepository: context.read<ChatServerDraftRepository?>(),
       userId: widget.userId,
       conversationId: widget.conversationId,
     );
@@ -105,6 +107,27 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
     _createAttachmentCoordinator();
     widget.accessRevocation?.addListener(_onAccessRevocationChanged);
     unawaited(_restoreDraft());
+  }
+
+  /// Zgłasza pisanie na starcie i planuje „stop” po bezczynności.
+  void _reportTyping({required bool isTyping}) {
+    final cubit = context.read<ChatConversationCubit?>();
+    if (cubit == null) return;
+    _typingStopTimer?.cancel();
+    if (isTyping) {
+      if (!_isTypingReported) {
+        _isTypingReported = true;
+        unawaited(cubit.notifyTyping(true));
+      }
+      _typingStopTimer = Timer(
+        const Duration(seconds: 4),
+        () => _reportTyping(isTyping: false),
+      );
+      return;
+    }
+    if (!_isTypingReported) return;
+    _isTypingReported = false;
+    unawaited(cubit.notifyTyping(false));
   }
 
   void _onConversationState(ChatConversationState state) {
@@ -179,7 +202,9 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
   }
 
   @override
+  @override
   void dispose() {
+    _typingStopTimer?.cancel();
     unawaited(_conversationSubscription?.cancel());
     unawaited(_deliveryConfirmationSubscription?.cancel());
     widget.accessRevocation?.removeListener(_onAccessRevocationChanged);
@@ -353,7 +378,10 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
                   focusNode: _plainFocusNode,
                   minLines: 1,
                   maxLines: widget.compact ? 3 : 5,
-                  onChanged: _cubit.updatePlainText,
+                  onChanged: (value) {
+                    _reportTyping(isTyping: value.trim().isNotEmpty);
+                    _cubit.updatePlainText(value);
+                  },
                   decoration: InputDecoration(
                     hintText: context.l10n.globalChatComposerHint,
                     border: const OutlineInputBorder(),

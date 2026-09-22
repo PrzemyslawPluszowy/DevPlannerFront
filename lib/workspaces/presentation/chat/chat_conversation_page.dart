@@ -39,7 +39,9 @@ class ChatConversationPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final realtime = context.read<WorkspaceChatRealtimeFactory>().create();
+    final realtime = context.read<WorkspaceChatRealtimeFactory>().open(
+      conversationId,
+    );
     return MultiBlocProvider(
       providers: [
         BlocProvider(

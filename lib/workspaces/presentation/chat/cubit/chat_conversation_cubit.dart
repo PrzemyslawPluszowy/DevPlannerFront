@@ -15,11 +15,15 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     required ChatConversationRepository repository,
     required this.conversationId,
     ChatMessageDeliveryQueue? deliveryQueue,
+    this.currentUserId = '',
     this.realtime,
     this.disposeRealtime,
   }) : _repository = repository,
-       _deliveryQueue = deliveryQueue ?? ChatMessageDeliveryQueue(repository),
+       _deliveryQueue =
+           deliveryQueue ??
+           ChatMessageDeliveryQueue(repository, userId: currentUserId),
        super(const ChatConversationInitial()) {
+    _deliveryQueue.bindConversation(conversationId);
     _deliverySubscription = _deliveryQueue.changes.listen(_onDeliveryChanged);
   }
 
@@ -28,6 +32,10 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   final ChatConversationRealtimeReducer _realtimeReducer =
       ChatConversationRealtimeReducer();
   final String conversationId;
+
+  /// Local UserId bieżącej sesji; dzięki niemu odczyt nie dotyczy własnych wiadomości.
+  final String currentUserId;
+
   final ChatConversationRealtimeClient? realtime;
   final Future<void> Function()? disposeRealtime;
 
@@ -47,6 +55,8 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     final operation = _loadInternal(++_loadGeneration);
     _loadInFlight = operation;
     await operation.whenComplete(() => _loadInFlight = null);
+    // Po pierwszej stronie historii wznawiamy próby, które przetrwały restart.
+    if (!isClosed) await restorePendingSends();
   }
 
   /// Pobiera kolejną stronę historii przez nieprzezroczysty cursor backendu.
@@ -90,6 +100,49 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     );
   }
 
+  /// Doładowuje okno wokół wskazanej wiadomości, gdy nie ma jej w historii.
+  ///
+  /// Skok do starej wiadomości z wyszukiwania, zapisanych albo przypiętych nie
+  /// może zależeć od liczby już pobranych stron. Brak dostępu do rozmowy odłącza
+  /// historię, a brak samej wiadomości daje komunikat z ponowieniem, nie pustą listę.
+  Future<void> ensureTargetLoaded(String messageId) async {
+    final current = state;
+    if (current is! ChatConversationReady || isClosed || messageId.isEmpty) {
+      return;
+    }
+    if (current.messages.any((message) => message.id == messageId)) return;
+    emit(current.copyWith(isJumpingToMessage: true, clearJumpFailure: true));
+    final result = await _repository.loadMessageWindow(
+      conversationId: conversationId,
+      messageId: messageId,
+    );
+    if (isClosed || state is! ChatConversationReady) return;
+    final latest = state as ChatConversationReady;
+    result.fold(
+      (error) {
+        if (error.type == ApiErrorType.unauthorized ||
+            error.type == ApiErrorType.forbidden) {
+          _detach(error.message);
+          return;
+        }
+        emit(
+          latest.copyWith(
+            isJumpingToMessage: false,
+            jumpFailureCode: error.apiCode ?? error.message,
+          ),
+        );
+      },
+      (window) => emit(
+        latest.copyWith(
+          messages: _mergeMessages(latest.messages, window.messages),
+          nextCursor: window.beforeCursor ?? latest.nextCursor,
+          isJumpingToMessage: false,
+          clearJumpFailure: true,
+        ),
+      ),
+    );
+  }
+
   /// Dodaje lokalną wiadomość i zleca dostawę bez blokowania composera.
   String? send(String text) {
     return sendDraft(ChatComposerDraft(text: text.trim()));
@@ -109,6 +162,40 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     return message.clientMessageId;
   }
 
+  /// Oznacza odczyt, gdy widok potwierdzi, że wiadomość jest faktycznie widoczna.
+  ///
+  /// Samo pobranie historii, tło aplikacji ani zamknięty panel nie mogą
+  /// oznaczać odczytu, dlatego decyzję podejmuje widok, a metoda jest
+  /// idempotentna: powtórzenie dla tej samej wiadomości nie wysyła żądania.
+  Future<bool> markVisibleAsRead(String messageId) async {
+    final current = state;
+    if (current is! ChatConversationReady || isClosed) return false;
+    if (messageId.isEmpty || messageId == _lastReadMessageId) return false;
+    final message = current.messages
+        .where((item) => item.id == messageId)
+        .firstOrNull;
+    if (message == null || message.isDeleted) return false;
+    if (message.id.startsWith('local:')) return false;
+    if (currentUserId.isNotEmpty && message.authorUserId == currentUserId) {
+      return false;
+    }
+    final result = await _repository.markConversationRead(
+      conversationId: conversationId,
+      messageId: messageId,
+    );
+    if (isClosed) return false;
+    return result.fold((_) => false, (_) {
+      _lastReadMessageId = messageId;
+      return true;
+    });
+  }
+
+  /// Ostatnio oznaczona wiadomość; chroni przed powtarzaniem żądania.
+  String? _lastReadMessageId;
+
+  /// Widoczna wiadomość oznaczona lokalnie jako odczytana albo `null`.
+  String? get lastReadMessageId => _lastReadMessageId;
+
   /// Ponawia konkretną nieudaną wiadomość z tym samym UUID i payload hash.
   void retry(String clientMessageId) => _deliveryQueue.retry(clientMessageId);
 
@@ -116,8 +203,34 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   void applyMessageActionResult(ChatMessage message) =>
       _replaceMessage(message);
 
+  /// Zgłasza hubowi, że bieżący użytkownik pisze albo przestał pisać.
+  ///
+  /// Sygnał jest ulotny i nie blokuje wysyłki: brak subskrypcji oznacza brak
+  /// wywołania, a serwer i tak trzyma własny TTL.
+  Future<void> notifyTyping(bool isTyping) async {
+    final client = realtime;
+    if (client == null) return;
+    try {
+      await client.setTyping(isTyping);
+    } on Object {
+      // Zerwane połączenie nie może przerwać pisania wiadomości.
+    }
+  }
+
   /// Odrzuca historię, gdy mutacja wiadomości ujawniła utratę dostępu.
   void detachForMessageAction(String message) => _detach(message);
+
+  /// Wznawia trwałe intencje wysyłki po restarcie albo ponownym otwarciu rozmowy.
+  Future<int> restorePendingSends() async {
+    final restored = await _deliveryQueue.restorePending();
+    if (isClosed || restored == 0) return restored;
+    // Kolejka publikuje wpisy przez `changes`, więc stan odświeża się sam; tutaj
+    // tylko potwierdzamy liczbę wznowionych prób dla właściciela ekranu.
+    return restored;
+  }
+
+  /// Czyści lokalne dane wysyłki po wylogowaniu albo zmianie konta.
+  Future<void> clearForSignedOutSession() => _deliveryQueue.clearForSession();
 
   Future<void> _loadInternal(int generation) async {
     if (isClosed) return;

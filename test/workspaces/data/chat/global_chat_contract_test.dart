@@ -29,8 +29,23 @@ void main() {
       expect(payload.toJson().keys, isNot(contains('readyUserIds')));
     });
 
-    test('maps backend message author and attachment UUIDs', () {
-      final message = ChatMessageResponse.fromJson({
+    test('maps message window anchor and before cursor', () {
+      final window = ChatMessageWindowResponse.fromJson({
+        'conversationId': '44444444-4444-4444-4444-444444444444',
+        'anchorMessageId': '33333333-3333-3333-3333-333333333333',
+        'messages': <Object?>[],
+        'hasMoreBefore': true,
+        'hasMoreAfter': false,
+        'beforeCursor': 'cursor-1',
+      });
+
+      expect(window.anchorMessageId, '33333333-3333-3333-3333-333333333333');
+      expect(window.hasMoreBefore, isTrue);
+      expect(window.hasMoreAfter, isFalse);
+      expect(window.beforeCursor, 'cursor-1');
+    });
+
+    test('maps backend message author and attachment UUIDs', () {      final message = ChatMessageResponse.fromJson({
         'id': '33333333-3333-3333-3333-333333333333',
         'conversationId': '44444444-4444-4444-4444-444444444444',
         'authorUserId': '11111111-1111-1111-1111-111111111111',

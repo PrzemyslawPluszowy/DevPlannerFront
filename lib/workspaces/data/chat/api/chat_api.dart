@@ -17,6 +17,25 @@ abstract class ChatApi {
     @Body() ResolveChatConversationPayload payload,
   );
 
+  /// Pobiera katalog lokalnych kont dla nowej rozmowy.
+  @GET('/api/v1/chat/users')
+  Future<List<ChatDirectoryUserResponse>> searchDirectory({
+    @Query('q') required String query,
+    @Query('limit') int? limit,
+  });
+
+  /// Pobiera stronę serwerowej skrzynki rozmów bieżącego użytkownika.
+  @GET('/api/v1/chat/inbox')
+  Future<ChatInboxPageResponse> loadInbox({
+    @Query('cursor') String? cursor,
+    @Query('limit') int? limit,
+    @Query('filter') String? filter,
+  });
+
+  /// Pobiera agregat nieprzeczytanych wiadomości bez pobierania stron skrzynki.
+  @GET('/api/v1/chat/inbox/unread-count')
+  Future<ChatInboxUnreadCountResponse> loadInboxUnreadCount();
+
   /// Pobiera aktywne rozmowy bieżącego użytkownika.
   @GET('/api/v1/chat/conversations')
   Future<List<ChatConversationResponse>> listConversations();
@@ -182,6 +201,15 @@ abstract class ChatApi {
   Future<ChatContextResponse> getContext(
     @Path('conversationId') String conversationId, {
     @Query('recentLimit') int? recentLimit,
+  });
+
+  /// Pobiera okno wiadomości wokół wskazanej wiadomości.
+  @GET('/api/v1/chat/conversations/{conversationId}/messages/{messageId}/window')
+  Future<ChatMessageWindowResponse> getMessageWindow(
+    @Path('conversationId') String conversationId,
+    @Path('messageId') String messageId, {
+    @Query('before') int? before,
+    @Query('after') int? after,
   });
 
   /// Generuje bezpieczny podgląd linku.

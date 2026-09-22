@@ -2,10 +2,12 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_conversation_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_request.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
@@ -62,7 +64,9 @@ final class ChatRepositoryImpl
   Future<Either<ApiError, ChatConversation>> getConversation(
     String conversationId,
   ) => _guard(
-    () async => _toConversation(await _api.getConversation(conversationId)),
+    () async => ChatConversationMapper.toDomain(
+      await _api.getConversation(conversationId),
+    ),
     code: ChatApiErrorCode.loadConversations,
   );
 
@@ -81,6 +85,31 @@ final class ChatRepositoryImpl
       return ChatMessagePage(
         items: page.items.map(_toMessage).toList(growable: false),
         nextCursor: page.nextCursor,
+      );
+    },
+    code: ChatApiErrorCode.loadMessages,
+  );
+
+  @override
+  Future<Either<ApiError, ChatMessageWindow>> loadMessageWindow({
+    required String conversationId,
+    required String messageId,
+    int before = 20,
+    int after = 20,
+  }) => _guard(
+    () async {
+      final window = await _api.getMessageWindow(
+        conversationId,
+        messageId,
+        before: before,
+        after: after,
+      );
+      return ChatMessageWindow(
+        anchorMessageId: window.anchorMessageId,
+        messages: window.messages.map(_toMessage).toList(growable: false),
+        hasMoreBefore: window.hasMoreBefore,
+        hasMoreAfter: window.hasMoreAfter,
+        beforeCursor: window.beforeCursor,
       );
     },
     code: ChatApiErrorCode.loadMessages,
@@ -106,10 +135,27 @@ final class ChatRepositoryImpl
   );
 
   @override
+  Future<Either<ApiError, void>> markMessageDelivered({
+    required String messageId,
+  }) => _guard(
+    () => _api.markDelivered(messageId),
+    code: ChatApiErrorCode.markMessageDelivered,
+  );
+
+  @override
+  Future<Either<ApiError, void>> markConversationRead({
+    required String conversationId,
+    required String messageId,
+  }) => _guard(
+    () => _api.markRead(conversationId, messageId),
+    code: ChatApiErrorCode.markConversationRead,
+  );
+
+  @override
   Future<Either<ApiError, ChatConversation>> resolveFileConversation(
     ResourceChatFileRequest request,
   ) => _guard(
-    () async => _toConversation(
+    () async => ChatConversationMapper.toDomain(
       await _api.resolve(
         ResolveChatConversationPayload(
           type: ChatConversationType.channel,
@@ -125,22 +171,6 @@ final class ChatRepositoryImpl
     ),
     code: ChatApiErrorCode.loadConversations,
   );
-
-  ChatConversation _toConversation(ChatConversationResponse response) =>
-      ChatConversation(
-        id: response.id,
-        type: response.type.name,
-        scopeKind: response.scopeKind.name,
-        scopeKey: response.scopeKey,
-        workspaceId: response.workspaceId,
-        projectId: response.projectId,
-        name: response.name,
-        discussionRootMessageId: response.discussionRootMessageId,
-        version: response.version,
-        createdAtUtc: response.createdAtUtc,
-        postingPermission: response.postingPermission,
-        isArchived: response.isArchived,
-      );
 
   ChatMessage _toMessage(ChatMessageResponse response) => ChatMessage(
     id: response.id,
@@ -158,6 +188,17 @@ final class ChatRepositoryImpl
     isEdited: response.isEdited,
     deletedAtUtc: response.deletedAtUtc,
     deliveryState: ChatMessageDeliveryState.sent,
+    reactions:
+        response.reactions
+            ?.map(
+              (reaction) => ChatReactionSummary(
+                emoji: reaction.emoji,
+                count: reaction.count,
+                reactedByCurrentUser: reaction.reactedByCurrentUser,
+              ),
+            )
+            .toList(growable: false) ??
+        const <ChatReactionSummary>[],
     attachments:
         response.attachments
             ?.map(

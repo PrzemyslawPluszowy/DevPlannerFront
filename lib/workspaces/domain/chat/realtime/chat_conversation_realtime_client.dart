@@ -28,4 +28,10 @@ abstract interface class ChatConversationRealtimeClient {
 
   /// Kończy subskrypcję bez niszczenia współdzielonego właściciela transportu.
   Future<void> stop();
+
+  /// Zgłasza do huba, że bieżący użytkownik pisze albo przestał pisać.
+  ///
+  /// Sygnał jest ulotny: serwer trzyma własny TTL, więc brak „stop” nie zostawia
+  /// pisania na zawsze.
+  Future<void> setTyping(bool isTyping);
 }

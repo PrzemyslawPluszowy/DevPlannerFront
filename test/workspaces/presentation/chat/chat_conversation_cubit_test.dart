@@ -53,6 +53,17 @@ final class _FakeConversationRepository implements ChatConversationRepository {
     postingPermission: 'Everyone',
     isArchived: false,
   );
+
+  @override
+  Future<Either<ApiError, void>> markMessageDelivered({
+    required String messageId,
+  }) async => const Right(null);
+
+  @override
+  Future<Either<ApiError, void>> markConversationRead({
+    required String conversationId,
+    required String messageId,
+  }) async => const Right(null);
 }
 
 void main() {

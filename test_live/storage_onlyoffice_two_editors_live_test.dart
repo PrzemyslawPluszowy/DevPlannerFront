@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/data/realtime/storage/storage_realtime_client_adapter.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_realtime_event.dart';
@@ -50,7 +51,7 @@ void main() {
       final client = StorageRealtimeClientAdapter(
         WorkspaceSignalRClient(
           '$_base/api/v1/realtime/storage',
-          () async => tokenA,
+          WorkspaceRealtimeCredentials.bearer(() async => tokenA),
         ),
       );
       final events = <StorageRealtimeEvent>[];
@@ -92,7 +93,10 @@ void main() {
       // OnlyOffice, który w tej instancji wskazuje na ten serwer treści.
       final contentPort =
           int.tryParse(Platform.environment['LIVE_CONTENT_PORT'] ?? '') ?? 8099;
-      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, contentPort);
+      final server = await HttpServer.bind(
+        InternetAddress.loopbackIPv4,
+        contentPort,
+      );
       addTearDown(() => server.close(force: true));
       var served = 'wersja 1 z edytora współdzielonego';
       server.listen((request) async {
@@ -230,7 +234,8 @@ void main() {
 }
 
 String _readToken(String path) =>
-    (jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>)['access_token']
+    (jsonDecode(File(path).readAsStringSync())
+            as Map<String, dynamic>)['access_token']
         as String;
 
 Future<String> _me(String token) async {
@@ -241,7 +246,9 @@ Future<String> _me(String token) async {
 Future<Map<String, dynamic>> _getMap(String token, String path) async {
   final decoded = await _get(token, path);
   if (decoded is! Map<String, dynamic>) {
-    throw StateError('GET $path zwrócił ${decoded.runtimeType}, oczekiwano obiektu.');
+    throw StateError(
+      'GET $path zwrócił ${decoded.runtimeType}, oczekiwano obiektu.',
+    );
   }
   return decoded;
 }
@@ -267,7 +274,10 @@ Future<Map<String, dynamic>> _openOfficeSession(
   String fileId,
 ) => _getMap(token, '/api/v1/storage/files/$fileId/office-session');
 
-Future<List<Map<String, dynamic>>> _versions(String token, String fileId) async {
+Future<List<Map<String, dynamic>>> _versions(
+  String token,
+  String fileId,
+) async {
   final decoded = await _get(token, '/api/v1/storage/files/$fileId/versions');
   if (decoded is! List) {
     throw StateError('Lista wersji nie jest tablicą (${decoded.runtimeType}).');
@@ -289,7 +299,10 @@ Future<({int statusCode, String body, String? fileId})> _createDocument({
     );
     request.headers
       ..set(HttpHeaders.authorizationHeader, 'Bearer $token')
-      ..set('Idempotency-Key', 'live-office-${DateTime.now().microsecondsSinceEpoch}')
+      ..set(
+        'Idempotency-Key',
+        'live-office-${DateTime.now().microsecondsSinceEpoch}',
+      )
       ..contentType = ContentType.json;
     request.write(jsonEncode(body));
     final response = await request.close();
@@ -332,8 +345,7 @@ Future<({int statusCode, String body})> _callback({
 
 /// Mintuje HS256 z ładunkiem callbacku w claimie `payload`, jak OnlyOffice.
 String _signedCallbackToken(String secret, Map<String, Object?> body) {
-  String encode(List<int> bytes) =>
-      base64Url.encode(bytes).replaceAll('=', '');
+  String encode(List<int> bytes) => base64Url.encode(bytes).replaceAll('=', '');
   final header = encode(
     utf8.encode(jsonEncode({'alg': 'HS256', 'typ': 'JWT'})),
   );
@@ -348,9 +360,10 @@ String _signedCallbackToken(String secret, Map<String, Object?> body) {
     ),
   );
   final signature = encode(
-    Hmac(sha256, utf8.encode(secret))
-        .convert(utf8.encode('$header.$payload'))
-        .bytes,
+    Hmac(
+      sha256,
+      utf8.encode(secret),
+    ).convert(utf8.encode('$header.$payload')).bytes,
   );
   return '$header.$payload.$signature';
 }

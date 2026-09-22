@@ -76,6 +76,17 @@ final class _DeliveryRepo implements ChatConversationRepository {
   Future<Either<ApiError, ChatMessage>> sendConversationMessage(
     ChatSendMessageCommand command,
   ) => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, void>> markMessageDelivered({
+    required String messageId,
+  }) async => const Right(null);
+
+  @override
+  Future<Either<ApiError, void>> markConversationRead({
+    required String conversationId,
+    required String messageId,
+  }) async => const Right(null);
 }
 
 final class _ParentMessageDeliveryRepo implements ChatConversationRepository {
@@ -108,4 +119,15 @@ final class _ParentMessageDeliveryRepo implements ChatConversationRepository {
     String? cursor,
     int limit = 50,
   }) => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, void>> markMessageDelivered({
+    required String messageId,
+  }) async => const Right(null);
+
+  @override
+  Future<Either<ApiError, void>> markConversationRead({
+    required String conversationId,
+    required String messageId,
+  }) async => const Right(null);
 }

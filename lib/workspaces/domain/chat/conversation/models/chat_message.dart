@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_attachment.dart';
+import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
 import 'package:equatable/equatable.dart';
 
 /// Stan lokalnej dostawy wiadomości, niezależny od potwierdzenia backendu.
@@ -25,6 +26,7 @@ final class ChatMessage extends Equatable {
     this.deletedAtUtc,
     this.deliveryError,
     this.attachments = const <ChatMessageAttachment>[],
+    this.reactions = const <ChatReactionSummary>[],
   });
 
   final String id;
@@ -44,6 +46,9 @@ final class ChatMessage extends Equatable {
   final ChatMessageDeliveryState deliveryState;
   final String? deliveryError;
   final List<ChatMessageAttachment> attachments;
+
+  /// Zagregowane reakcje emoji widoczne dla członka rozmowy.
+  final List<ChatReactionSummary> reactions;
 
   /// Zwraca kopię wpisu z nowym wynikiem dostawy bez zmiany idempotency key.
   ChatMessage copyWithDelivery({
@@ -113,5 +118,6 @@ final class ChatMessage extends Equatable {
     deliveryState,
     deliveryError,
     attachments,
+    reactions,
   ];
 }

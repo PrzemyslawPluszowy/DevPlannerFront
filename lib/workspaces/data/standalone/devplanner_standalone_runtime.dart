@@ -4,17 +4,44 @@ import 'package:devplanner/auth/data/auth_composition.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_session_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_upload_port_adapter.dart';
+import 'package:devplanner/workspaces/data/chat/delivery/chat_pending_send_store_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_conversation_management_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_directory_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_inbox_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_members_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_message_actions_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_notification_settings_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_presence_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_search_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_server_draft_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_thread_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/secure_chat_draft_repository.dart';
 import 'package:devplanner/workspaces/data/notifications/api/notifications_api.dart';
 import 'package:devplanner/workspaces/data/notifications/repositories/notifications_repository_impl.dart';
 import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
 import 'package:devplanner/workspaces/data/realtime/notifications/workspace_notifications_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/storage/transport/file_picker_port_impl.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/composer/chat_server_draft_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
+import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
+import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/notifications_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/global_chat_composition.dart';
 import 'package:devplanner/workspaces/presentation/notifications/global_notifications_composition.dart';
@@ -34,6 +61,8 @@ final class DevPlannerStandaloneRuntime {
     ChatDraftRepository? draftRepository,
     this.attachmentUploadPort,
     this.filePickerPort,
+    this.storageRepository,
+    this.attachmentUploadTransport,
   }) : _draftRepository = draftRepository ?? SecureChatDraftRepository(),
        _chatApi = ChatApi(transport.apiDio, baseUrl: transport.baseUrl),
        _notificationsApi = NotificationsApi(
@@ -57,15 +86,72 @@ final class DevPlannerStandaloneRuntime {
   /// Opcjonalny adapter platformowego file pickera.
   final FilePickerPort? filePickerPort;
 
+  /// Repozytorium Storage używane do ticketów uploadu załączników Chat.
+  final StorageRepository? storageRepository;
+
+  /// Binarny transport uploadu; `null` oznacza środowisko bez bezpiecznego
+  /// transferu bezpośredniego (Web/BFF), gdzie załączniki nie są udostępniane.
+  final UploadTransport? attachmentUploadTransport;
+
   final ChatDraftRepository _draftRepository;
   final ChatApi _chatApi;
   final NotificationsApi _notificationsApi;
 
   late final ChatRepository _chatRepository = ChatRepositoryImpl(_chatApi);
+  ChatAttachmentUploadPortAdapter? _attachmentAdapter;
+
+  /// Port uploadu załączników: jawny z konstruktora albo złożony z sesji Chat,
+  /// Storage i zatwierdzonego transportu binarnego. Bez obu części jest `null`,
+  /// więc panel nie pokazuje akcji, których nie da się bezpiecznie wykonać.
+  ChatAttachmentUploadPort? get _attachmentUpload {
+    final explicit = attachmentUploadPort;
+    if (explicit != null) return explicit;
+    final storage = storageRepository;
+    final transfer = attachmentUploadTransport;
+    if (storage == null || transfer == null) return null;
+    return _attachmentAdapter ??= ChatAttachmentUploadPortAdapter(
+      sessionRepository: ChatAttachmentSessionRepositoryImpl(_chatApi),
+      storageRepository: storage,
+      uploadTransport: transfer,
+    );
+  }
+
+  /// Picker plików tylko tam, gdzie istnieje ścieżka uploadu.
+  FilePickerPort? get _effectiveFilePicker =>
+      filePickerPort ??
+      (_attachmentUpload != null ? const FilePickerPortImpl() : null);
+  late final ChatInboxRepository _chatInboxRepository = ChatInboxRepositoryImpl(
+    _chatApi,
+  );
+  late final ChatNotificationSettingsRepository _chatNotificationSettings =
+      ChatNotificationSettingsRepositoryImpl(_chatApi);
+  late final ChatConversationManagementRepository _chatManagement =
+      ChatConversationManagementRepositoryImpl(_chatApi);
+  late final ChatDirectoryRepository _chatDirectory =
+      ChatDirectoryRepositoryImpl(_chatApi);
+  late final ChatPendingSendStore _chatPendingSends =
+      ChatPendingSendStoreImpl();
+  late final ChatServerDraftRepository _chatServerDrafts =
+      ChatServerDraftRepositoryImpl(_chatApi);
+  late final ChatThreadRepositoryImpl _chatThreads = ChatThreadRepositoryImpl(
+    _chatApi,
+  );
+  late final ChatMembersRepository _chatMembers = ChatMembersRepositoryImpl(
+    _chatApi,
+  );
+  late final ChatSearchRepository _chatSearch = ChatSearchRepositoryImpl(
+    _chatApi,
+  );
+  late final ChatPresenceRepository _chatPresence = ChatPresenceRepositoryImpl(
+    _chatApi,
+  );
+  late final ChatMessageActionsRepository _chatMessageActions =
+      ChatMessageActionsRepositoryImpl(_chatApi);
   late final NotificationsRepository _notificationsRepository =
       NotificationsRepositoryImpl(_notificationsApi);
 
   WorkspaceChatRealtimeFactory? _chatRealtimeFactory;
+  String? _lastAuthenticatedUserId;
   WorkspaceNotificationsRealtimeRealtime? _notificationsRealtime;
   late final void Function() _sessionListener;
   bool _disposed = false;
@@ -77,8 +163,20 @@ final class DevPlannerStandaloneRuntime {
       repository: _chatRepository,
       userId: _userId,
       draftRepository: _draftRepository,
-      attachmentUploadPort: attachmentUploadPort,
-      filePickerPort: filePickerPort,
+      inboxRepository: _chatInboxRepository,
+      conversationManagementRepository: _chatManagement,
+      directoryRepository: _chatDirectory,
+      pendingSendStore: _chatPendingSends,
+      serverDraftRepository: _chatServerDrafts,
+      threadRepository: _chatThreads,
+      discussionRepository: _chatThreads,
+      membersRepository: _chatMembers,
+      searchRepository: _chatSearch,
+      presenceRepository: _chatPresence,
+      messageActions: _chatMessageActions,
+      notificationSettingsRepository: _chatNotificationSettings,
+      attachmentUploadPort: _attachmentUpload,
+      filePickerPort: _effectiveFilePicker,
       realtimeFactory: _chatRealtime(),
     );
   }
@@ -109,12 +207,14 @@ final class DevPlannerStandaloneRuntime {
 
   String get _userId => auth.session.snapshot.user!.userId.trim();
 
+  /// Jedyne źródło poświadczeń realtime pochodzi z transportu tej samej sesji:
+  /// desktop używa access tokenu PKCE, a Web cookie BFF z nagłówkiem CSRF.
   WorkspaceChatRealtimeFactory? _chatRealtime() {
-    final tokenProvider = transport.realtimeAccessTokenProvider;
-    if (tokenProvider == null) return null;
+    final credentials = WorkspaceRealtimeCredentials.fromTransport(transport);
+    if (credentials == null) return null;
     return _chatRealtimeFactory ??= WorkspaceChatRealtimeFactory(
       baseUrl: transport.baseUrl,
-      accessTokenProvider: tokenProvider,
+      credentials: credentials,
     );
   }
 
@@ -124,7 +224,7 @@ final class DevPlannerStandaloneRuntime {
     return _notificationsRealtime ??= WorkspaceNotificationsRealtimeService(
       client: WorkspaceSignalRClient(
         '${transport.baseUrl}/api/v1/realtime/notifications',
-        tokenProvider,
+        WorkspaceRealtimeCredentials.bearer(tokenProvider),
       ),
       notificationsRepository: _notificationsRepository,
     );
@@ -136,22 +236,45 @@ final class DevPlannerStandaloneRuntime {
     _disposed = true;
     auth.session.removeListener(_sessionListener);
     final notifications = _notificationsRealtime;
+    final chatRealtime = _chatRealtimeFactory;
     _notificationsRealtime = null;
     _chatRealtimeFactory = null;
+    await chatRealtime?.closeAll();
     await notifications?.dispose();
   }
 
   void _stopRealtimeAfterSessionEnds() {
-    if (auth.session.snapshot.isAuthenticated || _disposed) return;
-    // Detach the old owner synchronously, before awaiting its cleanup.
-    unawaited(_disposeRealtimeForSignedOutSession());
+    final snapshot = auth.session.snapshot;
+    final userId = snapshot.user?.userId.trim() ?? '';
+    if (snapshot.isAuthenticated && userId.isNotEmpty) {
+      // Sesja trwa: zapamiętujemy tożsamość, żeby po wylogowaniu usunąć
+      // wyłącznie jej prywatny stan.
+      _lastAuthenticatedUserId = userId;
+      return;
+    }
+    if (_disposed) return;
+    final signedOutUserId = _lastAuthenticatedUserId;
+    _lastAuthenticatedUserId = null;
+    // Detach the old owners synchronously, before awaiting their cleanup.
+    unawaited(_endSessionAsync(signedOutUserId));
   }
 
-  Future<void> _disposeRealtimeForSignedOutSession() async {
+  /// Zamyka połączenia i usuwa prywatny stan użytkownika po zakończeniu sesji.
+  ///
+  /// Kolejka wysyłki i historie żyją w Cubitach panelu, więc kończy je
+  /// zamknięcie panelu; trwałym stanem prywatnym, który musi zniknąć, są szkice
+  /// w systemowym secure storage.
+  Future<void> _endSessionAsync(String? signedOutUserId) async {
     final notifications = _notificationsRealtime;
+    final chatRealtime = _chatRealtimeFactory;
     _notificationsRealtime = null;
     _chatRealtimeFactory = null;
+    await chatRealtime?.closeAll();
     await notifications?.dispose();
+    if (signedOutUserId == null || signedOutUserId.isEmpty) return;
+    await _draftRepository.deleteAllForUser(userId: signedOutUserId);
+    // Trwałe intencje wysyłki poprzedniej sesji nie mogą zostać ponowione.
+    await _chatPendingSends.clearForUser(userId: signedOutUserId);
   }
 }
 

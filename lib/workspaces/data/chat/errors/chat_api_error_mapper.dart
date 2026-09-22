@@ -4,8 +4,23 @@ import 'package:dio/dio.dart';
 /// Typowane kody błędów bazowego pionu Chat.
 enum ChatApiErrorCode {
   loadConversations,
+  loadInbox,
+  loadInboxUnreadCount,
+  markConversationRead,
+  markMessageDelivered,
   loadMessages,
   sendMessage,
+  manageConversation,
+  loadMembers,
+  changeMembers,
+  actOnMessage,
+  searchMessages,
+  createAttachmentSession,
+  loadDraft,
+  saveDraft,
+  loadDirectory,
+  loadUserStatus,
+  updateOwnStatus,
   invalidResponse,
 }
 
@@ -44,8 +59,26 @@ final class ChatApiErrorMapper {
 
   String _codeValue(ChatApiErrorCode code) => switch (code) {
     ChatApiErrorCode.loadConversations => 'chat.conversations.load_failed',
+    ChatApiErrorCode.loadInbox => 'chat.inbox.load_failed',
+    ChatApiErrorCode.loadInboxUnreadCount => 'chat.inbox.unread_count_failed',
+    ChatApiErrorCode.markConversationRead =>
+      'chat.conversations.mark_read_failed',
+    ChatApiErrorCode.markMessageDelivered =>
+      'chat.messages.mark_delivered_failed',
     ChatApiErrorCode.loadMessages => 'chat.messages.load_failed',
     ChatApiErrorCode.sendMessage => 'chat.messages.send_failed',
+    ChatApiErrorCode.manageConversation => 'chat.conversations.manage_failed',
+    ChatApiErrorCode.loadMembers => 'chat.members.load_failed',
+    ChatApiErrorCode.changeMembers => 'chat.members.change_failed',
+    ChatApiErrorCode.actOnMessage => 'chat.messages.action_failed',
+    ChatApiErrorCode.searchMessages => 'chat.search.failed',
+    ChatApiErrorCode.createAttachmentSession =>
+      'chat.attachments.session_failed',
+    ChatApiErrorCode.loadDraft => 'chat.drafts.load_failed',
+    ChatApiErrorCode.saveDraft => 'chat.drafts.save_failed',
+    ChatApiErrorCode.loadDirectory => 'chat.directory.load_failed',
+    ChatApiErrorCode.loadUserStatus => 'chat.status.load_failed',
+    ChatApiErrorCode.updateOwnStatus => 'chat.status.update_failed',
     ChatApiErrorCode.invalidResponse => 'chat.response.invalid',
   };
 }
