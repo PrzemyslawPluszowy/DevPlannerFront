@@ -9448,6 +9448,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageOfficeSaveCopyAction => 'Save copy in Storage';
 
   @override
+  String get storageOfficePlainFormatCommentsWarning =>
+      'This file format cannot save document comments. Create an Office copy before adding comments.';
+
+  @override
+  String storageOfficeCreateCommentableCopy(String format) {
+    return 'Create $format copy';
+  }
+
+  @override
   String get storageOfficeSavingCopy => 'Saving copy in Storage…';
 
   @override

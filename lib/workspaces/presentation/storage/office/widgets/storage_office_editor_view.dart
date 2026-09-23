@@ -67,6 +67,7 @@ final class StorageOfficeEditorView extends StatelessWidget {
               children: [
                 const _StorageOfficeOperationBanner(),
                 const _StorageOfficeSaveBanner(),
+                _StorageOfficePlainFormatBanner(file: file),
                 Expanded(
                   child: _StorageOfficeEditorBody(
                     hostController: hostController,
@@ -194,6 +195,74 @@ final class StorageOfficeEditorView extends StatelessWidget {
         duration: Duration(seconds: confirmed ? 5 : 15),
       ),
     );
+  }
+}
+
+/// TXT/CSV cannot carry comments back into the original file after export.
+final class _StorageOfficePlainFormatBanner extends StatelessWidget {
+  const _StorageOfficePlainFormatBanner({required this.file});
+
+  final StorageFileResponse file;
+
+  @override
+  Widget build(BuildContext context) {
+    final targetFormat = switch (file.extension
+        .replaceFirst('.', '')
+        .toLowerCase()) {
+      'txt' || 'html' => 'docx',
+      'csv' => 'xlsx',
+      _ => null,
+    };
+    if (targetFormat == null) return const SizedBox.shrink();
+
+    return BlocBuilder<
+      StorageOfficeEditorActionsCubit,
+      StorageOfficeEditorActionsState
+    >(
+      buildWhen: (previous, current) =>
+          previous.isSessionReady != current.isSessionReady ||
+          previous.isSavingCopy != current.isSavingCopy ||
+          previous.isPrinting != current.isPrinting ||
+          previous.isDownloading != current.isDownloading ||
+          previous.isClosing != current.isClosing,
+      builder: (context, actions) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        color: context.colors.tertiary.withValues(alpha: 0.10),
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 12,
+          children: [
+            Text(context.l10n.storageOfficePlainFormatCommentsWarning),
+            TextButton(
+              onPressed:
+                  !actions.isSessionReady ||
+                      actions.isSavingCopy ||
+                      actions.isPrinting ||
+                      actions.isDownloading ||
+                      actions.isClosing
+                  ? null
+                  : () => context
+                        .read<StorageOfficeEditorActionsCubit>()
+                        .saveCopy(
+                          sessionToken: _sessionToken(context),
+                          format: targetFormat,
+                        ),
+              child: Text(
+                context.l10n.storageOfficeCreateCommentableCopy(
+                  targetFormat.toUpperCase(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String? _sessionToken(BuildContext context) {
+    final state = context.read<StorageOfficeCubit>().state;
+    return state is StorageOfficeReady ? state.session.token : null;
   }
 }
 

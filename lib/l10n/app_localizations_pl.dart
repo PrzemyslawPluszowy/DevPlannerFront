@@ -9528,6 +9528,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageOfficeSaveCopyAction => 'Zapisz kopię w Storage';
 
   @override
+  String get storageOfficePlainFormatCommentsWarning =>
+      'Ten format pliku nie zapisuje komentarzy dokumentowych. Przed dodaniem komentarzy utwórz kopię Office.';
+
+  @override
+  String storageOfficeCreateCommentableCopy(String format) {
+    return 'Utwórz kopię $format';
+  }
+
+  @override
   String get storageOfficeSavingCopy => 'Zapisywanie kopii w Storage…';
 
   @override

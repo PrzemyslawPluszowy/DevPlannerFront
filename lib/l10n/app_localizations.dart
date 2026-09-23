@@ -16964,6 +16964,18 @@ abstract class AppLocalizations {
   /// **'Save copy in Storage'**
   String get storageOfficeSaveCopyAction;
 
+  /// No description provided for @storageOfficePlainFormatCommentsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This file format cannot save document comments. Create an Office copy before adding comments.'**
+  String get storageOfficePlainFormatCommentsWarning;
+
+  /// No description provided for @storageOfficeCreateCommentableCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Create {format} copy'**
+  String storageOfficeCreateCommentableCopy(String format);
+
   /// No description provided for @storageOfficeSavingCopy.
   ///
   /// In en, this message translates to:
