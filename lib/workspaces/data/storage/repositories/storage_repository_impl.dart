@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/data/api_repository.dart';
 import 'package:devplanner/core/error/api_error.dart';
@@ -197,6 +199,21 @@ final class StorageRepositoryImpl extends ApiRepository
     () => _api.getDownloadTicket(fileId),
     fallbackMessage: 'Nie udało się pobrać biletu pobrania.',
     parsingMessage: 'Backend zwrócił nieprawidłowy bilet pobrania.',
+  );
+
+  @override
+  Future<Either<ApiError, Uint8List>> readPreviewImageBytes({
+    required String fileId,
+    int? version,
+  }) => guardApiCall(
+    () async {
+      final response = version == null
+          ? await _api.streamFile(fileId)
+          : await _api.streamFileVersion(fileId, version);
+      return Uint8List.fromList(response.data);
+    },
+    fallbackMessage: 'Nie udało się pobrać obrazu do podglądu.',
+    parsingMessage: 'Backend zwrócił nieprawidłowe dane obrazu.',
   );
 
   @override

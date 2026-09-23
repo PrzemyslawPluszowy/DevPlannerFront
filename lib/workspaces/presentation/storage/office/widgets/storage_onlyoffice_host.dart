@@ -9,6 +9,7 @@ import 'package:devplanner/workspaces/data/storage/models/storage_extended_model
 import 'package:devplanner/workspaces/data/storage/transport/onlyoffice_bridge.dart';
 import 'package:devplanner/workspaces/data/storage/transport/onlyoffice_editor_html_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:webview_all/webview_all.dart';
 
 part 'storage_onlyoffice_controller.dart';
@@ -67,6 +68,8 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
     const _StorageOnlyOfficeHostViewState(),
   );
   Timer? _loadTimeout;
+  bool _appReady = false;
+  bool _documentReady = false;
 
   @override
   void initState() {
@@ -113,9 +116,30 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
               );
               widget.onDownloadRequested?.call(url);
             },
+            onAppReady: () {
+              if (!mounted ||
+                  !identical(_viewState.value.controller, controller)) {
+                return;
+              }
+              _appReady = true;
+              _viewState.value = _viewState.value.copyWith(isLoading: false);
+            },
+            onUserActionRequired: () {
+              if (!mounted ||
+                  !identical(_viewState.value.controller, controller)) {
+                return;
+              }
+              _appReady = true;
+              _loadTimeout?.cancel();
+              _viewState.value = _viewState.value.copyWith(
+                isLoading: false,
+                documentTimedOut: false,
+              );
+            },
             onPageFinished: () {
               if (mounted &&
                   identical(_viewState.value.controller, controller)) {
+                _documentReady = true;
                 widget.hostController?._documentReady = true;
                 _loadTimeout?.cancel();
                 developer.log(
@@ -124,6 +148,7 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
                 );
                 _viewState.value = _viewState.value.copyWith(
                   isLoading: false,
+                  documentTimedOut: false,
                 );
               }
             },
@@ -173,25 +198,31 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
   Future<void> _loadSession() async {
     final controller = _viewState.value.controller;
     if (controller == null) return;
+    _appReady = false;
+    _documentReady = false;
     widget.hostController?._documentReady = false;
     if (mounted) {
       _viewState.value = _viewState.value.copyWith(
         clearInitializationError: true,
         isLoading: true,
+        documentTimedOut: false,
       );
     }
     _loadTimeout?.cancel();
     _loadTimeout = Timer(const Duration(seconds: 30), () {
-      if (!mounted || !_viewState.value.isLoading) return;
+      if (!mounted || _documentReady) return;
       developer.log(
-        'Przekroczono 30 s oczekiwania na dokument.',
+        'Przekroczono 30 s oczekiwania na dokument; appReady=$_appReady.',
         name: 'storage.onlyoffice',
         level: 1000,
       );
       _viewState.value = _viewState.value.copyWith(
-        initializationError: TimeoutException(
-          'OnlyOffice nie zakończył ładowania w ciągu 30 sekund.',
-        ),
+        initializationError: _appReady
+            ? null
+            : TimeoutException(
+                'OnlyOffice nie zakończył ładowania w ciągu 30 sekund.',
+              ),
+        documentTimedOut: _appReady,
         isLoading: false,
       );
     });
@@ -218,27 +249,50 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      ValueListenableBuilder<_StorageOnlyOfficeHostViewState>(
-        valueListenable: _viewState,
-        builder: (context, state, _) {
-          if (state.initializationError case final error?) {
-            return _StorageOnlyOfficeHostError(
-              error: error,
-              onRetry: _loadSession,
-            );
-          }
+  Widget build(
+    BuildContext context,
+  ) => ValueListenableBuilder<_StorageOnlyOfficeHostViewState>(
+    valueListenable: _viewState,
+    builder: (context, state, _) {
+      if (state.initializationError case final error?) {
+        return _StorageOnlyOfficeHostError(
+          error: error,
+          onRetry: _loadSession,
+        );
+      }
 
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              if (state.controller case final controller?)
-                controller.buildWidget(),
-              if (state.isLoading) const _StorageOnlyOfficeHostLoading(),
-            ],
-          );
-        },
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          if (state.controller case final controller?) controller.buildWidget(),
+          if (state.isLoading) const _StorageOnlyOfficeHostLoading(),
+          if (state.documentTimedOut)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Card(
+                margin: const EdgeInsets.all(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(AppIcons.alertCircle, color: context.colors.error),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.storageOfficeHostFailure),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: _loadSession,
+                        child: Text(context.l10n.retry),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       );
+    },
+  );
 }
 
 final class _StorageOnlyOfficeHostViewState {
@@ -246,16 +300,19 @@ final class _StorageOnlyOfficeHostViewState {
     this.controller,
     this.initializationError,
     this.isLoading = true,
+    this.documentTimedOut = false,
   });
 
   final StorageOnlyOfficeController? controller;
   final Object? initializationError;
   final bool isLoading;
+  final bool documentTimedOut;
 
   _StorageOnlyOfficeHostViewState copyWith({
     StorageOnlyOfficeController? controller,
     Object? initializationError,
     bool? isLoading,
+    bool? documentTimedOut,
     bool clearInitializationError = false,
   }) => _StorageOnlyOfficeHostViewState(
     controller: controller ?? this.controller,
@@ -263,6 +320,7 @@ final class _StorageOnlyOfficeHostViewState {
         ? null
         : initializationError ?? this.initializationError,
     isLoading: isLoading ?? this.isLoading,
+    documentTimedOut: documentTimedOut ?? this.documentTimedOut,
   );
 }
 

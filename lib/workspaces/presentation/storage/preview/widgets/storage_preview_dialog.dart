@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
@@ -156,12 +157,14 @@ class StoragePreviewDialog extends StatelessWidget {
                     :final kind,
                     :final previewUrl,
                     :final previewHeaders,
+                    :final imageBytes,
                   ) =>
                     _buildPreviewBody(
                       context,
                       kind,
                       previewUrl,
                       previewHeaders,
+                      imageBytes,
                     ),
                 },
               ),
@@ -177,36 +180,39 @@ class StoragePreviewDialog extends StatelessWidget {
     StoragePreviewKind kind,
     String previewUrl,
     Map<String, String> previewHeaders,
+    Uint8List? imageBytes,
   ) {
     return switch (kind) {
-      StoragePreviewKind.image => Center(
-        child: InteractiveViewer(
-          child: Image.network(
-            previewUrl,
-            headers: previewHeaders,
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) => Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    AppIcons.alertCircle,
-                    size: 40,
-                    color: context.colors.error,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    context.l10n.storageImageLoadError,
-                    style: context.text.bodyMedium?.copyWith(
-                      color: context.colors.error,
+      StoragePreviewKind.image =>
+        imageBytes == null
+            ? Center(child: Text(context.l10n.storageImageLoadError))
+            : Center(
+                child: InteractiveViewer(
+                  child: Image.memory(
+                    imageBytes,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, _, _) => Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            AppIcons.alertCircle,
+                            size: 40,
+                            color: context.colors.error,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            context.l10n.storageImageLoadError,
+                            style: context.text.bodyMedium?.copyWith(
+                              color: context.colors.error,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-      ),
       StoragePreviewKind.office => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

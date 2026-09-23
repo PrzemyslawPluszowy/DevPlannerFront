@@ -6194,3 +6194,43 @@ stanu, który już nie istnieje.
   uruchamiano testów widgetowych/golden; pełny odbiór UI pozostaje otwarty.
 - [ ] Staging `/` nadal odpowiada HTTP 500; katalog `/srv/devplanner/frontend/current`
   nie istnieje. Frontu nie opublikowano.
+
+### STORAGE-IMAGE-PREVIEW — autoryzowany podgląd obrazów (2026-09-23)
+
+- [x] Podgląd bieżącego obrazu i wersji pobiera bajty przez istniejący
+  uwierzytelniony Storage API z kontrolą ACL i renderuje je przez `Image.memory`.
+  Wcześniejszy `Image.network` otwierał chroniony `/stream` bez nagłówka
+  Authorization, co powodowało przekierowanie do logowania.
+- [x] `dart format`, analiza zmienionych plików i `git diff --check`: PASS.
+- [ ] Pełne `flutter analyze --no-pub` wskazuje jedno niezwiązane ostrzeżenie
+  `unawaited_return_in_try_block` w module Chat. Ręczny odbiór podglądu PNG
+  w uruchomionej aplikacji i na stagingu pozostaje do wykonania po publikacji
+  Frontu. Testów nie dodawano ani nie uruchamiano.
+
+### STORAGE-ONLYOFFICE-READY — odsłonięcie interakcji CSV/TXT (2026-09-23)
+
+- [x] Po `onAppReady` host odsłania ramkę edytora, nie czekając na
+  `onDocumentReady`. Dialog wyboru kodowania/separatora CSV/TXT nie jest
+  zasłaniany loaderem.
+- [x] `onUserActionRequired` usuwa licznik 30 s na czas wyboru użytkownika;
+  timeout po `onAppReady` pozostawia ramkę widoczną i pokazuje komunikat
+  bez blokowania edytora. Logi etapów nie zawierają tokenów ani URL pliku.
+- [x] `dart format`, analiza zmienionych plików i `git diff --check`: PASS.
+- [ ] Odbiór `metryki.csv` po wyborze kodowania/separatora oraz trwałości
+  zapisu pozostaje otwarty. Testów nie dodawano ani nie uruchamiano.
+
+### STORAGE-ONLYOFFICE-ACTIONS — jedna obsługa akcji edytora (2026-09-23)
+
+- [x] Eksport PDF/druk, pobranie i zapis kopii nie mogą działać równolegle;
+  spóźniony eksport po timeoutcie nie trafia do następnej akcji.
+- [x] Usunięto pływający duplikat przycisku zamknięcia, a postęp operacji i
+  status zapisu wyświetlają się w stałych paskach. Zamknięcie w trakcie
+  eksportu jest zablokowane; niepotwierdzony zapis wymaga decyzji użytkownika.
+- [x] Po potwierdzeniu nowszej wersji przez Backend pojawia się trwały pasek
+  „Zapisano” i komunikat; po timeoutcie widoczny jest brak potwierdzenia.
+- [x] Wbudowane `Save Copy as` nie jest zgłaszane przez host, a odnośniki
+  opuszczające główną ramkę WebView są blokowane. Backend ukrywa wtyczki,
+  wewnętrzny druk i krzyżyk w podpisanej konfiguracji.
+- [ ] Odbiór na stagingu: zapis nowej wersji, kopia, natywne drukowanie i
+  zachowanie menu `Pobierz jako`. Trwałości nie uznaje się za potwierdzoną
+  bez odczytu nowej wersji przez Backend.

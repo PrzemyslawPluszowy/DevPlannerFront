@@ -8385,3 +8385,73 @@ nie wykonano stagingowej mutacji ani nie otwierano rozmowy z unread.
 - Nadal otwarte: staging Front HTTP 500 (brak katalogu
   `/srv/devplanner/frontend/current`), dwu-sesyjne SignalR i runtime QA
   załączników.
+
+### STORAGE-IMAGE-PREVIEW — autoryzowany podgląd obrazów (2026-09-23)
+
+Przyczyną niedziałającego podglądu PNG był chroniony endpoint
+`/api/v1/storage/files/{id}/stream?inline=true`: dotychczasowy `Image.network`
+wywoływał go bez uwierzytelnienia. Niezalogowane żądanie na stagingu zwracało
+302 do logowania. Metadane stagingowej `makieta.png` (rozmiar i SHA-256)
+odpowiadały poprawnemu PNG seedera; zgodność faktycznych bajtów w storage
+pozostaje do sprawdzenia przez autoryzowany odczyt.
+
+Zmienione pliki Front: `storage_repository.dart`, `storage_repository_impl.dart`,
+`storage_preview_cubit.dart`, `storage_preview_state.dart` i
+`storage_preview_dialog.dart`. Bieżące obrazy i wersje są pobierane przez
+istniejący autoryzowany Storage API (`streamFile`/`streamFileVersion`), a
+widok używa `Image.memory`. Zachowano obsługę błędu pobrania i dekodowania.
+Backend, endpointy, enumy transportowe, OpenAPI i schemat bez zmian.
+
+`dart format` PASS; `flutter analyze --no-pub` dla zmienionych plików PASS;
+`git diff --check` PASS. Pełne `flutter analyze --no-pub` zwróciło jedno
+niezwiązane ostrzeżenie `unawaited_return_in_try_block` w
+`chat_message_secondary_actions_cubit.dart:194`. Nie dodawano ani nie
+uruchamiano testów. Frontu nie opublikowano. Następny krok: odbiór bieżącej i
+historycznej PNG w działającej aplikacji po publikacji Frontu, a w razie
+błędu sprawdzenie faktycznych bajtów MinIO.
+
+### STORAGE-ONLYOFFICE-READY — lifecycle CSV/TXT (2026-09-23)
+
+Po zgłoszeniu timeoutu `metryki.csv` logi pokazały `apiLoaded`,
+`editorCreated` i `onAppReady`, lecz brak `onDocumentReady`. Oficjalny
+lifecycle ONLYOFFICE wskazuje, że CSV/TXT mogą wymagać wyboru kodowania lub
+separatora przez użytkownika przed `onDocumentReady`. Poprzedni loader
+zasłaniał ramkę do tego momentu, po czym po 30 s zastępował ją błędem.
+Na ekranie aplikacji `notatki-prywatne.txt` otworzył się z treścią seedera;
+użytkownik potwierdził również działanie poprawionego podglądu obrazu.
+
+Front: `onlyoffice_editor_html_builder.dart` wysyła `appReady` i
+`userActionRequired`; `storage_onlyoffice_controller.dart` przekazuje
+zdarzenia i loguje bezpieczne etapy; `storage_onlyoffice_host.dart` odsłania
+edytor po `onAppReady`, a gdy potrzebny jest wybór użytkownika, anuluje
+timeout dokumentu. Jeśli dokument nadal nie jest gotowy po 30 s, pokazuje
+nieblokujący komunikat na widocznej ramce. Sygnatura fake kontrolera w
+`storage_onlyoffice_host_test.dart` została dopasowana do portu; nie dodano
+ani nie uruchomiono testów. Backend i kontrakt API bez zmian.
+
+`dart format`, analiza zmienionych plików i `git diff --check`: PASS.
+`flutter build macos --debug --dart-define=DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl`
+PASS po dopisaniu `onUserActionRequired`; ręczny odbiór CSV pozostaje do
+potwierdzenia. Logowany wcześniej `iframeAttached=false` wynikał z
+niepoprawnego selektora hosta i został usunięty; `onAppReady` potwierdza
+uruchomienie ramki. Nie potwierdzono jeszcze zapisania edycji CSV.
+
+### STORAGE-ONLYOFFICE-ACTIONS — porządkowanie zapisu, kopii i druku (2026-09-23)
+
+Zmieniono `storage_office_editor_actions_cubit.dart`,
+`storage_office_editor_view.dart`, `storage_onlyoffice_controller.dart`,
+`storage_office_close_confirmation.dart`, `onlyoffice_editor_html_builder.dart`
+oraz dostosowano istniejące oczekiwanie testu buildera do ukrytej akcji
+`Save Copy as`. Eksporty są pojedyncze, a odpowiedź po timeoutcie nie może
+zostać przypisana kolejnemu żądaniu. Jeden krzyżyk zostaje w pasku aplikacji;
+status zapisu i postęp operacji są stale widoczne. Zamknięcie podczas eksportu
+jest zablokowane, a stan niepotwierdzonego zapisu wymaga decyzji. Główna ramka
+WebView nie może przejść do strony z logo. Backend ukrywa pluginy, pomoc,
+wewnętrzny druk i krzyżyk oraz nie włącza wewnętrznego „Save Copy as”.
+Samo logo może pozostać widoczne w Community Edition, która nie gwarantuje
+obsługi opcji brandingu; kliknięcie nie przenosi głównej ramki na obcą stronę.
+Po potwierdzeniu nowszej wersji Backend Front pokazuje trwały pasek „Zapisano”
+i jednorazowy komunikat; brak potwierdzenia daje ostrzeżenie.
+Publiczny kontrakt API, enumy i schemat bez zmian. Następny krok: ręczny odbiór
+na stagingu zapisu nowej wersji, kopii i druku; bez niego trwałość pozostaje
+niepotwierdzona.

@@ -236,6 +236,8 @@ final class _FakeStorageOnlyOfficeController
     VoidCallback? onPrintRequested,
     required VoidCallback onPageFinished,
     required ValueChanged<String> onMainFrameError,
+    VoidCallback? onAppReady,
+    VoidCallback? onUserActionRequired,
     VoidCallback? onDocumentReady,
     ValueChanged<bool>? onDocumentStateChanged,
   }) async {

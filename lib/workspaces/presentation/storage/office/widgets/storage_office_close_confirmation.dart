@@ -13,8 +13,11 @@ Future<bool> confirmStorageOfficeClose(
   BuildContext context, {
   required bool hasUnsavedChanges,
   bool isAwaitingSaveConfirmation = false,
+  bool isSaveUnconfirmed = false,
 }) async {
-  if (!hasUnsavedChanges && !isAwaitingSaveConfirmation) return true;
+  if (!hasUnsavedChanges && !isAwaitingSaveConfirmation && !isSaveUnconfirmed) {
+    return true;
+  }
   final awaiting = !hasUnsavedChanges && isAwaitingSaveConfirmation;
   final confirmed = await showDialog<bool>(
     context: context,

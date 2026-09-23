@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
@@ -65,6 +67,12 @@ abstract interface class StorageRepository {
   Future<Either<ApiError, StorageDownloadTicketResponse>> getDownloadTicket(
     String fileId,
   );
+
+  /// Odczytuje obraz przez uwierzytelniony transport API, z kontrolą ACL.
+  Future<Either<ApiError, Uint8List>> readPreviewImageBytes({
+    required String fileId,
+    int? version,
+  });
 
   /// Exchanges a public share token and optional password for a download ticket.
   Future<Either<ApiError, StorageDownloadTicketResponse>>

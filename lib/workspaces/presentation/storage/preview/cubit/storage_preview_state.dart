@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:equatable/equatable.dart';
 
@@ -59,6 +61,7 @@ class StoragePreviewReady extends StoragePreviewState {
     required this.file,
     required this.kind,
     required this.previewUrl,
+    this.imageBytes,
     this.officeSessionUrl,
     this.previewHeaders = const {},
     this.version,
@@ -72,6 +75,9 @@ class StoragePreviewReady extends StoragePreviewState {
 
   /// Bezpieczny URL pobrania/strumienia z biletu.
   final String previewUrl;
+
+  /// Bajty obrazu pobrane przez uwierzytelniony klient API.
+  final Uint8List? imageBytes;
 
   /// Opcjonalny URL sesji OnlyOffice dla dokumentów biurowych.
   final String? officeSessionUrl;
@@ -93,6 +99,7 @@ class StoragePreviewReady extends StoragePreviewState {
     file,
     kind,
     previewUrl,
+    imageBytes,
     officeSessionUrl,
     version,
   ];

@@ -22,17 +22,33 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
     final ticketResult = await repository.getDownloadTicket(file.id);
     if (isClosed) return;
 
-    ticketResult.fold(
-      (err) => emit(
-        StoragePreviewFailure(
-          file: file,
-          message: err.message,
-        ),
+    await ticketResult.fold<Future<void>>(
+      (err) async => emit(
+        StoragePreviewFailure(file: file, message: err.message),
       ),
-      (ticket) {
+      (ticket) async {
         final previewUrl = _absolutePreviewUrl(
           ticket.previewUrl ?? ticket.downloadUrl,
         );
+        if (kind == StoragePreviewKind.image) {
+          final bytesResult = await repository.readPreviewImageBytes(
+            fileId: file.id,
+          );
+          if (isClosed) return;
+          bytesResult.fold(
+            (err) =>
+                emit(StoragePreviewFailure(file: file, message: err.message)),
+            (bytes) => emit(
+              StoragePreviewReady(
+                file: file,
+                kind: kind,
+                previewUrl: previewUrl,
+                imageBytes: bytes,
+              ),
+            ),
+          );
+          return;
+        }
         emit(
           StoragePreviewReady(
             file: file,
@@ -65,10 +81,32 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
     );
     if (isClosed) return;
 
-    ticketResult.fold(
-      (err) => emit(StoragePreviewFailure(file: file, message: err.message)),
-      (ticket) {
+    await ticketResult.fold<Future<void>>(
+      (err) async =>
+          emit(StoragePreviewFailure(file: file, message: err.message)),
+      (ticket) async {
         final previewUrl = _absolutePreviewUrl(ticket.downloadUrl);
+        if (kind == StoragePreviewKind.image) {
+          final bytesResult = await repository.readPreviewImageBytes(
+            fileId: file.id,
+            version: version,
+          );
+          if (isClosed) return;
+          bytesResult.fold(
+            (err) =>
+                emit(StoragePreviewFailure(file: file, message: err.message)),
+            (bytes) => emit(
+              StoragePreviewReady(
+                file: file,
+                kind: kind,
+                previewUrl: previewUrl,
+                imageBytes: bytes,
+                version: version,
+              ),
+            ),
+          );
+          return;
+        }
         emit(
           StoragePreviewReady(
             file: file,

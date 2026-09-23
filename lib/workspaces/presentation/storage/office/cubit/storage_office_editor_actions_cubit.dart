@@ -23,7 +23,7 @@ final class StorageOfficeEditorActionsCubit
     this._uploadTransport,
     this._hostController, {
     this.confirmationInterval = const Duration(milliseconds: 1500),
-    this.confirmationTimeout = const Duration(seconds: 20),
+    this.confirmationTimeout = const Duration(seconds: 60),
   }) : _baselineVersion = _file.version,
        _confirmationFloor = _file.version,
        super(const StorageOfficeEditorActionsState());
@@ -54,9 +54,12 @@ final class StorageOfficeEditorActionsCubit
   DateTime? _confirmationDeadline;
   bool _confirmationInFlight = false;
 
+  bool get _isExportBusy =>
+      state.isDownloading || state.isPrinting || state.isSavingCopy;
+
   /// Prosi osadzony edytor o wygenerowanie pliku w formacie źródłowym.
   Future<void> requestDownload() async {
-    if (state.isDownloading || state.isClosing) return;
+    if (_isExportBusy || state.isClosing || !state.isSessionReady) return;
     emit(state.copyWith(isDownloading: true));
     try {
       final extension = _file.extension.replaceFirst('.', '');
@@ -77,33 +80,45 @@ final class StorageOfficeEditorActionsCubit
     OnlyOfficeDownload download, {
     required String? sessionToken,
   }) async {
-    if (state.isClosing) return;
+    if (state.isClosing || state.isPrinting || state.isSavingCopy) return;
     if (!state.isDownloading) emit(state.copyWith(isDownloading: true));
 
     final fileName = '$_fileStem.${download.fileType}';
-    final result = await _downloadTransport.downloadUrl(
-      downloadUrl: download.url,
-      fileName: fileName,
-      headers: _onlyOfficeHeaders(sessionToken),
-    );
-    if (isClosed) return;
+    try {
+      final result = await _downloadTransport
+          .downloadUrl(
+            downloadUrl: download.url,
+            fileName: fileName,
+            headers: _onlyOfficeHeaders(sessionToken),
+          )
+          .timeout(const Duration(minutes: 2));
+      if (isClosed) return;
 
-    result.fold(
-      (error) => _finishDownloadWithNotice(
-        StorageOfficeEditorActionFailure(message: error.message),
-      ),
-      (_) => _finishDownloadWithNotice(
-        StorageOfficeEditorActionSuccess(
-          fileName: fileName,
-          kind: StorageOfficeEditorActionSuccessKind.download,
+      result.fold(
+        (error) => _finishDownloadWithNotice(
+          StorageOfficeEditorActionFailure(message: error.message),
         ),
-      ),
-    );
+        (_) => _finishDownloadWithNotice(
+          StorageOfficeEditorActionSuccess(
+            fileName: fileName,
+            kind: StorageOfficeEditorActionSuccessKind.download,
+          ),
+        ),
+      );
+    } on Object {
+      if (!isClosed) {
+        _finishDownloadWithNotice(
+          const StorageOfficeEditorActionLocalizedFailure(
+            code: StorageOfficeEditorActionFailureCode.download,
+          ),
+        );
+      }
+    }
   }
 
   /// Eksportuje dokument do PDF i przekazuje bajty do natywnego systemu drukowania.
   Future<void> requestPrint({required String? sessionToken}) async {
-    if (state.isPrinting || state.isClosing) return;
+    if (_isExportBusy || state.isClosing || !state.isSessionReady) return;
     emit(state.copyWith(isPrinting: true));
     try {
       final download = await _hostController
@@ -144,7 +159,7 @@ final class StorageOfficeEditorActionsCubit
     String? suggestedTitle,
     String? downloadUrl,
   }) async {
-    if (state.isSavingCopy || state.isClosing) return;
+    if (_isExportBusy || state.isClosing || !state.isSessionReady) return;
     emit(state.copyWith(isSavingCopy: true));
     try {
       final download = await _resolveCopyDownload(
@@ -182,7 +197,7 @@ final class StorageOfficeEditorActionsCubit
 
   /// Rezerwuje zamknięcie, aby UI nie uruchomiło drugi raz lifecycle WebView.
   bool beginClosing() {
-    if (state.isClosing) return false;
+    if (state.isClosing || _isExportBusy) return false;
     emit(state.copyWith(isClosing: true));
     return true;
   }
@@ -256,13 +271,19 @@ final class StorageOfficeEditorActionsCubit
     if (isClosed || _confirmationInFlight) return;
     if (_confirmationDeadline case final deadline?
         when DateTime.now().isAfter(deadline)) {
-      _stopConfirmationWatch();
+      // Późniejszy ręczny Save nadal może utworzyć wersję. Pokazujemy brak
+      // potwierdzenia, ale sprawdzamy rzadziej aż do zamknięcia/nowej edycji.
+      _confirmationTimer?.cancel();
+      _confirmationDeadline = null;
+      _confirmationTimer = Timer.periodic(
+        const Duration(seconds: 5),
+        (_) => unawaited(_confirmSavedVersion()),
+      );
       emit(
         state.copyWith(
           saveConfirmation: StorageOfficeSaveConfirmation.unconfirmed,
         ),
       );
-      return;
     }
 
     _confirmationInFlight = true;
@@ -282,6 +303,8 @@ final class StorageOfficeEditorActionsCubit
           confirmedVersion: version,
         ),
       );
+    } on Object {
+      // Błąd odczytu wersji oznacza brak potwierdzenia, nie udany zapis.
     } finally {
       _confirmationInFlight = false;
     }

@@ -27,7 +27,8 @@ final class StorageOfficeEditorView extends StatelessWidget {
   final StorageOnlyOfficeHostController hostController;
 
   @override
-  Widget build(BuildContext context) =>
+  Widget build(BuildContext context) => MultiBlocListener(
+    listeners: [
       BlocListener<
         StorageOfficeEditorActionsCubit,
         StorageOfficeEditorActionsState
@@ -35,44 +36,50 @@ final class StorageOfficeEditorView extends StatelessWidget {
         listenWhen: (previous, current) =>
             previous.noticeRevision != current.noticeRevision,
         listener: _showNotice,
-        child: AppModalAccessibilityBoundary(
-          onDismiss: () => unawaited(_close(context)),
-          child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, _) {
-              if (!didPop) unawaited(_close(context));
-            },
-            child: Dialog.fullscreen(
-              child: Scaffold(
-                appBar: _StorageOfficeEditorAppBar(
-                  file: file,
-                  onClose: () => unawaited(_close(context)),
+      ),
+      BlocListener<
+        StorageOfficeEditorActionsCubit,
+        StorageOfficeEditorActionsState
+      >(
+        listenWhen: (previous, current) =>
+            previous.saveConfirmation != current.saveConfirmation &&
+            (current.saveConfirmation ==
+                    StorageOfficeSaveConfirmation.confirmed ||
+                current.saveConfirmation ==
+                    StorageOfficeSaveConfirmation.unconfirmed),
+        listener: _showSaveConfirmationNotice,
+      ),
+    ],
+    child: AppModalAccessibilityBoundary(
+      onDismiss: () => unawaited(_close(context)),
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) unawaited(_close(context));
+        },
+        child: Dialog.fullscreen(
+          child: Scaffold(
+            appBar: _StorageOfficeEditorAppBar(
+              file: file,
+              onClose: () => unawaited(_close(context)),
+            ),
+            body: Column(
+              children: [
+                const _StorageOfficeOperationBanner(),
+                const _StorageOfficeSaveBanner(),
+                Expanded(
+                  child: _StorageOfficeEditorBody(
+                    hostController: hostController,
+                    onClose: () => unawaited(_close(context)),
+                  ),
                 ),
-                body: _StorageOfficeEditorBody(
-                  hostController: hostController,
-                  onClose: () => unawaited(_close(context)),
-                ),
-                floatingActionButton:
-                    BlocSelector<
-                      StorageOfficeEditorActionsCubit,
-                      StorageOfficeEditorActionsState,
-                      bool
-                    >(
-                      selector: (state) => state.isClosing,
-                      builder: (context, isClosing) =>
-                          FloatingActionButton.small(
-                            tooltip: context.l10n.close,
-                            onPressed: isClosing
-                                ? null
-                                : () => unawaited(_close(context)),
-                            child: const Icon(AppIcons.close),
-                          ),
-                    ),
-              ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 
   Future<void> _close(BuildContext context) async {
     final actions = context.read<StorageOfficeEditorActionsCubit>();
@@ -81,6 +88,9 @@ final class StorageOfficeEditorView extends StatelessWidget {
       context,
       hasUnsavedChanges: actions.state.hasUnsavedChanges,
       isAwaitingSaveConfirmation: actions.isAwaitingSaveConfirmation,
+      isSaveUnconfirmed:
+          actions.state.saveConfirmation ==
+          StorageOfficeSaveConfirmation.unconfirmed,
     );
     if (!context.mounted) return;
     if (!canClose) {
@@ -168,6 +178,23 @@ final class StorageOfficeEditorView extends StatelessWidget {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
+
+  void _showSaveConfirmationNotice(
+    BuildContext context,
+    StorageOfficeEditorActionsState state,
+  ) {
+    final confirmed =
+        state.saveConfirmation == StorageOfficeSaveConfirmation.confirmed;
+    final message = confirmed
+        ? context.l10n.storageOfficeSavedChanges
+        : context.l10n.storageOfficeSaveUnconfirmed;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: confirmed ? 5 : 15),
+      ),
+    );
+  }
 }
 
 final class _StorageOfficeEditorAppBar extends StatelessWidget
@@ -197,7 +224,13 @@ final class _StorageOfficeEditorAppBar extends StatelessWidget
           leading: IconButton(
             icon: const Icon(AppIcons.close),
             tooltip: context.l10n.close,
-            onPressed: actions.isClosing ? null : onClose,
+            onPressed:
+                actions.isClosing ||
+                    actions.isSavingCopy ||
+                    actions.isPrinting ||
+                    actions.isDownloading
+                ? null
+                : onClose,
           ),
           actions: [
             _StorageOfficeEditorActionButton(
@@ -208,7 +241,8 @@ final class _StorageOfficeEditorAppBar extends StatelessWidget
                   actions.isSavingCopy ||
                       actions.isPrinting ||
                       actions.isDownloading ||
-                      actions.isClosing
+                      actions.isClosing ||
+                      !actions.isSessionReady
                   ? null
                   : () => context
                         .read<StorageOfficeEditorActionsCubit>()
@@ -220,7 +254,12 @@ final class _StorageOfficeEditorAppBar extends StatelessWidget
               tooltip: context.l10n.storageOfficePrintAction,
               icon: AppIcons.print,
               isLoading: actions.isPrinting,
-              onPressed: actions.isPrinting || actions.isClosing
+              onPressed:
+                  actions.isPrinting ||
+                      actions.isSavingCopy ||
+                      actions.isDownloading ||
+                      actions.isClosing ||
+                      !actions.isSessionReady
                   ? null
                   : () => context
                         .read<StorageOfficeEditorActionsCubit>()
@@ -232,7 +271,12 @@ final class _StorageOfficeEditorAppBar extends StatelessWidget
               tooltip: context.l10n.storageDownloadAction,
               icon: AppIcons.download,
               isLoading: actions.isDownloading,
-              onPressed: actions.isDownloading || actions.isClosing
+              onPressed:
+                  actions.isDownloading ||
+                      actions.isSavingCopy ||
+                      actions.isPrinting ||
+                      actions.isClosing ||
+                      !actions.isSessionReady
                   ? null
                   : () => context
                         .read<StorageOfficeEditorActionsCubit>()
@@ -276,6 +320,90 @@ final class _StorageOfficeEditorTitle extends StatelessWidget {
       status,
     ],
   );
+}
+
+/// Stały komunikat o zmianach, których backend jeszcze nie potwierdził.
+/// Snackbar znika zbyt szybko, by mógł chronić użytkownika przed utratą pracy.
+final class _StorageOfficeSaveBanner extends StatelessWidget {
+  const _StorageOfficeSaveBanner();
+
+  @override
+  Widget build(BuildContext context) =>
+      BlocBuilder<
+        StorageOfficeEditorActionsCubit,
+        StorageOfficeEditorActionsState
+      >(
+        buildWhen: (previous, current) =>
+            previous.hasUnsavedChanges != current.hasUnsavedChanges ||
+            previous.saveConfirmation != current.saveConfirmation,
+        builder: (context, actions) {
+          if (!actions.hasUnsavedChanges &&
+              actions.saveConfirmation !=
+                  StorageOfficeSaveConfirmation.awaitingServer &&
+              actions.saveConfirmation !=
+                  StorageOfficeSaveConfirmation.unconfirmed &&
+              actions.saveConfirmation !=
+                  StorageOfficeSaveConfirmation.confirmed) {
+            return const SizedBox.shrink();
+          }
+          final isUnconfirmed =
+              actions.saveConfirmation ==
+              StorageOfficeSaveConfirmation.unconfirmed;
+          final color = isUnconfirmed
+              ? context.colors.error
+              : actions.saveConfirmation ==
+                    StorageOfficeSaveConfirmation.confirmed
+              ? context.colors.primary
+              : context.colors.tertiary;
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            color: color.withValues(alpha: 0.10),
+            child: StorageOfficeStatusLabel(actions: actions),
+          );
+        },
+      );
+}
+
+final class _StorageOfficeOperationBanner extends StatelessWidget {
+  const _StorageOfficeOperationBanner();
+
+  @override
+  Widget build(BuildContext context) =>
+      BlocBuilder<
+        StorageOfficeEditorActionsCubit,
+        StorageOfficeEditorActionsState
+      >(
+        buildWhen: (previous, current) =>
+            previous.isSavingCopy != current.isSavingCopy ||
+            previous.isPrinting != current.isPrinting ||
+            previous.isDownloading != current.isDownloading,
+        builder: (context, actions) {
+          final label = actions.isSavingCopy
+              ? context.l10n.storageOfficeSavingCopy
+              : actions.isPrinting
+              ? context.l10n.storageOfficePrinting
+              : actions.isDownloading
+              ? context.l10n.storageDownloadAction
+              : null;
+          if (label == null) return const SizedBox.shrink();
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            color: context.colors.primary.withValues(alpha: 0.10),
+            child: Row(
+              children: [
+                const SizedBox.square(
+                  dimension: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: 10),
+                Text(label, style: context.text.bodyMedium),
+              ],
+            ),
+          );
+        },
+      );
 }
 
 final class _StorageOfficeEditorActionButton extends StatelessWidget {
@@ -377,7 +505,9 @@ final class _StorageOfficeEditorBody extends StatelessWidget {
                 ),
             onDownloadRequested: (download) {
               final actions = context.read<StorageOfficeEditorActionsCubit>();
-              if (actions.state.isPrinting) return;
+              if (actions.state.isPrinting || actions.state.isSavingCopy) {
+                return;
+              }
               unawaited(
                 actions.downloadGeneratedFile(
                   download,

@@ -36,7 +36,7 @@ void main() {
     expect(html, contains('web-apps/apps/api/documents/api.js'));
     expect(html, contains('new DocsAPI.DocEditor'));
     expect(html, contains('onDownloadAs'));
-    expect(html, contains('onRequestSaveAs:saveAs'));
+    expect(html, isNot(contains('onRequestSaveAs')));
     expect(html, contains('storageBridge.postMessage'));
     expect(html, contains(session.token));
     expect(html, isNot(contains('"fileId":"file-1"')));
