@@ -125,7 +125,8 @@ void main() {
     test('dopuszczalne są tylko bezpieczne adresy', () {
       expect(ChatFormatCommands.isSafeLink('https://example.test/a'), isTrue);
       expect(ChatFormatCommands.isSafeLink('HTTP://EXAMPLE.TEST'), isTrue);
-      expect(ChatFormatCommands.isSafeLink('/workspaces/1/chat'), isTrue);
+      expect(ChatFormatCommands.isSafeLink('/workspaces/1/chat'), isFalse);
+      expect(ChatFormatCommands.isSafeLink('//example.test/path'), isFalse);
       expect(ChatFormatCommands.isSafeLink('javascript:alert(1)'), isFalse);
       expect(ChatFormatCommands.isSafeLink('data:text/html,<b>x</b>'), isFalse);
       expect(ChatFormatCommands.isSafeLink(''), isFalse);
@@ -141,10 +142,9 @@ void main() {
         ChatFormatCommands.normalizeLink('https://a.test'),
         'https://a.test',
       );
-      expect(
-        ChatFormatCommands.normalizeLink('/workspaces/2'),
-        '/workspaces/2',
-      );
+      final appPath = ChatFormatCommands.normalizeLink('/workspaces/2');
+      expect(appPath, '/workspaces/2');
+      expect(ChatFormatCommands.isSafeLink(appPath), isFalse);
     });
   });
 
@@ -159,14 +159,14 @@ void main() {
           ChatLineFormatCommand.bulletList,
           currentlyActive: false,
         ),
-        const <Object?>['bullet'],
+        'bullet',
       );
       expect(
         ChatLineFormatCommands.toggledValue(
           ChatLineFormatCommand.orderedList,
           currentlyActive: false,
         ),
-        const <Object?>['ordered'],
+        'ordered',
       );
     });
 
@@ -193,7 +193,7 @@ void main() {
         ChatLineFormatCommands.isActive(
           ChatLineFormatCommand.bulletList,
           const {
-            'list': <Object?>['bullet'],
+            'list': 'bullet',
           },
         ),
         isTrue,
@@ -202,10 +202,20 @@ void main() {
         ChatLineFormatCommands.isActive(
           ChatLineFormatCommand.orderedList,
           const {
+            'list': 'bullet',
+          },
+        ),
+        isFalse,
+      );
+      expect(
+        ChatLineFormatCommands.isActive(
+          ChatLineFormatCommand.bulletList,
+          const {
             'list': <Object?>['bullet'],
           },
         ),
         isFalse,
+        reason: 'niepoprawny typ JSON nie może udawać poprawnego formatu Quill',
       );
     });
 

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
@@ -173,19 +172,9 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     if (draft.isEmpty || current is! ChatConversationReady || isClosed) {
       return null;
     }
-    // Composer pokazuje etykiety wzmianek, a transport wymaga tokenów `@<uuid>`,
-    // więc konwersja należy do granicy wysyłki i jest zapisywana w kolejce.
-    final outgoing = draft.mentions.isEmpty
-        ? draft
-        : draft.copyWith(
-            text: ChatMentionCodec.toWireText(
-              visibleText: draft.text,
-              mentions: draft.mentions,
-            ),
-          );
     final message = _deliveryQueue.enqueue(
       conversationId: conversationId,
-      draft: outgoing,
+      draft: draft,
     );
     _replaceMessage(message);
     return message.clientMessageId;
@@ -207,8 +196,16 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     final message = current.messages
         .where((item) => item.id == messageId)
         .firstOrNull;
-    if (message == null || message.isDeleted) return false;
+    if (message == null ||
+        message.isDeleted ||
+        (currentUserId.isNotEmpty && message.authorUserId == currentUserId)) {
+      return false;
+    }
     if (message.id.startsWith('local:')) return false;
+    final readCursor = _lastReadMessage;
+    if (readCursor != null && _compareMessages(message, readCursor) <= 0) {
+      return false;
+    }
     _readMarkersInFlight.add(messageId);
     var marked = false;
     try {
@@ -218,8 +215,12 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
       );
       if (!isClosed) {
         result.fold((_) {}, (_) {
-          _lastReadMessageId = messageId;
-          marked = true;
+          final latestRead = _lastReadMessage;
+          if (latestRead == null || _compareMessages(message, latestRead) > 0) {
+            _lastReadMessage = message;
+            _lastReadMessageId = messageId;
+            marked = true;
+          }
         });
       }
     } finally {
@@ -230,10 +231,19 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
 
   /// Ostatnio oznaczona wiadomość; chroni przed powtarzaniem żądania.
   String? _lastReadMessageId;
+  ChatMessage? _lastReadMessage;
   final Set<String> _readMarkersInFlight = <String>{};
+  final Set<String> _deliveryRefreshInFlight = <String>{};
+  final Set<String> _deliveryRefreshPending = <String>{};
 
   /// Widoczna wiadomość oznaczona lokalnie jako odczytana albo `null`.
   String? get lastReadMessageId => _lastReadMessageId;
+
+  /// Taki sam porządek jak kursor backendu: `(CreatedAtUtc, Id)`.
+  static int _compareMessages(ChatMessage left, ChatMessage right) {
+    final byTimestamp = left.createdAtUtc.compareTo(right.createdAtUtc);
+    return byTimestamp != 0 ? byTimestamp : left.id.compareTo(right.id);
+  }
 
   /// Ponawia konkretną nieudaną wiadomość z tym samym UUID i payload hash.
   void retry(String clientMessageId) => _deliveryQueue.retry(clientMessageId);
@@ -378,9 +388,13 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
         event.conversationId != conversationId) {
       return;
     }
-    // W trybie okna nowa wiadomość nie sąsiaduje z pokazanym zakresem, więc
-    // dopisanie jej utworzyłoby lukę. Użytkownik wraca do najnowszych jawnie.
-    if (current.isWindowedHistory) return;
+    // W trybie okna nowe wiadomości nie sąsiadują z pokazanym zakresem.
+    // Zdarzenia dostarczenia/odczytu mogą jednak odświeżyć konkretną wiadomość.
+    if (current.isWindowedHistory &&
+        event.kind !=
+            ChatConversationRealtimeEventKind.messageDeliveryChanged) {
+      return;
+    }
     final reduction = _realtimeReducer.apply(
       messages: current.messages,
       event: event,
@@ -398,8 +412,58 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
         );
       case ChatConversationRealtimeDecision.ignored:
         return;
+      case ChatConversationRealtimeDecision.refreshMessageDelivery:
+        final messageId = event.messageId;
+        if (messageId != null &&
+            current.messages.any((message) => message.id == messageId)) {
+          unawaited(_refreshMessageDelivery(messageId));
+        }
+        return;
       case ChatConversationRealtimeDecision.resyncRequired:
         unawaited(load());
+    }
+  }
+
+  Future<void> _refreshMessageDelivery(String messageId) async {
+    if (!_deliveryRefreshInFlight.add(messageId)) {
+      _deliveryRefreshPending.add(messageId);
+      return;
+    }
+    try {
+      do {
+        _deliveryRefreshPending.remove(messageId);
+        final current = state;
+        if (isClosed ||
+            current is! ChatConversationReady ||
+            !current.messages.any((message) => message.id == messageId)) {
+          return;
+        }
+        final result = await _repository.loadMessageWindow(
+          conversationId: conversationId,
+          messageId: messageId,
+        );
+        if (isClosed || state is! ChatConversationReady) return;
+        result.fold(
+          (error) {
+            if (error.type == ApiErrorType.unauthorized ||
+                error.type == ApiErrorType.forbidden) {
+              _detach(error.message);
+            }
+          },
+          (window) {
+            final latest = state;
+            final refreshed = window.messages
+                .where((message) => message.id == messageId)
+                .firstOrNull;
+            if (latest is ChatConversationReady && refreshed != null) {
+              _replaceMessage(refreshed);
+            }
+          },
+        );
+      } while (_deliveryRefreshPending.contains(messageId) && !isClosed);
+    } finally {
+      _deliveryRefreshInFlight.remove(messageId);
+      _deliveryRefreshPending.remove(messageId);
     }
   }
 

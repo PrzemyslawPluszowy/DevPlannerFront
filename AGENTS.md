@@ -93,6 +93,15 @@ status`; zachowaj cudze i niezwiązane zmiany.
   w pozorny sukces z cache.
 - Duże pliki/widgety dziel według gałęzi odpowiedzialności. Kompozycja ekranu,
   stan subfeature’u i drobne widgety nie trafiają do jednego „god file”.
+- Pojedynczy ręcznie utrzymywany widget lub klasa produkcyjna mają twardy limit
+  400 linii; typowe widgety celują w mniej niż 300. Plik zawierający zbyt wiele
+  odpowiedzialności podziel na osobne klasy i pliki. Nie omijaj limitu przez
+  przeniesienie całej klasy do `part`, mixina lub pliku o innej nazwie. Zachowuj
+  czytelny podział presentation/domain/data. Artefakty wygenerowane i lokalizacje
+  wygenerowane nie są objęte tym limitem.
+- Dokumentacja repozytorium, wytyczne agentów, handoffy i komentarze opisujące
+  architekturę pisane są po polsku. Teksty interfejsu pozostają w lokalizacjach
+  ARB PL/EN.
 
 ## Weryfikacja
 

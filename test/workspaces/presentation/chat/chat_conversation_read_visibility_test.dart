@@ -178,5 +178,21 @@ void main() {
       expect(repository.readCalls, isEmpty);
       await cubit.close();
     });
+
+    test('kursor odczytu nie cofa się do starszej wiadomości', () async {
+      final repository = _ReadTrackingRepository(
+        messages: <ChatMessage>[
+          message(id: 'm1', authorUserId: 'peer'),
+          message(id: 'm2', authorUserId: 'peer'),
+        ],
+      );
+      final cubit = await loadCubit(repository);
+
+      expect(await cubit.markVisibleAsRead('m2'), isTrue);
+      expect(await cubit.markVisibleAsRead('m1'), isFalse);
+      expect(repository.readCalls, <String>['m2']);
+      expect(cubit.lastReadMessageId, 'm2');
+      await cubit.close();
+    });
   });
 }

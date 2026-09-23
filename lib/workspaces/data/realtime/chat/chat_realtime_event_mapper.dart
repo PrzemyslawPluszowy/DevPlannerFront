@@ -211,6 +211,8 @@ final class ChatRealtimeEventMapper {
     'chat.message.created' => ChatConversationRealtimeEventKind.messageCreated,
     'chat.message.updated' => ChatConversationRealtimeEventKind.messageUpdated,
     'chat.message.deleted' => ChatConversationRealtimeEventKind.messageDeleted,
+    'chat.message.read' || 'chat.message.delivered' =>
+      ChatConversationRealtimeEventKind.messageDeliveryChanged,
     'chat.typing.changed' => ChatConversationRealtimeEventKind.typingChanged,
     'chat.member.access_revoked' ||
     'chat.member.added' ||

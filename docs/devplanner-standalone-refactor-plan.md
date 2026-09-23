@@ -1,5 +1,46 @@
 # DevPlanner standalone — zaakceptowany stan refaktoryzacji
 
+## 2026-09-23 — jawny etap startu DocsAPI
+
+- [x] HTML hosta ładuje `api.js` jawnie i wysyła Talkerowi zdarzenie sukcesu,
+  niepowodzenia pobrania oraz wyjątki JS przy inicjalizacji DocsAPI.
+- [x] Przechwytywane są nieobsłużone wyjątki JS i odrzucone Promise; komunikaty
+  URL/token są redagowane.
+- [x] `flutter analyze --no-pub`, formatowanie zmienionych plików i
+  `git diff --check` PASS.
+- [ ] Testów i runtime nie uruchamiano; odtworzyć na świeżo zbudowanej aplikacji
+  i sprawdzić kolejno log `api.js załadowany`, `[JS error]` lub timeout.
+
+## 2026-09-23 — diagnostyka błędów zasobów WebView ONLYOFFICE
+
+- [x] WebView raportuje do Talkera błędy JavaScript `error`/`warning` oraz
+  wszystkie błędy ładowania zasobów, także spoza głównej ramki.
+- [x] Log zasobu zawiera kod, typ, informację o głównej ramce i bezpieczny URL;
+  query, ścieżki storage i tokeny z tekstów błędów są redagowane.
+- [x] `flutter analyze --no-pub`, `dart format` i `git diff --check` PASS.
+- [ ] Nie uruchamiano testów ani runtime. Odtworzyć problem i odczytać pierwszy
+  `[storage.onlyoffice][WEBVIEW]` albo `[storage.onlyoffice][JS error]`.
+
+## 2026-09-23 — Talker dla logów aplikacji i diagnostyki HTTP
+
+- [x] Bootstrap tworzy wspólną instancję Talker z kolorowanym formatowaniem;
+  logi HTTP używają typów Talker `http-request`, `http-response` i `http-error`.
+- [x] Odpowiedzi API są pokazywane jako sanitizowany JSON zamiast samego
+  zestawu nazw pól; sekrety, dane użytkownika i ścieżki presigned URL są ukryte.
+- [x] Globalne błędy Flutter/platformy trafiają do Talkera.
+- [x] `flutter analyze --no-pub`, `dart format` zmienionych plików i
+  `git diff --check` PASS.
+- [ ] Testów ani runtime nie uruchamiano; następny log office-session ma
+  potwierdzić widoczność `documentServerUrl` i diagnostycznego body.
+
+## 2026-09-23 — macOS minimalny i startowy rozmiar okna
+
+- [x] Natywne okno macOS startuje wycentrowane w rozmiarze 1280×720 punktów
+  i nie pozwala zmniejszyć się poniżej 1280×720.
+- [ ] Build/analyze zablokowane przez niezwiązane, istniejące zmiany Chat w
+  `chat_message_composer.dart`, `chat_conversation_cubit.dart` i
+  `chat_mention_suggestions.dart`; ręczny resize pozostaje do sprawdzenia.
+
 ## Bieżący status Chat — 2026-09-23
 
 Ten blok jest aktualnym indeksem stanu. Dalsze wpisy datowane niżej są

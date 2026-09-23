@@ -203,10 +203,15 @@ class _RichTextBlockState extends State<_RichTextBlock> {
         );
       case ChatRichTextBlockKind.quote:
         return Container(
-          margin: const EdgeInsets.symmetric(vertical: Sizes.p2),
-          padding: const EdgeInsets.only(left: Sizes.p8),
+          margin: const EdgeInsets.symmetric(vertical: Sizes.p4),
+          padding: const EdgeInsets.symmetric(
+            horizontal: Sizes.p8,
+            vertical: Sizes.p4,
+          ),
           decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: chat.separator, width: 3)),
+            color: chat.hoverSurface,
+            border: Border(left: BorderSide(color: chat.focusRing, width: 3)),
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
           ),
           child: Text.rich(_spans(context, base)),
         );
@@ -248,7 +253,7 @@ class _RichTextBlockState extends State<_RichTextBlock> {
                     ? null
                     : _links.elementAtOrNull(linkIndex++)?.recognizer,
                 style: base?.copyWith(
-                  fontWeight: span.bold ? FontWeight.w600 : null,
+                  fontWeight: span.bold ? FontWeight.w900 : null,
                   fontStyle: span.italic ? FontStyle.italic : null,
                   decoration: _decoration(span),
                   fontFamily: span.isCode

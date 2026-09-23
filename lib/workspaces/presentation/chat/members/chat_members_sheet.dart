@@ -373,7 +373,10 @@ class _MembersListState extends State<_MembersList> {
                 const SizedBox(width: Sizes.p6),
                 Expanded(
                   child: Text(
-                    context.l10n.chatMembersMutationFailureMessage,
+                    state.failureCode == 'chat.conversations.manage_failed' &&
+                            state.isSoleOwner
+                        ? context.l10n.chatMembersLastOwnerCannotLeave
+                        : context.l10n.chatMembersMutationFailureMessage,
                     style: chat.metadataStyle.copyWith(color: chat.error),
                   ),
                 ),
@@ -478,16 +481,27 @@ class _MembersListState extends State<_MembersList> {
                                                 for (final role
                                                     in ChatMemberRole.values)
                                                   if (role != member.role &&
-                                                      role !=
-                                                          ChatMemberRole.owner)
+                                                      (role !=
+                                                              ChatMemberRole
+                                                                  .owner ||
+                                                          state.currentRole ==
+                                                              ChatMemberRole
+                                                                  .owner))
                                                     AppContextMenuOption<
                                                       String
                                                     >(
                                                       value: role.wireValue,
-                                                      label: _roleLabel(
-                                                        context,
-                                                        role,
-                                                      ),
+                                                      label:
+                                                          role ==
+                                                              ChatMemberRole
+                                                                  .owner
+                                                          ? context
+                                                                .l10n
+                                                                .chatMembersTransferOwnership
+                                                          : _roleLabel(
+                                                              context,
+                                                              role,
+                                                            ),
                                                       selected:
                                                           role == member.role,
                                                     ),
@@ -539,12 +553,27 @@ class _MembersListState extends State<_MembersList> {
         Divider(height: Sizes.p16, color: chat.separator),
         Align(
           alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: state.isMutating
-                ? null
-                : () => unawaited(context.read<ChatMembersCubit>().leave()),
-            icon: const Icon(Symbols.logout, size: 18),
-            label: Text(context.l10n.chatMembersLeave),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (state.isSoleOwner)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: Sizes.p4),
+                  child: Text(
+                    context.l10n.chatMembersLastOwnerCannotLeave,
+                    style: chat.metadataStyle.copyWith(
+                      color: chat.metadataText,
+                    ),
+                  ),
+                ),
+              TextButton.icon(
+                onPressed: state.isMutating || state.isSoleOwner
+                    ? null
+                    : () => unawaited(context.read<ChatMembersCubit>().leave()),
+                icon: const Icon(Symbols.logout, size: 18),
+                label: Text(context.l10n.chatMembersLeave),
+              ),
+            ],
           ),
         ),
       ],

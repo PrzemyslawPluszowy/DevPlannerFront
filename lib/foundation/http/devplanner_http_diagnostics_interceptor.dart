@@ -1,13 +1,17 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:talker/talker.dart';
 
 /// Bezpieczny logger całego ruchu wykonywanego przez sesyjny transport Dio.
 ///
-/// Pokazuje metodę, URL z query, status, czas, nagłówki oraz ograniczony kształt
-/// body. Sekrety i pola zawierające dane użytkownika są zawsze redagowane.
+/// Pokazuje metodę, URL z query, status, czas, nagłówki oraz sanitizowane JSON
+/// requestu/odpowiedzi. Sekrety i pola zawierające dane użytkownika są redagowane.
 final class DevPlannerHttpDiagnosticsInterceptor extends Interceptor {
-  DevPlannerHttpDiagnosticsInterceptor(this._write);
+  DevPlannerHttpDiagnosticsInterceptor(
+    this._talker, {
+    this._write,
+  });
 
   static const _startedAtKey = '_devplanner.diagnostics_started_at';
   static const _redacted = '<redacted>';
@@ -27,21 +31,33 @@ final class DevPlannerHttpDiagnosticsInterceptor extends Interceptor {
     'secret',
     'email',
     'login',
+    'name',
+    'displayname',
+    'title',
+    'filename',
+    'originalfilename',
     'q',
     'query',
     'search',
     'returnto',
   };
 
-  final void Function(String message) _write;
+  final Talker _talker;
+  final void Function(String)? _write;
+
+  void _emit(String message, String key) {
+    _talker.logCustom(_HttpDiagnosticLog(message, key));
+    _write?.call(message);
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     options.extra[_startedAtKey] = DateTime.now().microsecondsSinceEpoch;
-    _write(
+    _emit(
       '[HTTP][REQUEST] ${options.method} ${_safeUri(options)} '
       '| headers=${_safeMap(options.headers)} '
       '| body=${_safeBody(options.data)}',
+      TalkerKey.httpRequest,
     );
     handler.next(options);
   }
@@ -51,12 +67,15 @@ final class DevPlannerHttpDiagnosticsInterceptor extends Interceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
-    _write(
+    _emit(
       '[HTTP][RESPONSE] ${response.requestOptions.method} '
       '${_safeUri(response.requestOptions)} | status=${response.statusCode} '
       '| durationMs=${_durationMs(response.requestOptions)} '
       '| headers=${_safeResponseHeaders(response.headers)} '
       '| body=${_safeBody(response.data, responseStatus: response.statusCode)}',
+      response.statusCode != null && response.statusCode! >= 400
+          ? TalkerKey.httpError
+          : TalkerKey.httpResponse,
     );
     handler.next(response);
   }
@@ -64,13 +83,14 @@ final class DevPlannerHttpDiagnosticsInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final response = err.response;
-    _write(
+    _emit(
       '[HTTP][ERROR] ${err.requestOptions.method} '
       '${_safeUri(err.requestOptions)} | type=${err.type.name} '
       '| status=${response?.statusCode} '
       '| durationMs=${_durationMs(err.requestOptions)} '
       '| headers=${_safeResponseHeaders(response?.headers)} '
       '| body=${_safeBody(response?.data, responseStatus: response?.statusCode)}',
+      TalkerKey.httpError,
     );
     handler.next(err);
   }
@@ -123,11 +143,37 @@ final class DevPlannerHttpDiagnosticsInterceptor extends Interceptor {
         }
         return jsonEncode(error);
       }
-      return '<object fields=${body.keys.take(16).join(',')}>';
+      return jsonEncode(_safeJsonValue(body));
     }
-    if (body is Iterable) return '<list length=${body.length}>';
+    if (body is Iterable) return jsonEncode(_safeJsonValue(body));
     if (body is String) return '<text length=${body.length}>';
     return '<${body.runtimeType}>';
+  }
+
+  static Object? _safeJsonValue(Object? value, {String? key}) {
+    if (key != null && _isSensitive(key)) return _redacted;
+    if (value is Map) {
+      return <String, Object?>{
+        for (final entry in value.entries.take(40))
+          entry.key.toString(): _safeJsonValue(
+            entry.value,
+            key: entry.key.toString(),
+          ),
+      };
+    }
+    if (value is Iterable) {
+      return value.take(12).map(_safeJsonValue).toList(growable: false);
+    }
+    if (value is String) {
+      if (key != null && (key.toLowerCase().endsWith('url') || key == 'url')) {
+        final uri = Uri.tryParse(value);
+        if (uri != null && uri.hasAuthority) {
+          return '${uri.scheme}://${uri.authority}${uri.path}';
+        }
+      }
+      return _truncate(value);
+    }
+    return value;
   }
 
   static Object? _truncate(Object? value) {
@@ -160,4 +206,9 @@ final class DevPlannerHttpDiagnosticsInterceptor extends Interceptor {
     if (startedAt is! int) return null;
     return (DateTime.now().microsecondsSinceEpoch - startedAt) ~/ 1000;
   }
+}
+
+final class _HttpDiagnosticLog extends TalkerLog {
+  _HttpDiagnosticLog(super.message, String key)
+    : super(key: key, logLevel: LogLevel.info);
 }

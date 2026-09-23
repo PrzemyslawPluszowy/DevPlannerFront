@@ -60,9 +60,9 @@ abstract final class ChatMentionCodec {
     String fallbackLabel = 'Member',
   }) {
     final name = displayName?.trim();
-    if (name != null && name.isNotEmpty && !_looksLikeUuid(name)) return name;
+    if (name != null && name.isNotEmpty && !isUuid(name)) return name;
     final fallback = login?.trim();
-    if (fallback != null && fallback.isNotEmpty && !_looksLikeUuid(fallback)) {
+    if (fallback != null && fallback.isNotEmpty && !isUuid(fallback)) {
       return fallback;
     }
     return fallbackLabel.trim().isEmpty ? 'Member' : fallbackLabel.trim();
@@ -170,7 +170,7 @@ abstract final class ChatMentionCodec {
 
   static bool _isWordChar(String char) => RegExp('[A-Za-z0-9_]').hasMatch(char);
 
-  static bool _looksLikeUuid(String value) => RegExp(
+  static bool isUuid(String value) => RegExp(
     r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
   ).hasMatch(value.trim());
 

@@ -1,5 +1,55 @@
 # DevPlanner standalone — handoff zaakceptowanego stanu
 
+## 2026-09-23 — jawny probe inicjalizacji ONLYOFFICE
+
+Po kolejnym timeout bez logu zasobu/JS rozszerzono host HTML: `api.js` jest
+ładowany jawnie; bridge zgłasza Talkerowi jego sukces, błąd pobrania, wyjątek
+konstruktora DocsAPI, `window.error` oraz `unhandledrejection`. Teksty błędów
+redagują URL-e i wartości token/secret/authorization. Wcześniejsza zmiana
+raportuje również wszystkie błędy zasobów WebView.
+
+Pliki: `lib/workspaces/data/storage/transport/onlyoffice_editor_html_builder.dart`,
+`lib/workspaces/presentation/storage/office/widgets/storage_onlyoffice_controller.dart`.
+`flutter analyze --no-pub`, `dart format` i `git diff --check` PASS. Testów ani
+runtime nie uruchamiano. Następny krok: uruchomić świeżo zbudowaną aplikację i
+sprawdzić, czy pojawia się log sukcesu `api.js`, błędu JS/zasobu, czy nadal tylko
+timeout.
+
+## 2026-09-23 — diagnostyka blokady WebView ONLYOFFICE
+
+Kolejne logi użytkownika potwierdziły HTTP 200 dla pobrania ticketu i
+`office-session`, a Document Server jest publicznie osiągalny z tego środowiska
+(healthcheck i `api.js` HTTP 200). Dotychczasowy `NavigationDelegate` ignorował
+błędy zasobów, jeżeli `isForMainFrame == false`, przez co awaria `api.js`, assetu
+lub dokumentu nie trafiała do logów. Dodano Talker dla błędów JS console
+(error/warning) i wszystkich błędów zasobów; log nie ujawnia query, tokenów ani
+ścieżek storage. Komunikat `evaluateJavaScript ... <null>` sam w sobie nie
+identyfikuje przyczyny i wymaga korelacji z nowymi logami.
+
+Pliki: `lib/workspaces/presentation/storage/office/widgets/storage_onlyoffice_host.dart`,
+`lib/workspaces/presentation/storage/office/widgets/storage_onlyoffice_controller.dart`.
+`flutter analyze --no-pub`, `dart format` i `git diff --check` PASS. Testów ani
+runtime nie uruchamiano. Następny krok: odtworzyć otwarcie i zebrać pierwszy
+log `[storage.onlyoffice][WEBVIEW]` lub `[storage.onlyoffice][JS error]`.
+
+## 2026-09-23 — Talker i czytelne logi HTTP
+
+Po zgłoszeniu nieczytelnego `body=<object fields=...>` w diagnostyce Storage
+zmieniono `DevPlannerHttpDiagnosticsInterceptor`: odpowiedzi JSON są teraz
+logowane z wartościami sanitizowanymi, zamiast samych nazw pól. Dla sesji Office
+powinno to ujawnić bezpieczny `documentServerUrl`; JWT/tokeny są redagowane, a
+adresy presigned pokazują host bez query i ścieżki. Request/response/error są
+typowanymi logami Talker z kolorami. Bootstrap współdzieli Talkera dla
+web/desktop HTTP oraz rejestruje globalne błędy Flutter/platformy.
+
+Pliki: `lib/bootstrap/app_bootstrap.dart`,
+`lib/foundation/http/devplanner_http_transport.dart`,
+`lib/foundation/http/devplanner_http_diagnostics_interceptor.dart`.
+Wykonano `dart format` zmienionych plików, `flutter analyze --no-pub` (PASS)
+i `git diff --check` (PASS). Testów ani runtime nie uruchamiano. Następny krok:
+odtworzyć timeout ONLYOFFICE i odczytać `documentServerUrl` oraz bezpieczne
+pola odpowiedzi w logu.
+
 ## Indeks aktualnego statusu Chat — 2026-09-23
 
 Najświeższe wpisy prac są na końcu tego pliku. Dawne sekcje G/F zachowują
@@ -8386,6 +8436,123 @@ nie wykonano stagingowej mutacji ani nie otwierano rozmowy z unread.
   `/srv/devplanner/frontend/current`), dwu-sesyjne SignalR i runtime QA
   załączników.
 
+### macOS — minimalny i startowy rozmiar okna (2026-09-23)
+
+Front: `macos/Runner/MainFlutterWindow.swift` ustawia minimalny i początkowy
+rozmiar okna na 1280×720 punktów oraz centruje okno. To natywna zmiana okna,
+bez wpływu na backend/API. Build i ręczny resize do weryfikacji.
+
+Weryfikacja po zmianie okna: `git diff --check` PASS. `flutter analyze --no-pub`
+FAIL na istniejących zmianach Chat: brak getterów `chatMentionUnknownMember` w
+`chat_message_composer.dart` i `chat_mention_suggestions.dart` oraz nieużywany
+import w `chat_conversation_cubit.dart`. `flutter build macos --debug` FAIL na
+tych samych zmianach, dodatkowo `ChatMentionReference` jest nierozpoznany w
+`chat_pending_send_store.dart`. Ostrzeżenia SPM istniejących pluginów
+`media_kit`. Nie zmieniano tych plików. Ręczny resize nie był sprawdzany.
+
+### CHAT-R74 — reguła wielkości widgetów i dokumentacja po polsku (2026-09-23)
+
+Przegląd wykazał, że `chat_message_composer.dart` ma 1149 linii i łączy
+odpowiedzialności edycji, wzmianek, wklejania/TXT, załączników, emoji,
+klawiatury oraz prezentacji. Doprecyzowano `AGENTS.md`: 400 linii to twardy
+limit ręcznie utrzymywanego pliku/klasy produkcyjnej, typowy widget powinien
+zwykle pozostać poniżej 300, a przenoszenie całej klasy do `part`/mixina nie
+spełnia celu. Dokumentacja, wytyczne i komentarze architektoniczne repozytorium
+mają być po polsku; tekst interfejsu pozostaje w ARB.
+
+Do `docs/global-chat-repair-plan-2026-09-23.md` dodano C24 jako osobny pakiet
+refaktoryzacji composera po ustabilizowaniu aktualnych napraw Quill i wysyłki.
+W tej zmianie nie modyfikowano kodu composera ani nie uruchamiano testów.
+Weryfikacja dokumentacji: sprawdzono liczbę linii (`1149`), `git diff --check`.
+Następny krok: dokończyć bieżące poprawki funkcjonalne, potem wydzielić
+odpowiedzialności composera do klas/plików poniżej limitu i zweryfikować jeden
+większy pakiet analizą oraz uzgodnioną bramką.
+
+### CHAT-R75 — staging odrzuca Delta z atrybutem zagnieżdżonym (2026-09-23)
+
+Użytkownik dostarczył pięć powtarzalnych odpowiedzi `400 validation.failed`
+dla `POST /api/v1/chat/conversations/{id}/messages`. Backend zwraca:
+„Wartość atrybutu Delta wiadomości Chat musi być wartością prostą JSON.”
+Trace ID: `0HNOPHJ6073M9:00000001` oraz `0HNOPHJ6073MA:00000001`–
+`0HNOPHJ6073MD:00000001`.
+
+Statyczny walidator w `../Backend/Domain/Entities/ChatMessage.cs` odrzuca
+wartość dowolnego `attributes.*`, jeśli jest obiektem lub tablicą. Inspekcja
+formatowania Quill ujawniła konkretną przyczynę: `ChatLineFormatCommands`
+zapisywał `attributes.list` jako tablicę `['bullet']`/`['ordered']`, podczas gdy
+backend i renderer `ChatRichTextCodec` oczekują prostego tekstu. Zmieniono
+formatowanie i rozpoznawanie aktywnej listy na wartościach `'bullet'`/`'ordered'`;
+toolbar przekazuje do Quill jego skalarne atrybuty `ul`/`ol`. Przejrzano
+pozostałe operacje formatowania w composerze — ustawiają boolean/string albo
+skalarne atrybuty kodu. `dart analyze` komend, toolbaru i renderera PASS;
+`git diff --check` PASS. Test `chat_format_commands_test.dart` **12/12 PASS**,
+obejmuje typ skalarny `list` i odrzucenie starej tablicy. Zmiana nie wymaga
+backendu ani nowego formatu API. Wysłanie i odczyt listy na stagingu pozostają
+do sprawdzenia.
+
+### CHAT-R76 — style edytora Quill zgodne z ChatTheme (2026-09-23)
+
+Użytkownik zgłasza brak widocznego pogrubienia i oznaczeń list oraz pyta o
+kolory/czcionki. Statycznie `ChatComposerRichTextField` używał domyślnych styli
+Quill z `ThemeData`, bez `customStyles` Chat. Dodano jawne style Chat dla
+akapitu, list, cytatu, kodu, linku i pogrubienia; renderer historii zwiększa
+wagę bold z `w600` do `w700`. Znaczniki list w historii są renderowane przez
+`ChatRichTextCodec`; ich atrybut Delta naprawiono w CHAT-R75.
+
+Weryfikacja: `dart format` i `dart analyze` plików rich field, renderer,
+toolbaru i mapowania komend PASS. Test jednostkowy mapowania formatów **12/12
+PASS** (bez testów widgetowych/golden); brak runtime potwierdzenia widoczności.
+Backend dopuszcza `color`, `background`,
+`font`, `size`, ale toolbar i renderer Front nie obsługują tych formatów —
+zakres do jawnego zaprojektowania bez obietnicy utraty formatowania po wysłaniu.
+
+### CHAT-R77 — ponowny raport widoczności formatowania i realtime odczytu (2026-09-23)
+
+Użytkownik zgłasza ponownie, że pogrubienie i markery list `123.`/kropek nie są
+widoczne w zaawansowanym edytorze. Zapisano to jako C27: style C26 są zmianą
+statyczną, bez odbioru runtime; baza czcionki ma 14 px i nie deklaruje rodziny,
+a UI nie ma wyboru fontu, rozmiaru ani koloru. Do odtworzenia są oba motywy,
+stan edycji/aktywnego formatowania, listy wielocyfrowe i treść po ponownym
+otwarciu. Nie deklarować naprawy po samym analizatorze; testy widgetowe i golden
+pozostają wstrzymane do akceptacji UI.
+
+Równolegle dodano mapowanie istniejących backendowych eventów
+`chat.message.read`/`chat.message.delivered`: reducer zwraca decyzję odświeżenia
+statusu, a Cubit pobiera autorytatywne liczniki konkretnej wiadomości przez
+istniejące okno historii, również dla starej wiadomości. Nie wyliczamy liczby
+odbiorców lokalnie. Dodano testy mappera i reducera: **14/14 PASS**. `dart analyze` dotkniętych
+eventów, reducera, mappera, Cubita i testów oraz `git diff --check` PASS.
+Odbiór na dwóch kontach pozostaje otwarty.
+
+
+### CHAT-R78 — pełny audyt formatów Quill i zgodność Delta (2026-09-23)
+
+Log stagingowy z trace `0HNOPHJ607482:00000001` i `0HNOPHJ607483:00000001`
+pokazał POST odrzucony 400: `attributes.code` nie jest dozwolony. Audyt bieżącego
+paska Quill porównał formaty inline `bold`, `italic`, `strike`, `code`, `link`
+oraz liniowe `list` (`bullet`/`ordered`), `blockquote` i `code-block` z walidacją
+`ChatMessage.AllowedDeltaAttributes`, `ChatMentionParser` i `ChatRichTextCodec`.
+Jedyną brakującą nazwą transportową było `code`: Quill `Attribute.inlineCode`
+zapisuje właśnie ten klucz, a parser backendowy już go rozpoznawał. Dodano `code`
+do allowlisty oraz test regresyjny `QuillDeltaAllowsInlineCodeProducedByFlutterQuill`.
+
+Zgłoszony wygląd: listy użytkownik widzi, bold nadal jest nieczytelny, cytat jest
+niewidoczny. Wzmocniono bold do `w900` w edytorze i historii; cytat dostał
+widoczne tło, padding i akcent `ChatTheme.focusRing` w obu miejscach. Test Front
+parsera rozszerzono o jednoczesne bold, inline code i cytat.
+
+Weryfikacja: Backend restore/build PASS (0 ostrzeżeń), pełna suite **1307 PASS /
+4 SKIP / 0 FAIL**, pełny `dotnet format --verify-no-changes` PASS oraz diff check
+PASS. Skrypt SQL migracji nie został wygenerowany: zmiana nie dotyczy schematu, a
+repo nie ma ustawionego `ConnectionStrings:Workspaces`; EF wymaga także osobnego
+wyboru jednego z dwóch contextów. Front parsera, code block i mapowania formatów
+**25/25 PASS**, `dart analyze` dotkniętych plików i diff check PASS. Bez testów
+widgetowych/golden. Commit `446116a45b387db64f8affcc56a679c0013622b2` wdrożono
+ręcznym skryptem stagingowym. Po deployu API healthy, readiness `ready`,
+publiczny `/health/ready` zwrócił `Healthy`; migrator potwierdził aktualność
+schematu. Nie wysłano sztucznej wiadomości do cudzej rozmowy. Odbiór wyglądu
+Quilla pozostaje otwarty.
+
 ### STORAGE-IMAGE-PREVIEW — autoryzowany podgląd obrazów (2026-09-23)
 
 Przyczyną niedziałającego podglądu PNG był chroniony endpoint
@@ -8436,6 +8603,67 @@ potwierdzenia. Logowany wcześniej `iframeAttached=false` wynikał z
 niepoprawnego selektora hosta i został usunięty; `onAppReady` potwierdza
 uruchomienie ramki. Nie potwierdzono jeszcze zapisania edycji CSV.
 
+
+### CHAT-R79 — pin/unpin sygnalizuje wyłącznie sukces API (2026-09-23)
+
+`ChatMessageActionMenu._handle` wywoływał `onPinnedChanged` po `togglePin`, mimo
+że Cubit zwracał `Future<void>` i przechowywał błąd wyłącznie w stanie. Zmieniono
+`togglePin` na wynik `succeeded/failed/ignored`; menu odpala callback wyłącznie
+po `succeeded`. Wspólny `_run` Cubita sprząta pending w `finally`, żeby błąd
+wyjątkowy nie zablokował kolejnej próby.
+
+Weryfikacja: `chat_message_secondary_actions_test.dart` **8/8 PASS** (success,
+API forbidden, duplicate podczas requestu i istniejące akcje), `dart analyze`
+dotkniętych plików PASS, `git diff --check` PASS. Widgetów/goldenów nie
+uruchamiano. Zmiana tylko w Front; runtime callbacku po stagingu pozostaje do
+odbioru.
+
+### CHAT-R80 — monotoniczny odczyt wiadomości (2026-09-23)
+
+Test `chat_conversation_read_visibility_test.dart` reprodukował błąd: Cubit
+wysyłał mark-read dla własnej wiadomości mimo że odczyt powinien dotyczyć
+wiadomości drugiej osoby. Dodano jawne pominięcie autora bieżącej sesji.
+Dodatkowo deduplikacja lokalnego kursora porównuje wiadomości według
+`(CreatedAtUtc, Id)`, tak jak backend; spóźniony callback widoczności starszej
+wiadomości nie cofa już kursora ani nie wysyła zbędnego mark-read.
+
+Zmienione pliki: `chat_conversation_cubit.dart`,
+`chat_conversation_read_visibility_test.dart`, plan napraw Chat i ten handoff.
+Weryfikacja: test widoczności **6/6 PASS**, `dart analyze` obu zmienionych plików
+PASS, `git diff --check` PASS. Bez widget/golden tests. Nie zmieniano Backend,
+API, OpenAPI ani enumów; nie wdrażano. Pozostaje runtime odbiór na dwóch sesjach.
+
+### CHAT-R81 — brak przebudowy całego composera przy każdym znaku (2026-09-23)
+
+Quill `onRichTextChanged` emituje nowy draft dla każdego znaku. Bez `buildWhen`
+`BlocBuilder` przebudowywał całe drzewo composera na każdą zmianę Delta, łącznie
+z aktywnym edytorem i toolbarami. Dodano `ChatComposerState.shouldRebuildComparedTo`
+i podłączono go do buildera. Tekst/Delta nadal zapisują się na bieżąco w Cubicie,
+ale rodzic przebudowuje się tylko przy zmianie trybu, pustego/niepustego draftu,
+reply, załączników lub wzmiankowanych osób.
+
+Zmienione pliki: `chat_composer_state.dart`, `chat_message_composer.dart`,
+`chat_composer_state_test.dart`, plan napraw Chat i ten handoff. Weryfikacja:
+`chat_composer_state_test.dart` **2/2 PASS**, `dart analyze` dotkniętych plików
+PASS, `git diff --check` PASS. Bez testów widgetowych/golden i bez uruchamiania
+aplikacji; odbiór IME oraz live typing pozostaje otwarty.
+
+### CHAT-R82 — automatyczna zamiana długiego wklejenia na TXT (2026-09-23)
+
+`_handlePaste` po rozpoznaniu długiej treści tylko otwierał kartę i oczekiwał
+ręcznego kliknięcia. Po przekroczeniu progu polityki automatycznie uruchamia teraz
+`_sendPendingPasteAsFile`; treść trafia do szkicu jako oryginalny plik TXT,
+bez publikowania wiadomości przed kliknięciem Wyślij. Gdy brak
+`ChatSnippetRepository` albo przygotowanie nie zwróci treści, klient przechodzi
+na upload pełnego oryginału przez Storage. Przy błędzie uploadu wyjątek czyści stan busy, a karta zachowuje
+tekst do retry lub zachowania jako treści wiadomości.
+
+Zmieniony plik Front: `chat_message_composer.dart`; aktualizacja planu i handoff.
+Weryfikacja: `chat_long_paste_decision_test.dart` **9/9 PASS**, `dart analyze`
+dotkniętego zakresu PASS, `git diff --check` PASS. Testów widgetowych nie
+uruchamiano; pełne przechwycenie clipboard w runtime desktop/mobile pozostaje
+do odbioru. Nie zmieniano Backend/API/OpenAPI ani enumów.
+
 ### STORAGE-ONLYOFFICE-ACTIONS — porządkowanie zapisu, kopii i druku (2026-09-23)
 
 Zmieniono `storage_office_editor_actions_cubit.dart`,
@@ -8455,3 +8683,22 @@ i jednorazowy komunikat; brak potwierdzenia daje ostrzeżenie.
 Publiczny kontrakt API, enumy i schemat bez zmian. Następny krok: ręczny odbiór
 na stagingu zapisu nowej wersji, kopii i druku; bez niego trwałość pozostaje
 niepotwierdzona.
+
+### CHAT-R83 — bezpieczne przekazanie własności i opuszczenie (2026-09-23)
+
+Backend `ChatService.UpdateMemberRoleAsync` już transakcyjnie obsługuje
+przekazanie roli Owner: wybrany członek staje się Ownerem, dotychczasowy Owner
+zostaje Moderatorem. Front wcześniej ukrywał rolę Owner w menu członka i
+pozwalał jedynemu Ownerowi wysłać leave, po czym pokazywał tylko ogólny błąd.
+Dodano opcję „Przekaż własność”, wykrywanie jedynego Ownera, blokadę leave z
+wyjaśnieniem po polsku/angielsku i kontekstową wiadomość przy błędzie wyścigu.
+Po potwierdzonym opuszczeniu panel wraca do inboxa i odświeża skrzynkę oraz
+licznik unread, co zwalnia lease realtime odmontowanej rozmowy.
+
+Zmienione pliki Front: `chat_members_cubit.dart`, `chat_members_sheet.dart`,
+`chat_panel_conversation.dart`, `app_pl.arb`, `app_en.arb` i wygenerowane
+lokalizacje; test `g5_search_and_members_test.dart`; plan napraw i handoff.
+Weryfikacja: `flutter gen-l10n`, suite search/members **15/15 PASS**,
+`dart analyze` zakresu PASS, `git diff --check` PASS. Bez testów widgetowych,
+bez zmian Backend/API/OpenAPI/enumów i bez deployu. Pozostaje ręczny scenariusz
+Owner → transfer → leave i potwierdzenie w drugiej sesji.

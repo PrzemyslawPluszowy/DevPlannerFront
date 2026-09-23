@@ -400,7 +400,28 @@ void main() {
       expect(state.members, hasLength(2));
       expect(state.currentRole, ChatMemberRole.owner);
       expect(state.canManageMembers, isTrue);
+      expect(state.isSoleOwner, isTrue);
       await cubit.close();
+    });
+
+    test('wykrywa, że opuszczenie jest możliwe po przekazaniu własności', () {
+      final state = ChatMembersReady(
+        currentUserId: 'me',
+        members: <ChatMember>[
+          ChatMember(
+            userId: 'me',
+            role: ChatMemberRole.moderator,
+            joinedAtUtc: DateTime.utc(2026, 9, 21),
+          ),
+          ChatMember(
+            userId: 'peer',
+            role: ChatMemberRole.owner,
+            joinedAtUtc: DateTime.utc(2026, 9, 21),
+          ),
+        ],
+      );
+
+      expect(state.isSoleOwner, isFalse);
     });
 
     test('zmiana roli odświeża listę realnym skutkiem', () async {

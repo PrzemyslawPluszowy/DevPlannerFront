@@ -6,6 +6,7 @@ import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
+import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
 
 /// Właściciel lokalnych prób dostawy jednej rozmowy, niezależny od Cubita UI.
@@ -40,6 +41,8 @@ final class ChatMessageDeliveryQueue {
   final Map<String, ChatMessage> _messagesByClientId = <String, ChatMessage>{};
   final Map<String, List<String>> _attachmentIdsByClientId =
       <String, List<String>>{};
+  final Map<String, ChatComposerDraft> _draftsByClientId =
+      <String, ChatComposerDraft>{};
   bool _isDisposed = false;
 
   /// Powiadamia o każdej zmianie lokalnego wpisu: sending, sent albo failed.
@@ -62,13 +65,14 @@ final class ChatMessageDeliveryQueue {
     final message = ChatMessage(
       id: 'local:$clientMessageId',
       conversationId: conversationId,
-      authorUserId: '',
+      authorUserId: userId,
       clientMessageId: clientMessageId,
       text: draft.text,
       deltaJson: draft.deltaJson,
+      displayText: draft.text,
       replyToMessageId: draft.replyToMessageId,
       payloadHash: _payloadHash(
-        text: draft.text,
+        text: _wireText(draft),
         deltaJson: draft.deltaJson,
         replyToMessageId: draft.replyToMessageId,
         attachmentFileIds: draft.attachmentIds,
@@ -79,6 +83,7 @@ final class ChatMessageDeliveryQueue {
       deliveryState: ChatMessageDeliveryState.sending,
     );
     _messagesByClientId[clientMessageId] = message;
+    _draftsByClientId[clientMessageId] = draft;
     _attachmentIdsByClientId[clientMessageId] = List.unmodifiable(
       draft.attachmentIds,
     );
@@ -111,6 +116,7 @@ final class ChatMessageDeliveryQueue {
   void clear() {
     _messagesByClientId.clear();
     _attachmentIdsByClientId.clear();
+    _draftsByClientId.clear();
     _attempts.clear();
   }
 
@@ -129,6 +135,7 @@ final class ChatMessageDeliveryQueue {
     _isDisposed = true;
     _messagesByClientId.clear();
     _attachmentIdsByClientId.clear();
+    _draftsByClientId.clear();
     _attempts.clear();
     await _changes.close();
     await _confirmations.close();
@@ -151,13 +158,14 @@ final class ChatMessageDeliveryQueue {
       final message = ChatMessage(
         id: 'local:${entry.clientMessageId}',
         conversationId: entry.conversationId,
-        authorUserId: '',
+        authorUserId: userId,
         clientMessageId: entry.clientMessageId,
         text: entry.draft.text,
         deltaJson: entry.draft.deltaJson,
+        displayText: entry.draft.text,
         replyToMessageId: entry.draft.replyToMessageId,
         payloadHash: _payloadHash(
-          text: entry.draft.text,
+          text: _wireText(entry.draft),
           deltaJson: entry.draft.deltaJson,
           replyToMessageId: entry.draft.replyToMessageId,
           attachmentFileIds: entry.draft.attachmentIds,
@@ -168,6 +176,7 @@ final class ChatMessageDeliveryQueue {
         deliveryState: ChatMessageDeliveryState.sending,
       );
       _messagesByClientId[entry.clientMessageId] = message;
+      _draftsByClientId[entry.clientMessageId] = entry.draft;
       _attachmentIdsByClientId[entry.clientMessageId] = List.unmodifiable(
         entry.draft.attachmentIds,
       );
@@ -198,14 +207,18 @@ final class ChatMessageDeliveryQueue {
         clientMessageId: message.clientMessageId,
         conversationId: message.conversationId,
         attempts: attempts,
-        draft: ChatComposerDraft(
-          text: message.text,
-          deltaJson: message.deltaJson,
-          replyToMessageId: message.replyToMessageId,
-          attachmentIds:
-              _attachmentIdsByClientId[message.clientMessageId] ??
-              const <String>[],
-        ),
+        draft:
+            (_draftsByClientId[message.clientMessageId] ??
+                    ChatComposerDraft(
+                      text: message.displayText ?? message.text,
+                      deltaJson: message.deltaJson,
+                      replyToMessageId: message.replyToMessageId,
+                    ))
+                .copyWith(
+                  attachmentIds:
+                      _attachmentIdsByClientId[message.clientMessageId] ??
+                      const <String>[],
+                ),
       ),
     );
   }
@@ -217,6 +230,13 @@ final class ChatMessageDeliveryQueue {
   }
 
   Future<void> _deliver(ChatMessage optimisticMessage) async {
+    final draft =
+        _draftsByClientId[optimisticMessage.clientMessageId] ??
+        ChatComposerDraft(
+          text: optimisticMessage.displayText ?? optimisticMessage.text,
+          deltaJson: optimisticMessage.deltaJson,
+          replyToMessageId: optimisticMessage.replyToMessageId,
+        );
     final attachmentFileIds =
         _attachmentIdsByClientId[optimisticMessage.clientMessageId] ??
         const <String>[];
@@ -224,7 +244,7 @@ final class ChatMessageDeliveryQueue {
       ChatSendMessageCommand(
         conversationId: optimisticMessage.conversationId,
         clientMessageId: optimisticMessage.clientMessageId,
-        text: optimisticMessage.text,
+        text: _wireText(draft),
         payloadHash: optimisticMessage.payloadHash,
         deltaJson: optimisticMessage.deltaJson,
         replyToMessageId: optimisticMessage.replyToMessageId,
@@ -300,6 +320,11 @@ final class ChatMessageDeliveryQueue {
       )
       .toString()
       .toUpperCase();
+
+  String _wireText(ChatComposerDraft draft) => ChatMentionCodec.toWireText(
+    visibleText: draft.text,
+    mentions: draft.mentions,
+  );
 
   void _publish(ChatMessage message) {
     if (!_isDisposed && !_changes.isClosed) _changes.add(message);

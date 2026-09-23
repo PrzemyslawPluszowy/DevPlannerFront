@@ -17420,6 +17420,12 @@ abstract class AppLocalizations {
   /// **'Replying to: {message}'**
   String chatComposerReplyTo(String message);
 
+  /// No description provided for @chatMentionUnknownMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get chatMentionUnknownMember;
+
   /// No description provided for @chatReplyOriginalUnavailable.
   ///
   /// In en, this message translates to:
@@ -19571,6 +19577,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave conversation'**
   String get chatMembersLeave;
+
+  /// No description provided for @chatMembersLastOwnerCannotLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer ownership to another member before leaving this conversation.'**
+  String get chatMembersLastOwnerCannotLeave;
+
+  /// No description provided for @chatMembersTransferOwnership.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer ownership'**
+  String get chatMembersTransferOwnership;
 
   /// No description provided for @chatMembersAdd.
   ///

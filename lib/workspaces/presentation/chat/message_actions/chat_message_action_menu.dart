@@ -210,12 +210,14 @@ class ChatMessageActionMenu extends StatelessWidget {
       case 'forward':
         onForward?.call(message);
       case 'pin':
-        await cubit.togglePin(
+        final outcome = await cubit.togglePin(
           conversationId: message.conversationId,
           messageId: message.id,
           isPinned: isPinned,
         );
-        onPinnedChanged?.call(!isPinned);
+        if (outcome == ChatMessageSecondaryActionOutcome.succeeded) {
+          onPinnedChanged?.call(!isPinned);
+        }
       case 'bookmark':
         await cubit.toggleBookmark(
           messageId: message.id,

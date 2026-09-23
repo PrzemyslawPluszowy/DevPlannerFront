@@ -219,6 +219,52 @@ void main() {
       await cubit.close();
     });
 
+    test('wynik przypięcia odróżnia ACK, odmowę i duplikat w locie', () async {
+      final successRepository = _ActionsFake();
+      final successCubit = ChatMessageSecondaryActionsCubit(
+        repository: successRepository,
+      );
+      final first = successCubit.togglePin(
+        conversationId: 'conversation-1',
+        messageId: 'message-1',
+        isPinned: false,
+      );
+      final duplicate = await successCubit.togglePin(
+        conversationId: 'conversation-1',
+        messageId: 'message-1',
+        isPinned: false,
+      );
+
+      expect(duplicate, ChatMessageSecondaryActionOutcome.ignored);
+      expect(await first, ChatMessageSecondaryActionOutcome.succeeded);
+      expect(successCubit.state.pinnedMessageIds, contains('message-1'));
+      await successCubit.close();
+
+      final failureCubit = ChatMessageSecondaryActionsCubit(
+        repository: _ActionsFake()
+          ..failure = const ApiError(
+            type: ApiErrorType.forbidden,
+            message: 'Brak uprawnień.',
+            apiCode: 'chat.messages.pin_forbidden',
+            statusCode: 403,
+          ),
+      );
+      final failure = await failureCubit.togglePin(
+        conversationId: 'conversation-1',
+        messageId: 'message-1',
+        isPinned: false,
+      );
+
+      expect(failure, ChatMessageSecondaryActionOutcome.failed);
+      expect(failureCubit.state.pinnedMessageIds, isEmpty);
+      expect(
+        failureCubit.state.failureFor('message-1'),
+        'chat.messages.pin_forbidden',
+      );
+      expect(failureCubit.state.isPending('message-1'), isFalse);
+      await failureCubit.close();
+    });
+
     test('zakładka i jej usunięcie aktualizują zbiór użytkownika', () async {
       final repository = _ActionsFake();
       final cubit = ChatMessageSecondaryActionsCubit(repository: repository);

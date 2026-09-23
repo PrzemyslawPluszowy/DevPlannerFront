@@ -4,6 +4,28 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ChatConversationRealtimeReducer', () {
+    test('odświeża autorytatywny status dla eventu dostarczenia/odczytu', () {
+      final reducer = ChatConversationRealtimeReducer();
+      final messages = <ChatMessage>[
+        _ChatRealtimeFixture.message(id: 'message-1'),
+      ];
+      final result = reducer.apply(
+        messages: messages,
+        event: _ChatRealtimeFixture.event(
+          eventId: 'read-1',
+          sequence: 1,
+          kind: ChatConversationRealtimeEventKind.messageDeliveryChanged,
+          messageId: 'message-1',
+        ),
+      );
+
+      expect(
+        result.decision,
+        ChatConversationRealtimeDecision.refreshMessageDelivery,
+      );
+      expect(result.messages, same(messages));
+    });
+
     test('redukuje kolejno utworzenie, zmianę i usunięcie wiadomości', () {
       final reducer = ChatConversationRealtimeReducer();
       final created = reducer.apply(

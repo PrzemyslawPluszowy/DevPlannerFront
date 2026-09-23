@@ -82,12 +82,11 @@ abstract final class ChatFormatCommands {
 
   /// Czy adres linku nadaje się do zastosowania w zaznaczeniu.
   ///
-  /// Dopuszczamy tylko HTTP/HTTPS i ścieżki aplikacji, tak samo jak renderer
-  /// historii; nic innego nie trafia do treści wiadomości.
+  /// Nowy link musi być absolutnym HTTP/HTTPS, zgodnie z walidatorem backendu.
+  /// Renderer historii może nadal bezpiecznie wyświetlić starsze ścieżki app.
   static bool isSafeLink(String? value) {
     final url = value?.trim();
     if (url == null || url.isEmpty) return false;
-    if (url.startsWith('/')) return true;
     final lower = url.toLowerCase();
     return lower.startsWith('http://') || lower.startsWith('https://');
   }
@@ -96,6 +95,7 @@ abstract final class ChatFormatCommands {
   static String normalizeLink(String value) {
     final url = value.trim();
     if (url.isEmpty) return url;
+    // Pozostaw ścieżki bez zmian, aby `isSafeLink` mógł je odrzucić jawnie.
     if (url.startsWith('/')) return url;
     final lower = url.toLowerCase();
     if (lower.startsWith('http://') || lower.startsWith('https://')) {
@@ -122,8 +122,9 @@ enum ChatLineFormatCommand {
 
 /// Mapowanie akcji linii na atrybuty akapitu.
 ///
-/// Blok kodu i cytat są atrybutami linii, a listy niosą wartość
-/// `bullet`/`ordered`, więc mapowanie musi być jawne — inaczej edytor
+/// Blok kodu i cytat są atrybutami linii, a listy niosą tekstową wartość
+/// `bullet`/`ordered`, zgodną z backendem i rendererem historii. Mapowanie
+/// musi być jawne — inaczej edytor
 /// zapisałby atrybut, którego renderer historii nie rozpozna.
 abstract final class ChatLineFormatCommands {
   /// Klucz atrybutu dla akcji; `list` jest wspólny dla obu list.
@@ -150,8 +151,8 @@ abstract final class ChatLineFormatCommands {
   }) {
     if (currentlyActive) return null;
     return switch (command) {
-      ChatLineFormatCommand.bulletList => const <Object?>['bullet'],
-      ChatLineFormatCommand.orderedList => const <Object?>['ordered'],
+      ChatLineFormatCommand.bulletList => 'bullet',
+      ChatLineFormatCommand.orderedList => 'ordered',
       ChatLineFormatCommand.quote => true,
       ChatLineFormatCommand.codeBlock => true,
     };
@@ -167,10 +168,8 @@ abstract final class ChatLineFormatCommands {
     final value = attributes[key];
     if (value == null || value == false) return false;
     return switch (command) {
-      ChatLineFormatCommand.bulletList =>
-        value is List<Object?> && value.contains('bullet'),
-      ChatLineFormatCommand.orderedList =>
-        value is List<Object?> && value.contains('ordered'),
+      ChatLineFormatCommand.bulletList => value == 'bullet',
+      ChatLineFormatCommand.orderedList => value == 'ordered',
       ChatLineFormatCommand.quote || ChatLineFormatCommand.codeBlock => true,
     };
   }

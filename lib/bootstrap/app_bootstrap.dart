@@ -8,6 +8,7 @@ import 'package:devplanner/foundation/config/app_env.dart';
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 /// Minimal standalone bootstrap.
 Future<void> bootstrap({
@@ -15,6 +16,15 @@ Future<void> bootstrap({
   DevPlannerHttpTransport? httpTransport,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
+  final talker = TalkerFlutter.init();
+  FlutterError.onError = (details) {
+    talker.handle(details.exception, details.stack, 'Flutter framework');
+    FlutterError.presentError(details);
+  };
+  WidgetsBinding.instance.platformDispatcher.onError = (error, stackTrace) {
+    talker.handle(error, stackTrace, 'Uncaught platform error');
+    return true;
+  };
   // Launch state is intentionally local to DevPlanner. The old embedded-host
   // bridge and its token hand-off are not part of the standalone runtime.
   final resolvedTransport =
@@ -23,6 +33,7 @@ Future<void> bootstrap({
           ? DevPlannerHttpTransport(
               baseUrl: AppEnv.apiBaseUrl,
               isWeb: true,
+              talker: talker,
             )
           : null);
   final desktopTransport = !kIsWeb
@@ -50,6 +61,7 @@ Future<void> bootstrap({
           tokenProvider: resolvedAuth?.desktopAccessTokenProvider,
           unauthorizedRecovery: resolvedAuth?.desktopUnauthorizedRecovery,
           isWeb: false,
+          talker: talker,
         );
   final effectiveTransport = resolvedTransport ?? nativeTransport;
   if (auth == null && resolvedAuth != null) {

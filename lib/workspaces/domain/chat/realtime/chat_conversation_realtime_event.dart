@@ -6,6 +6,7 @@ enum ChatConversationRealtimeEventKind {
   messageCreated,
   messageUpdated,
   messageDeleted,
+  messageDeliveryChanged,
   membershipChanged,
 
   /// Zmiana stanu pisania innego uczestnika; nie zmienia historii wiadomości.

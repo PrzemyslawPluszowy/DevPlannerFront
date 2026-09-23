@@ -4,6 +4,9 @@ import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_a
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Jawny wynik akcji, aby UI reagowało wyłącznie na potwierdzony zapis.
+enum ChatMessageSecondaryActionOutcome { succeeded, failed, ignored }
+
 /// Prowadzi akcje drugorzędne wiadomości: przypięcia, zakładki, reakcje i forward.
 ///
 /// Cubit jest osobny od edycji i usunięcia, bo te zmieniają treść i wymagają
@@ -21,7 +24,7 @@ final class ChatMessageSecondaryActionsCubit
   int _bookmarksGeneration = 0;
 
   /// Przypina albo odpina wiadomość w zależności od aktualnego stanu.
-  Future<void> togglePin({
+  Future<ChatMessageSecondaryActionOutcome> togglePin({
     required String conversationId,
     required String messageId,
     required bool isPinned,
@@ -61,61 +64,69 @@ final class ChatMessageSecondaryActionsCubit
     required String messageId,
     required bool isBookmarked,
     String? note,
-  }) => _run(
-    messageId: messageId,
-    action: isBookmarked
-        ? ChatMessageSecondaryAction.removeBookmark
-        : ChatMessageSecondaryAction.bookmark,
-    call: () => isBookmarked
-        ? repository.removeBookmark(messageId)
-        : repository.bookmarkMessage(messageId: messageId, note: note),
-    onSuccess: () {
-      _bookmarksGeneration++;
-      final bookmarkedIds = Set<String>.of(state.bookmarkedMessageIds);
-      if (isBookmarked) {
-        bookmarkedIds.remove(messageId);
-      } else {
-        bookmarkedIds.add(messageId);
-      }
-      emit(state.copyWith(bookmarkedMessageIds: bookmarkedIds));
-    },
-  );
+  }) async {
+    await _run(
+      messageId: messageId,
+      action: isBookmarked
+          ? ChatMessageSecondaryAction.removeBookmark
+          : ChatMessageSecondaryAction.bookmark,
+      call: () => isBookmarked
+          ? repository.removeBookmark(messageId)
+          : repository.bookmarkMessage(messageId: messageId, note: note),
+      onSuccess: () {
+        _bookmarksGeneration++;
+        final bookmarkedIds = Set<String>.of(state.bookmarkedMessageIds);
+        if (isBookmarked) {
+          bookmarkedIds.remove(messageId);
+        } else {
+          bookmarkedIds.add(messageId);
+        }
+        emit(state.copyWith(bookmarkedMessageIds: bookmarkedIds));
+      },
+    );
+  }
 
   /// Przekazuje wiadomość do innej rozmowy z nowym idempotency key.
   Future<void> forward({
     required String messageId,
     required String targetConversationId,
     required String clientMessageId,
-  }) => _run(
-    messageId: messageId,
-    action: ChatMessageSecondaryAction.forward,
-    call: () => repository.forwardMessage(
+  }) async {
+    await _run(
       messageId: messageId,
-      targetConversationId: targetConversationId,
-      clientMessageId: clientMessageId,
-    ),
-    onSuccess: () => emit(state.copyWith(forwardedMessageId: messageId)),
-  );
+      action: ChatMessageSecondaryAction.forward,
+      call: () => repository.forwardMessage(
+        messageId: messageId,
+        targetConversationId: targetConversationId,
+        clientMessageId: clientMessageId,
+      ),
+      onSuccess: () => emit(state.copyWith(forwardedMessageId: messageId)),
+    );
+  }
 
   /// Dodaje własną reakcję emoji do wiadomości.
   Future<void> react({
     required String messageId,
     required String emoji,
-  }) => _run(
-    messageId: messageId,
-    action: ChatMessageSecondaryAction.reaction,
-    call: () => repository.addReaction(messageId: messageId, emoji: emoji),
-  );
+  }) async {
+    await _run(
+      messageId: messageId,
+      action: ChatMessageSecondaryAction.reaction,
+      call: () => repository.addReaction(messageId: messageId, emoji: emoji),
+    );
+  }
 
   /// Usuwa własną reakcję emoji z wiadomości.
   Future<void> removeReaction({
     required String messageId,
     required String emoji,
-  }) => _run(
-    messageId: messageId,
-    action: ChatMessageSecondaryAction.removeReaction,
-    call: () => repository.removeReaction(messageId: messageId, emoji: emoji),
-  );
+  }) async {
+    await _run(
+      messageId: messageId,
+      action: ChatMessageSecondaryAction.removeReaction,
+      call: () => repository.removeReaction(messageId: messageId, emoji: emoji),
+    );
+  }
 
   /// Wczytuje przypięcia rozmowy, żeby menu pokazywało realny stan.
   Future<void> loadConversationPins(String conversationId) async {
@@ -159,13 +170,15 @@ final class ChatMessageSecondaryActionsCubit
     emit(state.copyWith(failures: failures));
   }
 
-  Future<void> _run<T>({
+  Future<ChatMessageSecondaryActionOutcome> _run<T>({
     required String messageId,
     required ChatMessageSecondaryAction action,
     required Future<Either<ApiError, T>> Function() call,
     void Function()? onSuccess,
   }) async {
-    if (isClosed || state.pending.containsKey(messageId)) return;
+    if (isClosed || state.pending.containsKey(messageId)) {
+      return ChatMessageSecondaryActionOutcome.ignored;
+    }
     _clearFailureFor(messageId);
     emit(
       state.copyWith(
@@ -175,23 +188,32 @@ final class ChatMessageSecondaryActionsCubit
         },
       ),
     );
-    final result = await call();
-    if (isClosed) return;
-    _clearPendingFor(messageId);
-    result.fold(
-      (error) => emit(
-        state.copyWith(
-          failures: <String, String>{
-            ...state.failures,
-            messageId: error.apiCode ?? error.message,
-          },
-        ),
-      ),
-      (_) {
-        emit(state.copyWith(lastCompleted: action));
-        onSuccess?.call();
-      },
-    );
+    try {
+      final result = await call();
+      if (isClosed) return ChatMessageSecondaryActionOutcome.ignored;
+      return await result.fold(
+        (error) {
+          emit(
+            state.copyWith(
+              failures: <String, String>{
+                ...state.failures,
+                messageId: error.apiCode ?? error.message,
+              },
+            ),
+          );
+          return ChatMessageSecondaryActionOutcome.failed;
+        },
+        (_) {
+          emit(state.copyWith(lastCompleted: action));
+          onSuccess?.call();
+          return ChatMessageSecondaryActionOutcome.succeeded;
+        },
+      );
+    } finally {
+      if (!isClosed && state.isPending(messageId)) {
+        _clearPendingFor(messageId);
+      }
+    }
   }
 
   void _clearPendingFor(String messageId) {

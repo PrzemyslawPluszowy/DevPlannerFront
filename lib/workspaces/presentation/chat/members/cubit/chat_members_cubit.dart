@@ -42,6 +42,12 @@ final class ChatMembersReady extends ChatMembersState {
   /// Czy bieżący użytkownik może zarządzać członkami i rolami.
   bool get canManageMembers => currentRole?.canManageMembers ?? false;
 
+  /// Czy opuszczenie wymaga wcześniej przekazania własności.
+  bool get isSoleOwner =>
+      currentRole == ChatMemberRole.owner &&
+      members.where((member) => member.role == ChatMemberRole.owner).length ==
+          1;
+
   /// Tworzy kopię stanu z nowymi wartościami; `clearFailure` usuwa kod błędu.
   ChatMembersReady copyWith({
     List<ChatMember>? members,

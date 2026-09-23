@@ -236,6 +236,7 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
       userId: suggestion.userId,
       displayName: suggestion.displayName,
       login: suggestion.login,
+      fallbackLabel: context.l10n.chatMentionUnknownMember,
     );
     final text = ChatMentionCodec.applyMention(
       text: _plainController.text,
@@ -639,6 +640,10 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
         _pendingPasteNotice = null;
         _pendingPasteFailure = null;
       });
+      // Przy progu wiadomości nie wymagamy dodatkowego kliknięcia. Oryginalny
+      // tekst pozostaje w pamięci i karta pozwala go zachować, jeśli upload
+      // zawiedzie; do szkicu trafia wyłącznie gotowy plik TXT.
+      await _sendPendingPasteAsFile();
     } finally {
       _readingPaste = false;
     }
@@ -770,12 +775,24 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
   /// dołączany przy wysłaniu wiadomości, więc ponowienie nie tworzy drugiej
   /// wiadomości ani nie gubi treści.
   Future<void> _sendPendingPasteAsFile() async {
+    try {
+      await _preparePendingPasteAsFile();
+    } on Object {
+      if (!mounted) return;
+      setState(() {
+        _preparingSnippet = false;
+        _pendingPasteFailure = context.l10n.chatLongPastePrepareFailed;
+      });
+    }
+  }
+
+  Future<void> _preparePendingPasteAsFile() async {
     final text = _pendingPasteText;
     final repository = context.read<ChatSnippetRepository?>();
     final coordinator = _attachmentCoordinator;
     final forceRaw = _forceRawPasteAsFile;
     if (text == null) return;
-    if ((!forceRaw && repository == null) || coordinator == null) {
+    if (coordinator == null) {
       setState(
         () => _pendingPasteFailure = context.l10n.chatLongPastePrepareFailed,
       );
@@ -810,7 +827,11 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
     // upload Storage. Nie wysyłamy skróconej ani oczyszczonej kopii po cichu.
     final prepared = preparation;
     final useOriginal =
-        forceRaw || overLimit || (prepared?.isTruncated ?? false);
+        forceRaw ||
+        overLimit ||
+        repository == null ||
+        preparation == null ||
+        prepared?.isTruncated == true;
     final content = useOriginal ? text : prepared?.content;
     if (content == null) {
       setState(() {
@@ -960,6 +981,8 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
   Widget build(BuildContext context) => BlocProvider.value(
     value: _cubit,
     child: BlocBuilder<ChatComposerCubit, ChatComposerState>(
+      buildWhen: (previous, current) =>
+          current.shouldRebuildComparedTo(previous),
       builder: (context, state) {
         final chat = context.chatTheme;
         return LayoutBuilder(

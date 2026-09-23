@@ -25,24 +25,78 @@ final class ChatComposerRichTextField extends StatelessWidget {
   final double maxHeight;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: maxHeight,
-    child: Focus(
-      onKeyEvent: onKeyEvent,
-      child: quill.QuillEditor(
-        controller: controller,
-        focusNode: focusNode,
-        scrollController: scrollController,
-        config: const quill.QuillEditorConfig(
-          padding: EdgeInsets.symmetric(
-            horizontal: Sizes.p8,
-            vertical: Sizes.p10,
-          ),
-          expands: true,
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    final bodyStyle = chat.contentStyle.copyWith(color: chat.incomingText);
+    final blockStyle = quill.DefaultTextBlockStyle(
+      bodyStyle,
+      quill.HorizontalSpacing.zero,
+      quill.VerticalSpacing.zero,
+      quill.VerticalSpacing.zero,
+      null,
+    );
+    final customStyles = quill.DefaultStyles(
+      paragraph: blockStyle,
+      bold: const TextStyle(fontWeight: FontWeight.w900),
+      link: TextStyle(
+        color: chat.linkText,
+        decoration: TextDecoration.underline,
+      ),
+      inlineCode: quill.InlineCodeStyle(
+        style: chat.monospaceStyle.copyWith(color: chat.incomingText),
+        backgroundColor: chat.codeSurface,
+        radius: const Radius.circular(4),
+      ),
+      lists: quill.DefaultListBlockStyle(
+        bodyStyle,
+        quill.HorizontalSpacing.zero,
+        quill.VerticalSpacing.zero,
+        quill.VerticalSpacing.zero,
+        null,
+        null,
+      ),
+      quote: quill.DefaultTextBlockStyle(
+        bodyStyle,
+        quill.HorizontalSpacing.zero,
+        const quill.VerticalSpacing(4, 4),
+        quill.VerticalSpacing.zero,
+        BoxDecoration(
+          color: chat.hoverSurface,
+          border: Border(left: BorderSide(color: chat.focusRing, width: 3)),
+          borderRadius: const BorderRadius.all(Radius.circular(4)),
         ),
       ),
-    ),
-  );
+      code: quill.DefaultTextBlockStyle(
+        chat.monospaceStyle.copyWith(
+          color: chat.incomingText,
+          backgroundColor: chat.codeSurface,
+        ),
+        quill.HorizontalSpacing.zero,
+        const quill.VerticalSpacing(2, 2),
+        quill.VerticalSpacing.zero,
+        null,
+      ),
+    );
+    return SizedBox(
+      height: maxHeight,
+      child: Focus(
+        onKeyEvent: onKeyEvent,
+        child: quill.QuillEditor(
+          controller: controller,
+          focusNode: focusNode,
+          scrollController: scrollController,
+          config: quill.QuillEditorConfig(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Sizes.p8,
+              vertical: Sizes.p10,
+            ),
+            expands: true,
+            customStyles: customStyles,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Widoczny kontekst odpowiedzi wraz z akcją rezygnacji.

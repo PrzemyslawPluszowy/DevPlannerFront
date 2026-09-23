@@ -11,6 +11,7 @@ import 'package:devplanner/foundation/http/devplanner_http_diagnostics_intercept
 import 'package:devplanner/me/data/me_api_transport.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 /// Wyjątek rzucany przez transport sesyjny w przypadku awarii połączenia sieciowego.
 final class DevPlannerHttpTransportException implements Exception {
@@ -113,14 +114,15 @@ class DevPlannerHttpTransport {
     this._unauthorizedRecovery,
     this._csrfTokenProvider,
     this.enableDiagnosticLogging = kDebugMode,
-    void Function(String message)? diagnosticLog,
+    Talker? talker,
+    this._diagnosticLog,
     String Function()? correlationIdGenerator,
     bool? isWeb,
   }) : _baseUrl = baseUrl ?? AppEnv.apiBaseUrl,
        _correlationIdGenerator =
            correlationIdGenerator ?? _defaultCorrelationIdGenerator,
        _isWeb = isWeb ?? kIsWeb,
-       _diagnosticLog = diagnosticLog ?? debugPrint,
+       _talker = talker ?? TalkerFlutter.init(),
        _dio =
            dio ??
            Dio(
@@ -147,7 +149,8 @@ class DevPlannerHttpTransport {
   final String Function() _correlationIdGenerator;
   final bool _isWeb;
   final bool enableDiagnosticLogging;
-  final void Function(String message) _diagnosticLog;
+  final void Function(String message)? _diagnosticLog;
+  final Talker _talker;
   final Dio _dio;
   final csrf_platform.CsrfCookieReader _csrfCookieReader =
       const csrf_platform.CsrfCookieReader();
@@ -383,7 +386,7 @@ class DevPlannerHttpTransport {
     );
     if (enableDiagnosticLogging) {
       _dio.interceptors.add(
-        DevPlannerHttpDiagnosticsInterceptor(_diagnosticLog),
+        DevPlannerHttpDiagnosticsInterceptor(_talker, write: _diagnosticLog),
       );
     }
   }

@@ -98,13 +98,15 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
   bool get _menuVisible => _hovered || _focused;
 
   /// Czy wiadomość ma więcej linii, niż mieści zwinięty dymek.
-  bool get _collapsible =>
-      ChatMessageDisplayPolicy.shouldCollapse(widget.message.text);
+  bool get _collapsible => ChatMessageDisplayPolicy.shouldCollapse(
+    widget.message.displayText ?? widget.message.text,
+  );
 
   @override
   Widget build(BuildContext context) {
     final chat = context.chatTheme;
     final message = widget.message;
+    final displayText = message.displayText ?? message.text;
     final contentColor = widget.isOwn ? chat.outgoingText : chat.incomingText;
     final author = widget.authorLabel?.trim();
     final showAuthor = widget.showAuthor && author != null && author.isNotEmpty;
@@ -180,7 +182,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                         // Zwinięty podgląd jest jawny: użytkownik widzi, że treść
                         // jest dłuższa, i ma przycisk pełnej wersji.
                         Text(
-                          message.text,
+                          displayText,
                           maxLines:
                               ChatMessageDisplayPolicy.collapseLineThreshold,
                           overflow: TextOverflow.ellipsis,
@@ -190,7 +192,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                         )
                       else
                         ChatRichTextBody(
-                          text: message.text,
+                          text: displayText,
                           deltaJson: message.deltaJson,
                           links: message.links,
                           style: chat.contentStyle.copyWith(

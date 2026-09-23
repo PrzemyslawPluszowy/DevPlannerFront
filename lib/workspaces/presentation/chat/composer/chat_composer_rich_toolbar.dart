@@ -227,17 +227,17 @@ void applyLineFormatCommand({
     command,
     currentlyActive: active,
   );
-  // Wartości muszą mieć typ zgodny z atrybutem Quill: listy niosą znacznik
-  // w liście, a cytat i blok kodu są wartościami logicznymi.
+  // Wartości muszą mieć typ zgodny z atrybutem Quill: format listy jest
+  // tekstowym atrybutem `ul`/`ol`, a cytat i blok kodu są wartościami logicznymi.
   final attribute = switch (command) {
     ChatLineFormatCommand.bulletList =>
       value == null
           ? quill.Attribute.clone(quill.Attribute.ul, null)
-          : quill.Attribute.clone(quill.Attribute.ul, value as List<Object?>),
+          : quill.Attribute.ul,
     ChatLineFormatCommand.orderedList =>
       value == null
           ? quill.Attribute.clone(quill.Attribute.ol, null)
-          : quill.Attribute.clone(quill.Attribute.ol, value as List<Object?>),
+          : quill.Attribute.ol,
     ChatLineFormatCommand.quote =>
       value == null
           ? quill.Attribute.clone(quill.Attribute.blockQuote, null)

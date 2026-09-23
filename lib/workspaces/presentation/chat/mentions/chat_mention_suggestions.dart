@@ -115,6 +115,7 @@ class _SuggestionTile extends StatelessWidget {
       userId: suggestion.userId,
       displayName: suggestion.displayName,
       login: suggestion.login,
+      fallbackLabel: context.l10n.chatMentionUnknownMember,
     );
     return Material(
       color: active ? chat.selectedSurface : Colors.transparent,
@@ -150,14 +151,16 @@ class _SuggestionTile extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Text(
-                      '@${suggestion.login}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: chat.metadataStyle.copyWith(
-                        color: chat.metadataText,
+                    if (suggestion.login.trim().isNotEmpty &&
+                        !ChatMentionCodec.isUuid(suggestion.login))
+                      Text(
+                        '@${suggestion.login}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: chat.metadataStyle.copyWith(
+                          color: chat.metadataText,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),

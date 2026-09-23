@@ -62,6 +62,30 @@ void main() {
       expect(parsed.last.spans.single.text, 'Druga linia');
     });
 
+    test('zachowuje bold, inline code i cytat z formatów Quilla', () {
+      final blocks = ChatRichTextCodec.tryParse(
+        delta([
+          {
+            'insert': 'pogrubione',
+            'attributes': {'bold': true},
+          },
+          {
+            'insert': ' kod',
+            'attributes': {'code': true},
+          },
+          {
+            'insert': '\n',
+            'attributes': {'blockquote': true},
+          },
+        ]),
+      );
+
+      expect(blocks, hasLength(1));
+      expect(blocks!.single.kind, ChatRichTextBlockKind.quote);
+      expect(blocks.single.spans[0].bold, isTrue);
+      expect(blocks.single.spans[1].isCode, isTrue);
+    });
+
     test('rozpoznaje blok kodu z językiem i zachowuje whitespace', () {
       final blocks = ChatRichTextCodec.tryParse(
         delta([

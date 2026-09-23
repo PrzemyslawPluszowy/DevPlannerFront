@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
+import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:equatable/equatable.dart';
 
 /// Lokalna intencja wysłania oczekująca na ponowienie.
@@ -39,6 +40,10 @@ final class PendingChatSend extends Equatable {
     'deltaJson': draft.deltaJson,
     'replyToMessageId': draft.replyToMessageId,
     'attachmentIds': draft.attachmentIds,
+    'mentions': [
+      for (final mention in draft.mentions)
+        {'userId': mention.userId, 'label': mention.label},
+    ],
   };
 
   /// Odtwarza intencję z magazynu; niekompletny rekord jest odrzucany.
@@ -48,6 +53,7 @@ final class PendingChatSend extends Equatable {
     if (clientMessageId is! String || conversationId is! String) return null;
     if (clientMessageId.isEmpty || conversationId.isEmpty) return null;
     final attachments = json['attachmentIds'];
+    final mentions = json['mentions'];
     return PendingChatSend(
       clientMessageId: clientMessageId,
       conversationId: conversationId,
@@ -59,6 +65,19 @@ final class PendingChatSend extends Equatable {
         attachmentIds: attachments is List
             ? attachments.whereType<String>().toList(growable: false)
             : const <String>[],
+        mentions: mentions is List
+            ? mentions
+                  .whereType<Map<String, Object?>>()
+                  .map((mention) {
+                    final userId = mention['userId'];
+                    final label = mention['label'];
+                    if (userId is! String || label is! String) return null;
+                    if (userId.isEmpty || label.isEmpty) return null;
+                    return ChatMentionReference(userId: userId, label: label);
+                  })
+                  .whereType<ChatMentionReference>()
+                  .toList(growable: false)
+            : const <ChatMentionReference>[],
       ),
     );
   }

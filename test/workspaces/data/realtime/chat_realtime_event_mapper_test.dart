@@ -48,6 +48,30 @@ void main() {
   });
 
   group('ChatRealtimeEventMapper PascalCase backend envelope', () {
+    test('rozpoznaje odczyt i dostarczenie jako zmianę statusu wiadomości', () {
+      final mapper = ChatRealtimeEventMapper();
+      for (final eventType in <String>[
+        'chat.message.read',
+        'chat.message.delivered',
+      ]) {
+        final event = mapper.map(
+          method: eventType,
+          payload: <String, dynamic>{
+            'conversationId': 'conversation-1',
+            'messageId': 'message-1',
+          },
+          isReplay: false,
+        );
+
+        expect(event, isNotNull);
+        expect(
+          event!.kind,
+          ChatConversationRealtimeEventKind.messageDeliveryChanged,
+        );
+        expect(event.messageId, 'message-1');
+      }
+    });
+
     test(
       'normalizuje pełny MessageCreated PayloadJson z ChatRealtimeEventFactory',
       () {

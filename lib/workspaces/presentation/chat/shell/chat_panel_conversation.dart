@@ -531,19 +531,31 @@ final class _ChatPanelConversationContentState
   void _openMembers() {
     final members = context.read<ChatMembersRepository?>();
     if (members == null) return;
-    unawaited(
-      ChatMembersSheet.show(
-        context,
-        membersRepository: members,
-        conversation: widget.conversation,
-        currentUserId:
-            context.read<AuthSessionPort?>()?.snapshot.user?.userId ?? '',
-        conversationManagement: context
-            .read<ChatConversationManagementRepository?>(),
-        presenceRepository: context.read<ChatPresenceRepository?>(),
-        directoryRepository: context.read<ChatDirectoryRepository?>(),
-      ),
+    unawaited(_showMembersAndHandleLeave(members));
+  }
+
+  Future<void> _showMembersAndHandleLeave(
+    ChatMembersRepository members,
+  ) async {
+    final inbox = context.read<ChatInboxCubit?>();
+    final unread = context.read<ChatUnreadCubit?>();
+    final didLeave = await ChatMembersSheet.show(
+      context,
+      membersRepository: members,
+      conversation: widget.conversation,
+      currentUserId:
+          context.read<AuthSessionPort?>()?.snapshot.user?.userId ?? '',
+      conversationManagement: context
+          .read<ChatConversationManagementRepository?>(),
+      presenceRepository: context.read<ChatPresenceRepository?>(),
+      directoryRepository: context.read<ChatDirectoryRepository?>(),
     );
+    if (!mounted || didLeave != true) return;
+    unawaited(inbox?.refresh());
+    unawaited(unread?.refresh());
+    // Returning to the inbox disposes this conversation's realtime lease and
+    // clears its selection after the server has confirmed the leave.
+    widget.onBack();
   }
 
   String? _send(ChatComposerDraft draft) {

@@ -9726,6 +9726,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get chatMentionUnknownMember => 'Member';
+
+  @override
   String get chatReplyOriginalUnavailable => 'Original message unavailable';
 
   @override
@@ -10946,6 +10949,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatMembersLeave => 'Leave conversation';
+
+  @override
+  String get chatMembersLastOwnerCannotLeave =>
+      'Transfer ownership to another member before leaving this conversation.';
+
+  @override
+  String get chatMembersTransferOwnership => 'Transfer ownership';
 
   @override
   String get chatMembersAdd => 'Add people';

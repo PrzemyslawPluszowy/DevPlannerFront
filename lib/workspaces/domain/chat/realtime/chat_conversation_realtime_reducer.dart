@@ -2,7 +2,12 @@ import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_messa
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
 
 /// Decyzja reduktora po walidacji kolejności i aktualizacji historii.
-enum ChatConversationRealtimeDecision { applied, ignored, resyncRequired }
+enum ChatConversationRealtimeDecision {
+  applied,
+  ignored,
+  resyncRequired,
+  refreshMessageDelivery,
+}
 
 /// Wynik czystej redukcji jednego eventu dla aktualnie otwartej rozmowy.
 final class ChatConversationRealtimeReduction {
@@ -43,6 +48,13 @@ final class ChatConversationRealtimeReducer {
         messages: messages,
       );
     }
+    if (event.kind ==
+        ChatConversationRealtimeEventKind.messageDeliveryChanged) {
+      return ChatConversationRealtimeReduction(
+        decision: ChatConversationRealtimeDecision.refreshMessageDelivery,
+        messages: messages,
+      );
+    }
     if (event.kind == ChatConversationRealtimeEventKind.resyncRequired ||
         event.kind == ChatConversationRealtimeEventKind.membershipChanged ||
         event.kind == ChatConversationRealtimeEventKind.unsupported) {
@@ -65,6 +77,8 @@ final class ChatConversationRealtimeReducer {
         _upsert(updated, message);
       case ChatConversationRealtimeEventKind.messageDeleted:
         _markDeleted(updated, event);
+      case ChatConversationRealtimeEventKind.messageDeliveryChanged:
+        break;
       case ChatConversationRealtimeEventKind.typingChanged:
       case ChatConversationRealtimeEventKind.membershipChanged:
       case ChatConversationRealtimeEventKind.resyncRequired:
