@@ -80,7 +80,8 @@ class _ProjectTasksListState extends State<ProjectTasksList> {
   void initState() {
     super.initState();
     _ownsCubits = widget.listCubit == null;
-    _cubit = widget.listCubit ??
+    _cubit =
+        widget.listCubit ??
         ProjectTasksListCubit(
           repository: context.read<TasksRepository>(),
           metadataRepository: context.read<TaskMetadataRepository>(),
@@ -91,7 +92,8 @@ class _ProjectTasksListState extends State<ProjectTasksList> {
           savedViewId: widget.savedViewId,
           groupBy: widget.groupBy,
         );
-    _preferencesCubit = widget.preferencesCubit ??
+    _preferencesCubit =
+        widget.preferencesCubit ??
         TaskListPreferencesCubit(
           repository: context.read<TaskListConfigurationRepository>(),
           workspaceId: widget.workspaceId,

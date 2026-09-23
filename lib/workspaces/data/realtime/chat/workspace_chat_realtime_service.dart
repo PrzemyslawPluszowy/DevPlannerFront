@@ -67,9 +67,15 @@ final class WorkspaceChatRealtimeError {
 final class WorkspaceChatRealtimeService
     implements ChatConversationRealtimeClient {
   /// Tworzy serwis z abstrakcją transportu, łatwą do zastąpienia w testach.
-  WorkspaceChatRealtimeService({required this._client});
+  WorkspaceChatRealtimeService({
+    required this._client,
+    this.presenceHeartbeatInterval = const Duration(seconds: 15),
+  });
 
   final WorkspaceSignalRTransport _client;
+
+  /// Period działania krótkiego lease'u presence; testy mogą skrócić timer.
+  final Duration presenceHeartbeatInterval;
   final PublishSubject<ChatRealtimeEvent> _events =
       PublishSubject<ChatRealtimeEvent>();
   final PublishSubject<WorkspaceChatRealtimeError> _errors =
@@ -78,6 +84,10 @@ final class WorkspaceChatRealtimeService
       PublishSubject<ChatConversationRealtimeEvent>();
   final PublishSubject<ChatConversationRealtimeError> _conversationErrors =
       PublishSubject<ChatConversationRealtimeError>();
+  final BehaviorSubject<ChatConversationPresenceSnapshot?> _presenceSnapshots =
+      BehaviorSubject<ChatConversationPresenceSnapshot?>.seeded(null);
+  final PublishSubject<ChatUserStatusChanged> _userStatusChanges =
+      PublishSubject<ChatUserStatusChanged>();
   final ChatRealtimeEventMapper _eventMapper = ChatRealtimeEventMapper();
   final Set<String> _seenEventIds = <String>{};
   int? _latestSequence;
@@ -85,8 +95,11 @@ final class WorkspaceChatRealtimeService
   String? _conversationId;
   String? _cursor;
   bool _started = false;
+  bool _isConnected = false;
   bool _wasConnected = false;
   bool _replayInFlight = false;
+  bool _heartbeatInFlight = false;
+  Timer? _presenceHeartbeat;
 
   /// Surowe zdarzenia domenowe dla lokalnego Cubita rozmowy.
   Stream<ChatRealtimeEvent> get events => _events.stream;
@@ -104,6 +117,15 @@ final class WorkspaceChatRealtimeService
   Stream<ChatConversationRealtimeError> get conversationErrors =>
       _conversationErrors.stream;
 
+  /// Ostatni snapshot obecności oraz kolejne zmiany z autoryzowanego huba.
+  @override
+  Stream<ChatConversationPresenceSnapshot?> get presenceSnapshots =>
+      _presenceSnapshots.stream;
+
+  @override
+  Stream<ChatUserStatusChanged> get userStatusChanges =>
+      _userStatusChanges.stream;
+
   /// Strumień stanu połączenia do ewentualnego wskaźnika w UI.
   Stream<WorkspaceSignalRConnectionState> get connectionStates =>
       _client.states;
@@ -117,6 +139,7 @@ final class WorkspaceChatRealtimeService
     if (_started) await stop();
     _conversationId = id;
     _started = true;
+    _isConnected = false;
     _wasConnected = false;
     _registerHandlers();
     _states = _client.states.listen(_handleState);
@@ -135,7 +158,12 @@ final class WorkspaceChatRealtimeService
     if (!_started) return;
     final id = _conversationId;
     _started = false;
+    _isConnected = false;
     _conversationId = null;
+    _presenceHeartbeat?.cancel();
+    _presenceHeartbeat = null;
+    _heartbeatInFlight = false;
+    if (!_presenceSnapshots.isClosed) _presenceSnapshots.add(null);
     await _states?.cancel();
     _states = null;
     if (id != null) {
@@ -158,9 +186,37 @@ final class WorkspaceChatRealtimeService
   }
 
   /// Podtrzymuje obecność użytkownika w aktywnej rozmowie.
+  @override
   Future<void> heartbeatPresence() async {
     final id = _requireConversation();
     await _client.invoke('HeartbeatPresence', args: <Object>[id]);
+  }
+
+  void _startPresenceHeartbeat(String conversationId) {
+    _presenceHeartbeat?.cancel();
+    _presenceHeartbeat = Timer.periodic(presenceHeartbeatInterval, (_) {
+      if (!_started || _conversationId != conversationId || !_isConnected) {
+        return;
+      }
+      unawaited(_sendPresenceHeartbeat(conversationId));
+    });
+  }
+
+  Future<void> _sendPresenceHeartbeat(String conversationId) async {
+    if (_heartbeatInFlight ||
+        !_started ||
+        _conversationId != conversationId ||
+        !_isConnected) {
+      return;
+    }
+    _heartbeatInFlight = true;
+    try {
+      await _client.invoke('HeartbeatPresence', args: <Object>[conversationId]);
+    } catch (error, stackTrace) {
+      _report(error, stackTrace);
+    } finally {
+      _heartbeatInFlight = false;
+    }
   }
 
   /// Zamyka strumienie i transport. Wywołać przy niszczeniu właściciela sesji.
@@ -170,6 +226,8 @@ final class WorkspaceChatRealtimeService
     await _errors.close();
     await _conversationEvents.close();
     await _conversationErrors.close();
+    await _presenceSnapshots.close();
+    await _userStatusChanges.close();
     _client.dispose();
   }
 
@@ -180,6 +238,7 @@ final class WorkspaceChatRealtimeService
   }
 
   void _handleState(WorkspaceSignalRConnectionState state) {
+    _isConnected = state == WorkspaceSignalRConnectionState.connected;
     if (state != WorkspaceSignalRConnectionState.connected || !_started) {
       return;
     }
@@ -193,6 +252,8 @@ final class WorkspaceChatRealtimeService
     if (id == null || !_started) return;
     try {
       await _client.invoke('SubscribeConversation', args: <Object>[id]);
+      _startPresenceHeartbeat(id);
+      await _sendPresenceHeartbeat(id);
       if (replay) await _replay(id);
     } catch (error, stackTrace) {
       _report(error, stackTrace);
@@ -264,6 +325,34 @@ final class WorkspaceChatRealtimeService
       _cursor = _eventMapper.cursorForSequence(sequence);
     }
     if (!_events.isClosed) _events.add(event);
+    // To zdarzenie unieważnia skrzynkę i nie należy do historii wiadomości.
+    // Nadal przesuwamy kursor replayu, ale nie mapujemy go na event rozmowy.
+    if (method == 'chat.inbox.changed') return;
+    if (method == 'chat.presence.changed') {
+      final snapshot = _eventMapper.mapPresence(normalizedPayload);
+      if (snapshot == null) {
+        _report(
+          const FormatException(
+            'Nieprawidłowy snapshot obecności rozmowy Chat.',
+          ),
+          StackTrace.current,
+        );
+      } else if (!_presenceSnapshots.isClosed) {
+        _presenceSnapshots.add(snapshot);
+      }
+    }
+    if (method == 'chat.user_status.changed') {
+      final change = _eventMapper.mapUserStatusChanged(normalizedPayload);
+      if (change == null) {
+        _report(
+          const FormatException('Nieprawidłowy status użytkownika w Chat Hub.'),
+          StackTrace.current,
+        );
+      } else if (!_userStatusChanges.isClosed) {
+        _userStatusChanges.add(change);
+      }
+      return;
+    }
     final typedEvent = _eventMapper.map(
       method: method,
       payload: normalizedPayload,
@@ -324,7 +413,10 @@ final class WorkspaceChatRealtimeService
     'chat.message.created',
     'chat.message.updated',
     'chat.message.deleted',
+    'chat.inbox.changed',
     'chat.typing.changed',
+    'chat.presence.changed',
+    'chat.user_status.changed',
     'chat.member.access_revoked',
     'chat.member.added',
     'chat.member.left',
@@ -353,10 +445,24 @@ final class WorkspaceChatRealtimeFactory {
   final WorkspaceRealtimeCredentials _credentials;
   final Map<String, _PooledChatSubscription> _subscriptions =
       <String, _PooledChatSubscription>{};
+  WorkspaceChatInboxRealtimeService? _inboxService;
   bool _closed = false;
 
   /// Liczba otwartych połączeń; używana przez testy i diagnostykę.
   int get openConversationCount => _subscriptions.length;
+
+  /// Jedno połączenie sesyjne odbierające sygnały unieważnienia inboxa.
+  WorkspaceChatInboxRealtimeService openInboxInvalidations() {
+    if (_closed) {
+      throw StateError('Sesja realtime Chatu została już zamknięta.');
+    }
+    return _inboxService ??= WorkspaceChatInboxRealtimeService(
+      client: WorkspaceSignalRClient(
+        '$_baseUrl/api/v1/realtime/chat',
+        _credentials,
+      ),
+    );
+  }
 
   /// Czy właściciel został już zamknięty na końcu sesji.
   bool get isClosed => _closed;
@@ -404,6 +510,57 @@ final class WorkspaceChatRealtimeFactory {
     for (final entry in entries) {
       await entry.service.dispose();
     }
+    await _inboxService?.dispose();
+    _inboxService = null;
+  }
+}
+
+/// Lekki kanał sesyjny: niesie wyłącznie sygnał, że skrzynka wymaga ponownego
+/// odczytu przez REST. Nie przesyła treści, nazw ani identyfikatorów rozmów.
+final class WorkspaceChatInboxRealtimeService {
+  WorkspaceChatInboxRealtimeService({required this.client});
+
+  final WorkspaceSignalRTransport client;
+  final PublishSubject<void> _invalidations = PublishSubject<void>();
+  StreamSubscription<WorkspaceSignalRConnectionState>? _states;
+  bool _started = false;
+  bool _disposed = false;
+
+  Stream<void> get invalidations => _invalidations.stream;
+
+  Future<void> start() async {
+    if (_started || _disposed) return;
+    _started = true;
+    client.on('chat.inbox.changed', _handleInvalidation);
+    _states = client.states.listen((state) {
+      if (_started && state == WorkspaceSignalRConnectionState.connected) {
+        // Initial connect and every reconnect reconcile missed outbox events.
+        _invalidations.add(null);
+      }
+    });
+    try {
+      await client.connect();
+    } catch (_) {
+      _started = false;
+      await _states?.cancel();
+      _states = null;
+      rethrow;
+    }
+  }
+
+  void _handleInvalidation(List<Object?>? arguments) {
+    if (_started && !_invalidations.isClosed) _invalidations.add(null);
+  }
+
+  Future<void> dispose() async {
+    if (_disposed) return;
+    _disposed = true;
+    _started = false;
+    await _states?.cancel();
+    _states = null;
+    await client.disconnect();
+    client.dispose();
+    await _invalidations.close();
   }
 }
 
@@ -440,6 +597,14 @@ final class WorkspaceChatRealtimeLease
       _service.conversationErrors;
 
   @override
+  Stream<ChatConversationPresenceSnapshot?> get presenceSnapshots =>
+      _service.presenceSnapshots;
+
+  @override
+  Stream<ChatUserStatusChanged> get userStatusChanges =>
+      _service.userStatusChanges;
+
+  @override
   Future<void> start(String conversationId) => _service.start(conversationId);
 
   @override
@@ -447,6 +612,9 @@ final class WorkspaceChatRealtimeLease
 
   @override
   Future<void> setTyping(bool isTyping) => _service.setTyping(isTyping);
+
+  @override
+  Future<void> heartbeatPresence() => _service.heartbeatPresence();
 
   /// Zwalnia dzierżawę; połączenie zamyka się po ostatniej dzierżawie.
   Future<void> dispose() async {

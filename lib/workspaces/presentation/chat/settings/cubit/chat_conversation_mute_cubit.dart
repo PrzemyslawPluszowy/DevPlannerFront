@@ -62,7 +62,10 @@ final class ChatConversationMuteCubit extends Cubit<ChatConversationMuteState> {
     if (isClosed) return;
     result.fold(
       (error) => emit(
-        state.copyWith(isBusy: false, failureCode: error.apiCode ?? error.message),
+        state.copyWith(
+          isBusy: false,
+          failureCode: error.apiCode ?? error.message,
+        ),
       ),
       (setting) => emit(state.copyWith(mode: setting.mode, isBusy: false)),
     );

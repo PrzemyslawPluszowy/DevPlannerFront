@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
@@ -7,15 +8,16 @@ import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conve
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/management/models/chat_conversation_create_command.dart';
+import 'package:devplanner/workspaces/presentation/chat/creation/chat_selection_tile.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/details/chat_creation_details_step.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/participants/chat_creation_participants_step.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/participants/cubit/chat_directory_search_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
 
 /// Modalny kreator nowej rozmowy Chat.
 ///
@@ -72,31 +74,29 @@ class _ChatCreationDialog extends StatelessWidget {
           current.created != null && previous.created != current.created,
       listener: (context, state) => Navigator.of(context).pop(state.created),
       child: BlocBuilder<ChatCreationCubit, ChatCreationState>(
-        builder: (context, state) => AlertDialog(
-          title: Text(l10n.chatCreationTitle),
-          content: SizedBox(
-            width: 420,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(_stepLabel(l10n, state), style: theme.textTheme.titleSmall),
-                  const SizedBox(height: Sizes.p12),
-                  switch (state.step) {
-                    ChatCreationStep.chooser => const _ChatCreationKindStep(),
-                    ChatCreationStep.participants =>
-                      const ChatCreationParticipantsStep(),
-                    ChatCreationStep.details =>
-                      const ChatCreationDetailsStep(),
-                  },
-                  if (state.failureCode != null) ...[
-                    const SizedBox(height: Sizes.p8),
-                    _ChatCreationFailureBanner(code: state.failureCode!),
-                  ],
-                ],
+        builder: (context, state) => ChatSurfaceDialog(
+          title: _title(l10n, state),
+          maxWidth: 440,
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _stepLabel(l10n, state),
+                style: theme.textTheme.titleSmall,
               ),
-            ),
+              const SizedBox(height: Sizes.p12),
+              switch (state.step) {
+                ChatCreationStep.chooser => const _ChatCreationKindStep(),
+                ChatCreationStep.participants =>
+                  const ChatCreationParticipantsStep(),
+                ChatCreationStep.details => const ChatCreationDetailsStep(),
+              },
+              if (state.failureCode != null) ...[
+                const SizedBox(height: Sizes.p8),
+                const _ChatCreationFailureBanner(),
+              ],
+            ],
           ),
           actions: _actions(context, state),
         ),
@@ -109,6 +109,14 @@ class _ChatCreationDialog extends StatelessWidget {
         ChatCreationStep.chooser => l10n.chatCreationStepChooser,
         ChatCreationStep.participants => l10n.chatCreationStepParticipants,
         ChatCreationStep.details => l10n.chatCreationStepDetails,
+      };
+
+  static String _title(AppLocalizations l10n, ChatCreationState state) =>
+      switch (state.kind) {
+        ChatConversationKind.group => l10n.chatComposeNewGroup,
+        ChatConversationKind.channel => l10n.chatComposeNewChannel,
+        ChatConversationKind.broadcast => l10n.chatComposeNewBroadcast,
+        ChatConversationKind.direct || null => l10n.chatCreationTitle,
       };
 
   static List<Widget> _actions(BuildContext context, ChatCreationState state) {
@@ -135,7 +143,9 @@ class _ChatCreationDialog extends StatelessWidget {
         ),
       if (isDetails)
         FilledButton(
-          onPressed: state.isSubmitting ? null : () => unawaited(cubit.submit()),
+          onPressed: state.isSubmitting
+              ? null
+              : () => unawaited(cubit.submit()),
           child: state.isSubmitting
               ? const SizedBox(
                   width: 16,
@@ -149,42 +159,33 @@ class _ChatCreationDialog extends StatelessWidget {
 }
 
 class _ChatCreationFailureBanner extends StatelessWidget {
-  const _ChatCreationFailureBanner({required this.code});
-
-  final String code;
+  const _ChatCreationFailureBanner();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return Container(
       padding: const EdgeInsets.all(Sizes.p8),
       decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
+        color: chat.error.withValues(alpha: .10),
+        border: Border.all(color: chat.error.withValues(alpha: .35)),
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
       child: Row(
         children: [
-          Icon(Symbols.error_outline, size: 18, color: theme.colorScheme.onErrorContainer),
+          Icon(
+            Symbols.error_outline,
+            size: 18,
+            color: chat.error,
+          ),
           const SizedBox(width: Sizes.p8),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.chatCreationFailureTitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onErrorContainer,
-                  ),
-                ),
-                // Kod domenowy zostaje widoczny dla diagnostyki; użytkownik
-                // dostaje tekst z ARB, a nie techniczny identyfikator.
-                Text(
-                  code,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onErrorContainer,
-                  ),
-                ),
-              ],
+            child: Text(
+              context.l10n.chatCreationFailureTitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: chat.error,
+              ),
             ),
           ),
         ],
@@ -197,24 +198,25 @@ class _ChatCreationKindStep extends StatelessWidget {
   const _ChatCreationKindStep();
 
   @override
-  Widget build(BuildContext context) => RadioGroup<ChatConversationKind>(
-    groupValue: context.watch<ChatCreationCubit>().state.kind,
-    onChanged: (selected) {
-      if (selected != null) {
-        context.read<ChatCreationCubit>().selectKind(selected);
-      }
-    },
-    child: Column(
+  Widget build(BuildContext context) {
+    final selected = context.watch<ChatCreationCubit>().state.kind;
+    final cubit = context.read<ChatCreationCubit>();
+    return Column(
       children: [
-        for (final kind in ChatConversationKind.values)
-          RadioListTile<ChatConversationKind>(
-            value: kind,
-            title: Text(_kindLabel(context.l10n, kind)),
-            subtitle: Text(_kindHint(context.l10n, kind)),
+        for (final kind in ChatConversationKind.values) ...[
+          ChatSelectionTile(
+            key: ValueKey<ChatConversationKind>(kind),
+            title: _kindLabel(context.l10n, kind),
+            subtitle: _kindHint(context.l10n, kind),
+            selected: selected == kind,
+            icon: _kindIcon(kind),
+            onTap: () => cubit.selectKind(kind),
           ),
+          const SizedBox(height: Sizes.p8),
+        ],
       ],
-    ),
-  );
+    );
+  }
 
   static String _kindLabel(AppLocalizations l10n, ChatConversationKind kind) =>
       switch (kind) {
@@ -231,4 +233,11 @@ class _ChatCreationKindStep extends StatelessWidget {
         ChatConversationKind.channel => l10n.chatCreationKindChannelHint,
         ChatConversationKind.broadcast => l10n.chatCreationKindBroadcastHint,
       };
+
+  static IconData _kindIcon(ChatConversationKind kind) => switch (kind) {
+    ChatConversationKind.direct => Symbols.chat_bubble_outline,
+    ChatConversationKind.group => Symbols.groups_rounded,
+    ChatConversationKind.channel => Symbols.tag,
+    ChatConversationKind.broadcast => Symbols.campaign,
+  };
 }

@@ -43,7 +43,6 @@ void main() {
   }
 
   // Powierzchnia panelu istnieje w obu trybach; barrier tylko w compact.
-  // Powierzchnia panelu istnieje w obu trybach; barrier tylko w compact.
   Finder panelSurface() =>
       find.byKey(const ValueKey('devplanner-panel-surface'));
   Finder panelBarrier() =>
@@ -173,7 +172,7 @@ void main() {
     expect(panelSurface(), findsNothing, reason: 'drugi Escape zamyka panel');
   });
 
-  testWidgets('panel startuje z 30% okna i nie blokuje aplikacji', (
+  testWidgets('panel startuje z pełnym układem i nie blokuje aplikacji', (
     tester,
   ) async {
     // Desktop: panel jest wąskim panelem obok aplikacji, więc nie przyciemnia
@@ -216,12 +215,46 @@ void main() {
             ChatPanelSizeController.resizeHandleWidth,
         epsilon: 1,
       ),
-      reason: 'panel startuje z około 30% szerokości okna',
+      reason: 'panel startuje z pełnym trzykolumnowym układem',
     );
 
     await tester.tap(find.byKey(const ValueKey('app-action')));
     await tester.pumpAndSettle();
     expect(appClicks, 1, reason: 'panel nie blokuje aplikacji');
+  });
+
+  testWidgets('panel mieści się w oknie podczas animacji po zwężeniu', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(3400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await pumpHostWithPanel(
+      tester,
+      routeContent: (context) => TextButton(
+        key: const ValueKey('open-panel'),
+        onPressed: DevPlannerPanelsScope.controllerOf(context)!.showChat,
+        child: const Text('Otwórz czat'),
+      ),
+    );
+    await tester.tap(find.byKey(const ValueKey('open-panel')));
+    await tester.pumpAndSettle();
+    expect(tester.getSize(panelSurface()).width, greaterThan(845));
+
+    tester.view.physicalSize = const Size(845, 900);
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    const isModal = 845 < ChatPanelSizeController.compactBreakpoint;
+    const handleWidth = isModal
+        ? 0.0
+        : ChatPanelSizeController.resizeHandleWidth;
+    expect(
+      tester.getSize(panelSurface()).width + handleWidth,
+      lessThanOrEqualTo(845),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('ponowne naciśnięcie przycisku chowa panel', (tester) async {
@@ -306,11 +339,12 @@ void main() {
     expect(handle, findsOneWidget);
 
     // Uchwyt jest na lewej krawędzi, więc zwężanie to ruch w prawo. Pierwszy
-    // ruch zjada slop gestu, drugi trafia do uchwytu: 300 px z 420 px przechodzi
-    // przez minimum 320 px i zbiera ponad 70 px nadwyżki (5% szerokości okna).
+    // ruch zjada slop gestu, drugi trafia do uchwytu. Przejście z domyślnych
+    // 1050 px przez minimum 320 px wymaga ponad 800 px łącznego ruchu, aby
+    // zebrać nadwyżkę większą niż próg 5% szerokości okna.
     final gesture = await tester.startGesture(tester.getCenter(handle));
     await gesture.moveBy(const Offset(60, 0));
-    await gesture.moveBy(const Offset(300, 0));
+    await gesture.moveBy(const Offset(800, 0));
     await gesture.up();
     await tester.pump();
     expect(
@@ -356,7 +390,9 @@ void main() {
     expect(
       tester.getSize(panelSurface()).width,
       moreOrLessEquals(
-        420 - 40 - ChatPanelSizeController.resizeHandleWidth,
+        1400 * ChatPanelSizeController.defaultWidthFraction -
+            40 -
+            ChatPanelSizeController.resizeHandleWidth,
         epsilon: 1,
       ),
       reason: 'szerokość podąża za uchwytem',

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/models/chat_directory_entry.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/participants/cubit/chat_directory_search_cubit.dart';
@@ -19,7 +20,7 @@ class ChatAddMembersView extends StatefulWidget {
   const ChatAddMembersView({
     required this.directoryRepository,
     required this.existingUserIds,
-    required this.freeSlots,
+    this.freeSlots,
     required this.isMutating,
     required this.onCancel,
     required this.onSubmit,
@@ -33,8 +34,8 @@ class ChatAddMembersView extends StatefulWidget {
   /// Członkowie, których nie wolno dodać ponownie.
   final Set<String> existingUserIds;
 
-  /// Liczba wolnych miejsc w grupie; zero blokuje dodawanie.
-  final int freeSlots;
+  /// Liczba wolnych miejsc; limit 50 obowiązuje tylko dla grup.
+  final int? freeSlots;
 
   /// Czy trwa mutacja na serwerze.
   final bool isMutating;
@@ -58,7 +59,8 @@ class _ChatAddMembersViewState extends State<ChatAddMembersView> {
   final Map<String, ChatDirectoryEntry> _selected =
       <String, ChatDirectoryEntry>{};
 
-  bool get _capacityReached => widget.freeSlots - _selected.length <= 0;
+  bool get _capacityReached =>
+      widget.freeSlots != null && widget.freeSlots! - _selected.length <= 0;
 
   @override
   void initState() {
@@ -86,18 +88,22 @@ class _ChatAddMembersViewState extends State<ChatAddMembersView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Icon(Symbols.person_add, size: 20),
+            Icon(Symbols.person_add, size: 20, color: chat.linkText),
             const SizedBox(width: Sizes.p8),
             Expanded(
               child: Text(
                 context.l10n.chatMembersAdd,
-                style: theme.textTheme.titleMedium,
+                style: chat.contentStyle.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: chat.incomingText,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -108,35 +114,57 @@ class _ChatAddMembersViewState extends State<ChatAddMembersView> {
             ),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: Sizes.p4),
-          child: Text(
-            _capacityReached
-                ? context.l10n.chatMembersAddCapacityFull
-                : context.l10n.chatMembersAddFreeSlots(
-                    widget.freeSlots - _selected.length,
-                  ),
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+        if (widget.freeSlots case final freeSlots?)
+          Padding(
+            padding: const EdgeInsets.only(top: Sizes.p4),
+            child: Text(
+              _capacityReached
+                  ? context.l10n.chatMembersAddCapacityFull
+                  : context.l10n.chatMembersAddFreeSlots(
+                      freeSlots - _selected.length,
+                    ),
+              style: chat.metadataStyle.copyWith(color: chat.metadataText),
             ),
           ),
-        ),
         const SizedBox(height: Sizes.p8),
         TextField(
           controller: _queryController,
           enabled: !_capacityReached && !widget.isMutating,
           onChanged: _search.updateQuery,
+          style: chat.contentStyle.copyWith(color: chat.incomingText),
           decoration: InputDecoration(
             isDense: true,
-            prefixIcon: const Icon(Symbols.search, size: 18),
+            filled: true,
+            fillColor: chat.panelSurface,
+            prefixIcon: Icon(
+              Symbols.search,
+              size: 18,
+              color: chat.metadataText,
+            ),
             hintText: context.l10n.chatMembersAddSearchHint,
+            hintStyle: chat.contentStyle.copyWith(color: chat.metadataText),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: chat.separator),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: chat.separator),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: chat.focusRing),
+            ),
           ),
         ),
         if (_selected.isNotEmpty) ...[
           const SizedBox(height: Sizes.p8),
           Text(
             context.l10n.chatMembersAddSelected,
-            style: theme.textTheme.labelSmall,
+            style: chat.metadataStyle.copyWith(
+              color: chat.metadataText,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           Wrap(
             spacing: Sizes.p4,
@@ -145,6 +173,14 @@ class _ChatAddMembersViewState extends State<ChatAddMembersView> {
                 InputChip(
                   label: Text(entry.label),
                   onDeleted: widget.isMutating ? null : () => _toggle(entry),
+                  backgroundColor: chat.mentionSurface,
+                  selectedColor: chat.mentionSurface,
+                  labelStyle: chat.metadataStyle.copyWith(
+                    color: chat.mentionText,
+                  ),
+                  deleteIconColor: chat.mentionText,
+                  side: BorderSide(color: chat.separator),
+                  shape: const StadiumBorder(),
                 ),
             ],
           ),
@@ -154,21 +190,38 @@ class _ChatAddMembersViewState extends State<ChatAddMembersView> {
           child:
               BlocBuilder<ChatDirectorySearchCubit, ChatDirectorySearchState>(
                 bloc: _search,
-                builder: (context, state) => switch (state) {
-                  ChatDirectorySearchState(isSearching: true) => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                  ChatDirectorySearchState(failureCode: final code?) =>
-                    _AddHint(
+                builder: (context, state) {
+                  if (state.query.trim().isEmpty) {
+                    return _AddHint(
+                      icon: Symbols.search,
+                      message: context.l10n.chatComposeSearchPrompt,
+                    );
+                  }
+                  if (state.isQueryTooShort) {
+                    return _AddHint(
+                      icon: Symbols.search,
+                      message: context.l10n.chatCreationSearchTooShort,
+                    );
+                  }
+                  if (state.isSearching) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (state.failureCode != null) {
+                    return _AddHint(
                       icon: Symbols.error_outline,
-                      message: code,
+                      message: context.l10n.chatCreationFailureTitle,
+                      color: chat.error,
                       onRetry: () => unawaited(_search.retry()),
-                    ),
-                  ChatDirectorySearchState(isEmpty: true) => _AddHint(
-                    icon: Symbols.search_off,
-                    message: context.l10n.chatMembersAddEmpty,
-                  ),
-                  ChatDirectorySearchState(:final results) => ListView.builder(
+                    );
+                  }
+                  if (state.results.isEmpty) {
+                    return _AddHint(
+                      icon: Symbols.search_off,
+                      message: context.l10n.chatMembersAddEmpty,
+                    );
+                  }
+                  final results = state.results;
+                  return ListView.builder(
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       final entry = results[index];
@@ -176,22 +229,87 @@ class _ChatAddMembersViewState extends State<ChatAddMembersView> {
                         entry.userId,
                       );
                       final selected = _selected.containsKey(entry.userId);
-                      return CheckboxListTile(
-                        dense: true,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        value: existing || selected,
-                        onChanged: existing || _capacityReached && !selected
-                            ? null
-                            : (_) => _toggle(entry),
-                        title: Text(entry.label),
-                        subtitle: Text(
-                          existing
-                              ? context.l10n.chatMembersAddExisting
-                              : entry.login,
+                      final enabled =
+                          !existing && (!_capacityReached || selected);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: Sizes.p4),
+                        child: Material(
+                          color: chat.listSurface,
+                          borderRadius: BorderRadius.circular(12),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: enabled ? () => _toggle(entry) : null,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: Sizes.p8,
+                                vertical: Sizes.p8,
+                              ),
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: existing || selected,
+                                    onChanged: enabled
+                                        ? (_) => _toggle(entry)
+                                        : null,
+                                    fillColor: WidgetStateProperty.resolveWith(
+                                      (states) =>
+                                          states.contains(
+                                            WidgetState.selected,
+                                          )
+                                          ? chat.linkText
+                                          : chat.separator,
+                                    ),
+                                    checkColor: chat.incomingBubble,
+                                  ),
+                                  AppUserAvatar(
+                                    userId: entry.userId,
+                                    displayName: entry.label,
+                                    avatarUrl: entry.avatarUrl,
+                                    hasCustomAvatar:
+                                        entry.avatarUrl?.trim().isNotEmpty ==
+                                        true,
+                                    radius: 18,
+                                    singleInitial: true,
+                                  ),
+                                  const SizedBox(width: Sizes.p10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          entry.label,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: chat.contentStyle.copyWith(
+                                            color: chat.incomingText,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: Sizes.p2),
+                                        Text(
+                                          existing
+                                              ? context
+                                                    .l10n
+                                                    .chatMembersAddExisting
+                                              : entry.login,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: chat.metadataStyle.copyWith(
+                                            color: chat.metadataText,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       );
                     },
-                  ),
+                  );
                 },
               ),
         ),
@@ -199,10 +317,8 @@ class _ChatAddMembersViewState extends State<ChatAddMembersView> {
           Padding(
             padding: const EdgeInsets.only(top: Sizes.p4),
             child: Text(
-              widget.failureCode!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              ),
+              context.l10n.chatCreationFailureTitle,
+              style: chat.metadataStyle.copyWith(color: chat.error),
             ),
           ),
         const Divider(height: Sizes.p16),
@@ -229,22 +345,32 @@ class _ChatAddMembersViewState extends State<ChatAddMembersView> {
 }
 
 class _AddHint extends StatelessWidget {
-  const _AddHint({required this.icon, required this.message, this.onRetry});
+  const _AddHint({
+    required this.icon,
+    required this.message,
+    this.color,
+    this.onRetry,
+  });
 
   final IconData icon;
   final String message;
+  final Color? color;
   final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
+    final foreground = color ?? chat.metadataText;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 24, color: theme.colorScheme.onSurfaceVariant),
+          Icon(icon, size: 24, color: foreground),
           const SizedBox(height: Sizes.p8),
-          Text(message, style: theme.textTheme.bodySmall),
+          Text(
+            message,
+            style: chat.metadataStyle.copyWith(color: foreground),
+          ),
           if (onRetry != null)
             TextButton(
               onPressed: onRetry,

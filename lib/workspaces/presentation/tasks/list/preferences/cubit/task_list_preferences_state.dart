@@ -171,9 +171,7 @@ final class TaskListPreferencesReady extends TaskListPreferencesState {
     userPreferenceVersion: userPreferenceVersion ?? this.userPreferenceVersion,
     policyVersion: policyVersion ?? this.policyVersion,
     isSaving: isSaving ?? this.isSaving,
-    saveFailure: clearSaveFailure
-        ? null
-        : (saveFailure ?? this.saveFailure),
+    saveFailure: clearSaveFailure ? null : (saveFailure ?? this.saveFailure),
     projectDefaultColumnsDraft: clearProjectDefaultColumnsDraft
         ? null
         : (projectDefaultColumnsDraft ?? this.projectDefaultColumnsDraft),

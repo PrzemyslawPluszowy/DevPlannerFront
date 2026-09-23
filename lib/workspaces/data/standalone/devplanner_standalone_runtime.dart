@@ -4,12 +4,16 @@ import 'package:devplanner/auth/data/auth_composition.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_access_port_adapter.dart';
 import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_session_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_upload_port_adapter.dart';
 import 'package:devplanner/workspaces/data/chat/delivery/chat_pending_send_store_impl.dart';
+import 'package:devplanner/workspaces/data/chat/links/chat_external_link_port_adapter.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_conversation_management_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_directory_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_inbox_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_link_policy_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_link_preview_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_members_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_message_actions_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_notification_settings_repository_impl.dart';
@@ -17,6 +21,7 @@ import 'package:devplanner/workspaces/data/chat/repositories/chat_presence_repos
 import 'package:devplanner/workspaces/data/chat/repositories/chat_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_search_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_server_draft_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_snippet_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_thread_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/secure_chat_draft_repository.dart';
 import 'package:devplanner/workspaces/data/notifications/api/notifications_api.dart';
@@ -25,25 +30,31 @@ import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime
 import 'package:devplanner/workspaces/data/realtime/notifications/workspace_notifications_realtime_service.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/data/storage/transport/download_transport_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/file_picker_port_impl.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_server_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/links/chat_link_preview_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/notifications_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/global_chat_composition.dart';
+import 'package:devplanner/workspaces/presentation/chat/links/chat_external_link_port.dart';
 import 'package:devplanner/workspaces/presentation/notifications/global_notifications_composition.dart';
 
 /// Sesyjny composition root dla globalnego Chatu i Notifications.
@@ -64,7 +75,11 @@ final class DevPlannerStandaloneRuntime {
     this.storageRepository,
     this.attachmentUploadTransport,
   }) : _draftRepository = draftRepository ?? SecureChatDraftRepository(),
-       _chatApi = ChatApi(transport.apiDio, baseUrl: transport.baseUrl),
+       _chatApi = ChatApi(
+         transport.apiDio,
+         baseUrl: transport.baseUrl,
+         errorLogger: const ChatParseErrorLogger(),
+       ),
        _notificationsApi = NotificationsApi(
          transport.apiDio,
          baseUrl: transport.baseUrl,
@@ -89,8 +104,8 @@ final class DevPlannerStandaloneRuntime {
   /// Repozytorium Storage używane do ticketów uploadu załączników Chat.
   final StorageRepository? storageRepository;
 
-  /// Binarny transport uploadu; `null` oznacza środowisko bez bezpiecznego
-  /// transferu bezpośredniego (Web/BFF), gdzie załączniki nie są udostępniane.
+  /// Binarny transport uploadu; `null` oznacza brak obsługi presigned PUT.
+  /// Transport transferu nie otrzymuje sesyjnego cookie ani access tokenu.
   final UploadTransport? attachmentUploadTransport;
 
   final ChatDraftRepository _draftRepository;
@@ -120,7 +135,33 @@ final class DevPlannerStandaloneRuntime {
   FilePickerPort? get _effectiveFilePicker =>
       filePickerPort ??
       (_attachmentUpload != null ? const FilePickerPortImpl() : null);
+
+  ChatAttachmentAccessPortAdapter? _attachmentAccessAdapter;
+  ChatExternalLinkPortAdapter? _linkAdapter;
+
+  /// Port otwierania linków: systemowa przeglądarka, bez własnego klienta HTTP.
+  ChatExternalLinkPort get _externalLink =>
+      _linkAdapter ??= ChatExternalLinkPortAdapter();
+
+  /// Port pobrania załączników: Storage wystawia bilet, platforma zapisuje plik.
+  /// Bez repozytorium Storage karta załącznika nie pokazuje akcji otwarcia.
+  ChatAttachmentAccessPort? get _attachmentAccess {
+    final storage = storageRepository;
+    if (storage == null) return null;
+    return _attachmentAccessAdapter ??= ChatAttachmentAccessPortAdapter(
+      storageRepository: storage,
+      downloadTransport: const DownloadTransportImpl(),
+    );
+  }
+
   late final ChatInboxRepository _chatInboxRepository = ChatInboxRepositoryImpl(
+    _chatApi,
+  );
+  late final ChatLinkPolicyRepository _chatLinkPolicy =
+      ChatLinkPolicyRepositoryImpl(_chatApi);
+  late final ChatLinkPreviewRepository _chatLinkPreviews =
+      ChatLinkPreviewRepositoryImpl(_chatApi);
+  late final ChatSnippetRepository _chatSnippets = ChatSnippetRepositoryImpl(
     _chatApi,
   );
   late final ChatNotificationSettingsRepository _chatNotificationSettings =
@@ -176,6 +217,11 @@ final class DevPlannerStandaloneRuntime {
       messageActions: _chatMessageActions,
       notificationSettingsRepository: _chatNotificationSettings,
       attachmentUploadPort: _attachmentUpload,
+      attachmentAccessPort: _attachmentAccess,
+      linkPort: _externalLink,
+      linkPolicyRepository: _chatLinkPolicy,
+      linkPreviewRepository: _chatLinkPreviews,
+      snippetRepository: _chatSnippets,
       filePickerPort: _effectiveFilePicker,
       realtimeFactory: _chatRealtime(),
     );

@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:equatable/equatable.dart';
 
 /// Tryb zapisu draftu; rich text zawsze zachowuje oryginalny Quill Delta.
@@ -11,6 +12,7 @@ final class ChatComposerDraft extends Equatable {
     this.deltaJson,
     this.replyToMessageId,
     this.attachmentIds = const <String>[],
+    this.mentions = const <ChatMentionReference>[],
   });
 
   /// Tekstowy fallback bogatej wiadomości, używany przez preview i backend.
@@ -25,8 +27,11 @@ final class ChatComposerDraft extends Equatable {
   /// Kolejność dołączonych plików zachowana dla przyszłego uploadu.
   final List<String> attachmentIds;
 
-  /// Czy draft nie zawiera treści możliwej do wysłania.
-  bool get isEmpty => text.trim().isEmpty;
+  /// Osoby wybrane w pickerze `@`; tekst pokazuje etykiety, transport tokeny.
+  final List<ChatMentionReference> mentions;
+
+  /// Czy draft nie zawiera ani tekstu, ani gotowych załączników.
+  bool get isEmpty => text.trim().isEmpty && attachmentIds.isEmpty;
 
   /// Zwraca kopię draftu bez zależności od widgetów composera.
   ChatComposerDraft copyWith({
@@ -36,6 +41,7 @@ final class ChatComposerDraft extends Equatable {
     bool clearDeltaJson = false,
     bool clearReplyToMessageId = false,
     List<String>? attachmentIds,
+    List<ChatMentionReference>? mentions,
   }) => ChatComposerDraft(
     text: text ?? this.text,
     deltaJson: clearDeltaJson ? null : deltaJson ?? this.deltaJson,
@@ -43,8 +49,15 @@ final class ChatComposerDraft extends Equatable {
         ? null
         : replyToMessageId ?? this.replyToMessageId,
     attachmentIds: attachmentIds ?? this.attachmentIds,
+    mentions: mentions ?? this.mentions,
   );
 
   @override
-  List<Object?> get props => [text, deltaJson, replyToMessageId, attachmentIds];
+  List<Object?> get props => [
+    text,
+    deltaJson,
+    replyToMessageId,
+    attachmentIds,
+    mentions,
+  ];
 }

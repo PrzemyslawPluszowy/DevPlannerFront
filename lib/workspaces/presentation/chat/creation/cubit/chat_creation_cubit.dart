@@ -68,8 +68,8 @@ final class ChatCreationCubit extends Cubit<ChatCreationState> {
   void back() {
     final kind = state.kind;
     if (kind == null || state.step == ChatCreationStep.chooser) return;
-    final step = state.step == ChatCreationStep.details &&
-            _requiresParticipants(kind)
+    final step =
+        state.step == ChatCreationStep.details && _requiresParticipants(kind)
         ? ChatCreationStep.participants
         : ChatCreationStep.chooser;
     emit(
@@ -100,9 +100,11 @@ final class ChatCreationCubit extends Cubit<ChatCreationState> {
     final current = state.participants;
     final exists = current.any((item) => item.userId == entry.userId);
     final updated = exists
-        ? current.where((item) => item.userId != entry.userId).toList(
-            growable: false,
-          )
+        ? current
+              .where((item) => item.userId != entry.userId)
+              .toList(
+                growable: false,
+              )
         : <ChatDirectoryEntry>[...current, entry];
     emit(
       state.copyWith(
@@ -206,13 +208,17 @@ final class ChatCreationCubit extends Cubit<ChatCreationState> {
       scopeKey: kind == ChatConversationKind.direct
           ? 'direct'
           : 'channel-${_scopeKeyFactory.create()}',
-      name: state.requiresName ? state.name.trim() : state.name.trim().isEmpty
+      name: state.requiresName
+          ? state.name.trim()
+          : state.name.trim().isEmpty
           ? null
           : state.name.trim(),
       userIds: state.requiresParticipants
-          ? state.participants.map((entry) => entry.userId).toList(
-              growable: false,
-            )
+          ? state.participants
+                .map((entry) => entry.userId)
+                .toList(
+                  growable: false,
+                )
           : const <String>[],
       postingPermission: state.postingPermission,
     );

@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:devplanner/workspaces/data/chat/models/chat_link_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/presence/models/chat_user_status.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 
 /// Wersja kontraktu realtime Chat zrozumiała dla tego klienta.
@@ -12,6 +14,83 @@ const int workspaceChatRealtimeContractVersion = 1;
 
 /// Dekoduje envelope SignalR Chat do kontraktu domenowego bez przecieku JSON.
 final class ChatRealtimeEventMapper {
+  /// Dekoduje snapshot ulotnej obecności z `chat.presence.changed`.
+  ChatConversationPresenceSnapshot? mapPresence(
+    Map<String, dynamic> payload,
+  ) {
+    final normalized = _normalizeMap(payload);
+    final conversationId = _nonEmptyString(normalized['conversationId']);
+    final changedAtUtc = _dateTime(normalized['changedAtUtc']);
+    final rawUsers = normalized['users'];
+    if (conversationId == null || changedAtUtc == null || rawUsers is! List) {
+      return null;
+    }
+    final users = <ChatConversationPresenceUser>[];
+    for (final rawUser in rawUsers) {
+      if (rawUser is! Map) return null;
+      final user = _normalizeMap(rawUser);
+      final userId = _nonEmptyString(user['userId']);
+      final connectionCount = _int(user['connectionCount']);
+      final isOnline = user['isOnline'];
+      if (userId == null ||
+          connectionCount == null ||
+          connectionCount < 0 ||
+          isOnline is! bool) {
+        return null;
+      }
+      users.add(
+        ChatConversationPresenceUser(
+          userId: userId,
+          connectionCount: connectionCount,
+          isOnline: isOnline,
+        ),
+      );
+    }
+    return ChatConversationPresenceSnapshot(
+      conversationId: conversationId,
+      users: List<ChatConversationPresenceUser>.unmodifiable(users),
+      changedAtUtc: changedAtUtc,
+    );
+  }
+
+  /// Mapuje `chat.user_status.changed`; null w `status` oznacza wyczyszczenie.
+  ChatUserStatusChanged? mapUserStatusChanged(Map<String, dynamic> payload) {
+    final normalized = _normalizeMap(payload);
+    final userId = _nonEmptyString(normalized['userId']);
+    if (userId == null || !normalized.containsKey('status')) return null;
+    final rawStatus = normalized['status'];
+    if (rawStatus == null) {
+      return ChatUserStatusChanged(userId: userId, status: null);
+    }
+    if (rawStatus is! Map) return null;
+    final status = _normalizeMap(rawStatus);
+    final statusUserId = _nonEmptyString(status['userId']);
+    final updatedAtUtc = _dateTime(status['updatedAtUtc']);
+    final isDnd = status['isDnd'];
+    if (statusUserId != userId || updatedAtUtc == null || isDnd is! bool) {
+      return null;
+    }
+    final emoji = status['emoji'];
+    final text = status['text'];
+    final expiresAtUtc = status['expiresAtUtc'];
+    if ((emoji != null && emoji is! String) ||
+        (text != null && text is! String) ||
+        (expiresAtUtc != null && _dateTime(expiresAtUtc) == null)) {
+      return null;
+    }
+    return ChatUserStatusChanged(
+      userId: userId,
+      status: ChatUserStatus(
+        userId: userId,
+        emoji: emoji as String?,
+        text: text as String?,
+        expiresAtUtc: _dateTime(expiresAtUtc),
+        isDnd: isDnd,
+        updatedAtUtc: updatedAtUtc,
+      ),
+    );
+  }
+
   /// Rozwija `payloadJson` live envelope'u do payloadu zdarzenia domenowego.
   Map<String, dynamic>? normalizeLiveEnvelope(Map<String, dynamic> envelope) {
     final normalizedEnvelope = _normalizeMap(envelope);
@@ -66,7 +145,8 @@ final class ChatRealtimeEventMapper {
       isTyping: kind == ChatConversationRealtimeEventKind.typingChanged
           ? normalizedPayload['isTyping'] == true
           : null,
-      typingExpiresAtUtc: kind == ChatConversationRealtimeEventKind.typingChanged
+      typingExpiresAtUtc:
+          kind == ChatConversationRealtimeEventKind.typingChanged
           ? _dateTime(normalizedPayload['expiresAtUtc'])
           : null,
     );
@@ -161,6 +241,7 @@ final class ChatRealtimeEventMapper {
         isEdited: response.isEdited,
         deletedAtUtc: response.deletedAtUtc,
         deliveryState: ChatMessageDeliveryState.sent,
+        links: ChatLinkMapper.toDomain(response.links),
       );
     } on Object {
       // Wygenerowany fromJson może rzucić także TypeError dla brakującego lub

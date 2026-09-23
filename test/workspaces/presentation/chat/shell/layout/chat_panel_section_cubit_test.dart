@@ -14,6 +14,18 @@ void main() {
       expect(cubit.state.showList, isTrue);
     });
 
+    test(
+      'globalny licznik nieprzeczytanych należy tylko do skrzynki Czaty',
+      () {
+        expect(ChatPanelSection.chats.showsGlobalUnreadBadge, isTrue);
+        for (final section in ChatPanelSection.values.where(
+          (section) => section != ChatPanelSection.chats,
+        )) {
+          expect(section.showsGlobalUnreadBadge, isFalse, reason: '$section');
+        }
+      },
+    );
+
     test('wybór sekcji pokazuje jej listę', () {
       final cubit = ChatPanelSectionCubit();
 

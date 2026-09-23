@@ -228,8 +228,7 @@ final class _NavigationTreeNode extends StatelessWidget {
     // moduł Zadania, a nie ekran „Przegląd”. Projekt i jego pozycja `Zadania`
     // wskazują ten sam adres bez `?view=`, więc o widoku rozstrzyga preferencja
     // użytkownika, a nie duplikat gałęzi w drzewie.
-    WorkspaceNavigationNodeKind.project ||
-    WorkspaceNavigationNodeKind.tasks =>
+    WorkspaceNavigationNodeKind.project || WorkspaceNavigationNodeKind.tasks =>
       tasksBoardAvailable &&
               node.workspaceId != null &&
               node.projectId != null &&

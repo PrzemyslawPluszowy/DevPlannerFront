@@ -26,6 +26,7 @@ final class ChatConversationReady extends ChatConversationState {
     this.realtimeError,
     this.isJumpingToMessage = false,
     this.jumpFailureCode,
+    this.jumpAnchorMessageId,
   });
 
   final ChatConversation conversation;
@@ -40,6 +41,16 @@ final class ChatConversationReady extends ChatConversationState {
 
   /// Kod domenowy nieudanego skoku do wiadomości; UI pokazuje go z ponowieniem.
   final String? jumpFailureCode;
+
+  /// Punkt zaczepienia, gdy historia pokazuje okno wokół wiadomości.
+  ///
+  /// Niepusty identyfikator oznacza tryb okna: lista zawiera ciągły zakres wokół
+  /// wiadomości, a nie najnowszą stronę, więc scalanie z najnowszymi utworzyłoby
+  /// niewidoczną lukę. Wyjście z trybu pobiera najnowszą stronę od nowa.
+  final String? jumpAnchorMessageId;
+
+  /// Czy historia pokazuje okno wokół wskazanej wiadomości.
+  bool get isWindowedHistory => jumpAnchorMessageId != null;
 
   /// Czy w historii jest przynajmniej jedna oczekująca lokalna próba wysyłki.
   bool get isSending => messages.any(
@@ -56,6 +67,8 @@ final class ChatConversationReady extends ChatConversationState {
     bool? isJumpingToMessage,
     String? jumpFailureCode,
     bool clearJumpFailure = false,
+    String? jumpAnchorMessageId,
+    bool clearWindowHistory = false,
   }) => ChatConversationReady(
     conversation: conversation,
     messages: messages ?? this.messages,
@@ -67,6 +80,9 @@ final class ChatConversationReady extends ChatConversationState {
     jumpFailureCode: clearJumpFailure
         ? null
         : jumpFailureCode ?? this.jumpFailureCode,
+    jumpAnchorMessageId: clearWindowHistory
+        ? null
+        : jumpAnchorMessageId ?? this.jumpAnchorMessageId,
   );
 }
 

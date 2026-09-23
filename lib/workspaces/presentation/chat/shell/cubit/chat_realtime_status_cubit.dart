@@ -14,10 +14,24 @@ final class ChatRealtimeStatusCubit
   ChatRealtimeStatusCubit(
     Stream<WorkspaceSignalRConnectionState> connectionStates,
   ) : super(WorkspaceSignalRConnectionState.connecting) {
-    _subscription = connectionStates.listen(emit);
+    _subscription = connectionStates.listen(_handleConnectionState);
   }
 
   late final StreamSubscription<WorkspaceSignalRConnectionState> _subscription;
+  bool _hasObservedConnectionLifecycle = false;
+
+  void _handleConnectionState(WorkspaceSignalRConnectionState state) {
+    // Transporty odtwarzają stan początkowy `disconnected`. Nie jest to
+    // awaria: żadna próba połączenia nie została jeszcze podjęta. Pozostaw
+    // etykietę „łączenie” ustawioną przez ten Cubit do pierwszego zdarzenia
+    // cyklu życia. Późniejszy disconnect zawsze jest widoczny.
+    if (state == WorkspaceSignalRConnectionState.disconnected &&
+        !_hasObservedConnectionLifecycle) {
+      return;
+    }
+    _hasObservedConnectionLifecycle = true;
+    emit(state);
+  }
 
   @override
   Future<void> close() async {

@@ -105,6 +105,34 @@ void main() {
     );
   }
   test(
+    'pokazuje łączenie podczas pobierania tokenu i offline po błędzie',
+    () async {
+      final token = Completer<String?>();
+      final client = WorkspaceSignalRClient(
+        'http://127.0.0.1:1/hub',
+        WorkspaceRealtimeCredentials.bearer(() => token.future),
+      );
+      final states = <WorkspaceSignalRConnectionState>[];
+      final subscription = client.states.listen(states.add);
+
+      final pending = client.connect();
+      expect(client.state, WorkspaceSignalRConnectionState.connecting);
+      token.completeError(StateError('token refresh failed'));
+      await expectLater(pending, throwsA(isA<StateError>()));
+      expect(client.state, WorkspaceSignalRConnectionState.disconnected);
+      await Future<void>.delayed(Duration.zero);
+      expect(states, [
+        WorkspaceSignalRConnectionState.disconnected,
+        WorkspaceSignalRConnectionState.connecting,
+        WorkspaceSignalRConnectionState.disconnected,
+      ]);
+
+      await subscription.cancel();
+      client.dispose();
+    },
+  );
+
+  test(
     'klient zaczyna w stanie rozłączonym i nie wywołuje huba przed connect',
     () {
       final client = WorkspaceSignalRClient(

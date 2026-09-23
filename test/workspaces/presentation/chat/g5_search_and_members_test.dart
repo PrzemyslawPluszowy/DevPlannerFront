@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
@@ -37,6 +39,32 @@ final class _SearchFake implements ChatSearchRepository {
     facetTerms.add(term);
     return const Right(ChatSearchFacets(total: 0));
   }
+
+  @override
+  Future<Either<ApiError, List<ChatMentionSuggestion>>> suggestMentions({
+    required String conversationId,
+    required String term,
+  }) async => const Right(<ChatMentionSuggestion>[]);
+}
+
+final class _DeferredSearchFake implements ChatSearchRepository {
+  final List<Completer<Either<ApiError, ChatSearchPage>>> requests =
+      <Completer<Either<ApiError, ChatSearchPage>>>[];
+
+  @override
+  Future<Either<ApiError, ChatSearchPage>> searchMessages(
+    ChatSearchQuery query,
+  ) {
+    final request = Completer<Either<ApiError, ChatSearchPage>>();
+    requests.add(request);
+    return request.future;
+  }
+
+  @override
+  Future<Either<ApiError, ChatSearchFacets>> loadFacets({
+    required String term,
+    String? conversationId,
+  }) async => const Right(ChatSearchFacets(total: 0));
 
   @override
   Future<Either<ApiError, List<ChatMentionSuggestion>>> suggestMentions({
@@ -201,6 +229,72 @@ void main() {
       expect(repository.queries.single.term, 'anna');
       expect(cubit.state.page?.hits.single.messageId, 'm1');
       expect(repository.facetTerms, <String>['anna']);
+      await cubit.close();
+    });
+
+    test('zmiana frazy czyści stare wyniki w trakcie debounce', () async {
+      final repository = _SearchFake(
+        page: ChatSearchPage(
+          hits: <ChatSearchHit>[hit('old')],
+          totalApproximate: 1,
+        ),
+      );
+      final cubit = ChatSearchCubit(
+        repository: repository,
+        debounce: Duration.zero,
+      );
+      cubit.open();
+      cubit.updateTerm('stara');
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      expect(cubit.state.page?.hits.single.messageId, 'old');
+
+      cubit.updateTerm('nowa');
+
+      expect(cubit.state.term, 'nowa');
+      expect(cubit.state.page, isNull);
+      expect(cubit.state.isSearching, isTrue);
+      expect(cubit.state.isOpen, isTrue);
+      await cubit.close();
+    });
+
+    test('stara odpowiedź nie wraca w trakcie debounce nowej frazy', () async {
+      final repository = _DeferredSearchFake();
+      final cubit = ChatSearchCubit(
+        repository: repository,
+        debounce: const Duration(milliseconds: 30),
+      );
+
+      cubit.updateTerm('stara');
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+      expect(repository.requests, hasLength(1));
+
+      cubit.updateTerm('nowa');
+      repository.requests.single.complete(
+        Right(
+          ChatSearchPage(
+            hits: <ChatSearchHit>[hit('old')],
+            totalApproximate: 1,
+          ),
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+
+      expect(cubit.state.term, 'nowa');
+      expect(cubit.state.page, isNull);
+      expect(cubit.state.isSearching, isTrue);
+
+      await Future<void>.delayed(const Duration(milliseconds: 35));
+      expect(repository.requests, hasLength(2));
+      repository.requests.last.complete(
+        Right(
+          ChatSearchPage(
+            hits: <ChatSearchHit>[hit('new')],
+            totalApproximate: 1,
+          ),
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      expect(cubit.state.page?.hits.single.messageId, 'new');
       await cubit.close();
     });
 

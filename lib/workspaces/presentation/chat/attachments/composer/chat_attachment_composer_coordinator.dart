@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
+import 'package:devplanner/workspaces/domain/storage/models/file_picker_constraints.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
@@ -80,6 +81,28 @@ final class ChatAttachmentComposerCoordinatorCubit
   /// Aktualny zaakceptowany snapshot 7A, przydatny przyszłemu pickerowi UI.
   ChatAttachmentSelectionReady get selection =>
       _selection.state as ChatAttachmentSelectionReady;
+
+  /// Budżet wejścia współdzielony przez system picker i drag/drop.
+  FilePickerConstraints get inputConstraints {
+    final limits = _selection.limits;
+    final counted = selection.attachments
+        .where(
+          (attachment) =>
+              attachment.status != ChatAttachmentStatus.infected &&
+              attachment.status != ChatAttachmentStatus.failed,
+        )
+        .toList(growable: false);
+    return FilePickerConstraints(
+      maxFiles: limits.maxFiles,
+      maxFileSizeBytes: limits.maxFileSizeBytes,
+      maxTotalSizeBytes: limits.maxMessageSizeBytes,
+      alreadySelectedFileCount: counted.length,
+      alreadySelectedBytes: counted.fold<int>(
+        0,
+        (sum, attachment) => sum + attachment.input.size,
+      ),
+    );
+  }
 
   /// Lokalny owner 7A, udostępniony wyłącznie do renderowania chipów composera.
   ChatAttachmentSelectionCubit get selectionCubit => _selection;

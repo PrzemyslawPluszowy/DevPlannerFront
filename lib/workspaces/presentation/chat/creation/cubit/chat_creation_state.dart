@@ -71,14 +71,14 @@ class ChatCreationState extends Equatable {
   bool get requiresParticipants =>
       kind == ChatConversationKind.direct || kind == ChatConversationKind.group;
 
-  /// Czy rozmowa wymaga nazwy (kanał i ogłoszenia).
+  /// Czy rozmowa wymaga nazwy (grupa, kanał i ogłoszenia).
   bool get requiresName =>
+      kind == ChatConversationKind.group ||
       kind == ChatConversationKind.channel ||
       kind == ChatConversationKind.broadcast;
 
   /// Czy ogłoszenia wymuszają publikację tylko dla uprawnionych.
-  bool get postingPermissionLocked =>
-      kind == ChatConversationKind.broadcast;
+  bool get postingPermissionLocked => kind == ChatConversationKind.broadcast;
 
   /// Tworzy kopię stanu z nowymi wartościami.
   ChatCreationState copyWith({
@@ -128,11 +128,12 @@ class ChatCreationFailure {
   const ChatCreationFailure(this.apiCode, {this.statusCode, this.traceId});
 
   /// Tworzy błąd z odpowiedzi portu bez ujawniania wyjątku transportu.
-  factory ChatCreationFailure.fromApiError(ApiError error) => ChatCreationFailure(
-    error.apiCode ?? error.message,
-    statusCode: error.statusCode,
-    traceId: error.traceId,
-  );
+  factory ChatCreationFailure.fromApiError(ApiError error) =>
+      ChatCreationFailure(
+        error.apiCode ?? error.message,
+        statusCode: error.statusCode,
+        traceId: error.traceId,
+      );
 
   final String apiCode;
   final int? statusCode;

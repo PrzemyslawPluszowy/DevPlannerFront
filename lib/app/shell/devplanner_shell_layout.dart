@@ -51,6 +51,9 @@ final class _DesktopShellLayout extends StatelessWidget {
             image: const DecorationImage(
               image: DevPlannerShellTheme.backdropImage,
               fit: BoxFit.cover,
+              // Przy bardzo szerokim oknie `cover` przycina pionowo. Trzymaj
+              // kadr przy dole, aby nie chować dolnej części tapety pod ramą.
+              alignment: Alignment.bottomCenter,
             ),
           ),
           child: Scaffold(
@@ -166,6 +169,64 @@ final class _DesktopShellLayout extends StatelessWidget {
   }
 }
 
+/// Ikona czatu z badge serwerowego licznika nieprzeczytanych.
+///
+/// Licznik jest sesyjny, więc badge działa także przy zamkniętym panelu; brak
+/// portu skrzynki oznacza brak badge, a nie lokalne zgadywanie liczby.
+class _ChatUnreadBadge extends StatelessWidget {
+  const _ChatUnreadBadge({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.watch<ChatUnreadCubit?>();
+    final unread = cubit?.state.unread ?? 0;
+    if (unread <= 0) return child;
+    final chat = context.chatTheme;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        child,
+        Positioned(
+          top: -4,
+          right: -2,
+          child: IgnorePointer(
+            child: Semantics(
+              label: AppLocalizations.of(context)!.chatInboxUnreadSemantics(
+                unread,
+              ),
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: chat.sendButtonSurface,
+                  shape: const StadiumBorder(),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 16),
+                    child: Center(
+                      child: Text(
+                        unread > 99 ? '99+' : '$unread',
+                        style: chat.metadataStyle.copyWith(
+                          color: chat.sendButtonForeground,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 final class _DevPlannerTopBar extends StatelessWidget {
   const _DevPlannerTopBar({required this.location});
 
@@ -199,9 +260,11 @@ final class _DevPlannerTopBar extends StatelessWidget {
             key: const ValueKey('devplanner-open-chat-panel'),
             tooltip: l10n.workspacesSectionChat,
             onPressed: DevPlannerPanelsScope.controllerOf(context)?.toggleChat,
-            icon: Icon(
-              Icons.chat_bubble_outline,
-              color: shellTheme.sidebarText,
+            icon: _ChatUnreadBadge(
+              child: Icon(
+                Icons.chat_bubble_outline,
+                color: shellTheme.sidebarText,
+              ),
             ),
           ),
           IconButton(

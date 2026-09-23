@@ -40,7 +40,9 @@ class TasksSelectionCheckbox extends StatelessWidget {
     child: Checkbox(
       value: value,
       semanticLabel: semanticLabel,
-      onChanged: onChanged == null ? null : (value) => onChanged!(value ?? false),
+      onChanged: onChanged == null
+          ? null
+          : (value) => onChanged!(value ?? false),
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),

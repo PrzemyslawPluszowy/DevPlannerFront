@@ -36,13 +36,13 @@ Map<String, dynamic> _$CreateCorkboardCardPayloadToJson(
 };
 
 const _$CorkboardCardColorEnumMap = {
-  CorkboardCardColor.yellow: 'yellow',
-  CorkboardCardColor.blue: 'blue',
-  CorkboardCardColor.green: 'green',
-  CorkboardCardColor.pink: 'pink',
-  CorkboardCardColor.orange: 'orange',
-  CorkboardCardColor.purple: 'purple',
-  CorkboardCardColor.slate: 'slate',
+  CorkboardCardColor.yellow: 'Yellow',
+  CorkboardCardColor.blue: 'Blue',
+  CorkboardCardColor.green: 'Green',
+  CorkboardCardColor.pink: 'Pink',
+  CorkboardCardColor.orange: 'Orange',
+  CorkboardCardColor.purple: 'Purple',
+  CorkboardCardColor.slate: 'Slate',
 };
 
 _AttachCorkboardFilePayload _$AttachCorkboardFilePayloadFromJson(

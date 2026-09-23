@@ -17,6 +17,8 @@ final class ChatMessageSecondaryActionsCubit
     : super(const ChatMessageSecondaryActionsState());
 
   final ChatMessageActionsRepository repository;
+  int _pinsGeneration = 0;
+  int _bookmarksGeneration = 0;
 
   /// Przypina albo odpina wiadomość w zależności od aktualnego stanu.
   Future<void> togglePin({
@@ -37,9 +39,21 @@ final class ChatMessageSecondaryActionsCubit
             conversationId: conversationId,
             messageId: messageId,
           ),
-    onSuccess: () => emit(
-      state.copyWith(pinnedConversationId: conversationId),
-    ),
+    onSuccess: () {
+      _pinsGeneration++;
+      final pinnedIds = Set<String>.of(state.pinnedMessageIds);
+      if (isPinned) {
+        pinnedIds.remove(messageId);
+      } else {
+        pinnedIds.add(messageId);
+      }
+      emit(
+        state.copyWith(
+          pinnedConversationId: conversationId,
+          pinnedMessageIds: pinnedIds,
+        ),
+      );
+    },
   );
 
   /// Dodaje albo usuwa prywatną zakładkę użytkownika.
@@ -55,6 +69,16 @@ final class ChatMessageSecondaryActionsCubit
     call: () => isBookmarked
         ? repository.removeBookmark(messageId)
         : repository.bookmarkMessage(messageId: messageId, note: note),
+    onSuccess: () {
+      _bookmarksGeneration++;
+      final bookmarkedIds = Set<String>.of(state.bookmarkedMessageIds);
+      if (isBookmarked) {
+        bookmarkedIds.remove(messageId);
+      } else {
+        bookmarkedIds.add(messageId);
+      }
+      emit(state.copyWith(bookmarkedMessageIds: bookmarkedIds));
+    },
   );
 
   /// Przekazuje wiadomość do innej rozmowy z nowym idempotency key.
@@ -96,8 +120,9 @@ final class ChatMessageSecondaryActionsCubit
   /// Wczytuje przypięcia rozmowy, żeby menu pokazywało realny stan.
   Future<void> loadConversationPins(String conversationId) async {
     if (isClosed) return;
+    final generation = ++_pinsGeneration;
     final result = await repository.listPins(conversationId);
-    if (isClosed) return;
+    if (isClosed || generation != _pinsGeneration) return;
     result.fold(
       (_) {},
       (pins) => emit(
@@ -112,8 +137,9 @@ final class ChatMessageSecondaryActionsCubit
   /// Wczytuje prywatne zakładki użytkownika.
   Future<void> loadBookmarks() async {
     if (isClosed) return;
+    final generation = ++_bookmarksGeneration;
     final result = await repository.listBookmarks();
-    if (isClosed) return;
+    if (isClosed || generation != _bookmarksGeneration) return;
     result.fold(
       (_) {},
       (bookmarks) => emit(

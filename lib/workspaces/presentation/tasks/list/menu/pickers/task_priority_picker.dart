@@ -31,5 +31,4 @@ abstract final class TaskPriorityPicker {
       await onChanged(value);
     }
   }
-
 }

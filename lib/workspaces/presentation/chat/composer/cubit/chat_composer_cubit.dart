@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_server_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,10 +32,32 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
   Future<void> _persistenceTail = Future<void>.value();
   int _persistenceVersion = 0;
 
-  void updatePlainText(String text) =>
-      _update(state.draft.copyWith(text: text, clearDeltaJson: true));
+  void updatePlainText(String text) => _update(
+    state.draft.copyWith(
+      text: text,
+      clearDeltaJson: true,
+      mentions: ChatMentionCodec.pruneMentions(
+        text: text,
+        mentions: state.draft.mentions,
+      ),
+    ),
+  );
   void updateRichText({required String text, required String deltaJson}) =>
-      _update(state.draft.copyWith(text: text, deltaJson: deltaJson));
+      _update(
+        state.draft.copyWith(
+          text: text,
+          deltaJson: deltaJson,
+          mentions: ChatMentionCodec.pruneMentions(
+            text: text,
+            mentions: state.draft.mentions,
+          ),
+        ),
+      );
+
+  /// Rejestruje osobę wybraną w pickerze `@` (albo aktualizuje listę).
+  void setMentions(List<ChatMentionReference> mentions) =>
+      _update(state.draft.copyWith(mentions: mentions));
+
   void selectMode(ChatComposerMode mode) {
     if (state.mode != mode) emit(state.copyWith(mode: mode));
   }
@@ -168,7 +191,9 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
       return;
     }
     final refreshed = await server.readDraft(conversationId);
-    _serverDraftVersion = refreshed.isRight() ? _serverDraftVersion + 1 : _serverDraftVersion;
+    _serverDraftVersion = refreshed.isRight()
+        ? _serverDraftVersion + 1
+        : _serverDraftVersion;
     await server.saveDraft(
       conversationId: conversationId,
       draft: draft,
@@ -179,7 +204,11 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
   Future<void> _deleteCurrent() async {
     final identity = _identity();
     if (identity != null) {
-      await _saveServerDraft(identity.conversationId, state.draft, delete: true);
+      await _saveServerDraft(
+        identity.conversationId,
+        state.draft,
+        delete: true,
+      );
       await identity.repository.delete(
         userId: identity.userId,
         conversationId: identity.conversationId,

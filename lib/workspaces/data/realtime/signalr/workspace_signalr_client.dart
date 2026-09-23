@@ -88,64 +88,66 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
       return;
     }
 
-    // Nie pozwalamy SignalR rozpocząć handshake'u bez poświadczenia sesji.
-    // Dzięki temu wygaśnięta sesja nie tworzy anonimowego połączenia ani pętli
-    // reconnect, a Web nie wysyła negotiate bez nagłówka CSRF.
-    final handshake = await _credentials.resolve();
-    if (_disposed || generation != _generation) return;
-    final headers = MessageHeaders();
-    for (final entry in handshake.headers.entries) {
-      headers.setHeaderValue(entry.key, entry.value);
-    }
-    final tokenProvider = handshake.accessTokenProvider;
-
-    final connection = HubConnectionBuilder()
-        .withUrl(
-          _url,
-          options: HttpConnectionOptions(
-            headers: headers,
-            accessTokenFactory: tokenProvider == null
-                ? null
-                : () async {
-                    final token = (await tokenProvider() ?? '').trim();
-                    if (_disposed || generation != _generation) {
-                      throw StateError('Połączenie SignalR zostało anulowane.');
-                    }
-                    if (token.isEmpty) {
-                      throw StateError(
-                        'Sesja wygasła podczas handshake SignalR.',
-                      );
-                    }
-                    return token;
-                  },
-          ),
-        )
-        .withAutomaticReconnect(retryDelays: const [0, 2000, 5000, 10000])
-        .build();
-    _connection = connection;
-    for (final entry in _handlers.entries) {
-      for (final handler in entry.value) {
-        connection.on(entry.key, handler);
-      }
-    }
-    connection.onreconnecting(
-      ({error}) => _emit(
-        WorkspaceSignalRConnectionState.reconnecting,
-      ),
-    );
-    connection.onreconnected(
-      ({connectionId}) => _emit(
-        WorkspaceSignalRConnectionState.connected,
-      ),
-    );
-    connection.onclose(
-      ({error}) => _emit(
-        WorkspaceSignalRConnectionState.disconnected,
-      ),
-    );
-
     _emit(WorkspaceSignalRConnectionState.connecting);
     try {
+      // Nie pozwalamy SignalR rozpocząć handshake'u bez poświadczenia sesji.
+      // Dzięki temu wygaśnięta sesja nie tworzy anonimowego połączenia ani
+      // pętli reconnect, a Web nie wysyła negotiate bez nagłówka CSRF.
+      final handshake = await _credentials.resolve();
+      if (_disposed || generation != _generation) return;
+      final headers = MessageHeaders();
+      for (final entry in handshake.headers.entries) {
+        headers.setHeaderValue(entry.key, entry.value);
+      }
+      final tokenProvider = handshake.accessTokenProvider;
+
+      final connection = HubConnectionBuilder()
+          .withUrl(
+            _url,
+            options: HttpConnectionOptions(
+              headers: headers,
+              accessTokenFactory: tokenProvider == null
+                  ? null
+                  : () async {
+                      final token = (await tokenProvider() ?? '').trim();
+                      if (_disposed || generation != _generation) {
+                        throw StateError(
+                          'Połączenie SignalR zostało anulowane.',
+                        );
+                      }
+                      if (token.isEmpty) {
+                        throw StateError(
+                          'Sesja wygasła podczas handshake SignalR.',
+                        );
+                      }
+                      return token;
+                    },
+            ),
+          )
+          .withAutomaticReconnect(retryDelays: const [0, 2000, 5000, 10000])
+          .build();
+      _connection = connection;
+      for (final entry in _handlers.entries) {
+        for (final handler in entry.value) {
+          connection.on(entry.key, handler);
+        }
+      }
+      connection.onreconnecting(
+        ({error}) => _emit(
+          WorkspaceSignalRConnectionState.reconnecting,
+        ),
+      );
+      connection.onreconnected(
+        ({connectionId}) => _emit(
+          WorkspaceSignalRConnectionState.connected,
+        ),
+      );
+      connection.onclose(
+        ({error}) => _emit(
+          WorkspaceSignalRConnectionState.disconnected,
+        ),
+      );
+
       await connection.start();
       if (_disposed || generation != _generation) {
         await connection.stop();
@@ -193,6 +195,7 @@ final class WorkspaceSignalRClient implements WorkspaceSignalRTransport {
   @override
   void dispose() {
     if (_disposed) return;
+    _emit(WorkspaceSignalRConnectionState.disconnected);
     _disposed = true;
     _generation++;
     final connection = _connection;

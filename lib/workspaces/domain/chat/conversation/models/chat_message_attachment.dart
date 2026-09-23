@@ -10,6 +10,10 @@ final class ChatMessageAttachment extends Equatable {
     required this.attachedByUserId,
     required this.position,
     required this.createdAtUtc,
+    this.fileName,
+    this.fileSizeBytes,
+    this.contentType,
+    this.isAvailable = false,
   });
 
   final String id;
@@ -19,6 +23,31 @@ final class ChatMessageAttachment extends Equatable {
   final int position;
   final DateTime createdAtUtc;
 
+  /// Oryginalna nazwa pliku albo `null`, gdy wpis Storage już nie istnieje.
+  final String? fileName;
+
+  /// Rozmiar pliku w bajtach albo `null`.
+  final int? fileSizeBytes;
+
+  /// Typ MIME pliku albo `null`.
+  final String? contentType;
+
+  /// Czy plik istnieje, nie został usunięty i przeszedł skan AV.
+  final bool isAvailable;
+
+  /// Etykieta do prezentacji: nazwa pliku, a bez niej identyfikator pliku.
+  String get label {
+    final name = fileName?.trim();
+    return name != null && name.isNotEmpty ? name : storageFileId;
+  }
+
+  /// Czy plik jest obrazem, czyli czy warto pokazać miniaturę zamiast ikony.
+  ///
+  /// Rozstrzyga wyłącznie typ MIME potwierdzony przez serwer; brak typu albo
+  /// inna kategoria nie jest zgadywana po rozszerzeniu nazwy.
+  bool get isImage =>
+      contentType?.toLowerCase().trim().startsWith('image/') == true;
+
   @override
   List<Object?> get props => [
     id,
@@ -27,5 +56,9 @@ final class ChatMessageAttachment extends Equatable {
     attachedByUserId,
     position,
     createdAtUtc,
+    fileName,
+    fileSizeBytes,
+    contentType,
+    isAvailable,
   ];
 }

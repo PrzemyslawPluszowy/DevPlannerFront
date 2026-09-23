@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
@@ -49,10 +50,16 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   int _loadGeneration = 0;
 
   /// Pobiera snapshot rozmowy i pierwszą stronę historii bez kasowania retry.
-  Future<void> load() async {
+  ///
+  /// `replaceHistory` służy wyjściu z trybu okna: historia sprzed okna jest
+  /// rozłączna z najnowszą stroną, więc scalanie ich zostawiłoby lukę.
+  Future<void> load({bool replaceHistory = false}) async {
     final inFlight = _loadInFlight;
     if (inFlight != null) return inFlight;
-    final operation = _loadInternal(++_loadGeneration);
+    final operation = _loadInternal(
+      ++_loadGeneration,
+      replaceHistory: replaceHistory,
+    );
     _loadInFlight = operation;
     await operation.whenComplete(() => _loadInFlight = null);
     // Po pierwszej stronie historii wznawiamy próby, które przetrwały restart.
@@ -134,13 +141,25 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
       },
       (window) => emit(
         latest.copyWith(
-          messages: _mergeMessages(latest.messages, window.messages),
-          nextCursor: window.beforeCursor ?? latest.nextCursor,
+          // Tryb okna: pokazujemy ciągły zakres wokół wiadomości. Scalanie z
+          // najnowszą stroną zostawiłoby niewidoczną lukę, a kursor okna
+          // doładowuje wyłącznie starszą część tego samego zakresu.
+          messages: window.messages,
+          nextCursor: window.beforeCursor,
+          jumpAnchorMessageId: window.anchorMessageId,
           isJumpingToMessage: false,
           clearJumpFailure: true,
         ),
       ),
     );
+  }
+
+  /// Wraca z trybu okna do najnowszej historii rozmowy.
+  Future<void> exitWindowHistory() async {
+    final current = state;
+    if (current is! ChatConversationReady || isClosed) return;
+    if (!current.isWindowedHistory) return;
+    await load(replaceHistory: true);
   }
 
   /// Dodaje lokalną wiadomość i zleca dostawę bez blokowania composera.
@@ -154,9 +173,19 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     if (draft.isEmpty || current is! ChatConversationReady || isClosed) {
       return null;
     }
+    // Composer pokazuje etykiety wzmianek, a transport wymaga tokenów `@<uuid>`,
+    // więc konwersja należy do granicy wysyłki i jest zapisywana w kolejce.
+    final outgoing = draft.mentions.isEmpty
+        ? draft
+        : draft.copyWith(
+            text: ChatMentionCodec.toWireText(
+              visibleText: draft.text,
+              mentions: draft.mentions,
+            ),
+          );
     final message = _deliveryQueue.enqueue(
       conversationId: conversationId,
-      draft: draft,
+      draft: outgoing,
     );
     _replaceMessage(message);
     return message.clientMessageId;
@@ -170,28 +199,38 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   Future<bool> markVisibleAsRead(String messageId) async {
     final current = state;
     if (current is! ChatConversationReady || isClosed) return false;
-    if (messageId.isEmpty || messageId == _lastReadMessageId) return false;
+    if (messageId.isEmpty ||
+        messageId == _lastReadMessageId ||
+        _readMarkersInFlight.contains(messageId)) {
+      return false;
+    }
     final message = current.messages
         .where((item) => item.id == messageId)
         .firstOrNull;
     if (message == null || message.isDeleted) return false;
     if (message.id.startsWith('local:')) return false;
-    if (currentUserId.isNotEmpty && message.authorUserId == currentUserId) {
-      return false;
+    _readMarkersInFlight.add(messageId);
+    var marked = false;
+    try {
+      final result = await _repository.markConversationRead(
+        conversationId: conversationId,
+        messageId: messageId,
+      );
+      if (!isClosed) {
+        result.fold((_) {}, (_) {
+          _lastReadMessageId = messageId;
+          marked = true;
+        });
+      }
+    } finally {
+      _readMarkersInFlight.remove(messageId);
     }
-    final result = await _repository.markConversationRead(
-      conversationId: conversationId,
-      messageId: messageId,
-    );
-    if (isClosed) return false;
-    return result.fold((_) => false, (_) {
-      _lastReadMessageId = messageId;
-      return true;
-    });
+    return marked;
   }
 
   /// Ostatnio oznaczona wiadomość; chroni przed powtarzaniem żądania.
   String? _lastReadMessageId;
+  final Set<String> _readMarkersInFlight = <String>{};
 
   /// Widoczna wiadomość oznaczona lokalnie jako odczytana albo `null`.
   String? get lastReadMessageId => _lastReadMessageId;
@@ -232,7 +271,10 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   /// Czyści lokalne dane wysyłki po wylogowaniu albo zmianie konta.
   Future<void> clearForSignedOutSession() => _deliveryQueue.clearForSession();
 
-  Future<void> _loadInternal(int generation) async {
+  Future<void> _loadInternal(
+    int generation, {
+    bool replaceHistory = false,
+  }) async {
     if (isClosed) return;
     if (state is! ChatConversationReady) emit(const ChatConversationLoading());
     final conversationResult = await _repository.getConversation(
@@ -259,7 +301,8 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
       _handleAccessOrLoadError,
       (page) {
         final previous = state;
-        final previousMessages = previous is ChatConversationReady
+        final previousMessages =
+            previous is ChatConversationReady && !replaceHistory
             ? previous.messages
             : const <ChatMessage>[];
         emit(
@@ -269,6 +312,11 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
             nextCursor: page.nextCursor,
             realtimeError: previous is ChatConversationReady
                 ? previous.realtimeError
+                : null,
+            jumpAnchorMessageId: replaceHistory
+                ? null
+                : previous is ChatConversationReady
+                ? previous.jumpAnchorMessageId
                 : null,
           ),
         );
@@ -330,6 +378,9 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
         event.conversationId != conversationId) {
       return;
     }
+    // W trybie okna nowa wiadomość nie sąsiaduje z pokazanym zakresem, więc
+    // dopisanie jej utworzyłoby lukę. Użytkownik wraca do najnowszych jawnie.
+    if (current.isWindowedHistory) return;
     final reduction = _realtimeReducer.apply(
       messages: current.messages,
       event: event,

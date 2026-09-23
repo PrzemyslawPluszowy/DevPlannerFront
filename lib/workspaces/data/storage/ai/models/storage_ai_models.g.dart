@@ -60,37 +60,37 @@ Map<String, dynamic> _$AiFileAnalysisAuditEventResponseToJson(
 };
 
 const _$AiOperationAuditEventTypeEnumMap = {
-  AiOperationAuditEventType.started: 'started',
-  AiOperationAuditEventType.completed: 'completed',
-  AiOperationAuditEventType.failed: 'failed',
-  AiOperationAuditEventType.reconciled: 'reconciled',
+  AiOperationAuditEventType.started: 'Started',
+  AiOperationAuditEventType.completed: 'Completed',
+  AiOperationAuditEventType.failed: 'Failed',
+  AiOperationAuditEventType.reconciled: 'Reconciled',
 };
 
 const _$AiProviderKindEnumMap = {
-  AiProviderKind.disabled: 'disabled',
-  AiProviderKind.aifastApi: 'aifastApi',
-  AiProviderKind.openAi: 'openAi',
-  AiProviderKind.azureOpenAi: 'azureOpenAi',
-  AiProviderKind.anthropic: 'anthropic',
-  AiProviderKind.ollama: 'ollama',
-  AiProviderKind.custom: 'custom',
+  AiProviderKind.disabled: 'Disabled',
+  AiProviderKind.aifastApi: 'AifastApi',
+  AiProviderKind.openAi: 'OpenAi',
+  AiProviderKind.azureOpenAi: 'AzureOpenAi',
+  AiProviderKind.anthropic: 'Anthropic',
+  AiProviderKind.ollama: 'Ollama',
+  AiProviderKind.custom: 'Custom',
 };
 
 const _$StorageAnalysisFailureCodeEnumMap = {
-  StorageAnalysisFailureCode.unknown: 'unknown',
-  StorageAnalysisFailureCode.sourceVersionMissing: 'sourceVersionMissing',
-  StorageAnalysisFailureCode.storageContentMismatch: 'storageContentMismatch',
-  StorageAnalysisFailureCode.unsupportedMedia: 'unsupportedMedia',
-  StorageAnalysisFailureCode.invalidProviderResponse: 'invalidProviderResponse',
-  StorageAnalysisFailureCode.providerUnauthorized: 'providerUnauthorized',
-  StorageAnalysisFailureCode.providerRateLimited: 'providerRateLimited',
-  StorageAnalysisFailureCode.providerUnavailable: 'providerUnavailable',
-  StorageAnalysisFailureCode.circuitOpen: 'circuitOpen',
-  StorageAnalysisFailureCode.disabled: 'disabled',
-  StorageAnalysisFailureCode.deadlineExceeded: 'deadlineExceeded',
-  StorageAnalysisFailureCode.sourceDeleted: 'sourceDeleted',
-  StorageAnalysisFailureCode.sourceNotReady: 'sourceNotReady',
-  StorageAnalysisFailureCode.sourceInfected: 'sourceInfected',
+  StorageAnalysisFailureCode.unknown: 'Unknown',
+  StorageAnalysisFailureCode.sourceVersionMissing: 'SourceVersionMissing',
+  StorageAnalysisFailureCode.storageContentMismatch: 'StorageContentMismatch',
+  StorageAnalysisFailureCode.unsupportedMedia: 'UnsupportedMedia',
+  StorageAnalysisFailureCode.invalidProviderResponse: 'InvalidProviderResponse',
+  StorageAnalysisFailureCode.providerUnauthorized: 'ProviderUnauthorized',
+  StorageAnalysisFailureCode.providerRateLimited: 'ProviderRateLimited',
+  StorageAnalysisFailureCode.providerUnavailable: 'ProviderUnavailable',
+  StorageAnalysisFailureCode.circuitOpen: 'CircuitOpen',
+  StorageAnalysisFailureCode.disabled: 'Disabled',
+  StorageAnalysisFailureCode.deadlineExceeded: 'DeadlineExceeded',
+  StorageAnalysisFailureCode.sourceDeleted: 'SourceDeleted',
+  StorageAnalysisFailureCode.sourceNotReady: 'SourceNotReady',
+  StorageAnalysisFailureCode.sourceInfected: 'SourceInfected',
 };
 
 _AiUsageBucketResponse _$AiUsageBucketResponseFromJson(
@@ -166,8 +166,8 @@ Map<String, dynamic> _$AiReportScheduleRecipientPayloadToJson(
 };
 
 const _$AiReportDeliveryChannelEnumMap = {
-  AiReportDeliveryChannel.email: 'email',
-  AiReportDeliveryChannel.inApp: 'inApp',
+  AiReportDeliveryChannel.email: 'Email',
+  AiReportDeliveryChannel.inApp: 'InApp',
 };
 
 _CreateAiReportSchedulePayload _$CreateAiReportSchedulePayloadFromJson(
@@ -207,9 +207,9 @@ Map<String, dynamic> _$CreateAiReportSchedulePayloadToJson(
 };
 
 const _$AiReportScheduleCadenceEnumMap = {
-  AiReportScheduleCadence.daily: 'daily',
-  AiReportScheduleCadence.weekly: 'weekly',
-  AiReportScheduleCadence.monthly: 'monthly',
+  AiReportScheduleCadence.daily: 'Daily',
+  AiReportScheduleCadence.weekly: 'Weekly',
+  AiReportScheduleCadence.monthly: 'Monthly',
 };
 
 _UpdateAiReportSchedulePayload _$UpdateAiReportSchedulePayloadFromJson(
@@ -335,10 +335,10 @@ Map<String, dynamic> _$AiReportScheduleRunResponseToJson(
 };
 
 const _$AiReportScheduleRunStatusEnumMap = {
-  AiReportScheduleRunStatus.pending: 'pending',
-  AiReportScheduleRunStatus.reportCreated: 'reportCreated',
-  AiReportScheduleRunStatus.completed: 'completed',
-  AiReportScheduleRunStatus.failed: 'failed',
+  AiReportScheduleRunStatus.pending: 'Pending',
+  AiReportScheduleRunStatus.reportCreated: 'ReportCreated',
+  AiReportScheduleRunStatus.completed: 'Completed',
+  AiReportScheduleRunStatus.failed: 'Failed',
 };
 
 _AiReportDeliveryResponse _$AiReportDeliveryResponseFromJson(
@@ -384,12 +384,12 @@ Map<String, dynamic> _$AiReportDeliveryResponseToJson(
 };
 
 const _$AiReportDeliveryStatusEnumMap = {
-  AiReportDeliveryStatus.pending: 'pending',
-  AiReportDeliveryStatus.processing: 'processing',
-  AiReportDeliveryStatus.delivered: 'delivered',
-  AiReportDeliveryStatus.failed: 'failed',
-  AiReportDeliveryStatus.skipped: 'skipped',
-  AiReportDeliveryStatus.sentUnknown: 'sentUnknown',
+  AiReportDeliveryStatus.pending: 'Pending',
+  AiReportDeliveryStatus.processing: 'Processing',
+  AiReportDeliveryStatus.delivered: 'Delivered',
+  AiReportDeliveryStatus.failed: 'Failed',
+  AiReportDeliveryStatus.skipped: 'Skipped',
+  AiReportDeliveryStatus.sentUnknown: 'SentUnknown',
 };
 
 _ResolveAiReportDeliveryPayload _$ResolveAiReportDeliveryPayloadFromJson(
@@ -411,8 +411,8 @@ Map<String, dynamic> _$ResolveAiReportDeliveryPayloadToJson(
 };
 
 const _$AiReportDeliveryResolutionStatusEnumMap = {
-  AiReportDeliveryResolutionStatus.delivered: 'delivered',
-  AiReportDeliveryResolutionStatus.failed: 'failed',
+  AiReportDeliveryResolutionStatus.delivered: 'Delivered',
+  AiReportDeliveryResolutionStatus.failed: 'Failed',
 };
 
 _AiReportAuditEventResponse _$AiReportAuditEventResponseFromJson(
@@ -461,20 +461,20 @@ Map<String, dynamic> _$AiReportAuditEventResponseToJson(
 };
 
 const _$StorageAiReportFailureCodeEnumMap = {
-  StorageAiReportFailureCode.unknown: 'unknown',
-  StorageAiReportFailureCode.sourceAccessRevoked: 'sourceAccessRevoked',
-  StorageAiReportFailureCode.sourceSnapshotEmpty: 'sourceSnapshotEmpty',
-  StorageAiReportFailureCode.unsupportedProvider: 'unsupportedProvider',
-  StorageAiReportFailureCode.invalidProviderResponse: 'invalidProviderResponse',
-  StorageAiReportFailureCode.providerUnauthorized: 'providerUnauthorized',
-  StorageAiReportFailureCode.providerRateLimited: 'providerRateLimited',
-  StorageAiReportFailureCode.providerUnavailable: 'providerUnavailable',
-  StorageAiReportFailureCode.circuitOpen: 'circuitOpen',
-  StorageAiReportFailureCode.disabled: 'disabled',
-  StorageAiReportFailureCode.outputStorageFailed: 'outputStorageFailed',
-  StorageAiReportFailureCode.sourceContentMismatch: 'sourceContentMismatch',
-  StorageAiReportFailureCode.deadlineExceeded: 'deadlineExceeded',
-  StorageAiReportFailureCode.sourceChanged: 'sourceChanged',
+  StorageAiReportFailureCode.unknown: 'Unknown',
+  StorageAiReportFailureCode.sourceAccessRevoked: 'SourceAccessRevoked',
+  StorageAiReportFailureCode.sourceSnapshotEmpty: 'SourceSnapshotEmpty',
+  StorageAiReportFailureCode.unsupportedProvider: 'UnsupportedProvider',
+  StorageAiReportFailureCode.invalidProviderResponse: 'InvalidProviderResponse',
+  StorageAiReportFailureCode.providerUnauthorized: 'ProviderUnauthorized',
+  StorageAiReportFailureCode.providerRateLimited: 'ProviderRateLimited',
+  StorageAiReportFailureCode.providerUnavailable: 'ProviderUnavailable',
+  StorageAiReportFailureCode.circuitOpen: 'CircuitOpen',
+  StorageAiReportFailureCode.disabled: 'Disabled',
+  StorageAiReportFailureCode.outputStorageFailed: 'OutputStorageFailed',
+  StorageAiReportFailureCode.sourceContentMismatch: 'SourceContentMismatch',
+  StorageAiReportFailureCode.deadlineExceeded: 'DeadlineExceeded',
+  StorageAiReportFailureCode.sourceChanged: 'SourceChanged',
 };
 
 _StorageFileAnalysisJobResponse _$StorageFileAnalysisJobResponseFromJson(
@@ -550,21 +550,21 @@ const _$StorageFileAnalysisJobStatusEnumMap = {
 };
 
 const _$AiProviderStatusEnumMap = {
-  AiProviderStatus.unknown: 'unknown',
-  AiProviderStatus.healthy: 'healthy',
-  AiProviderStatus.degraded: 'degraded',
-  AiProviderStatus.unavailable: 'unavailable',
-  AiProviderStatus.disabled: 'disabled',
+  AiProviderStatus.unknown: 'Unknown',
+  AiProviderStatus.healthy: 'Healthy',
+  AiProviderStatus.degraded: 'Degraded',
+  AiProviderStatus.unavailable: 'Unavailable',
+  AiProviderStatus.disabled: 'Disabled',
 };
 
 const _$AiOperationStatusEnumMap = {
-  AiOperationStatus.queued: 'queued',
-  AiOperationStatus.processing: 'processing',
-  AiOperationStatus.completed: 'completed',
-  AiOperationStatus.degraded: 'degraded',
-  AiOperationStatus.failedRetryable: 'failedRetryable',
-  AiOperationStatus.failedTerminal: 'failedTerminal',
-  AiOperationStatus.cancelled: 'cancelled',
+  AiOperationStatus.queued: 'Queued',
+  AiOperationStatus.processing: 'Processing',
+  AiOperationStatus.completed: 'Completed',
+  AiOperationStatus.degraded: 'Degraded',
+  AiOperationStatus.failedRetryable: 'FailedRetryable',
+  AiOperationStatus.failedTerminal: 'FailedTerminal',
+  AiOperationStatus.cancelled: 'Cancelled',
 };
 
 _StorageFileAnalysisStatusResponse _$StorageFileAnalysisStatusResponseFromJson(

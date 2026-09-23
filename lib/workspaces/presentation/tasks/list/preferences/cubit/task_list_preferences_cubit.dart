@@ -152,7 +152,9 @@ final class TaskListPreferencesCubit extends Cubit<TaskListPreferencesState> {
     final current = state;
     if (current is! TaskListPreferencesReady) return;
     final next = TaskListSortController.next(current, field);
-    emit(current.copyWith(sortField: next.field, sortDirection: next.direction));
+    emit(
+      current.copyWith(sortField: next.field, sortDirection: next.direction),
+    );
     await saveNow();
   }
 

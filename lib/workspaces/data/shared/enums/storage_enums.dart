@@ -264,7 +264,7 @@ enum StorageFileAnalysisJobStatus {
 }
 
 /// Provider użyty przez operację AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiProviderKind {
   disabled,
   aifastApi,
@@ -289,11 +289,11 @@ extension AiProviderKindApiValue on AiProviderKind {
 }
 
 /// Stan dostępności providera AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiProviderStatus { unknown, healthy, degraded, unavailable, disabled }
 
 /// Wspólny cykl życia operacji AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiOperationStatus {
   queued,
   processing,
@@ -305,11 +305,11 @@ enum AiOperationStatus {
 }
 
 /// Status harmonogramu raportu AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiReportScheduleCadence { daily, weekly, monthly }
 
 /// Kanał dostarczenia raportu AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiReportDeliveryChannel { email, inApp }
 
 /// Wartość kontraktu HTTP używana w parametrach query raportów AI.
@@ -321,7 +321,7 @@ extension AiReportDeliveryChannelApiValue on AiReportDeliveryChannel {
 }
 
 /// Status uruchomienia harmonogramu raportu.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiReportScheduleRunStatus { pending, reportCreated, completed, failed }
 
 /// Wartość kontraktu HTTP używana w parametrach query raportów AI.
@@ -335,7 +335,7 @@ extension AiReportScheduleRunStatusApiValue on AiReportScheduleRunStatus {
 }
 
 /// Status dostarczenia raportu AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiReportDeliveryStatus {
   pending,
   processing,
@@ -358,19 +358,19 @@ extension AiReportDeliveryStatusApiValue on AiReportDeliveryStatus {
 }
 
 /// Docelowy status ręcznej rekonsyliacji dostarczenia.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiReportDeliveryResolutionStatus { delivered, failed }
 
 /// Status zakresu raportu AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum StorageAiReportScopeType { project }
 
 /// Status joba raportu AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum StorageAiReportJobStatus { pending, processing, completed, failed }
 
 /// Typ zdarzenia audytu operacji AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum AiOperationAuditEventType { started, completed, failed, reconciled }
 
 /// Wartość kontraktu HTTP używana w parametrach query audytu AI.
@@ -384,7 +384,7 @@ extension AiOperationAuditEventTypeApiValue on AiOperationAuditEventType {
 }
 
 /// Stabilny kod błędu raportu AI.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum StorageAiReportFailureCode {
   unknown,
   sourceAccessRevoked,
@@ -403,7 +403,7 @@ enum StorageAiReportFailureCode {
 }
 
 /// Stabilny kod błędu analizy pliku.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum StorageAnalysisFailureCode {
   unknown,
   sourceVersionMissing,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu_layout_policy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -141,7 +142,9 @@ abstract final class AppContextMenu {
     final renderObject = context.findRenderObject();
     if (renderObject is! RenderBox || !renderObject.hasSize) {
       final overlay = Overlay.maybeOf(context)?.context.findRenderObject();
-      return overlay is RenderBox ? overlay.localToGlobal(Offset.zero) : Offset.zero;
+      return overlay is RenderBox
+          ? overlay.localToGlobal(Offset.zero)
+          : Offset.zero;
     }
     return renderObject.localToGlobal(Offset(0, renderObject.size.height)) +
         const Offset(0, 4);
@@ -258,6 +261,7 @@ abstract final class AppContextMenu {
     AppContextMenuContentBuilder? contentBuilder,
   }) async {
     final navigator = Navigator.of(context, rootNavigator: true);
+    final callerTheme = Theme.of(context);
     final overlayBox =
         navigator.overlay!.context.findRenderObject()! as RenderBox;
     final overlayPosition =
@@ -273,6 +277,7 @@ abstract final class AppContextMenu {
         headerTitle: headerTitle,
         headerSubtitle: headerSubtitle,
         contentBuilder: contentBuilder,
+        callerTheme: callerTheme,
         transitionDuration: _transitionDuration,
         reverseTransitionDuration: _reverseTransitionDuration,
       ),
@@ -302,7 +307,8 @@ class AppContextMenuRegion extends StatelessWidget {
   /// Buduje akcje dla bieżącego stanu widgetu.
   ///
   /// Pusta lista wyłącza menu dla tego obszaru.
-  final List<AppContextMenuAction> Function(BuildContext context) actionsBuilder;
+  final List<AppContextMenuAction> Function(BuildContext context)
+  actionsBuilder;
 
   /// Zawartość obszaru.
   final Widget child;
@@ -376,6 +382,7 @@ class _AppContextMenuRoute<T> extends PopupRoute<T> {
     required this.headerTitle,
     required this.headerSubtitle,
     required this.contentBuilder,
+    required this.callerTheme,
     required this.transitionDuration,
     required this.reverseTransitionDuration,
   });
@@ -395,6 +402,7 @@ class _AppContextMenuRoute<T> extends PopupRoute<T> {
   final String? headerTitle;
   final String? headerSubtitle;
   final AppContextMenuContentBuilder? contentBuilder;
+  final ThemeData callerTheme;
 
   @override
   final Duration transitionDuration;
@@ -417,18 +425,23 @@ class _AppContextMenuRoute<T> extends PopupRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    return CustomSingleChildLayout(
-      delegate: _AppContextMenuPositionDelegate(
-        position,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-      ),
-      child: _AppContextMenuPanel<T>(
-        entries: entries,
-        headerTitle: headerTitle,
-        headerSubtitle: headerSubtitle,
-        contentBuilder: contentBuilder,
-        onSelected: (value) => Navigator.of(context).pop(value),
+    return Theme(
+      // PopupRoute używa root navigatora. Przekazanie motywu wywołującego
+      // zachowuje lokalny wariant ChatTheme i pozostałe lokalne style.
+      data: callerTheme,
+      child: CustomSingleChildLayout(
+        delegate: _AppContextMenuPositionDelegate(
+          position,
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+        ),
+        child: _AppContextMenuPanel<T>(
+          entries: entries,
+          headerTitle: headerTitle,
+          headerSubtitle: headerSubtitle,
+          contentBuilder: contentBuilder,
+          onSelected: (value) => Navigator.of(context).pop(value),
+        ),
       ),
     );
   }
@@ -473,14 +486,18 @@ class _AppContextMenuPositionDelegate extends SingleChildLayoutDelegate {
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    const margin = AppContextMenu.viewportMargin;
+    final dimensions = AppContextMenuLayoutPolicy.constraints(
+      availableWidth: constraints.maxWidth,
+      availableHeight: constraints.maxHeight,
+      requestedMaxWidth: maxWidth ?? 300,
+      requestedMaxHeight: maxHeight,
+      viewportMargin: AppContextMenu.viewportMargin,
+      preferredMinWidth: 220,
+    );
     return BoxConstraints(
-      minWidth: constraints.maxWidth.clamp(0, 220),
-      maxWidth: maxWidth ?? 300,
-      maxHeight: (maxHeight ?? constraints.maxHeight).clamp(
-        0,
-        (constraints.maxHeight - margin * 2).clamp(0, double.infinity),
-      ),
+      minWidth: dimensions.minWidth,
+      maxWidth: dimensions.maxWidth,
+      maxHeight: dimensions.maxHeight,
     );
   }
 
@@ -530,7 +547,8 @@ class _AppContextMenuPanel<T> extends StatefulWidget {
   final AppContextMenuContentBuilder? contentBuilder;
 
   @override
-  State<_AppContextMenuPanel<T>> createState() => _AppContextMenuPanelState<T>();
+  State<_AppContextMenuPanel<T>> createState() =>
+      _AppContextMenuPanelState<T>();
 }
 
 class _AppContextMenuPanelState<T> extends State<_AppContextMenuPanel<T>> {
@@ -580,7 +598,9 @@ class _AppContextMenuPanelState<T> extends State<_AppContextMenuPanel<T>> {
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(menuTheme.radius)),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(menuTheme.radius),
+                ),
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(menuTheme.padding),
                   child: Column(
@@ -588,11 +608,18 @@ class _AppContextMenuPanelState<T> extends State<_AppContextMenuPanel<T>> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       if (widget.headerTitle case final title?)
-                        _MenuHeader(title: title, subtitle: widget.headerSubtitle),
+                        _MenuHeader(
+                          title: title,
+                          subtitle: widget.headerSubtitle,
+                        ),
                       if (widget.contentBuilder case final builder?)
                         builder(context, () => Navigator.of(context).pop())
                       else
-                        for (var index = 0; index < widget.entries.length; index++)
+                        for (
+                          var index = 0;
+                          index < widget.entries.length;
+                          index++
+                        )
                           _buildEntry(context, index),
                     ],
                   ),
@@ -661,7 +688,8 @@ class _AppContextMenuPanelState<T> extends State<_AppContextMenuPanel<T>> {
         _highlight(selectable[(currentPosition + 1) % selectable.length]);
       case LogicalKeyboardKey.arrowUp:
         _highlight(
-          selectable[(currentPosition - 1 + selectable.length) % selectable.length],
+          selectable[(currentPosition - 1 + selectable.length) %
+              selectable.length],
         );
       case LogicalKeyboardKey.home:
         _highlight(selectable.first);
@@ -770,7 +798,9 @@ class _AppContextMenuItemState<T> extends State<_AppContextMenuItem<T>> {
       foreground = menuTheme.itemForeground;
     }
     final background = isActive
-        ? (entry.isDestructive ? menuTheme.destructiveHover : menuTheme.itemHover)
+        ? (entry.isDestructive
+              ? menuTheme.destructiveHover
+              : menuTheme.itemHover)
         : (entry.selected ? menuTheme.itemSelectedSurface : Colors.transparent);
 
     return MouseRegion(

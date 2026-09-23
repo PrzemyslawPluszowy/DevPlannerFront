@@ -30,6 +30,14 @@ final class _ReadTrackingRepository implements ChatConversationRepository {
       );
 
   @override
+  Future<Either<ApiError, ChatMessageWindow>> loadMessageWindow({
+    required String conversationId,
+    required String messageId,
+    int before = 20,
+    int after = 20,
+  }) async => throw UnimplementedError();
+
+  @override
   Future<Either<ApiError, ChatMessagePage>> listConversationMessages({
     required String conversationId,
     String? cursor,

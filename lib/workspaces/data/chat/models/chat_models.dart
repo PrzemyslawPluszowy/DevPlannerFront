@@ -318,6 +318,8 @@ abstract class ChatMessageResponse with _$ChatMessageResponse {
     String? threadRootMessageId,
     @Default(false) bool isEdited,
     DateTime? deletedAtUtc,
+    @Default(0) int deliveredToCount,
+    @Default(0) int readByCount,
   }) = _ChatMessageResponse;
 
   /// Odtwarza wiadomość z JSON.
@@ -570,7 +572,7 @@ abstract class AttachChatFilePayload with _$AttachChatFilePayload {
 /// Relacja załącznika wiadomości Chat.
 @freezed
 abstract class ChatAttachmentResponse with _$ChatAttachmentResponse {
-  /// Zawiera wiadomość, plik, autora i pozycję.
+  /// Zawiera wiadomość, plik, autora, pozycję i metadane Storage.
   const factory ChatAttachmentResponse({
     required String id,
     required String messageId,
@@ -578,6 +580,10 @@ abstract class ChatAttachmentResponse with _$ChatAttachmentResponse {
     required String attachedByUserId,
     required int position,
     required DateTime createdAtUtc,
+    String? fileName,
+    int? fileSizeBytes,
+    String? contentType,
+    @Default(false) bool isAvailable,
   }) = _ChatAttachmentResponse;
 
   /// Odtwarza załącznik z JSON.

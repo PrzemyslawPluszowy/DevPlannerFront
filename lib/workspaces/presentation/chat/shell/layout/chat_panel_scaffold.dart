@@ -9,10 +9,9 @@ import 'package:material_symbols_icons/symbols.dart';
 
 /// Układ panelu: nawigacja → lista → rozmowa z §2.1 planu korekty.
 ///
-/// Powyżej progu 760 px panel pokazuje trzy kolumny (rail 56 px, lista
-/// 304–344 px i rozmowa z minimum 360 px). Poniżej progu zostaje rail i jedna
-/// kolumna: lista albo rozmowa z przyciskiem Wstecz, więc na wąskim ekranie nie
-/// ma trzech ściśniętych kolumn.
+/// Trzy kolumny pojawiają się po spełnieniu faktycznych minimów: rail 56 px,
+/// lista 304 px, rozmowa 360 px i separatory. Przy mniejszej szerokości zostaje
+/// rail i jedna kolumna, bez ściskania czy overflow.
 class ChatPanelScaffold extends StatelessWidget {
   /// Tworzy układ panelu.
   const ChatPanelScaffold({
@@ -51,38 +50,59 @@ class ChatPanelScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final compact =
-          constraints.maxWidth < ChatPanelSizeController.compactBreakpoint;
+      final width = constraints.maxWidth;
+      final narrow = width < ChatPanelSizeController.narrowBreakpoint;
+      final twoColumns = ChatPanelSizeController.fitsTwoColumns(
+        available: width,
+        compactRail: false,
+      );
+      final showConversation =
+          !context.select<ChatPanelSectionCubit, bool>(
+            (cubit) => cubit.state.showList,
+          ) &&
+          conversationPane != null;
+      if (narrow) {
+        // Przy bardzo wąskim panelu belka zastępuje miejsce treści, więc wybór
+        // sekcji przenosi się nad listę albo rozmowę; nic nie jest ściskane.
+        return Column(
+          children: [
+            ChatPanelNarrowBar(
+              pinned: pinned,
+              profileAction: profileAction,
+              onOpenSettings: onOpenSettings,
+              onTogglePin: canPin ? onTogglePin : null,
+            ),
+            Expanded(child: showConversation ? conversationPane! : listPane),
+          ],
+        );
+      }
       final rail = ChatPanelRail(
-        compact: compact,
         pinned: pinned,
         profileAction: profileAction,
         onOpenSettings: onOpenSettings,
         onTogglePin: canPin ? onTogglePin : null,
       );
-      if (compact) {
-        // Na wąskim ekranie rozmowa zastępuje listę, ale wybór sekcji na railu
-        // ma pierwszeństwo: inaczej kliknięcie Plików czy Kanałów nie pokazałoby
-        // niczego, dopóki użytkownik nie cofnie się z rozmowy. Wstecz w rozmowie
-        // także wraca do listy, bo czyści zaznaczenie.
-        final showConversation =
-            !context.select<ChatPanelSectionCubit, bool>(
-              (cubit) => cubit.state.showList,
-            ) &&
-            conversationPane != null;
+      if (!twoColumns) {
+        // Jedna kolumna: rozmowa zastępuje listę, a Wstecz w rozmowie czyści
+        // zaznaczenie. Wybór sekcji na belce ma pierwszeństwo, więc kliknięcie
+        // Plików czy Kanałów zawsze pokazuje właściwą listę.
         return Row(
           children: [
             rail,
-            Expanded(
-              child: showConversation ? conversationPane! : listPane,
-            ),
+            Expanded(child: showConversation ? conversationPane! : listPane),
           ],
         );
       }
       return Row(
         children: [
           rail,
-          listPane,
+          SizedBox(
+            width: ChatPanelSizeController.listColumnWidth(
+              available: width,
+              compactRail: false,
+            ),
+            child: listPane,
+          ),
           Expanded(
             child: conversationPane ?? const ChatPanelConversationPlaceholder(),
           ),
@@ -98,33 +118,30 @@ class ChatPanelConversationPlaceholder extends StatelessWidget {
   const ChatPanelConversationPlaceholder({super.key});
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(Sizes.p24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Symbols.forum_rounded,
-            size: 40,
-            color: context.colors.onSurfaceVariant,
-          ),
-          Gaps.h12,
-          Text(
-            context.l10n.chatPanelSelectConversationTitle,
-            style: context.text.titleSmall,
-            textAlign: TextAlign.center,
-          ),
-          Gaps.h4,
-          Text(
-            context.l10n.chatPanelSelectConversationMessage,
-            textAlign: TextAlign.center,
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurfaceVariant,
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Sizes.p24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Symbols.forum_rounded, size: 40, color: chat.focusRing),
+            Gaps.h12,
+            Text(
+              context.l10n.chatPanelSelectConversationTitle,
+              style: chat.contentStyle.copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            Gaps.h4,
+            Text(
+              context.l10n.chatPanelSelectConversationMessage,
+              textAlign: TextAlign.center,
+              style: chat.metadataStyle,
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

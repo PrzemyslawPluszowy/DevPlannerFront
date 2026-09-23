@@ -39,6 +39,18 @@ enum ChatPanelSection {
   /// Ustawienia komunikatora.
   settings;
 
+  /// Sekcje listy w kolejności pozycji belki; bez profilu i ustawień, które
+  /// mają własne akcje na dole belki albo w przycisku sekcji.
+  static const List<ChatPanelSection> listSections = <ChatPanelSection>[
+    chats,
+    groups,
+    channels,
+    files,
+    tasks,
+    archived,
+    saved,
+  ];
+
   /// Filtr skrzynki stojący za sekcją; `null` dla sekcji spoza skrzynki.
   ChatInboxFilter? get inboxFilter => switch (this) {
     chats => ChatInboxFilter.all,
@@ -51,6 +63,9 @@ enum ChatPanelSection {
   /// Czy sekcja ma własną listę rozmów (skrzynka, zakładki, rozmowy kontekstowe).
   bool get hasConversationList =>
       inboxFilter != null || this == saved || this == files || this == tasks;
+
+  /// Licznik z endpointu globalnej skrzynki opisuje wyłącznie „Czaty”.
+  bool get showsGlobalUnreadBadge => this == chats;
 }
 
 /// Etykiety, ikony i opisy sekcji panelu.
@@ -89,6 +104,7 @@ extension ChatPanelSectionPresentation on ChatPanelSection {
     ChatPanelSection.chats => const <ChatInboxFilter>[
       ChatInboxFilter.all,
       ChatInboxFilter.unread,
+      ChatInboxFilter.mentions,
       ChatInboxFilter.direct,
     ],
     ChatPanelSection.groups => const <ChatInboxFilter>[ChatInboxFilter.groups],
@@ -111,6 +127,7 @@ extension ChatPanelSectionPresentation on ChatPanelSection {
     return switch (filter) {
       ChatInboxFilter.all => l10n.chatInboxFilterAll,
       ChatInboxFilter.unread => l10n.chatInboxFilterUnread,
+      ChatInboxFilter.mentions => l10n.chatInboxFilterMentions,
       ChatInboxFilter.direct => l10n.chatInboxFilterDirect,
       ChatInboxFilter.groups => l10n.chatInboxFilterGroups,
       ChatInboxFilter.channels => l10n.chatInboxFilterChannels,

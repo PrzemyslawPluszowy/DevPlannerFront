@@ -45,8 +45,8 @@ Map<String, dynamic> _$DashboardPreferenceResponseToJson(
 };
 
 const _$DashboardContextKindEnumMap = {
-  DashboardContextKind.personal: 'personal',
-  DashboardContextKind.project: 'project',
+  DashboardContextKind.personal: 'Personal',
+  DashboardContextKind.project: 'Project',
 };
 
 _WorkspaceActivityItemResponse _$WorkspaceActivityItemResponseFromJson(
@@ -116,8 +116,8 @@ Map<String, dynamic> _$CreateCrossModuleSyncLinkPayloadToJson(
 };
 
 const _$CrossModuleSyncSourceKindEnumMap = {
-  CrossModuleSyncSourceKind.whiteboardStickyNote: 'whiteboardStickyNote',
-  CrossModuleSyncSourceKind.wikiPage: 'wikiPage',
+  CrossModuleSyncSourceKind.whiteboardStickyNote: 'WhiteboardStickyNote',
+  CrossModuleSyncSourceKind.wikiPage: 'WikiPage',
 };
 
 _CrossModuleSyncLinkResponse _$CrossModuleSyncLinkResponseFromJson(
@@ -162,9 +162,9 @@ Map<String, dynamic> _$CrossModuleSyncLinkResponseToJson(
 };
 
 const _$CrossModuleSyncLinkStatusEnumMap = {
-  CrossModuleSyncLinkStatus.active: 'active',
-  CrossModuleSyncLinkStatus.paused: 'paused',
-  CrossModuleSyncLinkStatus.conflict: 'conflict',
+  CrossModuleSyncLinkStatus.active: 'Active',
+  CrossModuleSyncLinkStatus.paused: 'Paused',
+  CrossModuleSyncLinkStatus.conflict: 'Conflict',
 };
 
 _SetCrossModuleSyncLinkStatePayload

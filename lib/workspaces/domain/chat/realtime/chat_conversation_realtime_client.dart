@@ -1,4 +1,6 @@
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_presence.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_user_status_changed.dart';
 
 /// Klasyfikacja błędu lokalnej subskrypcji rozmowy Chat.
 enum ChatConversationRealtimeErrorKind { transport, accessRevoked, protocol }
@@ -23,6 +25,12 @@ abstract interface class ChatConversationRealtimeClient {
   /// Błędy subskrypcji rozróżniające revoke od zwykłej awarii transportu.
   Stream<ChatConversationRealtimeError> get conversationErrors;
 
+  /// Snapshoty obecności online/offline z autoryzowanego Chat Huba.
+  Stream<ChatConversationPresenceSnapshot?> get presenceSnapshots;
+
+  /// Zmiany własnych statusów uczestników aktywnej rozmowy.
+  Stream<ChatUserStatusChanged> get userStatusChanges;
+
   /// Otwiera subskrypcję i ewentualny replay dla wskazanej rozmowy.
   Future<void> start(String conversationId);
 
@@ -34,4 +42,7 @@ abstract interface class ChatConversationRealtimeClient {
   /// Sygnał jest ulotny: serwer trzyma własny TTL, więc brak „stop” nie zostawia
   /// pisania na zawsze.
   Future<void> setTyping(bool isTyping);
+
+  /// Odnawia lease obecności w aktywnej rozmowie.
+  Future<void> heartbeatPresence();
 }

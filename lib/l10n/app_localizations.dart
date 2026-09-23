@@ -17306,6 +17306,42 @@ abstract class AppLocalizations {
   /// **'Your active conversations will appear here.'**
   String get globalChatEmptyMessage;
 
+  /// No description provided for @chatInboxEmptyUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no unread conversations.'**
+  String get chatInboxEmptyUnread;
+
+  /// No description provided for @chatInboxEmptyDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Your direct conversations will appear here.'**
+  String get chatInboxEmptyDirect;
+
+  /// No description provided for @chatInboxEmptyGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Your group conversations will appear here.'**
+  String get chatInboxEmptyGroups;
+
+  /// No description provided for @chatInboxEmptyChannels.
+  ///
+  /// In en, this message translates to:
+  /// **'Your channels and announcements will appear here.'**
+  String get chatInboxEmptyChannels;
+
+  /// No description provided for @chatInboxEmptyMentions.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations will appear here when someone mentions you.'**
+  String get chatInboxEmptyMentions;
+
+  /// No description provided for @chatInboxEmptyArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Your archived conversations will appear here.'**
+  String get chatInboxEmptyArchived;
+
   /// No description provided for @globalChatLoadFailureTitle.
   ///
   /// In en, this message translates to:
@@ -17384,6 +17420,12 @@ abstract class AppLocalizations {
   /// **'Replying to: {message}'**
   String chatComposerReplyTo(String message);
 
+  /// No description provided for @chatReplyOriginalUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Original message unavailable'**
+  String get chatReplyOriginalUnavailable;
+
   /// No description provided for @chatComposerCancelReply.
   ///
   /// In en, this message translates to:
@@ -17395,6 +17437,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reply'**
   String get chatComposerReplyAction;
+
+  /// No description provided for @chatRealtimeConnectionIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat connection interrupted'**
+  String get chatRealtimeConnectionIssue;
 
   /// No description provided for @chatThreadTitle.
   ///
@@ -17852,6 +17900,12 @@ abstract class AppLocalizations {
   /// **'Conversation notification settings'**
   String get chatConversationNotificationSettingsOpen;
 
+  /// No description provided for @chatConversationPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get chatConversationPageTitle;
+
   /// No description provided for @chatConversationNotificationSettingsTitle.
   ///
   /// In en, this message translates to:
@@ -18036,11 +18090,47 @@ abstract class AppLocalizations {
   /// **'Remove attachment'**
   String get chatAttachmentRemove;
 
+  /// No description provided for @chatAttachmentDropHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop files to attach'**
+  String get chatAttachmentDropHere;
+
+  /// No description provided for @chatAttachmentDropFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add the dropped files. Try again.'**
+  String get chatAttachmentDropFailed;
+
+  /// No description provided for @chatAttachmentTooManyFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many files for one message.'**
+  String get chatAttachmentTooManyFiles;
+
+  /// No description provided for @chatAttachmentFileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This file exceeds the per-file size limit.'**
+  String get chatAttachmentFileTooLarge;
+
+  /// No description provided for @chatAttachmentMessageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'The total attachment size exceeds the message limit.'**
+  String get chatAttachmentMessageTooLarge;
+
   /// No description provided for @chatAttachmentStatusProcessing.
   ///
   /// In en, this message translates to:
   /// **'Processing'**
   String get chatAttachmentStatusProcessing;
+
+  /// No description provided for @chatAttachmentRetryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get chatAttachmentRetryAction;
 
   /// No description provided for @chatAttachmentStatusScanning.
   ///
@@ -18882,6 +18972,12 @@ abstract class AppLocalizations {
   /// **'Unread'**
   String get chatInboxFilterUnread;
 
+  /// No description provided for @chatInboxFilterMentions.
+  ///
+  /// In en, this message translates to:
+  /// **'Mentions of me'**
+  String get chatInboxFilterMentions;
+
   /// No description provided for @chatInboxFilterDirect.
   ///
   /// In en, this message translates to:
@@ -18942,6 +19038,66 @@ abstract class AppLocalizations {
   /// **'Conversation muted'**
   String get chatInboxMutedSemantics;
 
+  /// No description provided for @chatInboxOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get chatInboxOpen;
+
+  /// No description provided for @chatInboxMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get chatInboxMute;
+
+  /// No description provided for @chatInboxUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get chatInboxUnmute;
+
+  /// No description provided for @chatInboxArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get chatInboxArchive;
+
+  /// No description provided for @chatInboxRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get chatInboxRestore;
+
+  /// No description provided for @chatInboxInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get chatInboxInfo;
+
+  /// No description provided for @chatInboxRowActionsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation options'**
+  String get chatInboxRowActionsTooltip;
+
+  /// No description provided for @chatAttachmentPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get chatAttachmentPreview;
+
+  /// No description provided for @chatAttachmentDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get chatAttachmentDownload;
+
+  /// No description provided for @chatAttachmentCopyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy name'**
+  String get chatAttachmentCopyName;
+
   /// No description provided for @chatInboxTimeNow.
   ///
   /// In en, this message translates to:
@@ -18971,6 +19127,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load more conversations'**
   String get chatInboxLoadMoreFailed;
+
+  /// No description provided for @chatInboxActionFailureMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not complete this action. Please try again.'**
+  String get chatInboxActionFailureMessage;
 
   /// No description provided for @chatInboxRetry.
   ///
@@ -19122,11 +19284,23 @@ abstract class AppLocalizations {
   /// **'All members'**
   String get chatCreationPostingEveryone;
 
+  /// No description provided for @chatCreationPostingEveryoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in this conversation can send messages.'**
+  String get chatCreationPostingEveryoneHint;
+
   /// No description provided for @chatCreationPostingAdminsOnly.
   ///
   /// In en, this message translates to:
   /// **'Only the owner and moderators'**
   String get chatCreationPostingAdminsOnly;
+
+  /// No description provided for @chatCreationPostingAdminsOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Other members can read and react.'**
+  String get chatCreationPostingAdminsOnlyHint;
 
   /// No description provided for @chatCreationNext.
   ///
@@ -19308,6 +19482,54 @@ abstract class AppLocalizations {
   /// **'Could not load members'**
   String get chatMembersLoadFailureTitle;
 
+  /// No description provided for @chatMembersLoadFailureMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again.'**
+  String get chatMembersLoadFailureMessage;
+
+  /// No description provided for @chatMembersMutationFailureMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update membership. Try again.'**
+  String get chatMembersMutationFailureMessage;
+
+  /// No description provided for @chatActionFailureMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This action could not be completed. Try again.'**
+  String get chatActionFailureMessage;
+
+  /// No description provided for @chatConversationLoadFailureMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this conversation. Try again.'**
+  String get chatConversationLoadFailureMessage;
+
+  /// No description provided for @chatConversationAccessRevokedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You no longer have access to this conversation.'**
+  String get chatConversationAccessRevokedMessage;
+
+  /// No description provided for @chatThreadLoadFailureMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this thread. Try again.'**
+  String get chatThreadLoadFailureMessage;
+
+  /// No description provided for @chatDiscussionLoadFailureMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this discussion. Try again.'**
+  String get chatDiscussionLoadFailureMessage;
+
+  /// No description provided for @chatMessageEditConflictMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This message changed in the meantime. Close and reopen the editor.'**
+  String get chatMessageEditConflictMessage;
+
   /// No description provided for @chatMembersYou.
   ///
   /// In en, this message translates to:
@@ -19320,11 +19542,29 @@ abstract class AppLocalizations {
   /// **'Member actions'**
   String get chatMembersActions;
 
+  /// No description provided for @chatMembersOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Members and add people'**
+  String get chatMembersOpen;
+
   /// No description provided for @chatMembersRemove.
   ///
   /// In en, this message translates to:
   /// **'Remove from conversation'**
   String get chatMembersRemove;
+
+  /// No description provided for @chatMembersRemoveConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this person?'**
+  String get chatMembersRemoveConfirmationTitle;
+
+  /// No description provided for @chatMembersRemoveConfirmationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will lose access to this conversation.'**
+  String chatMembersRemoveConfirmationBody(String name);
 
   /// No description provided for @chatMembersLeave.
   ///
@@ -19452,6 +19692,12 @@ abstract class AppLocalizations {
   /// **'Search failed'**
   String get chatSearchFailureTitle;
 
+  /// No description provided for @chatSearchConversationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This conversation is unavailable or you no longer have access.'**
+  String get chatSearchConversationUnavailable;
+
   /// No description provided for @chatSearchRateLimitedTitle.
   ///
   /// In en, this message translates to:
@@ -19463,6 +19709,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No results'**
   String get chatSearchEmptyTitle;
+
+  /// No description provided for @chatSearchOpenResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in conversation'**
+  String get chatSearchOpenResult;
+
+  /// No description provided for @chatSearchCopySnippet.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy snippet'**
+  String get chatSearchCopySnippet;
 
   /// No description provided for @chatSearchEmptyMessage.
   ///
@@ -19487,6 +19745,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No pinned messages.'**
   String get chatPinnedEmpty;
+
+  /// No description provided for @chatPinnedMessageFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned message'**
+  String get chatPinnedMessageFallback;
 
   /// No description provided for @chatPinnedAt.
   ///
@@ -19529,6 +19793,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unmute conversation'**
   String get chatMuteUnmute;
+
+  /// No description provided for @chatPeerOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'online'**
+  String get chatPeerOnline;
+
+  /// No description provided for @chatPeerOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'offline'**
+  String get chatPeerOffline;
 
   /// No description provided for @chatStatusTitle.
   ///
@@ -19602,6 +19878,198 @@ abstract class AppLocalizations {
   /// **'In 24 hours'**
   String get chatStatusExpiryDay;
 
+  /// No description provided for @chatStatusPresets.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready statuses'**
+  String get chatStatusPresets;
+
+  /// No description provided for @chatPersonWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get chatPersonWrite;
+
+  /// No description provided for @chatPersonWriteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the conversation.'**
+  String get chatPersonWriteFailed;
+
+  /// No description provided for @chatHeaderParticipantCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {{count} participant} other {{count} participants}}'**
+  String chatHeaderParticipantCount(int count);
+
+  /// No description provided for @chatNewMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {{count} new message} other {{count} new messages}}'**
+  String chatNewMessages(int count);
+
+  /// No description provided for @chatMessageCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy message'**
+  String get chatMessageCopy;
+
+  /// No description provided for @chatMessageCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Message copied'**
+  String get chatMessageCopied;
+
+  /// No description provided for @chatMessageCopyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not copy.'**
+  String get chatMessageCopyFailed;
+
+  /// No description provided for @chatMessageCopySelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy selection'**
+  String get chatMessageCopySelection;
+
+  /// No description provided for @chatLongPasteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Long text — send it as a .txt file'**
+  String get chatLongPasteTitle;
+
+  /// No description provided for @chatLongPasteFileDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {size}'**
+  String chatLongPasteFileDetails(String name, String size);
+
+  /// No description provided for @chatLongPasteSendAsFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Send as file'**
+  String get chatLongPasteSendAsFile;
+
+  /// No description provided for @chatLongPasteKeepAsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep as text'**
+  String get chatLongPasteKeepAsText;
+
+  /// No description provided for @chatLongPasteCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel paste'**
+  String get chatLongPasteCancel;
+
+  /// No description provided for @chatLongPasteOverLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The text exceeds the limit for a single message; send it as a file.'**
+  String get chatLongPasteOverLimit;
+
+  /// No description provided for @chatLongPasteTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'The server shortened the content to its limit; the full text is not kept in the file.'**
+  String get chatLongPasteTruncated;
+
+  /// No description provided for @chatLongPastePrepareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not prepare the file. The text stays in the draft.'**
+  String get chatLongPastePrepareFailed;
+
+  /// No description provided for @chatLongPasteAttachmentTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'The text exceeds the single file size limit. Save it in smaller parts.'**
+  String get chatLongPasteAttachmentTooLarge;
+
+  /// No description provided for @chatLinkOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get chatLinkOpen;
+
+  /// No description provided for @chatLinkCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get chatLinkCopy;
+
+  /// No description provided for @chatLinkOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link.'**
+  String get chatLinkOpenFailed;
+
+  /// No description provided for @chatReactionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reaction'**
+  String get chatReactionAdd;
+
+  /// No description provided for @chatStatusPresetFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus'**
+  String get chatStatusPresetFocus;
+
+  /// No description provided for @chatStatusPresetInMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'In a meeting'**
+  String get chatStatusPresetInMeeting;
+
+  /// No description provided for @chatStatusPresetBrb.
+  ///
+  /// In en, this message translates to:
+  /// **'Be right back'**
+  String get chatStatusPresetBrb;
+
+  /// No description provided for @chatStatusPresetCommuting.
+  ///
+  /// In en, this message translates to:
+  /// **'Commuting'**
+  String get chatStatusPresetCommuting;
+
+  /// No description provided for @chatStatusPresetLunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch break'**
+  String get chatStatusPresetLunch;
+
+  /// No description provided for @chatStatusExpiryToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get chatStatusExpiryToday;
+
+  /// No description provided for @chatStatusExpiryUnchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'No change'**
+  String get chatStatusExpiryUnchanged;
+
+  /// No description provided for @chatStatusNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No status'**
+  String get chatStatusNone;
+
+  /// No description provided for @chatStatusLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your current status. Try again before editing.'**
+  String get chatStatusLoadFailed;
+
+  /// No description provided for @chatStatusPickEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick emoji'**
+  String get chatStatusPickEmoji;
+
   /// No description provided for @chatStatusLoadFailure.
   ///
   /// In en, this message translates to:
@@ -19638,11 +20106,365 @@ abstract class AppLocalizations {
   /// **'[unsupported content]'**
   String get chatRichTextUnsupported;
 
+  /// No description provided for @chatMentionPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 2 characters to find a person'**
+  String get chatMentionPickerHint;
+
+  /// No description provided for @chatMentionPickerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching people'**
+  String get chatMentionPickerEmpty;
+
+  /// No description provided for @chatMentionAllOption.
+  ///
+  /// In en, this message translates to:
+  /// **'All eligible participants'**
+  String get chatMentionAllOption;
+
+  /// No description provided for @chatWindowHistoryBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewing around the selected message'**
+  String get chatWindowHistoryBanner;
+
+  /// No description provided for @chatWindowHistoryLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Show latest'**
+  String get chatWindowHistoryLatest;
+
+  /// No description provided for @chatComposerInsertCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert code'**
+  String get chatComposerInsertCode;
+
+  /// No description provided for @chatComposerCodeLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language (optional)'**
+  String get chatComposerCodeLanguage;
+
+  /// No description provided for @chatComposerCodeContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get chatComposerCodeContent;
+
+  /// No description provided for @chatComposerCodeSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert'**
+  String get chatComposerCodeSubmit;
+
+  /// No description provided for @chatMessageStatusSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get chatMessageStatusSending;
+
+  /// No description provided for @chatMessageStatusSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get chatMessageStatusSent;
+
+  /// No description provided for @chatMessageStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent'**
+  String get chatMessageStatusFailed;
+
+  /// No description provided for @chatMessageStatusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered: {count}'**
+  String chatMessageStatusDelivered(int count);
+
+  /// No description provided for @chatMessageStatusRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read: {count}'**
+  String chatMessageStatusRead(int count);
+
+  /// No description provided for @chatMessageEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'edited'**
+  String get chatMessageEdited;
+
+  /// No description provided for @chatMessageRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get chatMessageRetry;
+
+  /// No description provided for @chatAttachmentUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'File unavailable'**
+  String get chatAttachmentUnavailable;
+
+  /// No description provided for @chatAttachmentOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open file'**
+  String get chatAttachmentOpen;
+
+  /// No description provided for @chatComposerMoreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get chatComposerMoreActions;
+
+  /// No description provided for @chatComposerAddImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get chatComposerAddImage;
+
+  /// No description provided for @chatComposerAddFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get chatComposerAddFile;
+
+  /// No description provided for @chatComposerAttachmentsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'File attachments are unavailable in this session.'**
+  String get chatComposerAttachmentsUnavailable;
+
+  /// No description provided for @chatComposerTextAsFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Send as text file'**
+  String get chatComposerTextAsFile;
+
+  /// No description provided for @chatComposerTextAsFileUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending long text as a file is not available yet.'**
+  String get chatComposerTextAsFileUnavailable;
+
+  /// No description provided for @chatComposerExpandedEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Expanded editor'**
+  String get chatComposerExpandedEditor;
+
+  /// No description provided for @chatComposerEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Emoji'**
+  String get chatComposerEmoji;
+
+  /// No description provided for @chatComposerBold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get chatComposerBold;
+
+  /// No description provided for @chatComposerItalic.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get chatComposerItalic;
+
+  /// No description provided for @chatComposerStrike.
+  ///
+  /// In en, this message translates to:
+  /// **'Strikethrough'**
+  String get chatComposerStrike;
+
+  /// No description provided for @chatComposerInlineCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Inline code'**
+  String get chatComposerInlineCode;
+
+  /// No description provided for @chatComposerLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get chatComposerLink;
+
+  /// No description provided for @chatComposerClearFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear formatting'**
+  String get chatComposerClearFormat;
+
+  /// No description provided for @chatComposerMoreFormatting.
+  ///
+  /// In en, this message translates to:
+  /// **'More formatting options'**
+  String get chatComposerMoreFormatting;
+
+  /// No description provided for @chatComposerLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link address'**
+  String get chatComposerLinkTitle;
+
+  /// No description provided for @chatComposerLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://…'**
+  String get chatComposerLinkHint;
+
+  /// No description provided for @chatComposerLinkApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get chatComposerLinkApply;
+
+  /// No description provided for @chatComposerUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get chatComposerUndo;
+
+  /// No description provided for @chatComposerRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get chatComposerRedo;
+
+  /// No description provided for @chatComposerBulletList.
+  ///
+  /// In en, this message translates to:
+  /// **'Bullet list'**
+  String get chatComposerBulletList;
+
+  /// No description provided for @chatComposerOrderedList.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbered list'**
+  String get chatComposerOrderedList;
+
+  /// No description provided for @chatComposerQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote'**
+  String get chatComposerQuote;
+
+  /// No description provided for @chatComposerCodeBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Code block'**
+  String get chatComposerCodeBlock;
+
+  /// No description provided for @chatComposerSendShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Send: Ctrl/Cmd+Enter'**
+  String get chatComposerSendShortcut;
+
+  /// No description provided for @chatComposerPastePlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste without formatting'**
+  String get chatComposerPastePlain;
+
+  /// No description provided for @chatComposerSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get chatComposerSelectAll;
+
+  /// No description provided for @chatEmojiSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search emoji'**
+  String get chatEmojiSearchHint;
+
+  /// No description provided for @chatEmojiRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently used'**
+  String get chatEmojiRecent;
+
+  /// No description provided for @chatEmojiSkinTone.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin tone'**
+  String get chatEmojiSkinTone;
+
+  /// No description provided for @chatEmojiEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No emoji match'**
+  String get chatEmojiEmpty;
+
+  /// No description provided for @chatEmojiCategoryPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get chatEmojiCategoryPeople;
+
+  /// No description provided for @chatEmojiCategoryNature.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature'**
+  String get chatEmojiCategoryNature;
+
+  /// No description provided for @chatEmojiCategoryFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get chatEmojiCategoryFood;
+
+  /// No description provided for @chatEmojiCategoryActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get chatEmojiCategoryActivity;
+
+  /// No description provided for @chatEmojiCategoryTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get chatEmojiCategoryTravel;
+
+  /// No description provided for @chatEmojiCategoryObjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Objects'**
+  String get chatEmojiCategoryObjects;
+
+  /// No description provided for @chatEmojiCategorySymbols.
+  ///
+  /// In en, this message translates to:
+  /// **'Symbols'**
+  String get chatEmojiCategorySymbols;
+
   /// No description provided for @chatTypingIndicator.
   ///
   /// In en, this message translates to:
   /// **'typing…'**
   String get chatTypingIndicator;
+
+  /// No description provided for @chatTypingOne.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is typing…'**
+  String chatTypingOne(String name);
+
+  /// No description provided for @chatTypingTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {second} are typing…'**
+  String chatTypingTwo(String first, String second);
+
+  /// No description provided for @chatTypingMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {others, plural, one {{others} other person} other {{others} other people}} are typing…'**
+  String chatTypingMany(String first, int others);
 
   /// No description provided for @chatArchiveAction.
   ///
@@ -19817,18 +20639,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This tab will show conversations created on a task once someone adds you or mentions you. The Kanban integration is not connected yet.'**
   String get chatTasksNotConnectedMessage;
-
-  /// No description provided for @chatContextPreviewOpen.
-  ///
-  /// In en, this message translates to:
-  /// **'UI preview'**
-  String get chatContextPreviewOpen;
-
-  /// No description provided for @chatContextPreviewLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'UI preview — sample data'**
-  String get chatContextPreviewLabel;
 
   /// No description provided for @chatContextSourceUnavailable.
   ///

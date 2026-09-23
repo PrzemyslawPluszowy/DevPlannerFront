@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 /// Kontekst preferencji dashboardu.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum DashboardContextKind { personal, project }
 
 /// Stabilna reprezentacja tekstowa używana w query API.
@@ -13,9 +13,9 @@ extension DashboardContextKindWireValue on DashboardContextKind {
 }
 
 /// Typ źródła linku synchronizacji z zadaniem.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum CrossModuleSyncSourceKind { whiteboardStickyNote, wikiPage }
 
 /// Stan linku synchronizacji między modułami.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum CrossModuleSyncLinkStatus { active, paused, conflict }

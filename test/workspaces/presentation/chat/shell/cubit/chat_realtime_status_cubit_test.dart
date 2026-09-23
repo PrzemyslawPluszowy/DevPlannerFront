@@ -14,7 +14,7 @@ void main() {
     addTearDown(realtime.dispose);
 
     await Future<void>.delayed(Duration.zero);
-    expect(cubit.state, WorkspaceSignalRConnectionState.disconnected);
+    expect(cubit.state, WorkspaceSignalRConnectionState.connecting);
 
     transport.emitConnectionState(
       WorkspaceSignalRConnectionState.reconnecting,
@@ -25,5 +25,11 @@ void main() {
     transport.emitConnectionState(WorkspaceSignalRConnectionState.connected);
     await Future<void>.delayed(Duration.zero);
     expect(cubit.state, WorkspaceSignalRConnectionState.connected);
+
+    transport.emitConnectionState(
+      WorkspaceSignalRConnectionState.disconnected,
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(cubit.state, WorkspaceSignalRConnectionState.disconnected);
   });
 }

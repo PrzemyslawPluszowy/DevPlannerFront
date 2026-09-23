@@ -9746,6 +9746,28 @@ class AppLocalizationsPl extends AppLocalizations {
       'Twoje aktywne rozmowy pojawią się tutaj.';
 
   @override
+  String get chatInboxEmptyUnread => 'Nie masz nieprzeczytanych rozmów.';
+
+  @override
+  String get chatInboxEmptyDirect =>
+      'Twoje rozmowy indywidualne pojawią się tutaj.';
+
+  @override
+  String get chatInboxEmptyGroups => 'Twoje rozmowy grupowe pojawią się tutaj.';
+
+  @override
+  String get chatInboxEmptyChannels =>
+      'Twoje kanały i ogłoszenia pojawią się tutaj.';
+
+  @override
+  String get chatInboxEmptyMentions =>
+      'Gdy ktoś o Tobie wspomni, rozmowa pojawi się tutaj.';
+
+  @override
+  String get chatInboxEmptyArchived =>
+      'Zarchiwizowane rozmowy pojawią się tutaj.';
+
+  @override
   String get globalChatLoadFailureTitle => 'Nie udało się pobrać rozmów';
 
   @override
@@ -9789,10 +9811,18 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get chatReplyOriginalUnavailable =>
+      'Oryginalna wiadomość jest niedostępna';
+
+  @override
   String get chatComposerCancelReply => 'Anuluj odpowiedź';
 
   @override
   String get chatComposerReplyAction => 'Odpowiedz';
+
+  @override
+  String get chatRealtimeConnectionIssue =>
+      'Połączenie czatu zostało przerwane';
 
   @override
   String get chatThreadTitle => 'Wątek';
@@ -10047,6 +10077,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ustawienia powiadomień rozmowy';
 
   @override
+  String get chatConversationPageTitle => 'Rozmowa';
+
+  @override
   String get chatConversationNotificationSettingsTitle =>
       'Powiadomienia rozmowy';
 
@@ -10152,7 +10185,29 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatAttachmentRemove => 'Usuń załącznik';
 
   @override
+  String get chatAttachmentDropHere => 'Upuść pliki, aby je załączyć';
+
+  @override
+  String get chatAttachmentDropFailed =>
+      'Nie udało się dodać upuszczonych plików. Spróbuj ponownie.';
+
+  @override
+  String get chatAttachmentTooManyFiles =>
+      'Za dużo plików w jednej wiadomości.';
+
+  @override
+  String get chatAttachmentFileTooLarge =>
+      'Ten plik przekracza dozwolony rozmiar.';
+
+  @override
+  String get chatAttachmentMessageTooLarge =>
+      'Łączny rozmiar załączników przekracza limit wiadomości.';
+
+  @override
   String get chatAttachmentStatusProcessing => 'Przetwarzanie';
+
+  @override
+  String get chatAttachmentRetryAction => 'Spróbuj ponownie';
 
   @override
   String get chatAttachmentStatusScanning => 'Skanowanie';
@@ -10646,6 +10701,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatInboxFilterUnread => 'Nieprzeczytane';
 
   @override
+  String get chatInboxFilterMentions => 'Wzmianki o mnie';
+
+  @override
   String get chatInboxFilterDirect => 'Bezpośrednie';
 
   @override
@@ -10681,6 +10739,36 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatInboxMutedSemantics => 'Rozmowa wyciszona';
 
   @override
+  String get chatInboxOpen => 'Otwórz';
+
+  @override
+  String get chatInboxMute => 'Wycisz';
+
+  @override
+  String get chatInboxUnmute => 'Włącz powiadomienia';
+
+  @override
+  String get chatInboxArchive => 'Archiwizuj';
+
+  @override
+  String get chatInboxRestore => 'Przywróć';
+
+  @override
+  String get chatInboxInfo => 'Informacje';
+
+  @override
+  String get chatInboxRowActionsTooltip => 'Opcje rozmowy';
+
+  @override
+  String get chatAttachmentPreview => 'Podgląd';
+
+  @override
+  String get chatAttachmentDownload => 'Pobierz';
+
+  @override
+  String get chatAttachmentCopyName => 'Kopiuj nazwę';
+
+  @override
   String get chatInboxTimeNow => 'teraz';
 
   @override
@@ -10700,6 +10788,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatInboxLoadMoreFailed => 'Nie udało się pobrać kolejnych rozmów';
+
+  @override
+  String get chatInboxActionFailureMessage =>
+      'Nie udało się wykonać tej akcji. Spróbuj ponownie.';
 
   @override
   String get chatInboxRetry => 'Spróbuj ponownie';
@@ -10779,7 +10871,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatCreationPostingEveryone => 'Wszyscy członkowie';
 
   @override
+  String get chatCreationPostingEveryoneHint =>
+      'Każda osoba w rozmowie może wysyłać wiadomości.';
+
+  @override
   String get chatCreationPostingAdminsOnly => 'Tylko właściciel i moderatorzy';
+
+  @override
+  String get chatCreationPostingAdminsOnlyHint =>
+      'Pozostali członkowie mogą czytać i reagować.';
 
   @override
   String get chatCreationNext => 'Dalej';
@@ -10880,13 +10980,56 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatMembersLoadFailureTitle => 'Nie udało się pobrać członków';
 
   @override
+  String get chatMembersLoadFailureMessage =>
+      'Sprawdź połączenie i spróbuj ponownie.';
+
+  @override
+  String get chatMembersMutationFailureMessage =>
+      'Nie udało się zmienić członkostwa. Spróbuj ponownie.';
+
+  @override
+  String get chatActionFailureMessage =>
+      'Nie udało się wykonać tej czynności. Spróbuj ponownie.';
+
+  @override
+  String get chatConversationLoadFailureMessage =>
+      'Nie udało się wczytać rozmowy. Spróbuj ponownie.';
+
+  @override
+  String get chatConversationAccessRevokedMessage =>
+      'Nie masz już dostępu do tej rozmowy.';
+
+  @override
+  String get chatThreadLoadFailureMessage =>
+      'Nie udało się wczytać wątku. Spróbuj ponownie.';
+
+  @override
+  String get chatDiscussionLoadFailureMessage =>
+      'Nie udało się wczytać dyskusji. Spróbuj ponownie.';
+
+  @override
+  String get chatMessageEditConflictMessage =>
+      'Wiadomość zmieniła się w międzyczasie. Zamknij i otwórz edycję ponownie.';
+
+  @override
   String get chatMembersYou => 'Ty';
 
   @override
   String get chatMembersActions => 'Akcje członka';
 
   @override
+  String get chatMembersOpen => 'Członkowie i dodawanie osób';
+
+  @override
   String get chatMembersRemove => 'Usuń z rozmowy';
+
+  @override
+  String get chatMembersRemoveConfirmationTitle => 'Usunąć osobę z rozmowy?';
+
+  @override
+  String chatMembersRemoveConfirmationBody(String name) {
+    return '$name utraci dostęp do tej rozmowy.';
+  }
 
   @override
   String get chatMembersLeave => 'Opuść rozmowę';
@@ -10959,10 +11102,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatSearchFailureTitle => 'Nie udało się wyszukać';
 
   @override
+  String get chatSearchConversationUnavailable =>
+      'Ta rozmowa jest niedostępna lub nie masz już do niej dostępu.';
+
+  @override
   String get chatSearchRateLimitedTitle => 'Zbyt wiele zapytań';
 
   @override
   String get chatSearchEmptyTitle => 'Brak wyników';
+
+  @override
+  String get chatSearchOpenResult => 'Otwórz w rozmowie';
+
+  @override
+  String get chatSearchCopySnippet => 'Kopiuj fragment';
 
   @override
   String get chatSearchEmptyMessage =>
@@ -10976,6 +11129,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatPinnedEmpty => 'Brak przypiętych wiadomości.';
+
+  @override
+  String get chatPinnedMessageFallback => 'Przypięta wiadomość';
 
   @override
   String chatPinnedAt(String at) {
@@ -10999,6 +11155,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatMuteUnmute => 'Wyłącz wyciszenie';
+
+  @override
+  String get chatPeerOnline => 'online';
+
+  @override
+  String get chatPeerOffline => 'offline';
 
   @override
   String get chatStatusTitle => 'Twój status';
@@ -11037,6 +11199,129 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatStatusExpiryDay => 'Za 24 godziny';
 
   @override
+  String get chatStatusPresets => 'Gotowe statusy';
+
+  @override
+  String get chatPersonWrite => 'Napisz';
+
+  @override
+  String get chatPersonWriteFailed => 'Nie udało się otworzyć rozmowy.';
+
+  @override
+  String chatHeaderParticipantCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count uczestników',
+      many: '$count uczestników',
+      few: '$count uczestników',
+      one: '$count uczestnik',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String chatNewMessages(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nowych wiadomości',
+      many: '$count nowych wiadomości',
+      few: '$count nowe wiadomości',
+      one: '$count nowa wiadomość',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatMessageCopy => 'Kopiuj wiadomość';
+
+  @override
+  String get chatMessageCopied => 'Skopiowano wiadomość';
+
+  @override
+  String get chatMessageCopyFailed => 'Nie udało się skopiować.';
+
+  @override
+  String get chatMessageCopySelection => 'Kopiuj zaznaczenie';
+
+  @override
+  String get chatLongPasteTitle => 'Długi tekst — wyślij jako plik .txt';
+
+  @override
+  String chatLongPasteFileDetails(String name, String size) {
+    return '$name · $size';
+  }
+
+  @override
+  String get chatLongPasteSendAsFile => 'Wyślij jako plik';
+
+  @override
+  String get chatLongPasteKeepAsText => 'Zostaw jako tekst';
+
+  @override
+  String get chatLongPasteCancel => 'Anuluj wklejenie';
+
+  @override
+  String get chatLongPasteOverLimit =>
+      'Tekst przekracza limit pojedynczej wiadomości; wyślij go jako plik.';
+
+  @override
+  String get chatLongPasteTruncated =>
+      'Serwer skrócił treść do swojego limitu; pełny tekst nie zmieści się w pliku.';
+
+  @override
+  String get chatLongPastePrepareFailed =>
+      'Nie udało się przygotować pliku. Tekst zostaje w szkicu.';
+
+  @override
+  String get chatLongPasteAttachmentTooLarge =>
+      'Tekst jest większy niż limit pojedynczego pliku. Zapisz go mniejszymi częściami.';
+
+  @override
+  String get chatLinkOpen => 'Otwórz';
+
+  @override
+  String get chatLinkCopy => 'Kopiuj adres';
+
+  @override
+  String get chatLinkOpenFailed => 'Nie udało się otworzyć linku.';
+
+  @override
+  String get chatReactionAdd => 'Dodaj reakcję';
+
+  @override
+  String get chatStatusPresetFocus => 'Skupienie';
+
+  @override
+  String get chatStatusPresetInMeeting => 'Na spotkaniu';
+
+  @override
+  String get chatStatusPresetBrb => 'Zaraz wracam';
+
+  @override
+  String get chatStatusPresetCommuting => 'W drodze';
+
+  @override
+  String get chatStatusPresetLunch => 'Przerwa na posiłek';
+
+  @override
+  String get chatStatusExpiryToday => 'Dzisiaj';
+
+  @override
+  String get chatStatusExpiryUnchanged => 'Bez zmian';
+
+  @override
+  String get chatStatusNone => 'Brak statusu';
+
+  @override
+  String get chatStatusLoadFailed =>
+      'Nie udało się pobrać obecnego statusu. Spróbuj ponownie przed edycją.';
+
+  @override
+  String get chatStatusPickEmoji => 'Wybierz emoji';
+
+  @override
   String get chatStatusLoadFailure => 'Nie udało się pobrać statusu';
 
   @override
@@ -11055,7 +11340,205 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatRichTextUnsupported => '[nieobsługiwana treść]';
 
   @override
+  String get chatMentionPickerHint =>
+      'Wpisz co najmniej 2 znaki, aby znaleźć osobę';
+
+  @override
+  String get chatMentionPickerEmpty => 'Brak pasujących osób';
+
+  @override
+  String get chatMentionAllOption => 'Wszyscy uprawnieni uczestnicy';
+
+  @override
+  String get chatWindowHistoryBanner => 'Widok wokół wskazanej wiadomości';
+
+  @override
+  String get chatWindowHistoryLatest => 'Pokaż najnowsze';
+
+  @override
+  String get chatComposerInsertCode => 'Wstaw kod';
+
+  @override
+  String get chatComposerCodeLanguage => 'Język (opcjonalnie)';
+
+  @override
+  String get chatComposerCodeContent => 'Kod';
+
+  @override
+  String get chatComposerCodeSubmit => 'Wstaw';
+
+  @override
+  String get chatMessageStatusSending => 'Wysyłanie…';
+
+  @override
+  String get chatMessageStatusSent => 'Wysłano';
+
+  @override
+  String get chatMessageStatusFailed => 'Nie wysłano';
+
+  @override
+  String chatMessageStatusDelivered(int count) {
+    return 'Dostarczono: $count';
+  }
+
+  @override
+  String chatMessageStatusRead(int count) {
+    return 'Odczytano: $count';
+  }
+
+  @override
+  String get chatMessageEdited => 'edytowano';
+
+  @override
+  String get chatMessageRetry => 'Ponów';
+
+  @override
+  String get chatAttachmentUnavailable => 'Plik niedostępny';
+
+  @override
+  String get chatAttachmentOpen => 'Otwórz plik';
+
+  @override
+  String get chatComposerMoreActions => 'Więcej akcji';
+
+  @override
+  String get chatComposerAddImage => 'Zdjęcie';
+
+  @override
+  String get chatComposerAddFile => 'Plik';
+
+  @override
+  String get chatComposerAttachmentsUnavailable =>
+      'Załączniki plików są niedostępne w tej sesji.';
+
+  @override
+  String get chatComposerTextAsFile => 'Tekst jako plik';
+
+  @override
+  String get chatComposerTextAsFileUnavailable =>
+      'Wysyłanie długiego tekstu jako pliku nie jest jeszcze dostępne.';
+
+  @override
+  String get chatComposerExpandedEditor => 'Rozbudowany edytor';
+
+  @override
+  String get chatComposerEmoji => 'Emoji';
+
+  @override
+  String get chatComposerBold => 'Pogrubienie';
+
+  @override
+  String get chatComposerItalic => 'Kursywa';
+
+  @override
+  String get chatComposerStrike => 'Przekreślenie';
+
+  @override
+  String get chatComposerInlineCode => 'Kod inline';
+
+  @override
+  String get chatComposerLink => 'Link';
+
+  @override
+  String get chatComposerClearFormat => 'Wyłącz formatowanie';
+
+  @override
+  String get chatComposerMoreFormatting => 'Więcej opcji formatowania';
+
+  @override
+  String get chatComposerLinkTitle => 'Adres linku';
+
+  @override
+  String get chatComposerLinkHint => 'https://…';
+
+  @override
+  String get chatComposerLinkApply => 'Zastosuj';
+
+  @override
+  String get chatComposerUndo => 'Cofnij';
+
+  @override
+  String get chatComposerRedo => 'Ponów';
+
+  @override
+  String get chatComposerBulletList => 'Lista punktowana';
+
+  @override
+  String get chatComposerOrderedList => 'Lista numerowana';
+
+  @override
+  String get chatComposerQuote => 'Cytat';
+
+  @override
+  String get chatComposerCodeBlock => 'Blok kodu';
+
+  @override
+  String get chatComposerSendShortcut => 'Wyślij: Ctrl/Cmd+Enter';
+
+  @override
+  String get chatComposerPastePlain => 'Wklej bez formatowania';
+
+  @override
+  String get chatComposerSelectAll => 'Zaznacz wszystko';
+
+  @override
+  String get chatEmojiSearchHint => 'Szukaj emoji';
+
+  @override
+  String get chatEmojiRecent => 'Ostatnio użyte';
+
+  @override
+  String get chatEmojiSkinTone => 'Odcień skóry';
+
+  @override
+  String get chatEmojiEmpty => 'Brak pasujących emoji';
+
+  @override
+  String get chatEmojiCategoryPeople => 'Ludzie';
+
+  @override
+  String get chatEmojiCategoryNature => 'Przyroda';
+
+  @override
+  String get chatEmojiCategoryFood => 'Jedzenie';
+
+  @override
+  String get chatEmojiCategoryActivity => 'Aktywność';
+
+  @override
+  String get chatEmojiCategoryTravel => 'Podróże';
+
+  @override
+  String get chatEmojiCategoryObjects => 'Przedmioty';
+
+  @override
+  String get chatEmojiCategorySymbols => 'Symbole';
+
+  @override
   String get chatTypingIndicator => 'Pisze…';
+
+  @override
+  String chatTypingOne(String name) {
+    return '$name pisze…';
+  }
+
+  @override
+  String chatTypingTwo(String first, String second) {
+    return '$first i $second piszą…';
+  }
+
+  @override
+  String chatTypingMany(String first, int others) {
+    String _temp0 = intl.Intl.pluralLogic(
+      others,
+      locale: localeName,
+      other: '$others innych osób',
+      many: '$others innych osób',
+      few: '$others inne osoby',
+      one: '$others inna osoba',
+    );
+    return '$first i $_temp0 piszą…';
+  }
 
   @override
   String get chatArchiveAction => 'Archiwizuj rozmowę';
@@ -11149,12 +11632,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get chatTasksNotConnectedMessage =>
       'Zakładka pokaże rozmowy utworzone przy zadaniu, gdy ktoś doda Cię do rozmowy albo oznaczy wzmianką. Integracja Kanban nie jest jeszcze podłączona.';
-
-  @override
-  String get chatContextPreviewOpen => 'Podgląd UI';
-
-  @override
-  String get chatContextPreviewLabel => 'Podgląd UI — dane przykładowe';
 
   @override
   String get chatContextSourceUnavailable => 'Źródło niedostępne';

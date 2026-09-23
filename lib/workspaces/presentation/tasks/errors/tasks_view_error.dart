@@ -59,11 +59,12 @@ final class TasksViewError {
 ///
 /// Zwraca `null`, gdy kod jest komunikatem z Backendu albo kodem spoza tej
 /// mapy — wtedy prezentacja sięga po tłumaczenie właściwe dla widoku.
-String? tasksViewErrorText(AppLocalizations l10n, String code) => switch (code) {
-  TasksViewErrorCodes.versionConflict => l10n.tasksListPreferencesConflict,
-  TasksViewErrorCodes.loadFailed => l10n.tasksViewPreferencesLoadFailed,
-  _ => null,
-};
+String? tasksViewErrorText(AppLocalizations l10n, String code) =>
+    switch (code) {
+      TasksViewErrorCodes.versionConflict => l10n.tasksListPreferencesConflict,
+      TasksViewErrorCodes.loadFailed => l10n.tasksViewPreferencesLoadFailed,
+      _ => null,
+    };
 
 /// Buduje błąd widoku z odpowiedzi API, zachowując identyfikator korelacji.
 TasksViewError tasksViewErrorFrom(ApiError error) =>

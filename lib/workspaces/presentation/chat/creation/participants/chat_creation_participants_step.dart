@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/models/chat_directory_entry.dart';
 import 'package:devplanner/workspaces/domain/chat/management/models/chat_conversation_create_command.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_cubit.dart';
@@ -34,6 +35,7 @@ class _ChatCreationParticipantsStepState
   @override
   Widget build(BuildContext context) {
     final state = context.watch<ChatCreationCubit>().state;
+    final chat = context.chatTheme;
     final isDirect = state.kind == ChatConversationKind.direct;
     final search = context.read<ChatDirectorySearchCubit>();
     return Column(
@@ -44,7 +46,7 @@ class _ChatCreationParticipantsStepState
           isDirect
               ? context.l10n.chatCreationKindDirectHint
               : context.l10n.chatCreationKindGroupHint,
-          style: Theme.of(context).textTheme.bodySmall,
+          style: chat.metadataStyle.copyWith(color: chat.metadataText),
         ),
         const SizedBox(height: Sizes.p8),
         TextField(
@@ -53,31 +55,52 @@ class _ChatCreationParticipantsStepState
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             isDense: true,
-            prefixIcon: const Icon(Symbols.search, size: 18),
+            filled: true,
+            fillColor: chat.composerSurface,
+            prefixIcon: Icon(
+              Symbols.search,
+              size: 18,
+              color: chat.metadataText,
+            ),
             hintText: context.l10n.chatCreationSearchHint,
+            hintStyle: chat.contentStyle.copyWith(color: chat.metadataText),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: chat.separator),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: chat.separator),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: chat.focusRing),
+            ),
           ),
+          style: chat.contentStyle.copyWith(color: chat.incomingText),
           onChanged: search.updateQuery,
         ),
         const SizedBox(height: Sizes.p8),
         BlocBuilder<ChatDirectorySearchCubit, ChatDirectorySearchState>(
-            bloc: search,
-            builder: (context, searchState) => _CatalogResults(
-              state: searchState,
-              selected: state.participants.map((entry) => entry.userId).toSet(),
-              existingDirect: state.existingDirectConversationIds,
-              isDirect: isDirect,
-              busy: state.isSubmitting,
-              onToggle: context.read<ChatCreationCubit>().toggleParticipant,
-              onStartDirect: (entry) => unawaited(
-                context.read<ChatCreationCubit>().startDirectWith(entry),
-              ),
-              onRetry: search.retry,
+          bloc: search,
+          builder: (context, searchState) => _CatalogResults(
+            state: searchState,
+            selected: state.participants.map((entry) => entry.userId).toSet(),
+            existingDirect: state.existingDirectConversationIds,
+            isDirect: isDirect,
+            busy: state.isSubmitting,
+            onToggle: context.read<ChatCreationCubit>().toggleParticipant,
+            onStartDirect: (entry) => unawaited(
+              context.read<ChatCreationCubit>().startDirectWith(entry),
             ),
+            onRetry: search.retry,
           ),
+        ),
         const SizedBox(height: Sizes.p12),
         _SelectedParticipants(
           participants: state.participants,
           existingDirect: state.existingDirectConversationIds,
+          isDirect: isDirect,
           onRemove: context.read<ChatCreationCubit>().toggleParticipant,
         ),
         if (state.validationErrors.isNotEmpty) ...[
@@ -85,9 +108,7 @@ class _ChatCreationParticipantsStepState
           for (final error in state.validationErrors)
             ChatCreationValidationText(
               validation: error,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
+              style: chat.metadataStyle.copyWith(color: chat.error),
             ),
         ],
       ],
@@ -120,12 +141,12 @@ class _CatalogResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     if (state.query.trim().isEmpty) return const SizedBox.shrink();
     if (state.isQueryTooShort) {
       return Text(
         context.l10n.chatCreationSearchTooShort,
-        style: theme.textTheme.bodySmall,
+        style: chat.metadataStyle.copyWith(color: chat.metadataText),
       );
     }
     if (state.isSearching) {
@@ -145,20 +166,21 @@ class _CatalogResults extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              state.failureCode!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              ),
+              context.l10n.chatCreationFailureTitle,
+              style: chat.metadataStyle.copyWith(color: chat.error),
             ),
           ),
-          TextButton(onPressed: onRetry, child: Text(context.l10n.chatCreationRetry)),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(context.l10n.chatCreationRetry),
+          ),
         ],
       );
     }
     if (state.results.isEmpty) {
       return Text(
         context.l10n.chatCreationSearchEmpty,
-        style: theme.textTheme.bodySmall,
+        style: chat.metadataStyle.copyWith(color: chat.metadataText),
       );
     }
     return ConstrainedBox(
@@ -170,27 +192,78 @@ class _CatalogResults extends StatelessWidget {
           final entry = state.results[index];
           final isSelected = selected.contains(entry.userId);
           final hasDirect = isDirect && existingDirect.contains(entry.userId);
-          final subtitle = Text(
-            hasDirect
-                ? '${entry.login} · ${context.l10n.chatCreationExistingDirect}'
-                : entry.login,
+          final subtitle = hasDirect
+              ? '${entry.login} · ${context.l10n.chatCreationExistingDirect}'
+              : entry.login;
+          final enabled = !busy;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: Sizes.p4),
+            child: Material(
+              color: isSelected ? chat.selectedSurface : chat.listSurface,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                onTap: !enabled
+                    ? null
+                    : isDirect
+                    ? () => onStartDirect(entry)
+                    : () => onToggle(entry),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(Sizes.p8),
+                  child: Row(
+                    children: [
+                      AppUserAvatar(
+                        userId: entry.userId,
+                        displayName: entry.label,
+                        avatarUrl: entry.avatarUrl,
+                        hasCustomAvatar:
+                            entry.avatarUrl?.trim().isNotEmpty == true,
+                        radius: 18,
+                        singleInitial: true,
+                      ),
+                      const SizedBox(width: Sizes.p8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: chat.contentStyle.copyWith(
+                                color: chat.incomingText,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: chat.metadataStyle.copyWith(
+                                color: hasDirect
+                                    ? chat.linkText
+                                    : chat.metadataText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: Sizes.p8),
+                      Icon(
+                        isDirect
+                            ? Symbols.chat_bubble_outline
+                            : isSelected
+                            ? Symbols.check_circle
+                            : Symbols.circle,
+                        size: 20,
+                        color: isSelected ? chat.linkText : chat.metadataText,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           );
-          return isDirect
-              // 1:1 kończy się na wyborze osoby: nie ma osobnego kroku szczegółów.
-              ? ListTile(
-                  title: Text(entry.label),
-                  subtitle: subtitle,
-                  dense: true,
-                  enabled: !busy,
-                  onTap: busy ? null : () => onStartDirect(entry),
-                )
-              : CheckboxListTile(
-                  value: isSelected,
-                  onChanged: (_) => onToggle(entry),
-                  title: Text(entry.label),
-                  subtitle: subtitle,
-                  dense: true,
-                );
         },
       ),
     );
@@ -201,28 +274,33 @@ class _SelectedParticipants extends StatelessWidget {
   const _SelectedParticipants({
     required this.participants,
     required this.existingDirect,
+    required this.isDirect,
     required this.onRemove,
   });
 
   final List<ChatDirectoryEntry> participants;
   final Set<String> existingDirect;
+  final bool isDirect;
   final ValueChanged<ChatDirectoryEntry> onRemove;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           context.l10n.chatCreationSelectedTitle,
-          style: theme.textTheme.titleSmall,
+          style: chat.contentStyle.copyWith(
+            color: chat.incomingText,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(height: Sizes.p4),
         if (participants.isEmpty)
           Text(
             context.l10n.chatCreationSelectedNone,
-            style: theme.textTheme.bodySmall,
+            style: chat.metadataStyle.copyWith(color: chat.metadataText),
           )
         else
           Wrap(
@@ -235,18 +313,24 @@ class _SelectedParticipants extends StatelessWidget {
                   deleteButtonTooltipMessage:
                       context.l10n.chatCreationRemoveParticipant,
                   onDeleted: () => onRemove(entry),
+                  backgroundColor: chat.mentionSurface,
+                  labelStyle: chat.metadataStyle.copyWith(
+                    color: chat.mentionText,
+                  ),
+                  deleteIconColor: chat.mentionText,
+                  side: BorderSide(color: chat.separator),
+                  shape: const StadiumBorder(),
                 ),
             ],
           ),
-        if (participants.any(
-          (entry) => existingDirect.contains(entry.userId),
-        )) ...[
+        if (isDirect &&
+            participants.any(
+              (entry) => existingDirect.contains(entry.userId),
+            )) ...[
           const SizedBox(height: Sizes.p6),
           Text(
             context.l10n.chatCreationExistingReused,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style: chat.metadataStyle.copyWith(color: chat.metadataText),
           ),
         ],
       ],

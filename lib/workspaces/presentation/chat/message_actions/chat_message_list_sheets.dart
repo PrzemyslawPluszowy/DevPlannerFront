@@ -4,6 +4,7 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_timestamp_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -17,6 +18,7 @@ abstract final class ChatPinnedMessagesSheet {
     BuildContext context, {
     required ChatMessageActionsRepository? repository,
     required String conversationId,
+    ValueChanged<String>? onOpenMessage,
   }) async {
     if (repository == null) return;
     await DevPlannerModalHost.showSideSheet<void>(
@@ -24,6 +26,7 @@ abstract final class ChatPinnedMessagesSheet {
       builder: (sheetContext) => _ChatPinnedList(
         repository: repository,
         conversationId: conversationId,
+        onOpenMessage: onOpenMessage,
         onClose: () => Navigator.of(sheetContext).pop(),
       ),
     );
@@ -34,11 +37,13 @@ class _ChatPinnedList extends StatefulWidget {
   const _ChatPinnedList({
     required this.repository,
     required this.conversationId,
+    this.onOpenMessage,
     required this.onClose,
   });
 
   final ChatMessageActionsRepository repository;
   final String conversationId;
+  final ValueChanged<String>? onOpenMessage;
   final VoidCallback onClose;
 
   @override
@@ -57,12 +62,15 @@ class _ChatPinnedListState extends State<_ChatPinnedList> {
   }
 
   Future<void> _load() async {
-    setState(() => _isBusy = true);
+    setState(() {
+      _isBusy = true;
+      _failureCode = null;
+    });
     final result = await widget.repository.listPins(widget.conversationId);
     if (!mounted) return;
     result.fold(
       (error) => setState(() {
-        _failureCode = error.apiCode ?? error.message;
+        _failureCode = context.l10n.chatActionFailureMessage;
         _isBusy = false;
       }),
       (pins) => setState(() {
@@ -82,7 +90,7 @@ class _ChatPinnedListState extends State<_ChatPinnedList> {
     if (!mounted) return;
     result.fold(
       (error) => setState(() {
-        _failureCode = error.apiCode ?? error.message;
+        _failureCode = context.l10n.chatActionFailureMessage;
         _isBusy = false;
       }),
       (_) => unawaited(_load()),
@@ -92,6 +100,7 @@ class _ChatPinnedListState extends State<_ChatPinnedList> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p12),
@@ -120,11 +129,14 @@ class _ChatPinnedListState extends State<_ChatPinnedList> {
               Text(
                 _failureCode!,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
+                  color: chat.error,
                 ),
               ),
             Expanded(
               child: switch ((_pins, _isBusy)) {
+                (null, _) when _failureCode != null => _ChatActionLoadFailure(
+                  onRetry: () => unawaited(_load()),
+                ),
                 (null, _) => const Center(child: CircularProgressIndicator()),
                 (final pins?, _) when pins.isEmpty => Center(
                   child: Text(
@@ -136,17 +148,26 @@ class _ChatPinnedListState extends State<_ChatPinnedList> {
                   itemCount: pins.length,
                   itemBuilder: (context, index) {
                     final pin = pins[index];
-                    return ListTile(
-                      dense: true,
-                      title: Text(pin.messageId),
-                      subtitle: Text(
-                        context.l10n.chatPinnedAt(
-                          pin.pinnedAtUtc.toLocal().toString().split('.').first,
+                    return _ChatActionListRow(
+                      icon: Symbols.push_pin,
+                      title: context.l10n.chatPinnedMessageFallback,
+                      subtitle: context.l10n.chatPinnedAt(
+                        ChatTimestampFormatter.dateTimeLabel(
+                          pin.pinnedAtUtc,
+                          Localizations.localeOf(context),
                         ),
                       ),
+                      onTap: widget.onOpenMessage == null
+                          ? null
+                          : () {
+                              widget.onClose();
+                              widget.onOpenMessage!(pin.messageId);
+                            },
                       trailing: IconButton(
                         tooltip: context.l10n.chatMessageUnpin,
-                        onPressed: _isBusy ? null : () => unawaited(_unpin(pin)),
+                        onPressed: _isBusy
+                            ? null
+                            : () => unawaited(_unpin(pin)),
                         icon: const Icon(Symbols.keep_off, size: 18),
                       ),
                     );
@@ -167,12 +188,14 @@ abstract final class ChatBookmarksSheet {
   static Future<void> show(
     BuildContext context, {
     required ChatMessageActionsRepository? repository,
+    void Function(String conversationId, String messageId)? onOpenMessage,
   }) async {
     if (repository == null) return;
     await DevPlannerModalHost.showSideSheet<void>(
       context,
       builder: (sheetContext) => _ChatBookmarkList(
         repository: repository,
+        onOpenMessage: onOpenMessage,
         onClose: () => Navigator.of(sheetContext).pop(),
       ),
     );
@@ -180,10 +203,15 @@ abstract final class ChatBookmarksSheet {
 }
 
 class _ChatBookmarkList extends StatefulWidget {
-  const _ChatBookmarkList({required this.repository, required this.onClose});
+  const _ChatBookmarkList({
+    required this.repository,
+    required this.onClose,
+    this.onOpenMessage,
+  });
 
   final ChatMessageActionsRepository repository;
   final VoidCallback onClose;
+  final void Function(String conversationId, String messageId)? onOpenMessage;
 
   @override
   State<_ChatBookmarkList> createState() => _ChatBookmarkListState();
@@ -201,12 +229,15 @@ class _ChatBookmarkListState extends State<_ChatBookmarkList> {
   }
 
   Future<void> _load() async {
-    setState(() => _isBusy = true);
+    setState(() {
+      _isBusy = true;
+      _failureCode = null;
+    });
     final result = await widget.repository.listBookmarks();
     if (!mounted) return;
     result.fold(
       (error) => setState(() {
-        _failureCode = error.apiCode ?? error.message;
+        _failureCode = context.l10n.chatActionFailureMessage;
         _isBusy = false;
       }),
       (bookmarks) => setState(() {
@@ -223,7 +254,7 @@ class _ChatBookmarkListState extends State<_ChatBookmarkList> {
     if (!mounted) return;
     result.fold(
       (error) => setState(() {
-        _failureCode = error.apiCode ?? error.message;
+        _failureCode = context.l10n.chatActionFailureMessage;
         _isBusy = false;
       }),
       (_) => unawaited(_load()),
@@ -233,6 +264,7 @@ class _ChatBookmarkListState extends State<_ChatBookmarkList> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p12),
@@ -261,11 +293,14 @@ class _ChatBookmarkListState extends State<_ChatBookmarkList> {
               Text(
                 _failureCode!,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
+                  color: chat.error,
                 ),
               ),
             Expanded(
               child: switch ((_bookmarks, _isBusy)) {
+                (null, _) when _failureCode != null => _ChatActionLoadFailure(
+                  onRetry: () => unawaited(_load()),
+                ),
                 (null, _) => const Center(child: CircularProgressIndicator()),
                 (final items?, _) when items.isEmpty => Center(
                   child: Text(
@@ -277,12 +312,24 @@ class _ChatBookmarkListState extends State<_ChatBookmarkList> {
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     final bookmark = items[index];
-                    return ListTile(
-                      dense: true,
-                      title: Text(bookmark.note?.trim().isNotEmpty == true
+                    return _ChatActionListRow(
+                      icon: Symbols.bookmark_rounded,
+                      title: bookmark.note?.trim().isNotEmpty == true
                           ? bookmark.note!
-                          : bookmark.messageId),
-                      subtitle: Text(bookmark.messageId),
+                          : context.l10n.chatSavedMessageFallback,
+                      subtitle: ChatTimestampFormatter.dateTimeLabel(
+                        bookmark.createdAtUtc,
+                        Localizations.localeOf(context),
+                      ),
+                      onTap: widget.onOpenMessage == null
+                          ? null
+                          : () {
+                              widget.onClose();
+                              widget.onOpenMessage!(
+                                bookmark.conversationId,
+                                bookmark.messageId,
+                              );
+                            },
                       trailing: IconButton(
                         tooltip: context.l10n.chatMessageRemoveBookmark,
                         onPressed: _isBusy
@@ -296,6 +343,107 @@ class _ChatBookmarkListState extends State<_ChatBookmarkList> {
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatActionLoadFailure extends StatelessWidget {
+  const _ChatActionLoadFailure({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Symbols.error_outline, size: 24, color: chat.error),
+          const SizedBox(height: Sizes.p8),
+          Text(
+            context.l10n.chatActionFailureMessage,
+            textAlign: TextAlign.center,
+            style: chat.contentStyle.copyWith(color: chat.metadataText),
+          ),
+          const SizedBox(height: Sizes.p4),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(context.l10n.chatInboxRetry),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChatActionListRow extends StatelessWidget {
+  const _ChatActionListRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.trailing,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget trailing;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Sizes.p6),
+      child: Material(
+        color: chat.listSurface,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: Sizes.p12,
+              top: Sizes.p6,
+              bottom: Sizes.p6,
+              right: Sizes.p4,
+            ),
+            child: Row(
+              children: [
+                Icon(icon, size: 18, color: chat.linkText),
+                const SizedBox(width: Sizes.p10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: chat.contentStyle.copyWith(
+                          color: chat.incomingText,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: chat.metadataStyle.copyWith(
+                          color: chat.metadataText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                trailing,
+              ],
+            ),
+          ),
         ),
       ),
     );

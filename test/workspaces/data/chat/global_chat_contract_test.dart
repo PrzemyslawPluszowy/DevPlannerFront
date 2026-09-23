@@ -5,8 +5,8 @@ void main() {
   group('global Chat local identity contract', () {
     test('serializes conversation scope with local user UUIDs', () {
       final payload = ResolveChatConversationPayload.fromJson({
-        'type': 'direct',
-        'scopeKind': 'global',
+        'type': 'Direct',
+        'scopeKind': 'Global',
         'scopeKey': 'direct:11111111-1111-1111-1111-111111111111',
         'workspaceId': null,
         'projectId': null,
@@ -24,6 +24,8 @@ void main() {
       });
 
       expect(payload.userIds, hasLength(2));
+      expect(payload.toJson()['type'], 'Direct');
+      expect(payload.toJson()['scopeKind'], 'Global');
       expect(payload.toJson().keys, contains('userIds'));
       expect(payload.toJson().keys, isNot(contains('coreUserIds')));
       expect(payload.toJson().keys, isNot(contains('readyUserIds')));
@@ -45,7 +47,8 @@ void main() {
       expect(window.beforeCursor, 'cursor-1');
     });
 
-    test('maps backend message author and attachment UUIDs', () {      final message = ChatMessageResponse.fromJson({
+    test('maps backend message author and attachment UUIDs', () {
+      final message = ChatMessageResponse.fromJson({
         'id': '33333333-3333-3333-3333-333333333333',
         'conversationId': '44444444-4444-4444-4444-444444444444',
         'authorUserId': '11111111-1111-1111-1111-111111111111',

@@ -50,6 +50,33 @@ class _ChatApi implements ChatApi {
   }
 
   @override
+  Future<ChatLinkPolicyDtoResponse> loadLinkPolicy() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ChatLinkPolicyDtoResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/chat/link-policy',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ChatLinkPolicyDtoResponse _value;
+    try {
+      _value = ChatLinkPolicyDtoResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<List<ChatDirectoryUserResponse>> searchDirectory({
     required String query,
     int? limit,
@@ -90,12 +117,14 @@ class _ChatApi implements ChatApi {
     String? cursor,
     int? limit,
     String? filter,
+    String? query,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'cursor': cursor,
       r'limit': limit,
       r'filter': filter,
+      r'query': query,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};

@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_attachment.dart';
+import 'package:devplanner/workspaces/domain/chat/links/chat_message_link.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
 import 'package:equatable/equatable.dart';
 
@@ -20,6 +21,7 @@ final class ChatMessage extends Equatable {
     required this.isDeleted,
     required this.deliveryState,
     this.deltaJson,
+    this.displayText,
     this.replyToMessageId,
     this.threadRootMessageId,
     this.isEdited = false,
@@ -27,6 +29,9 @@ final class ChatMessage extends Equatable {
     this.deliveryError,
     this.attachments = const <ChatMessageAttachment>[],
     this.reactions = const <ChatReactionSummary>[],
+    this.deliveredToCount = 0,
+    this.readByCount = 0,
+    this.links = const <ChatMessageLink>[],
   });
 
   final String id;
@@ -35,6 +40,12 @@ final class ChatMessage extends Equatable {
   final String clientMessageId;
   final String text;
   final String? deltaJson;
+
+  /// Lokalna etykieta treści dla optymistycznej wiadomości.
+  ///
+  /// `text` pozostaje kanonicznym tekstem transportowym (np. z tokenami @UUID),
+  /// a pole to pozwala autorowi widzieć nazwy wybrane w pickerze po potwierdzeniu.
+  final String? displayText;
   final String? replyToMessageId;
   final String payloadHash;
   final int version;
@@ -50,6 +61,15 @@ final class ChatMessage extends Equatable {
   /// Zagregowane reakcje emoji widoczne dla członka rozmowy.
   final List<ChatReactionSummary> reactions;
 
+  /// Liczba odbiorców potwierdzonych przez serwer jako dostarczeni albo czytający.
+  final int deliveredToCount;
+
+  /// Liczba odbiorców, którzy odczytali wiadomość według serwera.
+  final int readByCount;
+
+  /// Linki rozpoznane przez backend; używane do klikalnego tekstu i preview.
+  final List<ChatMessageLink> links;
+
   /// Zwraca kopię wpisu z nowym wynikiem dostawy bez zmiany idempotency key.
   ChatMessage copyWithDelivery({
     required ChatMessageDeliveryState deliveryState,
@@ -64,6 +84,7 @@ final class ChatMessage extends Equatable {
       clientMessageId: source.clientMessageId,
       text: source.text,
       deltaJson: source.deltaJson,
+      displayText: displayText ?? source.displayText,
       replyToMessageId: source.replyToMessageId,
       payloadHash: source.payloadHash,
       version: source.version,
@@ -75,6 +96,9 @@ final class ChatMessage extends Equatable {
       deliveryState: deliveryState,
       deliveryError: deliveryError,
       attachments: source.attachments,
+      deliveredToCount: source.deliveredToCount,
+      readByCount: source.readByCount,
+      links: source.links,
     );
   }
 
@@ -97,6 +121,7 @@ final class ChatMessage extends Equatable {
     deliveryState: deliveryState,
     deliveryError: deliveryError,
     attachments: attachments,
+    links: links,
   );
 
   @override
@@ -107,6 +132,7 @@ final class ChatMessage extends Equatable {
     clientMessageId,
     text,
     deltaJson,
+    displayText,
     replyToMessageId,
     payloadHash,
     version,
@@ -119,5 +145,8 @@ final class ChatMessage extends Equatable {
     deliveryError,
     attachments,
     reactions,
+    deliveredToCount,
+    readByCount,
+    links,
   ];
 }

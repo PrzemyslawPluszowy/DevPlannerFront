@@ -143,7 +143,8 @@ class _TaskListChromeHostState extends State<TaskListChromeHost> {
                   (previous is TasksBoardReady &&
                       current is TasksBoardReady &&
                       (previous.realtimeRevision != current.realtimeRevision ||
-                          previous.taskDataRevision != current.taskDataRevision)),
+                          previous.taskDataRevision !=
+                              current.taskDataRevision)),
               listener: (context, boardState) {
                 if (!mounted) return;
                 unawaited(

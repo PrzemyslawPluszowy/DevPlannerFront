@@ -1,5 +1,483 @@
 # DevPlanner standalone — handoff zaakceptowanego stanu
 
+## Indeks aktualnego statusu Chat — 2026-09-23
+
+Najświeższe wpisy prac są na końcu tego pliku. Dawne sekcje G/F zachowują
+historyczne check-boxy; ich niezaznaczone pola nie są aktualną listą braków,
+jeśli późniejszy wpis dokumentuje implementację. Przed podjęciem pracy sprawdź
+bieżący kod i status w `docs/devplanner-standalone-refactor-plan.md`.
+
+- W kodzie są globalny panel, tworzenie rozmów, członkowie/role, akcje
+  wiadomości, wyszukiwanie, wątki, statusy/realtime client, bogaty composer,
+  emoji, linki i podłączony przepływ załączników. Wpisy CHAT-R61–R68 pokazują
+  najnowsze wycinki i wyniki, nie całościowy odbiór produktu.
+- CHAT-R71: systemowy picker Web i drop korzystają ze wspólnego preflightu
+  limitów przed odczytem bajtów; `flutter analyze --no-pub`, testy załączników
+  **20/20**, Web/Wasm build, macOS Debug build i `git diff --check` PASS.
+  Zmiana Front; bez kontraktu/API/backendu.
+- Nadal otwarte: zalogowany odbiór historii/composera/menu, ręczny drop, upload,
+  pobranie i clipboard, odmowy/revoke i cleanup oraz dwu-sesyjne E2E SignalR.
+  Ostatnia próba CUA pokazała okno Codex zamiast DevPlanner; nie traktować jej
+  jako testu UI.
+- Nie uruchamiać widget/golden tests przed akceptacją wyglądu przez użytkownika.
+
+### CHAT-QA-R72 — ponowny przegląd krytycznych przepływów
+
+- Statycznie przejrzano composer, formatowanie, tworzenie rozmów oraz modal
+  członków. Kod udostępnia dodawanie osób, wybór typu rozmowy, statusy,
+  kontekstowe menu formatowania, TXT dla długiego tekstu i stałe miejsce na
+  akcje composera. Nie znaleziono nowego konkretnego błędu w tym wycinku.
+- `flutter analyze --no-pub` i `git diff --check` PASS. Testów widgetowych/
+  golden nie uruchamiano zgodnie z dyspozycją użytkownika.
+- CUA potwierdziło zablokowany macOS; aktywnej rozmowy i załączników nie da się
+  teraz sprawdzić wizualnie. Nie uruchomiono GUI ani nie pozostawiono instancji
+  otwartej. Zalogowany odbiór UI i dwu-sesyjne realtime pozostają otwarte.
+
+### CHAT-R71 — preflight przed odczytem w Web file pickerze (2026-09-23)
+
+- Pliki: model `domain/storage/models/file_picker_constraints.dart`,
+  `ConstrainedFilePickerPort`, `FilePickerPortImpl`, owner composera, drop
+  adapter i ich testy.
+- Problem: po zabezpieczeniu drag/drop webowa implementacja systemowego pickera
+  nadal czytała każdy plik do `Uint8List` przed walidacją selekcji. Duże lub
+  nadmiarowe pliki mogły więc zużyć pamięć mimo późniejszego odrzucenia.
+- Zmiana: ograniczenia liczą też istniejący wybór i bieżący batch. Systemowy
+  picker na Web odczytuje bytes tylko dla plików mieszczących się w liczbie,
+  rozmiarze pliku i łącznym budżecie. Chat używa podinterfejsu
+  `ConstrainedFilePickerPort`; pozostałe feature'y nadal korzystają z bazowego
+  portu. Drop adapter współdzieli ten sam predykat limitów.
+- Weryfikacja: constraints/drop/koordynator/Storage adapters **20/20 PASS**;
+  pełny `flutter analyze --no-pub`, Web/Wasm build, macOS Debug build i
+  `git diff --check` PASS. Widgetów/goldenów nie uruchamiano.
+- Rzeczywisty webowy upload i zalogowany runtime pozostają do smoke testu.
+  Bez zmian API, enumów transportowych, schematu i Backend.
+
+### CHAT-R70 — preflight rozmiarów plików przeciągniętych do Chatu (2026-09-23)
+
+- Pliki: `lib/workspaces/presentation/chat/attachments/composer/chat_attachment_drop_input_adapter.dart`,
+  `lib/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_controls.dart`,
+  test adaptera oraz lokalizacje EN/PL.
+- Problem: adapter wykonywał równoległe `readAsBytes()` dla wszystkich plików
+  przed walidacją w selekcji. Wielkie/ponadlimitowe pliki mogły alokować pamięć,
+  mimo że backendowy pipeline i tak miał je odrzucić.
+- Zmiana: najpierw pobierane są rozmiary; bajty czytamy tylko w granicach
+  limitów per-file, pozostałej sumy i dostępnych slotów, z uwzględnieniem
+  obecnej selekcji. Odrzucone pliki trafiają do istniejącego stanu walidacji
+  jako nazwa+rozmiar, bez zawartości. Każdy powód odrzucenia ma osobny tekst.
+- Weryfikacja: adapter **4/4 PASS**, pakiet koordynatora/adapterów **17/17**;
+  `flutter analyze --no-pub`, macOS Debug build i `git diff --check` PASS.
+- Bez zmian Backend/API/OpenAPI/enumów/schematu. Widget/golden i rzeczywisty
+  runtime upload pozostają otwarte/odroczone. Następny krok: runtime w
+  autoryzowanej rozmowie po odblokowaniu widoczności okna DevPlanner.
+
+## 2026-09-23 — CHAT-R46: zgodny licznik uczestników grupy
+
+W działającym stagingowym Chat nagłówek „Wydanie i testy” podawał 4 osoby,
+chociaż modal członków i limit 50 (41 wolnych) potwierdzały 9 aktywnych osób.
+Backend jawnie skraca listę `participants` w inboxie do maksymalnie czterech
+profili i równocześnie zwraca pełny `participantCount`. Front wcześniej liczył
+profile w skrócie. Zmieniono nagłówek, by wyświetlał pełne pole z API; na świeżym
+macOS Debug buildzie runtime poprawnie pokazał „9 uczestników”. Test adaptera
+sprawdza 2 profile / 9 łącznie (**10/10 PASS**); `flutter analyze`, macOS Debug
+build i `git diff --check` obu repozytoriów PASS. Bez zmian Backend/API. Nie
+wykonywano testów widgetowych/goldenów. Menu kontekstowe rozmowy również
+obejrzano w runtime; globalny odbiór UI nadal OPEN.
+
+## 2026-09-23 — ENUM-AUDIT: kontrakty JSON enumów
+
+Front: audyt 80 wygenerowanych `EnumMap` względem enumów backendu znalazł
+błędny casing `ChatNotificationPreference` (`All` było dekodowane jako `all`),
+trzy błędne mapy AI oraz 26 kolejnych map JSON, które nie odzwierciedlały
+PascalCase używanego przez backend. Dodano jawny alias `Digest` obok
+`DailyDigest`, zgodny z backendowym aliasem wartości liczbowej. Zmieniono
+deklaracje Dart, regenerowano kod i dodano regresje dekodowania/serializacji
+dla Chat, powiadomień i DTO AI. Front/Backend `AGENTS.md` teraz wymagają
+audytu enumów przy każdej zmianie. Backend nie zmieniony; deploy niewymagany.
+
+`dart run build_runner build --delete-conflicting-outputs` (flaga jest
+ignorowana przez zainstalowaną wersję build_runner, ale generacja zakończyła
+sukcesem), oba zestawy kontraktowe **12/12 PASS**, `flutter analyze` PASS,
+Front/Backend `git diff --check` PASS. Nie uruchamiano testów widgetowych ani
+goldenów. Pobranie staging OpenAPI zwróciło HTTP 500; audyt oparto na mapach
+JSON wygenerowanych przez json_serializable oraz definicjach i serializerze C#.
+
+## CHAT-R45 — ochrona decyzji wklejania przed nadpisaniem (2026-09-23)
+
+`ChatMessageComposer` serializuje odczyt schowka i blokuje nowe wklejenie oraz
+„Tekst jako plik”, kiedy poprzednia karta decyzji lub przygotowanie załącznika
+TXT jest aktywne. To usuwa ryzyko powiązania starego uploadu z nową treścią.
+Weryfikacja: analyze PASS; zestaw jednostkowy pięciu plików (37 testów PASS);
+macOS Debug build PASS; `git diff --check` PASS. Nie uruchamiano widget/golden
+testów. Nie weryfikowano jeszcze aktywnej rozmowy w zalogowanym runtime.
+
+
+## CHAT-R44 — spójny aktywny akcent ChatTheme (2026-09-23)
+
+W `chat_panel_rail.dart`, `chat_panel_list_pane.dart`,
+`chat_composer_rich_toolbar.dart`, `chat_emoji_picker.dart` i
+`chat_selection_tile.dart` stany aktywne/zaznaczone używają zielonego
+`chat.focusRing`. Niebieski `chat.linkText` zachowano dla rzeczywistych linków.
+Weryfikacja: `flutter analyze` PASS, Front `git diff --check` PASS. Bez zmian
+API/backendu; widget/golden testów nie uruchamiano. Zalogowany runtime i
+macOS Debug build pozostają do sprawdzenia.
+
+
+## CHAT-R43 — poprawka komunikatu pustej skrzynki (2026-09-23)
+
+Screenshot potwierdził, że puste Archiwum pokazywało „Twoje aktywne rozmowy
+pojawią się tutaj”. Dodano wspólny mapper filtrowanych empty state oraz
+lokalizacje dla All/Unread/Direct/Groups/Channels/Mentions/Archived po polsku i
+angielsku; oba widoki inboxa używają mappera. Mapper unit tests **2/2 PASS**,
+`flutter gen-l10n`, `flutter analyze` i `flutter build macos --debug` PASS. Po
+zamknięciu starej instancji świeży build pokazał błąd logowania; przycisk
+otworzył zewnętrzny provider. Nie wpisano danych, więc poprawiony tekst nie
+został jeszcze obejrzany na żywo. Brak zmian Backend/API/migracji/deployu.
+Widgetów/goldenów nie uruchamiano. Następny krok: stabilna sesja, ponowny
+odbiór Archiwum i aktywnej rozmowy.
+
+## CHAT-R47 — czyszczenie wyboru po zmianie sekcji (2026-09-23)
+
+Runtime przy 800×630 odtworzył błąd: zakładka Kanały miała pustą listę, ale
+panel po prawej dalej pokazywał poprzednio wybraną grupę „Wydanie i testy”.
+`_ChatSectionFilterSync` czyści teraz wybór przy przejściu między sekcjami,
+zachowując zapamiętane filtry skrzynki.
+
+Weryfikacja: `flutter analyze` PASS; macOS Debug build z API
+`https://devnote.flutter-dev.pl` PASS. Po restarcie otwarto panel przez belkę,
+a następnie Kanały: pusta lista i placeholder „Wybierz rozmowę” pojawiły się
+zamiast starej grupy. Nie otwierano wiadomości i nie zmieniano danych staging.
+Stan poprzedniej sekcji inicjalizuje się teraz z `ChatPanelSectionCubit`, więc
+pierwsze przejście po przywróceniu rozmowy/deep linku również czyści wybór.
+Weryfikacja po tej korekcie: `flutter analyze` PASS, testy logiki selection +
+section **10/10 PASS**, macOS Debug build PASS. Widget/golden tests odroczone
+zgodnie z instrukcją użytkownika. Backend bez zmian i bez deployu.
+
+## 2026-09-23 — CHAT-R42: runtime shell/Chat i korekta tapety
+
+Obejrzano działający shell Files/Tasks i panel Chat otwarty w Archiwum. Panel
+pokazuje rail, listę Archiwum i pustą kolumnę rozmowy. Próby kliknięcia i
+przejścia do inboxa zwracały `noWindowsAvailable`; nie zweryfikowano aktywnej
+rozmowy ani problemu z małym obrazem. Poprzednia notatka o braku renderera była
+błędna: `lib/app/shell/devplanner_shell_layout.dart` maluje
+`assets/images/bg.jpeg` (3440×1440) przez `BoxFit.cover`, a panel jest nad
+pełnym shellem. Dokumentacja skorygowana w planie Front i Backend; bez zmian
+kodu/API/deployu. `git diff --check` PASS; analizę i testy pominięto, bo pakiet
+zmieniał tylko dokumentację. Następny krok: stabilna interakcja z inboxem,
+aktywna rozmowa i reprodukcja problemu kadru. Widgety/goldeny nadal czekają na
+akceptację wyglądu.
+
+## 2026-09-23 — CHAT-R28: opis przycisku listy członków
+
+Ikona `group_add` w nagłówku rozmowy otwiera listę członków, ale używała
+`chatMembersActions` („Akcje członka”), przeznaczonego dla menu pojedynczego
+uczestnika. Dodano osobny lokalizowany klucz `chatMembersOpen` („Członkowie i
+dodawanie osób”; EN „Members and add people”) i zmieniono tylko tooltip
+nagłówka.
+
+Weryfikacja: `flutter gen-l10n`, `flutter analyze`, `flutter build macos --debug`
+i `git diff --check` PASS. Backend/API bez zmian. Runtime tooltip pozostaje
+nieobejrzany, Mac zablokowany dla CUA.
+
+## 2026-09-23 — CHAT-R27: usunięcie statusu w chwili wygaśnięcia
+
+Timer w `ChatPeerStatusLine` czyści teraz lokalny status przed ponownym
+żądaniem REST. Gdy żądanie po terminie wygaśnięcia zawiedzie, stara etykieta
+nie zostaje na ekranie. Odświeżenie API nadal uzgadnia bieżący status.
+
+Weryfikacja: `chat_port_adapters_test.dart` **16/16 PASS** (w tym polityka
+`isExpiredAt`), `flutter analyze`, `flutter build macos --debug` i
+`git diff --check` PASS. Nie uruchamiano testów widgetowych, więc sam timer
+pozostaje bez weryfikacji widgetowej. Brak zmian Backend/API.
+
+## 2026-09-23 — CHAT-R26: większy cel szybkiej reakcji
+
+Kontrolka reakcji w pasku nad dymkiem miała 28×28 px. Zwiększono jej obszar do
+36×36 px oraz ikonę do 18 px; menu reakcji i akcji wiadomości zachowuje tę samą
+geometrię i logikę.
+
+Weryfikacja: `flutter analyze`, `flutter build macos --debug` oraz
+`git diff --check` PASS. Render hover/touch pozostaje niepotwierdzony, bo CUA
+nadal nie może odczytać zablokowanego ekranu Maca.
+
+## 2026-09-23 — CHAT-R25: etykieta piszącego w rozmowie 1:1
+
+`_participantLabels()` celowo zwracało pustą mapę dla DM, by nie dodawać
+prefiksu autora do dymków. Ta mapa była jednak współdzielona ze
+`ChatTypingIndicator`, więc w DM pokazywał się generyczny tekst. Dodano
+`_typingParticipantLabels()`: mapuje ID rozmówcy na nazwę z inboxa tylko dla
+wskaźnika pisania.
+
+Weryfikacja: test `chat_typing_label_test.dart` **7/7 PASS**, `flutter analyze`,
+`flutter build macos --debug` i `git diff --check` PASS. Bez zmian Backend/API.
+Nie uruchamiano widgetów/goldenów; Mac pozostaje zablokowany dla CUA.
+
+## 2026-09-23 — CHAT-R24: aktualizacja regresji geometrii panelu
+
+Istniejący widget test overlayu nadal zakładał panel startujący z 30% i
+zwijanie po ruchu odpowiednim dla szerokości 420 px. Asercje zaktualizowano do
+75%, maksimum 1120 px, modalności poniżej 960 px, braku uchwytu w overlayu
+modalnym oraz dłuższego gestu zwijania. To korekta oczekiwań testu źródłowego,
+nie jego uruchomienie.
+
+Weryfikacja: `flutter analyze` i `git diff --check` PASS. Widget test pozostaje
+odroczony do akceptacji UI, zgodnie z decyzją użytkownika.
+
+## 2026-09-23 — CHAT-R23: odświeżanie statusu po wygaśnięciu
+
+`ChatPeerStatusLine` wykrywa już wygasły status i ukrywa go. Dla aktywnego
+statusu z `expiresAtUtc` ustawia timer, który ponownie pobiera wartość z API;
+timer jest anulowany przy zmianie rozmówcy i przy dispose. Zapobiega to
+pozostawieniu starego emoji/tekstu/DND w długo otwartej rozmowie.
+
+Weryfikacja: adapter/statusy **21/21 + 5/5 PASS**, `flutter analyze`,
+`flutter build macos --debug` PASS. Brak zmian Backend/API. Brak odbioru
+wizualnego — CUA nadal zgłasza zablokowany Mac. Widgetów/goldenów nie uruchamiano.
+
+## 2026-09-23 — CHAT-R22: poprawki statusu DM i dostępności członków
+
+`ChatPeerStatusLine` dopisuje serwerowe DND do etykiety, a odpowiedzi z REST
+sprawdza względem generacji żądania, więc wynik poprzedniego rozmówcy nie
+nadpisze stanu po szybkiej zmianie konwersacji ani po dispose. Nagłówek pokazuje
+akcję członków tylko dla rozmowy innej niż Direct i dostępnego portu członków.
+
+Weryfikacja: `flutter analyze`, `flutter build macos --debug` i
+`git diff --check` PASS. Bez zmian Backend/API. Mac nadal jest zablokowany dla
+CUA, więc nie potwierdzono renderu; widgetów/goldenów nie uruchamiano.
+
+## 2026-09-23 — CHAT-R21: domyślnie pełny układ komunikatora
+
+Domyślne 30% powodowało, że panel nie mieścił inboxa i rozmowy obok siebie.
+Zmieniono cel na 75% szerokości z minimum 734 px (minimum rail + inbox +
+rozmowa + uchwyt) oraz limitem 1120 px; próg pełnoekranowego overlayu ustawiono
+na 960 px. Przypięcie nadal jest dozwolone tylko wtedy, gdy aplikacja zachowuje
+co najmniej 480 px treści. To bezpośrednia korekta względem późniejszych uwag
+użytkownika o potrzebie pełnego komunikatora.
+
+Weryfikacja: `chat_panel_size_test.dart` **7/7 PASS**, `flutter analyze`,
+`flutter build macos --debug` i `git diff --check` PASS. CUA nadal zgłasza
+zablokowany Mac, więc render niepotwierdzony. Bez testów widgetowych/goldenów
+przed akceptacją wyglądu.
+
+## 2026-09-23 — CHAT-R20: upload załączników Chat w Web/BFF
+
+`DevPlannerApp` składa jedną `DevPlannerStorageComposition` i przekazuje tę
+samą sesyjną `StorageRepository` do routera i `DevPlannerStandaloneRuntime`.
+Webowy BFF może więc autoryzować żądanie ticketu i finalizacji przez cookie/CSRF;
+upload bajtów używa osobnego `PresignedUploadTransport`, który dostaje wyłącznie
+krótkotrwały URL i nigdy nie otrzymuje cookie, CSRF ani tokenu desktopowego.
+Ścieżka nie zmienia możliwości uploadu w module Files. Menu „tekst jako plik” i
+karta długiego wklejenia blokują tę akcję, gdy brak gotowego koordynatora uploadu.
+
+Weryfikacja: test kompozycji BFF/fail-closed oraz adaptera uploadu **11/11
+PASS**; `flutter analyze`, `flutter build web --debug
+--no-tree-shake-icons --dart-define=DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl`,
+`flutter build macos --debug` i `git diff --check` PASS. Preflight stagingowego
+Storage dla `Origin: https://devnote.flutter-dev.pl`, metody `PUT` i nagłówka
+`content-type` zwrócił HTTP 204 z dozwolonym originem i metodą. Nie wykonano
+pełnego uploadu z przeglądarki, bo runtime zatrzymuje się na loginie BFF; ekran
+macOS pozostaje zablokowany. Bez zmian Backend/API; widgetów/goldenów nie
+uruchamiano.
+
+## 2026-09-23 — CHAT-R19: zakres kontekstu akcji wiadomości
+
+Rootowy `AppContextMenu` prezentuje trasę poza lokalnym drzewem rozmowy.
+Callbacki reakcji oraz kopiowania zaznaczenia dostawały wcześniej kontekst tej
+trasy, przez co mogły nie znaleźć lokalnego Cubita/`Actions`. Menu przekazuje
+teraz do handlera kontekst przycisku, który je otworzył. Zmiana tylko we
+Froncie; backend i kontrakt bez zmian.
+
+Weryfikacja: `flutter analyze` PASS, `flutter run -d web-server` skompilował
+aplikację, `flutter build macos --debug` PASS, `git diff --check` PASS po
+aktualizacji dokumentacji. Zrzut przeglądarki pokazuje ekran „Przejdź do bezpiecznego logowania”
+i URL `/login?returnTo=/workspaces`; nie ma aktywnej sesji, więc ekran czatu ani
+akcje nie zostały wizualnie sprawdzone. macOS jest zablokowany. Widgetów i
+goldenów nie uruchamiano zgodnie z decyzją użytkownika. Następny krok: obejrzeć
+panel po uzyskaniu dostępnej, autoryzowanej sesji i zweryfikować reakcje oraz
+kopiowanie zaznaczenia na żywym widoku.
+
+## 2026-09-23 — CHAT-R18: pola formularzy Chat
+
+Ujednolicono pola wstawiania kodu, wyszukiwarki emoji, statusu, selektora
+powiadomień per rozmowa, dodawania linku i edycji wiadomości. Wszystkie używają
+typografii/powierzchni ChatTheme, borderów i focus ringa; kod ma styl monospace.
+
+Walidacja Front: `flutter analyze` i `flutter build macos --debug` PASS.
+Widgetów/goldenów nie uruchamiano; render wymaga odblokowania Maca.
+
+## 2026-09-23 — CHAT-R17: wycięcie legacy listy
+
+Usunięto `ChatDrawerCubit`, jego stan, test i publiczny wrapper side-sheeta.
+Panel tworzy teraz skrzynkę tylko z właściwej kompozycji hosta, więc nie wykonuje
+równolegle drugiego odczytu przez stare repozytorium. Gdy skrzynki brak, używa
+jawnego stanu niedostępności `ChatPanelListPane`; zniknęła zapasowa lista
+`ListTile` z `scopeKey`. Tytuł rozmowy w nagłówku ma lokalizowany neutralny
+fallback zamiast identyfikatora technicznego.
+
+Walidacja Front: `flutter analyze` całego repo i `flutter build macos --debug`
+PASS; `git diff --check` PASS. Bez testów widgetowych/goldenów. Mac jest
+zablokowany, więc nie przeprowadzono wizualnego smoke testu.
+
+## 2026-09-23 — CHAT-R16: race w trwałej kolejce
+
+W ChatPendingSendStoreImpl operacje read-modify-write (save, remove,
+clearForUser) są teraz serializowane per userId. Wcześniej save intencji
+i usunięcie po potwierdzeniu mogły równolegle odczytać stary stan keychaina;
+spóźniony zapis zostawiał potwierdzoną wiadomość jako oczekującą po restarcie.
+Odczyt przywracanych intencji także czeka na zakończenie wcześniejszych zmian.
+Ten sam porządek zapobiega przywróceniu intencji po wylogowaniu.
+
+Walidacja Front: test trwałości kolejki **9/9 PASS**, flutter analyze bez
+problemów, flutter build macos --debug PASS, git diff --check Front i
+Backend PASS. Nie uruchamiano widgetów ani goldenów; Mac jest zablokowany.
+Backend i kontrakt API bez zmian.
+
+## 2026-09-23 — Wiersze wątku i załączników w ChatTheme
+
+Usunięto pozostałe `ListTile` z odpowiedzi wątku i listy wybranych załączników.
+Wątek ma kompaktowy wiersz z zachowanym kopiowaniem oraz menu kontekstowym;
+załącznik ma kartę z elipsą długiej nazwy, lokalizowanym statusem i osobną akcją
+usunięcia. `flutter analyze` czysty; świeży build macOS Debug zakończony osobno.
+Nie uruchamiano testów widgetowych. Nadal brak ręcznego oglądu UI z powodu blokady
+Maca.
+
+## 2026-09-23 — Wiersze rewizji, przekazania i nazwy dyskusji
+
+W dialogach akcji usunięto domyślne `ListTile` z historii rewizji i wyboru
+rozmowy docelowej. Wiersze mają powierzchnię, typografię, odstępy oraz ripple
+z ChatTheme; cel przekazania zachowuje tytuł i ellipsis podglądu. Panel dyskusji
+korzysta z ChatTheme dla separatora, nagłówka, cytowanej wiadomości i pola nazwy.
+`flutter analyze` czysty, cubity akcji i wątków **12/12 PASS**, build macOS
+Debug PASS; brak testów widgetowych/goldenów i nadal brak ręcznego oglądu.
+
+## 2026-09-23 — Długie linki i długie treści wiadomości
+
+Renderer wstawia U+200B jako niewidoczne miejsce łamania wyłącznie w linkach
+dłuższych niż 40 znaków. Recognizer i adres docelowy pozostają oryginalne.
+Dymki zwijają wiadomości powyżej 1200 znaków także bez `\n`, z przyciskiem
+rozwinięcia. `flutter analyze` czysty; rich-text, plain-text links, long-paste i
+grouping **32/32 PASS**. Build macOS Debug PASS; nie uruchamiano widgetów ani
+goldenów. Ręczny render wymaga odblokowania Maca.
+Reguły przeniesiono do testowalnego `ChatMessageDisplayPolicy`; nowe testy
+jednostkowe **6/6 PASS**, analyze i świeży build Debug PASS.
+
+## 2026-09-23 — Geometria popovera i breakpoints panelu Chat
+
+`AppContextMenuPositionDelegate` ogranicza teraz szerokość także do viewportu
+minus marginesy; wcześniej ograniczona była tylko wysokość, więc `Nowy czat`
+(max 420 px) mógł wyjść poza węższe okno. Czysta polityka geometrii ma testy dla
+390 px, szerokości 200 px, niskiego viewportu oraz viewportu mniejszego niż
+margines. Próg trzech kolumn wynika teraz jawnie z minimów 56 + 304 + 360 + 2 px
+separatorów = 722 px; 760 px jest progiem modalności w hoście, a nie kolumn.
+Analyze czysty, testy geometrii i polityki treści **15/15 PASS**, build Debug
+PASS; bez testów widgetowych/goldenów.
+
+## 2026-09-23 — CHAT-R14: root host i ChatSurfaceDialog
+
+- Usunięto bezpośrednie `showDialog` z `ChatPersonCard`, emoji pickera, dialogu
+  linku i podglądu załączonego obrazu. Szybkie reakcje używają wrappera
+  `DevPlannerModalHost.showBottomSheet`; wspólny root stack porządkuje Escape,
+  focus i warstwę nad panelem.
+- Karta osoby ma avatar w nagłówku, rolę w podtytule, status i błąd w treści,
+  a akcje zamknięcia/napisania w stopce `ChatSurfaceDialog`. Picker emoji dostał
+  tę samą powierzchnię, wyszukiwanie w polu ChatTheme i ograniczoną wysokość
+  siatki. Uchwyt/kształt/bariera bottom sheet są konfigurowane przez wspólny host.
+- Pliki: `devplanner_modal_host.dart`, `chat_person_card.dart`,
+  `chat_emoji_picker.dart`, `chat_format_actions.dart`,
+  `chat_message_attachments.dart`, `chat_message_action_menu.dart`.
+- Walidacja: `flutter analyze` bez problemów; logika emoji/formatowania/linków
+  **40/40 PASS**; macOS Debug build PASS; `git diff --check` PASS. Bez
+  widgetów/goldenów. Zbudowany macOS nie został obejrzany: CUA zgłasza Mac
+  zablokowany.
+- Następny krok: po odblokowaniu Maca obejrzeć trzy zmienione powierzchnie
+  i poprawić geometrię/kontrast z realnego renderu.
+
+## 2026-09-23 — CHAT-R12: wynik wyszukiwania poza inboxem
+
+- Wynik wyszukiwania nie jest już wyłączany, gdy jego rozmowy nie ma w aktualnie
+  załadowanych pozycjach inboxa. `ChatDrawer` używa kopii skrzynki, gdy jest
+  dostępna; w przeciwnym razie pobiera szczegóły przez
+  `ChatConversationRepository.getConversation(id)`, czyli ścieżkę REST z ACL.
+  Odmowa/404 czyści stare trafienia i wyświetla neutralny komunikat bez
+  ujawniania rozmowy; błąd transportu zostawia wyniki otwarte do ponowienia.
+- Dla niecache'owanej grupy/kanału rola bieżącego użytkownika jest pobierana
+  osobno z repozytorium członków. Wybór zapisuje `messageId`, a istniejący
+  `ChatConversationCubit.ensureTargetLoaded` otwiera okno wokół starej wiadomości.
+- Kontrakt callbacku `ChatSearchView` obsługuje stan otwierania i blokuje
+  podwójne kliknięcie; wiersz używa nazwy z lokalnego inboxa lub bezpiecznej
+  nazwy z hitu, nigdy technicznego ID jako nazwy rozmowy.
+- Walidacja Front: `flutter analyze` bez problemów; test repozytorium i
+  wyszukiwania/członków **21/21 PASS**; `flutter build macos --debug` PASS;
+  `git diff --check` PASS. Nie uruchamiano testów widgetowych/goldenów.
+- Otwarty odbiór: smoke test na rozmowie poza pierwszą stroną, przewinięcie do
+  starego wyniku i odmowa ACL; Mac nadal jest zablokowany.
+
+## 2026-09-22 — CHAT-R14: wspólna powierzchnia dialogów
+
+- Dodano `ChatSurfaceDialog`, którego tło, obramowanie, promień, typografia,
+  nagłówek i stopka korzystają z `ChatTheme` zamiast przypadkowych domyślnych
+  powierzchni Material. Przeniesiono tworzenie rozmowy, edycję i rewizje
+  wiadomości, usuwanie/przekazywanie, ustawienia czatu, ustawienia wyciszenia,
+  wstawianie bloku kodu/linku oraz potwierdzenie archiwizacji.
+- W naprawionej migracji rewizji analizator ujawnił nullable access i nadmiarowy
+  parametr; poprawiono. `flutter analyze` — 0 problemów. Testy skrzynki i
+  realtime **18/18 PASS**. `flutter build macos --debug` — PASS. `git diff
+  --check` — PASS.
+- To nie zamyka R14: statusy, karta osoby i picker emoji nadal mają własne
+  powierzchnie; trzeba je porównać wizualnie i ujednolicić tam, gdzie odstają.
+  Mac jest zablokowany, więc nie przeprowadzono oglądu działającego UI.
+  Testów widgetowych ani goldenów nie uruchamiano przed akceptacją wyglądu.
+- Kontynuacja: podgląd zdjęcia został przeniesiony na `ChatSurfaceDialog`, a
+  szybkie reakcje zachowują teraz jawne powierzchnie `ChatTheme` w arkuszu.
+  Weryfikacja po tej części: `flutter analyze` bez problemów, załączniki i akcje
+  wiadomości **13/13 PASS**, `flutter build macos --debug` PASS,
+  `git diff --check` PASS. To są testy logiki i kompilacji, nie dowód renderu.
+- Kontynuacja 2: lista skrzynki i wiersze rozmów przestały pobierać powierzchnie,
+  typografię, filtr-chip, szkic i badge nieprzeczytanych z domyślnego
+  `ColorScheme`; używają ról i stylów `ChatTheme` (zachowana semantyka i
+  dostępne akcje). Pełna analiza Frontu przechodzi; `chat_inbox_cubit_test.dart`
+  **11/11 PASS**, `flutter build macos --debug` PASS i `git diff --check` PASS.
+  Odbiór kontrastu/light-dark i wizualnego rytmu nadal wymaga działającego,
+  odblokowanego UI.
+- Kontynuacja 3: wyniki wyszukiwania wiadomości dostały własne wiersze z awatarem
+  lub ikoną rozmowy, nazwą, autorem, czasem, fragmentem wiadomości i znacznikiem
+  wzmianki. Pole, puste/błędne stany i wyniki używają `ChatTheme`; akcje kliknięcia,
+  długiego przytrzymania i menu kontekstowego pozostały podłączone. `flutter analyze`
+  bez problemów, `g5_search_and_members_test.dart` **12/12 PASS**, build macOS
+  PASS i `git diff --check` PASS. Nie uruchamiano `testWidgets` ani goldenów.
+- Kontynuacja 4: arkusz członków i podwidok dodawania osób używają jawnych
+  wierszy z awatarami, rolami/statusami i menu moderacji oraz wyszukiwarki,
+  chipów i checkboxów opartych na `ChatTheme`; wynik niepodłączonego konta i
+  błędy też używają typografii i kolorów komunikatora. `flutter analyze` bez
+  problemów, `g5_search_and_members_test.dart` **12/12 PASS**, build macOS PASS,
+  `git diff --check` PASS. Testy widgetowe i goldeny nadal odłożone do akceptacji.
+- Kontynuacja 5: podpowiedzi `@` mają powierzchnię z cieniem i `ChatTheme`,
+  wiersze kandydatów z awatarami/etykietą/loginem, widoczny aktywny wybór oraz
+  wyróżnioną pozycję `@all`; błąd, retry i puste stany nie korzystają już z
+  globalnego `ColorScheme`. `flutter analyze` bez problemów, test kontrolera
+  wzmianki + codec **23/23 PASS**, build macOS PASS i `git diff --check` PASS.
+  Widgetów nadal nie uruchamiano.
+
+## 2026-09-22 — CHAT-INBOX-REALTIME: invalidacja poza panelem
+
+- Dodano sesyjne połączenie do Chat Hub i `ChatInboxCubit` współdzielony przez
+  host panelu. `chat.inbox.changed` powoduje odczyt pierwszej strony oraz
+  serwerowego badge'a przez REST; pierwszy connect i reconnect też uzgadniają
+  stan. Działa przy zamkniętym panelu i nie zależy od powiadomień.
+- Walidacja: testy inbox + realtime **18/18 PASS**, `flutter analyze` bez problemów,
+  `flutter build macos --debug` PASS, `git diff --check` PASS. Backend testy
+  huba i utworzenia rozmowy **6/6 PASS**, build i format verify PASS.
+- GUI Mac nadal zablokowane, więc nie ma dowodu ze smoke testu dwóch sesji ani
+  rzeczywistego renderu; widgety i goldeny pozostają odroczone do akceptacji.
+- Review R13 zaktualizowane po inspekcji kodu: aktywna historia ma autora/awatar
+  dla grup, godzinę, etykietę edycji oraz serwerowy status dostawy/odczytu i retry
+  błędu. Wymaga to jeszcze oglądu przy rzeczywistym rozmiarze panelu.
+
+## 2026-09-22 — CHAT-INBOX-WIRE i zwężanie panelu
+
+Pliki: `lib/workspaces/data/shared/enums/chat_enums.dart`, `lib/workspaces/data/chat/models/chat_models.g.dart`, `lib/workspaces/data/chat/api/chat_api.dart`, `lib/workspaces/data/standalone/devplanner_standalone_runtime.dart`, `lib/app/shell/overlays/devplanner_global_panels_host.dart`, test kontraktu skrzynki i test widgetowy hosta. Backend ma `JsonStringEnumConverter()` bez camelCase, więc odpowiedź zawiera `Direct`/`Global`; poprzedni parser oczekiwał `direct`/`global` i zamieniał błąd dekodowania na ogólne `chat.inbox.load_failed`. Retrofit dekoduje już po interceptorach Dio, dlatego dodano bezpieczny logger błędów parsowania. Row panelu dostaje szerokość tweena ograniczoną aktualnym oknem.
+
+Weryfikacja: `flutter test test/workspaces/data/chat/chat_inbox_wire_contract_test.dart test/workspaces/data/chat/chat_inbox_repository_impl_test.dart` 10/10 PASS; celowana analiza czterech plików 0 problemów; `dart format --set-exit-if-changed` i `git diff --check` PASS. Test układu przed poprawką odtwarzał overflow 175 px, po poprawce 10/10 PASS w izolowanym checkoutcie. Stagingowe API `/health/ready` jest zdrowe, anonimowe `/api/v1/chat/inbox` zwraca prawidłowe 401. Pozostaje ręczna próba po przebudowaniu uruchomionej aplikacji; Frontu nie wdrażano ani nie restartowano z uwagi na równoległe prace.
+
 ## 2026-09-22 — CHAT-COMPLETION: plan pełnego podłączenia funkcji
 
 - [x] Audyt tras Chat, wzmianek, snippetów, polityki załączników, Quill i geometrii shellu; [plan F0–F6](../../Backend/docs/global-chat-completion-plan-2026-09-22.md).
@@ -5986,3 +6464,1924 @@ Bramki: `flutter test test/workspaces/domain/chat/rich_text/chat_rich_text_codec
 `flutter analyze lib test` → No issues found; `git diff --check` czysty.
 Pozostaje: toolbar Quill i tryb „Formatowanie/Rozwiń edytor”, „Wstaw kod”,
 snippet z długiego wklejenia i atomowość dołączania snippetu (F4 UI).
+
+### Uzupełnienie CHAT-F5 (2026-09-22) — skok do starej wiadomości w panelu
+
+- `lib/workspaces/domain/chat/conversation/models/chat_message_window.dart` (nowy) —
+  `ChatMessageWindow` (`anchorMessageId`, `messages`, `hasMoreBefore/After`, `beforeCursor`).
+- `ChatConversationRepository.loadMessageWindow(...)` + implementacja w
+  `ChatRepositoryImpl` na `getMessageWindow`, więc skok nie zależy od liczby
+  pobranych stron ani od bieżącego filtra skrzynki.
+- `ChatConversationCubit.ensureTargetLoaded(messageId)` — doładowuje okno, scala
+  wiadomości i przejmuje `beforeCursor`; brak dostępu odłącza historię, brak samej
+  wiadomości ustawia `jumpFailureCode`. `ChatConversationReady` ma `copyWith`,
+  `isJumpingToMessage` i `jumpFailureCode`.
+- `chat_panel_conversation.dart` wywołuje skok po wczytaniu rozmowy z celem i
+  pokazuje pasek: ładowanie albo komunikat z ponowieniem (zachowując historię).
+- Atrapy w 8 plikach testowych dostały implementację nowej metody portu.
+
+Bramki: `flutter test test/workspaces/presentation/chat/chat_conversation_cubit_test.dart`
+→ 5/5 PASS (skok scala historię i kursor; brak wiadomości daje komunikat, nie pustą
+historię); regresja zmodyfikowanych atrap → 24/24 PASS; `flutter analyze lib test`
+→ No issues found; `git diff --check` czysty. Potwierdzenie w runtime otwarte.
+
+### Poprawki po review CHAT-REVIEW-FIX (2026-09-22) — front
+
+1. `ChatRichTextCodec.tryParse` akceptuje kontrakt transportu: **tablicę operacji**
+   Quill oraz starszą kopertę `{"ops":[...]}`. Wcześniej renderer odrzucał
+   prawidłową deltę z composera i pokazywał zwykły tekst; testy używają teraz
+   realnego kształtu (`jsonEncode(ops)`).
+2. Skok do starej wiadomości działa w jawnym **trybie okna**:
+   `ChatConversationReady.jumpAnchorMessageId`/`isWindowedHistory`,
+   `ChatConversationCubit.ensureTargetLoaded` zastępuje historię ciągłym zakresem
+   (bez scalania z najnowszą stroną), `loadMore` używa kursora okna, realtime nie
+   dopisuje niesąsiadujących wiadomości, a `exitWindowHistory()` →
+   `load(replaceHistory: true)` czyści tryb bez luki. Panel pokazuje pasek
+   „Widok wokół wskazanej wiadomości” z akcją „Pokaż najnowsze”.
+3. ARB en/pl: `chatWindowHistoryBanner`, `chatWindowHistoryLatest`.
+
+Bramki: `flutter analyze lib test` → No issues found;
+`chat_rich_text_codec_test.dart` 7/7; `chat_conversation_cubit_test.dart` 5/5;
+regresja `shell/`, `conversation_delivery/`, `thread/`, wątki/dyskusje oraz odczyt
+→ 36/36; `git diff --check` czysty. Uwaga: wcześniejszy `dart format` na całym
+katalogu `presentation/chat/` przestawił zawijanie linii w kilku niezwiązanych
+plikach; poprawiono tylko lint w `chat_inbox_row.dart`, reszta to czyste formatowanie.
+
+### Uzupełnienie CHAT-F2 (2026-09-22) — picker @ i pokrycie testami
+
+- `lib/workspaces/presentation/chat/mentions/chat_mention_picker_controller.dart`
+  (nowy) — `ChatMentionPickerController`: debounce, odrzucanie spóźnionych
+  odpowiedzi (generation guard), fraza < 2 znaków nie pyta backendu, błąd z kodem
+  i `retry()`, strzałki z zawijaniem, `close()`.
+- `lib/workspaces/presentation/chat/mentions/chat_mention_suggestions.dart` (nowy) —
+  zakotwiczona lista nad polem: kandydaci, brak wyników, ładowanie, odmowa z ponowieniem.
+- Composer: `_syncMentionQuery` na kontrolerze tekstu (tekst i kursor), przejęcie
+  `↑/↓/Enter/Escape` gdy lista otwarta, `_acceptMention` wstawia etykietę przez
+  `ChatMentionCodec.applyMention` i rejestruje `ChatMentionReference`; picker czyta
+  `ChatSearchRepository?` z kontekstu, więc brak portu = brak listy.
+- `ChatComposerDraft.mentions` + `ChatComposerCubit.setMentions`; edycja tekstu
+  przycina wzmianki przez `pruneMentions`, a `ChatConversationCubit.sendDraft`
+  zamienia etykiety na tokeny `@<uuid>` dopiero na granicy wysyłki.
+- ARB en/pl: `chatMentionPickerHint`, `chatMentionPickerEmpty`.
+
+Testy: `chat_mention_codec_test.dart` **11/11** (token/etykieta, render, query,
+applyMention, prune, runda render↔wysyłka), `chat_mention_picker_controller_test.dart`
+**7/7** (debounce, spóźniona odpowiedź, za krótka fraza, błąd + retry, strzałki,
+zamknięcie), `chat_conversation_cubit_test.dart` **6/6** (m.in. konwersja etykiety na
+UUID w komendzie wysyłki), `chat_composer_draft_persistence_test.dart` **6/6**
+(wzmianki przeżywają edycję, skasowana nazwa je usuwa); łącznie 49/49 w tych suitach;
+`flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Otwarte: pozycja `@all` w pickerze, badge/filtr „Wzmianki o mnie”, odbiór wizualny.
+
+### Uzupełnienie CHAT-F4 (2026-09-22) — akcja „Wstaw kod”
+
+- `lib/workspaces/domain/chat/rich_text/chat_code_block_codec.dart` (nowy) —
+  `ChatCodeBlockCodec.build/encode`: operacje delty z atrybutem `code-block`
+  (język albo `true`) na operacji kończącej linię, limit 20 000 znaków, przycinanie
+  końcowych pustych linii, pusty kod bez bloku.
+- `lib/workspaces/presentation/chat/rich_text/chat_code_block_dialog.dart` (nowy) —
+  mały formularz: język opcjonalny, kod monospace (Enter dodaje linię), „Wstaw”.
+- Composer: przycisk `chat-composer-insert-code`; w trybie rich wstawia operacje do
+  dokumentu Quill w miejscu kursora, w plain wstawia ogrodzenie ``` na zaznaczenie.
+  ARB en/pl: `chatComposerInsertCode`, `chatComposerCodeLanguage`,
+  `chatComposerCodeContent`, `chatComposerCodeSubmit`.
+
+Bramki: `flutter test test/workspaces/domain/chat/rich_text/` → 12/12 (w tym 6 nowych
+dla bloku kodu); `test/workspaces/presentation/chat/composer/` → 36/36;
+`flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Pozostaje: pełny toolbar Quill i tryb rozszerzonego edytora, snippet z długiego
+wklejenia i atomowość dołączania snippetu; odbiór wizualny całego composera.
+
+### Uzupełnienie CHAT-F5 (2026-09-22) — sesyjny badge nieprzeczytanych (zamknięty panel)
+
+- `lib/workspaces/presentation/chat/inbox/cubit/chat_unread_cubit.dart` (nowy) —
+  `ChatUnreadCubit`: liczy wyłącznie z serwerowego agregatu `inbox/unread-count`,
+  błąd nie zeruje ostatniego potwierdzonego stanu, `applySignal()` scala serię
+  zdarzeń realtime w jedno odświeżenie, `reset()` czyści po zakończeniu sesji.
+- Host (`devplanner_global_panels_host.dart`): tworzy sesyjny licznik, gdy kompozycja
+  ma port skrzynki, pobiera pierwszy stan, zeruje go po zniknięciu kompozycji i
+  podłącza sygnał `WorkspaceNotificationsRealtimeService.events` — każda wiadomość
+  Chat publikuje powiadomienie dla odbiorcy, więc odświeżenie działa też przy
+  zamkniętym panelu. Licznik jest montowany nad treścią (`BlocProvider`).
+- Belka (`devplanner_shell_layout.dart`): ikona czatu pokazuje `Badge` z licznikiem
+  (brak portu = brak badge, bez lokalnego zgadywania).
+- Panel po realnym odczycie odświeża także licznik sesyjny, więc badge spada od razu.
+
+Bramki: `chat_unread_cubit_test.dart` **5/5** (agregat, brak zerowania po błędzie,
+scalanie sygnałów, reset); `test/app/shell/` + `test/workspaces/presentation/chat/inbox/`
+→ **39/39**; `flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Do potwierdzenia w runtime: badge przy zamkniętym panelu na dwóch sesjach oraz
+odświeżenie listy po dodaniu do rozmowy (eventy członkostwa idą tym samym kanałem
+powiadomień, ale wymagają sprawdzenia na żywo).
+
+### Uzupełnienie CHAT-F5 (2026-09-22) — metadane dymka i nazwa DM
+
+- `lib/workspaces/presentation/chat/messages/chat_message_metadata.dart` (nowy) —
+  `ChatMessageMetadata.timeLabel` (`HH:mm` lokalnie) i `statusFor` (własna,
+  nieusunięta wiadomość: `sending` bez ponowienia, `failed` z ponowieniem, `sent`;
+  cudza/usunięta bez statusu). Nic nie jest zgadywane — brak potwierdzenia serwera
+  to „wysyłanie”, nigdy „dostarczono”.
+- `chat_panel_conversation_parts.dart`: `_ChatMessageFooter` (autor w grupach,
+  godzina, „edytowano”, status + „Ponów”) i `_StatusGlyph`; `participantLabels`
+  przekazywane z panelu (mapa z katalogu skrzynki, w DM pusta). `ChatPanelConversationHeader`
+  przyjmuje `title`, więc DM pokazuje etykietę rozmówcy zamiast `scopeKey`.
+- `chat_panel_conversation.dart`: `_participantLabels` i `_conversationTitle` czytają
+  skrzynkę i przekazują etykiety; retry czyta `ChatConversationCubit`.
+- ARB en/pl: `chatMessageStatusSending/Sent/Failed`, `chatMessageEdited`, `chatMessageRetry`.
+
+Bramki: `chat_message_metadata_test.dart` **6/6**;
+`test/workspaces/presentation/chat/shell/` + `messages/` **22/22**;
+`flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Otwarte: avatar autora w grupach oraz `delivered/read` per wiadomość (lokalny model
+nie niesie danych dostawy), odbiór wizualny dymków.
+
+### Uzupełnienie CHAT-F2 (2026-09-22) — propozycja `@all` w pickerze
+
+- `ChatMentionPickerController` ma `allTokenEnabled` + `setAllTokenEnabled` i getter
+  `suggestsAll`: propozycja `@all` pojawia się przy samym `@` oraz gdy fraza pasuje
+  do tokenu, a wyłączenie uprawnień natychmiast ją chowa.
+- `ChatMentionSuggestions` rysuje kafelek `@all` (ARB `chatMentionAllOption`) tylko
+  gdy picker ma uprawnienia i właściciel podał `onSelectAll`.
+- Composer: `mentionAllEnabled` przekazywane do kontrolera, `_acceptAllMention`
+  wstawia `@all ` bez rejestrowania osoby — to nie jest wzmianka o koncie ani ACL.
+- Panel: `_mentionAllEnabled` dopuszcza `@all` wyłącznie dla grupy/kanału/ogłoszeń
+  i roli Owner/Moderator z serwerowej skrzynki; lista kandydatów nadal pochodzi z
+  endpointu sugestii filtrowanego po dostępie.
+
+Bramki: `chat_mention_picker_controller_test.dart` **11/11** (w tym 4 nowe dla `@all`);
+mentions + composer + codec → **47/47**; `flutter analyze lib test` → No issues found;
+`git diff --check` czysty. Otwarte: badge/filtr „Wzmianki o mnie”, odbiór wizualny.
+
+### Uzupełnienie CHAT-F2 (2026-09-22) — chip „Wzmianki o mnie”
+
+- `ChatInboxFilter.mentions` (`Mentions`) w domenie skrzynki; chip w sekcji Czaty
+  (`chat_inbox_list.dart` oraz `chat_panel_section.dart`) z ARB `chatInboxFilterMentions`.
+- Filtr jest serwerowy: backend zwraca rozmowy z rejestru wzmianek, więc wynik nie
+  zależy od pobranej strony ani od lokalnej frazy wyszukiwania.
+
+Bramki: `test/workspaces/presentation/chat/inbox/` + `shell/` → 30/30;
+`flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Otwarte: odbiór wizualny chipa i odświeżanie listy po wzmiance w runtime.
+
+### Uzupełnienie CHAT-F3 (2026-09-22) — karty załączników w historii
+
+- `lib/workspaces/presentation/chat/attachments/history/chat_message_attachments.dart`
+  (nowy) — karty z nazwą, rozmiarem (`formatChatFileSize`) i typem pliku oraz jawnym
+  stanem „Plik niedostępny” dla usuniętych/nieczystych plików; brak udawania pobrania.
+- DTO `ChatAttachmentResponse` i model `ChatMessageAttachment` niosą `fileName`,
+  `fileSizeBytes`, `contentType`, `isAvailable`; wszystkie cztery adaptery mapują je
+  spójnie. Karty wpięte w dymek panelu.
+- ARB en/pl: `chatAttachmentUnavailable`.
+
+Bramki: `chat_message_attachments_test.dart` (format rozmiaru) + `shell/` → 39/39;
+`flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Otwarte: miniatury/otwieranie i pobieranie przez autoryzowaną ścieżkę Storage,
+progres per plik, wklejanie obrazu, odbiór wizualny.
+
+### Uzupełnienie CHAT-F5 (2026-09-22) — statusy dostawy/odczytu z serwera
+
+- `ChatMessage` i DTO `ChatMessageResponse` niosą `deliveredToCount` i `readByCount`;
+  wszystkie cztery adaptery mapują je spójnie.
+- `ChatMessageMetadata.statusFor` dodaje rodzaje `delivered` i `read` (z licznikiem)
+  i preferuje odczyt > dostawę > „Wysłano”; bez potwierdzeń status zostaje „Wysłano”,
+  więc UI nie zgaduje dostarczenia.
+- `_StatusGlyph` pokazuje licznik; ARB en/pl: `chatMessageStatusDelivered`,
+  `chatMessageStatusRead` (placeholdery int).
+- Przy okazji: `dart format` na całym drzewie `lib/workspaces/` sformatował niezwiązany
+  plik `storage_realtime_client_adapter.dart`; cofnięto go do HEAD, a wygenerowany
+  `chat_models.freezed.dart` ma usunięty trailing whitespace od generatora.
+
+Bramki: `chat_message_metadata_test.dart` 9/9; `shell/` + `messages/` 25/25;
+`flutter analyze lib test` → No issues found; `git diff --check` czysty.
+Pozostaje: avatar autora w grupach, odbiór wizualny.
+
+### Uzupełnienie CHAT-F5 (2026-09-22) — awatar autora w grupach, domknięcie dymków
+
+- `lib/workspaces/presentation/chat/shell/chat_panel_conversation_parts.dart` —
+  `_ChatMessageFooter` rysuje `AppUserAvatar` (promień 9, inicjał, `semanticsLabel`)
+  obok etykiety autora i tylko razem z nią. Etykieta pochodzi z katalogu skrzynki,
+  więc awatar pojawia się wyłącznie wtedy, gdy serwer potwierdził profil nadawcy;
+  w DM autor nadal się nie pokazuje.
+- Bez nowego pola w kontrakcie: awatar korzysta z istniejącego
+  `/api/v1/users/{userId}/avatar` z fallbackiem na inicjały (Flutter cache'uje
+  obrazy po URL, więc lista nie generuje zapytania per wiadomość).
+- Decyzja: brak osobnego mapowania `userId -> avatarUrl`, bo URL awatara jest
+  pochodną `userId` i nie wymaga rozszerzania DTO członków.
+
+Bramki: `test/workspaces/presentation/chat/shell/` + `chat_message_metadata_test.dart`
+→ 25/25; `flutter analyze lib test` → No issues found; `dart format` zmienionego pliku
+→ 0 changed; `git diff --check` czysty.
+Otwarte: odbiór wizualny (kontrast i rozmiar awatara w wąskim panelu).
+
+### Uzupełnienie CHAT-F3 (2026-09-22) — otwieranie/pobieranie załącznika autoryzowaną ścieżką
+
+- Nowy port `lib/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart`
+  (`ChatAttachmentAccessPort.open(storageFileId)`, `ChatAttachmentAccessFailure`
+  z `code`/`message`/`traceId`); `one_member_abstracts` wyciszony lokalnie
+  z uzasadnieniem, że to seam kompozycji, a nie funkcja przekazywana argumentem.
+- Adapter data-layer `lib/workspaces/data/chat/attachments/chat_attachment_access_port_adapter.dart`:
+  Storage wystawia bilet `/api/v1/storage/files/{fileId}/download-ticket`, a zapis
+  pliku na urządzeniu robi platformowy `DownloadTransport`. Presentation nie widzi
+  presigned URL ani nagłówków.
+- Kompozycja: `DevPlannerGlobalChatComposition.attachmentAccessPort`, runtime buduje
+  adapter z `storageRepository` + `DownloadTransportImpl` (brak Storage ⇒ brak portu
+  ⇒ brak akcji), host panelu udostępnia go przez `RepositoryProvider`.
+- `chat_message_attachments.dart`: karta jest `InkWell` z ikoną pobrania, spinnerem
+  w trakcie i SnackBar-em z komunikatem serwera po porażce; plik niedostępny i brak
+  portu nie pokazują akcji. ARB en/pl: `chatAttachmentOpen`.
+
+Bramki: `chat_attachment_access_port_adapter_test.dart` 3/3; `attachments/` + `shell/`
++ metadane → 48/48; `flutter analyze lib test` → No issues found; `flutter gen-l10n`
+wykonany; `git diff --check` czysty.
+Otwarte: miniatury/galeria w aplikacji, progres per plik, wklejanie obrazu,
+forward mediów, odbiór wizualny.
+
+### Uzupełnienie CHAT-F3 (2026-09-22) — miniatury obrazów przez autoryzowany port
+
+- `ChatAttachmentAccessPort.thumbnail(storageFileId)` — ten sam bilet pobrania,
+  `DownloadTransport.fetchBytes`; porażka wraca jako `null` (karta nie pokazuje
+  fałszywego podglądu). Adapter: `chat_attachment_access_port_adapter.dart`.
+- `ChatMessageAttachment.isImage` rozstrzyga po typie MIME z serwera, bez
+  zgadywania po rozszerzeniu nazwy.
+- `_AttachmentThumbnail` w `chat_message_attachments.dart`: 36 px `Image.memory`
+  dla dostępnego obrazu przy obecnym porcie, w każdym innym przypadku ikona pliku.
+
+Bramki: `chat_message_attachment_test.dart` 3/3; adapter 9/9; `attachments/` +
+`shell/` + metadane → 48/48; `flutter analyze lib test` → No issues found;
+`git diff --check` czysty.
+Otwarte: galeria pełnoekranowa, progres per plik, wklejanie obrazu, forward mediów.
+
+## 2026-09-22 — CHAT-UI U0: inwentaryzacja przed przebudową komunikatora
+
+Zakres: `docs/global-chat-messenger-ui-spec-2026-09-22.md` (nadraty nad wcześniejszymi
+ustaleniami UI). Ten wpis to wyłącznie rozpoznanie drzewa i kontraktów; wyglądu nie
+zmieniano i nie odebrano.
+
+### Produkcyjna ścieżka renderowania (faktycznie używana)
+
+`lib/app/shell/overlays/devplanner_global_panels_host.dart` buduje panel z
+`DevPlannerGlobalChatComposition` i udostępnia porty przez `RepositoryProvider`
+(members, presence, search, upload, access, file picker). Rozmowę renderują:
+
+- `lib/workspaces/presentation/chat/shell/chat_panel_conversation.dart`
+  (`_ChatPanelConversationContentState`, `_ChatPanelMessages`,
+  `ChatPanelConversationHeader`, `ChatPanelConnectionBanner`) — header, banner okna
+  historii, lista, composer.
+- `lib/workspaces/presentation/chat/shell/chat_panel_conversation_parts.dart`
+  (`ChatPanelMessageList`, `_ChatMessageFooter`, `_StatusGlyph`) — wiersz wiadomości,
+  reakcje, karty załączników, footer, menu akcji.
+- `lib/workspaces/presentation/chat/inbox/components/*` — lista skrzynki i wiersz.
+
+Współdzielone dalej: `rich_text/chat_rich_text_body.dart` (renderer treści),
+`attachments/history/chat_message_attachments.dart` (karty + miniatura + galeria),
+`mentions/`, `message_actions/`, `presence/widgets/chat_typing_indicator.dart`.
+
+Drugi renderer: `lib/workspaces/presentation/chat/chat_conversation_page.dart`
+(`ChatConversationPageView` + `chat_conversation_message_list.dart`) jest używany
+wyłącznie przez `lib/workspaces/presentation/chat/discussion/chat_discussion_side_panel.dart`,
+a nie przez globalny panel. Rozbieżność dwóch rendererów należy usunąć przez
+współdzielenie, nie przez równoległe poprawianie obu.
+
+### Fundament wyglądu
+
+- Theme: `lib/foundation/theme/` ma `theme.dart`, `theme_extensions.dart`
+  (`extension DevPlannerContextThemeX on BuildContext`, stałe `Sizes`/`Gaps`),
+  `menu_theme.dart` (`DevPlannerMenuTheme extends ThemeExtension<DevPlannerMenuTheme>`),
+  `files_theme.dart`, `navigation_theme.dart`, `shell_theme.dart`, `tasks_theme.dart`.
+  Wzorcem dla `chat_theme.dart` jest `DevPlannerMenuTheme` (copyWith/lerp/rejestracja
+  light+dark). Pliku `chat_theme.dart` jeszcze nie ma.
+- Menu: `lib/shared/presentation/widgets/app_context_menu.dart` udostępnia
+  `AppContextMenu.show/select/showCustom` oraz `AppContextMenuRegion` (prawy klik,
+  geometria z ekranem). Nowe menu mają używać tego mechanizmu, nie własnych MenuAnchor.
+
+### Tożsamość, status, pisanie
+
+- Awatar: `lib/shared/presentation/widgets/app_user_avatar.dart` (`AppUserAvatar`)
+  czyta `/api/v1/users/{userId}/avatar` i `/api/v1/me/avatar`, ma fallback inicjałów
+  i deterministyczny kolor. Profile i uczestnicy niosą `avatarUrl` w DTO.
+- Status własny: `ChatPresenceRepository.getUserStatus/setOwnStatus/clearOwnStatus`
+  oraz `presence/chat_status_menu.dart`, który dziś używa `TextField` (x2),
+  `SwitchListTile` i `DropdownButtonFormField` — do zastąpienia kartą profilu,
+  presetami i menu czasu.
+- Online/offline: BRAK kontraktu. Repozytorium obecności zna wyłącznie custom status
+  (emoji/opis/wygaśnięcie/DND), więc do czasu osobnego pakietu presence UI musi
+  pokazywać „brak danych”, a nie zielone online.
+- Typing: `ChatTypingCubit` (strumień `ChatConversationRealtimeClient`, TTL
+  `fallbackTtl` 8 s, wyklucza własne UserId) + dziś ogólny
+  `presence/widgets/chat_typing_indicator.dart` bez nazw osób.
+
+### Długie wklejenia / snippet
+
+- Backend ma `POST /conversations/{conversationId}/snippet` (przygotowanie; 2 000 000
+  znaków wejścia, 500 000 wyjścia, PlainText/Markdown, limit 10/min, bez zapisu pliku)
+  i `POST /messages/{messageId}/snippet-attachment` (wymaga istniejącego messageId).
+- Polityka siedzi w `ChatLinkOptions` (`Chat:Links`): `SnippetThresholdCharacters`
+  = 2 000, `SnippetMaxCharacters` = 200 000, `SnippetInputMaxCharacters` = 1 000 000.
+- Front nie ma żadnego klienta snippetów ani odczytu progu → potrzebny jawny,
+  addytywny kontrakt polityki (np. `GET /chat/link-policy`), żeby UI nie kopiowało
+  magicznej liczby 2 000.
+
+### Emoji
+
+- Brak zależności emoji w `pubspec.yaml` i brak jakiegokolwiek widgetu emoji.
+  `ChatEmojiPicker` trzeba zbudować; decyzja otwarta: kuratorowany lokalny zbiór
+  (bez nowej zależności, bez wyszukiwania pełnego Unicode) albo dodanie pakietu
+  emoji z wyszukiwaniem i kategoriami.
+
+### Załączniki
+
+- Gotowe i do ponownego użycia: `attachments/selection`, `attachments/upload`
+  (owner per plik + kolejka atomowa), `attachments/history` (karty, miniatura,
+  galeria, otwieranie/pobieranie autoryzowanym portem `ChatAttachmentAccessPort`).
+
+### Luki do domknięcia przed U2–U4
+
+1. Kontrakt polityki snippet + klient snippetu i dwuetapowa intencja (wiadomość + TXT).
+2. Brak źródła online/offline (obecność) — „brak danych” albo osobny pakiet backendu.
+3. Brak wspólnego `ChatEmojiPicker`.
+4. Dwa renderery historii (panel + strona dyskusji) do scalenia.
+5. Brak `chat_theme.dart` i ról kolorów dymków/composera.
+
+## 2026-09-22 — CHAT-UI U1 (część 1): motyw czatu i prawdziwe dymki
+
+Zakres: fundament wyglądu z `docs/global-chat-messenger-ui-spec-2026-09-22.md` §3–§4.
+Wygląd pozostaje NIEZAakceptowany — brak zrzutów i ręcznego odbioru.
+
+- `lib/foundation/theme/chat_theme.dart` (nowy): `DevPlannerChatTheme extends
+  ThemeExtension` z rolami powierzchni/dymków/metadanych (panelSurface, listSurface,
+  conversationSurface, composerSurface, incoming/outgoingBubble i Text, metadataText,
+  linkText, mentionSurface/Text, codeSurface, separator, hoverSurface, selectedSurface,
+  focusRing, presenceOnline/Away/Dnd/Unknown, deliveryRead, error), stylami treści
+  (14/1.4), autora (12.5 medium), metadanych (11.5) i monospace oraz miarami
+  (radius dymka 16/composera 20, padding 10/12, seria 4, autor 12, gutter 16/12,
+  78%/560 dymka z 88% w compact, rail 56/przycisk 40/ikona 22/gap 8, akcja composera 40,
+  awatary 44/36/30/36). Kolory wynikają z jednego, jawnego mapowania palety; wychodzący
+  dymek to tint akcentu, nie `primaryContainer`. Zarejestrowany w `theme.dart` dla light
+  i dark; odczyt przez `context.chatTheme`.
+- `lib/workspaces/presentation/chat/messages/chat_message_grouping.dart` (nowy):
+  serie dymków — ten sam autor, okno 5 min, granica dnia, usunięcie rozdziela serie;
+  `isOwnAuthor` z kanonicznego UserId sesji.
+- `lib/workspaces/presentation/chat/messages/chat_message_bubble.dart` (nowy):
+  `ChatMessageBubble` (własne na prawo, cudze na lewo, limit szerokości, nazwa autora
+  na początku serii, stopka metadanych, menu `…` jako nakładka na hover/fokus, więc
+  otwarcie menu nie zmienia geometrii dymka, podświetlenie celu skoku) oraz
+  `ChatMessageSeriesView` (awatar 30 tylko dla cudzej serii, rezerwa miejsca dla
+  kolejnych dymków serii).
+- `chat_panel_conversation_parts.dart`: lista panelu renderuje serie i dymki zamiast
+  wierszy `DecoratedBox` z czterema stałymi akcjami; limit szerokości liczony
+  z dostępnych constraints, nie z rozmiaru monitora; usunięte `_ChatMessageFooter`
+  i `_StatusGlyph` (przeniesione do komponentu dymka).
+- `rich_text/chat_rich_text_body.dart`: cytat, kod inline, blok kodu z językiem,
+  nagłówek bloku i link używają tokenów czatu (`separator`, `codeSurface`,
+  `metadataText`, `linkText`, `monospaceStyle`).
+
+Komendy i wyniki: `flutter analyze lib test` → No issues found;
+`test/workspaces/presentation/chat/{shell,messages,attachments}` +
+`test/workspaces/domain/chat` → **89/89 PASS** (w tym nowe
+`chat_message_grouping_test.dart` 8/8); `git diff --check` czysty.
+
+Otwarte w U1 (do domknięcia przed zgłoszeniem pakietu): reguły raila i responsywności
+z §2 (breakpointy z constraints, rail 56 bez skalowania ikon, bardzo wąskie okno →
+przycisk sekcji w nagłówku), separatory dat i „Nieprzerwane/Nowe wiadomości”,
+zwijanie długiej treści po 12 liniach, awatar/nazwa w nagłówku DM, dark/light
+i zrzuty szeroki/compact.
+
+## 2026-09-22 — CHAT-UI U1 (część 2): responsywność, separatory dni, zwijanie treści
+
+- `chat_panel_size.dart`: `narrowBreakpoint` 400 px, `separatorWidth`, `railWidth(bool)`
+  i `fitsTwoColumns({available, compactRail})` — o liczbie kolumn decydują faktyczne
+  constraints (lista ≥304 + rozmowa ≥360 + separatory), a nie stały próg 760 px.
+  `compactBreakpoint` zostaje wyłącznie jako próg modalności okna w hoście panelu.
+- `chat_panel_rail.dart`: belka ma stałe 56 px, przyciski 40×40, ikonę 22 i odstęp 8,
+  a kolory pochodzą z `chatTheme` (`selectedSurface`, `linkText`, `metadataText`) —
+  bez `primaryContainer` i bez skalowania ikon. Nowy `ChatPanelNarrowBar` zastępuje
+  belkę poniżej 400 px: przycisk sekcji z menu, przypięcie, profil i ustawienia
+  w jednym pasku; wybrana sekcja jest widoczna na przycisku.
+- `chat_panel_section.dart`: `ChatPanelSection.listSections` jako jedno źródło
+  kolejności pozycji dla belki i paska.
+- `chat_panel_scaffold.dart`: układ rozstrzygany z `fitsTwoColumns`, tryb wąski
+  (<400 px) bez belki, tryb jednokolumnowy z belką powyżej progu.
+- Historia: `ChatMessageGrouping.timeline` wstawia `ChatTimelineDate` przed serią z
+  nowego dnia (nowy widget `ChatMessageDateSeparator` używa lokalizacji Material);
+  dymek zwija treść po 12 liniach z „Pokaż więcej/Pokaż mniej”, a pełny oryginał
+  pozostaje dostępny.
+
+Komendy i wyniki: `flutter analyze lib test` → No issues found; `chat_message_grouping_test.dart`
+11/11 (w tym 3 nowe na timeline); `presentation/chat/{shell,messages,attachments}` +
+`domain/chat` → **92/92 PASS**; `git diff --check` czysty.
+
+Otwarte w U1: wskaźnik „N nowych wiadomości ↓” przy zdarzeniu poza dolną krawędzią,
+awatar 36 i linia statusu/pisania w nagłówku DM, menu kontekstowe z
+`AppContextMenu` dla wszystkich obiektów, SelectionArea, zrzuty light/dark i
+szeroki/compact do odbioru.
+
+## 2026-09-22 — CHAT-UI U2 (część 1): jedna powierzchnia pisania
+
+Zakres: §5 specyfikacji UI (composer). Wygląd nadal NIEZAakceptowany.
+
+- `composer/chat_composer_surface.dart` (nowy): `ChatComposerSurface` — jedna
+  zaokrąglona powierzchnia (radius 20 z motywu) z akcjami o stałym boku 40,
+  elastycznym edytorem i Wyślij; obwódka fokusu jest subtelna i tylko dla
+  aktywnej kontrolki. `ChatComposerActionButton` (stałe 40 px, ikona 20–22)
+  oraz `ChatComposerMoreMenu` (`+`) z pozycjami Zdjęcie, Plik, Kod,
+  Tekst jako plik i Rozbudowany edytor.
+- `chat_message_composer.dart`: usunięty stały `SegmentedButton` Plain/Rich i
+  domyślne `OutlineInputBorder`; rozbudowany edytor włącza się z menu `+` bez
+  konwersji dokumentu (ta sama ścieżka `_selectMode`, więc atrybuty, wzmianki i
+  załączniki nie giną). Pole ma `minLines`/`maxLines` z motywu (1–6) i własny
+  styl treści. Akcje „Zdjęcie” i „Plik” wołają `FilePickerPort.pickFiles`
+  (`allowedExtensions` dla zdjęć) i przekazują wynik do koordynatora
+  załączników; brak portu wyłącza pozycję, a „Tekst jako plik” jest jawnie
+  niedostępny z powodem do czasu kontraktu polityki snippet.
+- `chat_attachment_composer_controls.dart`: pasek załączników przestał być
+  formularzem w ramce z przyciskiem „Dodaj załącznik”; pokazuje karty nazwa →
+  stan → usuń, jawnie oznacza odrzucone pliki i oferuje ponowienie
+  (`prepare`) po błędzie, nadal przyjmuje upuszczenie pliku.
+- Wysyłka jest zablokowana przy pustej treści bez gotowego załącznika, w trakcie
+  przygotowania oraz po błędzie; nadal respektuje stan koordynatora.
+- ARB en/pl: `chatComposerMoreActions`, `chatComposerAddImage`,
+  `chatComposerAddFile`, `chatComposerTextAsFile`,
+  `chatComposerTextAsFileUnavailable`, `chatComposerExpandedEditor`,
+  `chatAttachmentRetryAction` (usunięty duplikat `chatAttachmentsRemove`).
+
+Komendy i wyniki: `flutter gen-l10n` wykonany; `flutter analyze lib test` →
+No issues found; `presentation/chat/{shell,messages,attachments}` +
+`domain/chat` → **92/92 PASS**; `git diff --check` czysty.
+
+Otwarte w U2: picker emoji (`ChatEmojiPicker`) i wstawianie w pozycji kursora,
+pasek formatowania zaznaczenia (Pogrubienie/Kursywa/Przekreślenie/Kod inline/Link),
+panel kodu z językiem w composerze, wklejanie bez formatowania, link z kartą
+preview, snippet → TXT z decyzją użytkownika, pełny roundtrip formatowania,
+obsługa `Ctrl/Cmd+Enter` w rozbudowanym edytorze i limit wysokości pola
+zależny od wysokości rozmowy.
+
+## 2026-09-22 — CHAT-UI U2 (część 2): wspólny picker emoji i formatowanie zaznaczenia
+
+- `presentation/chat/emoji/chat_emoji_catalog.dart` (nowy): kuratorowany katalog
+  emoji z kategoriami, nazwami i słowami kluczowymi (PL/EN), wariantami odcienia
+  dla znaków, które je wspierają, oraz listą szybkich reakcji. Bez nowej
+  zależności i bez pobierania danych z sieci.
+- `presentation/chat/emoji/chat_emoji_picker.dart` (nowy): wspólny picker dla
+  composera, reakcji i statusu — wyszukiwanie, kategorie (w tym „Ostatnio użyte”),
+  siatka o komórce 40 px, wybór odcienia skóry, jawny stan „brak pasujących”.
+  `showChatEmojiPicker` zwraca wybrany znak albo `null` (zamknięcie nic nie
+  zmienia i nie wysyła wiadomości). Dodatkowo `ChatEmojiQuickReactions` z
+  sześcioma szybkimi reakcjami do dymka.
+- `presentation/chat/emoji/cubit/chat_emoji_recent_cubit.dart` (nowy): sesyjna
+  lista ostatnio użytych wyłącznie w pamięci; wpięta w host panelu obok
+  `ChatUnreadCubit` (tworzona przy aktywnej kompozycji, czyszczona przy braku
+  sesji, zamykana w `dispose`).
+- Composer: akcja emoji o stałym boku wstawia znak w miejscu kursora
+  (plain: `TextEditingController` z zachowaniem zaznaczenia; rich: `replaceText`
+  w kontrolerze Quill) i przywraca focus; brak sesyjnego cubitu wyłącza akcję.
+- `composer/chat_format_commands.dart` (nowy): mapowanie akcji P/ K/ przekreślenie/
+  kod inline/link/wyłącz na atrybuty transportu, walidacja bezpieczeństwa adresu
+  i normalizacja bez schematu — logika poza widgetami, pokryta testami.
+- `composer/chat_composer_format_bar.dart` (nowy): pasek zaznaczenia nad
+  powierzchnią pisania (nie przesłania zaznaczenia), aktywny atrybut wyróżniony,
+  link przez mały dialog, „Wyłącz formatowanie” zdejmuje wszystkie atrybuty;
+  skróty Ctrl/Cmd+B i Ctrl/Cmd+I działają w rozbudowanym edytorze.
+- ARB en/pl: `chatComposerEmoji`, `chatEmojiSearchHint`, `chatEmojiRecent`,
+  `chatEmojiSkinTone`, `chatEmojiEmpty`, etykiety kategorii, `chatComposerBold`,
+  `chatComposerItalic`, `chatComposerStrike`, `chatComposerInlineCode`,
+  `chatComposerLink`, `chatComposerClearFormat`, `chatComposerLinkTitle/Hint/Apply`.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+`domain/chat` + `presentation/chat/{messages,emoji}` +
+`composer/chat_format_commands_test.dart` + `data/chat` →
+**141 PASS / 1 FAIL**; `git diff --check` czysty.
+
+Uwagi o bramkach (ważne dla dalszej pracy):
+- Zgodnie z §207 specyfikacji nie uruchamiam testów widgetowych/goldenów przed
+  akceptacją wyglądu. Jedna z komend w tej sesji objęła ścieżkę
+  `presentation/chat`, która zawiera istniejące testy widgetowe composera;
+  od tego miejsca wybieram wyłącznie jawne ścieżki jednostkowe.
+- Czerwony test `test/workspaces/data/chat/global_chat_contract_test.dart`
+  („serializes conversation scope with local user UUIDs”) NIE pochodzi z tej
+  pracy: równoległa, niezacommitowana zmiana w
+  `lib/workspaces/data/shared/enums/chat_enums.dart` dodała `@JsonValue('Direct')`
+  i pozostałe PascalCase, a test nadal podaje `type: 'direct'`. Nie dotykam
+  cudzej zmiany ani jej testu; do decyzji właściciela tej zmiany (albo
+  aktualizacja payloadu testu, albo akceptacja obu wariantów w enumie).
+
+## 2026-09-22 — CHAT-UI U3 (część 1): nazwy osób piszących
+
+- `presentation/chat/presence/chat_typing_label.dart` (nowy): decyzja o treści
+  wskaźnika (jedna osoba / para / grupa z liczbą pozostałych / brak znanych nazw).
+  Identyfikatory są sortowane, więc kolejność zbioru z realtime nie zmienia
+  wyświetlanej osoby, a nieznana etykieta daje tekst neutralny zamiast UUID.
+- `presence/widgets/chat_typing_indicator.dart`: trzy subtelne kropki z animacją
+  cykliczną (przy wyłączonych animacjach systemu statyczne), wysokość 20 px
+  zarezerwowana, więc pojawienie się pisania nie skacze układem.
+- Panel przekazuje `_participantLabels(context)` do wskaźnika.
+- ARB en/pl z pluralizacją: `chatTypingOne`, `chatTypingTwo`, `chatTypingMany`
+  (`few`/`many` obsłużone), `chatTypingIndicator` jako neutralny fallback.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+`chat_typing_label_test.dart` 7/7; `presence` + `emoji` + `messages` +
+`composer/chat_format_commands_test.dart` + `domain/chat` → **91/91 PASS**;
+`git diff --check` czysty.
+
+## 2026-09-22 — CHAT-UI U3 (część 2) i U4 (start): karta statusu i reakcje
+
+- `presence/chat_status_presets.dart` (nowy): presety (Skupienie, Na spotkaniu,
+  Zaraz wracam, W drodze, Przerwa) z emoji oraz `ChatStatusDurations` — „Dzisiaj”
+  to koniec lokalnego dnia (nie +24 h), z przejściem przez granicę miesiąca i roku;
+  brak terminu nie tworzy daty. Testy: `chat_status_presets_test.dart` 6/6.
+- `presence/chat_status_menu.dart`: formularz (ręczne pole emoji, `SwitchListTile`,
+  `DropdownButtonFormField`) zastąpiony zakotwiczoną kartą profilu (max 340 px,
+  clamp przez `MenuAnchor`): awatar `/me`, nazwa, aktualny status albo „Brak statusu”,
+  gotowe statusy jednym kliknięciem, picker emoji ze wspólnego katalogu, jedno
+  lekkie pole opisu, menu terminu (Za godzinę / Dzisiaj / Bez terminu) i DND.
+  Termin istniejącego statusu nie jest zerowany bez wyboru („Bez zmian”), karta nie
+  zamyka się przed potwierdzeniem zapisu, a błąd pokazuje kod i pozwala ponowić.
+- Reakcje: pasek szybkich reakcji bierze znaki ze wspólnego katalogu i ma pozycję
+  `+`, która otwiera pełny picker z wyszukiwaniem i kategoriami; emoji z pickera
+  jest zapamiętywane w sesyjnej liście ostatnio użytych. Dymek pokazuje na hover
+  mały przycisk „Dodaj reakcję” obok `…`, bez zmiany geometrii i bez stałych ikon.
+- Obecność: w UI czatu nie ma żadnego miejsca, które wnioskuje „online”; brak
+  kontraktu obecności pozostaje widoczny jako brak danych, a nie zielona kropka.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+`presence` + `emoji` + `messages` + `composer/chat_format_commands_test.dart` +
+`domain/chat` → **96/96 PASS**; `git diff --check` czysty.
+
+Otwarte w U3/U4: sekcja uczestników z awatarami i wejściem „Dodaj osoby” z karty
+nagłówka, karta osoby („Napisz”, rola), menu kontekstowe wszystkich obiektów z
+`AppContextMenu` (rozmowa, link, załącznik, osoba, composer), długie wklejenie →
+TXT (wymaga kontraktu polityki snippet), obecność z prawdziwego źródła.
+
+## 2026-09-22 — CHAT-UI U3 (część 3): tożsamość w nagłówku i awatary członków
+
+- `chat_panel_conversation_parts.dart` (`ChatPanelConversationHeader`): nagłówek ma
+  teraz awatar 36 px z motywu (`AppUserAvatar`), nazwę z elipsą i jedną linię
+  kontekstu pod nią; rzadkie akcje zostały tam, gdzie były, a Wstecz i zamknięcie
+  nadal są osiągalne przy długim tytule.
+- `chat_panel_conversation.dart`: jedno źródło danych o rozmowie (`_inboxItem`)
+  dla etykiet autorów, roli `@all`, tytułu DM, awatara rozmówcy i liczby
+  uczestników; licznik uczestników korzysta z ARB z polską pluralizacją
+  (`chatHeaderParticipantCount`). Usunięto trzykrotne dublowanie pętli po skrzynce.
+- `chat_members_sheet.dart`: każdy wiersz członka ma awatar 36 px, rolę i status,
+  więc lista osób nie jest już surowym `ListTile` z samym tekstem.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+`presence` + `emoji` + `messages` + `composer/chat_format_commands_test.dart` +
+`domain/chat` → **96/96 PASS**; `git diff --check` czysty.
+
+Otwarte w U3: karta osoby („Napisz”, rola, status) — wymaga przeciągnięcia
+`onOpenConversation` z hosta przez arkusz członków po rozwiązaniu DM
+(`ChatCreationCubit.startDirectWith` → `POST /conversations/resolve`), a także
+wyszukiwanie w nagłówku i przeniesienie rzadkich akcji do menu `…`.
+
+## 2026-09-22 — CHAT-UI U3 (część 4): karta osoby i akcja „Napisz”
+
+- `members/chat_person_card.dart` (nowy): karta osoby z listy członków — awatar 44,
+  nazwa, rola w rozmowie i status z portu obecności (brak portu albo błąd nie psuje
+  widoku). „Napisz” rozwiązuje rozmowę 1:1 tym samym kontraktem co kreator
+  (`ChatCreationCubit.startDirectWith` → `POST /conversations/resolve`) i otwiera ją
+  przez `DevPlannerPanelsScope.openConversationOf`; brak portu albo nieudane
+  rozwiązanie pokazuje komunikat zamiast pozornego sukcesu. Karta nie pojawia się
+  jako akcja dla własnego konta.
+- `foundation/presentation/devplanner_panels.dart`: dodany `openConversationOf`,
+  spójny z istniejącym `openResourceConversationOf`.
+- `members/chat_members_sheet.dart`: wiersz członka otwiera kartę osoby; port
+  zarządzania rozmową jest przekazywany z `show()` przez ciało arkusza do listy.
+- ARB en/pl: `chatPersonWrite`, `chatPersonWriteFailed`.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+`presence` + `emoji` + `messages` + `composer/chat_format_commands_test.dart` +
+`domain/chat` → **96/96 PASS**; `git diff --check` czysty.
+
+## 2026-09-22 — CHAT-UI U1 (część 3): wskaźnik nowych wiadomości
+
+- `chat_panel_conversation_parts.dart` (`ChatPanelMessageList`): lista ma własny
+  `ScrollController` i liczy wiadomości, które przyszły, gdy użytkownik czytał
+  starszy fragment. Wtedy nie przewraca mu widoku, tylko pokazuje nad dolną
+  krawędzią wskaźnik „N nowych wiadomości ↓” (klikalny, wraca do najnowszych);
+  przy dolnej krawędzi lista zachowuje się jak dotąd i sama pokazuje nowe wpisy.
+  Licznik czyści się po powrocie na dół i po skoku z wskaźnika.
+- ARB en/pl: `chatNewMessages` z polską pluralizacją (`few`/`many`).
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+`presence` + `emoji` + `messages` + `composer/chat_format_commands_test.dart` +
+`domain/chat` → **96/96 PASS**; `git diff --check` czysty.
+
+Otwarte z §4: klikalny link i karta preview w historii, „Kopiuj wiadomość” /
+„Kopiuj zaznaczenie”, zwijanie serii wg separatora (zrobione w grupowaniu),
+SelectionArea dla zaznaczania myszą i klawiaturą.
+
+## 2026-09-22 — CHAT-UI U4 (część 1): linki i kopiowanie wiadomości
+
+- `presentation/chat/links/chat_external_link_port.dart` (nowy) +
+  `data/chat/links/chat_external_link_port_adapter.dart` (nowy, `url_launcher`):
+  otwieranie adresu poza aplikacją tylko dla `http`/`https`, bez odstępów w adresie
+  i bez pustego hosta; odmowa systemu i błąd launchera wracają jako `false`, więc
+  UI nie zgłasza sukcesu. Port wpięty w kompozycję, runtime i host panelu tak samo
+  jak port załączników.
+- `rich_text/chat_rich_text_body.dart`: linki w historii są klikalne (rozpoznawacze
+  tworzone raz na blok i zwalniane w `dispose`/`didUpdateWidget`, bez wycieku),
+  a kliknięcie otwiera `AppContextMenu` zakotwiczone w miejscu dotknięcia z pełnym
+  adresem w nagłówku i akcjami „Otwórz” oraz „Kopiuj adres”. Kod bloku kodu nadal
+  ma własne „Kopiuj”.
+- `message_actions/chat_message_action_menu.dart`: dodane „Kopiuj wiadomość”
+  (schowek z dokładnie zapisanym tekstem, bez dopisywania znaków; potwierdzenie albo
+  komunikat błędu w SnackBarze), obok istniejących reakcji, odpowiedzi, przekazania,
+  zapisu, przypięcia, wątku, edycji i usunięcia.
+- ARB en/pl: `chatMessageCopy`, `chatMessageCopied`, `chatMessageCopyFailed`,
+  `chatLinkOpen`, `chatLinkCopy`, `chatLinkOpenFailed`.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+`chat_external_link_port_adapter_test.dart` **5/5** (bezpieczny adres, odrzucone
+schematy, pusty/adres z odstępem, odmowa systemu, błąd launchera); pełny jawny
+zestaw czatu (`presentation/chat/{presence,emoji,messages}` +
+`composer/chat_format_commands_test.dart` + `domain/chat` + `data/chat/{links,attachments}`)
+→ **119/119 PASS**; `git diff --check` czysty.
+
+Otwarte z §5/§10: karta preview linku po stronie serwera, menu kontekstowe rozmowy
+na liście i załącznika (Otwórz/Podgląd, Pobierz, Kopiuj nazwę), „Kopiuj zaznaczenie”
+(razem z `SelectionArea`), menu composera (Wklej/Wklej bez formatowania/Zaznacz wszystko).
+
+## 2026-09-22 — CHAT-UI U4 (część 2): menu kontekstowe rozmowy i załącznika
+
+- `inbox/components/chat_inbox_row_menu.dart` (nowy): jedno menu rozmowy dla
+  prawego kliku, długiego przytrzymania i klawiatury. Pokazuje wyłącznie akcje z
+  realnym skutkiem: Otwórz, Wycisz/Włącz powiadomienia (tryb z `isMuted` w pozycji,
+  powrót do wszystkich powiadomień), Archiwizuj/Przywróć (zależnie od sekcji) oraz
+  Informacje (istniejący arkusz członków). Po akcji odświeża skrzynkę, a błąd portu
+  pokazuje komunikatem; brak portu ukrywa pozycję. Przypięcia rozmowy celowo nie ma —
+  to nie to samo co przypięcie wiadomości.
+- `inbox/components/chat_inbox_row.dart`: wiersz ma `actionsBuilder`, długie
+  przytrzymanie otwiera menu zakotwiczone przy wierszu (nazwa rozmowy w nagłówku);
+  `AppContextMenuRegion` obsługuje prawy klik w miejscu kursora.
+- `shell/layout/chat_panel_list_pane.dart`: buduje akcje dla wiersza,
+  przekazuje je do wiersza i owija go obszarem menu; sekcja decyduje o
+  archiwizacji vs przywróceniu.
+- `attachments/history/chat_message_attachments.dart`: karta załącznika ma menu
+  (prawy klik i długie przytrzymanie) z akcjami tylko tam, gdzie są wykonalne —
+  obraz: Podgląd i Pobierz, dokument: Otwórz, zawsze: Kopiuj nazwę.
+- ARB en/pl: `chatInboxOpen`, `chatInboxMute`, `chatInboxUnmute`, `chatInboxArchive`,
+  `chatInboxRestore`, `chatInboxInfo`, `chatAttachmentPreview`,
+  `chatAttachmentDownload`, `chatAttachmentCopyName`.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+pełny jawny zestaw (`presentation/chat/{presence,emoji,messages}` +
+`composer/chat_format_commands_test.dart` + `domain/chat` + `data/chat/{links,attachments}`)
+→ **119/119 PASS**; `git diff --check` czysty.
+
+Otwarte z §10: menu composera (Wklej, Wklej bez formatowania, Zaznacz wszystko),
+„Kopiuj zaznaczenie” razem z `SelectionArea`, przeniesienie rzadkich akcji nagłówka
+do `…`, menu osoby w historii (awatar/nazwa autora) oraz wspólne menu dla wyników
+wyszukiwania i wątku.
+
+## 2026-09-22 — CHAT-UI U4 (część 3): zaznaczanie i kopiowanie zaznaczenia
+
+- `rich_text/chat_rich_text_body.dart`: renderer treści używa `Text.rich` zamiast
+  `RichText`, więc tekst jest zaznaczalny w regionie selekcji (myszą, klawiaturą i
+  dotykiem) bez zmiany wyglądu; link pozostaje klikalny przez własny rozpoznawacz.
+- `shell/chat_panel_conversation_parts.dart`: historia panelu jest w `SelectionArea`,
+  więc zaznaczanie i skrót kopiowania działają jak w polach tekstowych, a wskaźnik
+  nowych wiadomości i menu `…` pozostają nienaruszone.
+- `message_actions/chat_message_action_menu.dart`: „Kopiuj wiadomość” kopiuje cały
+  zapisany tekst, a „Kopiuj zaznaczenie” wysyła ten sam `CopySelectionTextIntent`,
+  którego używa Ctrl+C w regionie zaznaczania — przy braku zaznaczenia nic nie
+  kopiuje i nie zgłasza pozornego sukcesu. Świadomie nie czytamy zaznaczenia przez
+  API prywatne: `SelectableRegionState` nie eksponuje treści zaznaczenia publicznie.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+pełny jawny zestaw czatu → **119/119 PASS**; `git diff --check` czysty.
+
+Otwarte z §10: menu composera (Wklej/Wklej bez formatowania/Zaznacz wszystko),
+przeniesienie rzadkich akcji nagłówka do `…`, menu osoby w historii, wspólne menu
+dla wyników wyszukiwania i wątku.
+
+## 2026-09-22 — CHAT-UI U2 (część 3): klient polityki snippetów i ocena długiego wklejenia
+
+Domykamy stronę klienta dla nowego kontraktu backendu (`GET /api/v1/chat/link-policy`).
+
+- `domain/chat/link_policy/chat_link_policy.dart` + `chat_link_policy_repository.dart`
+  (nowe): model progów i port `getPolicy()`; presentation nie zna adresu endpointu.
+- `data/chat/models/chat_link_policy_dto.dart` (nowy): ręczny DTO z `fromJson`
+  (trzy liczby nie uzasadniają kodegenu) i `toDomain()`; brak pola to
+  `FormatException`, a nie ciche zero.
+- `data/chat/api/chat_api.dart` + regenerowany `chat_api.g.dart`: metoda
+  `loadLinkPolicy()`; `data/chat/repositories/chat_link_policy_repository_impl.dart`
+  mapuje odpowiedź i błędy przez `ChatApiErrorCode.loadLinkPolicy` (nowy kod
+  `chat.link_policy.load_failed`).
+- Kompozycja, runtime i host panelu udostępniają `ChatLinkPolicyRepository`;
+  brak portu oznacza brak propozycji pliku TXT — klient nie zgaduje progów.
+- `presentation/chat/composer/chat_long_paste_decision.dart` (nowy):
+  `assess(text, policy)` rozstrzyga `text` / `file` / `overLimit` w tych samych
+  granicach co backend (próg włącza propozycję, limit wejścia daje jawny stan
+  przekroczenia), liczy znaki jak C# `string.Length` oraz bajty UTF-8 i buduje
+  podgląd pierwszych trzech linii bez modyfikowania treści. Brak polityki
+  zawsze zwraca `text`, więc UI nie proponuje pliku na podstawie zgadywanej liczby.
+
+Komendy i wyniki: `dart run build_runner build --delete-conflicting-outputs`
+(30 s, 2 wyjścia); `flutter analyze lib test` → No issues found;
+`chat_long_paste_decision_test.dart` **8/8**; pełny jawny zestaw czatu →
+**127/127 PASS**; `git diff --check` czysty.
+
+Otwarte z §7: karta decyzji w composerze (nazwa, rozmiar, podgląd, „Jako plik” /
+„Zostaw jako tekst” / „Anuluj wklejenie”), przygotowanie snippet-u i dwuetapowa
+publikacja TXT (wiadomość + załącznik) z jawnym retry oraz obsługa `IsTruncated`.
+
+## 2026-09-22 — CHAT-UI U2 (część 4): port przygotowania snippet-u (bez duplikatu kontraktu)
+
+- `domain/chat/snippets/chat_snippet_repository.dart` (nowy): port `prepare(...)`
+  i model `ChatSnippetPreparation` (treść, długość wejścia, nazwa/typ pliku oraz
+  `isTruncated`), więc presentation nie sięga po surowy klient API.
+- `data/chat/repositories/chat_snippet_repository_impl.dart` (nowy): adapter
+  korzysta z **istniejącego** kontraktu `prepareSnippet` + `ChatSnippetPayload` /
+  `ChatSnippetResponse` (F0–F6) i mapuje je na model domenowy; nowy kod błędu
+  `chat.snippets.prepare_failed`.
+- Świadomie usunięty mój wcześniejszy duplikat metody API i DTO — jedno źródło
+  prawdy dla kontraktu snippet-u.
+- Port wpięty w kompozycję, runtime i host panelu (`ChatSnippetRepository`),
+  obok polityki snippetów.
+
+Komendy i wyniki: `dart run build_runner build --delete-conflicting-outputs`
+(24 s) po usunięciu duplikatu; `flutter analyze lib test` → No issues found;
+`data/chat` + `domain/chat` + `presentation/chat/{presence,emoji,messages}` +
+`composer/{chat_format_commands,chat_long_paste_decision}_test.dart` → wszystkie
+przechodzą poza znanym, wcześniejszym `global_chat_contract_test.dart` (równoległa
+zmiana `chat_enums.dart` z `@JsonValue('Direct')`); `git diff --check` czysty.
+
+Otwarte z §7: karta decyzji w composerze (przechwycenie wklejenia, nazwa, rozmiar,
+podgląd, „Jako plik” / „Zostaw jako tekst” / „Anuluj wklejenie”), stan `overLimit`
+blokujący „Zostaw jako tekst” z powodem, a potem dwuetapowa publikacja TXT.
+
+## 2026-09-22 — CHAT-UI U4 (część 4): długie wklejenie → TXT bez cichego obcinania
+
+- `composer/chat_long_paste_card.dart` (nowy): karta decyzji nad powierzchnią
+  pisania — nazwa pliku, rozmiar w bajtach UTF-8, podgląd pierwszych trzech linii
+  w monospace oraz akcje „Wyślij jako plik”, „Zostaw jako tekst”, „Anuluj
+  wklejenie”. W stanie przekroczenia limitu „Zostaw jako tekst” jest zablokowane
+  z jawnym powodem, a komunikat o skróceniu treści przez serwer pojawia się przed
+  jakąkolwiek publikacją.
+- `composer/chat_message_composer.dart`: przechwycenie wklejenia przez
+  `PasteTextIntent` (nadpisanie akcji edytora) — szkic **nigdy nie jest zmieniany
+  po cichu**. Krótki tekst wkleja się jak dotąd; długi czeka na decyzję:
+  - „Zostaw jako tekst” wstawia tekst w miejscu kursora (tylko w dozwolonym stanie),
+  - „Anuluj wklejenie” czyści kartę, a szkic pozostaje dokładnie taki, jaki był,
+  - „Wyślij jako plik” woła `ChatSnippetRepository.prepare` (sanitacja i wykrycie
+    skrócenia po stronie serwera), a przygotowaną treść przekazuje jako
+    `StorageUploadInput` do istniejącej kolejki załączników — publikacja idzie
+    jedną, sprawdzoną ścieżką Storage, więc ponowienie nie tworzy drugiej
+    wiadomości ani nie gubi treści,
+  - polityka snippetów jest pobierana raz na sesję composera; jej brak oznacza brak
+    propozycji pliku (żadnego zgadywania progów), a błąd przygotowania zostawia
+    tekst w szkicu i pokazuje komunikat.
+- Wysyłka jest dozwolona przy pustej treści, gdy załącznik jest już gotowy (plik
+  TXT sam w sobie jest treścią wiadomości), co domyka przypadek „sam plik”.
+- ARB en/pl: `chatLongPasteTitle`, `chatLongPasteFileDetails` (nazwa + rozmiar),
+  `chatLongPasteSendAsFile`, `chatLongPasteKeepAsText`, `chatLongPasteCancel`,
+  `chatLongPasteOverLimit`, `chatLongPasteTruncated`, `chatLongPastePrepareFailed`.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+`chat_long_paste_decision_test.dart` **8/8**; pozostałe jawne ścieżki czatu
+przechodzą (jedyny czerwony to znany, wcześniejszy `global_chat_contract_test.dart`
+z równoległej zmiany `chat_enums.dart`); `git diff --check` czysty.
+
+Otwarte z §7: rzeczywiste zachowanie przy błędzie AV/limitu Storage i offline
+(załącznik pokazuje stan i pozwala usunąć/ponowić przez istniejącą kolejkę),
+pełny przepływ „tekst + krótki komentarz autora” w jednej wiadomości oraz odbiór
+wizualny karty na realnej sesji.
+
+## 2026-09-22 — CHAT-UI U4 (część 5): spójne menu i wspólny renderer
+
+- Composer: menu kontekstowe edytora (prawy klik) z realnym skutkiem —
+  „Wklej bez formatowania” (ta sama ścieżka oceny co Ctrl/Cmd+V, więc długi tekst
+  nadal trafia do karty decyzji) i „Zaznacz wszystko” (plain: zaznaczenie całego
+  pola, rich: zaznaczenie całego dokumentu Quill). Świadomie nie ma drugiej pozycji
+  „Wklej”: composer zawsze wkleja czysty tekst, więc duplikat robiłby dokładnie to samo.
+- Wątek (`thread/chat_thread_side_panel.dart`): treść wiadomości renderuje wspólny
+  `ChatRichTextBody`, więc kod, listy, cytaty i formatowanie wyglądają tak samo jak
+  w historii, a nie jako surowy tekst.
+- Wyniki wyszukiwania (`search/components/chat_search_view.dart`): wiersz ma menu
+  kontekstowe (prawy klik i długie przytrzymanie) z „Otwórz w rozmowie” i
+  „Kopiuj fragment”; wynik bez widocznej rozmowy nie udaje akcji i nie pokazuje menu.
+- ARB en/pl: `chatComposerPastePlain`, `chatComposerSelectAll`, `chatSearchOpenResult`,
+  `chatSearchCopySnippet`.
+
+Komendy i wyniki: `flutter gen-l10n`; `flutter analyze lib test` → No issues found;
+jawne ścieżki czatu przechodzą poza znanym wcześniejszym
+`global_chat_contract_test.dart`; `git diff --check` czysty.
+
+Otwarte: pełne menu akcji w wątku (odpowiedz/edytuj/usuń według praw) oraz
+przeniesienie rzadkich akcji nagłówka rozmowy do `…`.
+
+## 2026-09-22 — CHAT-UI U1/U2/U3/U4: audyt stanu wobec §11 (bez odbioru wizualnego)
+
+Sprawdzenie kodu i bramek wobec specyfikacji (stan faktyczny, nie deklaracja):
+
+- **U0** — zamknięte i udokumentowane (rozpoznanie drzewa, kontraktów i braków).
+- **U1** — kod dostarczony: `DevPlannerChatTheme` zarejestrowany w light/dark, belka 56 px
+  z paskiem sekcji poniżej 400 px, serie dymków z separatorami dni, wskaźnik „N nowych
+  wiadomości”, nagłówek z awatarem 36 i linią kontekstu, rzadkie akcje w menu `…`.
+  Otwarte: zrzuty light/dark i szeroki/compact (odbiór), wyszukiwanie w nagłówku
+  (dziś w kolumnie listy — świadomie nie dublujemy akcji).
+- **U2** — kod dostarczony: jedna powierzchnia pisania z akcjami 40 px, odporne łamanie
+  długich linków (bez zerowych spacji), wspólny picker emoji z odcieniami, rozbudowany
+  edytor z toolbarlem i paskiem zaznaczenia, skróty Ctrl/Cmd+B/I i Ctrl/Cmd+Enter,
+  kod jako dialog i blok, wklejenie bez formatowania oraz zaznacz wszystko w menu
+  edytora, długie wklejenie → TXT przez przygotowanie snippet-u i wspólną kolejkę
+  załączników. Otwarte: karta preview linku (wymaga kontraktu serwera), roundtrip
+  formatowania do potwierdzenia na realnej sesji.
+- **U3** — kod dostarczony: avatary (`AppUserAvatar`) w nagłówku, dymkach i liście osób,
+  sesyjne presety statusu z terminem liczonym w czasie lokalnym, nazwy osób piszących
+  z pluralizacją, lista uczestników z „Dodaj osoby”, karta osoby z „Napisz” przez
+  `POST /conversations/resolve`. Otwarte: obecność online/offline — brak kontraktu,
+  więc UI nie pokazuje zielonej kropki.
+- **U4** — kod dostarczony: menu wiadomości, rozmowy, załącznika, linku, wyniku
+  wyszukiwania i edytora na wspólnym `AppContextMenu`; reakcje z pełnym pickerem;
+  załączniki z podglądem, pobraniem, galerią i kopiowaniem nazwy; długi tekst → TXT
+  z jawnym komunikatem o skróceniu. Otwarte: pełne menu akcji w wątku.
+- **U5** — nierozpoczęte po stronie agenta: wymaga uruchomionej aplikacji, danych
+  demonstracyjnych i Twoich zrzutów; bez tego nie deklaruję gotowości wyglądu.
+
+Utrzymanie bramek: `flutter gen-l10n` i `dart run build_runner build
+--delete-conflicting-outputs` wykonane po zmianach; `flutter analyze lib test`
+→ No issues found; testy jednostkowe jawne przechodzą poza znanym, wcześniejszym
+`global_chat_contract_test.dart` (równoległa zmiana `chat_enums.dart`);
+backend: build, 228/228 testów Chat i `dotnet format` (z jawnym projektem) zielone.
+
+## 2026-09-22 — CHAT-UI U4 (część 6): akcje wiadomości w wątku
+
+- `thread/chat_thread_side_panel.dart`: wiadomość w wątku ma wspólny renderer treści
+  (`ChatRichTextBody`), stopkę z godziną i menu kontekstowe (prawy klik, długie
+  przytrzymanie, klik) z realnym skutkiem — „Kopiuj wiadomość” przez wspólny helper
+  ze schowkiem i potwierdzeniem.
+- Świadomie nie dodaję w wątku edycji ani usuwania: `ChatThreadCubit` nie ma takich
+  operacji, a pozorna pozycja w menu byłaby gorsza niż jej brak. Edycja i usuwanie
+  pozostają w widoku rozmowy, gdzie mają pełne uprawnienia i retry; brak pozycji jest
+  zapisany w handoffie jako decyzja, nie przeoczenie.
+
+Komendy i wyniki: `flutter analyze lib test` → No issues found; `git diff --check` czysty.
+
+## 2026-09-22 — CHAT-UI U1/U3 (porządki tokenów): audyt „primaryContainer/formularz”
+
+Przegląd aktywnych widgetów czatu pod kątem reguł §3 (żadnego przypadkowego
+`primaryContainer`, wygląd pól z tokenów czatu):
+
+- `inbox/components/chat_inbox_row.dart`: tło zaznaczonego wiersza korzysta z
+  `chatTheme.selectedSurface` zamiast `primaryContainer`.
+- `mentions/chat_mention_suggestions.dart`: wyróżnienie podpowiedzi wzmianki
+  z `chatTheme.selectedSurface`.
+- `presence/chat_status_menu.dart`: pole opisu i wybór terminu nie używają już
+  domyślnej ramki `OutlineInputBorder()`; mają miękkie, zaokrąglone obramowanie
+  i tło z tokenów czatu, więc karta statusu nie wygląda jak formularz.
+- Poza aktywną ścieżką (stary renderer strony rozmowy
+  `chat_conversation_message_list.dart` oraz dialogi akcji wiadomości) pozostały
+  pojedyncze użycia `primaryContainer`; to kod nieużywany przez globalny panel —
+  zapisane jako znany dług do sprzątnięcia razem z usunięciem starego renderera.
+
+Komendy i wyniki: `flutter analyze lib test` → No issues found; `git diff --check` czysty.
+
+## 2026-09-22 — CHAT-UI U1 (§2): wyszukiwanie z kontekstu rozmowy + build web
+
+- Menu `…` rozmowy ma pozycję „Szukaj w wiadomościach”, która wywołuje tę samą
+  akcję co przycisk w kolumnie listy (`ChatSearchCubit.open()`), więc wyszukiwanie
+  jest osiągalne także z otwartej rozmowy, bez dodawania kolejnej stałej ikony
+  i bez drugiego widoku wyszukiwania.
+
+Komendy i wyniki (świeże, uruchomione):
+- `flutter build web --wasm` → **exit 0**, `✓ Built build/web` po 78,6 s
+  (`main.dart.wasm` 7,1 MB, `main.dart.js` 9,8 MB) — całe drzewo frontu kompiluje
+  się na docelową platformę web/wasm.
+- `flutter analyze lib test` → No issues found.
+- Jawne testy czatu (shell, domain, presence, emoji, messages, decyzja o długim
+  wklejeniu, komendy formatowania, data/chat) przechodzą; jedyny czerwony to znany,
+  wcześniejszy `global_chat_contract_test.dart` z równoległej zmiany `chat_enums.dart`.
+- `git diff --check` czysty.
+
+Otwarte nadal: odbiór wizualny (U5, zrzuty i macierz §12), karta preview linku
+(kontrakt serwera), obecność online/offline (brak kontraktu), pełne menu akcji
+w wątku (brak operacji w cubicie wątku), sprzątnięcie starego renderera rozmowy.
+
+## 2026-09-22 — CHAT-UI U3 (§9): status rozmówcy w nagłówku DM
+
+- `presence/widgets/chat_peer_status_line.dart` (nowy): jedna linia statusu
+  rozmówcy — emoji i/lub opis z serwera, wczytywane raz na zmianę rozmówcy.
+  Brak statusu to brak linii, a nie wymyślone „online”; obecność online/offline
+  nadal nie ma kontraktu, więc nagłówek nie rysuje zielonej kropki.
+- `ChatPanelConversationHeader` przyjmuje opcjonalny `subtitleWidget`, który ma
+  pierwszeństwo przed tekstowym `subtitle`, bo niesie treść potwierdzoną przez serwer.
+- Panel przekazuje tę linię tylko w rozmowie 1:1 (gdy znany jest rozmówca); w grupach
+  zostaje licznik uczestników.
+
+Komendy i wyniki: `flutter analyze lib test` → No issues found; jawne testy czatu
+przechodzą poza znanym, wcześniejszym `global_chat_contract_test.dart`;
+`git diff --check` czysty.
+
+## 2026-09-22 — CHAT-UI U2 (§5): focus wraca do edytora po wysłaniu
+
+- `composer/chat_message_composer.dart`: po udanym wysłaniu focus wraca do
+  aktywnego edytora (plain albo rich), więc użytkownik pisze dalej bez klikania.
+  Wspólny helper `_focusEditor()` obsługuje też wstawianie emoji i tekstu, żeby
+  reguła fokusu była w jednym miejscu.
+
+Komendy i wyniki: `flutter analyze lib test` → No issues found; jawny zestaw
+(composer, domain, messages) przechodzi; `git diff --check` czysty.
+
+## 2026-09-22 — podsumowanie sesji: co jest gotowe, co zostaje (bez odbioru wizualnego)
+
+Zamknięte w kodzie i sprawdzone bramkami (U0–U4):
+
+| Obszar | Artefakt | Dowód |
+|---|---|---|
+| Motyw czatu | `foundation/theme/chat_theme.dart` (role, style, miary, light/dark) | analyze + użycie w dymkach, composerze, belce |
+| Dymki i historia | `messages/chat_message_bubble.dart`, `chat_message_grouping.dart`, `chat_message_date_separator.dart` | `chat_message_grouping_test.dart` 11/11 |
+| Responsywność | `shell/layout/chat_panel_*` (belka 56 px, pasek sekcji < 400 px, breakpoint z constraints) | analyze; odbiór wizualny otwarty |
+| Nowe wiadomości | licznik nad dolną krawędzią w `ChatPanelMessageList` | analyze; odbiór otwarty |
+| Composer | `chat_composer_surface.dart`, `chat_composer_rich_toolbar.dart`, `chat_composer_format_bar.dart`, `chat_format_commands.dart` | `chat_format_commands_test.dart` 12/12 |
+| Emoji | `emoji/chat_emoji_catalog.dart`, `chat_emoji_picker.dart`, `cubit/chat_emoji_recent_cubit.dart` | `chat_emoji_catalog_test.dart` 12/12 |
+| Długie wklejenie → TXT | `chat_long_paste_decision.dart`, `chat_long_paste_card.dart`, port snippet-u | `chat_long_paste_decision_test.dart` 8/8 |
+| Ludzie | awatary w nagłówku/dymkach/liście, `chat_peer_status_line.dart`, presety statusu, `chat_person_card.dart` | `chat_status_presets_test.dart` 6/6, `chat_typing_label_test.dart` 7/7 |
+| Menu i linki | `AppContextMenu` w wiadomości, rozmowie, załączniku, linku, wyniku wyszukiwania, edytorze; port linków | `chat_external_link_port_adapter_test.dart` 5/5 |
+| Backend | `GET /chat/link-policy` + `ChatLinkPolicyResponse` + `GetPolicy()` | 228/228 testów Chat, `dotnet format` exit 0 |
+
+Bramki wykonane: `flutter analyze lib test` → No issues found; `flutter build web --wasm`
+→ exit 0; testy jednostkowe jawne frontu → zielone poza znanym `global_chat_contract_test.dart`;
+`git diff --check` czysty; backend: build 0 błędów, 228/228, format exit 0.
+
+Świadomie otwarte (wymaga decyzji lub środowiska, nie kodu „na zapas”):
+1. **U5 — odbiór wizualny** wg macierzy §12 (zrzuty light/dark, szeroki/compact, 1440×900 … 390×844,
+   skala tekstu 100–200%). Bez uruchomionej aplikacji nie deklaruję gotowości wyglądu.
+2. **Karta preview linku** — wymaga addytywnego kontraktu serwera; specyfikacja zabrania pobierania
+   dowolnych URL-i z widgetu.
+3. **Obecność online/offline** — brak kontraktu; UI pokazuje brak danych zamiast zielonej kropki.
+   Jeśli ma się pojawić, potrzebny osobny pakiet presence (ACL, TTL, wiele sesji).
+4. **Pełne menu akcji w wątku** (odpowiedz/edytuj/usuń) — brak operacji w `ChatThreadCubit`; dziś
+   wątek ma kopiowanie, a edycja/usuwanie zostają w widoku rozmowy.
+5. **Stary renderer rozmowy** (`chat_conversation_page.dart`, `chat_conversation_message_list.dart`)
+   oraz ostatnie `primaryContainer` w dialogach — do usunięcia razem, za zgodą użytkownika
+   (zmiana strukturalna; dziś poza aktywną ścieżką panelu).
+6. **Czerwony test kontraktu** `global_chat_contract_test.dart` — skutek równoległej, niezacommitowanej
+   zmiany `chat_enums.dart` (`@JsonValue('Direct')`), nie tej pracy.
+
+Następny krok: po Twojej zgodzie albo (a) usunięcie starego renderera i domknięcie „tekst + komentarz”
+przy wysyłce TXT, albo (b) uruchomienie UI i przejście macierzy §12 z korektami wizualnymi.
+
+## 2026-09-22 — CHAT-MESSENGER-UI: kontrola działającej aplikacji
+
+- Naprawiono runtime crash w `shell/layout/chat_panel_list_pane.dart`: `context.select`
+  w callbacku `ListView.builder` wywoływał wyjątek Fluttera przy budowie wiersza.
+  Wartość sekcji archiwum jest teraz czytana raz poza builderem i przekazywana do menu.
+- Polskie liczniki Chat (`chatHeaderParticipantCount`, `chatNewMessages`, `chatTypingMany`)
+  pokazywały dosłowne `#`; ARB ma jawne `{count}` i `{others}`, co generuje interpolację.
+- „Tekst jako plik” w menu `+` composera uruchamia teraz rzeczywisty załącznik TXT z
+  draftu. Upload idzie przez wspólną ścieżkę Storage; zachowuje pending card przy błędzie,
+  nie tworzy drugiego TXT na retry i pokazuje błąd odrzuconej selekcji.
+- `ChatLongPasteDecision` uwzględnia limit długości wiadomości z serwerowej polityki.
+  DTO i model domenowy mapują `messageMaxCharacters`.
+- Ogląd macOS: panel renderował czerwony błąd dla listy; po poprawce świeży build
+  wyświetlił rozmowy. Po poszerzeniu widać trzy kolumny, dymki przychodzące/lewe i
+  wychodzące/prawe, rail z Czaty/Grupy/Kanały/Pliki/Zadania/Archiwum/Zapisane oraz
+  pojedynczą powierzchnię composera. W zrzucie liczba osób w grupie była `# uczestników`;
+  ARB naprawiono później, bez kolejnego oglądu.
+- `flutter analyze lib/workspaces/presentation/chat lib/foundation/theme/chat_theme.dart`
+  → bez uwag; jawne testy jednostkowe czatu → 38/38; po ostatnich korektach test polityki
+  oraz interpolacji → 10/10; build macOS przed ostatnią zmianą ARB → PASS. Nie uruchamiano
+  testów widgetowych/goldenów ani pełnego `flutter test`.
+- Otwarte: po zmianie ARB zrobić nowy macOS build; kontynuować ręczny test menu rozmowy
+  i dodawania osób. System zablokował Maca podczas inspekcji. Dodatkowo na widocznym
+  połączeniu pojawił się status „czat na żywo offline”; trzeba zweryfikować SignalR na
+  dwóch sesjach, bo REST i historia działały. Wygląd nadal nie jest zaakceptowany (U5).
+- Po tej kontroli dodano w nagłówku grupy bezpośrednią ikonę uczestników (`group_add`),
+  która otwiera arkusz członków z „Dodaj osoby”. Własny status pozostaje dostępny
+  z profilu w railu. Zmiana wymaga nowego builda i ręcznej kontroli po odblokowaniu Maca.
+
+### Kontynuacja kontroli — 2026-09-22
+
+- `flutter analyze` dla całego Frontu → **No issues found**.
+- Najnowszy build macOS zawiera poprawki interpolacji ARB i bezpośredni przycisk
+  członków grupy. CUA potwierdził, że system nadal jest zablokowany; nie ma
+  dowodu wizualnego dla tych ostatnich zmian. Prośba o ręczne odblokowanie została
+  wysłana; nie używano obejść ekranu blokady.
+- Kontrola statyczna potwierdziła pozycje sekcji Pliki oraz Zadania/Kanban i
+  warstwę tapety pod pełnym shellem. Nie oznacza to odbioru ich wyglądu ani
+  integracji kontekstowych.
+- Backend po poprawce wyścigu asercji Storage: pełna komenda testowa zakończona
+  **1298 PASS, 0 FAIL, 4 SKIP**; `dotnet format --verify-no-changes` i
+  `git diff --check` przechodzą.
+- Następny krok pozostaje bez zmian: po odblokowaniu Maca otworzyć najnowszy
+  build, sprawdzić licznik osób, otwarcie arkusza/dodawanie członków oraz układ
+  przy wąskim i szerokim panelu. Nie uruchamiano widgetów ani goldenów.
+- Dalszy code review znalazł domyślne menu Material w pięciu aktywnych miejscach.
+  Composer, menu wiadomości, menu nagłówka rozmowy, menu ról członków oraz wybór
+  sekcji w wąskim railu i termin statusu używają teraz wspólnego
+  `AppContextMenu`. `rg 'PopupMenuButton' lib/workspaces/presentation/chat`
+  nie znajduje już wystąpień.
+- Po tych zmianach `flutter analyze lib/workspaces/presentation/chat` → No issues
+  found, a `flutter build macos --debug --dart-define=DEVPLANNER_API_BASE_URL=...`
+  kończy się sukcesem. Nadal bez odbioru ekranowego, bo Mac jest zablokowany.
+- Ujednolicono pozostałe dropdowny statusu i powiadomień jako zakotwiczone
+  `AppContextMenu.select`; centralny `DialogThemeData` ustawia produktowy kształt,
+  powierzchnię i typografię dialogów zamiast niejawnych Material defaults.
+  Weryfikacja po tej paczce: analiza `chat` + `foundation/theme` bez uwag,
+  `rg 'PopupMenuButton|DropdownButton(FormField)?' lib/workspaces/presentation/chat`
+  bez wyników, świeży build macOS PASS. Ręczny ogląd wciąż otwarty.
+- Popover „Nowy czat” pokazuje ostatnie rozmowy przez wspólny `ChatInboxRow`
+  (awatary, podgląd, unread), a wyniki katalogu używają zwróconych przez API
+  avatarUrl i loginu. Główna lista pokazuje awatar profilu w DM oraz ikonę grupy,
+  kanału lub broadcastu w rozmowach wieloosobowych; nie używa zdjęcia pierwszego
+  członka jako rzekomego awatara grupy. `flutter analyze lib/workspaces/presentation/chat`
+  i najnowszy `flutter build macos --debug ...` przechodzą.
+# 2026-09-22 — Kontynuacja jakości Chat: presence i build macOS
+
+- Klient realtime mapuje `chat.presence.changed` do typowanego snapshotu.
+  Heartbeat presence odnawia 45-sekundowy lease co 15 s i zatrzymuje się po
+  odsubskrypcji. Snapshot jest czyszczony przy odsubskrypcji; przed pierwszym
+  snapshotem status peerów pozostaje unknown.
+- `ChatConversationPresenceCubit` i status headera pokazują online/offline na
+  podstawie backendu; dodano lokalizacje PL/EN. Testy realtime/presence/typing
+  → 16/16 PASS.
+- `flutter analyze` całego projektu → No issues found. `flutter build macos
+  --debug` → PASS, `build/macos/Build/Products/Debug/DevPlanner.app`.
+- Nie uruchamiano widgetów ani goldenów zgodnie z wcześniejszą instrukcją.
+  CUA nadal raportuje zablokowany Mac, więc najnowszego renderu nie zweryfikowano
+  ręcznie; U5 i akceptacja UI pozostają otwarte.
+- Backend współpracujący z tym klientem wdrożono na staging po pełnej walidacji:
+  commit `f7287e03a4d2743b75438b15e72a33f45087fb2e`, API healthy i readiness
+  ready. Front pozostaje lokalny; nie wdrażano go.
+
+## 2026-09-22 — Kontrakt klienta i paczka jednostkowa Chat
+
+- Zbiorcza paczka jednostkowa wykryła nieaktualne fixture w
+  `test/workspaces/data/chat/global_chat_contract_test.dart`: test parsował
+  `direct`/`global`, choć rzeczywisty kontrakt backendu i wygenerowany klient
+  używają `Direct`/`Global`. Fixture poprawiono i dodano asercje serializacji.
+- Po poprawce: wskazane testy jednostkowe kontraktu, załączników, rich text,
+  bloków kodu, wzmianek, formatowania, długiego wklejenia, emoji, unread i
+  presence/typing → **85/85 PASS**. Pełny `flutter analyze` → No issues found;
+  `git diff --check` → PASS.
+- `flutter build macos --debug` z tego samego kodu aplikacji → PASS. Zmiana po
+  buildzie dotyczyła wyłącznie fixture testu; nie zmienia binarki.
+- Dodatkowo `flutter build web --wasm` → PASS (74,2 s); zatem aktywny Chat
+  kompiluje się dla Web/Wasm i macOS Debug.
+- Bez testów widgetowych/goldenów. CUA nadal zgłasza zablokowany Mac; najnowszy
+  render i dodawanie osób czekają na ręczny odbiór po odblokowaniu.
+
+## 2026-09-22 — Przywrócenie linków wiadomości i kart preview
+
+- Audyt trasy DTO → domena → renderer wykazał, że `ChatMessageResponse.links`
+  było ignorowane w historii, wątku, odpowiedzi akcji i realtime. Plain URL
+  nie był klikalny, a `ChatApi.previewLink` nie miał żadnego konsumenta.
+- Dodano `ChatMessageLink` i jeden `ChatLinkMapper`; wszystkie cztery ścieżki
+  odpowiedzi zachowują linki, także po lokalnej zmianie stanu dostawy/usunięciu.
+  `ChatPlainTextLinkCodec` rozdziela tekst tylko według URL-i zatwierdzonych
+  przez backend, zachowuje oryginalny tekst i nie zamienia wewnętrznych ścieżek
+  w zewnętrzne linki.
+- Dodano `ChatLinkPreviewRepository` z adapterem Retrofit i kompozycją runtime.
+  `ChatMessageBubble` pokazuje pierwszą dozwoloną kartę metadanych; pobranie
+  wykonuje istniejący endpoint backendu, nie widget. Błąd preview nie ukrywa
+  adresu i nie blokuje wiadomości. Karta korzysta z tokenów ChatTheme.
+- Testy linków, mappera, adaptera preview, mapowania historii i realtime →
+  **20/20 PASS**; pełny `flutter analyze` bez uwag; build macOS Debug i Web/Wasm
+  → PASS; `git diff --check` → PASS.
+- Nie uruchamiano widgetów/goldenów. Lokalny web-server doszedł do BFF login,
+  dalszy chat wymaga sesji; danych konta nie użyto. Mac pozostaje zablokowany,
+  więc karta i responsywność nadal potrzebują ręcznego odbioru.
+
+## 2026-09-22 — Usunięcie syntetycznych rozmów z zakładek kontekstowych
+
+- Code review potwierdził, że zakładki Pliki i Zadania pokazywały przycisk
+  „Podgląd UI” oraz fikcyjne rozmowy z przykładowymi osobami, plikami i taskami.
+  Mogło to wyglądać jak dane pochodzące z konta, mimo że integracji brak.
+- Usunięto sample rows, przełącznik preview i nieużywane klucze ARB. Zakładki
+  zachowują odrębny, responsywny stan pusty z motywem ChatTheme oraz komunikat
+  o braku integracji; pozostają widoczne jako przygotowane miejsca docelowe.
+- `flutter gen-l10n`, `flutter analyze` → No issues found, `flutter build macos
+  --debug` → PASS, `git diff --check` → PASS. Nie uruchamiano widgetów/goldenów.
+- CUA ponownie potwierdził blokadę Maca, więc brak dowodu z renderu aplikacji.
+  Nadal otwarte: ręczny odbiór wizualny całego panelu i połączenie UI z sesją.
+
+## 2026-09-22 — Naprawa dublowania formatowania w composerze
+
+- Review `ChatMessageComposer` wykazał, że tryb Quill renderował stale
+  `ChatComposerRichToolbar`, a przy zaznaczeniu dodatkowo `ChatComposerFormatBar`
+  z powielonymi akcjami. Usunięto drugi pasek; obsługa formatowania jest w
+  `chat_format_actions.dart`, wywoływana przez jedyny pasek rich text.
+- Usunięto ostrą wewnętrzną ramkę pola Quill (outer composer już ma obwódkę i
+  zaokrąglenie) oraz zmniejszono jego wysokość z 110/144 do 96/112 px.
+- Testy `chat_format_commands_test.dart` i `chat_rich_text_codec_test.dart`:
+  **19/19 PASS**; `flutter analyze` bez uwag; świeży build macOS Debug PASS;
+  `git diff --check` PASS. Bez widgetów/goldenów.
+- CUA nadal raportuje zablokowany Mac; poprawka jest skompilowana, ale nie ma
+  dowodu wizualnej akceptacji. Następny krok: ręczny przegląd composera i całego
+  panelu po odblokowaniu, a potem dalsze usterki z R01–R14.
+
+## 2026-09-22 — R11: cursorowe strony historii w panelu Chat
+
+- `ChatPanelMessageList` wywołuje `ChatConversationCubit.loadMore()` po dojściu
+  do górnej krawędzi odwróconej listy. Jedno automatyczne żądanie na cursor
+  zapobiega pętli; po błędzie stopka oferuje retry, w trakcie widać spinner.
+- `ChatMessageGrouping.countNewArrivals` odróżnia wiadomości nowsze od poprzedniego
+  końca historii od starszych rekordów dołączonych paginacją, dzięki czemu badge
+  nowych wiadomości nie rośnie przy czytaniu archiwum.
+- Testy `chat_conversation_cubit_test.dart` + `chat_message_grouping_test.dart`
+  → **20/20 PASS**; `flutter analyze` czysty; build macOS Debug PASS;
+  `git diff --check` PASS.
+- Nie uruchamiano widgetów/goldenów. CUA zgłasza blokadę Maca, więc wizualne
+  potwierdzenie zachowania scroll anchora pozostaje otwarte.
+
+## 2026-09-22 — R10: read marker zależny od widoczności dymka
+
+- Panel nie oznacza już najnowszej wiadomości jako przeczytanej wyłącznie przez
+  sam fakt montowania. `ChatPanelMessageList` mierzy dymek najnowszej wiadomości
+  względem clipowanego viewportu; wymagane jest ≥50% widocznego obszaru. Kontrola
+  uwzględnia lifecycle i `ModalRoute.isCurrent`; przy zmianie scrolla, historii,
+  focusu oraz po powrocie aplikacji geometria jest liczona ponownie.
+- Odczyt wywołuje idempotentne `markVisibleAsRead`; ten sam messageId ma też
+  blokadę żądania w locie, więc szybkie otwarcie/zamknięcie modala nie duplikuje
+  requestu. Badge inboxa i globalny badge odświeżają się tylko po udanym zapisie.
+- Testy Cubita, grouping i visibility geometry → **24/24 PASS**; `flutter analyze`
+  bez uwag; świeży `flutter build macos --debug` PASS; `git diff --check` PASS.
+- Brak testu widgetowego i ręcznego odbioru (Mac nadal zablokowany); R10
+  implementacyjnie domknięte, zachowanie z overlay/scroll wymaga smoke testu.
+
+## 2026-09-23 — CHAT-R14 follow-up: custom surfaces for creation and inbox
+
+Zakres: dopasowanie pozostałych ekranów czatu do dedykowanego `ChatTheme`, bez
+zmiany kontraktów backendu. Kreator rozmowy ma własne kafle wyboru typu i zasad
+publikacji; wyniki wyszukiwania uczestników pokazują awatar oraz czytelny stan
+zaznaczenia. Formularze kreatora, wyszukiwarka inboxu, filtry, stany puste,
+reakcje i karty załączników używają własnych tokenów powierzchni, obramowań i
+metadanych zamiast domyślnych pól i kontenerów Material. Zachowano akcje w rootowym
+`DevPlannerModalHost`.
+
+Uzupełnienie pakietu: tokeny błędu obejmują też ustawienia powiadomień, banner
+kreatora i błędy skoku w historii; zapisane wiadomości używają własnych wierszy
+Chat zamiast standardowego `ListTile`.
+
+Weryfikacja po tej paczce: `flutter analyze` → No issues found; `git diff --check`
+→ PASS; wskazany zestaw testów logiki emoji, formatowania, długiego wklejania i
+linków → **35/35 PASS**; `flutter build macos --debug` → PASS (ostrzeżenie
+SwiftPM istniejących pluginów `media_kit` pozostaje). Nie uruchamiano testów
+widgetowych/goldenów. Mac jest nadal zablokowany według CUA, więc brak potwierdzenia
+renderu, responsywności i obsługi kliknięć na żywo. Następny krok: uruchomić
+zbudowaną aplikację po odblokowaniu i przejść scenariusze: nowa rozmowa, grupa,
+dodawanie osób, wyszukiwanie, reakcja, załącznik i długi link.
+
+### 2026-09-23 — Composer: przycisk wysyłania w ChatTheme
+
+Code review composera wykazał pozostały `IconButton.filled`, którego wygląd
+zależał od domyślnego stylu Material. Zastąpiono go okrągłą akcją o stałym boku
+z tokenami tła i pierwszego planu ChatTheme oraz semantyką przycisku. Empty state
+kolumny rozmowy także korzysta z ChatTheme. `flutter analyze` bez uwag,
+`git diff --check` PASS i `flutter build macos --debug` PASS. Nie uruchamiano
+testów widgetowych/goldenów. CUA nadal raportuje zablokowany Mac; wygląd akcji
+w runtime nie jest wizualnie potwierdzony.
+
+### 2026-09-23 — Popover „Nowy czat” w ChatTheme
+
+W `chat_compose_popover.dart` wyszukiwarka dostała powierzchnię/obramowanie i
+style ChatTheme, akcje grupy/kanału/ogłoszenia mają własne okrągłe ikony i
+zaokrąglone kafle, a wynik katalogu prezentuje avatar, nazwę, login oraz ikonę
+rozpoczęcia DM. Dodano retry po błędzie katalogu i czyszczenie query/result
+Cubita z przycisku kasowania. Nie zmieniono API. `flutter analyze` bez uwag,
+`chat_creation_cubit_test.dart` → **17/17 PASS**, `flutter build macos --debug`
+PASS, `git diff --check` PASS. Bez testów widgetowych/goldenów. CUA nadal zgłasza
+zablokowany Mac, więc wymaga ręcznego odbioru.
+
+### 2026-09-23 — Wyścig odpowiedzi w wyszukiwaniu Chat
+
+Review wyszukiwania wykazał, że zmiana frazy nie unieważniała odpowiedzi w locie,
+a poprzednie wyniki pozostawały widoczne w okresie debounce. Naprawiono zarówno
+`ChatDirectorySearchCubit` (nowy czat, dodawanie osób), jak i `ChatSearchCubit`
+(wyszukiwanie wiadomości): nowa fraza czyści stronę/wyniki, natychmiast pokazuje
+loading dla poprawnej długości zapytania i inkrementuje identyfikator żądania.
+Starsza odpowiedź nie może nadpisać nowej. Dwa zestawy testów **33/33 PASS**,
+`flutter analyze` bez uwag, macOS Debug build PASS, diff check PASS. CUA nadal
+raportuje zablokowany Mac; testów widgetowych/goldenów nie uruchamiano.
+
+Uzupełnienie kontroli współbieżności: ten sam błąd został znaleziony i naprawiony
+w `ChatSearchCubit` dla wyszukiwania wiadomości. Zmiana terminu czyści poprzednią
+stronę wyników, zachowuje otwarty panel, pokazuje loading podczas debounce i
+unieważnia odpowiedź in-flight. Testy dwóch zestawów search/creation **33/33 PASS**;
+`flutter analyze`, świeży macOS Debug build i diff check PASS.
+
+### 2026-09-23 — Stany wyszukiwania w „Dodaj osoby”
+
+Panel dodawania uczestników wcześniej pozostawiał pusty obszar przy pustej lub
+jednoznakowej frazie, a błąd katalogu przekazywał jako surowy kod API. Dodano
+instrukcję początkową, podpowiedź minimalnej długości, stan pusty i lokalizowany
+błąd z retry; komunikat błędu mutacji również nie ujawnia technicznego kodu jako
+głównego tekstu. Testy `g5_search_and_members_test.dart` i
+`chat_creation_cubit_test.dart` → **33/33 PASS**; analyze, świeży macOS Debug
+build i diff check PASS. Bez widgetów/goldenów; Mac pozostaje zablokowany.
+
+### 2026-09-23 — Odświeżanie statusów listy członków
+
+`_MembersList` pobierał statusy presence sekwencyjnie wyłącznie w `initState`;
+nowo dodane osoby w otwartym arkuszu nie dostawały statusu, a stary skład mógł
+ukończyć request po zmianie listy. Pobieranie jest teraz porcjowane po 8,
+równoległe w partii, wznawiane dla nowych ID w `didUpdateWidget` i zabezpieczone
+generacją requestu. Testy search/creation/member **33/33 PASS**, `flutter analyze`
+bez uwag, świeży macOS Debug build i diff check PASS. Bez widgetów/goldenów.
+
+### 2026-09-23 — Listy przypiętych i zapisanych wiadomości
+
+W listach akcji wiadomości zastąpiono domyślne `ListTile` wierszem ChatTheme.
+Pinned/bookmark nie pokazują technicznych identyfikatorów jako treści; pinned
+wskazuje datę przypięcia, a kliknięcie zamyka sheet i wywołuje
+`ChatConversationCubit.ensureTargetLoaded`, aby skoczyć do wiadomości. Zakładki
+bez notatki pokazują lokalizowany fallback i datę zapisu. Dodano fallback PL/EN.
+`flutter gen-l10n`, `flutter analyze`, macOS Debug build oraz diff check PASS.
+Nie uruchamiano widgetów/goldenów. CUA nadal zgłasza zablokowany Mac.
+### 2026-09-23 — Naprawa portów menu rozmowy
+
+Review wykazał dwa niepodłączone wejścia nagłówka: port wiadomości nie był
+przekazywany z hostowanego widoku, więc opcje przypiętych i zakładek mogły być
+nieaktywne; skok zakładki do innej rozmowy szukał repozytorium providera
+niegwarantowanego przez globalny panel. Port rozmowy i port akcji są teraz
+przekazywane jawnie do nagłówka. `getConversation` służy jako ACL-owany fallback
+poza bieżącą stroną inboxa. `flutter analyze` czysty; testy search/member/
+conversation 25/25 PASS; macOS Debug build i diff check obu repozytoriów PASS.
+Wśród testów uruchomiono omyłkowo istniejący widgetowy test tożsamości panelu;
+nie uruchamiać dalszych widgetów/goldenów przed akceptacją UI. Backend bez zmian.
+
+### 2026-09-23 — Front: wspólny styl dymków w starszym widoku rozmowy
+
+Code review wykazał, że `ChatConversationMessageList` nadal renderował wiadomości
+jako pełne wiersze z kilkoma stale widocznymi ikonami. Front przełączył ten widok
+na wspólny `ChatMessageBubble`: własne wiadomości są wyrównane do prawej, szerokość
+jest ograniczona, długie treści korzystają z istniejącego renderera rich text, a
+reply/wątek/dyskusja/edycja/usunięcie są dostępne z jednego menu po hover/focus lub
+menu kontekstowego. Dymki pozostają współdzielonym elementem także dla aktywnego
+panelu.
+
+Weryfikacja: `flutter analyze` PASS; `flutter build macos --debug` PASS (ostrzeżenie
+pluginów media_kit o braku wsparcia Swift Package Manager, bez wpływu na build).
+Widgetów/goldenów nie uruchamiano zgodnie z decyzją użytkownika. Mac nadal jest
+zablokowany według CUA, więc odbiór wizualny działającego UI pozostaje otwarty.
+
+### 2026-09-23 — Front: kontrolki i komunikaty aktywnej ścieżki Chat
+
+Przegląd wyszukał w `presentation/chat` domyślny `SwitchListTile`, bezpośrednie
+`SnackBar` oraz `MaterialBanner`. Kanały powiadomień mają teraz wiersze oparte o
+`ChatTheme`; linki, błędy akcji i niedostępna rozmowa używają wspólnego `AppToast`;
+starszy widok przerwanego realtime ma lokalizowany, lekki komunikat w motywie
+Chat zamiast pustego `MaterialBanner`. Skan `rg` nie znajduje w gałęzi czatu
+`PopupMenuButton`, `DropdownButton`, `SwitchListTile`, `AlertDialog`,
+`MaterialBanner` ani bezpośrednich `SnackBar`.
+
+Weryfikacja: `flutter gen-l10n`, `flutter analyze` bez uwag, `flutter build macos
+--debug` PASS i `git diff --check` PASS. Build zgłasza ostrzeżenie o braku SPM w
+`media_kit` plugins. Bez testów widgetowych/goldenów. Runtime UI nadal nie został
+obejrzany, bo CUA zgłasza zablokowany Mac.
+
+### 2026-09-23 — Front: bezpieczny odczyt przed edycją własnego statusu
+
+Review karty statusu znalazł błąd: gdy REST `getUserStatus` zawodził, formularz
+pozostawał edytowalny. Zapis przy nieznanym stanie mógł nadpisać wcześniejszy
+status i wyzerować jego termin. Karta ma teraz osobny stan błędu odczytu, blokuje
+edycję/zapis do skutecznego ponowienia i pokazuje lokalizowany komunikat. Błędy
+zapisu nie pokazują już technicznego `apiCode` jako tekstu użytkownikowi.
+
+Weryfikacja: `flutter gen-l10n`; test logiki presetów i terminów **5/5 PASS**;
+`flutter analyze` bez uwag; `flutter build macos --debug` PASS (ostrzeżenie SPM
+pluginów media_kit); `git diff --check` PASS. Widgetów/goldenów nie uruchamiano.
+
+### 2026-09-23 — Front: anulowanie przygotowanego pliku z długiego wklejenia
+
+Review znalazł błąd: po nieudanym uploadzie „Zostaw jako tekst” i „Anuluj”
+usuwały kartę decyzji, ale pozostawiały wybrany plik TXT w composerze. Użytkownik
+mógł wysłać go przypadkiem razem z wiadomością. Obie akcje wywołują teraz
+`ChatAttachmentComposerCoordinator.remove`, który unieważnia sesję Storage i
+czyści ID załącznika w drafcie; wysyłka jest zablokowana na czas cleanupu. Test
+koordynatora potwierdza revoke sesji i pusty draft załączników.
+
+Weryfikacja: test `chat_attachment_composer_coordinator_test.dart` **7/7 PASS**;
+`flutter analyze` bez uwag; `flutter build macos --debug` PASS (ostrzeżenie SPM
+pluginów media_kit); `git diff --check` PASS. Bez testów widgetowych/goldenów.
+
+### 2026-09-23 — Front: poprawna degradacja podglądu załączników
+
+Review galerii wykazał, że karta uznawała sam Future miniatury za dostępność obrazu.
+Gdy Storage zwrócił `null`, menu nadal otwierało pusty preview zamiast standardowo
+otworzyć/pobrać plik. Karta rozróżnia teraz pobrane bajty od trwającego/nieudanego
+żądania; preview pojawia się tylko dla niepustych bajtów, a fallback prowadzi do
+autoryzowanego otwarcia. Każda karta ma klucz po ID, więc stan miniatury nie
+przechodzi na sąsiedni załącznik po zmianie listy. Nazwa, typ i rozmiar korzystają
+z typografii ChatTheme.
+
+Weryfikacja: `flutter analyze` bez uwag; `flutter build macos --debug` PASS
+(ostrzeżenie SPM pluginów media_kit); `git diff --check` PASS. Nie uruchamiałem
+widgetów/goldenów zgodnie z decyzją użytkownika. CUA nadal zgłasza zablokowany Mac.
+
+
+### 2026-09-23 — Front: ukrycie kodów API w błędach kreatora
+
+Review ścieżki tworzenia rozmowy wykazał, że kod API był renderowany obok
+komunikatu błędu zarówno w popoverze, jak i w kreatorze. Interfejs pokazuje teraz
+krótki komunikat lokalizowany, a identyfikatory techniczne nie zaśmiecają widoku.
+`flutter analyze` PASS; `flutter build macos --debug` PASS (ostrzeżenie SPM dla
+pluginów `media_kit`); `git diff --check` PASS. Testów widgetowych/goldenów nie
+uruchamiano. Manualny odbiór wizualny pozostaje otwarty: CUA zgłasza zablokowany
+Mac.
+
+
+### 2026-09-23 — Front: awatary i obecność autorów w grupach
+
+W historii grupowej/kanałowej awatary autorów korzystają teraz ze zdjęć profilu
+z katalogu uczestników. Gdy autoryzowany snapshot SignalR potwierdza użytkownika
+online, przy awatarze pojawia się zielony znacznik z etykietą dostępną przez
+Tooltip; offline i nieznany stan nie są zgadywane. Weryfikacja: `flutter analyze`
+PASS; `flutter build macos --debug` PASS (ostrzeżenie SPM pluginów `media_kit`);
+`git diff --check` PASS. Bez widgetów/goldenów zgodnie z decyzją użytkownika.
+Ręczny odbiór UI nadal OPEN, bo CUA zgłasza zablokowany Mac.
+
+
+### 2026-09-23 — Front: poprawki modalu członków
+
+Lista członków i karta osoby przekazują teraz `avatarUrl` z modelu profilu, więc
+nie degradują wszystkich zdjęć do inicjałów. Błędy odczytu i zmian członkostwa nie
+wyświetlają surowych komunikatów/kodów API; używają lokalizowanych tekstów.
+Usunięcie członka wymaga jawnego potwierdzenia, a zwykłe menu zmiany roli nie
+pozwala przypisać ani edytować roli Owner (własność ma osobny kontrakt).
+Weryfikacja: test logiki członków `g5_search_and_members_test.dart` **14/14 PASS**;
+`flutter gen-l10n`, `flutter analyze`, `flutter build macos --debug` i
+`git diff --check` PASS. Widgetów/goldenów nie uruchamiano. Próba podglądu UI przez
+CUA ponownie wykazała zablokowany Mac; ręczny odbiór pozostaje OPEN.
+
+
+### 2026-09-23 — Front: bezpieczne zarządzanie rolami i usuwaniem
+
+Modal członków nie pokazuje już opcji przypisania roli Owner, nie otwiera akcji
+zarządzania istniejącym właścicielem i wymaga potwierdzenia przed usunięciem
+osoby. Lista i karta profilu używają `avatarUrl`; błędy listy/mutacji mają
+lokalizowane komunikaty zamiast kodów API. Weryfikacja: `flutter gen-l10n`,
+`flutter analyze`, test logiki `g5_search_and_members_test.dart` **14/14**,
+`flutter build macos --debug` i `git diff --check` PASS. Testów widgetowych/goldenów
+nie uruchamiano. Odbiór wizualny OPEN: CUA nadal zgłasza zablokowany Mac.
+
+
+### 2026-09-23 — Front: lokalizowane błędy aktywnych ekranów Chat
+
+Wyszukiwanie rozmów/wiadomości, podpowiedzi wzmianek, własny status,
+powiadomienia, listy przypiętych i zakładek, skrzynka, historia rozmowy, wątki,
+dyskusje oraz akcje edycji pokazują lokalizowane komunikaty zamiast kodów API i
+surowych `error.message`. Konflikt edycji informuje o konieczności ponownego
+otwarcia edytora. Weryfikacja: `flutter gen-l10n`, `flutter analyze`, testy
+`chat_message_actions_cubit_test.dart`, `chat_thread_cubit_test.dart` i
+`chat_inbox_cubit_test.dart` **17/17 PASS**; `flutter build macos --debug` i
+`git diff --check` PASS. Widgetów/goldenów nie uruchamiano.
+
+
+### 2026-09-23 — Front: retry odczytu przypiętych i zakładek
+
+Błąd pierwszego pobrania list przypiętych/zakładek zostawiał w głównym obszarze
+spinner bez możliwości ponowienia. Oba widoki pokazują teraz zwięzły stan błędu
+z przyciskiem retry; retry czyści stary błąd i wraca do loadera. `flutter analyze`,
+`flutter build macos --debug` i `git diff --check` PASS. Widgetów/goldenów nie
+uruchamiano. Próbny web-server Flutter uruchomił aplikację w przeglądarce, ale
+widok został przekierowany do bezpiecznego logowania BFF, więc ekranów rozmów nie
+dało się zweryfikować bez sesji.
+
+### Kontrola jakości UI czatu — zapisane wiadomości (2026-09-23)
+
+- Naprawiono widok zapisanych wiadomości w głównym panelu: retry po błędzie pierwszego pobrania, widoczny komunikat po nieudanym usunięciu oraz kolory i typografia zgodne z `ChatTheme`.
+- Dodano wspólny formatter czasu dla listy rozmów i zapisanych wiadomości; usunięto surowe timestampy z sekundami.
+- Weryfikacja Front: `dart format` PASS, `flutter analyze` PASS, `flutter test test/workspaces/presentation/chat/chat_timestamp_formatter_test.dart` PASS (2/2), `flutter build macos --debug` PASS, `git diff --check` PASS. Widget/golden tests pozostają odłożone do akceptacji wyglądu przez użytkownika.
+- Zgodność sprawdzono statycznie względem specyfikacji UI i konwencji `ChatTheme`. Nie potwierdzono jeszcze wyglądu runtime: web preview przekierowuje do logowania BFF, a dostępny ekran macOS jest zablokowany. Wymagana pozostaje wizualna kontrola po uzyskaniu autoryzowanej sesji.
+
+## Aktualizacja wykonania — 2026-09-23: szerokość trzech kolumn panelu
+
+Naprawiono rozjazd breakpointu i szerokości listy: gdy panel osiąga minimum układu trzech kolumn (722 px), lista ma 304 px; zwiększa się do 344 px dopiero przy dostępnej nadwyżce. Chroni to układ przed ściskaniem/overflowem w przedziale 722–761 px. Reguła jest testowana bez widgetów. Weryfikacja Front: test `chat_panel_size_test.dart` 6/6 PASS, `flutter analyze` PASS, `flutter build macos --debug` PASS. `git diff --check` należy ponowić po aktualizacji dokumentacji. Zrzut macOS nadal pokazuje pulpit zamiast okna aplikacji; wizualny odbiór runtime pozostaje OPEN. Widgety/goldeny pozostają DEFERRED do akceptacji wyglądu przez użytkownika.
+
+## Aktualizacja wykonania — 2026-09-23: wysokość edytora composera
+
+Wspólna polityka ogranicza wysokość pola do min(160 px z ChatTheme, 30% dostępnej wysokości rozmowy), z minimum jednej linii. Zastosowano ją do plain text i Quill zamiast stałej wysokości 96/112 px dla Quill. Weryfikacja Front: test polityki 4/4 PASS, `flutter analyze` PASS, `flutter build macos --debug` PASS. Brak testów widgetowych/goldenów zgodnie z odroczeniem do akceptacji wyglądu. Ręczny odbiór pozostaje OPEN: macOS jest zablokowany i nie udostępnia okna DevPlanner przez CUA.
+
+## Aktualizacja wykonania — 2026-09-23: wspólny renderer odpowiedzi w wątku
+
+W panelu wątku zwykły tap nie kopiuje już automatycznie całej odpowiedzi. Lista jest objęta `SelectionArea`; menu oferuje kopiowanie całej wiadomości i zaznaczenia. Odpowiedzi korzystają ze wspólnego `ChatMessageBubble` głównej historii, co dodaje wyrównanie nadawcy, obsługę załączników/usunięcia/statusu i wspólne menu. Nagłówek/tekst stanu korzystają z `ChatTheme`. Weryfikacja Front: `flutter analyze` PASS i `flutter build macos --debug` PASS; widget/golden tests nieuruchomione zgodnie z odroczeniem. Runtime UI pozostaje nieobejrzany, ponieważ macOS jest zablokowany.
+
+## Aktualizacja wykonania — 2026-09-23: retry historii wątku
+
+Transientny błąd doładowania starszej strony nie usuwa już odpowiedzi ani kursora. Stan gotowy zachowuje wiadomości i udostępnia retry tej samej strony; błąd początkowego wczytania także ma retry, a odmowa/cofnięcie ACL nadal odłącza widok. UI pokazuje stan ładowania, komunikat i ponowienie przy stopce. Test `chat_thread_cubit_test.dart` 3/3 PASS (w tym błąd → zachowana historia/kursor → udane retry), `flutter analyze` PASS, build macOS Debug PASS. Testów widgetowych/goldenów nie uruchamiano; runtime wizualny wciąż OPEN przez blokadę macOS.
+
+## Aktualizacja wykonania — 2026-09-23: rzeczywisty stan przypięć i zakładek
+
+Panel aktywnej rozmowy uruchamia teraz odczyt przypięć dla danej rozmowy i prywatnych zakładek. Udane przypięcie/odpięcie oraz zapisanie/usunięcie zakładki aktualizują lokalne zbiory od razu, więc etykieta akcji menu zmienia się bez ponownego odczytu. Generacje odrzucają spóźniony odczyt, który inaczej mógłby cofnąć świeżą mutację. Test `chat_message_secondary_actions_test.dart` 7/7 PASS (w tym odczyt przypięć, natychmiastowa aktualizacja, cofnięcie i wyścig), `flutter analyze` PASS, build macOS Debug PASS. Widgety/goldeny nadal odroczone; runtime wizualny OPEN.
+
+## Aktualizacja wykonania — 2026-09-23: pełniejsze akcje wiadomości w wątku
+
+Root side sheet wątku dostaje jawnie repozytorium akcji, zakres moderacji i cele przekazania. Odpowiedzi korzystają z `ChatMessageActionMenu`: reakcje, copy całej wiadomości/zaznaczenia, pin/bookmark, forward oraz edit/delete z potwierdzeniem i wersją. Osobne Cubity są tworzone wewnątrz modala; sukces edycji/usunięcia podmienia wiadomość w historii wątku, a revoke zatrzymuje kolejkę. Menu pin/bookmark odczytuje stan z Cubita w chwili otwarcia, a nie z nieaktualnego snapshotu widgetu. Weryfikacja Front: testy logiki pin/bookmark i wątku 10/10 PASS, `flutter analyze` PASS, macOS Debug build PASS, `git diff --check` należy potwierdzić po dopisaniu wpisu. Testy widgetowe/goldenowe nadal odroczone; runtime visual review OPEN (Mac zablokowany).
+### CHAT-R29 — realtime statusów uczestników (2026-09-23)
+
+Front dodaje typowany strumień statusów w porcie rozmowy, mapuje kontrakt
+`chat.user_status.changed` (`{userId,status}`), emituje jawne czyszczenie jako
+`status: null` i aktualizuje status w nagłówku rozmówcy. Backend potwierdzony w
+`Infrastructure/Chat/ChatRealtimeConnectionManager.cs` oraz
+`Application/Chat/ChatUserStatusService.cs`; bez zmian backendu i migracji.
+Dodano testy mapowania i emisji live statusu. Weryfikacja: mapper/usługa **9/9**,
+test Cubita status/presence **3/3**, `flutter analyze`, `flutter build macos
+--debug` i `git diff --check` PASS. Widgetów i goldenów nie uruchamiać przed
+akceptacją UI. Ręczny odbiór wyglądu nadal OPEN, CUA raportuje zablokowany Mac.
+
+### CHAT-R30 — kontrolki modali z własnym motywem Chat (2026-09-23)
+
+`ChatSurfaceDialog` jest prezentowany przez root navigator i wcześniej pozwalał
+akcjom/polom dziedziczyć style ekranu bazowego. Dialog aplikuje teraz
+`DevPlannerChatTheme.applyControls` do całej zawartości, zachowując jego własne
+powierzchnie i geometrię. Weryfikacja: `flutter analyze`, `flutter build macos
+--debug` i `git diff --check` PASS. Widgetów/goldenów nie uruchamiano. Runtime
+visual review pozostaje OPEN, ponieważ CUA nadal zgłasza zablokowany Mac.
+
+### CHAT-R31 — własny motyw jasny/ciemny komunikatora (2026-09-23)
+
+Paleta `DevPlannerChatTheme` nie wylicza już powierzchni i akcentu z niebieskiego
+`ColorScheme` Material. Jasny wariant ma neutralną listę, kremową historię,
+miętowy dymek wychodzący i zielone akcje; ciemny ma grafitowe powierzchnie,
+zielony dymek i czytelny tekst. Dodano testy tokenów i `applyControls` (3/3).
+`flutter analyze`, `flutter build macos --debug` i `git diff --check` PASS.
+Widgetów/goldenów nie uruchamiano. Wizualny odbiór runtime pozostaje OPEN przez
+blokadę Maca.
+
+### CHAT-R32 — bez duplikowania wklejonej treści i pliku TXT (2026-09-23)
+
+W `_keepPendingPasteAsText` cleanup załącznika odbywa się przed wstawieniem
+tekstu do szkicu. Jeśli odwołanie sesji/załącznika zawiedzie, karta pokazuje błąd
+i treść nie jest kopiowana do composera — użytkownik nie może wysłać jej
+podwójnie. Testy `chat_attachment_composer_coordinator_test.dart` oraz
+`chat_long_paste_decision_test.dart` **16/16 PASS**; `flutter analyze`,
+`flutter build macos --debug` i `git diff --check` PASS. Widgetów/goldenów nie
+uruchamiano; runtime UI nadal OPEN, Mac zablokowany dla CUA.
+
+### CHAT-R33 — limit członków tylko dla grup (2026-09-23)
+
+Backend egzekwuje `MaxConversationParticipants` wyłącznie dla rozmów `Group`;
+UI wcześniej ograniczało też kanały i ogłoszenia do 50. `ChatMembersSheet`
+przekazuje limit wolnych miejsc tylko dla grup, a `ChatAddMembersView` nie
+pokazuje licznika/nie blokuje kanałów i ogłoszeń. Test
+`g5_search_and_members_test.dart` **14/14 PASS**, `flutter analyze`, macOS Debug
+build i `git diff --check` PASS. Nie uruchamiano testów widgetowych; runtime
+visual review OPEN przez blokadę Maca.
+
+### CHAT-R34 — menu wiersza skrzynki i błędy akcji (2026-09-23)
+
+`ChatInboxRow` ma widoczny, lokalizowany przycisk opcji; menu otwiera się też
+prawym kliknięciem, długim przytrzymaniem i klawiszem Menu/Shift+F10. Wszystkie
+wejścia uruchamiają te same akcje. Wyciszanie i archiwizacja pokazują lokalizowany
+błąd, nie surowy tekst API. `flutter gen-l10n`, `flutter analyze`, macOS Debug build oraz
+`git diff --check` PASS. Testów widgetowych nie uruchamiano; runtime review OPEN,
+Mac nadal zablokowany dla CUA.
+
+### CHAT-R35 — poprawa geometrii kontrolki statusu (2026-09-23)
+
+W `chat_status_menu.dart` rozdzielono selektor czasu wygaśnięcia i DND na dwa
+pełnoszerokie wiersze karty. Poprzedni układ zestawiał pole i długi polski
+przełącznik w jednym wierszu, co mogło ścisnąć lub obciąć tekst pola przy
+maksymalnej szerokości popovera. Test logiki presetów/statusów **5/5 PASS** i
+`flutter analyze` PASS; macOS Debug build oraz `git diff --check` do wykonania
+po tej poprawce. Testów widgetowych/goldenów nie uruchamiano. CUA ponownie
+potwierdził zablokowany Mac; render runtime pozostaje niezweryfikowany.
+
+### CHAT-R35 — poprawa geometrii kontrolki statusu (uzupełnienie)
+
+Weryfikacja po zmianie zakończona: test logiki statusów **5/5**, `flutter
+analyze`, `flutter build macos --debug` i `git diff --check` PASS. Runtime
+pozostaje nieobejrzany przez blokadę Maca.
+
+### CHAT-R36 — wspólny przełącznik ChatTheme (2026-09-23)
+
+Dodano `shared/chat_toggle.dart` i użyto `ChatToggle` dla DND oraz kanałów
+powiadomień; usunięto systemowy `Switch.adaptive` z UI Chatu. Wyczyszczono też
+podwójne `@override` w dispose composera. Test ustawień globalnych **3/3**,
+logika statusów **5/5**, `flutter analyze`, macOS Debug build i `git diff
+--check` Front PASS. Widgetów/goldenów nie uruchamiano. Mac zablokowany dla CUA,
+więc runtime wygląd i focus pozostają do sprawdzenia.
+
+### CHAT-R37 — menu ChatTheme w root navigatorze (2026-09-23)
+
+`AppContextMenu._open` przechwytuje `ThemeData` wywołującego i przekazuje go do
+rootowej `PopupRoute`, więc menu zachowuje lokalne style zamiast wracać do
+motywu root overlayu. `DevPlannerChatTheme.applyControls` podmienia tokeny
+`DevPlannerMenuTheme` w panelu i rootowych dialogach Chat: powierzchnie,
+selekcję, hover, tekst,
+separatory, promień 14 px i wysokość wiersza 40 px. `applyControls` styluje też
+przyciski ikon, kursor i zaznaczenie pól. Testy ChatTheme **4/4** i
+polityki geometrii **4/4**, `flutter analyze`, macOS Debug build oraz
+`git diff --check` Front PASS. Testów widgetowych/goldenów nie uruchamiano;
+runtime nadal OPEN z powodu zablokowanego Maca. Backend/API bez zmian.
+
+Uzupełnienie R37: test tokenów potwierdza również kolor ikon i text selection;
+`flutter analyze`, test ChatTheme **4/4**, macOS Debug build i diff check PASS.
+
+### CHAT-R38 — pełnoekranowa rozmowa używana przez panel dyskusji (2026-09-23)
+
+`ChatConversationPageView` pozostaje używany w `ChatDiscussionSidePanel` i
+teście rozmowy. Zastąpiono hardkodowane `Czat` nowym kluczem PL/EN
+`chatConversationPageTitle`, a nagłówek korzysta z ChatTheme; usunięto import
+legacy `core/l10n` i `core/theme` na rzecz `foundation`. `flutter gen-l10n`,
+`flutter analyze`, macOS Debug build i `git diff --check` PASS. Testów widgetowych
+nie uruchamiano. Runtime nadal OPEN (Mac zablokowany).
+
+### CHAT-R39 — importy presentation Chat z foundation (2026-09-23)
+
+Zaktualizowano lokalizację/motyw w załącznikach, dyskusji, akcjach wiadomości i
+modalnych ustawieniach powiadomień. Skan potwierdza brak
+`package:devplanner/core/l10n` i `core/theme` w `presentation/chat`.
+`dart format`, `flutter analyze`, macOS Debug build i `git diff --check` PASS.
+Testów widgetowych nie uruchamiano; runtime pozostaje OPEN.
+
+### Otwarte zgłoszenie UI — mały obraz i przycięta tapeta (2026-09-23)
+
+Do odtworzenia na wskazanym przez użytkownika ekranie: przy mniejszym obrazie
+znika element, a tapeta jest ucięta od dołu. Zgłoszenie jest nierozpoznane i nie
+zostało naprawione. Renderer istnieje w `lib/app/shell/devplanner_shell_layout.dart`:
+`assets/images/bg.jpeg` (3440×1440) jest malowany z `BoxFit.cover`, a panel jest
+warstwą nad pełnym shellem. Oględziny runtime potwierdziły widok Files/Tasks i
+panel Chat w Archiwum; kliknięcia kończyły się `noWindowsAvailable`, więc nie
+uzyskano stabilnej reprodukcji aktywnej rozmowy ani kadru.
+
+### CHAT-R40 — bieżący zestaw testów Backend Chat (2026-09-23)
+
+Backend: komenda z filtrem `FullyQualifiedName~Chat` zakończyła się wynikiem
+**231 PASS, 3 SKIP, 0 FAIL**. Trzy skipy zależą od Redis (`localhost:6380`), w
+tym dwu-hostowy SignalR. Backend bez zmian; wynik nie zastępuje testów pełnego
+backendu ani runtime UI.
+
+
+### CHAT-R41 — fixture’y integracyjne Redis/SignalR (2026-09-23)
+
+Naprawiono harnessy testowe: Redis worker dostał `WorkspaceDbContext` i
+`IHubContext<ChatEventsHub>` w zakresie DI. Dwu-hostowy test SignalR tworzy
+aktywne `LocalUser`/`DeviceSession` w PostgreSQL, podaje prawidłowe claimy
+desktopowe i usuwa dane po teście, dzięki czemu przechodzi produkcyjny hub
+filter i nadal sprawdzany jest revoke członkostwa rozmowy.
+
+Weryfikacja: chat suite z Redisem **234/234 PASS, 0 SKIP**; build Backend
+**0 warning/0 errors**; `dotnet format veloryn-workspaces.csproj
+--verify-no-changes` PASS; idempotentne skrypty `WorkspaceDbContext` i
+`LocalIdentityDbContext` PASS. Front `flutter analyze` i macOS Debug build
+PASS. Nie zmieniono produkcyjnego API, schematu ani implementacji backendu;
+deploy nie był potrzebny. UI nadal wymaga odbioru runtime — macOS jest
+zablokowany dla CUA.
+
+### CHAT-R42 — toolbar Quill w wąskim panelu (2026-09-23)
+
+Naprawiono overflow paska rozbudowanego edytora: do 480 px pokazuje podstawowe
+akcje formatowania i menu dla list, cytatu, bloku kodu oraz czyszczenia formatu;
+szerszy panel pokazuje pełen zestaw. Dodano klucz PL/EN do ARB i wygenerowano
+lokalizacje. `flutter analyze` oraz macOS Debug build PASS. Po ponownym otwarciu
+builda w oknie 800×630 CUA potwierdziło brak obciętych ikon i komplet pięciu
+opisanych akcji w menu. Bez testów widgetowych/golden i bez backendowych zmian.
+
+### CHAT-R43 — ręczny odbiór przepływów 800×630 (2026-09-23)
+
+W runtime obejrzano modal członków, widok „Dodaj osoby” (41 wolnych), wyszukanie
+Piotra Wiśniewskiego i lokalny stan zaznaczenia; zaznaczenie cofnięto i modal
+anulowano bez modyfikacji rozmowy. Sprawdzono menu statusu (presety, status
+własny, wygaśnięcie, DND) bez zapisu. W kreatorze grupy przejrzano wybór osób
+oraz szczegóły: nazwa i polityka publikowania „Wszyscy członkowie” albo „Tylko
+właściciel i moderatorzy”; kreator anulowano bez utworzenia grupy. Wyszukiwarki
+zwróciły wyniki dla „Pi”. Menu wiadomości obejrzano: odpowiedź, kopiowanie,
+wątek, reakcja, przekazanie, edycja/usunięcie, przypięcie i zakładka.
+`flutter test` dla format commands i wysokości composera: **16/16 PASS**.
+Brak zmian danych stagingowych. Testów widgetowych/golden nie uruchamiano.
+
+## CHAT-R48 — usunięcie redundantnego filtra kategorii (2026-09-23)
+
+Zakładki Grupy, Kanały i Archiwum miały tylko jeden chip filtra o tej samej
+nazwie co nagłówek sekcji. Ukryłem chip, gdy `visibleFilters.length <= 1`;
+filtry wielokrotne w Czatach pozostają widoczne. Świeży build przy 800×630
+potwierdził, że Grupy pokazuje nagłówek, wyszukiwarkę i rozmowy bez
+powtórzonego chipu. `flutter analyze`, macOS Debug build i `git diff --check`
+PASS. Widget/golden tests odroczone zgodnie z instrukcją użytkownika; nie
+otwierano rozmowy ani nie zmieniano danych staging.
+
+### CHAT-R49 — przewijana lista popovera „Nowy czat” (2026-09-23)
+
+`ChatComposePopover` przekazuje ograniczoną wysokość do zawartości; wewnętrzne
+`Flexible` pozwala przewijać wyłącznie kontakty/wyniki, a tytuł, wyszukiwarka i
+akcje tworzenia pozostają widoczne. MacOS 800×630 potwierdził to w runtime na
+stagingu. `/health/live`, `/health/ready`, chat inbox, unread count i workspaces
+zwróciły HTTP 200. `flutter analyze`, macOS Debug build i Front `git diff
+--check` PASS. Nie otwierano konwersacji i nie zmieniano danych stagingowych.
+Testowa instancja została zamknięta (CUA: `DevPlanner isRunning=false`).
+Widget/golden testów nie uruchamiano zgodnie z instrukcją; pełny odbiór wyglądu
+Chat i zgłoszonego kadru tapety nadal jest otwarty.
+
+### CHAT-R50 — menu formatowania Quill w ChatTheme (2026-09-23)
+
+W `chat_composer_rich_toolbar.dart` zastąpiono domyślny `PopupMenuButton`
+`AppContextMenu`. Akcje formatowania zachowują ikony, lokalizowane nazwy, stan
+zaznaczenia i dotychczasowe komendy. Skan aktywnego `presentation/chat` nie
+znajduje innych domyślnych menu/list wyboru/dialogów Material ani bezpośrednich
+bannerów/toastów; `MenuAnchor` karty statusu jest celowo custom. `flutter analyze`
+i macOS Debug build PASS. Nie otwierano konwersacji; runtime preview menu
+kompozytora oraz testy widget/golden pozostają odroczone do odbioru UI.
+
+### CHAT-R51 — poprawka hit targetu globalnego Chat (2026-09-23)
+
+Odtworzony błąd: etykieta Badge z liczbą nieprzeczytanych przejmowała klik
+ikony Chat. `devplanner_shell_layout.dart` pokazuje teraz badge jako warstwę
+`IgnorePointer` nad niezmienionym przyciskiem i zachowuje semantyczną etykietę
+licznika. Runtime staging przy 33 nieprzeczytanych potwierdził otwarcie Chat
+jednym kliknięciem po zamknięciu panelu. Nie otwierano rozmów ani nie zmieniano
+danych. `flutter analyze`, macOS Debug build i diff check PASS; instancja
+zamknięta (CUA: `DevPlanner isRunning=false`).
+
+### CHAT-R52 — responsywny układ popovera
+
+`chat_compose_popover.dart` zwęża padding/odstępy i układa akcje grupy, kanału i
+ogłoszenia w jednym rzędzie przy niskiej wysokości, pozostawiając wyszukiwarkę
+oraz przewijany obszar wyników. `flutter analyze` i macOS Debug build PASS.
+Odbiór runtime małego viewportu **OPEN**: po resize wykonanym przez CUA widok
+aplikacji zajmował tylko górną część okna, a reszta była pusta; nie ustalono
+przyczyny i nie uznano tego za poprawny test. Nie otwierano konwersacji.
+Instancja testowa zamknięta (CUA: `DevPlanner isRunning=false`).
+
+### CHAT-R53 — jedna instancja podczas ręcznego QA (2026-09-23)
+
+Dodano do `AGENTS.md` regułę, by przy desktopowym QA używać najwyżej jednej
+instancji, preferować działającą sesję i zamykać proces po kontroli. Po zgłoszeniu
+użytkownika wykonano wyłącznie `pgrep -alf 'DevPlanner|devplanner|flutter run'`;
+wynik zawierał sam proces polecenia `pgrep`, bez aplikacji ani sesji Flutter.
+Nie uruchamiano aplikacji. `BoxFit.cover` w shellu oraz tapeta 3440×1440 zostały
+statycznie sprawdzone, lecz nie potwierdzają reprodukcji zgłoszonego kadru.
+`flutter analyze`, build macOS i testy nie były potrzebne, bo zmiana dotyczy
+wyłącznie instrukcji QA.
+
+### CHAT-R54 — staging health i weryfikacja kompozycji załączników (2026-09-23)
+
+Staging zwrócił HTTP 200 dla `/health/live` i `/health/ready`. Jedna podglądowa
+instancja DevPlanner pokazała ekran logowania; nie klikano przycisku, który
+uruchamia zewnętrznego dostawcę, i nie wpisywano danych. Zamknięto aplikację
+przez `Quit DevPlanner`, po czym CUA zgłosiło `isRunning=false`.
+
+Nieaktualny wpis G6 twierdził, że produkcyjny composition root nie dostarcza
+Storage ani transportu uploadu. Aktualny `DevPlannerApp` tworzy
+`DevPlannerStorageComposition`, przekazuje repozytorium i izolowany presigned
+transport do `DevPlannerStandaloneRuntime`, a ten udostępnia picker i porty
+załączników globalnemu Chatowi. Test kompozycji: **2/2 PASS**; `flutter analyze`
+bez problemów; `flutter build macos --debug` PASS. Rzeczywisty upload/pobranie
+pozostają niezweryfikowane bez sesji logowania; danych stagingowych nie
+zmieniano.
+
+### CHAT-R55 — łączenie dymków wiadomości w serie (2026-09-23)
+
+W globalnym panelu pozycja wiadomości w serii trafia teraz do `ChatMessageBubble`.
+Samodzielne dymki zachowują pełne zaokrąglenie; w serii narożniki po stronie
+nadawcy stykające się z kolejnymi dymkami są mniejsze. Dla wiadomości własnych
+układ jest lustrzany. Dzięki temu kilka kolejnych wiadomości wygląda jak jedna
+zwarta seria zamiast powtarzających się, odrębnych kart.
+
+`flutter analyze` bez problemów; `flutter build macos --debug` PASS;
+`git diff --check` PASS. Nie uruchamiano aplikacji ani testów widget/golden.
+Runtime odbiór wyglądu pozostaje otwarty do czasu zalogowanej sesji.
+
+### CHAT-R56 — kontrakt enumów transportowych Chat (2026-09-23)
+
+Dodano test pełnego zestawu i round-trip wartości przewodowych dla typów
+rozmowy, zakresu, preferencji powiadomień i statusu dostarczenia. Sprawdzono
+również jawne wartości query filtra inbox oraz ról członków. Test
+`chat_enum_wire_contract_test.dart`: **1/1 PASS**. `ChatInvitationStatus` nie
+został sklasyfikowany jako transportowy, ponieważ nie ma endpointu backendu,
+który obecnie go wystawia. Backendowy test OpenAPI/serializacji: **8/8 PASS**;
+Swagger staging nadal zwraca HTTP 500.
+
+### CHAT-R57 — zawijanie długich URL-i bez metadanych linku (2026-09-23)
+
+`ChatRichTextBody` dodawał punkty łamania tylko do linków potwierdzonych przez
+backend. Gdy odpowiedź nie zawierała metadanych, bardzo długi URL renderował się
+jak zwykły, niełamliwy tekst. Renderer dodaje teraz niewidoczne możliwości
+zawinięcia do URL-i HTTP(S) w zwykłych segmentach tekstu; nie czyni ich
+klikalnymi ani nie zmienia tekstu domenowego. Test reguł wyświetlania **8/8
+PASS**, analiza trzech zmienionych plików PASS, `git diff --check` PASS. Bez
+widget/golden testów i bez uruchamiania aplikacji; wygląd runtime pozostaje
+niezweryfikowany.
+
+### CHAT-R58 — serwerowe wyszukiwanie skrzynki (2026-09-23)
+
+Backend `GET /api/v1/chat/inbox` przyjmuje opcjonalny `query` (2–80 znaków) i
+wyszukuje tytuły rozmów oraz nazwy/login aktywnych uczestników przed filtrem i
+paginacją, z zachowaniem ACL. Front wysyła query po debounce 300 ms; nowa fraza
+resetuje kursor, dalsze strony zachowują frazę, a wejście krótsze niż dwa znaki
+pozostaje lokalne dla aktualnej strony. Wygenerowano klienta Retrofit.
+
+Backend pełny test suite: **1304 PASS, 0 FAIL, 4 SKIP**; testy inbox/OpenAPI
+**20/20 PASS**; `dotnet format` zmienionych plików PASS; idempotentny skrypt EF
+został wygenerowany dla `WorkspaceDbContext`; `git diff --check` PASS. Front
+test adaptera/Cubita **22/22 PASS**, `flutter analyze` zmienionych źródeł/testów
+PASS i `git diff --check` PASS. Build macOS Debug **PASS** (ostrzeżenie: dwa media-kit pluginy nie wspierają
+Swift Package Manager); GUI, widget/golden testy ani deploy nie były uruchamiane. Schemat bazy się nie zmienił.
+
+### CHAT-R59 — błąd PostgreSQL w snapshotach presence (2026-09-23)
+
+Podczas odbioru na stagingu znaleziono powtarzane błędy translacji EF w
+`ChatPresenceStore.ListActiveAsync`; dotyczyły snapshotów online uczestników.
+Backend sortuje teraz grupy po kluczu przed projekcją kontraktu, z testem na
+rzeczywistym PostgreSQL. Test `ChatPresenceStorePostgresTests` **1/1 PASS**;
+testy łączone realtime/inbox/OpenAPI **28/28 PASS**. Staging nadal działa na starej
+wersji i lokalnej poprawki jeszcze tam nie ma. Na stagingowym buildzie macOS ręcznie otwarto inbox, rozmowę, modal
+dodawania osób i menu kontekstowe wiadomości; nie wykonano mutacji. Build
+zamknięto i potwierdzono brak procesu. Nie uruchamiano testów widgetowych.
+
+### CHAT-R60 — kompletność wyszukiwania kontaktów inboxu (2026-09-23)
+
+Backend nie obcina już dopasowań kontaktów do pierwszych 50 użytkowników
+globalnego katalogu. Wyszukiwanie bierze kandydatów z aktywnych uczestników
+rozmów widocznych dla bieżącego użytkownika, a następnie szuka loginu i nazwy
+(bez e-maila). PostgreSQL sprawdził kompletność na 51 pasujących kontaktach:
+`ChatInboxPostgresTests` **13/13 PASS**. Zmienione pliki przeszły
+`dotnet format --verify-no-changes` i `git diff --check`. Bez zmian Fluttera,
+API, OpenAPI, enumów ani schematu. Nie uruchamiano GUI ani widget/golden testów;
+nie wykonano deployu, commitu ani pushu.
+
+### CHAT-R61 — zakotwiczone menu emoji composera (2026-09-23)
+
+Pliki: `lib/workspaces/presentation/chat/emoji/chat_emoji_picker.dart` i
+`lib/workspaces/presentation/chat/composer/chat_message_composer.dart`.
+Picker wywołany z composera przyjmuje `GlobalKey` kotwicy i używa
+`showMenu`/`RelativeRect`, stylując popup tokenami `ChatTheme`. Ten sam widget
+zachowuje istniejący picker modalny dla reakcji i statusu. W runtime menu
+pojawiło się nad ikoną bez scrim; Escape zamknął je bez wpisania emoji.
+
+Weryfikacja: `dart format` PASS; `flutter analyze --no-pub` PASS; macOS Debug
+build z `DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl` PASS; smoke test
+jednej instancji PASS. Po kontroli wybrano Quit DevPlanner i potwierdzono
+`isRunning=false`. Nie uruchamiano widget/golden tests ani nie zmieniano danych.
+Następny krok: kontynuować przegląd aktywnych wymagań UI/realtime; aplikację
+uruchamiać tylko na pojedynczy odbiór i zamykać po nim.
+
+### CHAT-R62 — badge’e nieprzeczytanych zgodne z ChatTheme (2026-09-23)
+
+Pliki: `lib/workspaces/presentation/chat/inbox/components/chat_inbox_row.dart`,
+`lib/workspaces/presentation/chat/shell/layout/chat_panel_list_pane.dart`,
+`lib/app/shell/devplanner_shell_layout.dart`. Badge’e wiersza, sumy panelu i
+globalnej ikony Chat używają teraz powierzchni/tekstu przycisku wysyłki z
+`ChatTheme`, zamiast `linkText` (niebieski) i `colorScheme.error` (czerwony).
+Flutter analyze i macOS Debug build PASS. W pojedynczej instancji sprawdzono
+wszystkie trzy badge’e jako zielone oraz menu emoji zakotwiczone przy composerze.
+Aplikację zamknięto i potwierdzono `isRunning=false`. Widget/golden testów nie
+uruchamiano zgodnie z dyspozycją użytkownika; Backend/API bez zmian.
+
+### CHAT-R63 — runtime QA Chat i rewalidacja macOS (2026-09-23)
+
+Front: `flutter analyze` bez uwag oraz macOS Debug build PASS. Na jednej
+instancji obejrzano rozmowę, menu kontekstowe wiadomości (odpowiedz, kopiuj,
+wątek, reakcja, forward, edytuj/usuń/przypnij/zapisz), menu emoji, listę
+uczestników, wyszukanie „Jan” w dodawaniu osób i początek kreatora grupy.
+Przepływy anulowano bez zmian w danych. Pierwszy stan po wybraniu rozmowy
+pokazał `offline`, ale znikał po załadowaniu historii; brak dwu-sesyjnego
+potwierdzenia zdarzeń. Aplikację zamknięto, CUA potwierdziło
+`isRunning=false`. Widget/golden testów nie uruchamiano.
+
+### CHAT-R64 — fałszywy początkowy stan offline (2026-09-23)
+
+- Pliki: `lib/workspaces/presentation/chat/shell/cubit/chat_realtime_status_cubit.dart`,
+  `test/workspaces/presentation/chat/shell/cubit/chat_realtime_status_cubit_test.dart`.
+- Przyczyna: `BehaviorSubject` klienta SignalR odtwarza `disconnected` jako
+  wartość początkową. Prezentacyjny Cubit interpretował tę wartość jako błąd,
+  zanim transport rozpoczął próbę połączenia.
+- Zmiana: ignorowany jest tylko początkowy `disconnected`; po pierwszym innym
+  stanie wszystkie kolejne przejścia, w tym rzeczywisty disconnect, są emitowane
+  bez opóźnienia. Nie dodano debounce ani timera.
+- Weryfikacja: `flutter test --no-pub test/workspaces/presentation/chat/shell/cubit/chat_realtime_status_cubit_test.dart test/workspaces/data/realtime/workspace_signalr_client_test.dart`
+  **12/12 PASS**; `dart analyze` obu zmienionych plików **PASS**.
+- Runtime/UI oraz dwu-sesyjne E2E nadal otwarte. Nie uruchamiano GUI/widgetów/
+  goldenów; Backend/API/schemat bez zmian. Następny krok: kontynuować weryfikację
+  pełnego UI oraz połączenia realtime w dwóch sesjach, po sprawdzeniu że aplikacja
+  nie działa już w tle.
+
+### CHAT-R65 — skok do starszej zapisanej wiadomości (2026-09-23)
+
+- Plik: `lib/workspaces/presentation/chat/chat_drawer.dart`.
+- Problem: skok spoza aktualnie wczytanego inboxa skanował maksymalnie 10 stron,
+  po czym kończył się bez komunikatu. Starsze rozmowy mogły być niedostępne
+  mimo istnienia backendowego endpointu szczegółów rozmowy.
+- Zmiana: pobranie rozmowy po ID przez `ChatConversationRepository`, które
+  ponownie sprawdza dostęp ACL; błędny/niedostępny wynik pokazuje lokalizowany
+  toast zamiast cichego braku reakcji.
+- Weryfikacja: `dart analyze` zmienionych plików oraz pełny
+  `flutter analyze --no-pub` **PASS**; `flutter test --no-pub` repozytorium
+  Chat + realtime + status Cubita **21/21 PASS**; macOS Debug build **PASS**
+  (ostrzeżenie SPM dwóch istniejących pluginów `media_kit`);
+  `git diff --check` **PASS**.
+- Bez zmian Backend/API/OpenAPI/schematu. GUI/widget/golden testów nie
+  uruchamiano. Następny krok: kontynuować przegląd działających przepływów UI;
+  po akceptacji użytkownika wykonać widgetowe/golden testy i dwu-sesyjne E2E.
+
+### CHAT-R66 — smoke test panelu i popovera compose (2026-09-23)
+
+- Świeży macOS Debug build otwarto w jednej instancji. Globalny Chat otworzył
+  się jednym kliknięciem; obejrzano rail, inbox i widok pustej rozmowy.
+- Ciemny wariant ChatTheme ma grafitowe powierzchnie, zielony akcent i oddzielne
+  tło rozmowy. Popover „Nowy czat” pokazuje wyszukiwanie osób, ostatnie kontakty
+  oraz akcje „Nowa grupa”, „Nowy kanał”, „Nowe ogłoszenia”.
+- Popover zamknięto Escape; nie wybrano kontaktu/rozmowy i nie zmieniono danych.
+  Przywrócono poprzedni jasny motyw. DevPlanner zamknięto, CUA potwierdziło
+  `isRunning=false`.
+- Istniejące rozmowy celowo nie były otwierane, ponieważ mogłoby to zmienić
+  unread. Odbiór wewnątrz rozmowy i dwu-sesyjne realtime nadal otwarte;
+  widget/golden testów nie uruchamiano.
+
+### CHAT-R67 — komentarze serwerowego wyszukiwania inboxa (2026-09-23)
+
+- Pliki: `lib/workspaces/presentation/chat/chat_drawer.dart` oraz
+  `lib/workspaces/presentation/chat/shell/layout/chat_panel_list_pane.dart`.
+- Komentarze błędnie sugerowały lokalne filtrowanie już załadowanych rozmów.
+  Zaktualizowano je do obecnego kontraktu: query inboxa wyszukuje po stronie
+  serwera nazwy rozmów i aktywnych uczestników; treść wiadomości ma osobny widok.
+- `git diff --check` PASS. Nie uruchamiano testów, bo zmiana dotyczy komentarzy.
+
+### CHAT-R68 — stała strefa dropu załączników w composerze (2026-09-23)
+
+- Pliki: `lib/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_controls.dart`,
+  `lib/workspaces/presentation/chat/composer/chat_message_composer.dart` oraz
+  lokalizacje EN/PL w `lib/l10n/app_*.arb` i wygenerowanych plikach.
+- Przyczyna: `DropTarget` znajdował się w zwijanym pasku załączników; przy
+  pustej kolejce pasek miał rozmiar zero, więc nie odbierał pierwszego dropu.
+- Zmiana: trwała strefa obejmuje całe pole composera, a aktywny drag pokazuje
+  nakładkę ChatTheme. Zdarzenia idą przez istniejący adapter i koordynator;
+  podczas oczekiwania na potwierdzenie nie przyjmuje kolejnych dropów. Pasek
+  kart jest `StatelessWidget` bez pozostawionego stanu drag/drop. Błąd odczytu
+  upuszczonego pliku pokazuje lokalizowany toast zamiast nieobsłużonego wyjątku.
+- Weryfikacja: testy koordynatora i adaptera **13/13 PASS**; analiza całego
+  Frontu i macOS Debug build PASS (Flutter zgłasza istniejące ostrzeżenia SPM
+  pluginów `media_kit`); `git diff --check` PASS.
+- Nie uruchamiano testów widgetowych/golden. Otworzono i zamknięto jedną
+  instancję DevPlanner, ale bez testowania interakcji w rozmowie. Ręczny drop w
+  zalogowanej rozmowie pozostaje do sprawdzenia; bez zmian backendu/API/OpenAPI,
+  enumów lub schematu. Następny krok: ręczny smoke test dropu w runtime.
+
+### CHAT-R69 — fail-closed przy niepełnej integracji załączników (2026-09-23)
+
+- Pliki: `lib/workspaces/presentation/chat/composer/chat_message_composer.dart`,
+  `lib/workspaces/presentation/chat/composer/chat_composer_surface.dart` oraz
+  lokalizacje EN/PL i pliki wygenerowane.
+- Problem: samo istnienie file pickera odblokowywało wybór zdjęcia/pliku, nawet
+  gdy runtime nie dostarczył portu uploadu. Wybrany plik trafiał do `_addInputs`,
+  który kończył działanie bez komunikatu, bo koordynator był `null`.
+- Zmiana: obie akcje wymagają file pickera i koordynatora. Menu `+` wyjaśnia
+  lokalizowanym podtytułem, dlaczego załączniki są wyłączone.
+- Weryfikacja: `flutter gen-l10n`; `flutter analyze --no-pub`; załączniki,
+  adapter, long-paste i trwałość draftu **28/28 PASS**; macOS Debug build oraz
+  `git diff --check` PASS. Widgetów/goldenów nie uruchamiano.
+- Bez zmian API/backendu/OpenAPI/enumów/schematu. Następny krok: ręczny runtime
+  po uzyskaniu widocznej, zalogowanej rozmowy.
+
+### CHAT-R70 — kolory akcji Chat i kontrola tworzenia grupy (2026-09-23)
+
+Zmiana w `lib/foundation/theme/chat_theme.dart` rozdziela kolor tekstowych
+akcji (`actionText`) od koloru odnośników (`linkText`): akcje w dialogach są
+zielone w obu trybach, a linki w wiadomościach zachowują własny kolor. Test
+`chat_theme_test.dart` sprawdza kolory obu trybów i theme kontrolek.
+
+Ręcznie obejrzano świeży macOS build: nowy chat, kreator grupy, wyszukanie i
+zaznaczenie `Michał Dąbrowski` (`demo.user08`). Wybranie go do grupy nie
+wyświetla już notki o istniejącym DM; flow anulowano bez zapisu. Testy motywu,
+kreatora i wyszukiwania/members **38/38 PASS**; pełny `flutter analyze --no-pub`,
+build macOS Debug i `git diff --check` PASS. Instancję zamknięto; `ps` nie
+wykazał działającego DevPlanner. Nie uruchamiano widget/golden tests ani nie
+otwierano rozmowy, która zmieniłaby unread.
+
+Backend: brak zmian API/schematu w tym pakiecie. Staging `/health/ready` = 200,
+ale `/` = 500; read-only SSH wykazał brak `/srv/devplanner/frontend/current`.
+Pozostają otwarte dwu-sesyjne realtime i wdrożenie statycznego Frontu.
+
+### CHAT-R71 — dolne zakotwiczenie tapety (2026-09-23)
+
+W `lib/app/shell/devplanner_shell_layout.dart` `DecorationImage` używa
+`alignment: Alignment.bottomCenter` razem z `BoxFit.cover`. Normalne proporcje
+nie zmieniają kadru; przy pionowym cropie związanym z bardzo szerokim oknem
+widoczny pozostaje dół tapety. `flutter analyze --no-pub` oraz świeży macOS
+Debug build PASS; `dart format` i `git diff --check` PASS. Próba resize przez
+CUA nie zmieniła geometrii okna, więc nie potwierdzono wizualnie zgłoszonego
+przypadku na małym/ultra-wide oknie. Widget/golden testów nie uruchamiano.
+Testową instancję zamknięto.
+
+### CHAT-R72 — testy kompozycji Storage i lifecycle załączników (2026-09-23)
+
+Przegląd statyczny potwierdził: session/ticket/finalize/download idą przez
+transport sesyjny i ACL Storage; binarny upload idzie osobnym `UploadTransport`
+na krótkotrwały URL. Web nie przekazuje do tego klienta cookie ani Bearera.
+UI fail-closed ukrywa akcje bez dostępnych portów.
+
+Wyniki: testy upload queue, upload Cubita, selekcji, composera/koordynatora,
+decyzji długiego wklejenia, drop adaptera, portów upload/download i Storage
+composition **50/50 PASS**. Brak testów widgetowych/golden zgodnie z dyspozycją.
+Rzeczywisty upload/download w zalogowanej rozmowie pozostaje niezweryfikowany;
+nie wykonano stagingowej mutacji ani nie otwierano rozmowy z unread.
+
+### CHAT-R73 — dopasowanie kreatora nowego czatu do wzorca (2026-09-23)
+
+- Runtime macOS pokazał szeroki popover „Nowy czat” oraz ogólny tytuł
+  „Nowa rozmowa” również w kroku tworzenia grupy. Zmniejszono limit szerokości
+  popovera z 420 do 320 px, dialogu kreatora z 520 do 440 px i dopasowano
+  nagłówek do grupy/kanału/ogłoszenia.
+- Weryfikacja: `dart format`, `flutter analyze --no-pub` oraz build macOS Debug
+  z `--dart-define=DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl`
+  PASS. Wcześniejszy build bez `--dart-define` pokazał ekran logowania, więc nie
+  jest traktowany jako dowód integracji ze stagingiem.
+- Po poprawnym buildzie workspace się otworzył, ale CUA zgłosiło zmianę stanu
+  aplikacji przez użytkownika przed ręcznym sprawdzeniem nowych wymiarów i
+  tytułu. Nie otwierano rozmów ani nie zmieniano danych. Widget/golden tests
+  odroczone zgodnie z dyspozycją.
+- Nadal otwarte: staging Front HTTP 500 (brak katalogu
+  `/srv/devplanner/frontend/current`), dwu-sesyjne SignalR i runtime QA
+  załączników.

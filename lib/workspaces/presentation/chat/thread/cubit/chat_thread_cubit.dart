@@ -57,6 +57,19 @@ final class ChatThreadCubit extends Cubit<ChatThreadState> {
 
   void retry(String clientMessageId) => _deliveryQueue.retry(clientMessageId);
 
+  /// Podmienia wiadomość po zatwierdzonej edycji lub soft-delete.
+  void applyMessageActionResult(ChatMessage message) {
+    if (isClosed) return;
+    _replace(message);
+  }
+
+  /// Zatrzymuje lokalną kolejkę po cofnięciu dostępu do wiadomości.
+  void detachForMessageAction() {
+    if (isClosed) return;
+    _deliveryQueue.clear();
+    emit(const ChatThreadDetached(''));
+  }
+
   Future<void> loadMore() async {
     final current = state;
     if (current is! ChatThreadReady ||
@@ -80,7 +93,21 @@ final class ChatThreadCubit extends Cubit<ChatThreadState> {
       return;
     }
     result.fold(
-      _handleError,
+      (error) {
+        if (error.type == ApiErrorType.unauthorized ||
+            error.type == ApiErrorType.forbidden) {
+          _deliveryQueue.clear();
+          emit(ChatThreadDetached(error.message));
+          return;
+        }
+        emit(
+          ChatThreadReady(
+            messages: current.messages,
+            nextCursor: current.nextCursor,
+            loadMoreFailed: true,
+          ),
+        );
+      },
       (page) => emit(
         ChatThreadReady(
           messages: _merge((state as ChatThreadReady).messages, page.items),
@@ -128,16 +155,6 @@ final class ChatThreadCubit extends Cubit<ChatThreadState> {
       }
     }
     return List<ChatMessage>.unmodifiable(merged);
-  }
-
-  void _handleError(ApiError error) {
-    if (error.type == ApiErrorType.unauthorized ||
-        error.type == ApiErrorType.forbidden) {
-      _deliveryQueue.clear();
-      emit(ChatThreadDetached(error.message));
-    } else {
-      emit(ChatThreadFailure(error.message));
-    }
   }
 
   @override

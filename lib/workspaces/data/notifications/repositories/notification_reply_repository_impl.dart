@@ -49,6 +49,8 @@ final class NotificationReplyRepositoryImpl extends ApiRepository
     isDeleted: response.isDeleted,
     threadRootMessageId: response.threadRootMessageId,
     isEdited: response.isEdited,
+    deliveredToCount: response.deliveredToCount,
+    readByCount: response.readByCount,
     deletedAtUtc: response.deletedAtUtc,
     deliveryState: ChatMessageDeliveryState.sent,
     attachments:
@@ -61,6 +63,10 @@ final class NotificationReplyRepositoryImpl extends ApiRepository
                 attachedByUserId: attachment.attachedByUserId,
                 position: attachment.position,
                 createdAtUtc: attachment.createdAtUtc,
+                fileName: attachment.fileName,
+                fileSizeBytes: attachment.fileSizeBytes,
+                contentType: attachment.contentType,
+                isAvailable: attachment.isAvailable,
               ),
             )
             .toList(growable: false) ??

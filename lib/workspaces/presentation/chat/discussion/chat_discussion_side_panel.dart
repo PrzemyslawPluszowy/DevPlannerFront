@@ -1,5 +1,5 @@
-import 'package:devplanner/core/l10n/l10n_extensions.dart';
-import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
 import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
@@ -46,7 +46,7 @@ class _ChatDiscussionSidePanelState extends State<ChatDiscussionSidePanel> {
       builder: (context) => DecoratedBox(
         decoration: BoxDecoration(
           border: Border(
-            left: BorderSide(color: context.colors.outlineVariant),
+            left: BorderSide(color: context.chatTheme.separator),
           ),
         ),
         child: Padding(
@@ -59,7 +59,9 @@ class _ChatDiscussionSidePanelState extends State<ChatDiscussionSidePanel> {
                   Expanded(
                     child: Text(
                       context.l10n.chatDiscussionTitle,
-                      style: context.text.titleSmall,
+                      style: context.chatTheme.contentStyle.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -74,6 +76,9 @@ class _ChatDiscussionSidePanelState extends State<ChatDiscussionSidePanel> {
                 widget.rootMessage.text,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
+                style: context.chatTheme.contentStyle.copyWith(
+                  color: context.chatTheme.metadataText,
+                ),
               ),
               Gaps.h12,
               TextField(
@@ -81,6 +86,29 @@ class _ChatDiscussionSidePanelState extends State<ChatDiscussionSidePanel> {
                 textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   labelText: context.l10n.chatDiscussionNameLabel,
+                  labelStyle: context.chatTheme.metadataStyle.copyWith(
+                    color: context.chatTheme.metadataText,
+                  ),
+                  filled: true,
+                  fillColor: context.chatTheme.composerSurface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: context.chatTheme.separator),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: context.chatTheme.separator),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: context.chatTheme.focusRing,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                style: context.chatTheme.contentStyle.copyWith(
+                  color: context.chatTheme.incomingText,
                 ),
                 onSubmitted: (_) => _open(context),
               ),
@@ -95,9 +123,8 @@ class _ChatDiscussionSidePanelState extends State<ChatDiscussionSidePanel> {
                       conversationId: conversation.id,
                     ),
                   ),
-                  ChatDiscussionFailure(:final message) ||
-                  ChatDiscussionDetached(:final message) => Text(
-                    message,
+                  ChatDiscussionFailure() || ChatDiscussionDetached() => Text(
+                    context.l10n.chatDiscussionLoadFailureMessage,
                     textAlign: TextAlign.center,
                   ),
                   ChatDiscussionIdle() => FilledButton.icon(

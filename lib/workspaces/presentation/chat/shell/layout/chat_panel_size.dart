@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 
 /// Rozmiar i tryb panelu komunikatora.
 ///
-/// Panel startuje z około 30% szerokości okna, więc nie dominuje ekranu; dopóki
-/// użytkownik nie użyje uchwytu, szerokość idzie za oknem. Uchwyt zmienia ją
-/// w granicach 320–1120 px i jest ponownie ograniczany do okna po zmianie jego
-/// rozmiaru. Powyżej progu 760 px panel pokazuje trzy kolumny, poniżej — rail
-/// i jedną kolumnę.
+/// Panel startuje tak szeroko, by na desktopie od razu pokazać rail, inbox i
+/// rozmowę. Cel to 75% okna, z minimum obejmującym układ trzech kolumn oraz
+/// uchwyt; szerokość jest ograniczana do 1120 px. Uchwyt pozwala zmienić ją
+/// w granicach 320–1120 px. Próg modalności dotyczy całego okna, nie liczby
+/// kolumn.
 ///
 /// Zwijanie gestem: przeciągnięcie uchwytu poza minimum zbiera nadwyżkę ruchu,
 /// a gdy przekroczy 5% szerokości okna, panel zamyka się animacją. Dzięki temu
@@ -16,7 +16,10 @@ import 'package:flutter/foundation.dart';
 /// zamyka go przypadkiem.
 final class ChatPanelSizeController extends ChangeNotifier {
   /// Domyślna szerokość panelu jako część szerokości okna.
-  static const double defaultWidthFraction = .3;
+  static const double defaultWidthFraction = .75;
+
+  /// Uchwyt plus minimalna szerokość railu, inboxa i rozmowy.
+  static const double defaultMultiColumnWidth = 734;
 
   /// Minimalna szerokość panelu.
   static const double minWidth = 320;
@@ -39,8 +42,58 @@ final class ChatPanelSizeController extends ChangeNotifier {
   /// Minimalna szerokość kolumny rozmowy w trybie szerokim.
   static const double conversationMinWidth = 360;
 
-  /// Poniżej tej szerokości panel pokazuje rail i jedną kolumnę.
-  static const double compactBreakpoint = 760;
+  /// Próg szerokości okna, poniżej którego host pokazuje modalny panel.
+  static const double compactBreakpoint = 960;
+
+  /// Poniżej tej szerokości panel zastępuje rail przyciskiem sekcji w treści.
+  ///
+  /// 56-pikselowej belki nie ściskamy do kilku pikseli: przy tak wąskim oknie
+  /// wybór sekcji przenosi się do przycisku nad listą albo rozmową.
+  static const double narrowBreakpoint = 400;
+
+  /// Szerokość separatora między kolumnami panelu.
+  static const double separatorWidth = 1;
+
+  /// Szerokość belki sekcji; nigdy nie skaluje się z szerokością okna.
+  static double railWidth(bool compact) =>
+      compact ? compactRailWidth : wideRailWidth;
+
+  /// Czy w dostępnej szerokości mieszczą się dwie kolumny treści panelu.
+  ///
+  /// Breakpoint liczymy z faktycznych constraints, a nie z rozmiaru monitora:
+  /// dwie kolumny wchodzą dopiero, gdy po belce zostaje miejsce na listę
+  /// minimum 304 px i rozmowę minimum 360 px razem z separatorami.
+  static bool fitsTwoColumns({
+    required double available,
+    required bool compactRail,
+  }) {
+    if (available <= 0) return false;
+    return available >= twoColumnMinimumWidth(compactRail: compactRail);
+  }
+
+  /// Minimalna szerokość całego panelu potrzebna dla listy i rozmowy obok.
+  static double twoColumnMinimumWidth({required bool compactRail}) =>
+      railWidth(compactRail) +
+      separatorWidth * 2 +
+      listMinWidth +
+      conversationMinWidth;
+
+  /// Szerokość kolumny listy dla dostępnej szerokości całego panelu.
+  ///
+  /// Gdy układ ledwo mieści dwa widoki, lista dostaje dokładnie minimum;
+  /// dopiero nadwyżka powiększa ją do wygodnego maksimum. Bez tego próg
+  /// trzykolumnowy i faktyczna szerokość `ChatPanelListPane` rozjeżdżają się.
+  static double listColumnWidth({
+    required double available,
+    required bool compactRail,
+  }) {
+    final contentWidth =
+        available -
+        railWidth(compactRail) -
+        separatorWidth * 2 -
+        conversationMinWidth;
+    return contentWidth.clamp(listMinWidth, listMaxWidth);
+  }
 
   /// Minimalna użyteczna szerokość treści aplikacji obok przypiętego panelu.
   ///
@@ -70,7 +123,12 @@ final class ChatPanelSizeController extends ChangeNotifier {
   /// może wywołać pętli przebudowy.
   double effectiveWidth(double available) {
     if (available <= 0) return 0;
-    final target = _rememberedWidth ?? available * defaultWidthFraction;
+    final target =
+        _rememberedWidth ??
+        math.max(
+          available * defaultWidthFraction,
+          defaultMultiColumnWidth,
+        );
     return _clamp(target, available);
   }
 
@@ -126,7 +184,7 @@ final class ChatPanelSizeController extends ChangeNotifier {
     return collapse;
   }
 
-  /// Wraca do szerokości domyślnej (30% okna).
+  /// Wraca do domyślnej szerokości wielokolumnowego panelu.
   void reset() {
     if (_rememberedWidth == null) return;
     _rememberedWidth = null;

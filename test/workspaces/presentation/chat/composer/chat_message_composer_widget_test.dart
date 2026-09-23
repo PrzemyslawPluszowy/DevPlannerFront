@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_composer_draft.dart';
+import 'package:devplanner/workspaces/domain/storage/models/file_picker_constraints.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
@@ -398,7 +399,7 @@ StorageUploadInput _input(String name) => StorageUploadInput(
   bytes: Uint8List.fromList([1]),
 );
 
-final class _FakeFilePicker implements FilePickerPort {
+final class _FakeFilePicker implements ConstrainedFilePickerPort {
   _FakeFilePicker(this.value);
   final List<StorageUploadInput> value;
   int calls = 0;
@@ -406,6 +407,7 @@ final class _FakeFilePicker implements FilePickerPort {
   Future<List<StorageUploadInput>> pickFiles({
     bool allowMultiple = true,
     List<String>? allowedExtensions,
+    FilePickerConstraints? constraints,
   }) async {
     calls++;
     return value;

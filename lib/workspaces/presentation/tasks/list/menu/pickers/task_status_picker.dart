@@ -47,5 +47,4 @@ abstract final class TaskStatusPicker {
       await onChanged(value);
     }
   }
-
 }

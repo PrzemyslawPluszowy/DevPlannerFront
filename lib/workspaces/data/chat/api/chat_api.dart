@@ -1,6 +1,8 @@
+import 'package:devplanner/workspaces/data/chat/models/chat_link_policy_dto.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'chat_api.g.dart';
@@ -9,13 +11,21 @@ part 'chat_api.g.dart';
 @RestApi()
 abstract class ChatApi {
   /// Tworzy klienta API Chat.
-  factory ChatApi(Dio dio, {String? baseUrl}) = _ChatApi;
+  factory ChatApi(
+    Dio dio, {
+    String? baseUrl,
+    ParseErrorLogger? errorLogger,
+  }) = _ChatApi;
 
   /// Rozwiązuje albo tworzy rozmowę dla Scope.
   @POST('/api/v1/chat/conversations/resolve')
   Future<ChatConversationResponse> resolve(
     @Body() ResolveChatConversationPayload payload,
   );
+
+  /// Pobiera politykę snippetów obowiązującą na serwerze.
+  @GET('/api/v1/chat/link-policy')
+  Future<ChatLinkPolicyDtoResponse> loadLinkPolicy();
 
   /// Pobiera katalog lokalnych kont dla nowej rozmowy.
   @GET('/api/v1/chat/users')
@@ -30,6 +40,7 @@ abstract class ChatApi {
     @Query('cursor') String? cursor,
     @Query('limit') int? limit,
     @Query('filter') String? filter,
+    @Query('query') String? query,
   });
 
   /// Pobiera agregat nieprzeczytanych wiadomości bez pobierania stron skrzynki.
@@ -204,7 +215,9 @@ abstract class ChatApi {
   });
 
   /// Pobiera okno wiadomości wokół wskazanej wiadomości.
-  @GET('/api/v1/chat/conversations/{conversationId}/messages/{messageId}/window')
+  @GET(
+    '/api/v1/chat/conversations/{conversationId}/messages/{messageId}/window',
+  )
   Future<ChatMessageWindowResponse> getMessageWindow(
     @Path('conversationId') String conversationId,
     @Path('messageId') String messageId, {
@@ -440,4 +453,24 @@ abstract class ChatApi {
   /// Usuwa szkic wiadomości rozmowy.
   @DELETE('/api/v1/chat/conversations/{conversationId}/draft')
   Future<void> deleteDraft(@Path('conversationId') String conversationId);
+}
+
+/// Zgłasza błędy dekodowania odpowiedzi, które powstają już po interceptorach Dio.
+final class ChatParseErrorLogger implements ParseErrorLogger {
+  const ChatParseErrorLogger();
+
+  @override
+  void logError(
+    Object error,
+    StackTrace stackTrace,
+    RequestOptions options, {
+    Response<dynamic>? response,
+  }) {
+    if (!kDebugMode) return;
+    debugPrint(
+      '[CHAT][PARSING] ${options.method} ${options.path} | '
+      'error=${error.runtimeType} | status=${response?.statusCode}',
+    );
+    debugPrintStack(label: '[CHAT][PARSING]', stackTrace: stackTrace);
+  }
 }

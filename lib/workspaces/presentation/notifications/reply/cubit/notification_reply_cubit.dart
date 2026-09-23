@@ -99,7 +99,10 @@ final class NotificationReplyCubit extends Cubit<NotificationReplyState> {
       ),
     );
     if (isClosed || state != sending) return;
-    result.fold(_handleFailure, (message) => emit(NotificationReplySucceeded(message)));
+    result.fold(
+      _handleFailure,
+      (message) => emit(NotificationReplySucceeded(message)),
+    );
   }
 
   void _replaceDraft({required String text, String? deltaJson}) {

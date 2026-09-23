@@ -54,6 +54,27 @@ void main() {
       expect(item.lastActivityAtUtc, DateTime.utc(2026, 9, 21, 12));
     });
 
+    test('zachowuje łączną liczbę poza skróconą listą uczestników', () async {
+      final response = _inboxItem(
+        ownerId: 'current-user',
+        participantCount: 9,
+      );
+      when(
+        () => api.loadInbox(limit: 30, filter: 'All'),
+      ).thenAnswer(
+        (_) async => ChatInboxPageResponse(
+          items: <ChatInboxItemResponse>[response],
+        ),
+      );
+
+      final page = await repository.loadInbox();
+      final item = page.getOrElse(() => ChatInboxPage.empty).items.single;
+
+      expect(response.participants, hasLength(2));
+      expect(item.participants, hasLength(2));
+      expect(item.participantCount, 9);
+    });
+
     test(
       'nie ujawnia identyfikatora rozmowy jako nazwy, gdy brak profilu',
       () async {
@@ -75,7 +96,12 @@ void main() {
 
     test('przekazuje filtr tekstowy i limit strony', () async {
       when(
-        () => api.loadInbox(cursor: 'cursor-1', limit: 50, filter: 'Unread'),
+        () => api.loadInbox(
+          cursor: 'cursor-1',
+          limit: 50,
+          filter: 'Unread',
+          query: 'projekt',
+        ),
       ).thenAnswer(
         (_) async => const ChatInboxPageResponse(),
       );
@@ -84,10 +110,16 @@ void main() {
         filter: ChatInboxFilter.unread,
         cursor: 'cursor-1',
         limit: 50,
+        query: 'projekt',
       );
 
       verify(
-        () => api.loadInbox(cursor: 'cursor-1', limit: 50, filter: 'Unread'),
+        () => api.loadInbox(
+          cursor: 'cursor-1',
+          limit: 50,
+          filter: 'Unread',
+          query: 'projekt',
+        ),
       ).called(1);
     });
 
@@ -195,6 +227,7 @@ Future<ChatInboxItem> _loadSingleItem(ChatInboxItemResponse response) async {
 ChatInboxItemResponse _inboxItem({
   required String ownerId,
   bool includeProfiles = true,
+  int participantCount = 2,
 }) => ChatInboxItemResponse(
   conversation: ChatConversationResponse(
     id: 'conversation-1',
@@ -225,5 +258,5 @@ ChatInboxItemResponse _inboxItem({
       displayName: includeProfiles ? 'Rozmówca Testowy' : null,
     ),
   ],
-  participantCount: 2,
+  participantCount: participantCount,
 );

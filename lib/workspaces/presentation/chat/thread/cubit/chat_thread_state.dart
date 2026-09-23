@@ -13,10 +13,12 @@ final class ChatThreadReady extends ChatThreadState {
     required this.messages,
     this.nextCursor,
     this.isLoadingMore = false,
+    this.loadMoreFailed = false,
   });
   final List<ChatMessage> messages;
   final String? nextCursor;
   final bool isLoadingMore;
+  final bool loadMoreFailed;
 }
 
 final class ChatThreadFailure extends ChatThreadState {

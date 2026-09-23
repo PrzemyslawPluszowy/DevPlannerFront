@@ -29,12 +29,14 @@ final class ChatInboxRepositoryImpl implements ChatInboxRepository {
     ChatInboxFilter filter = ChatInboxFilter.all,
     String? cursor,
     int? limit,
+    String? query,
   }) => _guard(
     () async {
       final page = await _api.loadInbox(
         cursor: cursor,
         limit: limit ?? defaultLimit,
         filter: filter.wireValue,
+        query: query,
       );
       return ChatInboxPage(
         items: page.items.map(_toItem).toList(growable: false),

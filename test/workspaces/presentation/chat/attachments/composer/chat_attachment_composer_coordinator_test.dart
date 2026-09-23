@@ -103,6 +103,26 @@ void main() {
     },
   );
 
+  test(
+    'removing a staged text file revokes its session and clears its draft ID',
+    () async {
+      final owner = _FakeOwner('file-1', 'session-1')..finish();
+      final draft = _FakeDraft();
+      final coordinator = _coordinator([owner], draft);
+      coordinator.selectInputs([input('pasted-text')]);
+      await coordinator.prepare('conversation');
+      final localId = coordinator.selection.attachments.single.localId;
+
+      await coordinator.remove('conversation', localId);
+
+      expect(owner.revokes, 1);
+      expect(coordinator.selection.attachments, isEmpty);
+      expect(draft.attachmentIds, isEmpty);
+      expect(coordinator.state, isA<ChatAttachmentComposerCoordinatorIdle>());
+      await coordinator.close();
+    },
+  );
+
   test('stale queue result cannot restore draft IDs after revoke', () async {
     final owner = _FakeOwner('file-1', 'session-1');
     final draft = _FakeDraft();

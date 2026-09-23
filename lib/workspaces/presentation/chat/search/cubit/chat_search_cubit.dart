@@ -117,10 +117,19 @@ final class ChatSearchCubit extends Cubit<ChatSearchState> {
   /// Ustawia frazę i planuje zapytanie po debounce.
   void updateTerm(String value) {
     _timer?.cancel();
-    emit(state.copyWith(term: value, clearFailure: true));
-    if (state.isTermTooShort(minimumTermLength)) {
-      // Za krótka fraza czyści poprzednie wyniki bez pytania backendu.
-      emit(ChatSearchState(term: value));
+    // Każda zmiana frazy unieważnia stronę i odpowiedzi zapytań, które już
+    // trwają. Bez tego stary wynik może pojawić się pod nową frazą podczas
+    // debounce albo nadpisać jej rezultat.
+    _requestId++;
+    final shouldSearch = value.trim().length >= minimumTermLength;
+    emit(
+      ChatSearchState(
+        term: value,
+        isOpen: state.isOpen,
+        isSearching: shouldSearch,
+      ),
+    );
+    if (!shouldSearch) {
       return;
     }
     _timer = Timer(debounce, () => unawaited(_search(value, withFacets: true)));

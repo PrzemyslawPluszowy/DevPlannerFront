@@ -6,16 +6,21 @@ import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_sto
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/links/chat_link_preview_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/links/chat_external_link_port.dart';
 
 /// Zależności, które composition root dostarcza globalnemu Chatowi.
 ///
@@ -40,6 +45,11 @@ final class DevPlannerGlobalChatComposition {
     this.messageActions,
     this.notificationSettingsRepository,
     this.attachmentUploadPort,
+    this.attachmentAccessPort,
+    this.linkPort,
+    this.linkPolicyRepository,
+    this.linkPreviewRepository,
+    this.snippetRepository,
     this.filePickerPort,
     this.realtimeFactory,
   });
@@ -92,6 +102,24 @@ final class DevPlannerGlobalChatComposition {
   /// Opcjonalny port bezpiecznego uploadu załączników Chat/Storage.
   final ChatAttachmentUploadPort? attachmentUploadPort;
 
+  /// Opcjonalny port otwierania linków poza aplikacją; brak ukrywa „Otwórz”.
+  final ChatExternalLinkPort? linkPort;
+
+  /// Port polityki snippetów; bez niego UI nie proponuje pliku TXT.
+  final ChatLinkPolicyRepository? linkPolicyRepository;
+
+  /// Autoryzowany backendowy podgląd pierwszego bezpiecznego linku wiadomości.
+  final ChatLinkPreviewRepository? linkPreviewRepository;
+
+  /// Port przygotowania snippet-u; bez niego nie da się wysłać tekstu jako TXT.
+  final ChatSnippetRepository? snippetRepository;
+
+  /// Opcjonalny port pobrania załącznika przez autoryzowaną ścieżkę Storage.
+  ///
+  /// Bez niego karta załącznika nie pokazuje akcji otwarcia, bo nie istnieje
+  /// bezpieczny transport pliku na tej platformie.
+  final ChatAttachmentAccessPort? attachmentAccessPort;
+
   /// Opcjonalny adapter wyboru plików platformy.
   final FilePickerPort? filePickerPort;
 
@@ -118,8 +146,4 @@ final class DevPlannerGlobalChatComposition {
       repository is ChatMessageActionsRepository
       ? repository as ChatMessageActionsRepository
       : null;
-
-
-
-
 }

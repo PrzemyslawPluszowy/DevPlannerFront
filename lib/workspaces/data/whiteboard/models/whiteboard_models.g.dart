@@ -580,15 +580,15 @@ Map<String, dynamic> _$CreateWhiteboardExportPayloadToJson(
 };
 
 const _$WhiteboardExportFormatEnumMap = {
-  WhiteboardExportFormat.pdf: 'pdf',
-  WhiteboardExportFormat.png: 'png',
-  WhiteboardExportFormat.svg: 'svg',
+  WhiteboardExportFormat.pdf: 'Pdf',
+  WhiteboardExportFormat.png: 'Png',
+  WhiteboardExportFormat.svg: 'Svg',
 };
 
 const _$WhiteboardExportScopeEnumMap = {
-  WhiteboardExportScope.entireCanvas: 'entireCanvas',
-  WhiteboardExportScope.currentView: 'currentView',
-  WhiteboardExportScope.page: 'page',
+  WhiteboardExportScope.entireCanvas: 'EntireCanvas',
+  WhiteboardExportScope.currentView: 'CurrentView',
+  WhiteboardExportScope.page: 'Page',
 };
 
 _WhiteboardExportViewport _$WhiteboardExportViewportFromJson(
@@ -638,10 +638,10 @@ Map<String, dynamic> _$WhiteboardExportResponseToJson(
 };
 
 const _$WhiteboardExportJobStatusEnumMap = {
-  WhiteboardExportJobStatus.pending: 'pending',
-  WhiteboardExportJobStatus.processing: 'processing',
-  WhiteboardExportJobStatus.completed: 'completed',
-  WhiteboardExportJobStatus.failed: 'failed',
+  WhiteboardExportJobStatus.pending: 'Pending',
+  WhiteboardExportJobStatus.processing: 'Processing',
+  WhiteboardExportJobStatus.completed: 'Completed',
+  WhiteboardExportJobStatus.failed: 'Failed',
 };
 
 _WhiteboardAiClusterPayload _$WhiteboardAiClusterPayloadFromJson(

@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
@@ -11,8 +14,10 @@ import 'package:devplanner/workspaces/domain/chat/members/models/chat_member.dar
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/models/chat_user_status.dart';
 import 'package:devplanner/workspaces/presentation/chat/members/chat_add_members_view.dart';
+import 'package:devplanner/workspaces/presentation/chat/members/chat_person_card.dart';
 import 'package:devplanner/workspaces/presentation/chat/members/cubit/chat_members_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/presence/chat_status_label.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -36,35 +41,72 @@ abstract final class ChatMembersSheet {
     if (membersRepository == null) return Future<bool?>.value(false);
     return DevPlannerModalHost.showSideSheet<bool>(
       context,
-      builder: (sheetContext) =>
-          RepositoryProvider<ChatMembersRepository>.value(
-            value: membersRepository,
-            child: MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (_) {
-                    final cubit = ChatMembersCubit(
-                      membersRepository: membersRepository,
-                      conversationId: conversation.id,
-                      currentUserId: currentUserId,
-                      conversationManagement: conversationManagement,
-                    );
-                    unawaited(cubit.load());
-                    return cubit;
-                  },
+      builder: (sheetContext) {
+        final media = MediaQuery.sizeOf(sheetContext);
+        final chat = sheetContext.chatTheme;
+        final width = math.min(
+          440.0,
+          math.max(0.0, media.width - Sizes.p24),
+        );
+        final height = math.min(
+          760.0,
+          math.max(0.0, media.height - Sizes.p24),
+        );
+        return Theme(
+          data: chat.applyControls(Theme.of(sheetContext)),
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: Sizes.p12,
+              right: Sizes.p12,
+              bottom: Sizes.p12,
+            ),
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: Material(
+                color: chat.panelSurface,
+                elevation: 18,
+                shadowColor: Colors.black.withValues(alpha: .28),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: chat.separator),
                 ),
-              ],
-              child: _ChatMembersSheetBody(
-                conversationName:
-                    conversation.name ??
-                    sheetContext.l10n.chatMembersFallbackName,
-                isDirect: conversation.type == 'direct',
-                directoryRepository: directoryRepository,
-                presenceRepository: presenceRepository,
-                onClose: () => Navigator.of(sheetContext).pop(false),
+                clipBehavior: Clip.antiAlias,
+                child: RepositoryProvider<ChatMembersRepository>.value(
+                  value: membersRepository,
+                  child: MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        create: (_) {
+                          final cubit = ChatMembersCubit(
+                            membersRepository: membersRepository,
+                            conversationId: conversation.id,
+                            currentUserId: currentUserId,
+                            conversationManagement: conversationManagement,
+                          );
+                          unawaited(cubit.load());
+                          return cubit;
+                        },
+                      ),
+                    ],
+                    child: _ChatMembersSheetBody(
+                      conversationName:
+                          conversation.name ??
+                          sheetContext.l10n.chatMembersFallbackName,
+                      conversationType: conversation.type,
+                      isDirect: conversation.type == 'direct',
+                      directoryRepository: directoryRepository,
+                      presenceRepository: presenceRepository,
+                      conversationManagement: conversationManagement,
+                      onClose: () => Navigator.of(sheetContext).pop(false),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
+        );
+      },
     );
   }
 }
@@ -72,13 +114,16 @@ abstract final class ChatMembersSheet {
 class _ChatMembersSheetBody extends StatefulWidget {
   const _ChatMembersSheetBody({
     required this.conversationName,
+    required this.conversationType,
     required this.isDirect,
     required this.onClose,
     this.directoryRepository,
     this.presenceRepository,
+    this.conversationManagement,
   });
 
   final String conversationName;
+  final String conversationType;
 
   /// Rozmowa 1:1 nie pozwala dopisywać osób; opcją jest nowa grupa.
   final bool isDirect;
@@ -90,6 +135,9 @@ class _ChatMembersSheetBody extends StatefulWidget {
 
   /// Port obecności; brak oznacza listę bez statusów.
   final ChatPresenceRepository? presenceRepository;
+
+  /// Port zarządzania rozmową; brak wyłącza akcję „Napisz” z karty osoby.
+  final ChatConversationManagementRepository? conversationManagement;
 
   @override
   State<_ChatMembersSheetBody> createState() => _ChatMembersSheetBodyState();
@@ -111,7 +159,7 @@ class _ChatMembersSheetBodyState extends State<_ChatMembersSheetBody> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     final state = context.watch<ChatMembersCubit>().state;
     final ready = state is ChatMembersReady ? state : null;
     final directoryRepository = widget.directoryRepository;
@@ -133,7 +181,12 @@ class _ChatMembersSheetBodyState extends State<_ChatMembersSheetBody> {
                   existingUserIds: {
                     for (final member in ready.members) member.userId,
                   },
-                  freeSlots: _maxGroupMembers - ready.members.length,
+                  freeSlots: widget.conversationType == 'group'
+                      ? (_maxGroupMembers - ready.members.length).clamp(
+                          0,
+                          _maxGroupMembers,
+                        )
+                      : null,
                   isMutating: ready.isMutating,
                   failureCode: ready.failureCode,
                   onCancel: () => setState(() => _addingPeople = false),
@@ -144,14 +197,18 @@ class _ChatMembersSheetBodyState extends State<_ChatMembersSheetBody> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Symbols.group, size: 20),
+                        Icon(Symbols.group, size: 20, color: chat.linkText),
                         const SizedBox(width: Sizes.p8),
                         Expanded(
                           child: Text(
                             context.l10n.chatMembersTitle(
                               widget.conversationName,
                             ),
-                            style: theme.textTheme.titleMedium,
+                            style: chat.contentStyle.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: chat.incomingText,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -162,16 +219,16 @@ class _ChatMembersSheetBodyState extends State<_ChatMembersSheetBody> {
                         ),
                       ],
                     ),
-                    const Divider(height: Sizes.p16),
+                    Divider(height: Sizes.p16, color: chat.separator),
                     Expanded(
                       child: switch (state) {
                         ChatMembersLoading() => const Center(
                           child: CircularProgressIndicator(),
                         ),
-                        ChatMembersFailure(:final message) => _MembersMessage(
+                        ChatMembersFailure() => _MembersMessage(
                           icon: Symbols.error_outline,
                           title: context.l10n.chatMembersLoadFailureTitle,
-                          message: message,
+                          message: context.l10n.chatMembersLoadFailureMessage,
                           onRetry: () => unawaited(
                             context.read<ChatMembersCubit>().load(),
                           ),
@@ -180,6 +237,7 @@ class _ChatMembersSheetBodyState extends State<_ChatMembersSheetBody> {
                         ChatMembersReady() => _MembersList(
                           state: state,
                           presenceRepository: widget.presenceRepository,
+                          conversationManagement: widget.conversationManagement,
                           onAddPeople: canAddPeople
                               ? () => setState(() => _addingPeople = true)
                               : null,
@@ -198,11 +256,15 @@ class _MembersList extends StatefulWidget {
   const _MembersList({
     required this.state,
     this.presenceRepository,
+    this.conversationManagement,
     this.onAddPeople,
   });
 
   final ChatMembersReady state;
   final ChatPresenceRepository? presenceRepository;
+
+  /// Port zarządzania rozmową dla akcji „Napisz” w karcie osoby.
+  final ChatConversationManagementRepository? conversationManagement;
 
   /// Otwiera podwidok dodawania osób; `null` ukrywa akcję.
   final VoidCallback? onAddPeople;
@@ -213,6 +275,34 @@ class _MembersList extends StatefulWidget {
 
 class _MembersListState extends State<_MembersList> {
   final Map<String, ChatUserStatus?> _statuses = <String, ChatUserStatus?>{};
+  int _statusRequestGeneration = 0;
+
+  Future<bool> _confirmRemoval(ChatMember member) async {
+    final result = await DevPlannerModalHost.showDialog<bool>(
+      context,
+      builder: (dialogContext) => ChatSurfaceDialog(
+        title: dialogContext.l10n.chatMembersRemoveConfirmationTitle,
+        maxWidth: 420,
+        content: Text(
+          dialogContext.l10n.chatMembersRemoveConfirmationBody(member.label),
+          style: dialogContext.chatTheme.contentStyle.copyWith(
+            color: dialogContext.chatTheme.incomingText,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(dialogContext.l10n.chatMembersAddCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(dialogContext.l10n.chatMembersRemove),
+          ),
+        ],
+      ),
+    );
+    return result == true;
+  }
 
   @override
   void initState() {
@@ -220,36 +310,74 @@ class _MembersListState extends State<_MembersList> {
     unawaited(_loadStatuses());
   }
 
+  @override
+  void didUpdateWidget(covariant _MembersList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldUserIds = oldWidget.state.members
+        .map((member) => member.userId)
+        .toSet();
+    final userIds = widget.state.members.map((member) => member.userId).toSet();
+    final membersChanged =
+        oldUserIds.length != userIds.length || !oldUserIds.containsAll(userIds);
+    if (!membersChanged &&
+        oldWidget.presenceRepository == widget.presenceRepository) {
+      return;
+    }
+    _statusRequestGeneration++;
+    _statuses.removeWhere((userId, _) => !userIds.contains(userId));
+    if (oldWidget.presenceRepository != widget.presenceRepository) {
+      _statuses.clear();
+    }
+    unawaited(_loadStatuses());
+  }
+
   /// Statusy są uzupełnieniem listy: brak portu albo błąd zostawia wiersz bez
-  /// statusu, a lista członków pozostaje użyteczna.
+  /// statusu, a lista członków pozostaje użyteczna. Małe partie równoległych
+  /// żądań zapobiegają sekwencyjnemu czekaniu na każdego członka oraz nagłemu
+  /// wysłaniu dużej liczby requestów naraz.
   Future<void> _loadStatuses() async {
     final repository = widget.presenceRepository;
     if (repository == null) return;
-    for (final member in widget.state.members) {
-      final result = await repository.getUserStatus(member.userId);
-      if (!mounted) return;
-      result.fold(
-        (_) {},
-        (status) => setState(() => _statuses[member.userId] = status),
+    final generation = ++_statusRequestGeneration;
+    final userIds = widget.state.members
+        .map((member) => member.userId)
+        .where((userId) => !_statuses.containsKey(userId))
+        .toList(growable: false);
+    for (var start = 0; start < userIds.length; start += 8) {
+      final batch = userIds.skip(start).take(8);
+      final updates = <String, ChatUserStatus?>{};
+      await Future.wait(
+        batch.map((userId) async {
+          final result = await repository.getUserStatus(userId);
+          result.fold<void>((_) {}, (status) => updates[userId] = status);
+        }),
       );
+      if (!mounted || generation != _statusRequestGeneration) return;
+      if (updates.isNotEmpty) setState(() => _statuses.addAll(updates));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     final cubit = context.read<ChatMembersCubit>();
     return Column(
       children: [
         if (state.failureCode != null)
           Padding(
             padding: const EdgeInsets.only(bottom: Sizes.p8),
-            child: Text(
-              state.failureCode!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              ),
+            child: Row(
+              children: [
+                Icon(Symbols.error_outline, size: 16, color: chat.error),
+                const SizedBox(width: Sizes.p6),
+                Expanded(
+                  child: Text(
+                    context.l10n.chatMembersMutationFailureMessage,
+                    style: chat.metadataStyle.copyWith(color: chat.error),
+                  ),
+                ),
+              ],
             ),
           ),
         if (widget.onAddPeople != null)
@@ -267,61 +395,148 @@ class _MembersListState extends State<_MembersList> {
             itemBuilder: (context, index) {
               final member = state.members[index];
               final isCurrent = member.userId == state.currentUserId;
-              return ListTile(
-                dense: true,
-                title: Text(
-                  isCurrent
-                      ? '${member.label} (${context.l10n.chatMembersYou})'
-                      : member.label,
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(_roleLabel(context, member.role)),
-                    if (_statuses[member.userId] != null)
-                      ChatStatusLabel(
-                        status: _statuses[member.userId],
-                        style: theme.textTheme.labelSmall,
+              return Padding(
+                padding: const EdgeInsets.only(bottom: Sizes.p4),
+                child: Material(
+                  color: chat.listSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => unawaited(
+                      ChatPersonCard.show(
+                        context,
+                        member: member,
+                        isCurrentUser: isCurrent,
+                        presenceRepository: widget.presenceRepository,
+                        conversationManagement: widget.conversationManagement,
                       ),
-                  ],
-                ),
-                trailing: state.canManageMembers && !isCurrent
-                    ? PopupMenuButton<String>(
-                        tooltip: context.l10n.chatMembersActions,
-                        enabled: !state.isMutating,
-                        onSelected: (value) => unawaited(
-                          value == 'remove'
-                              ? cubit.removeMember(member.userId)
-                              : cubit.changeRole(
-                                  targetUserId: member.userId,
-                                  role: ChatMemberRole.fromWire(value),
-                                ),
-                        ),
-                        itemBuilder: (context) => <PopupMenuEntry<String>>[
-                          for (final role in ChatMemberRole.values)
-                            if (role != member.role)
-                              PopupMenuItem<String>(
-                                value: role.wireValue,
-                                child: Text(_roleLabel(context, role)),
-                              ),
-                          PopupMenuItem<String>(
-                            value: 'remove',
-                            child: Row(
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Sizes.p12,
+                        vertical: Sizes.p10,
+                      ),
+                      child: Row(
+                        children: [
+                          AppUserAvatar(
+                            userId: member.userId,
+                            displayName: member.label,
+                            avatarUrl: member.avatarUrl,
+                            hasCustomAvatar:
+                                member.avatarUrl?.trim().isNotEmpty == true,
+                            radius: 20,
+                            singleInitial: true,
+                          ),
+                          const SizedBox(width: Sizes.p12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Symbols.person_remove, size: 18),
-                                const SizedBox(width: Sizes.p8),
-                                Text(context.l10n.chatMembersRemove),
+                                Text(
+                                  isCurrent
+                                      ? '${member.label} (${context.l10n.chatMembersYou})'
+                                      : member.label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: chat.contentStyle.copyWith(
+                                    color: chat.incomingText,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: Sizes.p2),
+                                Text(
+                                  _roleLabel(context, member.role),
+                                  style: chat.metadataStyle.copyWith(
+                                    color: chat.metadataText,
+                                  ),
+                                ),
+                                if (_statuses[member.userId] != null)
+                                  ChatStatusLabel(
+                                    status: _statuses[member.userId],
+                                    style: chat.metadataStyle,
+                                  ),
                               ],
                             ),
                           ),
+                          if (state.canManageMembers &&
+                              !isCurrent &&
+                              member.role != ChatMemberRole.owner)
+                            Builder(
+                              builder: (anchorContext) => IconButton(
+                                tooltip: context.l10n.chatMembersActions,
+                                onPressed: state.isMutating
+                                    ? null
+                                    : () => unawaited(() async {
+                                        final selected =
+                                            await AppContextMenu.select<String>(
+                                              anchorContext,
+                                              globalPosition:
+                                                  AppContextMenu.positionFor(
+                                                    anchorContext,
+                                                  ),
+                                              options: [
+                                                for (final role
+                                                    in ChatMemberRole.values)
+                                                  if (role != member.role &&
+                                                      role !=
+                                                          ChatMemberRole.owner)
+                                                    AppContextMenuOption<
+                                                      String
+                                                    >(
+                                                      value: role.wireValue,
+                                                      label: _roleLabel(
+                                                        context,
+                                                        role,
+                                                      ),
+                                                      selected:
+                                                          role == member.role,
+                                                    ),
+                                                AppContextMenuOption<String>(
+                                                  value: 'remove',
+                                                  label: context
+                                                      .l10n
+                                                      .chatMembersRemove,
+                                                  icon: Symbols.person_remove,
+                                                  isDestructive: true,
+                                                  separatorBefore: true,
+                                                ),
+                                              ],
+                                            );
+                                        if (selected == null ||
+                                            !context.mounted) {
+                                          return;
+                                        }
+                                        if (selected == 'remove') {
+                                          final confirmed =
+                                              await _confirmRemoval(member);
+                                          if (!confirmed || !context.mounted) {
+                                            return;
+                                          }
+                                          await cubit.removeMember(
+                                            member.userId,
+                                          );
+                                        } else {
+                                          await cubit.changeRole(
+                                            targetUserId: member.userId,
+                                            role: ChatMemberRole.fromWire(
+                                              selected,
+                                            ),
+                                          );
+                                        }
+                                      }()),
+                                icon: const Icon(Symbols.more_vert_rounded),
+                              ),
+                            ),
                         ],
-                      )
-                    : null,
+                      ),
+                    ),
+                  ),
+                ),
               );
             },
           ),
         ),
-        const Divider(height: Sizes.p16),
+        Divider(height: Sizes.p16, color: chat.separator),
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
@@ -360,18 +575,24 @@ class _MembersMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 26, color: theme.colorScheme.onSurfaceVariant),
+          Icon(icon, size: 26, color: chat.metadataText),
           const SizedBox(height: Sizes.p8),
-          Text(title, style: theme.textTheme.titleSmall),
+          Text(
+            title,
+            style: chat.contentStyle.copyWith(
+              fontWeight: FontWeight.w700,
+              color: chat.incomingText,
+            ),
+          ),
           const SizedBox(height: Sizes.p4),
           Text(
             message,
-            style: theme.textTheme.bodySmall,
+            style: chat.metadataStyle.copyWith(color: chat.metadataText),
             textAlign: TextAlign.center,
           ),
           if (onRetry != null) ...[

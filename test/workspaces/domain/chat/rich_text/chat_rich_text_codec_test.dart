@@ -3,15 +3,39 @@ import 'dart:convert';
 import 'package:devplanner/workspaces/domain/chat/rich_text/chat_rich_text_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-String delta(List<Object?> ops) => jsonEncode({'ops': ops});
+/// Kontrakt transportu to tablica operacji Quill (tak wysyła composer).
+String delta(List<Object?> ops) => jsonEncode(ops);
 
 void main() {
   group('ChatRichTextCodec', () {
+    test('akceptuje tablicę operacji i starszą kopertę ops', () {
+      final arrayForm = ChatRichTextCodec.tryParse(
+        '[{"insert":"Hej\\n"}]',
+      );
+      final wrappedForm = ChatRichTextCodec.tryParse(
+        jsonEncode({
+          'ops': [
+            {'insert': 'Hej\n'},
+          ],
+        }),
+      );
+
+      expect(arrayForm, isNotNull);
+      expect(
+        wrappedForm,
+        isNotNull,
+        reason: 'starsza koperta nie może ukrywać formatowania',
+      );
+      expect(arrayForm!.single.spans.single.text, 'Hej');
+      expect(wrappedForm!.single.spans.single.text, 'Hej');
+    });
+
     test('brak albo nieczytelna delta degraduje do tekstu wiadomości', () {
       expect(ChatRichTextCodec.tryParse(null), isNull);
       expect(ChatRichTextCodec.tryParse('   '), isNull);
       expect(ChatRichTextCodec.tryParse('{not-json'), isNull);
       expect(ChatRichTextCodec.tryParse('{"ops":"nie-lista"}'), isNull);
+      expect(ChatRichTextCodec.tryParse('{"insert":"nie-tablica"}'), isNull);
     });
 
     test('dzieli akapity i formatuje inline', () {

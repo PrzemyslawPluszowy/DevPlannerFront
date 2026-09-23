@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,18 +15,42 @@ final class _FakeConversationRepository implements ChatConversationRepository {
     this.conversationResult,
     List<Either<ApiError, ChatMessagePage>>? pageResults,
     this.onSend,
+    this.windowResult,
+    this.markReadCompleter,
   }) : _pageResults = pageResults ?? <Either<ApiError, ChatMessagePage>>[];
 
   Either<ApiError, ChatConversation>? conversationResult;
+
+  /// Programowalna odpowiedź okna wokół wiadomości; `null` to puste okno.
+  Either<ApiError, ChatMessageWindow>? windowResult;
   final List<Either<ApiError, ChatMessagePage>> _pageResults;
   final Future<Either<ApiError, ChatMessage>> Function(ChatSendMessageCommand)?
   onSend;
   final sentCommands = <ChatSendMessageCommand>[];
+  final markedReadMessageIds = <String>[];
+  final Completer<Either<ApiError, void>>? markReadCompleter;
 
   @override
   Future<Either<ApiError, ChatConversation>> getConversation(
     String conversationId,
   ) async => conversationResult ?? Right(_conversation());
+
+  @override
+  Future<Either<ApiError, ChatMessageWindow>> loadMessageWindow({
+    required String conversationId,
+    required String messageId,
+    int before = 20,
+    int after = 20,
+  }) async =>
+      windowResult ??
+      Right(
+        ChatMessageWindow(
+          anchorMessageId: messageId,
+          messages: const <ChatMessage>[],
+          hasMoreBefore: false,
+          hasMoreAfter: false,
+        ),
+      );
 
   @override
   Future<Either<ApiError, ChatMessagePage>> listConversationMessages({
@@ -63,10 +90,99 @@ final class _FakeConversationRepository implements ChatConversationRepository {
   Future<Either<ApiError, void>> markConversationRead({
     required String conversationId,
     required String messageId,
-  }) async => const Right(null);
+  }) async {
+    markedReadMessageIds.add(messageId);
+    final pending = markReadCompleter;
+    if (pending != null) return pending.future;
+    return const Right(null);
+  }
 }
 
 void main() {
+  test('odczyt widocznej wiadomości jest idempotentny', () async {
+    final repository = _FakeConversationRepository(
+      pageResults: [
+        Right(
+          ChatMessagePage(
+            items: [_ChatConversationFixture.message('visible-1')],
+          ),
+        ),
+      ],
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+      currentUserId: 'user-2',
+    );
+    await cubit.load();
+
+    expect(await cubit.markVisibleAsRead('visible-1'), isTrue);
+    expect(await cubit.markVisibleAsRead('visible-1'), isFalse);
+    expect(repository.markedReadMessageIds, ['visible-1']);
+
+    await cubit.close();
+  });
+
+  test('nie wysyła równoległego odczytu tej samej wiadomości', () async {
+    final markReadCompleter = Completer<Either<ApiError, void>>();
+    final repository = _FakeConversationRepository(
+      pageResults: [
+        Right(
+          ChatMessagePage(
+            items: [_ChatConversationFixture.message('visible-race')],
+          ),
+        ),
+      ],
+      markReadCompleter: markReadCompleter,
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+      currentUserId: 'user-2',
+    );
+    await cubit.load();
+
+    final first = cubit.markVisibleAsRead('visible-race');
+    await Future<void>.delayed(Duration.zero);
+    expect(await cubit.markVisibleAsRead('visible-race'), isFalse);
+    markReadCompleter.complete(const Right(null));
+
+    expect(await first, isTrue);
+    expect(repository.markedReadMessageIds, ['visible-race']);
+    await cubit.close();
+  });
+
+  test('wysyła sam załącznik jako prawidłową treść wiadomości', () async {
+    final repository = _FakeConversationRepository(
+      pageResults: [const Right(ChatMessagePage(items: []))],
+      onSend: (command) async => Right(
+        _ChatConversationFixture.message(
+          'attachment-message',
+          clientMessageId: command.clientMessageId,
+          text: command.text,
+        ),
+      ),
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+    );
+    await cubit.load();
+
+    final clientMessageId = cubit.sendDraft(
+      const ChatComposerDraft(text: '', attachmentIds: ['storage-file-1']),
+    );
+
+    expect(clientMessageId, isNotNull);
+    await Future<void>.delayed(Duration.zero);
+    expect(repository.sentCommands, hasLength(1));
+    expect(repository.sentCommands.single.text, isEmpty);
+    expect(repository.sentCommands.single.attachmentFileIds, [
+      'storage-file-1',
+    ]);
+    await cubit.close();
+  });
+
   test(
     'odłącza i czyści zakres po 401 zamiast pokazywać starą historię',
     () async {
@@ -191,6 +307,155 @@ void main() {
       await cubit.close();
     },
   );
+
+  test(
+    'skok do starej wiadomości pokazuje ciągłe okno i kursor okna',
+    () async {
+      final repository = _FakeConversationRepository(
+        pageResults: [
+          Right(
+            ChatMessagePage(
+              items: [
+                _ChatConversationFixture.message(
+                  'fresh-1',
+                  clientMessageId: 'client-fresh-1',
+                ),
+              ],
+              nextCursor: 'cursor-najnowszy',
+            ),
+          ),
+          Right(
+            ChatMessagePage(
+              items: [
+                _ChatConversationFixture.message(
+                  'fresh-2',
+                  clientMessageId: 'client-fresh-2',
+                ),
+              ],
+              nextCursor: 'cursor-najnowszy-2',
+            ),
+          ),
+        ],
+        windowResult: Right(
+          ChatMessageWindow(
+            anchorMessageId: 'old-1',
+            messages: [
+              _ChatConversationFixture.message(
+                'old-1',
+                clientMessageId: 'client-old-1',
+              ),
+              _ChatConversationFixture.message(
+                'old-2',
+                clientMessageId: 'client-old-2',
+              ),
+            ],
+            hasMoreBefore: true,
+            hasMoreAfter: true,
+            beforeCursor: 'cursor-starszy',
+          ),
+        ),
+      );
+      final cubit = ChatConversationCubit(
+        repository: repository,
+        conversationId: 'conversation-1',
+      );
+      await cubit.load();
+
+      await cubit.ensureTargetLoaded('old-1');
+
+      var state = cubit.state as ChatConversationReady;
+      expect(
+        state.messages.map((message) => message.id),
+        <String>['old-1', 'old-2'],
+        reason: 'okno jest ciągłym zakresem, bez doszycia najnowszej strony',
+      );
+      expect(state.nextCursor, 'cursor-starszy');
+      expect(state.isWindowedHistory, isTrue);
+      expect(state.jumpAnchorMessageId, 'old-1');
+      expect(state.isJumpingToMessage, isFalse);
+      expect(state.jumpFailureCode, isNull);
+
+      // Wyjście z trybu okna pobiera najnowszą stronę od nowa.
+      await cubit.exitWindowHistory();
+
+      state = cubit.state as ChatConversationReady;
+      expect(state.messages.map((message) => message.id), <String>['fresh-2']);
+      expect(state.isWindowedHistory, isFalse);
+      expect(state.nextCursor, 'cursor-najnowszy-2');
+      await cubit.close();
+    },
+  );
+
+  test('wysłanie zamienia etykietę wzmianki na token UUID', () async {
+    const peer = '22222222-2222-2222-2222-222222222222';
+    final repository = _FakeConversationRepository(
+      pageResults: [const Right(ChatMessagePage(items: []))],
+      onSend: (command) async => Right(
+        _ChatConversationFixture.message(
+          'server-message-1',
+          clientMessageId: command.clientMessageId,
+          text: command.text,
+          payloadHash: command.payloadHash,
+        ),
+      ),
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+    );
+    await cubit.load();
+
+    cubit.sendDraft(
+      const ChatComposerDraft(
+        text: 'Hej @Jan, zobacz',
+        mentions: [ChatMentionReference(userId: peer, label: 'Jan')],
+      ),
+    );
+    await _ChatConversationFixture.flushMicrotasks();
+
+    expect(repository.sentCommands, hasLength(1));
+    expect(
+      repository.sentCommands.single.text,
+      'Hej @$peer, zobacz',
+      reason: 'composer pokazuje nazwę, a transport musi nieść stabilny UUID',
+    );
+    await cubit.close();
+  });
+
+  test('brak wiadomości w oknie daje komunikat, nie pustą historię', () async {
+    final repository = _FakeConversationRepository(
+      pageResults: [
+        Right(
+          ChatMessagePage(
+            items: [_ChatConversationFixture.message('fresh-1')],
+          ),
+        ),
+      ],
+      windowResult: const Left(
+        ApiError(
+          type: ApiErrorType.notFound,
+          message: 'chat.messages.not_found',
+          apiCode: 'chat.messages.not_found',
+        ),
+      ),
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+    );
+    await cubit.load();
+
+    await cubit.ensureTargetLoaded('missing-1');
+
+    final state = cubit.state as ChatConversationReady;
+    expect(
+      state.messages.map((message) => message.id),
+      <String>['fresh-1'],
+      reason: 'nieudany skok nie może wyczyścić pobranej historii',
+    );
+    expect(state.jumpFailureCode, 'chat.messages.not_found');
+    await cubit.close();
+  });
 }
 
 /// Zamyka tworzenie powtarzalnych danych i odroczeń wewnątrz fixture testu.

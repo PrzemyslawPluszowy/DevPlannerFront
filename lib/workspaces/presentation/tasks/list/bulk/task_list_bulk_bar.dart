@@ -59,7 +59,7 @@ class TaskListBulkBar extends StatelessWidget {
           key: const ValueKey('bulk_status'),
           icon: Symbols.playlist_add_check_rounded,
           label: 'Status',
-                    options: [
+          options: [
             for (final status in ProjectTaskStatus.values)
               AppContextMenuOption<ProjectTaskStatus>(
                 value: status,
@@ -74,7 +74,7 @@ class TaskListBulkBar extends StatelessWidget {
           key: const ValueKey('bulk_priority'),
           icon: Symbols.flag,
           label: 'Priorytet',
-                    options: [
+          options: [
             for (final priority in TaskPriority.values)
               AppContextMenuOption<TaskPriority>(
                 value: priority,
@@ -97,7 +97,7 @@ class TaskListBulkBar extends StatelessWidget {
             key: const ValueKey('bulk_group_move'),
             icon: Symbols.account_tree,
             label: 'Grupa wszystkich',
-                        options: [
+            options: [
               for (final group in workflowGroups)
                 AppContextMenuOption<String>(
                   value: group.key,
@@ -119,7 +119,7 @@ class TaskListBulkBar extends StatelessWidget {
             key: const ValueKey('bulk_assignee'),
             icon: Symbols.person_add_alt,
             label: 'Wykonawca',
-                        options: [
+            options: [
               for (final profile in profiles)
                 AppContextMenuOption<String>(
                   value: profile.userId,
@@ -139,7 +139,7 @@ class TaskListBulkBar extends StatelessWidget {
           key: const ValueKey('bulk_entire_result'),
           icon: Symbols.select_all_rounded,
           label: 'Cały wynik',
-                    options: [
+          options: [
             for (final status in ProjectTaskStatus.values)
               AppContextMenuOption<String>(
                 value: 'status:${status.name}',
@@ -177,10 +177,9 @@ class TaskListBulkBar extends StatelessWidget {
   }
 
   List<ProjectMemberProfile> _sortedProfiles() =>
-      memberProfiles.values.toList(growable: false)
-        ..sort(
-          (left, right) => _profileName(left).compareTo(_profileName(right)),
-        );
+      memberProfiles.values.toList(growable: false)..sort(
+        (left, right) => _profileName(left).compareTo(_profileName(right)),
+      );
 
   Future<void> _apply({
     ProjectTaskStatus? status,

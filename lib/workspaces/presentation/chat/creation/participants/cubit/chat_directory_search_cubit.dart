@@ -26,7 +26,10 @@ class ChatDirectorySearchState {
 
   /// Czy pokazać stan pusty po zakończonym wyszukiwaniu.
   bool get isEmpty =>
-      !isSearching && failureCode == null && !isQueryTooShort && results.isEmpty;
+      !isSearching &&
+      failureCode == null &&
+      !isQueryTooShort &&
+      results.isEmpty;
 
   /// Minimalna długość frazy wymagana przez backend.
   static const int minQueryLength = 2;
@@ -62,7 +65,18 @@ final class ChatDirectorySearchCubit extends Cubit<ChatDirectorySearchState> {
   /// Ustawia frazę i planuje zapytanie po debounce.
   void updateQuery(String value) {
     _timer?.cancel();
-    emit(ChatDirectorySearchState(query: value, results: state.results));
+    // Unieważnia także żądanie już wysłane. Jego odpowiedź nie może wrócić do
+    // nowej frazy w trakcie debounce i pokazać osób znalezionych dla starego
+    // zapytania.
+    _requestId++;
+    final shouldSearch =
+        value.trim().length >= ChatDirectorySearchState.minQueryLength;
+    emit(
+      ChatDirectorySearchState(
+        query: value,
+        isSearching: shouldSearch,
+      ),
+    );
     if (state.isQueryTooShort) return;
     _timer = Timer(debounce, () => unawaited(_search(value)));
   }

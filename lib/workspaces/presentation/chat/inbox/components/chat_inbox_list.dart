@@ -4,6 +4,7 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_empty_copy.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
@@ -86,17 +87,17 @@ class _ChatInboxListState extends State<ChatInboxList> {
               ChatInboxLoading() => const Center(
                 child: CircularProgressIndicator(),
               ),
-              ChatInboxFailure(:final message) => _ChatInboxMessage(
+              ChatInboxFailure() => _ChatInboxMessage(
                 icon: Symbols.error_outline,
                 title: context.l10n.globalChatLoadFailureTitle,
-                message: message,
+                message: context.l10n.chatActionFailureMessage,
                 actionLabel: context.l10n.chatInboxRetry,
                 onAction: () => context.read<ChatInboxCubit>().retry(),
               ),
-              ChatInboxEmpty() => _ChatInboxMessage(
+              ChatInboxEmpty(:final filter) => _ChatInboxMessage(
                 icon: WorkspaceIcons.chat,
                 title: context.l10n.globalChatEmptyTitle,
-                message: context.l10n.globalChatEmptyMessage,
+                message: ChatInboxEmptyCopy.forFilter(context.l10n, filter),
               ),
               ChatInboxReady(:final items) => _buildList(context, items),
             },
@@ -177,23 +178,40 @@ class _ChatInboxSearchField extends StatelessWidget {
   final VoidCallback onClear;
 
   @override
-  Widget build(BuildContext context) => TextField(
-    controller: controller,
-    onChanged: onChanged,
-    textInputAction: TextInputAction.search,
-    decoration: InputDecoration(
-      isDense: true,
-      prefixIcon: const Icon(Symbols.search, size: 18),
-      hintText: context.l10n.chatInboxSearchHint,
-      suffixIcon: controller.text.isEmpty
-          ? null
-          : IconButton(
-              onPressed: onClear,
-              tooltip: context.l10n.chatInboxSearchClear,
-              icon: const Icon(Symbols.close, size: 16),
-            ),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    final border = OutlineInputBorder(
+      borderRadius: const BorderRadius.all(Radius.circular(14)),
+      borderSide: BorderSide(color: chat.separator),
+    );
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      textInputAction: TextInputAction.search,
+      style: chat.contentStyle,
+      decoration: InputDecoration(
+        isDense: true,
+        filled: true,
+        fillColor: chat.composerSurface,
+        prefixIcon: Icon(Symbols.search, size: 18, color: chat.metadataText),
+        hintText: context.l10n.chatInboxSearchHint,
+        hintStyle: chat.contentStyle.copyWith(color: chat.metadataText),
+        border: border,
+        enabledBorder: border,
+        focusedBorder: border.copyWith(
+          borderSide: BorderSide(color: chat.focusRing, width: 1.5),
+        ),
+        suffixIcon: controller.text.isEmpty
+            ? null
+            : IconButton(
+                onPressed: onClear,
+                tooltip: context.l10n.chatInboxSearchClear,
+                color: chat.metadataText,
+                icon: const Icon(Symbols.close, size: 16),
+              ),
+      ),
+    );
+  }
 }
 
 class _ChatInboxFilterBar extends StatelessWidget {
@@ -202,6 +220,9 @@ class _ChatInboxFilterBar extends StatelessWidget {
   static const _filters = <ChatInboxFilter>[
     ChatInboxFilter.all,
     ChatInboxFilter.unread,
+    // Filtr „Wzmianki o mnie” rozwiązuje rozmowy po serwerowym rejestrze
+    // wzmianek, więc działa niezależnie od pobranej strony i lokalnej frazy.
+    ChatInboxFilter.mentions,
     ChatInboxFilter.direct,
     ChatInboxFilter.groups,
     ChatInboxFilter.channels,
@@ -211,6 +232,7 @@ class _ChatInboxFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<ChatInboxCubit>();
+    final chat = context.chatTheme;
     return BlocBuilder<ChatInboxCubit, ChatInboxState>(
       builder: (context, state) {
         final active = cubit.filter;
@@ -223,6 +245,18 @@ class _ChatInboxFilterBar extends StatelessWidget {
                   label: Text(_label(context, filter)),
                   selected: active == filter,
                   onSelected: (_) => unawaited(cubit.setFilter(filter)),
+                  backgroundColor: chat.listSurface,
+                  selectedColor: chat.selectedSurface,
+                  side: BorderSide(color: chat.separator),
+                  labelStyle: chat.metadataStyle.copyWith(
+                    color: active == filter
+                        ? chat.focusRing
+                        : chat.metadataText,
+                    fontWeight: active == filter
+                        ? FontWeight.w600
+                        : FontWeight.w500,
+                  ),
+                  shape: const StadiumBorder(),
                 ),
                 const SizedBox(width: Sizes.p6),
               ],
@@ -237,6 +271,7 @@ class _ChatInboxFilterBar extends StatelessWidget {
       switch (filter) {
         ChatInboxFilter.all => context.l10n.chatInboxFilterAll,
         ChatInboxFilter.unread => context.l10n.chatInboxFilterUnread,
+        ChatInboxFilter.mentions => context.l10n.chatInboxFilterMentions,
         ChatInboxFilter.direct => context.l10n.chatInboxFilterDirect,
         ChatInboxFilter.groups => context.l10n.chatInboxFilterGroups,
         ChatInboxFilter.channels => context.l10n.chatInboxFilterChannels,
@@ -297,21 +332,24 @@ class _ChatInboxMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 28, color: theme.colorScheme.onSurfaceVariant),
+            Icon(icon, size: 28, color: chat.metadataText),
             const SizedBox(height: Sizes.p8),
-            Text(title, style: theme.textTheme.titleSmall, textAlign: TextAlign.center),
+            Text(
+              title,
+              style: theme.textTheme.titleSmall,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: Sizes.p4),
             Text(
               message,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: chat.metadataStyle,
               textAlign: TextAlign.center,
             ),
             if (actionLabel != null && onAction != null) ...[

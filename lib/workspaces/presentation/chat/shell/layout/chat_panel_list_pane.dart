@@ -1,12 +1,21 @@
 import 'dart:async';
 
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
+import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
+import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_empty_copy.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row_menu.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/members/chat_members_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_context_conversations_pane.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_context_source.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_section.dart';
@@ -21,8 +30,9 @@ import 'package:material_symbols_icons/symbols.dart';
 ///
 /// Wiersze pochodzą z serwerowej skrzynki (`ChatInboxCubit`) dla sekcji
 /// Czaty/Grupy/Kanały/Archiwum, z portu zakładek dla Zapisanych, a Pliki i
-/// Zadania pokazują uczciwy stan niepodłączonej integracji. Fraza filtruje już
-/// pobrane pozycje i nie udaje wyszukiwania po serwerze.
+/// Zadania pokazują uczciwy stan niepodłączonej integracji. Fraza w inboxie jest
+/// wysyłana do serwera i wyszukuje nazwy rozmów oraz aktywnych uczestników;
+/// wyszukiwanie treści wiadomości działa w osobnym widoku.
 class ChatPanelListPane extends StatefulWidget {
   /// Tworzy kolumnę listy.
   const ChatPanelListPane({
@@ -36,7 +46,6 @@ class ChatPanelListPane extends StatefulWidget {
     this.selectedConversationId,
     super.key,
   });
-
   final ValueChanged<ChatInboxItem> onConversationSelected;
   final ValueChanged<ChatInboxItem> onConversationOpened;
 
@@ -58,7 +67,6 @@ class ChatPanelListPane extends StatefulWidget {
 
   /// Rozmowa aktualnie otwarta w panelu; wiersz jest wtedy wyróżniony.
   final String? selectedConversationId;
-
   @override
   State<ChatPanelListPane> createState() => _ChatPanelListPaneState();
 }
@@ -66,8 +74,8 @@ class ChatPanelListPane extends StatefulWidget {
 class _ChatPanelListPaneState extends State<ChatPanelListPane> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
   String _query = '';
-
   @override
   void initState() {
     super.initState();
@@ -79,6 +87,7 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
     _scrollController
       ..removeListener(_loadMoreIfNeeded)
       ..dispose();
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -93,16 +102,16 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return BlocBuilder<ChatPanelSectionCubit, ChatPanelSectionState>(
       builder: (context, state) => SizedBox(
         width: ChatPanelSizeController.listMaxWidth,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
+            color: chat.listSurface,
             border: Border(
               right: BorderSide(
-                color: theme.colorScheme.outlineVariant.withValues(alpha: .6),
+                color: chat.separator.withValues(alpha: .6),
               ),
             ),
           ),
@@ -120,25 +129,47 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
                   child: TextField(
                     key: const ValueKey('chat-panel-list-search'),
                     controller: _searchController,
+                    style: chat.contentStyle.copyWith(color: chat.incomingText),
                     decoration: InputDecoration(
                       isDense: true,
-                      prefixIcon: const Icon(Symbols.search, size: 18),
+                      filled: true,
+                      fillColor: chat.panelSurface,
+                      prefixIcon: Icon(
+                        Symbols.search,
+                        size: 18,
+                        color: chat.metadataText,
+                      ),
                       hintText: context.l10n.chatInboxSearchHint,
+                      hintStyle: chat.contentStyle.copyWith(
+                        color: chat.metadataText,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: chat.separator),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: chat.separator),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: chat.focusRing),
+                      ),
                       suffixIcon: _query.isEmpty
                           ? null
                           : IconButton(
                               tooltip: context.l10n.chatInboxSearchClear,
-                              onPressed: () => setState(() {
+                              onPressed: () {
                                 _searchController.clear();
-                                _query = '';
-                              }),
+                                _onSearchChanged('');
+                              },
                               icon: const Icon(Symbols.close, size: 16),
                             ),
                     ),
-                    onChanged: (value) => setState(() => _query = value.trim()),
+                    onChanged: _onSearchChanged,
                   ),
                 ),
-              if (state.section.visibleFilters.isNotEmpty)
+              if (state.section.visibleFilters.length > 1)
                 _filterBar(context, state.section),
               Expanded(child: _body(context, state.section)),
             ],
@@ -148,8 +179,18 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
     );
   }
 
+  void _onSearchChanged(String value) {
+    final query = value.trim();
+    setState(() => _query = query);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      unawaited(context.read<ChatInboxCubit?>()?.setQuery(query));
+    });
+  }
+
   Widget _header(BuildContext context, ChatPanelSection section) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     final unreadTotal = context.select<ChatInboxCubit?, int>(
       (cubit) => switch (cubit?.state) {
         ChatInboxReady(:final unreadTotal) => unreadTotal,
@@ -171,11 +212,15 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
                 Flexible(
                   child: Text(
                     section.label(context),
-                    style: theme.textTheme.titleMedium,
+                    style: chat.contentStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: chat.incomingText,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (unreadTotal > 0) ...[
+                if (section.showsGlobalUnreadBadge && unreadTotal > 0) ...[
                   Gaps.w8,
                   _UnreadTotalBadge(count: unreadTotal),
                 ],
@@ -214,6 +259,7 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
   }
 
   Widget _filterBar(BuildContext context, ChatPanelSection section) {
+    final chat = context.chatTheme;
     final cubit = context.read<ChatInboxCubit?>();
     final active = cubit?.filter ?? section.inboxFilter;
     return Padding(
@@ -226,8 +272,24 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
               key: ValueKey<String>('chat-panel-filter-${filter.name}'),
               label: Text(
                 ChatPanelSectionPresentation.filterLabel(context, filter),
+                style: chat.metadataStyle.copyWith(
+                  color: filter == active ? chat.focusRing : chat.metadataText,
+                  fontWeight: filter == active
+                      ? FontWeight.w700
+                      : FontWeight.w500,
+                ),
               ),
               selected: filter == active,
+              showCheckmark: false,
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              backgroundColor: chat.panelSurface,
+              selectedColor: chat.selectedSurface,
+              side: BorderSide(
+                color: filter == active ? chat.focusRing : chat.separator,
+              ),
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: Sizes.p4),
               onSelected: cubit == null
                   ? null
                   : (_) => unawaited(cubit.setFilter(filter)),
@@ -279,9 +341,9 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
           message: context.l10n.chatInboxLoadMoreFailed,
           onRetry: () => unawaited(cubit.retry()),
         ),
-        ChatInboxEmpty() => _ChatPanelListMessage(
+        ChatInboxEmpty(:final filter) => _ChatPanelListMessage(
           icon: Symbols.forum_rounded,
-          message: context.l10n.globalChatEmptyMessage,
+          message: ChatInboxEmptyCopy.forFilter(context.l10n, filter),
         ),
         ChatInboxReady(:final items) => _rows(context, cubit, items),
       },
@@ -294,8 +356,13 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
     List<ChatInboxItem> items,
   ) {
     final now = (widget.nowUtc ?? DateTime.now)();
+    final archived =
+        context.read<ChatPanelSectionCubit>().state.section ==
+        ChatPanelSection.archived;
     final query = _query.toLowerCase();
-    final filtered = query.isEmpty
+    final filtered = query.length >= 2
+        ? items
+        : query.isEmpty
         ? items
         : items
               .where(
@@ -304,8 +371,7 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
               .toList(growable: false);
     if (filtered.isEmpty) {
       // Pusta strona nie oznacza końca rozmów: backend odfiltrowuje niedostępne
-      // pozycje, a fraza filtruje już pobrane. Dopóki kursor istnieje, użytkownik
-      // musi mieć drogę do dalszych stron.
+      // pozycje. Dopóki kursor istnieje, użytkownik musi mieć drogę do dalszych stron.
       final state = cubit.state;
       final hasMore = state is ChatInboxReady && state.hasMore;
       return _ChatPanelListMessage(
@@ -327,16 +393,56 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
       itemBuilder: (context, index) {
         if (index == filtered.length) return _footer(context, cubit);
         final item = filtered[index];
+        final actionsBuilder = _rowActions(context, item, archived: archived);
         return Padding(
           padding: const EdgeInsets.only(bottom: Sizes.p2),
-          child: ChatInboxRow(
-            item: item,
-            nowUtc: now,
-            selected: item.conversation.id == widget.selectedConversationId,
-            onTap: widget.onConversationSelected,
+          child: AppContextMenuRegion(
+            actionsBuilder: actionsBuilder,
+            headerTitle: item.displayName,
+            child: ChatInboxRow(
+              item: item,
+              nowUtc: now,
+              selected: item.conversation.id == widget.selectedConversationId,
+              onTap: widget.onConversationSelected,
+              actionsBuilder: actionsBuilder,
+            ),
           ),
         );
       },
+    );
+  }
+
+  /// Akcje menu wiersza: jedno menu dla prawego kliku i długiego przytrzymania.
+  ///
+  /// Sekcja skrzynki rozstrzyga, czy pokazać archiwizację, czy przywrócenie;
+  /// informacje otwierają istniejący arkusz członków, więc nie tworzymy drugiego
+  /// widoku tych samych danych.
+  List<AppContextMenuAction> Function(BuildContext context) _rowActions(
+    BuildContext context,
+    ChatInboxItem item, {
+    required bool archived,
+  }) {
+    return (menuContext) => ChatInboxRowMenu.actions(
+      menuContext,
+      item: item,
+      archived: archived,
+      onOpen: () => widget.onConversationSelected(item),
+      onInfo: context.read<ChatMembersRepository?>() == null
+          ? null
+          : () => unawaited(
+              ChatMembersSheet.show(
+                context,
+                membersRepository: context.read<ChatMembersRepository?>(),
+                conversation: item.conversation,
+                currentUserId:
+                    context.read<AuthSessionPort?>()?.snapshot.user?.userId ??
+                    '',
+                conversationManagement: context
+                    .read<ChatConversationManagementRepository?>(),
+                presenceRepository: context.read<ChatPresenceRepository?>(),
+                directoryRepository: context.read<ChatDirectoryRepository?>(),
+              ),
+            ),
     );
   }
 
@@ -363,24 +469,22 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
 
 class _UnreadTotalBadge extends StatelessWidget {
   const _UnreadTotalBadge({required this.count});
-
   final int count;
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return Semantics(
       label: context.l10n.chatInboxUnreadSemantics(count),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: Sizes.p6, vertical: 1),
         decoration: BoxDecoration(
-          color: theme.colorScheme.primary,
+          color: chat.sendButtonSurface,
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         child: Text(
           count > 99 ? '99+' : '$count',
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.onPrimary,
+          style: chat.metadataStyle.copyWith(
+            color: chat.sendButtonForeground,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -397,7 +501,6 @@ class _ChatPanelListMessage extends StatelessWidget {
     this.actionLabel,
     this.busy = false,
   });
-
   final IconData icon;
   final String message;
   final VoidCallback? onRetry;
@@ -407,39 +510,39 @@ class _ChatPanelListMessage extends StatelessWidget {
 
   /// Czy akcja już trwa; wtedy przycisk zamienia się w wskaźnik.
   final bool busy;
-
   @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(Sizes.p24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 36, color: context.colors.onSurfaceVariant),
-          Gaps.h12,
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurfaceVariant,
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Sizes.p24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 36, color: chat.metadataText),
+            Gaps.h12,
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: chat.metadataStyle.copyWith(color: chat.metadataText),
             ),
-          ),
-          if (onRetry != null) ...[
-            Gaps.h8,
-            if (busy)
-              const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else
-              TextButton(
-                onPressed: onRetry,
-                child: Text(actionLabel ?? context.l10n.chatInboxRetry),
-              ),
+            if (onRetry != null) ...[
+              Gaps.h8,
+              if (busy)
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                TextButton(
+                  onPressed: onRetry,
+                  child: Text(actionLabel ?? context.l10n.chatInboxRetry),
+                ),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

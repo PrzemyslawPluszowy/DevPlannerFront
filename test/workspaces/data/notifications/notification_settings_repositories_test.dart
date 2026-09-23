@@ -23,6 +23,57 @@ final class _MockNotificationsApi extends Mock implements NotificationsApi {}
 final class _MockChatApi extends Mock implements ChatApi {}
 
 void main() {
+  test('kontrakt preferencji rozmowy używa nazw enum backendu', () {
+    final response = ChatNotificationPreferenceResponse.fromJson(
+      const <String, dynamic>{
+        'conversationId': 'conversation-1',
+        'userId': 'user-1',
+        'preference': 'All',
+      },
+    );
+
+    expect(response.preference, transport_chat.ChatNotificationPreference.all);
+    expect(response.toJson()['preference'], 'All');
+    expect(
+      const UpdateChatNotificationPreferencePayload(
+        preference: transport_chat.ChatNotificationPreference.highOnly,
+      ).toJson()['preference'],
+      'HighOnly',
+    );
+  });
+
+  test('kontrakt e-mail dekoduje i koduje wartości enum backendu', () {
+    final digest = NotificationEmailCategoryPreference.fromJson(
+      const <String, dynamic>{'emailMode': 'DailyDigest'},
+    );
+    final immediate = NotificationEmailCategoryPreference.fromJson(
+      const <String, dynamic>{'emailMode': 'Immediate'},
+    );
+
+    expect(digest.emailMode.name, 'dailyDigest');
+    expect(digest.toJson()['emailMode'], 'DailyDigest');
+    expect(immediate.emailMode.name, 'immediate');
+    expect(immediate.toJson()['emailMode'], 'Immediate');
+    expect(
+      NotificationEmailCategoryPreference.fromJson(
+        const <String, dynamic>{'emailMode': 'Digest'},
+      ).emailMode.name,
+      'digest',
+    );
+    expect(
+      const NotificationEmailCategoryPreference(
+        emailMode: transport_notification.NotificationEmailDeliveryMode.digest,
+      ).toJson()['emailMode'],
+      'Digest',
+    );
+    expect(
+      const UpdateNotificationDeliveryPreferencePayload(
+        storage: transport_notification.NotificationEmailDeliveryMode.none,
+      ).toJson()['storage'],
+      'None',
+    );
+  });
+
   setUpAll(() {
     registerFallbackValue(const UpdateNotificationDeliveryPreferencePayload());
     registerFallbackValue(

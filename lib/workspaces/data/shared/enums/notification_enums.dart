@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 /// Kategoria powiadomienia.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum NotificationCategory {
   invitation,
   membership,
@@ -30,15 +30,24 @@ extension NotificationCategoryWireValue on NotificationCategory {
 }
 
 /// Priorytet dostarczenia powiadomienia.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum NotificationPriority { low, normal, high }
 
 /// Tryb dostarczania wiadomości e-mail.
-@JsonEnum()
-enum NotificationEmailDeliveryMode { none, immediate, dailyDigest, digest }
+@JsonEnum(fieldRename: FieldRename.pascal)
+enum NotificationEmailDeliveryMode {
+  none,
+  immediate,
+  dailyDigest,
+
+  /// Backendowy alias domenowy `Digest` ma tę samą wartość liczbową co
+  /// `DailyDigest`. Zachowujemy dekodowanie historycznych odpowiedzi.
+  @JsonValue('Digest')
+  digest,
+}
 
 /// Akcja wykonywana bez otwierania centrum powiadomień.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum NotificationQuickActionKind {
   markRead,
   archive,
@@ -53,7 +62,7 @@ enum NotificationQuickActionKind {
 enum EmailOutboxStatus { pending, sending, sent, failed, skipped }
 
 /// Tryb powiadomień Storage.
-@JsonEnum()
+@JsonEnum(fieldRename: FieldRename.pascal)
 enum StorageNotificationPreferenceMode {
   immediate,
   digest,

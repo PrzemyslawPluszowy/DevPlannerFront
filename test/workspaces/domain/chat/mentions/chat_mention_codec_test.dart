@@ -97,5 +97,50 @@ void main() {
       expect(rendered, 'Hej @Jan i @all');
       expect(back, wire);
     });
+
+    test('applyMention wstawia etykietę i zamyka token spacją', () {
+      const text = 'Hej @ol';
+      final query = ChatMentionCodec.activeQuery(text, text.length)!;
+
+      final applied = ChatMentionCodec.applyMention(
+        text: text,
+        query: query,
+        label: 'Ola Kowalska',
+      );
+
+      expect(applied, 'Hej @Ola Kowalska ');
+      expect(
+        ChatMentionCodec.activeQuery(applied, applied.length),
+        isNull,
+        reason: 'spacja zamyka frazę, więc lista się chowa',
+      );
+    });
+
+    test('pruneMentions odrzuca wzmiankę po skasowaniu nazwy z tekstu', () {
+      const peer = '22222222-2222-2222-2222-222222222222';
+      const mentions = [
+        ChatMentionReference(userId: userId, label: 'Ola'),
+        ChatMentionReference(userId: peer, label: 'Jan'),
+      ];
+
+      final kept = ChatMentionCodec.pruneMentions(
+        text: 'Hej @Ola, bez Jana',
+        mentions: mentions,
+      );
+
+      expect(kept, hasLength(1));
+      expect(kept.single.label, 'Ola');
+    });
+
+    test('pruneMentions zachowuje listę bez zmian, gdy nic nie zniknęło', () {
+      const mentions = [ChatMentionReference(userId: userId, label: 'Ola')];
+
+      final kept = ChatMentionCodec.pruneMentions(
+        text: 'Hej @Ola',
+        mentions: mentions,
+      );
+
+      expect(identical(kept, mentions), isTrue);
+    });
   });
 }

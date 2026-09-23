@@ -53,9 +53,10 @@ final class StorageRealtimeTarget extends Equatable {
   }) => switch (scope) {
     StoragePersonalScope() when ownerUserId != null =>
       StorageRealtimeTarget.personal(ownerUserId),
-    StorageWorkspaceScope(:final workspaceId) => StorageRealtimeTarget.workspace(
-      workspaceId,
-    ),
+    StorageWorkspaceScope(:final workspaceId) =>
+      StorageRealtimeTarget.workspace(
+        workspaceId,
+      ),
     StorageProjectScope(:final workspaceId, :final projectId) =>
       StorageRealtimeTarget.project(
         workspaceId: workspaceId,

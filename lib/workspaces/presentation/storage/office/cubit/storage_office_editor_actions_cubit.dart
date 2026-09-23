@@ -269,7 +269,10 @@ final class StorageOfficeEditorActionsCubit
     try {
       final result = await _repository.getFileDetails(_file.id);
       if (isClosed) return;
-      final version = result.fold((_) => null, (details) => details.file.version);
+      final version = result.fold(
+        (_) => null,
+        (details) => details.file.version,
+      );
       if (version == null || version <= _confirmationFloor) return;
       _stopConfirmationWatch();
       emit(
@@ -312,7 +315,8 @@ final class StorageOfficeEditorActionsCubit
     // okno kontroli plus jeden odstęp, żeby nie zawiesić zamknięcia na zawsze.
     final deadline = DateTime.now().add(confirmationTimeout);
     while (!isClosed &&
-        state.saveConfirmation == StorageOfficeSaveConfirmation.awaitingServer &&
+        state.saveConfirmation ==
+            StorageOfficeSaveConfirmation.awaitingServer &&
         DateTime.now().isBefore(deadline)) {
       await Future<void>.delayed(const Duration(milliseconds: 100));
     }

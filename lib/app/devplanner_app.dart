@@ -14,7 +14,7 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/me/me.dart';
 import 'package:devplanner/workspaces/data/standalone/devplanner_standalone_runtime.dart';
-import 'package:devplanner/workspaces/data/storage/transport/presigned_upload_transport.dart';
+import 'package:devplanner/workspaces/data/standalone/devplanner_storage_composition.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,6 +63,7 @@ class DevPlannerApp extends StatefulWidget {
 
 class _DevPlannerAppState extends State<DevPlannerApp> {
   late final DevPlannerRouter _router;
+  late final DevPlannerStorageComposition _storage;
   late final ThemePreferenceCubit _themePreferenceCubit;
   DevPlannerStandaloneRuntime? _standaloneRuntime;
   final MaterialTheme _theme = MaterialTheme.crm();
@@ -70,13 +71,17 @@ class _DevPlannerAppState extends State<DevPlannerApp> {
   @override
   void initState() {
     super.initState();
+    _storage = DevPlannerStorageComposition.resolve(
+      transport: widget.httpTransport,
+      explicitRepository: widget.storageRepository,
+    );
     _router = DevPlannerRouter(
       initialLocation: widget.launchContext.initialRoute,
       auth: widget.auth,
       adminUsers: widget.adminUsers,
       meGateway: widget.meGateway,
       httpTransport: widget.httpTransport,
-      storageRepository: widget.storageRepository,
+      storageRepository: _storage.repository,
     );
     _themePreferenceCubit = ThemePreferenceCubit(
       widget.themePreferenceStore ?? SharedPreferencesThemePreferenceStore(),
@@ -85,19 +90,14 @@ class _DevPlannerAppState extends State<DevPlannerApp> {
     final auth = widget.auth;
     final transport = widget.httpTransport;
     if (auth != null && transport != null) {
-      // Bezpośredni transfer binarny wymaga kompozycji desktop PKCE; Web/BFF
-      // nie ma bezpiecznego źródła Bearera, więc nie dostaje portu uploadu ani
-      // pickera i panel nie pokazuje akcji, których nie da się wykonać.
-      final directTransfer =
-          !transport.isBffCookieTransport &&
-          transport.supportsStandaloneApiClients;
+      // Ticket i finalizacja idą przez sesyjny transport API (cookie+CSRF na
+      // Web/BFF, token wyłącznie na desktopie). Osobny transport PUT dostaje
+      // tylko krótkotrwały presigned URL, nigdy cookie ani access token.
       _standaloneRuntime = DevPlannerStandaloneRuntime(
         auth: auth,
         transport: transport,
-        storageRepository: widget.storageRepository,
-        attachmentUploadTransport: directTransfer
-            ? PresignedUploadTransport()
-            : null,
+        storageRepository: _storage.repository,
+        attachmentUploadTransport: _storage.uploadTransport,
       );
     }
   }

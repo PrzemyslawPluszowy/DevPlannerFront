@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:crypto/crypto.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
-
 
 /// Właściciel lokalnych prób dostawy jednej rozmowy, niezależny od Cubita UI.
 ///
@@ -180,7 +180,8 @@ final class ChatMessageDeliveryQueue {
   }
 
   /// Ustawia rozmowę, do której należą trwałe intencje kolejki.
-  void bindConversation(String conversationId) => _conversationId = conversationId;
+  void bindConversation(String conversationId) =>
+      _conversationId = conversationId;
 
   String? _conversationId;
 

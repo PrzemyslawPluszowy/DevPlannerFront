@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
@@ -80,6 +82,21 @@ final class _DirectoryFake implements ChatDirectoryRepository {
     final error = failure;
     if (error != null) return Left(error);
     return Right(entries);
+  }
+}
+
+final class _DeferredDirectoryFake implements ChatDirectoryRepository {
+  final List<Completer<Either<ApiError, List<ChatDirectoryEntry>>>> requests =
+      <Completer<Either<ApiError, List<ChatDirectoryEntry>>>>[];
+
+  @override
+  Future<Either<ApiError, List<ChatDirectoryEntry>>> search({
+    required String term,
+    int? limit,
+  }) {
+    final request = Completer<Either<ApiError, List<ChatDirectoryEntry>>>();
+    requests.add(request);
+    return request.future;
   }
 }
 
@@ -218,6 +235,28 @@ void main() {
         contains(ChatCreationValidation.groupTooManyParticipants),
       );
       expect(management.commands, isEmpty);
+    });
+
+    test('grupa wymaga nazwy przed utworzeniem rozmowy', () async {
+      final management = _ManagementFake();
+      final cubit = ChatCreationCubit(repository: management);
+
+      cubit.selectKind(ChatConversationKind.group);
+      cubit.toggleParticipant(person('peer-1', 'Ola'));
+      cubit.continueToDetails();
+      expect(cubit.state.requiresName, isTrue);
+
+      await cubit.submit();
+      expect(
+        cubit.state.validationErrors,
+        contains(ChatCreationValidation.nameRequired),
+      );
+      expect(management.commands, isEmpty);
+
+      cubit.setName('  Planowanie zespołu  ');
+      await cubit.submit();
+      expect(management.commands.single.name, 'Planowanie zespołu');
+      expect(management.commands.single.kind, ChatConversationKind.group);
     });
 
     test('kanał pomija uczestników i wymaga nazwy', () async {
@@ -382,6 +421,54 @@ void main() {
       expect(cubit.state.results, isEmpty);
       expect(cubit.state.query, isEmpty);
     });
+
+    test(
+      'zmiana frazy natychmiast ukrywa wyniki poprzedniego zapytania',
+      () async {
+        final directory = _DirectoryFake(
+          entries: <ChatDirectoryEntry>[person('old', 'Stara osoba')],
+        );
+        final cubit = ChatDirectorySearchCubit(
+          repository: directory,
+          debounce: Duration.zero,
+        );
+
+        cubit.updateQuery('stara');
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+        expect(cubit.state.results.single.userId, 'old');
+
+        cubit.updateQuery('nowa');
+
+        expect(cubit.state.query, 'nowa');
+        expect(cubit.state.results, isEmpty);
+        expect(cubit.state.isSearching, isTrue);
+      },
+    );
+
+    test(
+      'odpowiedź w locie nie wraca w trakcie debounce nowej frazy',
+      () async {
+        final directory = _DeferredDirectoryFake();
+        final cubit = ChatDirectorySearchCubit(
+          repository: directory,
+          debounce: const Duration(milliseconds: 30),
+        );
+
+        cubit.updateQuery('stara');
+        await Future<void>.delayed(const Duration(milliseconds: 40));
+        expect(directory.requests, hasLength(1));
+
+        cubit.updateQuery('nowa');
+        directory.requests.single.complete(
+          Right(<ChatDirectoryEntry>[person('old', 'Stara osoba')]),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+
+        expect(cubit.state.query, 'nowa');
+        expect(cubit.state.results, isEmpty);
+        expect(cubit.state.isSearching, isTrue);
+      },
+    );
 
     test('błąd katalogu jest raportowany kodem, nie pustą listą', () async {
       final directory = _DirectoryFake(

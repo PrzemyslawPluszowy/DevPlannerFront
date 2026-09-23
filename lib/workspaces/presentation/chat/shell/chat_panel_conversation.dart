@@ -8,7 +8,12 @@ import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
+import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
+import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
+import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_context.dart';
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
@@ -18,15 +23,21 @@ import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/ch
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_unread_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/members/chat_members_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/presence/cubit/chat_conversation_presence_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/presence/cubit/chat_typing_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/presence/widgets/chat_peer_status_line.dart';
 import 'package:devplanner/workspaces/presentation/chat/presence/widgets/chat_typing_indicator.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_conversation_mute_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_conversation_parts.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/cubit/chat_realtime_status_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 /// Treść jednej rozmowy wyświetlana wewnątrz globalnego panelu Chat.
 ///
@@ -184,11 +195,19 @@ final class _ChatPanelConversationState extends State<ChatPanelConversation> {
             currentUserId: currentUserId,
           ),
         ),
+        BlocProvider(
+          create: (_) => ChatConversationPresenceCubit(realtime: realtime),
+        ),
         if (widget.messageActions != null)
           BlocProvider(
-            create: (context) => ChatMessageSecondaryActionsCubit(
-              repository: widget.messageActions!,
-            ),
+            create: (context) {
+              final cubit = ChatMessageSecondaryActionsCubit(
+                repository: widget.messageActions!,
+              );
+              unawaited(cubit.loadConversationPins(widget.conversation.id));
+              unawaited(cubit.loadBookmarks());
+              return cubit;
+            },
           ),
         if (widget.notificationSettings != null)
           BlocProvider(
@@ -204,6 +223,7 @@ final class _ChatPanelConversationState extends State<ChatPanelConversation> {
       ],
       child: _ChatPanelConversationContent(
         conversation: widget.conversation,
+        conversationRepository: repository,
         onOpenThread: widget.onOpenThread,
         targetMessageId: widget.targetMessageId,
         messageActions: widget.messageActions,
@@ -252,6 +272,7 @@ final class _ChatPanelConversationUnavailable extends StatelessWidget {
 final class _ChatPanelConversationContent extends StatefulWidget {
   const _ChatPanelConversationContent({
     required this.conversation,
+    required this.conversationRepository,
     this.onOpenThread,
     this.targetMessageId,
     this.messageActions,
@@ -263,6 +284,7 @@ final class _ChatPanelConversationContent extends StatefulWidget {
   });
 
   final ChatConversation conversation;
+  final ChatConversationRepository conversationRepository;
 
   /// Otwiera wątek wskazanej wiadomości; brak oznacza panel bez wątków.
   final ValueChanged<ChatMessage>? onOpenThread;
@@ -295,14 +317,24 @@ class _ChatPanelMessages extends StatefulWidget {
   const _ChatPanelMessages({
     required this.messages,
     required this.isSending,
+    required this.nextCursor,
+    required this.isLoadingMore,
+    required this.loadMoreFailed,
+    required this.onLoadMore,
     required this.onReply,
     this.onThread,
     this.targetMessageId,
     this.canModerate = false,
+    this.participantLabels = const <String, String>{},
+    this.participantAvatarUrls = const <String, String?>{},
   });
 
   final List<ChatMessage> messages;
   final bool isSending;
+  final String? nextCursor;
+  final bool isLoadingMore;
+  final bool loadMoreFailed;
+  final Future<void> Function() onLoadMore;
   final ValueChanged<ChatMessage> onReply;
 
   /// Otwiera wątek wiadomości; brak oznacza panel bez wątków.
@@ -313,6 +345,12 @@ class _ChatPanelMessages extends StatefulWidget {
 
   /// Czy bieżący użytkownik może moderować cudzą treść.
   final bool canModerate;
+
+  /// Etykiety autorów z katalogu; w DM pusta, więc dymek nie pokazuje autora.
+  final Map<String, String> participantLabels;
+
+  /// Profile image URLs from the current conversation's participant directory.
+  final Map<String, String?> participantAvatarUrls;
 
   @override
   State<_ChatPanelMessages> createState() => _ChatPanelMessagesState();
@@ -326,21 +364,12 @@ class _ChatPanelMessagesState extends State<_ChatPanelMessages>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _scheduleReadMarker();
-  }
-
-  @override
-  void didUpdateWidget(covariant _ChatPanelMessages oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.messages.length != oldWidget.messages.length) {
-      _scheduleReadMarker();
-    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _lifecycle = state;
-    if (state == AppLifecycleState.resumed) _scheduleReadMarker();
+    if (state == AppLifecycleState.resumed && mounted) setState(() {});
   }
 
   @override
@@ -352,18 +381,20 @@ class _ChatPanelMessagesState extends State<_ChatPanelMessages>
   /// Panel zamontowany i aplikacja na wierzchu to warunek „faktycznie zobaczone”.
   bool get _isVisible => mounted && _lifecycle == AppLifecycleState.resumed;
 
-  void _scheduleReadMarker() {
-    if (!_isVisible || widget.messages.isEmpty) return;
-    final newest = widget.messages.last;
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted || !_isVisible) return;
-      final marked = await context
-          .read<ChatConversationCubit>()
-          .markVisibleAsRead(newest.id);
-      if (!marked || !mounted) return;
-      // Badge w panelu wraca do stanu serwera po realnym odczycie.
-      unawaited(context.read<ChatInboxCubit?>()?.refreshUnreadTotal());
-    });
+  void _onNewestMessageVisible(String messageId) {
+    if (!_isVisible || ModalRoute.of(context)?.isCurrent == false) return;
+    unawaited(_markVisibleMessageAsRead(messageId));
+  }
+
+  Future<void> _markVisibleMessageAsRead(String messageId) async {
+    final marked = await context
+        .read<ChatConversationCubit>()
+        .markVisibleAsRead(messageId);
+    if (!marked || !mounted || !_isVisible) return;
+    // Odświeżenie strony inboxa aktualizuje unreadCount samej rozmowy oraz
+    // globalny licznik; samo refreshUnreadTotal zostawiałoby wiersz jako unread.
+    unawaited(context.read<ChatInboxCubit?>()?.refresh());
+    unawaited(context.read<ChatUnreadCubit?>()?.refresh());
   }
 
   @override
@@ -374,6 +405,15 @@ class _ChatPanelMessagesState extends State<_ChatPanelMessages>
     onThread: widget.onThread,
     targetMessageId: widget.targetMessageId,
     canModerate: widget.canModerate,
+    participantLabels: widget.participantLabels,
+    participantAvatarUrls: widget.participantAvatarUrls,
+    nextCursor: widget.nextCursor,
+    isLoadingMore: widget.isLoadingMore,
+    loadMoreFailed: widget.loadMoreFailed,
+    onLoadMore: widget.onLoadMore,
+    onNewestMessageVisible: _onNewestMessageVisible,
+    onEnsureTargetLoaded: (messageId) =>
+        context.read<ChatConversationCubit>().ensureTargetLoaded(messageId),
   );
 }
 
@@ -389,11 +429,128 @@ final class _ChatPanelConversationContentState
     super.dispose();
   }
 
+  /// Wpis rozmowy w katalogu skrzynki; brak oznacza brak potwierdzonych danych.
+  ChatInboxItem? _inboxItem(BuildContext context) {
+    final state = context.watch<ChatInboxCubit?>()?.state;
+    if (state is! ChatInboxReady) return null;
+    for (final item in state.items) {
+      if (item.conversation.id == widget.conversation.id) return item;
+    }
+    return null;
+  }
+
+  /// Etykiety autorów z katalogu skrzynki.
+  ///
+  /// W DM nie pokazujemy autora, a brak wpisu w skrzynce oznacza brak etykiety —
+  /// dymek nie wymyśla nazwy, tylko pokazuje to, co potwierdził serwer.
+  Map<String, String> _participantLabels(BuildContext context) {
+    if (widget.conversation.type == 'direct') return const <String, String>{};
+    final item = _inboxItem(context);
+    if (item == null) return const <String, String>{};
+    return <String, String>{
+      for (final participant in item.participants)
+        participant.userId: participant.label,
+    };
+  }
+
+  /// Nazwy piszących obejmują też rozmówcę z DM, choć dymki DM nie pokazują
+  /// prefiksu autora. Wskaźnik pisania musi powiedzieć użytkownikowi, kto pisze.
+  Map<String, String> _typingParticipantLabels(BuildContext context) {
+    if (widget.conversation.type != 'direct') {
+      return _participantLabels(context);
+    }
+    final others = _inboxItem(context)?.otherParticipants;
+    if (others == null || others.isEmpty) return const <String, String>{};
+    return <String, String>{
+      for (final participant in others) participant.userId: participant.label,
+    };
+  }
+
+  /// URL zdjęcia autora z ACL-owanego katalogu rozmowy.
+  Map<String, String?> _participantAvatarUrls(BuildContext context) {
+    if (widget.conversation.type == 'direct') {
+      return const <String, String?>{};
+    }
+    final item = _inboxItem(context);
+    if (item == null) return const <String, String?>{};
+    return <String, String?>{
+      for (final participant in item.participants)
+        participant.userId: participant.avatarUrl,
+    };
+  }
+
+  /// UUID rozmówcy w DM; w grupie `null`, żeby nagłówek użył awatara grupy.
+  String? _headerAvatarUserId(BuildContext context) {
+    if (widget.conversation.type != 'direct') return null;
+    final others = _inboxItem(context)?.otherParticipants;
+    if (others == null || others.isEmpty) return null;
+    return others.first.userId;
+  }
+
+  /// URL zdjęcia rozmówcy pochodzi ze skrzynki. `null` oznacza, że należy
+  /// użyć inicjałów zamiast przewidywać endpoint i wywoływać go z 404.
+  String? _headerAvatarUrl(BuildContext context) {
+    if (widget.conversation.type != 'direct') return null;
+    final others = _inboxItem(context)?.otherParticipants;
+    if (others == null || others.isEmpty) return null;
+    return others.first.avatarUrl;
+  }
+
+  /// Jedna linia kontekstu nagłówka: liczba osób, bo stan obecności nie istnieje.
+  String? _headerSubtitle(BuildContext context) {
+    if (widget.conversation.type == 'direct') return null;
+    final item = _inboxItem(context);
+    if (item == null || item.participantCount <= 0) return null;
+    return context.l10n.chatHeaderParticipantCount(item.participantCount);
+  }
+
+  /// Czy wolno zaproponować `@all`: grupa/kanał i rola Owner/Moderator.
+  ///
+  /// Serwer i tak egzekwuje regułę; UI tylko nie pokazuje opcji, której nie da
+  /// się wysłać, i nie odsłania `@all` w rozmowie 1:1 ani obserwatorowi.
+  bool _mentionAllEnabled(BuildContext context) {
+    final type = widget.conversation.type;
+    if (type != 'group' && type != 'channel' && type != 'broadcast') {
+      return false;
+    }
+    final role = _inboxItem(context)?.role;
+    return role == 'Owner' || role == 'Moderator';
+  }
+
+  /// Nagłówek rozmowy: w DM etykieta rozmówcy z katalogu, inaczej `null`.
+  ///
+  /// Brak profilu lub nazwy daje neutralny tytuł, nigdy techniczny `scopeKey`.
+  String? _conversationTitle(BuildContext context) {
+    if (widget.conversation.type != 'direct') return null;
+    final others = _inboxItem(context)?.otherParticipants;
+    if (others == null || others.isEmpty) return null;
+    return others.map((participant) => participant.label).join(', ');
+  }
+
+  /// Otwiera listę grupy i dodawanie osób bez szukania akcji w menu `…`.
+  void _openMembers() {
+    final members = context.read<ChatMembersRepository?>();
+    if (members == null) return;
+    unawaited(
+      ChatMembersSheet.show(
+        context,
+        membersRepository: members,
+        conversation: widget.conversation,
+        currentUserId:
+            context.read<AuthSessionPort?>()?.snapshot.user?.userId ?? '',
+        conversationManagement: context
+            .read<ChatConversationManagementRepository?>(),
+        presenceRepository: context.read<ChatPresenceRepository?>(),
+        directoryRepository: context.read<ChatDirectoryRepository?>(),
+      ),
+    );
+  }
+
   String? _send(ChatComposerDraft draft) {
     final clientMessageId = context.read<ChatConversationCubit>().sendDraft(
       draft,
     );
-    _replyTarget.value = null;
+    if (clientMessageId != null) _replyTarget.value = null;
     return clientMessageId;
   }
 
@@ -413,6 +570,24 @@ final class _ChatPanelConversationContentState
       children: [
         ChatPanelConversationHeader(
           conversation: widget.conversation,
+          conversationRepository: widget.conversationRepository,
+          messageActions: widget.messageActions,
+          title: _conversationTitle(context),
+          avatarUserId: _headerAvatarUserId(context),
+          avatarUrl: _headerAvatarUrl(context),
+          avatarLabel: _conversationTitle(context) ?? widget.conversation.name,
+          subtitle: _headerSubtitle(context),
+          subtitleWidget: switch (_headerAvatarUserId(context)) {
+            final userId? when userId.isNotEmpty => ChatPeerStatusLine(
+              userId: userId,
+            ),
+            _ => null,
+          },
+          onOpenMembers:
+              widget.conversation.type != 'direct' &&
+                  context.read<ChatMembersRepository?>() != null
+              ? _openMembers
+              : null,
           onBack: widget.onBack,
           onOpenFullView: widget.onOpenFullView,
           resourceContext: widget.resourceContext,
@@ -425,13 +600,41 @@ final class _ChatPanelConversationContentState
               current is ChatConversationReady &&
               (previous is! ChatConversationReady ||
                   previous.isJumpingToMessage != current.isJumpingToMessage ||
-                  previous.jumpFailureCode != current.jumpFailureCode),
+                  previous.jumpFailureCode != current.jumpFailureCode ||
+                  previous.isWindowedHistory != current.isWindowedHistory),
           builder: (context, state) {
             if (state is! ChatConversationReady) return const SizedBox.shrink();
             if (state.isJumpingToMessage) {
               return const Padding(
                 padding: EdgeInsets.symmetric(horizontal: Sizes.p12),
                 child: LinearProgressIndicator(minHeight: 2),
+              );
+            }
+            // Tryb okna jest jawny: użytkownik wie, że patrzy na fragment
+            // historii, i ma jedną akcję powrotu do najnowszych wiadomości.
+            if (state.isWindowedHistory) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Sizes.p12),
+                child: Row(
+                  children: [
+                    const Icon(Symbols.history, size: 16),
+                    const SizedBox(width: Sizes.p8),
+                    Expanded(
+                      child: Text(
+                        context.l10n.chatWindowHistoryBanner,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => unawaited(
+                        context
+                            .read<ChatConversationCubit>()
+                            .exitWindowHistory(),
+                      ),
+                      child: Text(context.l10n.chatWindowHistoryLatest),
+                    ),
+                  ],
+                ),
               );
             }
             final failure = state.jumpFailureCode;
@@ -444,8 +647,8 @@ final class _ChatPanelConversationContentState
                   Expanded(
                     child: Text(
                       failure,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.error,
+                      style: context.chatTheme.metadataStyle.copyWith(
+                        color: context.chatTheme.error,
                       ),
                     ),
                   ),
@@ -469,26 +672,43 @@ final class _ChatPanelConversationContentState
             builder: (context, state) => switch (state) {
               ChatConversationInitial() || ChatConversationLoading() =>
                 const Center(child: CircularProgressIndicator()),
-              ChatConversationFailure(:final message) ||
-              ChatConversationDetached(:final message) => Center(
+              ChatConversationFailure() || ChatConversationDetached() => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(Sizes.p16),
-                  child: Text(message, textAlign: TextAlign.center),
+                  child: Text(
+                    state is ChatConversationDetached
+                        ? context.l10n.chatConversationAccessRevokedMessage
+                        : context.l10n.chatConversationLoadFailureMessage,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-              ChatConversationReady(:final messages, :final isSending) =>
+              ChatConversationReady(
+                :final messages,
+                :final isSending,
+                :final nextCursor,
+                :final isLoadingMore,
+                :final loadError,
+              ) =>
                 _ChatPanelMessages(
                   messages: messages,
                   isSending: isSending,
+                  nextCursor: nextCursor,
+                  isLoadingMore: isLoadingMore,
+                  loadMoreFailed: loadError != null,
+                  onLoadMore: () =>
+                      context.read<ChatConversationCubit>().loadMore(),
                   onReply: (message) => _replyTarget.value = message,
                   onThread: widget.onOpenThread,
                   targetMessageId: widget.targetMessageId,
                   canModerate: widget.canModerateMessages,
+                  participantLabels: _participantLabels(context),
+                  participantAvatarUrls: _participantAvatarUrls(context),
                 ),
             },
           ),
         ),
-        const ChatTypingIndicator(),
+        ChatTypingIndicator(labels: _typingParticipantLabels(context)),
         ValueListenableBuilder<ChatMessage?>(
           valueListenable: _replyTarget,
           builder: (context, replyTarget, _) => ChatMessageComposer(
@@ -506,6 +726,7 @@ final class _ChatPanelConversationContentState
                 .deliveryConfirmations,
             attachmentUploadPort: context.read<ChatAttachmentUploadPort?>(),
             filePickerPort: context.read<FilePickerPort?>(),
+            mentionAllEnabled: _mentionAllEnabled(context),
             accessRevocation: _accessRevocation,
             replyTarget: replyTarget,
             onCancelReply: () => _replyTarget.value = null,

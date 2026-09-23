@@ -61,6 +61,12 @@ class DevPlannerPanelsScope
       ?.openResourceConversation;
 
   /// Zwraca własną rezerwację miejsca dla przypiętego panelu.
+  /// Otwiera rozmowę w panelu czatu; brak scope oznacza brak panelu.
+  static ValueChanged<String>? openConversationOf(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<DevPlannerPanelsScope>()
+          ?.openConversation;
+
   static double reservedWidthOf(BuildContext context) =>
       context
           .dependOnInheritedWidgetOfExactType<DevPlannerPanelsScope>()

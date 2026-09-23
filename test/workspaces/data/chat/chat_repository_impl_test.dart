@@ -172,6 +172,47 @@ void main() {
     });
 
     test(
+      'zachowuje bezpieczne linki zwrócone przez backend w historii',
+      () async {
+        final api = _MockChatApi();
+        when(
+          () => api.listMessages(
+            'conversation-1',
+            limit: 20,
+          ),
+        ).thenAnswer(
+          (_) async => CursorPageResponse(
+            items: [
+              _ChatRepositoryFixture.message(
+                links: const [
+                  ChatLinkResponse(
+                    url: 'https://example.com/',
+                    host: 'example.com',
+                    isHttps: true,
+                    isInternal: false,
+                    previewAllowed: true,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+
+        final result = await ChatRepositoryImpl(api).listConversationMessages(
+          conversationId: 'conversation-1',
+          limit: 20,
+        );
+        final message = result
+            .getOrElse(() => throw StateError('Brak historii.'))
+            .items
+            .single;
+
+        expect(message.links.single.url, 'https://example.com/');
+        expect(message.links.single.previewAllowed, isTrue);
+      },
+    );
+
+    test(
       'przekazuje pełną komendę composera bez utraty delta i załączników',
       () async {
         final api = _MockChatApi();
@@ -244,15 +285,17 @@ abstract final class _ChatRepositoryFixture {
     createdAtUtc: DateTime.utc(2026),
   );
 
-  static ChatMessageResponse message() => ChatMessageResponse(
-    id: 'message-1',
-    conversationId: 'conversation-1',
-    authorUserId: 'user-1',
-    clientMessageId: 'client-1',
-    text: 'Treść',
-    payloadHash: 'HASH',
-    version: 1,
-    createdAtUtc: DateTime.utc(2026),
-    isDeleted: false,
-  );
+  static ChatMessageResponse message({List<ChatLinkResponse>? links}) =>
+      ChatMessageResponse(
+        id: 'message-1',
+        conversationId: 'conversation-1',
+        authorUserId: 'user-1',
+        clientMessageId: 'client-1',
+        text: 'Treść',
+        payloadHash: 'HASH',
+        version: 1,
+        createdAtUtc: DateTime.utc(2026),
+        isDeleted: false,
+        links: links,
+      );
 }

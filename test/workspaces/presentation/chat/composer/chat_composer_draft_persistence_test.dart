@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
+import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:devplanner/workspaces/presentation/chat/composer/cubit/chat_composer_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -43,6 +44,28 @@ void main() {
       cubit.updatePlainText('Nowsza wersja');
       await cubit.flush();
       expect(repository.saveCalls, 2);
+      await cubit.close();
+    });
+
+    test('wzmianki przeżywają edycję, a skasowana nazwa je usuwa', () async {
+      final repository = _MemoryDraftRepository();
+      final cubit = _ComposerDraftFixture.cubit(repository);
+      const peer = '22222222-2222-2222-2222-222222222222';
+
+      cubit.updatePlainText('Hej @Ola i @Jan');
+      cubit.setMentions(const [
+        ChatMentionReference(userId: 'user-ola', label: 'Ola'),
+        ChatMentionReference(userId: peer, label: 'Jan'),
+      ]);
+      expect(cubit.state.draft.mentions, hasLength(2));
+
+      // Edycja bez usunięcia nazw zachowuje wzmianki.
+      cubit.updatePlainText('Hej @Ola i @Jan, zobacz');
+      expect(cubit.state.draft.mentions, hasLength(2));
+
+      // Skasowanie nazwy z tekstu usuwa wzmiankę, żeby nie pingować bez powodu.
+      cubit.updatePlainText('Hej @Ola, zobacz');
+      expect(cubit.state.draft.mentions.single.label, 'Ola');
       await cubit.close();
     });
 

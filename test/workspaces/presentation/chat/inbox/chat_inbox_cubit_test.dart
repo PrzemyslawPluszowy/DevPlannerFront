@@ -26,6 +26,7 @@ final class _InboxRepositoryFake implements ChatInboxRepository {
   /// Opóźnienie odpowiedzi dla filtra Unread; pozwala wymusić wyścig.
   Duration? unreadDelay;
   final List<String?> requestedCursors = <String?>[];
+  final List<String?> requestedQueries = <String?>[];
   int unreadCountCalls = 0;
 
   @override
@@ -33,9 +34,11 @@ final class _InboxRepositoryFake implements ChatInboxRepository {
     ChatInboxFilter filter = ChatInboxFilter.all,
     String? cursor,
     int? limit,
+    String? query,
   }) async {
     requestedFilters.add(filter);
     requestedCursors.add(cursor);
+    requestedQueries.add(query);
     // Stronę i błąd czytamy przed opóźnieniem: odpowiedź odpowiada stanowi
     // z chwili żądania, więc test naprawdę rozstrzyga, kto wygrywa wyścig.
     final error = cursor != null ? loadMoreFailure : failure;
@@ -149,6 +152,78 @@ void main() {
       },
     );
 
+    test(
+      'realtime invalidations coalesce and refresh without clearing the list',
+      () async {
+        final repository = _InboxRepositoryFake(
+          page: ChatInboxPage(
+            items: <ChatInboxItem>[item(id: 'c1', name: 'Ala')],
+            hasMore: false,
+          ),
+          counts: counts(1, 1),
+        );
+        final cubit = ChatInboxCubit(
+          repository: repository,
+          signalCoalesceWindow: const Duration(milliseconds: 5),
+        );
+        await cubit.load();
+        final emitted = <ChatInboxState>[];
+        final subscription = cubit.stream.listen(emitted.add);
+        repository.page = ChatInboxPage(
+          items: <ChatInboxItem>[item(id: 'c2', name: 'Ola')],
+          hasMore: false,
+        );
+
+        cubit
+          ..applySignal()
+          ..applySignal()
+          ..applySignal();
+        expect(cubit.state, isA<ChatInboxReady>());
+        await Future<void>.delayed(const Duration(milliseconds: 15));
+
+        expect(repository.requestedCursors, <String?>[null, null]);
+        expect(
+          (cubit.state as ChatInboxReady).items.single.conversation.id,
+          'c2',
+        );
+        expect(emitted.whereType<ChatInboxLoading>(), isEmpty);
+        await subscription.cancel();
+        await cubit.close();
+      },
+    );
+
+    test(
+      'failed realtime refresh keeps the last confirmed inbox page',
+      () async {
+        final repository = _InboxRepositoryFake(
+          page: ChatInboxPage(
+            items: <ChatInboxItem>[item(id: 'c1', name: 'Ala')],
+            hasMore: false,
+          ),
+          counts: counts(1, 1),
+        );
+        final cubit = ChatInboxCubit(
+          repository: repository,
+          signalCoalesceWindow: const Duration(milliseconds: 5),
+        );
+        await cubit.load();
+        repository.failure = const ApiError(
+          type: ApiErrorType.server,
+          message: 'chat.inbox.load_failed',
+          apiCode: 'chat.inbox.load_failed',
+        );
+        cubit.applySignal();
+        await Future<void>.delayed(const Duration(milliseconds: 15));
+
+        expect(cubit.state, isA<ChatInboxReady>());
+        expect(
+          (cubit.state as ChatInboxReady).items.single.conversation.id,
+          'c1',
+        );
+        await cubit.close();
+      },
+    );
+
     test('pusta strona daje stan pusty, a błąd nie udaje pustki', () async {
       final emptyCubit = ChatInboxCubit(
         repository: _InboxRepositoryFake(
@@ -190,6 +265,39 @@ void main() {
       expect(repository.requestedFilters.last, ChatInboxFilter.unread);
       expect(repository.requestedCursors, <String?>[null]);
       expect(cubit.filter, ChatInboxFilter.unread);
+    });
+
+    test('wyszukiwanie serwerowe resetuje kursor i zachowuje frazę na dalszych stronach', () async {
+      final repository = _InboxRepositoryFake(
+        page: ChatInboxPage(
+          items: <ChatInboxItem>[item(id: 'c1', name: 'Anna')],
+          hasMore: true,
+          nextCursor: 'search-next',
+        ),
+        counts: counts(0, 0),
+        loadMorePage: ChatInboxPage(
+          items: <ChatInboxItem>[item(id: 'c2', name: 'Anna')],
+          hasMore: false,
+        ),
+      );
+      final cubit = ChatInboxCubit(repository: repository);
+
+      await cubit.load();
+      await cubit.setQuery('  Anna Kowalska  ');
+      expect(repository.requestedCursors.last, isNull);
+      expect(repository.requestedQueries.last, 'Anna Kowalska');
+      await cubit.loadMore();
+      expect(repository.requestedCursors.last, 'search-next');
+      expect(repository.requestedQueries.last, 'Anna Kowalska');
+
+      await cubit.setQuery('a');
+      expect(
+        cubit.query,
+        isNull,
+        reason: 'backend wymaga co najmniej dwóch znaków',
+      );
+      expect(repository.requestedQueries.last, isNull);
+      await cubit.close();
     });
 
     test('kolejna strona dokłada pozycje i respektuje koniec listy', () async {

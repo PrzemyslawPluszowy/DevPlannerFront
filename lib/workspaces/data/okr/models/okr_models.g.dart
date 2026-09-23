@@ -65,9 +65,9 @@ Map<String, dynamic> _$CreateKeyResultPayloadToJson(
 };
 
 const _$KeyResultTypeEnumMap = {
-  KeyResultType.manual: 'manual',
-  KeyResultType.projectProgress: 'projectProgress',
-  KeyResultType.milestoneProgress: 'milestoneProgress',
+  KeyResultType.manual: 'Manual',
+  KeyResultType.projectProgress: 'ProjectProgress',
+  KeyResultType.milestoneProgress: 'MilestoneProgress',
 };
 
 _UpdateKeyResultPayload _$UpdateKeyResultPayloadFromJson(

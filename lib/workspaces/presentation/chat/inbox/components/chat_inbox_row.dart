@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_timestamp_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Wiersz skrzynki rozmów: awatar, nazwa, podgląd, czas i stan nieprzeczytania.
@@ -15,6 +21,7 @@ class ChatInboxRow extends StatelessWidget {
     required this.item,
     required this.nowUtc,
     this.onTap,
+    this.actionsBuilder,
     this.selected = false,
     super.key,
   });
@@ -29,105 +36,183 @@ class ChatInboxRow extends StatelessWidget {
   final DateTime nowUtc;
   final ValueChanged<ChatInboxItem>? onTap;
 
+  /// Akcje menu kontekstowego dla tego wiersza; brak wyłącza menu.
+  final List<AppContextMenuAction> Function(BuildContext context)?
+  actionsBuilder;
+
   /// Czy wiersz jest aktualnie otwartą rozmową.
   final bool selected;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     final unread = item.hasUnread;
     final preview = _previewText(context);
+    final builder = actionsBuilder;
 
     return Semantics(
       button: true,
       selected: selected,
       label: _semanticsLabel(context, preview),
-      child: Material(
-        color: selected
-            ? theme.colorScheme.primaryContainer.withValues(alpha: .55)
-            : Colors.transparent,
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-        child: InkWell(
-          onTap: onTap == null ? null : () => onTap!(item),
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: minHeight),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p10,
-              ),
-              child: Row(
-                children: [
-                  _ChatInboxAvatar(item: item),
-                  const SizedBox(width: Sizes.p12),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                item.displayName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: unread
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: Sizes.p8),
-                            Text(
-                              _relativeTime(
-                                context,
-                                item.lastActivityAtUtc,
-                                nowUtc,
-                              ),
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: Sizes.p4),
-                        Row(
-                          children: [
-                            if (item.isDraft) ...[
-                              _ChatInboxLabel(text: context.l10n.chatInboxDraftLabel),
-                              const SizedBox(width: Sizes.p6),
-                            ],
-                            if (item.isMuted) ...[
-                              Icon(
-                                Symbols.volume_off,
-                                size: 14,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: Sizes.p4),
-                            ],
-                            Expanded(
-                              child: Text(
-                                preview,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                            if (unread) ...[
-                              const SizedBox(width: Sizes.p8),
-                              _ChatUnreadBadge(count: item.unreadCount),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
+      child: Focus(
+        onKeyEvent: builder == null
+            ? null
+            : (node, event) {
+                if (event is! KeyDownEvent) return KeyEventResult.ignored;
+                final isContextMenu =
+                    event.logicalKey == LogicalKeyboardKey.contextMenu ||
+                    (event.logicalKey == LogicalKeyboardKey.f10 &&
+                        HardwareKeyboard.instance.isShiftPressed);
+                if (!isContextMenu) return KeyEventResult.ignored;
+                unawaited(
+                  _openMenu(
+                    context,
+                    builder,
+                    AppContextMenu.positionFor(context),
                   ),
-                ],
+                );
+                return KeyEventResult.handled;
+              },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onSecondaryTapDown: builder == null
+              ? null
+              : (details) => unawaited(
+                  _openMenu(context, builder, details.globalPosition),
+                ),
+          child: Material(
+            color: selected
+                ? context.chatTheme.selectedSurface
+                : Colors.transparent,
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            child: InkWell(
+              onTap: onTap == null ? null : () => onTap!(item),
+              onLongPress: builder == null
+                  ? null
+                  : () => unawaited(
+                      _openMenu(
+                        context,
+                        builder,
+                        AppContextMenu.positionFor(context),
+                      ),
+                    ),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: minHeight),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Sizes.p12,
+                    vertical: Sizes.p10,
+                  ),
+                  child: Row(
+                    children: [
+                      _ChatInboxAvatar(item: item),
+                      const SizedBox(width: Sizes.p12),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.displayName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: chat.contentStyle.copyWith(
+                                      fontSize: 14,
+                                      color: chat.incomingText,
+                                      fontWeight: unread
+                                          ? FontWeight.w700
+                                          : FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: Sizes.p8),
+                                Text(
+                                  _relativeTime(
+                                    context,
+                                    item.lastActivityAtUtc,
+                                    nowUtc,
+                                  ),
+                                  style: chat.metadataStyle.copyWith(
+                                    color: chat.metadataText,
+                                  ),
+                                ),
+                                if (builder != null)
+                                  Builder(
+                                    builder: (anchorContext) => IconButton(
+                                      key: ValueKey<String>(
+                                        'chat-inbox-row-actions-${item.conversation.id}',
+                                      ),
+                                      tooltip: context
+                                          .l10n
+                                          .chatInboxRowActionsTooltip,
+                                      visualDensity: VisualDensity.compact,
+                                      padding: EdgeInsets.zero,
+                                      constraints:
+                                          const BoxConstraints.tightFor(
+                                            width: 30,
+                                            height: 30,
+                                          ),
+                                      onPressed: () => unawaited(
+                                        _openMenu(
+                                          context,
+                                          builder,
+                                          AppContextMenu.positionFor(
+                                            anchorContext,
+                                          ),
+                                        ),
+                                      ),
+                                      icon: Icon(
+                                        Symbols.more_horiz,
+                                        size: 18,
+                                        color: chat.metadataText,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: Sizes.p4),
+                            Row(
+                              children: [
+                                if (item.isDraft) ...[
+                                  _ChatInboxLabel(
+                                    text: context.l10n.chatInboxDraftLabel,
+                                  ),
+                                  const SizedBox(width: Sizes.p6),
+                                ],
+                                if (item.isMuted) ...[
+                                  Icon(
+                                    Symbols.volume_off,
+                                    size: 14,
+                                    color: chat.metadataText,
+                                  ),
+                                  const SizedBox(width: Sizes.p4),
+                                ],
+                                Expanded(
+                                  child: Text(
+                                    preview,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: chat.metadataStyle.copyWith(
+                                      color: chat.metadataText,
+                                    ),
+                                  ),
+                                ),
+                                if (unread) ...[
+                                  const SizedBox(width: Sizes.p8),
+                                  _ChatUnreadBadge(count: item.unreadCount),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -141,6 +226,22 @@ class ChatInboxRow extends StatelessWidget {
   /// W rozmowie 1:1 autor jest oczywisty, a w grupie podgląd bez autora myli
   /// własną wiadomość z cudzą, dlatego podgląd dostaje nazwę nadawcy z listy
   /// uczestników zwróconej przez serwer.
+  /// Otwiera menu przy wierszu; używane przez długie przytrzymanie.
+  Future<void> _openMenu(
+    BuildContext context,
+    List<AppContextMenuAction> Function(BuildContext context) builder,
+    Offset globalPosition,
+  ) {
+    final actions = builder(context);
+    if (actions.isEmpty) return Future<void>.value();
+    return AppContextMenu.show(
+      context,
+      globalPosition: globalPosition,
+      actions: actions,
+      headerTitle: item.displayName,
+    );
+  }
+
   String? _authorPrefix(BuildContext context) {
     final type = item.conversation.type;
     if (type == 'direct') return null;
@@ -191,15 +292,12 @@ class ChatInboxRow extends StatelessWidget {
     DateTime atUtc,
     DateTime nowUtc,
   ) {
-    final l10n = context.l10n;
-    final at = atUtc.toLocal();
-    final now = nowUtc.toLocal();
-    final difference = now.difference(at);
-    if (difference.inMinutes < 1) return l10n.chatInboxTimeNow;
-    if (difference.inHours < 1) return l10n.chatInboxTimeMinutes(difference.inMinutes);
-    if (difference.inDays < 1) return l10n.chatInboxTimeHours(difference.inHours);
-    if (difference.inDays < 7) return l10n.chatInboxTimeDays(difference.inDays);
-    return '${at.day.toString().padLeft(2, '0')}.${at.month.toString().padLeft(2, '0')}';
+    return ChatTimestampFormatter.relativeLabel(
+      l10n: context.l10n,
+      atUtc: atUtc,
+      nowUtc: nowUtc,
+      locale: Localizations.localeOf(context),
+    );
   }
 }
 
@@ -210,50 +308,28 @@ class _ChatInboxAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final url = item.otherParticipants
-        .map((participant) => participant.avatarUrl)
-        .firstWhere((value) => value != null && value.isNotEmpty, orElse: () => null);
-    final initials = _initials(item.displayName);
-    return Container(
-      width: ChatInboxRow.avatarSize,
-      height: ChatInboxRow.avatarSize,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      alignment: Alignment.center,
-      child: url == null
-          ? Text(
-              initials,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            )
-          : Image.network(
-              url,
-              width: ChatInboxRow.avatarSize,
-              height: ChatInboxRow.avatarSize,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Text(
-                initials,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
+    final chat = context.chatTheme;
+    if (item.conversation.type == 'direct') {
+      final person = item.otherParticipants.firstOrNull;
+      return AppUserAvatar(
+        userId: person?.userId,
+        displayName: person?.label ?? item.displayName,
+        avatarUrl: person?.avatarUrl,
+        hasCustomAvatar: person?.avatarUrl?.trim().isNotEmpty == true,
+        radius: ChatInboxRow.avatarSize / 2,
+        singleInitial: true,
+      );
+    }
+    final icon = switch (item.conversation.type) {
+      'channel' => Symbols.campaign_rounded,
+      'broadcast' => Symbols.campaign_rounded,
+      _ => Symbols.group_rounded,
+    };
+    return CircleAvatar(
+      radius: ChatInboxRow.avatarSize / 2,
+      backgroundColor: chat.selectedSurface,
+      child: Icon(icon, size: 22, color: chat.linkText),
     );
-  }
-
-  static String _initials(String label) {
-    final words = label
-        .split(RegExp(r'\s+'))
-        .where((word) => word.isNotEmpty)
-        .take(2)
-        .toList(growable: false);
-    if (words.isEmpty) return '?';
-    return words.map((word) => word.characters.first.toUpperCase()).join();
   }
 }
 
@@ -265,17 +341,17 @@ class _ChatInboxLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Sizes.p6, vertical: 1),
       decoration: BoxDecoration(
-        color: theme.colorScheme.secondaryContainer,
+        color: chat.mentionSurface,
         borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
       child: Text(
         text,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.onSecondaryContainer,
+        style: chat.metadataStyle.copyWith(
+          color: chat.mentionText,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -290,17 +366,17 @@ class _ChatUnreadBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Sizes.p6, vertical: 2),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary,
+        color: chat.sendButtonSurface,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
       child: Text(
         count > 99 ? '99+' : '$count',
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.onPrimary,
+        style: chat.metadataStyle.copyWith(
+          color: chat.sendButtonForeground,
           fontWeight: FontWeight.w700,
         ),
       ),

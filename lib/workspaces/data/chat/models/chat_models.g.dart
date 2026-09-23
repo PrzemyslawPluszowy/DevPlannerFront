@@ -45,18 +45,18 @@ Map<String, dynamic> _$ResolveChatConversationPayloadToJson(
 };
 
 const _$ChatConversationTypeEnumMap = {
-  ChatConversationType.direct: 'direct',
-  ChatConversationType.group: 'group',
-  ChatConversationType.channel: 'channel',
-  ChatConversationType.broadcast: 'broadcast',
-  ChatConversationType.discussion: 'discussion',
+  ChatConversationType.direct: 'Direct',
+  ChatConversationType.group: 'Group',
+  ChatConversationType.channel: 'Channel',
+  ChatConversationType.broadcast: 'Broadcast',
+  ChatConversationType.discussion: 'Discussion',
 };
 
 const _$ChatScopeKindEnumMap = {
-  ChatScopeKind.global: 'global',
-  ChatScopeKind.workspace: 'workspace',
-  ChatScopeKind.project: 'project',
-  ChatScopeKind.resource: 'resource',
+  ChatScopeKind.global: 'Global',
+  ChatScopeKind.workspace: 'Workspace',
+  ChatScopeKind.project: 'Project',
+  ChatScopeKind.resource: 'Resource',
 };
 
 _UpdateChatConversationPayload _$UpdateChatConversationPayloadFromJson(
@@ -393,6 +393,8 @@ _ChatMessageResponse _$ChatMessageResponseFromJson(Map<String, dynamic> json) =>
       deletedAtUtc: json['deletedAtUtc'] == null
           ? null
           : DateTime.parse(json['deletedAtUtc'] as String),
+      deliveredToCount: (json['deliveredToCount'] as num?)?.toInt() ?? 0,
+      readByCount: (json['readByCount'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$ChatMessageResponseToJson(
@@ -415,6 +417,8 @@ Map<String, dynamic> _$ChatMessageResponseToJson(
   'threadRootMessageId': instance.threadRootMessageId,
   'isEdited': instance.isEdited,
   'deletedAtUtc': instance.deletedAtUtc?.toIso8601String(),
+  'deliveredToCount': instance.deliveredToCount,
+  'readByCount': instance.readByCount,
 };
 
 _ChatTemporaryAttachmentSessionResponse
@@ -456,11 +460,11 @@ Map<String, dynamic> _$ChatMessageDeliveryResponseToJson(
 };
 
 const _$ChatMessageDeliveryStatusEnumMap = {
-  ChatMessageDeliveryStatus.sending: 'sending',
-  ChatMessageDeliveryStatus.sent: 'sent',
-  ChatMessageDeliveryStatus.delivered: 'delivered',
-  ChatMessageDeliveryStatus.read: 'read',
-  ChatMessageDeliveryStatus.failed: 'failed',
+  ChatMessageDeliveryStatus.sending: 'Sending',
+  ChatMessageDeliveryStatus.sent: 'Sent',
+  ChatMessageDeliveryStatus.delivered: 'Delivered',
+  ChatMessageDeliveryStatus.read: 'Read',
+  ChatMessageDeliveryStatus.failed: 'Failed',
 };
 
 _AddChatReactionPayload _$AddChatReactionPayloadFromJson(
@@ -664,10 +668,10 @@ Map<String, dynamic> _$ChatNotificationPreferenceResponseToJson(
 };
 
 const _$ChatNotificationPreferenceEnumMap = {
-  ChatNotificationPreference.all: 'all',
-  ChatNotificationPreference.mentionsOnly: 'mentionsOnly',
-  ChatNotificationPreference.muted: 'muted',
-  ChatNotificationPreference.highOnly: 'highOnly',
+  ChatNotificationPreference.all: 'All',
+  ChatNotificationPreference.mentionsOnly: 'MentionsOnly',
+  ChatNotificationPreference.muted: 'Muted',
+  ChatNotificationPreference.highOnly: 'HighOnly',
 };
 
 _UpdateChatNotificationPreferencePayload
@@ -708,6 +712,10 @@ _ChatAttachmentResponse _$ChatAttachmentResponseFromJson(
   attachedByUserId: json['attachedByUserId'] as String,
   position: (json['position'] as num).toInt(),
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
+  fileName: json['fileName'] as String?,
+  fileSizeBytes: (json['fileSizeBytes'] as num?)?.toInt(),
+  contentType: json['contentType'] as String?,
+  isAvailable: json['isAvailable'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$ChatAttachmentResponseToJson(
@@ -719,6 +727,10 @@ Map<String, dynamic> _$ChatAttachmentResponseToJson(
   'attachedByUserId': instance.attachedByUserId,
   'position': instance.position,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
+  'fileName': instance.fileName,
+  'fileSizeBytes': instance.fileSizeBytes,
+  'contentType': instance.contentType,
+  'isAvailable': instance.isAvailable,
 };
 
 _ChatInviteResponse _$ChatInviteResponseFromJson(Map<String, dynamic> json) =>
@@ -746,10 +758,10 @@ Map<String, dynamic> _$ChatInviteResponseToJson(_ChatInviteResponse instance) =>
     };
 
 const _$ChatInvitationStatusEnumMap = {
-  ChatInvitationStatus.pending: 'pending',
-  ChatInvitationStatus.accepted: 'accepted',
-  ChatInvitationStatus.expired: 'expired',
-  ChatInvitationStatus.cancelled: 'cancelled',
+  ChatInvitationStatus.pending: 'Pending',
+  ChatInvitationStatus.accepted: 'Accepted',
+  ChatInvitationStatus.expired: 'Expired',
+  ChatInvitationStatus.cancelled: 'Cancelled',
 };
 
 _ChatBookmarkPayload _$ChatBookmarkPayloadFromJson(Map<String, dynamic> json) =>

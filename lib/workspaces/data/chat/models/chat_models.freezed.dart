@@ -4705,7 +4705,7 @@ as bool,
 /// @nodoc
 mixin _$ChatMessageResponse {
 
- String get id; String get conversationId; String get authorUserId; String get clientMessageId; String get text; String? get deltaJson; String? get replyToMessageId; String get payloadHash; int get version; DateTime get createdAtUtc; bool get isDeleted; List<ChatLinkResponse>? get links; List<ChatReactionSummaryResponse>? get reactions; List<ChatAttachmentResponse>? get attachments; String? get threadRootMessageId; bool get isEdited; DateTime? get deletedAtUtc;
+ String get id; String get conversationId; String get authorUserId; String get clientMessageId; String get text; String? get deltaJson; String? get replyToMessageId; String get payloadHash; int get version; DateTime get createdAtUtc; bool get isDeleted; List<ChatLinkResponse>? get links; List<ChatReactionSummaryResponse>? get reactions; List<ChatAttachmentResponse>? get attachments; String? get threadRootMessageId; bool get isEdited; DateTime? get deletedAtUtc; int get deliveredToCount; int get readByCount;
 /// Create a copy of ChatMessageResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4718,16 +4718,16 @@ $ChatMessageResponseCopyWith<ChatMessageResponse> get copyWith => _$ChatMessageR
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.clientMessageId, clientMessageId) || other.clientMessageId == clientMessageId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.payloadHash, payloadHash) || other.payloadHash == payloadHash)&&(identical(other.version, version) || other.version == version)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.links, links)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.threadRootMessageId, threadRootMessageId) || other.threadRootMessageId == threadRootMessageId)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.clientMessageId, clientMessageId) || other.clientMessageId == clientMessageId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.payloadHash, payloadHash) || other.payloadHash == payloadHash)&&(identical(other.version, version) || other.version == version)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.links, links)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.threadRootMessageId, threadRootMessageId) || other.threadRootMessageId == threadRootMessageId)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc)&&(identical(other.deliveredToCount, deliveredToCount) || other.deliveredToCount == deliveredToCount)&&(identical(other.readByCount, readByCount) || other.readByCount == readByCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,conversationId,authorUserId,clientMessageId,text,deltaJson,replyToMessageId,payloadHash,version,createdAtUtc,isDeleted,const DeepCollectionEquality().hash(links),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(attachments),threadRootMessageId,isEdited,deletedAtUtc);
+int get hashCode => Object.hashAll([runtimeType,id,conversationId,authorUserId,clientMessageId,text,deltaJson,replyToMessageId,payloadHash,version,createdAtUtc,isDeleted,const DeepCollectionEquality().hash(links),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(attachments),threadRootMessageId,isEdited,deletedAtUtc,deliveredToCount,readByCount]);
 
 @override
 String toString() {
-  return 'ChatMessageResponse(id: $id, conversationId: $conversationId, authorUserId: $authorUserId, clientMessageId: $clientMessageId, text: $text, deltaJson: $deltaJson, replyToMessageId: $replyToMessageId, payloadHash: $payloadHash, version: $version, createdAtUtc: $createdAtUtc, isDeleted: $isDeleted, links: $links, reactions: $reactions, attachments: $attachments, threadRootMessageId: $threadRootMessageId, isEdited: $isEdited, deletedAtUtc: $deletedAtUtc)';
+  return 'ChatMessageResponse(id: $id, conversationId: $conversationId, authorUserId: $authorUserId, clientMessageId: $clientMessageId, text: $text, deltaJson: $deltaJson, replyToMessageId: $replyToMessageId, payloadHash: $payloadHash, version: $version, createdAtUtc: $createdAtUtc, isDeleted: $isDeleted, links: $links, reactions: $reactions, attachments: $attachments, threadRootMessageId: $threadRootMessageId, isEdited: $isEdited, deletedAtUtc: $deletedAtUtc, deliveredToCount: $deliveredToCount, readByCount: $readByCount)';
 }
 
 
@@ -4738,7 +4738,7 @@ abstract mixin class $ChatMessageResponseCopyWith<$Res>  {
   factory $ChatMessageResponseCopyWith(ChatMessageResponse value, $Res Function(ChatMessageResponse) _then) = _$ChatMessageResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String conversationId, String authorUserId, String clientMessageId, String text, String? deltaJson, String? replyToMessageId, String payloadHash, int version, DateTime createdAtUtc, bool isDeleted, List<ChatLinkResponse>? links, List<ChatReactionSummaryResponse>? reactions, List<ChatAttachmentResponse>? attachments, String? threadRootMessageId, bool isEdited, DateTime? deletedAtUtc
+ String id, String conversationId, String authorUserId, String clientMessageId, String text, String? deltaJson, String? replyToMessageId, String payloadHash, int version, DateTime createdAtUtc, bool isDeleted, List<ChatLinkResponse>? links, List<ChatReactionSummaryResponse>? reactions, List<ChatAttachmentResponse>? attachments, String? threadRootMessageId, bool isEdited, DateTime? deletedAtUtc, int deliveredToCount, int readByCount
 });
 
 
@@ -4755,7 +4755,7 @@ class _$ChatMessageResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMessageResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? authorUserId = null,Object? clientMessageId = null,Object? text = null,Object? deltaJson = freezed,Object? replyToMessageId = freezed,Object? payloadHash = null,Object? version = null,Object? createdAtUtc = null,Object? isDeleted = null,Object? links = freezed,Object? reactions = freezed,Object? attachments = freezed,Object? threadRootMessageId = freezed,Object? isEdited = null,Object? deletedAtUtc = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? conversationId = null,Object? authorUserId = null,Object? clientMessageId = null,Object? text = null,Object? deltaJson = freezed,Object? replyToMessageId = freezed,Object? payloadHash = null,Object? version = null,Object? createdAtUtc = null,Object? isDeleted = null,Object? links = freezed,Object? reactions = freezed,Object? attachments = freezed,Object? threadRootMessageId = freezed,Object? isEdited = null,Object? deletedAtUtc = freezed,Object? deliveredToCount = null,Object? readByCount = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
@@ -4774,7 +4774,9 @@ as List<ChatReactionSummaryResponse>?,attachments: freezed == attachments ? _sel
 as List<ChatAttachmentResponse>?,threadRootMessageId: freezed == threadRootMessageId ? _self.threadRootMessageId : threadRootMessageId // ignore: cast_nullable_to_non_nullable
 as String?,isEdited: null == isEdited ? _self.isEdited : isEdited // ignore: cast_nullable_to_non_nullable
 as bool,deletedAtUtc: freezed == deletedAtUtc ? _self.deletedAtUtc : deletedAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,deliveredToCount: null == deliveredToCount ? _self.deliveredToCount : deliveredToCount // ignore: cast_nullable_to_non_nullable
+as int,readByCount: null == readByCount ? _self.readByCount : readByCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -4859,10 +4861,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc,  int deliveredToCount,  int readByCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatMessageResponse() when $default != null:
-return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc,_that.deliveredToCount,_that.readByCount);case _:
   return orElse();
 
 }
@@ -4880,10 +4882,10 @@ return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMes
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc,  int deliveredToCount,  int readByCount)  $default,) {final _that = this;
 switch (_that) {
 case _ChatMessageResponse():
-return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc,_that.deliveredToCount,_that.readByCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4900,10 +4902,10 @@ return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMes
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String conversationId,  String authorUserId,  String clientMessageId,  String text,  String? deltaJson,  String? replyToMessageId,  String payloadHash,  int version,  DateTime createdAtUtc,  bool isDeleted,  List<ChatLinkResponse>? links,  List<ChatReactionSummaryResponse>? reactions,  List<ChatAttachmentResponse>? attachments,  String? threadRootMessageId,  bool isEdited,  DateTime? deletedAtUtc,  int deliveredToCount,  int readByCount)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatMessageResponse() when $default != null:
-return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc);case _:
+return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMessageId,_that.text,_that.deltaJson,_that.replyToMessageId,_that.payloadHash,_that.version,_that.createdAtUtc,_that.isDeleted,_that.links,_that.reactions,_that.attachments,_that.threadRootMessageId,_that.isEdited,_that.deletedAtUtc,_that.deliveredToCount,_that.readByCount);case _:
   return null;
 
 }
@@ -4915,7 +4917,7 @@ return $default(_that.id,_that.conversationId,_that.authorUserId,_that.clientMes
 @JsonSerializable()
 
 class _ChatMessageResponse implements ChatMessageResponse {
-  const _ChatMessageResponse({required this.id, required this.conversationId, required this.authorUserId, required this.clientMessageId, required this.text, this.deltaJson, this.replyToMessageId, required this.payloadHash, required this.version, required this.createdAtUtc, required this.isDeleted, this.links, this.reactions, this.attachments, this.threadRootMessageId, this.isEdited = false, this.deletedAtUtc});
+  const _ChatMessageResponse({required this.id, required this.conversationId, required this.authorUserId, required this.clientMessageId, required this.text, this.deltaJson, this.replyToMessageId, required this.payloadHash, required this.version, required this.createdAtUtc, required this.isDeleted, this.links, this.reactions, this.attachments, this.threadRootMessageId, this.isEdited = false, this.deletedAtUtc, this.deliveredToCount = 0, this.readByCount = 0});
   factory _ChatMessageResponse.fromJson(Map<String, dynamic> json) => _$ChatMessageResponseFromJson(json);
 
 @override final  String id;
@@ -4935,6 +4937,8 @@ class _ChatMessageResponse implements ChatMessageResponse {
 @override final  String? threadRootMessageId;
 @override@JsonKey() final  bool isEdited;
 @override final  DateTime? deletedAtUtc;
+@override@JsonKey() final  int deliveredToCount;
+@override@JsonKey() final  int readByCount;
 
 /// Create a copy of ChatMessageResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -4949,16 +4953,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.clientMessageId, clientMessageId) || other.clientMessageId == clientMessageId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.payloadHash, payloadHash) || other.payloadHash == payloadHash)&&(identical(other.version, version) || other.version == version)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.links, links)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.threadRootMessageId, threadRootMessageId) || other.threadRootMessageId == threadRootMessageId)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatMessageResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.authorUserId, authorUserId) || other.authorUserId == authorUserId)&&(identical(other.clientMessageId, clientMessageId) || other.clientMessageId == clientMessageId)&&(identical(other.text, text) || other.text == text)&&(identical(other.deltaJson, deltaJson) || other.deltaJson == deltaJson)&&(identical(other.replyToMessageId, replyToMessageId) || other.replyToMessageId == replyToMessageId)&&(identical(other.payloadHash, payloadHash) || other.payloadHash == payloadHash)&&(identical(other.version, version) || other.version == version)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.links, links)&&const DeepCollectionEquality().equals(other.reactions, reactions)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.threadRootMessageId, threadRootMessageId) || other.threadRootMessageId == threadRootMessageId)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc)&&(identical(other.deliveredToCount, deliveredToCount) || other.deliveredToCount == deliveredToCount)&&(identical(other.readByCount, readByCount) || other.readByCount == readByCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,conversationId,authorUserId,clientMessageId,text,deltaJson,replyToMessageId,payloadHash,version,createdAtUtc,isDeleted,const DeepCollectionEquality().hash(links),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(attachments),threadRootMessageId,isEdited,deletedAtUtc);
+int get hashCode => Object.hashAll([runtimeType,id,conversationId,authorUserId,clientMessageId,text,deltaJson,replyToMessageId,payloadHash,version,createdAtUtc,isDeleted,const DeepCollectionEquality().hash(links),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(attachments),threadRootMessageId,isEdited,deletedAtUtc,deliveredToCount,readByCount]);
 
 @override
 String toString() {
-  return 'ChatMessageResponse(id: $id, conversationId: $conversationId, authorUserId: $authorUserId, clientMessageId: $clientMessageId, text: $text, deltaJson: $deltaJson, replyToMessageId: $replyToMessageId, payloadHash: $payloadHash, version: $version, createdAtUtc: $createdAtUtc, isDeleted: $isDeleted, links: $links, reactions: $reactions, attachments: $attachments, threadRootMessageId: $threadRootMessageId, isEdited: $isEdited, deletedAtUtc: $deletedAtUtc)';
+  return 'ChatMessageResponse(id: $id, conversationId: $conversationId, authorUserId: $authorUserId, clientMessageId: $clientMessageId, text: $text, deltaJson: $deltaJson, replyToMessageId: $replyToMessageId, payloadHash: $payloadHash, version: $version, createdAtUtc: $createdAtUtc, isDeleted: $isDeleted, links: $links, reactions: $reactions, attachments: $attachments, threadRootMessageId: $threadRootMessageId, isEdited: $isEdited, deletedAtUtc: $deletedAtUtc, deliveredToCount: $deliveredToCount, readByCount: $readByCount)';
 }
 
 
@@ -4969,7 +4973,7 @@ abstract mixin class _$ChatMessageResponseCopyWith<$Res> implements $ChatMessage
   factory _$ChatMessageResponseCopyWith(_ChatMessageResponse value, $Res Function(_ChatMessageResponse) _then) = __$ChatMessageResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String conversationId, String authorUserId, String clientMessageId, String text, String? deltaJson, String? replyToMessageId, String payloadHash, int version, DateTime createdAtUtc, bool isDeleted, List<ChatLinkResponse>? links, List<ChatReactionSummaryResponse>? reactions, List<ChatAttachmentResponse>? attachments, String? threadRootMessageId, bool isEdited, DateTime? deletedAtUtc
+ String id, String conversationId, String authorUserId, String clientMessageId, String text, String? deltaJson, String? replyToMessageId, String payloadHash, int version, DateTime createdAtUtc, bool isDeleted, List<ChatLinkResponse>? links, List<ChatReactionSummaryResponse>? reactions, List<ChatAttachmentResponse>? attachments, String? threadRootMessageId, bool isEdited, DateTime? deletedAtUtc, int deliveredToCount, int readByCount
 });
 
 
@@ -4986,7 +4990,7 @@ class __$ChatMessageResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatMessageResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? authorUserId = null,Object? clientMessageId = null,Object? text = null,Object? deltaJson = freezed,Object? replyToMessageId = freezed,Object? payloadHash = null,Object? version = null,Object? createdAtUtc = null,Object? isDeleted = null,Object? links = freezed,Object? reactions = freezed,Object? attachments = freezed,Object? threadRootMessageId = freezed,Object? isEdited = null,Object? deletedAtUtc = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? conversationId = null,Object? authorUserId = null,Object? clientMessageId = null,Object? text = null,Object? deltaJson = freezed,Object? replyToMessageId = freezed,Object? payloadHash = null,Object? version = null,Object? createdAtUtc = null,Object? isDeleted = null,Object? links = freezed,Object? reactions = freezed,Object? attachments = freezed,Object? threadRootMessageId = freezed,Object? isEdited = null,Object? deletedAtUtc = freezed,Object? deliveredToCount = null,Object? readByCount = null,}) {
   return _then(_ChatMessageResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,conversationId: null == conversationId ? _self.conversationId : conversationId // ignore: cast_nullable_to_non_nullable
@@ -5005,7 +5009,9 @@ as List<ChatReactionSummaryResponse>?,attachments: freezed == attachments ? _sel
 as List<ChatAttachmentResponse>?,threadRootMessageId: freezed == threadRootMessageId ? _self.threadRootMessageId : threadRootMessageId // ignore: cast_nullable_to_non_nullable
 as String?,isEdited: null == isEdited ? _self.isEdited : isEdited // ignore: cast_nullable_to_non_nullable
 as bool,deletedAtUtc: freezed == deletedAtUtc ? _self.deletedAtUtc : deletedAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,deliveredToCount: null == deliveredToCount ? _self.deliveredToCount : deliveredToCount // ignore: cast_nullable_to_non_nullable
+as int,readByCount: null == readByCount ? _self.readByCount : readByCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -9084,7 +9090,7 @@ as int,
 /// @nodoc
 mixin _$ChatAttachmentResponse {
 
- String get id; String get messageId; String get storageFileId; String get attachedByUserId; int get position; DateTime get createdAtUtc;
+ String get id; String get messageId; String get storageFileId; String get attachedByUserId; int get position; DateTime get createdAtUtc; String? get fileName; int? get fileSizeBytes; String? get contentType; bool get isAvailable;
 /// Create a copy of ChatAttachmentResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -9097,16 +9103,16 @@ $ChatAttachmentResponseCopyWith<ChatAttachmentResponse> get copyWith => _$ChatAt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatAttachmentResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.storageFileId, storageFileId) || other.storageFileId == storageFileId)&&(identical(other.attachedByUserId, attachedByUserId) || other.attachedByUserId == attachedByUserId)&&(identical(other.position, position) || other.position == position)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatAttachmentResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.storageFileId, storageFileId) || other.storageFileId == storageFileId)&&(identical(other.attachedByUserId, attachedByUserId) || other.attachedByUserId == attachedByUserId)&&(identical(other.position, position) || other.position == position)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.isAvailable, isAvailable) || other.isAvailable == isAvailable));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,storageFileId,attachedByUserId,position,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,messageId,storageFileId,attachedByUserId,position,createdAtUtc,fileName,fileSizeBytes,contentType,isAvailable);
 
 @override
 String toString() {
-  return 'ChatAttachmentResponse(id: $id, messageId: $messageId, storageFileId: $storageFileId, attachedByUserId: $attachedByUserId, position: $position, createdAtUtc: $createdAtUtc)';
+  return 'ChatAttachmentResponse(id: $id, messageId: $messageId, storageFileId: $storageFileId, attachedByUserId: $attachedByUserId, position: $position, createdAtUtc: $createdAtUtc, fileName: $fileName, fileSizeBytes: $fileSizeBytes, contentType: $contentType, isAvailable: $isAvailable)';
 }
 
 
@@ -9117,7 +9123,7 @@ abstract mixin class $ChatAttachmentResponseCopyWith<$Res>  {
   factory $ChatAttachmentResponseCopyWith(ChatAttachmentResponse value, $Res Function(ChatAttachmentResponse) _then) = _$ChatAttachmentResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String messageId, String storageFileId, String attachedByUserId, int position, DateTime createdAtUtc
+ String id, String messageId, String storageFileId, String attachedByUserId, int position, DateTime createdAtUtc, String? fileName, int? fileSizeBytes, String? contentType, bool isAvailable
 });
 
 
@@ -9134,7 +9140,7 @@ class _$ChatAttachmentResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatAttachmentResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? storageFileId = null,Object? attachedByUserId = null,Object? position = null,Object? createdAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? messageId = null,Object? storageFileId = null,Object? attachedByUserId = null,Object? position = null,Object? createdAtUtc = null,Object? fileName = freezed,Object? fileSizeBytes = freezed,Object? contentType = freezed,Object? isAvailable = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
@@ -9142,7 +9148,11 @@ as String,storageFileId: null == storageFileId ? _self.storageFileId : storageFi
 as String,attachedByUserId: null == attachedByUserId ? _self.attachedByUserId : attachedByUserId // ignore: cast_nullable_to_non_nullable
 as String,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,fileName: freezed == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
+as String?,fileSizeBytes: freezed == fileSizeBytes ? _self.fileSizeBytes : fileSizeBytes // ignore: cast_nullable_to_non_nullable
+as int?,contentType: freezed == contentType ? _self.contentType : contentType // ignore: cast_nullable_to_non_nullable
+as String?,isAvailable: null == isAvailable ? _self.isAvailable : isAvailable // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -9227,10 +9237,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc,  String? fileName,  int? fileSizeBytes,  String? contentType,  bool isAvailable)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatAttachmentResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc,_that.fileName,_that.fileSizeBytes,_that.contentType,_that.isAvailable);case _:
   return orElse();
 
 }
@@ -9248,10 +9258,10 @@ return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUse
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc,  String? fileName,  int? fileSizeBytes,  String? contentType,  bool isAvailable)  $default,) {final _that = this;
 switch (_that) {
 case _ChatAttachmentResponse():
-return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc,_that.fileName,_that.fileSizeBytes,_that.contentType,_that.isAvailable);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -9268,10 +9278,10 @@ return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUse
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String messageId,  String storageFileId,  String attachedByUserId,  int position,  DateTime createdAtUtc,  String? fileName,  int? fileSizeBytes,  String? contentType,  bool isAvailable)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatAttachmentResponse() when $default != null:
-return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc);case _:
+return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUserId,_that.position,_that.createdAtUtc,_that.fileName,_that.fileSizeBytes,_that.contentType,_that.isAvailable);case _:
   return null;
 
 }
@@ -9283,7 +9293,7 @@ return $default(_that.id,_that.messageId,_that.storageFileId,_that.attachedByUse
 @JsonSerializable()
 
 class _ChatAttachmentResponse implements ChatAttachmentResponse {
-  const _ChatAttachmentResponse({required this.id, required this.messageId, required this.storageFileId, required this.attachedByUserId, required this.position, required this.createdAtUtc});
+  const _ChatAttachmentResponse({required this.id, required this.messageId, required this.storageFileId, required this.attachedByUserId, required this.position, required this.createdAtUtc, this.fileName, this.fileSizeBytes, this.contentType, this.isAvailable = false});
   factory _ChatAttachmentResponse.fromJson(Map<String, dynamic> json) => _$ChatAttachmentResponseFromJson(json);
 
 @override final  String id;
@@ -9292,6 +9302,10 @@ class _ChatAttachmentResponse implements ChatAttachmentResponse {
 @override final  String attachedByUserId;
 @override final  int position;
 @override final  DateTime createdAtUtc;
+@override final  String? fileName;
+@override final  int? fileSizeBytes;
+@override final  String? contentType;
+@override@JsonKey() final  bool isAvailable;
 
 /// Create a copy of ChatAttachmentResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -9306,16 +9320,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatAttachmentResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.storageFileId, storageFileId) || other.storageFileId == storageFileId)&&(identical(other.attachedByUserId, attachedByUserId) || other.attachedByUserId == attachedByUserId)&&(identical(other.position, position) || other.position == position)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatAttachmentResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.storageFileId, storageFileId) || other.storageFileId == storageFileId)&&(identical(other.attachedByUserId, attachedByUserId) || other.attachedByUserId == attachedByUserId)&&(identical(other.position, position) || other.position == position)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.contentType, contentType) || other.contentType == contentType)&&(identical(other.isAvailable, isAvailable) || other.isAvailable == isAvailable));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,messageId,storageFileId,attachedByUserId,position,createdAtUtc);
+int get hashCode => Object.hash(runtimeType,id,messageId,storageFileId,attachedByUserId,position,createdAtUtc,fileName,fileSizeBytes,contentType,isAvailable);
 
 @override
 String toString() {
-  return 'ChatAttachmentResponse(id: $id, messageId: $messageId, storageFileId: $storageFileId, attachedByUserId: $attachedByUserId, position: $position, createdAtUtc: $createdAtUtc)';
+  return 'ChatAttachmentResponse(id: $id, messageId: $messageId, storageFileId: $storageFileId, attachedByUserId: $attachedByUserId, position: $position, createdAtUtc: $createdAtUtc, fileName: $fileName, fileSizeBytes: $fileSizeBytes, contentType: $contentType, isAvailable: $isAvailable)';
 }
 
 
@@ -9326,7 +9340,7 @@ abstract mixin class _$ChatAttachmentResponseCopyWith<$Res> implements $ChatAtta
   factory _$ChatAttachmentResponseCopyWith(_ChatAttachmentResponse value, $Res Function(_ChatAttachmentResponse) _then) = __$ChatAttachmentResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String messageId, String storageFileId, String attachedByUserId, int position, DateTime createdAtUtc
+ String id, String messageId, String storageFileId, String attachedByUserId, int position, DateTime createdAtUtc, String? fileName, int? fileSizeBytes, String? contentType, bool isAvailable
 });
 
 
@@ -9343,7 +9357,7 @@ class __$ChatAttachmentResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatAttachmentResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? storageFileId = null,Object? attachedByUserId = null,Object? position = null,Object? createdAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? messageId = null,Object? storageFileId = null,Object? attachedByUserId = null,Object? position = null,Object? createdAtUtc = null,Object? fileName = freezed,Object? fileSizeBytes = freezed,Object? contentType = freezed,Object? isAvailable = null,}) {
   return _then(_ChatAttachmentResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
@@ -9351,7 +9365,11 @@ as String,storageFileId: null == storageFileId ? _self.storageFileId : storageFi
 as String,attachedByUserId: null == attachedByUserId ? _self.attachedByUserId : attachedByUserId // ignore: cast_nullable_to_non_nullable
 as String,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,fileName: freezed == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
+as String?,fileSizeBytes: freezed == fileSizeBytes ? _self.fileSizeBytes : fileSizeBytes // ignore: cast_nullable_to_non_nullable
+as int?,contentType: freezed == contentType ? _self.contentType : contentType // ignore: cast_nullable_to_non_nullable
+as String?,isAvailable: null == isAvailable ? _self.isAvailable : isAvailable // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

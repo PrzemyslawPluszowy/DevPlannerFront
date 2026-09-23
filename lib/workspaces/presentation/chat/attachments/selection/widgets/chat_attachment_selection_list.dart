@@ -1,4 +1,5 @@
-import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
@@ -62,14 +63,53 @@ final class _ChatAttachmentRow extends StatelessWidget {
   final VoidCallback onRemove;
 
   @override
-  Widget build(BuildContext context) => ListTile(
-    leading: const Icon(Symbols.attach_file_rounded),
-    title: Text(attachment.input.name),
-    subtitle: Text(statusLabel),
-    trailing: IconButton(
-      tooltip: context.l10n.chatAttachmentRemove,
-      onPressed: onRemove,
-      icon: const Icon(Symbols.close_rounded),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: Sizes.p4),
+      padding: const EdgeInsets.fromLTRB(
+        Sizes.p10,
+        Sizes.p6,
+        Sizes.p4,
+        Sizes.p6,
+      ),
+      decoration: BoxDecoration(
+        color: chat.composerSurface,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        border: Border.all(color: chat.separator.withValues(alpha: .7)),
+      ),
+      child: Row(
+        children: [
+          Icon(Symbols.attach_file_rounded, color: chat.metadataText, size: 19),
+          const SizedBox(width: Sizes.p8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  attachment.input.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: chat.contentStyle.copyWith(color: chat.incomingText),
+                ),
+                Text(
+                  statusLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: chat.metadataStyle.copyWith(color: chat.metadataText),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: context.l10n.chatAttachmentRemove,
+            onPressed: onRemove,
+            visualDensity: VisualDensity.compact,
+            icon: Icon(Symbols.close_rounded, color: chat.metadataText),
+          ),
+        ],
+      ),
+    );
+  }
 }

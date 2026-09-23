@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:devplanner/core/l10n/l10n_extensions.dart';
-import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_global_notification_settings_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,12 +26,17 @@ class ChatGlobalNotificationSettingsSection extends StatelessWidget {
           children: [
             Text(
               context.l10n.chatNotificationSettingsGlobalTitle,
-              style: context.text.titleMedium,
+              style: context.chatTheme.authorStyle.copyWith(
+                color: context.chatTheme.incomingText,
+                fontSize: 14,
+              ),
             ),
             Gaps.h4,
             Text(
               context.l10n.chatNotificationSettingsGlobalDescription,
-              style: context.text.bodySmall,
+              style: context.chatTheme.metadataStyle.copyWith(
+                color: context.chatTheme.metadataText,
+              ),
             ),
             Gaps.h12,
             switch (state) {
@@ -40,20 +46,22 @@ class ChatGlobalNotificationSettingsSection extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 ),
               ),
-              ChatGlobalNotificationSettingsFailure(:final error) =>
+              ChatGlobalNotificationSettingsFailure() =>
                 _ChatGlobalNotificationSettingsRetry(
-                  message: error.message,
+                  message: context.l10n.chatActionFailureMessage,
                   onRetry: context
                       .read<ChatGlobalNotificationSettingsCubit>()
                       .load,
                 ),
-              ChatGlobalNotificationSettingsRevoked(:final error) =>
-                _ChatGlobalNotificationSettingsMessage(message: error.message),
+              ChatGlobalNotificationSettingsRevoked() =>
+                _ChatGlobalNotificationSettingsMessage(
+                  message: context.l10n.chatActionFailureMessage,
+                ),
               ChatGlobalNotificationSettingsReady(:final settings) => Column(
                 children: [
-                  if (state.error case final error?)
+                  if (state.error != null)
                     _ChatGlobalNotificationSettingsMessage(
-                      message: error.message,
+                      message: context.l10n.chatActionFailureMessage,
                     ),
                   _ChatGlobalNotificationChannelTile(
                     channel: ChatNotificationChannel.inApp,
@@ -95,19 +103,49 @@ class _ChatGlobalNotificationChannelTile extends StatelessWidget {
   final bool isSaving;
 
   @override
-  Widget build(BuildContext context) => SwitchListTile.adaptive(
-    contentPadding: EdgeInsets.zero,
-    title: Text(_title(context)),
-    value: enabled,
-    onChanged: isSaving
-        ? null
-        : (value) => unawaited(
-            context.read<ChatGlobalNotificationSettingsCubit>().updateChannel(
-              channel,
-              value,
-            ),
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Sizes.p6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: chat.listSurface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: chat.separator.withValues(alpha: .7)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Sizes.p12,
+            vertical: Sizes.p4,
           ),
-  );
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _title(context),
+                  style: chat.contentStyle.copyWith(
+                    color: chat.incomingText,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              ChatToggle(
+                value: enabled,
+                label: _title(context),
+                onChanged: isSaving
+                    ? null
+                    : (value) => unawaited(
+                        context
+                            .read<ChatGlobalNotificationSettingsCubit>()
+                            .updateChannel(channel, value),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   String _title(BuildContext context) => switch (channel) {
     ChatNotificationChannel.inApp =>
@@ -156,7 +194,7 @@ class _ChatGlobalNotificationSettingsMessage extends StatelessWidget {
       child: Text(
         message,
         style: context.text.bodySmall?.copyWith(
-          color: Theme.of(context).colorScheme.error,
+          color: context.chatTheme.error,
         ),
       ),
     ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/chat/delivery/chat_pending_send_store_impl.dart';
@@ -99,6 +101,14 @@ final class _DeliveryRepositoryFake implements ChatConversationRepository {
   @override
   Future<Either<ApiError, ChatConversation>> getConversation(String id) async =>
       throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChatMessageWindow>> loadMessageWindow({
+    required String conversationId,
+    required String messageId,
+    int before = 20,
+    int after = 20,
+  }) async => throw UnimplementedError();
 
   @override
   Future<Either<ApiError, ChatMessagePage>> listConversationMessages({
@@ -308,6 +318,69 @@ void main() {
   });
 
   group('ChatPendingSendStoreImpl', () {
+    test(
+      'serializuje zapis i usunięcie bez odtworzenia potwierdzonej wysyłki',
+      () async {
+        final storage = _MockSecureStorage();
+        final firstWrite = Completer<void>();
+        String? stored;
+        var writes = 0;
+        when(
+          () => storage.read(key: any(named: 'key')),
+        ).thenAnswer((_) async => stored);
+        when(
+          () => storage.write(
+            key: any(named: 'key'),
+            value: any(named: 'value'),
+            iOptions: any(named: 'iOptions'),
+            aOptions: any(named: 'aOptions'),
+            lOptions: any(named: 'lOptions'),
+            wOptions: any(named: 'wOptions'),
+            webOptions: any(named: 'webOptions'),
+            mOptions: any(named: 'mOptions'),
+          ),
+        ).thenAnswer((invocation) async {
+          writes++;
+          final value = invocation.namedArguments[#value] as String;
+          if (writes == 1) await firstWrite.future;
+          stored = value;
+        });
+        final store = ChatPendingSendStoreImpl(storage: storage, isWeb: false);
+        const pending = PendingChatSend(
+          clientMessageId: 'client-1',
+          conversationId: conversationId,
+          draft: _draft,
+          attempts: 1,
+        );
+
+        final save = store.save(userId: userId, pending: pending);
+        await Future<void>.delayed(Duration.zero);
+        expect(writes, 1, reason: 'pierwszy zapis powinien czekać na keychain');
+
+        var readFinished = false;
+        final readAfterSave = store.read(userId: userId).then((entries) {
+          readFinished = true;
+          return entries;
+        });
+        await Future<void>.delayed(Duration.zero);
+        expect(readFinished, isFalse, reason: 'odczyt czeka na zapis');
+
+        final remove = store.remove(
+          userId: userId,
+          clientMessageId: pending.clientMessageId,
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(writes, 1, reason: 'usunięcie czeka za trwającym zapisem');
+
+        firstWrite.complete();
+        await Future.wait(<Future<void>>[save, remove]);
+
+        expect((await readAfterSave).single.clientMessageId, 'client-1');
+        expect(await store.read(userId: userId), isEmpty);
+        expect(writes, 2, reason: 'usunięcie zapisuje pusty stan po zapisie');
+      },
+    );
+
     test(
       'nie utrwala niczego, gdy platforma nie ma szyfrowanego magazynu',
       () async {

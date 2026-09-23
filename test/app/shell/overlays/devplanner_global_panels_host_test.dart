@@ -165,7 +165,9 @@ void main() {
     'pokazuje jawny błąd konfiguracji, gdy brakuje portu skrzynki',
     (tester) async {
       final navigationRouter = GoRouter(
-        routes: [GoRoute(path: '/', builder: (_, _) => const SizedBox.shrink())],
+        routes: [
+          GoRoute(path: '/', builder: (_, _) => const SizedBox.shrink()),
+        ],
       );
       addTearDown(navigationRouter.dispose);
       await tester.pumpWidget(
@@ -179,7 +181,8 @@ void main() {
             ),
             child: Builder(
               builder: (context) => TextButton(
-                onPressed: DevPlannerPanelsScope.controllerOf(context)!.showChat,
+                onPressed: DevPlannerPanelsScope.controllerOf(context)!
+                    .showChat,
                 child: const Text('Otwórz czat bez skrzynki'),
               ),
             ),
@@ -273,6 +276,7 @@ final class _InboxRepository implements ChatInboxRepository {
     ChatInboxFilter filter = ChatInboxFilter.all,
     String? cursor,
     int limit = 30,
+    String? query,
   }) async => Right(
     ChatInboxPage(
       hasMore: false,

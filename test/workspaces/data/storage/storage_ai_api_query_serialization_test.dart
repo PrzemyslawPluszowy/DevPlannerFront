@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/ai/models/storage_ai_models.dart';
 import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,6 +71,29 @@ void main() {
         'sentUnknown',
       ],
     );
+  });
+
+  test('DTO AI dekodują i kodują enumy z nazwami backendu', () {
+    final dto = StorageFileAnalysisJobResponse.fromJson(
+      const <String, dynamic>{
+        'jobId': 'job-1',
+        'fileId': 'file-1',
+        'fileVersion': 1,
+        'status': 'Completed',
+        'attemptCount': 1,
+        'maxAttempts': 1,
+        'provider': 'OpenAi',
+        'providerStatus': 'Healthy',
+        'operationLifecycleStatus': 'FailedTerminal',
+      },
+    );
+
+    expect(dto.provider, AiProviderKind.openAi);
+    expect(dto.providerStatus, AiProviderStatus.healthy);
+    expect(dto.operationLifecycleStatus, AiOperationStatus.failedTerminal);
+    expect(dto.toJson()['provider'], 'OpenAi');
+    expect(dto.toJson()['providerStatus'], 'Healthy');
+    expect(dto.toJson()['operationLifecycleStatus'], 'FailedTerminal');
   });
 
   test('StorageApi wysyła filtry AI jako surowe wartości kontraktu', () async {

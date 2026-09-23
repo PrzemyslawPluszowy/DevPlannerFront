@@ -57,12 +57,46 @@ abstract final class ChatMentionCodec {
     required String userId,
     String? displayName,
     String? login,
+    String fallbackLabel = 'Member',
   }) {
     final name = displayName?.trim();
-    if (name != null && name.isNotEmpty) return name;
+    if (name != null && name.isNotEmpty && !_looksLikeUuid(name)) return name;
     final fallback = login?.trim();
-    if (fallback != null && fallback.isNotEmpty) return fallback;
-    return userId.trim();
+    if (fallback != null && fallback.isNotEmpty && !_looksLikeUuid(fallback)) {
+      return fallback;
+    }
+    return fallbackLabel.trim().isEmpty ? 'Member' : fallbackLabel.trim();
+  }
+
+  /// Podmienia aktywne wywołanie wzmianki na etykietę wybranej osoby.
+  ///
+  /// Dodaje spację na końcu, żeby token był zamknięty i kolejny znak nie
+  /// przedłużał frazy wyszukiwania.
+  static String applyMention({
+    required String text,
+    required ChatMentionQuery query,
+    required String label,
+  }) {
+    final normalized = label.trim();
+    if (normalized.isEmpty) return text;
+    final caret = query.end.clamp(0, text.length);
+    final start = query.start.clamp(0, caret);
+    return text.replaceRange(start, caret, '$trigger$normalized ');
+  }
+
+  /// Odrzuca wzmianki, których etykiety nie ma już w tekście.
+  ///
+  /// Dzięki temu skasowanie fragmentu z nazwą nie wysyła wzmianki do osoby,
+  /// o której użytkownik już nie pisze.
+  static List<ChatMentionReference> pruneMentions({
+    required String text,
+    required List<ChatMentionReference> mentions,
+  }) {
+    if (mentions.isEmpty) return const <ChatMentionReference>[];
+    final kept = mentions
+        .where((mention) => text.contains('$trigger${mention.label}'))
+        .toList(growable: false);
+    return kept.length == mentions.length ? mentions : kept;
   }
 
   /// Zamienia widoczny tekst composera na kontrakt transportu.
@@ -100,7 +134,8 @@ abstract final class ChatMentionCodec {
     if (text.isEmpty || labelsByUserId.isEmpty) return text;
     return text.replaceAllMapped(_uuidToken, (match) {
       final userId = match.group(1)!;
-      final label = labelsByUserId[userId] ?? labelsByUserId[_normalize(userId)];
+      final label =
+          labelsByUserId[userId] ?? labelsByUserId[_normalize(userId)];
       return label == null ? match.group(0)! : '$trigger$label';
     });
   }
@@ -133,8 +168,11 @@ abstract final class ChatMentionCodec {
     '@([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})',
   );
 
-  static bool _isWordChar(String char) =>
-      RegExp('[A-Za-z0-9_]').hasMatch(char);
+  static bool _isWordChar(String char) => RegExp('[A-Za-z0-9_]').hasMatch(char);
+
+  static bool _looksLikeUuid(String value) => RegExp(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+  ).hasMatch(value.trim());
 
   static String _normalize(String value) => value.toLowerCase();
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
@@ -14,6 +16,7 @@ final class _ActionsFake implements ChatMessageActionsRepository {
   final List<String> calls = <String>[];
   Set<String> pinned = <String>{};
   Set<String> bookmarked = <String>{};
+  Completer<Either<ApiError, List<ChatPinnedMessage>>>? pinsCompleter;
 
   Either<ApiError, T> _guard<T>(String call, T value) {
     calls.add(call);
@@ -58,19 +61,24 @@ final class _ActionsFake implements ChatMessageActionsRepository {
   @override
   Future<Either<ApiError, List<ChatPinnedMessage>>> listPins(
     String conversationId,
-  ) async => _guard(
-    'listPins',
-    <ChatPinnedMessage>[
-      for (final id in pinned)
-        ChatPinnedMessage(
-          id: 'pin-$id',
-          conversationId: conversationId,
-          messageId: id,
-          pinnedByUserId: 'me',
-          pinnedAtUtc: DateTime.utc(2026, 9, 21),
-        ),
-    ],
-  );
+  ) async {
+    calls.add('listPins');
+    if (pinsCompleter case final completer?) return completer.future;
+    final error = failure;
+    if (error != null) return Left(error);
+    return Right(
+      <ChatPinnedMessage>[
+        for (final id in pinned)
+          ChatPinnedMessage(
+            id: 'pin-$id',
+            conversationId: conversationId,
+            messageId: id,
+            pinnedByUserId: 'me',
+            pinnedAtUtc: DateTime.utc(2026, 9, 21),
+          ),
+      ],
+    );
+  }
 
   @override
   Future<Either<ApiError, ChatBookmark>> bookmarkMessage({
@@ -199,7 +207,6 @@ void main() {
       );
       expect(cubit.state.pinnedConversationId, 'conversation-1');
 
-      await cubit.loadConversationPins('conversation-1');
       expect(cubit.state.pinnedMessageIds, contains('message-1'));
 
       await cubit.togglePin(
@@ -208,6 +215,7 @@ void main() {
         isPinned: true,
       );
       expect(repository.calls, contains('unpin:message-1'));
+      expect(cubit.state.pinnedMessageIds, isNot(contains('message-1')));
       await cubit.close();
     });
 
@@ -216,12 +224,29 @@ void main() {
       final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
 
       await cubit.toggleBookmark(messageId: 'message-1', isBookmarked: false);
-      await cubit.loadBookmarks();
       expect(cubit.state.bookmarkedMessageIds, contains('message-1'));
 
       await cubit.toggleBookmark(messageId: 'message-1', isBookmarked: true);
-      await cubit.loadBookmarks();
       expect(cubit.state.bookmarkedMessageIds, isEmpty);
+      await cubit.close();
+    });
+
+    test('spóźniony odczyt przypięć nie nadpisuje udanej zmiany', () async {
+      final repository = _ActionsFake()
+        ..pinsCompleter =
+            Completer<Either<ApiError, List<ChatPinnedMessage>>>();
+      final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
+
+      final loading = cubit.loadConversationPins('conversation-1');
+      await cubit.togglePin(
+        conversationId: 'conversation-1',
+        messageId: 'message-1',
+        isPinned: false,
+      );
+      repository.pinsCompleter!.complete(const Right(<ChatPinnedMessage>[]));
+      await loading;
+
+      expect(cubit.state.pinnedMessageIds, contains('message-1'));
       await cubit.close();
     });
 

@@ -27,9 +27,7 @@ class TasksErrorBannerHost extends StatelessWidget {
     // nie gubiło błędu drugiego z nich.
     final board = _boardError(context);
     final preferences = _preferencesError(context);
-    final ordered = boardActive
-        ? [board, preferences]
-        : [preferences, board];
+    final ordered = boardActive ? [board, preferences] : [preferences, board];
     for (final candidate in ordered) {
       if (candidate != null) return candidate;
     }

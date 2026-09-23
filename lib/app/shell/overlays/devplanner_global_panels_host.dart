@@ -14,6 +14,8 @@ import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_sto
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/links/chat_link_preview_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
@@ -21,12 +23,18 @@ import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_reposit
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_open_request.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/chat_drawer.dart';
+import 'package:devplanner/workspaces/presentation/chat/emoji/cubit/chat_emoji_recent_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/global_chat_composition.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_unread_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/links/chat_external_link_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_size.dart';
 import 'package:devplanner/workspaces/presentation/notifications/global_notifications_composition.dart';
 import 'package:devplanner/workspaces/presentation/notifications/global_notifications_page.dart';
@@ -74,6 +82,13 @@ final class _DevPlannerGlobalPanelsHostState
   late final OverlayEntry _rootEntry;
   FocusNode? _focusBeforeOpen;
   DevPlannerPanel? _lastActivePanel;
+  ChatUnreadCubit? _unreadCubit;
+  ChatInboxCubit? _chatInboxCubit;
+  ChatInboxRepository? _inboxRepositoryOwner;
+  ChatEmojiRecentCubit? _emojiRecentCubit;
+  StreamSubscription<Object>? _notificationsSignal;
+  StreamSubscription<void>? _chatInboxSignal;
+  WorkspaceChatInboxRealtimeService? _chatInboxRealtime;
 
   @override
   void initState() {
@@ -83,17 +98,107 @@ final class _DevPlannerGlobalPanelsHostState
     WidgetsBinding.instance.addObserver(this);
     _rootEntry = OverlayEntry(builder: _buildRootEntry);
     _controller.addListener(_restoreFocusAfterClose);
+    _syncUnreadOwner();
+    _syncNotificationsSignal();
+    _syncChatInboxRealtime();
   }
 
   @override
   void didUpdateWidget(covariant DevPlannerGlobalPanelsHost oldWidget) {
     super.didUpdateWidget(oldWidget);
     _rootEntry.markNeedsBuild();
+    _syncUnreadOwner();
+    _syncNotificationsSignal();
+    _syncChatInboxRealtime();
+  }
+
+  /// Utrzymuje sesyjny licznik nieprzeczytanych: powstaje po zalogowaniu,
+  /// a po zakończeniu sesji jest zerowany, żeby badge nie przeciekał między
+  /// kontami. Dzięki temu licznik istnieje też przy zamkniętym panelu.
+  /// Utrzymuje sesyjną listę ostatnio użytych emoji.
+  ///
+  /// Lista jest wyłącznie w pamięci i jest czyszczona po zakończeniu sesji,
+  /// więc nie przenosi preferencji między kontami ani nie trafia do storage.
+  void _syncEmojiOwner() {
+    if (widget.chat == null) {
+      _emojiRecentCubit?.clear();
+      return;
+    }
+    _emojiRecentCubit ??= ChatEmojiRecentCubit();
+  }
+
+  void _syncUnreadOwner() {
+    _syncEmojiOwner();
+    final repository = widget.chat?.inboxRepository;
+    if (repository == null) {
+      if (_inboxRepositoryOwner == null) return;
+      _inboxRepositoryOwner = null;
+      final oldInbox = _chatInboxCubit;
+      _chatInboxCubit = null;
+      unawaited(oldInbox?.close());
+      _unreadCubit?.reset();
+      unawaited(_unreadCubit?.close());
+      _unreadCubit = null;
+      return;
+    }
+    if (identical(repository, _inboxRepositoryOwner)) return;
+    _inboxRepositoryOwner = repository;
+    unawaited(_chatInboxCubit?.close());
+    final inbox = ChatInboxCubit(repository: repository);
+    _chatInboxCubit = inbox;
+    unawaited(inbox.load());
+    unawaited(_unreadCubit?.close());
+    final cubit = ChatUnreadCubit(repository: repository);
+    _unreadCubit = cubit;
+    unawaited(cubit.refresh());
+  }
+
+  /// Podłącza sygnał realtime powiadomień do odświeżenia badge.
+  ///
+  /// Każda wiadomość Chat publikuje powiadomienie dla odbiorcy, więc ten
+  /// strumień działa także wtedy, gdy panel jest zamknięty.
+  void _syncNotificationsSignal() {
+    final events = widget.notifications?.realtime?.events;
+    if (events == null) {
+      unawaited(_notificationsSignal?.cancel());
+      _notificationsSignal = null;
+      return;
+    }
+    if (_notificationsSignal != null) return;
+    _notificationsSignal = events.listen((_) => _unreadCubit?.applySignal());
+  }
+
+  /// Osobny kanał huba unieważnia inbox niezależnie od ustawień powiadomień.
+  void _syncChatInboxRealtime() {
+    final next = widget.chat?.realtimeFactory?.openInboxInvalidations();
+    if (identical(next, _chatInboxRealtime)) return;
+    unawaited(_chatInboxSignal?.cancel());
+    _chatInboxRealtime = next;
+    _chatInboxSignal = next?.invalidations.listen((_) {
+      _unreadCubit?.applySignal();
+      _chatInboxCubit?.applySignal();
+    });
+    if (next != null) {
+      unawaited(
+        next.start().catchError((Object _) {
+          // REST remains available; the next app resume and manual refresh can
+          // still reconcile the inbox if SignalR could not start.
+          debugPrint(
+            'Chat inbox realtime is unavailable; REST refresh remains active.',
+          );
+        }),
+      );
+    }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unawaited(_notificationsSignal?.cancel());
+    unawaited(_chatInboxSignal?.cancel());
+    unawaited(_chatInboxCubit?.close());
+    unawaited(_unreadCubit?.close());
+    unawaited(_emojiRecentCubit?.close());
     _controller
       ..removeListener(_restoreFocusAfterClose)
       ..dispose();
@@ -187,6 +292,22 @@ final class _DevPlannerGlobalPanelsHostState
 
     // Porty serwerowego szkicu i trwałej kolejki wysyłki są montowane nad oboma
     // panelami, bo sięgają po nie zarówno panel, jak i modale.
+    // Sesyjny licznik nieprzeczytanych jest montowany nad panelem, żeby belka
+    // pokazywała badge także przy zamkniętym panelu.
+    final unread = _unreadCubit;
+    if (unread != null) {
+      panelHost = BlocProvider<ChatUnreadCubit>.value(
+        value: unread,
+        child: panelHost,
+      );
+    }
+    final emojiRecent = _emojiRecentCubit;
+    if (emojiRecent != null) {
+      panelHost = BlocProvider<ChatEmojiRecentCubit>.value(
+        value: emojiRecent,
+        child: panelHost,
+      );
+    }
     final serverDrafts = widget.chat?.serverDraftRepository;
     if (serverDrafts != null) {
       panelHost = RepositoryProvider<ChatServerDraftRepository>.value(
@@ -316,6 +437,7 @@ final class _DevPlannerGlobalPanelsHostState
         repository: composition.repository,
         onClose: _controller.close,
         initialConversationId: request?.conversationId,
+        inboxCubit: _chatInboxCubit,
         resourceConversationId: request?.resourceRequest?.conversationId,
         resourceContext: request?.resourceRequest?.fileContext,
         onResourceContextDismissed: _clearResourceRequest,
@@ -414,6 +536,41 @@ final class _DevPlannerGlobalPanelsHostState
     if (filePicker != null) {
       panel = RepositoryProvider<FilePickerPort>.value(
         value: filePicker,
+        child: panel,
+      );
+    }
+    final accessPort = composition.attachmentAccessPort;
+    if (accessPort != null) {
+      panel = RepositoryProvider<ChatAttachmentAccessPort>.value(
+        value: accessPort,
+        child: panel,
+      );
+    }
+    final snippets = composition.snippetRepository;
+    if (snippets != null) {
+      panel = RepositoryProvider<ChatSnippetRepository>.value(
+        value: snippets,
+        child: panel,
+      );
+    }
+    final linkPolicy = composition.linkPolicyRepository;
+    if (linkPolicy != null) {
+      panel = RepositoryProvider<ChatLinkPolicyRepository>.value(
+        value: linkPolicy,
+        child: panel,
+      );
+    }
+    final linkPreview = composition.linkPreviewRepository;
+    if (linkPreview != null) {
+      panel = RepositoryProvider<ChatLinkPreviewRepository>.value(
+        value: linkPreview,
+        child: panel,
+      );
+    }
+    final linkPort = composition.linkPort;
+    if (linkPort != null) {
+      panel = RepositoryProvider<ChatExternalLinkPort>.value(
+        value: linkPort,
         child: panel,
       );
     }
@@ -532,8 +689,7 @@ final class _PanelOverlay extends StatelessWidget {
                     handleWidth,
               );
               // Układ kolumn rozstrzyga sam scaffold panelu po swojej
-              // szerokości: poniżej progu pokazuje rail i jedną kolumnę, a przy
-              // 30% okna panel startuje właśnie w tym trybie.
+              // szerokości; domyślnie panel mieści trzy kolumny na desktopie.
               return Stack(
                 fit: StackFit.expand,
                 children: [
@@ -579,7 +735,13 @@ final class _PanelOverlay extends StatelessWidget {
                                 key: const ValueKey(
                                   'devplanner-panel-surface',
                                 ),
-                                width: math.max(0, animatedWidth),
+                                // Po zwężeniu okna tween może przez kilka
+                                // klatek pamiętać poprzednią szerokość.
+                                // Ogranicz ją również w trakcie animacji.
+                                width: math.min(
+                                  width,
+                                  math.max(0, animatedWidth),
+                                ),
                                 child: child,
                               ),
                           child: child,

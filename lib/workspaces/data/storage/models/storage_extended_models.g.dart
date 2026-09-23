@@ -676,7 +676,7 @@ Map<String, dynamic> _$StorageAiReportTypeResponseToJson(
 };
 
 const _$StorageAiReportScopeTypeEnumMap = {
-  StorageAiReportScopeType.project: 'project',
+  StorageAiReportScopeType.project: 'Project',
 };
 
 _CreateStorageAiReportPayload _$CreateStorageAiReportPayloadFromJson(
@@ -815,13 +815,13 @@ Map<String, dynamic> _$StorageAiReportDocumentResponseToJson(
 };
 
 const _$AiProviderKindEnumMap = {
-  AiProviderKind.disabled: 'disabled',
-  AiProviderKind.aifastApi: 'aifastApi',
-  AiProviderKind.openAi: 'openAi',
-  AiProviderKind.azureOpenAi: 'azureOpenAi',
-  AiProviderKind.anthropic: 'anthropic',
-  AiProviderKind.ollama: 'ollama',
-  AiProviderKind.custom: 'custom',
+  AiProviderKind.disabled: 'Disabled',
+  AiProviderKind.aifastApi: 'AifastApi',
+  AiProviderKind.openAi: 'OpenAi',
+  AiProviderKind.azureOpenAi: 'AzureOpenAi',
+  AiProviderKind.anthropic: 'Anthropic',
+  AiProviderKind.ollama: 'Ollama',
+  AiProviderKind.custom: 'Custom',
 };
 
 _StorageAiReportResponse _$StorageAiReportResponseFromJson(
@@ -921,37 +921,37 @@ Map<String, dynamic> _$StorageAiReportResponseToJson(
 };
 
 const _$StorageAiReportJobStatusEnumMap = {
-  StorageAiReportJobStatus.pending: 'pending',
-  StorageAiReportJobStatus.processing: 'processing',
-  StorageAiReportJobStatus.completed: 'completed',
-  StorageAiReportJobStatus.failed: 'failed',
+  StorageAiReportJobStatus.pending: 'Pending',
+  StorageAiReportJobStatus.processing: 'Processing',
+  StorageAiReportJobStatus.completed: 'Completed',
+  StorageAiReportJobStatus.failed: 'Failed',
 };
 
 const _$StorageAiReportFailureCodeEnumMap = {
-  StorageAiReportFailureCode.unknown: 'unknown',
-  StorageAiReportFailureCode.sourceAccessRevoked: 'sourceAccessRevoked',
-  StorageAiReportFailureCode.sourceSnapshotEmpty: 'sourceSnapshotEmpty',
-  StorageAiReportFailureCode.unsupportedProvider: 'unsupportedProvider',
-  StorageAiReportFailureCode.invalidProviderResponse: 'invalidProviderResponse',
-  StorageAiReportFailureCode.providerUnauthorized: 'providerUnauthorized',
-  StorageAiReportFailureCode.providerRateLimited: 'providerRateLimited',
-  StorageAiReportFailureCode.providerUnavailable: 'providerUnavailable',
-  StorageAiReportFailureCode.circuitOpen: 'circuitOpen',
-  StorageAiReportFailureCode.disabled: 'disabled',
-  StorageAiReportFailureCode.outputStorageFailed: 'outputStorageFailed',
-  StorageAiReportFailureCode.sourceContentMismatch: 'sourceContentMismatch',
-  StorageAiReportFailureCode.deadlineExceeded: 'deadlineExceeded',
-  StorageAiReportFailureCode.sourceChanged: 'sourceChanged',
+  StorageAiReportFailureCode.unknown: 'Unknown',
+  StorageAiReportFailureCode.sourceAccessRevoked: 'SourceAccessRevoked',
+  StorageAiReportFailureCode.sourceSnapshotEmpty: 'SourceSnapshotEmpty',
+  StorageAiReportFailureCode.unsupportedProvider: 'UnsupportedProvider',
+  StorageAiReportFailureCode.invalidProviderResponse: 'InvalidProviderResponse',
+  StorageAiReportFailureCode.providerUnauthorized: 'ProviderUnauthorized',
+  StorageAiReportFailureCode.providerRateLimited: 'ProviderRateLimited',
+  StorageAiReportFailureCode.providerUnavailable: 'ProviderUnavailable',
+  StorageAiReportFailureCode.circuitOpen: 'CircuitOpen',
+  StorageAiReportFailureCode.disabled: 'Disabled',
+  StorageAiReportFailureCode.outputStorageFailed: 'OutputStorageFailed',
+  StorageAiReportFailureCode.sourceContentMismatch: 'SourceContentMismatch',
+  StorageAiReportFailureCode.deadlineExceeded: 'DeadlineExceeded',
+  StorageAiReportFailureCode.sourceChanged: 'SourceChanged',
 };
 
 const _$AiOperationStatusEnumMap = {
-  AiOperationStatus.queued: 'queued',
-  AiOperationStatus.processing: 'processing',
-  AiOperationStatus.completed: 'completed',
-  AiOperationStatus.degraded: 'degraded',
-  AiOperationStatus.failedRetryable: 'failedRetryable',
-  AiOperationStatus.failedTerminal: 'failedTerminal',
-  AiOperationStatus.cancelled: 'cancelled',
+  AiOperationStatus.queued: 'Queued',
+  AiOperationStatus.processing: 'Processing',
+  AiOperationStatus.completed: 'Completed',
+  AiOperationStatus.degraded: 'Degraded',
+  AiOperationStatus.failedRetryable: 'FailedRetryable',
+  AiOperationStatus.failedTerminal: 'FailedTerminal',
+  AiOperationStatus.cancelled: 'Cancelled',
 };
 
 _StorageAiReportErrorResponse _$StorageAiReportErrorResponseFromJson(

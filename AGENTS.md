@@ -28,6 +28,25 @@ status`; zachowaj cudze i niezwiązane zmiany.
 - Swagger/OpenAPI backendu jest jedynym źródłem kontraktu transportowego. Nie
   zgaduj ścieżek, pól ani enumów. Presentation nie importuje Dio, klienta OIDC,
   SignalR ani secure storage.
+- Błąd mapowania enuma między API a klientem jest regresją kontraktu. W każdym
+  zadaniu zmieniającym API, DTO, serializację, OpenAPI albo model klienta
+  zinwentaryzuj **wszystkie enumy używane w dotkniętym przepływie**, również gdy
+  zmiana nie dodaje enuma. Oznacz każdy jako transportowy request/response,
+  persistence/wewnętrzny albo lokalny UI; nazwy C# i Darta nie muszą być takie
+  same.
+- Dla każdego enuma transportowego porównaj pełny zestaw wartości i dokładne
+  wartości przewodowe/casing w OpenAPI, rzeczywistym JSON-ie backendu oraz
+  dekoderze i enkoderze Fluttera. Sprawdź globalne/lokalne
+  `JsonStringEnumConverter`, `JsonStringEnumMemberName`, `JsonConverter`,
+  niestandardowe konwertery, aliasy, wartości domyślne i obsługę nieznanej
+  wartości. Nazwa wariantu Darta ani `apiValue` używane tylko w query nie
+  dowodzą wartości JSON. Sprawdź mapy `@JsonValue` i wygenerowane `.g.dart`; po
+  zmianie źródła uruchom generator, nigdy nie edytuj ręcznie plików generowanych.
+- Testuj każdą wartość przewodową w obu kierunkach: Flutter decode odpowiedzi i
+  encode requestu oraz backend serialize/deserialize. Przy zmianie kontraktu
+  aktualizuj backend, OpenAPI/generatory, Fluttera i testy razem. Dla enumów
+  poza zmianą potwierdź zgodność całego zestawu; jeśli OpenAPI jest niedostępne,
+  zapisz blokadę i źródło zastępcze. Build ani zgodność nazw nie wystarczą.
 - Utrzymuj drzewo feature → subfeature → `data/domain/presentation`. Kosztowne
   gałęzie mają własny lifecycle i lokalny Cubit. Nie spłaszczaj struktury dla
   pozornego uproszczenia.
@@ -96,3 +115,9 @@ Dobierz testy do ryzyka: Cubit/repository, mapping kontraktu i błędów, router
 guard, widgety, shell/modal/realtime oraz testy integracyjne OIDC na rzeczywistej
 platformie. Brak hosta platformy oznacza niewykonaną bramkę, nie sukces. Wynik
 jest dowodem dopiero po faktycznym uruchomieniu komendy.
+
+Przy ręcznej kontroli UI na desktopie utrzymuj najwyżej jedną instancję
+aplikacji/testowego `flutter run`: użyj istniejącej sesji, jeśli działa, a po
+kontroli zamknij ją i potwierdź, że proces zakończył działanie. Nie uruchamiaj
+równoległych kopii ani nie zostawiaj instancji testowych otwartych po zakończeniu
+pracy.

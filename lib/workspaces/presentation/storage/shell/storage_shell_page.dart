@@ -248,11 +248,7 @@ class _StorageShellViewState extends State<_StorageShellView> {
       selection: context.read<StorageSelectionCubit>(),
       onFailure: _showMutationError,
     );
-    final ownerUserId = context
-        .read<AuthSessionPort?>()
-        ?.snapshot
-        .user
-        ?.userId;
+    final ownerUserId = context.read<AuthSessionPort?>()?.snapshot.user?.userId;
     unawaited(coordinator.start(scope, ownerUserId: ownerUserId));
   }
 

@@ -1,11 +1,13 @@
 import 'dart:async';
 
-import 'package:devplanner/core/l10n/l10n_extensions.dart';
-import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/notifications/models/chat_notification_settings.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_conversation_notification_settings_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -42,20 +44,13 @@ class _ChatConversationNotificationSettingsDialog extends StatelessWidget {
   const _ChatConversationNotificationSettingsDialog();
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Row(
-      children: [
-        const Icon(Symbols.notifications_rounded),
-        Gaps.w8,
-        Expanded(
-          child: Text(context.l10n.chatConversationNotificationSettingsTitle),
-        ),
-      ],
+  Widget build(BuildContext context) => ChatSurfaceDialog(
+    title: context.l10n.chatConversationNotificationSettingsTitle,
+    leading: Icon(
+      Symbols.notifications_rounded,
+      color: context.chatTheme.focusRing,
     ),
-    content: const SizedBox(
-      width: 420,
-      child: _ChatConversationNotificationSettingsContent(),
-    ),
+    content: const _ChatConversationNotificationSettingsContent(),
     actions: [
       TextButton(
         onPressed: () => Navigator.of(context).maybePop(),
@@ -81,15 +76,17 @@ class _ChatConversationNotificationSettingsContent extends StatelessWidget {
               child: CircularProgressIndicator(),
             ),
           ),
-          ChatConversationNotificationSettingsFailure(:final error) =>
+          ChatConversationNotificationSettingsFailure() =>
             _ChatConversationNotificationRetry(
-              message: error.message,
+              message: context.l10n.chatActionFailureMessage,
               onRetry: context
                   .read<ChatConversationNotificationSettingsCubit>()
                   .load,
             ),
-          ChatConversationNotificationSettingsRevoked(:final error) =>
-            _ChatConversationNotificationMessage(message: error.message),
+          ChatConversationNotificationSettingsRevoked() =>
+            _ChatConversationNotificationMessage(
+              message: context.l10n.chatActionFailureMessage,
+            ),
           ChatConversationNotificationSettingsReady(:final setting) => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,31 +96,90 @@ class _ChatConversationNotificationSettingsContent extends StatelessWidget {
                 style: context.text.bodySmall,
               ),
               Gaps.h12,
-              if (state.error case final error?)
-                _ChatConversationNotificationMessage(message: error.message),
-              DropdownButtonFormField<ChatConversationNotificationMode>(
-                initialValue: setting.mode,
-                decoration: InputDecoration(
-                  labelText: context.l10n.chatConversationNotificationModeLabel,
+              if (state.error != null)
+                _ChatConversationNotificationMessage(
+                  message: context.l10n.chatActionFailureMessage,
                 ),
-                onChanged: state.isSaving
-                    ? null
-                    : (mode) {
-                        if (mode == null) return;
-                        unawaited(
-                          context
-                              .read<ChatConversationNotificationSettingsCubit>()
-                              .updateMode(mode),
-                        );
-                      },
-                items: ChatConversationNotificationMode.values
-                    .map(
-                      (mode) => DropdownMenuItem(
-                        value: mode,
-                        child: Text(_label(context, mode)),
+              Builder(
+                builder: (anchorContext) => Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    key: const ValueKey('chat-notification-mode'),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    onTap: state.isSaving
+                        ? null
+                        : () => unawaited(() async {
+                            final selected =
+                                await AppContextMenu.select<
+                                  ChatConversationNotificationMode
+                                >(
+                                  anchorContext,
+                                  globalPosition: AppContextMenu.positionFor(
+                                    anchorContext,
+                                  ),
+                                  options: [
+                                    for (final mode
+                                        in ChatConversationNotificationMode
+                                            .values)
+                                      AppContextMenuOption(
+                                        value: mode,
+                                        label: _label(context, mode),
+                                        selected: setting.mode == mode,
+                                      ),
+                                  ],
+                                );
+                            if (selected != null && context.mounted) {
+                              await context
+                                  .read<
+                                    ChatConversationNotificationSettingsCubit
+                                  >()
+                                  .updateMode(selected);
+                            }
+                          }()),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        isDense: true,
+                        filled: true,
+                        fillColor: context.chatTheme.composerSurface,
+                        labelText:
+                            context.l10n.chatConversationNotificationModeLabel,
+                        labelStyle: context.chatTheme.metadataStyle.copyWith(
+                          color: context.chatTheme.metadataText,
+                        ),
+                        suffixIcon: Icon(
+                          Symbols.expand_more_rounded,
+                          size: 20,
+                          color: context.chatTheme.metadataText,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(
+                            color: context.chatTheme.separator,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(
+                            color: context.chatTheme.separator,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(
+                            color: context.chatTheme.focusRing,
+                            width: 1.5,
+                          ),
+                        ),
                       ),
-                    )
-                    .toList(growable: false),
+                      child: Text(
+                        _label(context, setting.mode),
+                        style: context.chatTheme.contentStyle.copyWith(
+                          color: context.chatTheme.incomingText,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -179,7 +235,7 @@ class _ChatConversationNotificationMessage extends StatelessWidget {
     child: Text(
       message,
       style: context.text.bodySmall?.copyWith(
-        color: Theme.of(context).colorScheme.error,
+        color: context.chatTheme.error,
       ),
     ),
   );

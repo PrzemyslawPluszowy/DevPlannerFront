@@ -2,7 +2,6 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_state.dart';
 import 'package:flutter/material.dart';
 
-
 /// Tekst walidacji kreatora rozmowy; jedno źródło mapowania kodu na ARB.
 class ChatCreationValidationText extends StatelessWidget {
   /// Tworzy komunikat walidacji.

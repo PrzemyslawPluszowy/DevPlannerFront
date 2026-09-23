@@ -38,8 +38,7 @@ TaskListPreferencesReady mergeTaskListPreferences({
       ? draft.activeSavedViewId
       : fresh.activeSavedViewId,
   clearActiveSavedViewId:
-      draft.activeSavedViewId == null &&
-      lastSaved.activeSavedViewId != null,
+      draft.activeSavedViewId == null && lastSaved.activeSavedViewId != null,
 );
 
 /// Nakłada na świeże szerokości tylko te kolumny, które użytkownik zmienił.

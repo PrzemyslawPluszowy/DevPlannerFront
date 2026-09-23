@@ -95,6 +95,10 @@ final class ChatRichTextBlock extends Equatable {
 /// zapisany w wiadomości, a nie pusty ekran.
 abstract final class ChatRichTextCodec {
   /// Parsuje deltę Quill; `null` oznacza brak albo nieczytelną deltę.
+  ///
+  /// Backend przyjmuje i zwraca deltę jako tablicę operacji (kontrakt Quill),
+  /// więc akceptujemy też starszy wariant z kopertą `{"ops": [...]}` — inaczej
+  /// prawidłowa wiadomość z edytora spadłaby do zwykłego tekstu.
   static List<ChatRichTextBlock>? tryParse(String? deltaJson) {
     if (deltaJson == null || deltaJson.trim().isEmpty) return null;
     Object? decoded;
@@ -103,9 +107,13 @@ abstract final class ChatRichTextCodec {
     } on FormatException {
       return null;
     }
-    if (decoded is! Map) return null;
-    final ops = decoded['ops'];
-    if (ops is! List) return null;
+    final ops = switch (decoded) {
+      final List<Object?> list => list,
+      final Map<Object?, Object?> map when map['ops'] is List =>
+        (map['ops']! as List).cast<Object?>(),
+      _ => null,
+    };
+    if (ops == null) return null;
     final blocks = _parseOps(ops);
     return blocks.isEmpty ? null : blocks;
   }

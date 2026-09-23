@@ -9,8 +9,10 @@ import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_me
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 /// Dialogi akcji wiadomości, montowane w rootowym hoście modali.
 ///
@@ -25,8 +27,8 @@ abstract final class ChatMessageActionDialogs {
   }) async {
     final confirmed = await DevPlannerModalHost.showDialog<bool>(
       context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(dialogContext.l10n.chatMessageDeleteConfirmTitle),
+      builder: (dialogContext) => ChatSurfaceDialog(
+        title: dialogContext.l10n.chatMessageDeleteConfirmTitle,
         content: Text(dialogContext.l10n.chatMessageDeleteConfirmBody),
         actions: [
           TextButton(
@@ -35,6 +37,10 @@ abstract final class ChatMessageActionDialogs {
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: dialogContext.chatTheme.error,
+              foregroundColor: Colors.white,
+            ),
             child: Text(dialogContext.l10n.chatMessageDeleteConfirm),
           ),
         ],
@@ -54,14 +60,36 @@ abstract final class ChatMessageActionDialogs {
     final controller = TextEditingController(text: message.text);
     final text = await DevPlannerModalHost.showDialog<String>(
       context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(dialogContext.l10n.chatMessageEditTitle),
+      builder: (dialogContext) => ChatSurfaceDialog(
+        title: dialogContext.l10n.chatMessageEditTitle,
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLines: 4,
           minLines: 1,
-          decoration: const InputDecoration(border: OutlineInputBorder()),
+          style: dialogContext.chatTheme.contentStyle.copyWith(
+            color: dialogContext.chatTheme.incomingText,
+          ),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: dialogContext.chatTheme.composerSurface,
+            contentPadding: const EdgeInsets.all(Sizes.p12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: dialogContext.chatTheme.separator),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: dialogContext.chatTheme.separator),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: dialogContext.chatTheme.focusRing,
+                width: 1.5,
+              ),
+            ),
+          ),
         ),
         actions: [
           TextButton(
@@ -96,8 +124,8 @@ abstract final class ChatMessageActionDialogs {
     if (targets.isEmpty) {
       await DevPlannerModalHost.showDialog<void>(
         context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text(dialogContext.l10n.chatMessageForwardTitle),
+        builder: (dialogContext) => ChatSurfaceDialog(
+          title: dialogContext.l10n.chatMessageForwardTitle,
           content: Text(dialogContext.l10n.chatMessageForwardEmpty),
           actions: [
             TextButton(
@@ -111,20 +139,76 @@ abstract final class ChatMessageActionDialogs {
     }
     final target = await DevPlannerModalHost.showDialog<ChatInboxItem>(
       context,
-      builder: (dialogContext) => SimpleDialog(
-        title: Text(dialogContext.l10n.chatMessageForwardTitle),
-        children: [
-          for (final item in targets)
-            SimpleDialogOption(
-              onPressed: () => Navigator.of(dialogContext).pop(item),
-              child: Text(item.displayName),
-            ),
-        ],
+      builder: (dialogContext) => ChatSurfaceDialog(
+        title: dialogContext.l10n.chatMessageForwardTitle,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final item in targets)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Sizes.p8),
+                child: Material(
+                  color: dialogContext.chatTheme.panelSurface,
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  child: InkWell(
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    onTap: () => Navigator.of(dialogContext).pop(item),
+                    child: Padding(
+                      padding: const EdgeInsets.all(Sizes.p10),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Symbols.forum_rounded,
+                            color: dialogContext.chatTheme.metadataText,
+                            size: 20,
+                          ),
+                          const SizedBox(width: Sizes.p10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  item.displayName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: dialogContext.chatTheme.contentStyle
+                                      .copyWith(
+                                        color: dialogContext
+                                            .chatTheme
+                                            .incomingText,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                if (item.lastMessage?.text case final preview?)
+                                  Text(
+                                    preview,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: dialogContext.chatTheme.metadataStyle
+                                        .copyWith(
+                                          color: dialogContext
+                                              .chatTheme
+                                              .metadataText,
+                                        ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
     if (target == null || !context.mounted) return;
     // Nowy idempotency key dla przekazania; powtórzenie użyje tego samego.
-    final clientMessageId = (idFactory ?? ChatClientMessageIdFactory()).create();
+    final clientMessageId = (idFactory ?? ChatClientMessageIdFactory())
+        .create();
     await context.read<ChatMessageSecondaryActionsCubit>().forward(
       messageId: message.id,
       targetConversationId: target.conversation.id,
@@ -182,6 +266,7 @@ class _ChatReactionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chat = context.chatTheme;
     return InkWell(
       onTap: onToggle == null ? null : () => onToggle!(emoji, isOwn),
       borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -191,14 +276,14 @@ class _ChatReactionChip extends StatelessWidget {
           vertical: 2,
         ),
         decoration: BoxDecoration(
-          color: isOwn
-              ? theme.colorScheme.primaryContainer
-              : theme.colorScheme.surfaceContainerHighest,
+          color: isOwn ? chat.selectedSurface : chat.listSurface,
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         child: Text(
           '$emoji $count',
-          style: theme.textTheme.labelSmall,
+          style: chat.metadataStyle.copyWith(
+            color: theme.colorScheme.onSurface,
+          ),
         ),
       ),
     );

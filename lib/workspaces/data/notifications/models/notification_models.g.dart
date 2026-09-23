@@ -61,21 +61,21 @@ Map<String, dynamic> _$WorkspaceNotificationResponseToJson(
 };
 
 const _$NotificationCategoryEnumMap = {
-  NotificationCategory.invitation: 'invitation',
-  NotificationCategory.membership: 'membership',
-  NotificationCategory.workspace: 'workspace',
-  NotificationCategory.system: 'system',
-  NotificationCategory.project: 'project',
-  NotificationCategory.task: 'task',
-  NotificationCategory.comment: 'comment',
-  NotificationCategory.chat: 'chat',
-  NotificationCategory.storage: 'storage',
+  NotificationCategory.invitation: 'Invitation',
+  NotificationCategory.membership: 'Membership',
+  NotificationCategory.workspace: 'Workspace',
+  NotificationCategory.system: 'System',
+  NotificationCategory.project: 'Project',
+  NotificationCategory.task: 'Task',
+  NotificationCategory.comment: 'Comment',
+  NotificationCategory.chat: 'Chat',
+  NotificationCategory.storage: 'Storage',
 };
 
 const _$NotificationPriorityEnumMap = {
-  NotificationPriority.low: 'low',
-  NotificationPriority.normal: 'normal',
-  NotificationPriority.high: 'high',
+  NotificationPriority.low: 'Low',
+  NotificationPriority.normal: 'Normal',
+  NotificationPriority.high: 'High',
 };
 
 _NotificationActorAvatarResponse _$NotificationActorAvatarResponseFromJson(
@@ -173,10 +173,10 @@ Map<String, dynamic> _$NotificationEmailCategoryPreferenceToJson(
 };
 
 const _$NotificationEmailDeliveryModeEnumMap = {
-  NotificationEmailDeliveryMode.none: 'none',
-  NotificationEmailDeliveryMode.immediate: 'immediate',
-  NotificationEmailDeliveryMode.dailyDigest: 'dailyDigest',
-  NotificationEmailDeliveryMode.digest: 'digest',
+  NotificationEmailDeliveryMode.none: 'None',
+  NotificationEmailDeliveryMode.immediate: 'Immediate',
+  NotificationEmailDeliveryMode.dailyDigest: 'DailyDigest',
+  NotificationEmailDeliveryMode.digest: 'Digest',
 };
 
 _NotificationDeliveryPreferenceResponse
@@ -309,10 +309,10 @@ Map<String, dynamic> _$StorageNotificationPreferenceResponseToJson(
 };
 
 const _$StorageNotificationPreferenceModeEnumMap = {
-  StorageNotificationPreferenceMode.immediate: 'immediate',
-  StorageNotificationPreferenceMode.digest: 'digest',
-  StorageNotificationPreferenceMode.mentionsOnly: 'mentionsOnly',
-  StorageNotificationPreferenceMode.disabled: 'disabled',
+  StorageNotificationPreferenceMode.immediate: 'Immediate',
+  StorageNotificationPreferenceMode.digest: 'Digest',
+  StorageNotificationPreferenceMode.mentionsOnly: 'MentionsOnly',
+  StorageNotificationPreferenceMode.disabled: 'Disabled',
 };
 
 _UpdateStorageNotificationPreferencePayload
@@ -341,12 +341,12 @@ Map<String, dynamic> _$NotificationQuickActionPayloadToJson(
 };
 
 const _$NotificationQuickActionKindEnumMap = {
-  NotificationQuickActionKind.markRead: 'markRead',
-  NotificationQuickActionKind.archive: 'archive',
-  NotificationQuickActionKind.pin: 'pin',
-  NotificationQuickActionKind.unpin: 'unpin',
-  NotificationQuickActionKind.completeTask: 'completeTask',
-  NotificationQuickActionKind.assignTaskToMe: 'assignTaskToMe',
+  NotificationQuickActionKind.markRead: 'MarkRead',
+  NotificationQuickActionKind.archive: 'Archive',
+  NotificationQuickActionKind.pin: 'Pin',
+  NotificationQuickActionKind.unpin: 'Unpin',
+  NotificationQuickActionKind.completeTask: 'CompleteTask',
+  NotificationQuickActionKind.assignTaskToMe: 'AssignTaskToMe',
 };
 
 _NotificationQuickActionResponse _$NotificationQuickActionResponseFromJson(

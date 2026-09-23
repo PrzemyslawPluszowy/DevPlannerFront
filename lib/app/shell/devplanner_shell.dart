@@ -12,6 +12,7 @@ import 'package:devplanner/workspaces/domain/ports/workspace_management_gateway.
 import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
 import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_unread_cubit.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_cubit.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_state.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/project_resource_creation_dialogs.dart';

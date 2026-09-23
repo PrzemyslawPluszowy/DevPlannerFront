@@ -48,5 +48,4 @@ abstract final class TaskMilestonePicker {
       await onSelected(selected);
     }
   }
-
 }

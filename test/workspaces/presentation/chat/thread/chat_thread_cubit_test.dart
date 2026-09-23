@@ -36,6 +36,32 @@ void main() {
     expect(state.messages.single.replyToMessageId, 'root');
     await cubit.close();
   });
+
+  test('błąd doładowania zachowuje historię i można ponowić kursor', () async {
+    final repository = _PagedThreadRepo();
+    final cubit = ChatThreadCubit(
+      repository,
+      deliveryRepository: _DeliveryRepo(),
+      conversationId: 'c',
+      threadRootMessageId: 'root',
+    );
+
+    await cubit.load();
+    await cubit.loadMore();
+
+    var state = cubit.state as ChatThreadReady;
+    expect(state.messages.single.id, 'older-message');
+    expect(state.nextCursor, 'older-cursor');
+    expect(state.isLoadingMore, isFalse);
+    expect(state.loadMoreFailed, isTrue);
+
+    await cubit.loadMore();
+    state = cubit.state as ChatThreadReady;
+    expect(state.messages.single.id, 'older-message');
+    expect(state.nextCursor, isNull);
+    expect(state.loadMoreFailed, isFalse);
+    await cubit.close();
+  });
 }
 
 final class _ReadyThreadRepo implements ChatThreadRepository {
@@ -61,11 +87,57 @@ final class _ThreadRepo implements ChatThreadRepository {
   );
 }
 
+final class _PagedThreadRepo implements ChatThreadRepository {
+  bool _failedFirstOlderPage = false;
+
+  @override
+  Future<Either<ApiError, ChatMessagePage>> listThreadMessages({
+    required String conversationId,
+    required String threadRootMessageId,
+    String? cursor,
+    int limit = 50,
+  }) async {
+    if (cursor == null) {
+      return Right(
+        ChatMessagePage(items: [_threadMessage()], nextCursor: 'older-cursor'),
+      );
+    }
+    if (!_failedFirstOlderPage) {
+      _failedFirstOlderPage = true;
+      return const Left(
+        ApiError(type: ApiErrorType.connection, message: 'Offline'),
+      );
+    }
+    return const Right(ChatMessagePage(items: []));
+  }
+}
+
+ChatMessage _threadMessage() => ChatMessage(
+  id: 'older-message',
+  conversationId: 'c',
+  authorUserId: 'user',
+  clientMessageId: 'client',
+  text: 'Odowiedź',
+  payloadHash: 'hash',
+  version: 1,
+  createdAtUtc: DateTime.utc(2026),
+  isDeleted: false,
+  deliveryState: ChatMessageDeliveryState.sent,
+);
+
 final class _DeliveryRepo implements ChatConversationRepository {
   @override
   Future<Either<ApiError, ChatConversation>> getConversation(
     String conversationId,
   ) => throw UnimplementedError();
+  @override
+  Future<Either<ApiError, ChatMessageWindow>> loadMessageWindow({
+    required String conversationId,
+    required String messageId,
+    int before = 20,
+    int after = 20,
+  }) async => throw UnimplementedError();
+
   @override
   Future<Either<ApiError, ChatMessagePage>> listConversationMessages({
     required String conversationId,
@@ -112,6 +184,14 @@ final class _ParentMessageDeliveryRepo implements ChatConversationRepository {
   Future<Either<ApiError, ChatConversation>> getConversation(
     String conversationId,
   ) => throw UnimplementedError();
+
+  @override
+  Future<Either<ApiError, ChatMessageWindow>> loadMessageWindow({
+    required String conversationId,
+    required String messageId,
+    int before = 20,
+    int after = 20,
+  }) async => throw UnimplementedError();
 
   @override
   Future<Either<ApiError, ChatMessagePage>> listConversationMessages({

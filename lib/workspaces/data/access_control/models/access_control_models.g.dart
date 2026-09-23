@@ -21,8 +21,8 @@ Map<String, dynamic> _$GrantResourceAccessPayloadToJson(
 };
 
 const _$ResourceAccessLevelEnumMap = {
-  ResourceAccessLevel.reader: 'reader',
-  ResourceAccessLevel.editor: 'editor',
+  ResourceAccessLevel.reader: 'Reader',
+  ResourceAccessLevel.editor: 'Editor',
 };
 
 _WikiPageAccessGrantResponse _$WikiPageAccessGrantResponseFromJson(

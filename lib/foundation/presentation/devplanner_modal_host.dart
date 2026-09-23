@@ -16,7 +16,9 @@ abstract final class DevPlannerModalHost {
     context: context,
     useRootNavigator: navigatorScope == DevPlannerModalNavigatorScope.root,
     barrierDismissible: barrierDismissible,
-    barrierLabel: barrierLabel ?? MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierLabel:
+        barrierLabel ??
+        MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .24),
     requestFocus: requestFocus,
     pageBuilder: (context, _, _) => builder(context),
@@ -35,7 +37,9 @@ abstract final class DevPlannerModalHost {
     context: context,
     useRootNavigator: navigatorScope == DevPlannerModalNavigatorScope.root,
     barrierDismissible: barrierDismissible,
-    barrierLabel: barrierLabel ?? MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierLabel:
+        barrierLabel ??
+        MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .24),
     requestFocus: requestFocus,
     pageBuilder: (context, _, _) => PopScope(
@@ -54,6 +58,9 @@ abstract final class DevPlannerModalHost {
     bool isScrollControlled = true,
     BoxConstraints? constraints,
     Color backgroundColor = Colors.transparent,
+    Color? barrierColor,
+    ShapeBorder? shape,
+    bool showDragHandle = false,
   }) => showModalBottomSheet<T>(
     context: context,
     useRootNavigator: navigatorScope == DevPlannerModalNavigatorScope.root,
@@ -62,6 +69,9 @@ abstract final class DevPlannerModalHost {
     isScrollControlled: isScrollControlled,
     constraints: constraints,
     backgroundColor: backgroundColor,
+    barrierColor: barrierColor,
+    shape: shape,
+    showDragHandle: showDragHandle,
     builder: builder,
   );
 

@@ -5,6 +5,7 @@ import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/chat_global_notification_settings_section.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_global_notification_settings_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,14 +37,9 @@ class _ChatGlobalSettingsDialog extends StatelessWidget {
   const _ChatGlobalSettingsDialog();
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(context.l10n.chatPanelGlobalSettingsTitle),
-    content: const SizedBox(
-      width: 420,
-      child: SingleChildScrollView(
-        child: ChatGlobalNotificationSettingsSection(),
-      ),
-    ),
+  Widget build(BuildContext context) => ChatSurfaceDialog(
+    title: context.l10n.chatPanelGlobalSettingsTitle,
+    content: const ChatGlobalNotificationSettingsSection(),
     actions: [
       TextButton(
         onPressed: () => Navigator.of(context).pop(),

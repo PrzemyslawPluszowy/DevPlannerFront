@@ -6,9 +6,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:devplanner/core/l10n/l10n_extensions.dart';
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
-import 'package:devplanner/core/theme/theme.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
@@ -91,7 +91,9 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
     final clientMessageId = context.read<ChatConversationCubit>().sendDraft(
       draft,
     );
-    _updatePanels(_panels.value.clearReply());
+    if (clientMessageId != null) {
+      _updatePanels(_panels.value.clearReply());
+    }
     return clientMessageId;
   }
 
@@ -134,7 +136,14 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
                 const Icon(WorkspaceIcons.chat, size: 22),
                 Gaps.w8,
                 Expanded(
-                  child: Text('Czat', style: context.text.headlineSmall),
+                  child: Text(
+                    context.l10n.chatConversationPageTitle,
+                    style: context.chatTheme.contentStyle.copyWith(
+                      color: context.chatTheme.incomingText,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
                 IconButton(
                   tooltip:
@@ -176,6 +185,8 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
                             parentConversationStates: context
                                 .read<ChatConversationCubit>()
                                 .stream,
+                            messageActionsRepository: context
+                                .read<ChatMessageActionsRepository?>(),
                             onClose: () => _updatePanels(
                               panels.copyWith(clearThreadRoot: true),
                             ),
@@ -195,6 +206,8 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
                           parentConversationStates: context
                               .read<ChatConversationCubit>()
                               .stream,
+                          messageActionsRepository: context
+                              .read<ChatMessageActionsRepository?>(),
                           onClose: () => _updatePanels(
                             panels.copyWith(clearThreadRoot: true),
                           ),
@@ -247,8 +260,12 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
         builder: (context, state) => switch (state) {
           ChatConversationInitial() || ChatConversationLoading() =>
             const Center(child: CircularProgressIndicator()),
-          ChatConversationFailure(:final message) ||
-          ChatConversationDetached(:final message) => _ChatFailure(message),
+          ChatConversationFailure() => _ChatFailure(
+            context.l10n.chatConversationLoadFailureMessage,
+          ),
+          ChatConversationDetached() => _ChatFailure(
+            context.l10n.chatConversationAccessRevokedMessage,
+          ),
           ChatConversationReady(
             :final messages,
             :final isSending,
@@ -256,6 +273,8 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
           ) =>
             ChatConversationMessageList(
               messages: messages,
+              currentUserId:
+                  context.read<AuthSessionPort?>()?.snapshot.user?.userId ?? '',
               isSending: isSending,
               realtimeError: realtimeError,
               targetMessageId: widget.targetMessageId,

@@ -18,6 +18,14 @@ final class _TypingRealtimeFake implements ChatConversationRealtimeClient {
       const Stream<ChatConversationRealtimeError>.empty();
 
   @override
+  Stream<ChatConversationPresenceSnapshot?> get presenceSnapshots =>
+      const Stream<ChatConversationPresenceSnapshot?>.empty();
+
+  @override
+  Stream<ChatUserStatusChanged> get userStatusChanges =>
+      const Stream<ChatUserStatusChanged>.empty();
+
+  @override
   Future<void> start(String conversationId) async {}
 
   @override
@@ -25,6 +33,9 @@ final class _TypingRealtimeFake implements ChatConversationRealtimeClient {
 
   @override
   Future<void> setTyping(bool isTyping) async {}
+
+  @override
+  Future<void> heartbeatPresence() async {}
 }
 
 ChatConversationRealtimeEvent typingEvent({

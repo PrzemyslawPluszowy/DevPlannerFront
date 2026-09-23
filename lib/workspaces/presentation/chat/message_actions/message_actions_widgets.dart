@@ -1,9 +1,12 @@
 import 'dart:async';
 
-import 'package:devplanner/core/l10n/l10n_extensions.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/message_actions_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -11,45 +14,80 @@ import 'package:material_symbols_icons/symbols.dart';
 /// Menu akcji wiadomości delegujące każdą intencję do lokalnego Cubita.
 class ChatMessageActionMenu extends StatelessWidget {
   /// Tworzy menu dla potwierdzonej, nieusuniętej wiadomości.
-  const ChatMessageActionMenu({required this.message, super.key});
+  const ChatMessageActionMenu({
+    required this.message,
+    this.onReply,
+    this.onThread,
+    this.onDiscussion,
+    super.key,
+  });
 
   final ChatMessage message;
+  final ValueChanged<ChatMessage>? onReply;
+  final ValueChanged<ChatMessage>? onThread;
+  final ValueChanged<ChatMessage>? onDiscussion;
+
+  Future<void> showAt(BuildContext context, Offset position) =>
+      AppContextMenu.show(
+        context,
+        globalPosition: position,
+        actions: _actions(context),
+      );
+
+  List<AppContextMenuAction> _actions(BuildContext context) => [
+    if (onReply != null)
+      AppContextMenuAction(
+        label: context.l10n.chatComposerReplyAction,
+        icon: Symbols.reply_rounded,
+        onTap: (_) => onReply?.call(message),
+      ),
+    if (onThread != null)
+      AppContextMenuAction(
+        label: context.l10n.chatThreadOpen,
+        icon: Symbols.forum_rounded,
+        onTap: (_) => onThread?.call(message),
+      ),
+    if (onDiscussion != null)
+      AppContextMenuAction(
+        label: context.l10n.chatDiscussionOpen,
+        icon: Symbols.topic_rounded,
+        onTap: (_) => onDiscussion?.call(message),
+      ),
+    if (message.deltaJson == null)
+      AppContextMenuAction(
+        label: context.l10n.chatMessageEdit,
+        icon: Symbols.edit_rounded,
+        separatorBefore:
+            onReply != null || onThread != null || onDiscussion != null,
+        onTap: (_) => _ChatMessageEditDialog.show(context, message),
+      ),
+    AppContextMenuAction(
+      label: context.l10n.chatMessageRevisions,
+      icon: Symbols.history_rounded,
+      onTap: (_) => _ChatMessageRevisionsDialog.show(context, message.id),
+    ),
+    AppContextMenuAction(
+      label: context.l10n.chatMessageDelete,
+      icon: Symbols.delete_rounded,
+      isDestructive: true,
+      onTap: (_) => context.read<ChatMessageActionsCubit>().delete(message),
+    ),
+  ];
 
   @override
-  Widget build(BuildContext context) => PopupMenuButton<_ChatMessageMenuAction>(
-    tooltip: context.l10n.chatMessageActionsOpen,
-    icon: const Icon(Symbols.more_horiz_rounded, size: 18),
-    onSelected: (action) => switch (action) {
-      _ChatMessageMenuAction.edit => _ChatMessageEditDialog.show(
-        context,
-        message,
-      ),
-      _ChatMessageMenuAction.delete =>
-        context.read<ChatMessageActionsCubit>().delete(message),
-      _ChatMessageMenuAction.revisions => _ChatMessageRevisionsDialog.show(
-        context,
-        message.id,
-      ),
-    },
-    itemBuilder: (context) => [
-      if (message.deltaJson == null)
-        PopupMenuItem(
-          value: _ChatMessageMenuAction.edit,
-          child: Text(context.l10n.chatMessageEdit),
+  Widget build(BuildContext context) => Builder(
+    builder: (anchorContext) => IconButton(
+      tooltip: context.l10n.chatMessageActionsOpen,
+      icon: const Icon(Symbols.more_horiz_rounded, size: 18),
+      onPressed: () => unawaited(
+        showAt(
+          anchorContext,
+          AppContextMenu.positionFor(anchorContext),
         ),
-      PopupMenuItem(
-        value: _ChatMessageMenuAction.revisions,
-        child: Text(context.l10n.chatMessageRevisions),
       ),
-      PopupMenuItem(
-        value: _ChatMessageMenuAction.delete,
-        child: Text(context.l10n.chatMessageDelete),
-      ),
-    ],
+    ),
   );
 }
-
-enum _ChatMessageMenuAction { edit, revisions, delete }
 
 /// Rootowy dialog zwykłej edycji, zamykany po potwierdzeniu backendu.
 abstract final class _ChatMessageEditDialog {
@@ -101,16 +139,16 @@ class _ChatMessageEditDialogBodyState
               state is ChatMessageActionsInProgress &&
               state.messageId == widget.message.id;
           final error = switch (state) {
-            ChatMessageActionsConflict(:final message, :final messageId)
+            ChatMessageActionsConflict(:final messageId)
                 when messageId == widget.message.id =>
-              message,
-            ChatMessageActionsFailure(:final message, :final messageId)
+              context.l10n.chatMessageEditConflictMessage,
+            ChatMessageActionsFailure(:final messageId)
                 when messageId == widget.message.id =>
-              message,
+              context.l10n.chatActionFailureMessage,
             _ => null,
           };
-          return AlertDialog(
-            title: Text(context.l10n.chatMessageEditTitle),
+          return ChatSurfaceDialog(
+            title: context.l10n.chatMessageEditTitle,
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -121,8 +159,28 @@ class _ChatMessageEditDialogBodyState
                   minLines: 2,
                   maxLines: 8,
                   enabled: !busy,
+                  style: context.chatTheme.contentStyle.copyWith(
+                    color: context.chatTheme.incomingText,
+                  ),
                   decoration: InputDecoration(
                     labelText: context.l10n.chatMessageEditLabel,
+                    labelStyle: context.chatTheme.metadataStyle.copyWith(
+                      color: context.chatTheme.metadataText,
+                    ),
+                    filled: true,
+                    fillColor: context.chatTheme.composerSurface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: context.chatTheme.separator,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: context.chatTheme.focusRing,
+                      ),
+                    ),
                   ),
                 ),
                 if (error case final value?)
@@ -173,38 +231,69 @@ class _ChatMessageRevisionsDialogBody extends StatelessWidget {
   final String messageId;
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(context.l10n.chatMessageRevisionsTitle),
-    content: SizedBox(
-      width: 480,
-      child: BlocBuilder<ChatMessageActionsCubit, ChatMessageActionsState>(
-        builder: (context, state) => switch (state) {
-          ChatMessageActionsInProgress(:final messageId)
-              when messageId == this.messageId =>
-            const Center(child: CircularProgressIndicator()),
-          ChatMessageActionsRevisions(:final messageId, :final revisions)
-              when messageId == this.messageId =>
-            revisions.isEmpty
-                ? Text(context.l10n.chatMessageRevisionsEmpty)
-                : ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: revisions.length,
-                    separatorBuilder: (_, _) => const Divider(),
-                    itemBuilder: (_, index) => ListTile(
-                      title: Text(revisions[index].text),
-                      subtitle: Text(
-                        context.l10n.chatMessageRevisionVersion(
-                          revisions[index].version,
-                          revisions[index].newVersion,
+  Widget build(BuildContext context) => ChatSurfaceDialog(
+    title: context.l10n.chatMessageRevisionsTitle,
+    content: BlocBuilder<ChatMessageActionsCubit, ChatMessageActionsState>(
+      builder: (context, state) => switch (state) {
+        ChatMessageActionsInProgress(:final messageId)
+            when messageId == this.messageId =>
+          const Center(child: CircularProgressIndicator()),
+        ChatMessageActionsRevisions(:final messageId, :final revisions)
+            when messageId == this.messageId =>
+          revisions.isEmpty
+              ? Text(context.l10n.chatMessageRevisionsEmpty)
+              : ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: revisions.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: Sizes.p8),
+                  itemBuilder: (_, index) {
+                    final chat = context.chatTheme;
+                    final revision = revisions[index];
+                    return DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: chat.panelSurface,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(12),
+                        ),
+                        border: Border.all(
+                          color: chat.separator.withValues(alpha: .7),
                         ),
                       ),
-                    ),
-                  ),
-          ChatMessageActionsFailure(:final message) => Text(message),
-          ChatMessageActionsAccessRevoked(:final message) => Text(message),
-          _ => const SizedBox.shrink(),
-        },
-      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(Sizes.p10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              revision.text,
+                              style: chat.contentStyle.copyWith(
+                                color: chat.incomingText,
+                              ),
+                            ),
+                            const SizedBox(height: Sizes.p4),
+                            Text(
+                              context.l10n.chatMessageRevisionVersion(
+                                revision.version,
+                                revision.newVersion,
+                              ),
+                              style: chat.metadataStyle.copyWith(
+                                color: chat.metadataText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ChatMessageActionsFailure() => Text(
+          context.l10n.chatActionFailureMessage,
+        ),
+        ChatMessageActionsAccessRevoked() => Text(
+          context.l10n.chatConversationAccessRevokedMessage,
+        ),
+        _ => const SizedBox.shrink(),
+      },
     ),
     actions: [
       TextButton(

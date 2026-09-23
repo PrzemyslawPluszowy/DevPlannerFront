@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/theme/chat_theme.dart';
 import 'package:devplanner/foundation/theme/menu_theme.dart';
 import 'package:devplanner/foundation/theme/navigation_theme.dart';
 import 'package:devplanner/foundation/theme/shell_theme.dart';
@@ -6,6 +7,7 @@ import 'package:devplanner/foundation/theme/theme_extensions.dart';
 import 'package:devplanner/foundation/theme/util.dart';
 import 'package:flutter/material.dart';
 
+export 'chat_theme.dart';
 export 'menu_theme.dart';
 export 'navigation_theme.dart';
 export 'shell_theme.dart';
@@ -168,6 +170,7 @@ class MaterialTheme {
           DevPlannerShellTheme.light(),
         const DevPlannerNavigationTheme.standard(),
         DevPlannerMenuTheme.of(appTextTheme, effectiveColorScheme),
+        DevPlannerChatTheme.of(appTextTheme, effectiveColorScheme),
         DevPlannerTasksTheme.of(appTextTheme, effectiveColorScheme),
       ],
       visualDensity: VisualDensity.compact,
@@ -209,6 +212,22 @@ class MaterialTheme {
         dense: true,
         visualDensity: VisualDensity.compact,
         contentPadding: .symmetric(horizontal: 12, vertical: 0),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: effectiveColorScheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        titleTextStyle: appTextTheme.titleMedium?.copyWith(
+          color: effectiveColorScheme.onSurface,
+          fontWeight: FontWeight.w700,
+        ),
+        contentTextStyle: appTextTheme.bodyMedium?.copyWith(
+          color: effectiveColorScheme.onSurface,
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
       ),
       tabBarTheme: TabBarThemeData(
         dividerColor: Colors.transparent,

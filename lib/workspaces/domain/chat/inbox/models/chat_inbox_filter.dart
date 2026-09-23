@@ -18,6 +18,12 @@ enum ChatInboxFilter {
   /// Wyłącznie kanały i ogłoszenia.
   channels('Channels'),
 
+  /// Wyłącznie rozmowy, w których wspomniano bieżącego użytkownika.
+  ///
+  /// Filtr korzysta z serwerowego rejestru wzmianek, a nie z przeszukiwania
+  /// pobranej treści, więc działa także poza pierwszą stroną skrzynki.
+  mentions('Mentions'),
+
   /// Wyłącznie archiwum.
   archived('Archived');
 

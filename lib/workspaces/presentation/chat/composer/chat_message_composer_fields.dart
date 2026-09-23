@@ -14,7 +14,7 @@ final class ChatComposerRichTextField extends StatelessWidget {
     required this.focusNode,
     required this.scrollController,
     required this.onKeyEvent,
-    required this.compact,
+    required this.maxHeight,
     super.key,
   });
 
@@ -22,26 +22,23 @@ final class ChatComposerRichTextField extends StatelessWidget {
   final FocusNode focusNode;
   final ScrollController scrollController;
   final FocusOnKeyEventCallback onKeyEvent;
-  final bool compact;
+  final double maxHeight;
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: compact ? 110 : 144,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: context.colors.outline),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Focus(
-        onKeyEvent: onKeyEvent,
-        child: quill.QuillEditor(
-          controller: controller,
-          focusNode: focusNode,
-          scrollController: scrollController,
-          config: const quill.QuillEditorConfig(
-            padding: EdgeInsets.all(Sizes.p12),
-            expands: true,
+    height: maxHeight,
+    child: Focus(
+      onKeyEvent: onKeyEvent,
+      child: quill.QuillEditor(
+        controller: controller,
+        focusNode: focusNode,
+        scrollController: scrollController,
+        config: const quill.QuillEditorConfig(
+          padding: EdgeInsets.symmetric(
+            horizontal: Sizes.p8,
+            vertical: Sizes.p10,
           ),
+          expands: true,
         ),
       ),
     ),
@@ -62,38 +59,55 @@ final class ChatComposerReplyTarget extends StatelessWidget {
   final VoidCallback onCancel;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: Sizes.p8),
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.secondaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Sizes.p12),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                context.l10n.chatComposerReplyTo(
-                  message?.text.trim().isNotEmpty == true
-                      ? message!.text
-                      : replyId,
+  Widget build(BuildContext context) {
+    final chat = context.chatTheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Sizes.p8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: chat.selectedSurface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: chat.separator),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: Sizes.p8, right: Sizes.p4),
+          child: Row(
+            children: [
+              Container(
+                width: 3,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: chat.focusRing,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            IconButton(
-              tooltip: context.l10n.chatComposerCancelReply,
-              onPressed: onCancel,
-              icon: const Icon(Symbols.close_rounded, size: 18),
-            ),
-          ],
+              const SizedBox(width: Sizes.p8),
+              Expanded(
+                child: Text(
+                  context.l10n.chatComposerReplyTo(
+                    message?.text.trim().isNotEmpty == true
+                        ? message!.text
+                        : replyId,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: chat.metadataStyle.copyWith(
+                    color: chat.incomingText,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: context.l10n.chatComposerCancelReply,
+                onPressed: onCancel,
+                color: chat.metadataText,
+                icon: const Icon(Symbols.close_rounded, size: 18),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// Przycisk wysyłki blokowany przez kolejkę załączników do czasu skanowania.
@@ -110,28 +124,53 @@ final class ChatComposerSubmitButton extends StatelessWidget {
   final VoidCallback onSubmit;
 
   @override
-  Widget build(BuildContext context) => Align(
-    alignment: Alignment.centerRight,
-    child: switch (coordinator) {
-      final current? =>
-        BlocBuilder<
-          ChatAttachmentComposerCoordinatorCubit,
-          ChatAttachmentComposerCoordinatorState
-        >(
-          bloc: current,
-          builder: (_, state) => _sendButton(
-            context,
-            isEnabled: canSubmit(state),
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: switch (coordinator) {
+        final current? =>
+          BlocBuilder<
+            ChatAttachmentComposerCoordinatorCubit,
+            ChatAttachmentComposerCoordinatorState
+          >(
+            bloc: current,
+            builder: (_, state) => _sendButton(
+              context,
+              isEnabled: canSubmit(state),
+            ),
+          ),
+        null => _sendButton(context, isEnabled: canSubmit(null)),
+      },
+    );
+  }
+
+  Widget _sendButton(BuildContext context, {required bool isEnabled}) {
+    final chat = context.chatTheme;
+    return Tooltip(
+      message: context.l10n.globalChatSendMessage,
+      child: Material(
+        color: isEnabled
+            ? chat.sendButtonSurface
+            : chat.sendButtonSurface.withValues(alpha: .45),
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: isEnabled ? onSubmit : null,
+          customBorder: const CircleBorder(),
+          child: Semantics(
+            button: true,
+            enabled: isEnabled,
+            label: context.l10n.globalChatSendMessage,
+            child: SizedBox.square(
+              dimension: chat.composerActionSize,
+              child: Icon(
+                Symbols.send_rounded,
+                size: chat.composerIconSize,
+                color: chat.sendButtonForeground,
+              ),
+            ),
           ),
         ),
-      null => _sendButton(context, isEnabled: canSubmit(null)),
-    },
-  );
-
-  Widget _sendButton(BuildContext context, {required bool isEnabled}) =>
-      IconButton.filled(
-        tooltip: context.l10n.globalChatSendMessage,
-        onPressed: isEnabled ? onSubmit : null,
-        icon: const Icon(Symbols.send_rounded, size: 18),
-      );
+      ),
+    );
+  }
 }

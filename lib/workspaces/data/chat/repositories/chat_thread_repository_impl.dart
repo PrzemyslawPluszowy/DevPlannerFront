@@ -3,6 +3,7 @@ import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_conversation_mapper.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_link_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
@@ -81,6 +82,9 @@ final class ChatThreadRepositoryImpl
     isDeleted: response.isDeleted,
     threadRootMessageId: response.threadRootMessageId,
     isEdited: response.isEdited,
+    deliveredToCount: response.deliveredToCount,
+    readByCount: response.readByCount,
+    links: ChatLinkMapper.toDomain(response.links),
     deletedAtUtc: response.deletedAtUtc,
     deliveryState: ChatMessageDeliveryState.sent,
     attachments:
@@ -93,6 +97,10 @@ final class ChatThreadRepositoryImpl
                 attachedByUserId: attachment.attachedByUserId,
                 position: attachment.position,
                 createdAtUtc: attachment.createdAtUtc,
+                fileName: attachment.fileName,
+                fileSizeBytes: attachment.fileSizeBytes,
+                contentType: attachment.contentType,
+                isAvailable: attachment.isAvailable,
               ),
             )
             .toList(growable: false) ??

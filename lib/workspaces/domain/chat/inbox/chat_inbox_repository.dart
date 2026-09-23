@@ -13,6 +13,7 @@ abstract interface class ChatInboxRepository {
     ChatInboxFilter filter = ChatInboxFilter.all,
     String? cursor,
     int limit,
+    String? query,
   });
 
   /// Pobiera agregat nieprzeczytanych wiadomości bez pobierania stron.
