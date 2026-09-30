@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:devplanner/workspaces/domain/chat/rich_text/chat_code_block_codec.dart';
 import 'package:devplanner/workspaces/domain/chat/rich_text/chat_rich_text_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -103,6 +104,22 @@ void main() {
       expect(code.language, 'dart');
       expect(code.plainTextOf(), 'final x = 1;');
       expect(blocks.last.kind, ChatRichTextBlockKind.paragraph);
+    });
+
+    test('scala linie Quill w jeden kafelek kodu z zachowanym językiem', () {
+      final operations = ChatCodeBlockCodec.build(
+        code: 'def transcribe():\n    return "tekst"',
+        language: 'python',
+      );
+      final blocks = ChatRichTextCodec.tryParse(delta(operations));
+
+      expect(blocks, hasLength(1));
+      expect(blocks!.single.kind, ChatRichTextBlockKind.code);
+      expect(blocks.single.language, 'python');
+      expect(
+        blocks.single.plainTextOf(),
+        'def transcribe():\n    return "tekst"',
+      );
     });
 
     test('rozpoznaje listy punktowane, numerowane i cytat', () {

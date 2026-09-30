@@ -51,10 +51,10 @@ abstract final class _NotificationFixtures {
     'readAtUtc': null,
     'isPinned': false,
     'pinnedAtUtc': null,
-    'category': 'task',
+    'category': 'Task',
     'groupKey': 'project:project-1',
     'metadataJson': null,
-    'priority': 'normal',
+    'priority': 'Normal',
     'digestOnly': false,
   };
 }

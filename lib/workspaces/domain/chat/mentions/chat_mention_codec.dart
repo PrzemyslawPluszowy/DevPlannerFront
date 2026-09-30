@@ -52,7 +52,7 @@ abstract final class ChatMentionCodec {
   /// Buduje token transportu dla wskazanego użytkownika.
   static String tokenFor(String userId) => '@${userId.trim()}';
 
-  /// Buduje etykietę prezentacji: nazwa, login, a na końcu UUID.
+  /// Buduje etykietę prezentacji bez ujawniania technicznego UUID.
   static String labelFor({
     required String userId,
     String? displayName,
@@ -128,15 +128,19 @@ abstract final class ChatMentionCodec {
 
   /// Podmienia tokeny `@<uuid>` na etykiety do prezentacji.
   ///
-  /// Nieznany identyfikator zostaje jako token, żeby renderer nigdy nie ukrył
-  /// wzmianki, której etykiety nie zna.
-  static String renderText(String text, Map<String, String> labelsByUserId) {
-    if (text.isEmpty || labelsByUserId.isEmpty) return text;
+  /// Nieznany identyfikator otrzymuje bezpieczny fallback zamiast surowego UUID.
+  static String renderText(
+    String text,
+    Map<String, String> labelsByUserId, {
+    String fallbackLabel = 'Member',
+  }) {
+    if (text.isEmpty) return text;
     return text.replaceAllMapped(_uuidToken, (match) {
       final userId = match.group(1)!;
       final label =
           labelsByUserId[userId] ?? labelsByUserId[_normalize(userId)];
-      return label == null ? match.group(0)! : '$trigger$label';
+      final visibleLabel = label?.trim();
+      return '$trigger${visibleLabel == null || visibleLabel.isEmpty ? fallbackLabel : visibleLabel}';
     });
   }
 

@@ -86,9 +86,13 @@ abstract final class ChatFormatCommands {
   /// Renderer historii może nadal bezpiecznie wyświetlić starsze ścieżki app.
   static bool isSafeLink(String? value) {
     final url = value?.trim();
-    if (url == null || url.isEmpty) return false;
-    final lower = url.toLowerCase();
-    return lower.startsWith('http://') || lower.startsWith('https://');
+    if (url == null || url.isEmpty || url.length > 2048) return false;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return false;
+    return (uri.scheme == 'http' || uri.scheme == 'https') &&
+        uri.hasAuthority &&
+        uri.host.isNotEmpty &&
+        uri.userInfo.isEmpty;
   }
 
   /// Domyślnie proponowany schemat dla adresu bez protokołu.
@@ -97,10 +101,13 @@ abstract final class ChatFormatCommands {
     if (url.isEmpty) return url;
     // Pozostaw ścieżki bez zmian, aby `isSafeLink` mógł je odrzucić jawnie.
     if (url.startsWith('/')) return url;
-    final lower = url.toLowerCase();
-    if (lower.startsWith('http://') || lower.startsWith('https://')) {
+    final uri = Uri.tryParse(url);
+    if (uri != null &&
+        (uri.scheme == 'http' || uri.scheme == 'https') &&
+        uri.hasAuthority) {
       return url;
     }
+    if (RegExp('^[a-zA-Z][a-zA-Z0-9+.-]*:').hasMatch(url)) return url;
     return 'https://$url';
   }
 }

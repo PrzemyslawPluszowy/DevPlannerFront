@@ -313,6 +313,17 @@ final class StorageRepositoryImpl extends ApiRepository
   );
 
   @override
+  Future<Either<ApiError, Unit>> dismissSharedFile(String fileId) =>
+      guardApiCall(
+        () async {
+          await _api.dismissSharedFile(fileId);
+          return unit;
+        },
+        fallbackMessage: 'Nie udało się ukryć pliku na liście udostępnionych.',
+        parsingMessage: 'Backend zwrócił nieprawidłową odpowiedź.',
+      );
+
+  @override
   Future<Either<ApiError, Unit>> deleteFile(String fileId) => guardApiCall(
     () async {
       await _api.deleteFile(fileId);
@@ -340,6 +351,23 @@ final class StorageRepositoryImpl extends ApiRepository
       UpdateStorageFileDescriptionPayload(manualDescription: description),
     ),
     fallbackMessage: 'Nie udało się zaktualizować opisu pliku.',
+    parsingMessage: 'Backend zwrócił nieprawidłowe dane pliku.',
+  );
+
+  @override
+  Future<Either<ApiError, StorageFileResponse>> renameFile({
+    required String fileId,
+    required String fileName,
+    String? expectedConcurrencyToken,
+  }) => guardApiCall(
+    () => _api.renameFile(
+      fileId,
+      RenameStorageFilePayload(
+        fileName: fileName,
+        expectedConcurrencyToken: expectedConcurrencyToken,
+      ),
+    ),
+    fallbackMessage: 'Nie udało się zmienić nazwy pliku.',
     parsingMessage: 'Backend zwrócił nieprawidłowe dane pliku.',
   );
 
@@ -380,6 +408,20 @@ final class StorageRepositoryImpl extends ApiRepository
     ),
     fallbackMessage: 'Nie udało się przywrócić wersji pliku.',
     parsingMessage: 'Backend zwrócił nieprawidłowe dane pliku.',
+  );
+
+  @override
+  Future<Either<ApiError, Unit>> deleteFileVersion({
+    required String fileId,
+    required int version,
+    required int expectedVersion,
+  }) => guardApiCall(
+    () async {
+      await _api.deleteFileVersion(fileId, version, expectedVersion);
+      return unit;
+    },
+    fallbackMessage: 'Nie udało się usunąć poprzedniej wersji pliku.',
+    parsingMessage: 'Backend zwrócił nieprawidłową odpowiedź.',
   );
 
   @override

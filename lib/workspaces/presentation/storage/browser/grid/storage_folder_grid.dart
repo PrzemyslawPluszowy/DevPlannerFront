@@ -112,10 +112,18 @@ class _FolderCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(
-                  AppIcons.folder,
-                  size: 24,
-                  color: Theme.of(context).colorScheme.primary,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    AppIcons.folder,
+                    size: 23,
+                    color: Color(0xFFD58A00),
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(

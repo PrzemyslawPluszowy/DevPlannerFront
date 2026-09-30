@@ -137,6 +137,73 @@ void main() {
   });
 
   group('kontrakt bledow standalone DevPlanner', () {
+    test('zachowuje Retry-After w sekundach jako czas UTC', () {
+      final before = DateTime.now().toUtc();
+      final error = DioException.badResponse(
+        statusCode: 429,
+        requestOptions: RequestOptions(path: '/api/test'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/api/test'),
+          statusCode: 429,
+          headers: Headers.fromMap({
+            'retry-after': ['30'],
+          }),
+        ),
+      );
+
+      final result = ApiError.fromDioException(
+        error,
+        fallbackMessage: 'Fallback',
+      );
+
+      expect(result.retryAfterUtc, isNotNull);
+      expect(result.retryAfterUtc!.isUtc, isTrue);
+      expect(
+        result.retryAfterUtc!.difference(before).inSeconds,
+        inInclusiveRange(29, 30),
+      );
+    });
+
+    test('parsuje datę HTTP Retry-After i ignoruje niepoprawną wartość', () {
+      final error = DioException.badResponse(
+        statusCode: 429,
+        requestOptions: RequestOptions(path: '/api/test'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/api/test'),
+          statusCode: 429,
+          headers: Headers.fromMap({
+            'retry-after': ['Wed, 21 Oct 2015 07:28:00 GMT'],
+          }),
+        ),
+      );
+      final invalid = DioException.badResponse(
+        statusCode: 429,
+        requestOptions: RequestOptions(path: '/api/test'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/api/test'),
+          statusCode: 429,
+          headers: Headers.fromMap({
+            'retry-after': ['later'],
+          }),
+        ),
+      );
+
+      expect(
+        ApiError.fromDioException(
+          error,
+          fallbackMessage: 'Fallback',
+        ).retryAfterUtc,
+        DateTime.utc(2015, 10, 21, 7, 28),
+      );
+      expect(
+        ApiError.fromDioException(
+          invalid,
+          fallbackMessage: 'Fallback',
+        ).retryAfterUtc,
+        isNull,
+      );
+    });
+
     test('zachowuje kod, komunikat i traceId z odpowiedzi 409', () {
       final error = DioException.badResponse(
         statusCode: 409,

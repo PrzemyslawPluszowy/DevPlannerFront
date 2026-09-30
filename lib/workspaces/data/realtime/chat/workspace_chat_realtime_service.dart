@@ -1,63 +1,13 @@
 import 'dart:async';
 
-import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/realtime/chat/chat_realtime_event_mapper.dart';
-import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
+import 'package:devplanner/workspaces/data/realtime/chat/chat_realtime_transport_event.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:rxdart/rxdart.dart';
 
-/// Surowe zdarzenie z Chat Huba. Payload pozostaje mapą, ponieważ backend
-/// może rozszerzać poszczególne zdarzenia bez wymuszania zmiany UI.
-final class ChatRealtimeEvent {
-  /// Tworzy zdarzenie odebrane z podaną nazwą metody SignalR.
-  const ChatRealtimeEvent({
-    required this.method,
-    required this.payload,
-    this.isReplay = false,
-  });
-
-  /// Nazwa metody klienta, np. `chat.message.created`.
-  final String method;
-
-  /// Znormalizowany payload zdarzenia.
-  final Map<String, dynamic> payload;
-
-  /// Czy zdarzenie pochodzi z `GetConversationEvents`.
-  final bool isReplay;
-
-  /// Id zdarzenia, jeśli backend je dostarczył.
-  String? get eventId => _nonEmptyString(
-    payload['eventId'] ?? payload['EventId'] ?? payload['id'],
-  );
-
-  /// Kursor sekwencji wykorzystywany przy kolejnym replayu.
-  int? get sequence => _toInt(
-    payload['realtimeSequence'] ??
-        payload['sequence'] ??
-        payload['Sequence'] ??
-        payload['revision'] ??
-        payload['Revision'],
-  );
-
-  static String? _nonEmptyString(Object? value) =>
-      value is String && value.isNotEmpty ? value : null;
-
-  static int? _toInt(Object? value) =>
-      value is int ? value : int.tryParse('$value');
-}
-
-/// Błąd transportu, dekodowania albo replayu Chat.
-final class WorkspaceChatRealtimeError {
-  /// Zachowuje oryginalny błąd i stack trace dla warstwy stanu.
-  const WorkspaceChatRealtimeError(this.error, this.stackTrace);
-
-  /// Oryginalny błąd — UI nie powinno go zastępować fallbackiem.
-  final Object error;
-
-  /// Ślad diagnostyczny błędu.
-  final StackTrace stackTrace;
-}
+export 'chat_realtime_transport_event.dart';
+export 'workspace_chat_realtime_factory.dart';
 
 /// Właściciel jednego kontekstu rozmowy Chat.
 ///
@@ -97,7 +47,10 @@ final class WorkspaceChatRealtimeService
   bool _started = false;
   bool _isConnected = false;
   bool _wasConnected = false;
-  bool _replayInFlight = false;
+  int? _replayGeneration;
+  bool _recovering = false;
+  int _generation = 0;
+  final List<({String method, Map<String, dynamic> payload})> _pendingLive = [];
   bool _heartbeatInFlight = false;
   Timer? _presenceHeartbeat;
 
@@ -137,6 +90,7 @@ final class WorkspaceChatRealtimeService
     if (id.isEmpty) throw ArgumentError.value(conversationId, 'conversationId');
     if (_started && _conversationId == id) return;
     if (_started) await stop();
+    _generation++;
     _conversationId = id;
     _started = true;
     _isConnected = false;
@@ -157,6 +111,9 @@ final class WorkspaceChatRealtimeService
   Future<void> stop() async {
     if (!_started) return;
     final id = _conversationId;
+    _generation++;
+    _recovering = false;
+    _pendingLive.clear();
     _started = false;
     _isConnected = false;
     _conversationId = null;
@@ -232,7 +189,7 @@ final class WorkspaceChatRealtimeService
   }
 
   void _registerHandlers() {
-    for (final method in _eventMethods) {
+    for (final method in ChatRealtimeEventMapper.eventMethods) {
       _client.on(method, (arguments) => _handleEvent(method, arguments));
     }
   }
@@ -242,6 +199,7 @@ final class WorkspaceChatRealtimeService
     if (state != WorkspaceSignalRConnectionState.connected || !_started) {
       return;
     }
+    _generation++;
     final reconnect = _wasConnected;
     _wasConnected = true;
     unawaited(_subscribeAndReplay(replay: reconnect));
@@ -250,26 +208,56 @@ final class WorkspaceChatRealtimeService
   Future<void> _subscribeAndReplay({required bool replay}) async {
     final id = _conversationId;
     if (id == null || !_started) return;
+    final generation = _generation;
+    _recovering = replay;
     try {
       await _client.invoke('SubscribeConversation', args: <Object>[id]);
+      if (!_started || generation != _generation) return;
       _startPresenceHeartbeat(id);
       await _sendPresenceHeartbeat(id);
-      if (replay) await _replay(id);
+      if (replay) await _replay(id, generation);
     } catch (error, stackTrace) {
-      _report(error, stackTrace);
+      if (generation == _generation) _report(error, stackTrace);
+    } finally {
+      if (generation == _generation) {
+        _recovering = false;
+        final pending = List.of(_pendingLive);
+        _pendingLive.clear();
+        pending.sort(
+          (a, b) =>
+              (ChatRealtimeEvent(
+                        method: a.method,
+                        payload: a.payload,
+                      ).sequence ??
+                      0)
+                  .compareTo(
+                    ChatRealtimeEvent(
+                          method: b.method,
+                          payload: b.payload,
+                        ).sequence ??
+                        0,
+                  ),
+        );
+        for (final event in pending) {
+          _emit(event.method, event.payload);
+        }
+      }
     }
   }
 
-  Future<void> _replay(String id) async {
-    if (_replayInFlight || !_started) return;
-    _replayInFlight = true;
+  Future<void> _replay(String id, int generation) async {
+    if (_replayGeneration == generation || !_started) return;
+    _replayGeneration = generation;
     try {
       var cursor = _cursor;
-      while (_started && _conversationId == id) {
+      while (_started && _conversationId == id && generation == _generation) {
         final result = await _client.invoke(
           'GetConversationEvents',
           args: <Object>[id, cursor ?? '', 100],
         );
+        if (!_started || _conversationId != id || generation != _generation) {
+          return;
+        }
         final page = _eventMapper.decodeReplay(result);
         if (page.resyncRequired) {
           _emitResyncRequired(id);
@@ -283,14 +271,17 @@ final class WorkspaceChatRealtimeService
         _cursor = cursor;
       }
     } catch (error, stackTrace) {
-      _report(error, stackTrace);
+      if (_started && generation == _generation) {
+        _report(error, stackTrace);
+        _emitResyncRequired(id);
+      }
     } finally {
-      _replayInFlight = false;
+      if (_replayGeneration == generation) _replayGeneration = null;
     }
   }
 
   void _handleEvent(String method, List<Object?>? arguments) {
-    final payload = _mapArgument(arguments);
+    final payload = _eventMapper.mapArgument(arguments);
     if (payload == null) {
       _report(
         FormatException('Nieprawidłowy payload zdarzenia $method.'),
@@ -306,8 +297,17 @@ final class WorkspaceChatRealtimeService
     Map<String, dynamic> payload, {
     bool isReplay = false,
   }) {
+    if (!_started || method == 'chat.inbox.changed') return;
     final normalizedPayload = _eventMapper.normalizeLiveEnvelope(payload);
     if (normalizedPayload == null) return;
+    final eventConversationId = normalizedPayload['conversationId'];
+    if (eventConversationId != null && eventConversationId != _conversationId) {
+      return;
+    }
+    if (_recovering && !isReplay) {
+      _pendingLive.add((method: method, payload: normalizedPayload));
+      return;
+    }
     final event = ChatRealtimeEvent(
       method: method,
       payload: Map<String, dynamic>.unmodifiable(normalizedPayload),
@@ -325,9 +325,7 @@ final class WorkspaceChatRealtimeService
       _cursor = _eventMapper.cursorForSequence(sequence);
     }
     if (!_events.isClosed) _events.add(event);
-    // To zdarzenie unieważnia skrzynkę i nie należy do historii wiadomości.
-    // Nadal przesuwamy kursor replayu, ale nie mapujemy go na event rozmowy.
-    if (method == 'chat.inbox.changed') return;
+
     if (method == 'chat.presence.changed') {
       final snapshot = _eventMapper.mapPresence(normalizedPayload);
       if (snapshot == null) {
@@ -386,247 +384,10 @@ final class WorkspaceChatRealtimeService
     if (!_conversationErrors.isClosed) {
       _conversationErrors.add(
         ChatConversationRealtimeError(
-          kind: _errorKind(error),
+          kind: _eventMapper.mapErrorKind(error),
           message: error.toString(),
         ),
       );
     }
   }
-
-  ChatConversationRealtimeErrorKind _errorKind(Object error) {
-    if (error case ApiError(
-      type: ApiErrorType.unauthorized || ApiErrorType.forbidden,
-    )) {
-      return ChatConversationRealtimeErrorKind.accessRevoked;
-    }
-    return ChatConversationRealtimeErrorKind.transport;
-  }
-
-  Map<String, dynamic>? _mapArgument(List<Object?>? arguments) {
-    final value = arguments?.firstOrNull;
-    if (value is Map<String, dynamic>) return value;
-    if (value is Map) return Map<String, dynamic>.from(value);
-    return null;
-  }
-
-  static const List<String> _eventMethods = <String>[
-    'chat.message.created',
-    'chat.message.updated',
-    'chat.message.deleted',
-    'chat.inbox.changed',
-    'chat.typing.changed',
-    'chat.presence.changed',
-    'chat.user_status.changed',
-    'chat.member.access_revoked',
-    'chat.member.added',
-    'chat.member.left',
-    'chat.member.rejoined',
-    'chat.member.removed',
-    'chat.member.role_changed',
-  ];
-}
-
-/// Sesyjny właściciel subskrypcji realtime Chatu.
-///
-/// Fabryka jest właścicielem połączeń całej sesji: dla tej samej rozmowy
-/// zwraca tę samą subskrypcję, więc przebudowa widoku nie tworzy kolejnego
-/// połączenia SignalR. Połączenie zamyka się, gdy ostatnia dzierżawa rozmowy
-/// zostanie zwolniona, a `closeAll` zamyka wszystko na końcu sesji.
-final class WorkspaceChatRealtimeFactory {
-  /// Tworzy sesyjny właściciel na poświadczeniach jednej sesji.
-  WorkspaceChatRealtimeFactory({
-    required String baseUrl,
-    required WorkspaceRealtimeCredentials credentials,
-  }) : this._(baseUrl, credentials);
-
-  WorkspaceChatRealtimeFactory._(this._baseUrl, this._credentials);
-
-  final String _baseUrl;
-  final WorkspaceRealtimeCredentials _credentials;
-  final Map<String, _PooledChatSubscription> _subscriptions =
-      <String, _PooledChatSubscription>{};
-  WorkspaceChatInboxRealtimeService? _inboxService;
-  bool _closed = false;
-
-  /// Liczba otwartych połączeń; używana przez testy i diagnostykę.
-  int get openConversationCount => _subscriptions.length;
-
-  /// Jedno połączenie sesyjne odbierające sygnały unieważnienia inboxa.
-  WorkspaceChatInboxRealtimeService openInboxInvalidations() {
-    if (_closed) {
-      throw StateError('Sesja realtime Chatu została już zamknięta.');
-    }
-    return _inboxService ??= WorkspaceChatInboxRealtimeService(
-      client: WorkspaceSignalRClient(
-        '$_baseUrl/api/v1/realtime/chat',
-        _credentials,
-      ),
-    );
-  }
-
-  /// Czy właściciel został już zamknięty na końcu sesji.
-  bool get isClosed => _closed;
-
-  /// Otwiera dzierżawę subskrypcji rozmowy.
-  ///
-  /// Powtórne wywołanie dla tej samej rozmowy zwiększa licznik dzierżaw i
-  /// zwraca istniejącą subskrypcję zamiast tworzyć nowe połączenie.
-  WorkspaceChatRealtimeLease open(String conversationId) {
-    final id = conversationId.trim();
-    if (id.isEmpty) throw ArgumentError.value(conversationId, 'conversationId');
-    if (_closed) {
-      throw StateError('Sesja realtime Chatu została już zamknięta.');
-    }
-    final existing = _subscriptions[id];
-    if (existing != null) {
-      existing.refCount++;
-      return WorkspaceChatRealtimeLease._(this, id, existing.service);
-    }
-    final service = WorkspaceChatRealtimeService(
-      client: WorkspaceSignalRClient(
-        '$_baseUrl/api/v1/realtime/chat',
-        _credentials,
-      ),
-    );
-    _subscriptions[id] = _PooledChatSubscription(service);
-    return WorkspaceChatRealtimeLease._(this, id, service);
-  }
-
-  /// Zwalnia jedną dzierżawę rozmowy i zamyka połączenie po ostatniej.
-  Future<void> release(String conversationId) async {
-    final entry = _subscriptions[conversationId];
-    if (entry == null) return;
-    entry.refCount--;
-    if (entry.refCount > 0) return;
-    _subscriptions.remove(conversationId);
-    await entry.service.dispose();
-  }
-
-  /// Zamyka wszystkie subskrypcje; wywoływane przy końcu sesji.
-  Future<void> closeAll() async {
-    _closed = true;
-    final entries = _subscriptions.values.toList(growable: false);
-    _subscriptions.clear();
-    for (final entry in entries) {
-      await entry.service.dispose();
-    }
-    await _inboxService?.dispose();
-    _inboxService = null;
-  }
-}
-
-/// Lekki kanał sesyjny: niesie wyłącznie sygnał, że skrzynka wymaga ponownego
-/// odczytu przez REST. Nie przesyła treści, nazw ani identyfikatorów rozmów.
-final class WorkspaceChatInboxRealtimeService {
-  WorkspaceChatInboxRealtimeService({required this.client});
-
-  final WorkspaceSignalRTransport client;
-  final PublishSubject<void> _invalidations = PublishSubject<void>();
-  StreamSubscription<WorkspaceSignalRConnectionState>? _states;
-  bool _started = false;
-  bool _disposed = false;
-
-  Stream<void> get invalidations => _invalidations.stream;
-
-  Future<void> start() async {
-    if (_started || _disposed) return;
-    _started = true;
-    client.on('chat.inbox.changed', _handleInvalidation);
-    _states = client.states.listen((state) {
-      if (_started && state == WorkspaceSignalRConnectionState.connected) {
-        // Initial connect and every reconnect reconcile missed outbox events.
-        _invalidations.add(null);
-      }
-    });
-    try {
-      await client.connect();
-    } catch (_) {
-      _started = false;
-      await _states?.cancel();
-      _states = null;
-      rethrow;
-    }
-  }
-
-  void _handleInvalidation(List<Object?>? arguments) {
-    if (_started && !_invalidations.isClosed) _invalidations.add(null);
-  }
-
-  Future<void> dispose() async {
-    if (_disposed) return;
-    _disposed = true;
-    _started = false;
-    await _states?.cancel();
-    _states = null;
-    await client.disconnect();
-    client.dispose();
-    await _invalidations.close();
-  }
-}
-
-/// Dzierżawa jednej rozmowy na sesyjnym właścicielu realtime.
-///
-/// Dzierżawa realizuje port rozmowy, więc widok i Cubit nie wiedzą, że
-/// połączenie jest współdzielone. `dispose` zwalnia wyłącznie tę dzierżawę.
-final class WorkspaceChatRealtimeLease
-    implements ChatConversationRealtimeClient {
-  WorkspaceChatRealtimeLease._(
-    this._owner,
-    this._conversationId,
-    this._service,
-  );
-
-  final WorkspaceChatRealtimeFactory _owner;
-  final String _conversationId;
-  final WorkspaceChatRealtimeService _service;
-  bool _disposed = false;
-
-  /// Rozmowa, której dotyczy dzierżawa.
-  String get conversationId => _conversationId;
-
-  /// Strumień stanu współdzielonego połączenia.
-  Stream<WorkspaceSignalRConnectionState> get connectionStates =>
-      _service.connectionStates;
-
-  @override
-  Stream<ChatConversationRealtimeEvent> get conversationEvents =>
-      _service.conversationEvents;
-
-  @override
-  Stream<ChatConversationRealtimeError> get conversationErrors =>
-      _service.conversationErrors;
-
-  @override
-  Stream<ChatConversationPresenceSnapshot?> get presenceSnapshots =>
-      _service.presenceSnapshots;
-
-  @override
-  Stream<ChatUserStatusChanged> get userStatusChanges =>
-      _service.userStatusChanges;
-
-  @override
-  Future<void> start(String conversationId) => _service.start(conversationId);
-
-  @override
-  Future<void> stop() => _service.stop();
-
-  @override
-  Future<void> setTyping(bool isTyping) => _service.setTyping(isTyping);
-
-  @override
-  Future<void> heartbeatPresence() => _service.heartbeatPresence();
-
-  /// Zwalnia dzierżawę; połączenie zamyka się po ostatniej dzierżawie.
-  Future<void> dispose() async {
-    if (_disposed) return;
-    _disposed = true;
-    await _owner.release(_conversationId);
-  }
-}
-
-final class _PooledChatSubscription {
-  _PooledChatSubscription(this.service);
-
-  final WorkspaceChatRealtimeService service;
-  int refCount = 1;
 }

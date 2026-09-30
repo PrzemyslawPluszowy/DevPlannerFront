@@ -82,8 +82,39 @@ abstract final class ChatEmojiSkinTone {
     if (!entry.skinTones || toneIndex <= 0 || toneIndex >= modifiers.length) {
       return entry.emoji;
     }
-    return '${entry.emoji}${modifiers[toneIndex]}';
+    final codePoints = entry.emoji.runes.toList(growable: false);
+    final modifierIndex = codePoints.indexWhere(_isSkinToneModifierBase);
+    if (modifierIndex < 0) return entry.emoji;
+    final afterBase = modifierIndex + 1;
+    final hasTone =
+        afterBase < codePoints.length &&
+        codePoints[afterBase] >= 0x1f3fb &&
+        codePoints[afterBase] <= 0x1f3ff;
+    final suffixStart = hasTone ? afterBase + 1 : afterBase;
+    return String.fromCharCodes(<int>[
+      ...codePoints.take(afterBase),
+      modifiers[toneIndex].runes.single,
+      ...codePoints.skip(suffixStart),
+    ]);
   }
+
+  static bool _isSkinToneModifierBase(int codePoint) =>
+      (codePoint >= 0x1f44a && codePoint <= 0x1f450) ||
+      codePoint == 0x1f4aa ||
+      codePoint == 0x1f590 ||
+      (codePoint >= 0x1f595 && codePoint <= 0x1f596) ||
+      (codePoint >= 0x1f645 && codePoint <= 0x1f64f) ||
+      codePoint == 0x1f6a3 ||
+      (codePoint >= 0x1f6b4 && codePoint <= 0x1f6b6) ||
+      codePoint == 0x1f6c0 ||
+      codePoint == 0x1f6cc ||
+      (codePoint >= 0x1f3c2 && codePoint <= 0x1f3c4) ||
+      codePoint == 0x1f3c7 ||
+      (codePoint >= 0x1f3ca && codePoint <= 0x1f3cc) ||
+      (codePoint >= 0x1f466 && codePoint <= 0x1f487) ||
+      (codePoint >= 0x1f90c && codePoint <= 0x1f93a) ||
+      (codePoint >= 0x1f93c && codePoint <= 0x1f9dd) ||
+      (codePoint >= 0x1fac3 && codePoint <= 0x1fac5);
 }
 
 /// Kuratorowany katalog emoji wspólny dla composera, reakcji i statusu.

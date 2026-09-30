@@ -46,6 +46,22 @@ final class ChatAttachmentUploadPortAdapter
   }
 
   @override
+  Future<String> copyPrivateFileToSession({
+    required String conversationId,
+    required String sessionId,
+    required String sourceStorageFileId,
+  }) async {
+    final prepared = await _unwrap(
+      _sessionRepository.copyPrivateFileToSession(
+        conversationId: conversationId,
+        sessionId: sessionId,
+        sourceStorageFileId: sourceStorageFileId,
+      ),
+    );
+    return prepared.storageFileId;
+  }
+
+  @override
   Future<ChatAttachmentTicket> createTicket({
     required String sessionId,
     required StorageUploadInput input,

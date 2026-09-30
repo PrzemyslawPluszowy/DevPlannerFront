@@ -82,6 +82,19 @@ void main() {
         });
         expect(payload.type, entry.key);
         expect(payload.toJson()['type'], entry.value);
+
+        final searchItem = ChatSearchItemResponse.fromJson({
+          'messageId': 'message-1',
+          'conversationId': 'conversation-1',
+          'authorUserId': 'user-1',
+          'conversationType': entry.value,
+          'text': 'tekst',
+          'score': 1,
+          'createdAtUtc': '2026-09-24T10:00:00Z',
+          'hasMention': false,
+        });
+        expect(searchItem.conversationType, entry.key);
+        expect(searchItem.toJson()['conversationType'], entry.value);
       }
 
       for (final entry in scopeKinds.entries) {

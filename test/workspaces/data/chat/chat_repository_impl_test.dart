@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
@@ -60,6 +62,56 @@ void main() {
       expect(result.getOrElse(List.empty), expected);
       verify(() => api.listMessages('conversation-1', limit: 100)).called(1);
     });
+
+    test(
+      'sanityzuje wklejone formaty Quilla przed wysłaniem wiadomości',
+      () async {
+        final api = _MockChatApi();
+        when(() => api.sendMessage('conversation-1', any())).thenAnswer(
+          (_) async => _ChatRepositoryFixture.message(),
+        );
+        final delta = jsonEncode([
+          {
+            'insert': 'ważne',
+            'attributes': {'bold': true, 'color': '#ff0000', 'header': 2},
+          },
+          {
+            'insert': '\n',
+            'attributes': {'list': 'bullet'},
+          },
+        ]);
+
+        final result = await ChatRepositoryImpl(api).sendConversationMessage(
+          ChatSendMessageCommand(
+            conversationId: 'conversation-1',
+            clientMessageId: 'client-1',
+            text: 'ważne',
+            payloadHash: 'payload-hash-1',
+            deltaJson: delta,
+          ),
+        );
+
+        expect(result.isRight(), isTrue);
+        final payload =
+            verify(
+                  () => api.sendMessage('conversation-1', captureAny()),
+                ).captured.single
+                as SendChatMessagePayload;
+        expect(
+          jsonDecode(payload.deltaJson!),
+          [
+            {
+              'insert': 'ważne',
+              'attributes': {'bold': true},
+            },
+            {
+              'insert': '\n',
+              'attributes': {'list': 'bullet'},
+            },
+          ],
+        );
+      },
+    );
 
     test(
       'wysyła wyłącznie tekst i idempotency key aktualnego kontraktu',
@@ -140,7 +192,20 @@ void main() {
         ),
       ).thenAnswer(
         (_) async => CursorPageResponse(
-          items: [_ChatRepositoryFixture.message()],
+          items: [
+            _ChatRepositoryFixture.message(
+              mentionLabels: const {'user-2': 'Ola Kowalska'},
+              replyPreview: const ChatMessageReplyPreviewResponse(
+                messageId: 'original-1',
+                authorUserId: 'user-3',
+                authorLabel: 'Jan Nowak',
+                text: 'Oryginalna treść',
+                isDeleted: false,
+                hasAttachments: false,
+                mentionLabels: {'user-2': 'Ola Kowalska'},
+              ),
+            ),
+          ],
           nextCursor: 'oldest',
         ),
       );
@@ -169,6 +234,23 @@ void main() {
             .text,
         'Treść',
       );
+      expect(
+        messages
+            .getOrElse(() => throw StateError('Brak historii.'))
+            .items
+            .single
+            .mentionLabels,
+        const {'user-2': 'Ola Kowalska'},
+      );
+      final replyPreview = messages
+          .getOrElse(() => throw StateError('Brak historii.'))
+          .items
+          .single
+          .replyPreview;
+      expect(replyPreview?.messageId, 'original-1');
+      expect(replyPreview?.authorLabel, 'Jan Nowak');
+      expect(replyPreview?.text, 'Oryginalna treść');
+      expect(replyPreview?.mentionLabels, const {'user-2': 'Ola Kowalska'});
     });
 
     test(
@@ -285,17 +367,22 @@ abstract final class _ChatRepositoryFixture {
     createdAtUtc: DateTime.utc(2026),
   );
 
-  static ChatMessageResponse message({List<ChatLinkResponse>? links}) =>
-      ChatMessageResponse(
-        id: 'message-1',
-        conversationId: 'conversation-1',
-        authorUserId: 'user-1',
-        clientMessageId: 'client-1',
-        text: 'Treść',
-        payloadHash: 'HASH',
-        version: 1,
-        createdAtUtc: DateTime.utc(2026),
-        isDeleted: false,
-        links: links,
-      );
+  static ChatMessageResponse message({
+    List<ChatLinkResponse>? links,
+    Map<String, String>? mentionLabels,
+    ChatMessageReplyPreviewResponse? replyPreview,
+  }) => ChatMessageResponse(
+    id: 'message-1',
+    conversationId: 'conversation-1',
+    authorUserId: 'user-1',
+    clientMessageId: 'client-1',
+    text: 'Treść',
+    payloadHash: 'HASH',
+    version: 1,
+    createdAtUtc: DateTime.utc(2026),
+    isDeleted: false,
+    links: links,
+    mentionLabels: mentionLabels,
+    replyPreview: replyPreview,
+  );
 }

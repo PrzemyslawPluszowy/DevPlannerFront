@@ -41,10 +41,6 @@ enum ChatNotificationPreference {
   highOnly,
 }
 
-/// Status zaproszenia do rozmowy.
-@JsonEnum(fieldRename: FieldRename.pascal)
-enum ChatInvitationStatus { pending, accepted, expired, cancelled }
-
 /// Stan dostarczenia wiadomości.
 @JsonEnum(fieldRename: FieldRename.pascal)
 enum ChatMessageDeliveryStatus { sending, sent, delivered, read, failed }

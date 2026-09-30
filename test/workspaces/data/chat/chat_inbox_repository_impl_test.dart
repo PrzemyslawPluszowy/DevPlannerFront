@@ -1,5 +1,5 @@
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_inbox_api.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_inbox_repository_impl.dart';
 import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart';
@@ -9,7 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-final class _MockChatApi extends Mock implements ChatApi {}
+final class _MockChatApi extends Mock implements ChatInboxApi {}
 
 void main() {
   late _MockChatApi api;

@@ -48,6 +48,90 @@ void main() {
   });
 
   group('ChatRealtimeEventMapper PascalCase backend envelope', () {
+    test('mapuje zmiany załącznika i przypięcia', () {
+      final mapper = ChatRealtimeEventMapper();
+      for (final method in <String>[
+        'chat.attachment.added',
+        'chat.attachment.removed',
+        'chat.attachment_ready',
+      ]) {
+        final event = mapper.map(
+          method: method,
+          payload: <String, dynamic>{
+            'ConversationId': 'conversation-1',
+            'MessageId': 'message-1',
+          },
+          isReplay: false,
+        );
+        expect(
+          event?.kind,
+          ChatConversationRealtimeEventKind.messageSnapshotChanged,
+        );
+        expect(event?.messageId, 'message-1');
+      }
+      for (final method in <String>[
+        'chat.message.pinned',
+        'chat.message.unpinned',
+      ]) {
+        final event = mapper.map(
+          method: method,
+          payload: <String, dynamic>{
+            'ConversationId': 'conversation-1',
+            'MessageId': 'message-1',
+          },
+          isReplay: false,
+        );
+        expect(
+          event?.kind,
+          ChatConversationRealtimeEventKind.conversationPinsChanged,
+        );
+        expect(event?.messageId, 'message-1');
+      }
+    });
+
+    test('mapuje aktualizację, archiwizację i przywrócenie rozmowy', () {
+      final mapper = ChatRealtimeEventMapper();
+      for (final method in <String>[
+        'chat.conversation.updated',
+        'chat.conversation.archived',
+        'chat.conversation.restored',
+      ]) {
+        final event = mapper.map(
+          method: method,
+          payload: <String, dynamic>{'ConversationId': 'conversation-1'},
+          isReplay: false,
+        );
+        expect(
+          event?.kind,
+          ChatConversationRealtimeEventKind.conversationChanged,
+        );
+      }
+    });
+
+    test('mapuje zmianę i usunięcie reakcji jako odświeżenie wiadomości', () {
+      final mapper = ChatRealtimeEventMapper();
+      for (final method in <String>[
+        'chat.reaction.changed',
+        'chat.reaction.removed',
+      ]) {
+        final event = mapper.map(
+          method: method,
+          payload: <String, dynamic>{
+            'ConversationId': 'conversation-1',
+            'MessageId': 'message-1',
+            'UserId': 'user-2',
+          },
+          isReplay: false,
+        );
+        expect(event, isNotNull);
+        expect(
+          event!.kind,
+          ChatConversationRealtimeEventKind.messageSnapshotChanged,
+        );
+        expect(event.messageId, 'message-1');
+      }
+    });
+
     test('rozpoznaje odczyt i dostarczenie jako zmianę statusu wiadomości', () {
       final mapper = ChatRealtimeEventMapper();
       for (final eventType in <String>[
@@ -69,6 +153,10 @@ void main() {
           ChatConversationRealtimeEventKind.messageDeliveryChanged,
         );
         expect(event.messageId, 'message-1');
+        expect(
+          event.isReadReceipt,
+          eventType == 'chat.message.read',
+        );
       }
     });
 
@@ -105,9 +193,20 @@ void main() {
         expect(event.message?.clientMessageId, 'client-1');
         expect(event.message?.deltaJson, '{"ops":[{"insert":"Cześć"}]}');
         expect(event.message?.replyToMessageId, 'message-parent-1');
+        expect(event.message?.replyPreview?.messageId, 'message-parent-1');
+        expect(event.message?.replyPreview?.authorLabel, 'Jan Kowalski');
+        expect(event.message?.replyPreview?.text, 'Treść cytatu');
         expect(event.message?.threadRootMessageId, 'thread-1');
         expect(event.message?.isEdited, isTrue);
         expect(event.message?.deletedAtUtc, DateTime.utc(2026, 9, 13, 10, 1));
+        expect(event.message?.mentionLabels, {'user-2': 'Ola Nowak'});
+        expect(event.message?.deliveredToCount, 3);
+        expect(event.message?.readByCount, 2);
+        expect(event.message?.reactions.single.emoji, '🔥');
+        expect(event.message?.reactions.single.count, 4);
+        expect(event.message?.reactions.single.reactedByCurrentUser, isTrue);
+        expect(event.message?.attachments.single.fileName, 'brief.docx');
+        expect(event.message?.attachments.single.isOfficeDocument, isTrue);
         expect(updated?.kind, ChatConversationRealtimeEventKind.messageUpdated);
         expect(updated?.message?.version, 6);
       },
@@ -223,7 +322,7 @@ void main() {
 abstract final class _ChatRealtimeBackendPayload {
   /// Pełny `ChatMessageResponse` serializowany przez `ChatRealtimeEventFactory`.
   static const String fullMessageJson =
-      '{"Id":"message-1","ConversationId":"conversation-1","AuthorUserId":"user-1","ClientMessageId":"client-1","Text":"Cześć","DeltaJson":"{\\"ops\\":[{\\"insert\\":\\"Cześć\\"}]}","ReplyToMessageId":"message-parent-1","PayloadHash":"HASH-1","Version":6,"CreatedAtUtc":"2026-09-13T10:00:00Z","IsDeleted":false,"Links":[],"Reactions":[],"ThreadRootMessageId":"thread-1","IsEdited":true,"DeletedAtUtc":"2026-09-13T10:01:00Z"}';
+      '{"Id":"message-1","ConversationId":"conversation-1","AuthorUserId":"user-1","ClientMessageId":"client-1","Text":"Cześć","DeltaJson":"{\\"ops\\":[{\\"insert\\":\\"Cześć\\"}]}","ReplyToMessageId":"message-parent-1","PayloadHash":"HASH-1","Version":6,"CreatedAtUtc":"2026-09-13T10:00:00Z","IsDeleted":false,"Links":[],"Reactions":[{"Emoji":"🔥","Count":4,"ReactedByCurrentUser":true}],"ThreadRootMessageId":"thread-1","IsEdited":true,"DeletedAtUtc":"2026-09-13T10:01:00Z","Attachments":[{"Id":"attachment-1","MessageId":"message-1","StorageFileId":"file-1","AttachedByUserId":"user-1","Position":0,"CreatedAtUtc":"2026-09-13T10:00:00Z","FileName":"brief.docx","FileSizeBytes":256,"ContentType":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","IsAvailable":true,"IsOfficeDocument":true}],"DeliveredToCount":3,"ReadByCount":2,"MentionLabels":{"user-2":"Ola Nowak"},"ReplyPreview":{"MessageId":"message-parent-1","AuthorUserId":"user-3","AuthorLabel":"Jan Kowalski","Text":"Treść cytatu","IsDeleted":false,"HasAttachments":false,"MentionLabels":{}}}';
 
   /// Payload usunięcia, odczytywany po nazwie `MessageId` przez backendowy test.
   static const String deletedMessageJson =

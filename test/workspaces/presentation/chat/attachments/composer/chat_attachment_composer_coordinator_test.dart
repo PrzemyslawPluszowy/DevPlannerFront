@@ -61,6 +61,10 @@ void main() {
     expect(first.consumedSessions, ['session-1']);
     expect(second.consumedSessions, ['session-2']);
     expect(draft.attachmentIds, isEmpty);
+    expect(coordinator.selection.attachments, isEmpty);
+    coordinator.selectInputs([input('new')]);
+    expect(coordinator.selection.attachments.single.input.name, 'new.txt');
+    expect(coordinator.inputConstraints.alreadySelectedFileCount, 1);
     await coordinator.close();
   });
 

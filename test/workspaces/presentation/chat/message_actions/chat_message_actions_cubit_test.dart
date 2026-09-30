@@ -11,12 +11,13 @@ void main() {
     () async {
       final repository = _MessageActionsRepository();
       final cubit = ChatMessageActionsCubit(repository: repository);
-      final message = _Fixture.message();
+      final message = _Fixture.message(deltaJson: '[{"insert":"Stara treść"}]');
 
       await cubit.edit(message: message, text: ' Zmieniona treść ');
 
       expect(repository.editVersion, 4);
       expect(repository.editText, 'Zmieniona treść');
+      expect(repository.editDelta, isNull);
       expect(cubit.state, isA<ChatMessageActionsUpdated>());
       expect((cubit.state as ChatMessageActionsUpdated).message.version, 5);
       await cubit.close();
@@ -87,6 +88,7 @@ final class _MessageActionsRepository implements ChatMessageActionsRepository {
   int? editVersion;
   int? deleteVersion;
   String? editText;
+  String? editDelta;
 
   @override
   Future<Either<ApiError, ChatMessage>> editMessage({
@@ -97,6 +99,7 @@ final class _MessageActionsRepository implements ChatMessageActionsRepository {
   }) async {
     editVersion = version;
     editText = text;
+    editDelta = deltaJson;
     return editResult ??
         Right(_Fixture.message(text: text, version: version + 1));
   }
@@ -172,17 +175,21 @@ final class _MessageActionsRepository implements ChatMessageActionsRepository {
 }
 
 abstract final class _Fixture {
-  static ChatMessage message({String text = 'Treść', int version = 4}) =>
-      ChatMessage(
-        id: 'message-1',
-        conversationId: 'conversation-1',
-        authorUserId: 'user-1',
-        clientMessageId: 'client-1',
-        text: text,
-        payloadHash: 'hash',
-        version: version,
-        createdAtUtc: DateTime.utc(2026),
-        isDeleted: false,
-        deliveryState: ChatMessageDeliveryState.sent,
-      );
+  static ChatMessage message({
+    String text = 'Treść',
+    String? deltaJson,
+    int version = 4,
+  }) => ChatMessage(
+    id: 'message-1',
+    conversationId: 'conversation-1',
+    authorUserId: 'user-1',
+    clientMessageId: 'client-1',
+    text: text,
+    deltaJson: deltaJson,
+    payloadHash: 'hash',
+    version: version,
+    createdAtUtc: DateTime.utc(2026),
+    isDeleted: false,
+    deliveryState: ChatMessageDeliveryState.sent,
+  );
 }

@@ -50,134 +50,6 @@ class _ChatApi implements ChatApi {
   }
 
   @override
-  Future<ChatLinkPolicyDtoResponse> loadLinkPolicy() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatLinkPolicyDtoResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/link-policy',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatLinkPolicyDtoResponse _value;
-    try {
-      _value = ChatLinkPolicyDtoResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<List<ChatDirectoryUserResponse>> searchDirectory({
-    required String query,
-    int? limit,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'q': query, r'limit': limit};
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ChatDirectoryUserResponse>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/users',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ChatDirectoryUserResponse> _value;
-    try {
-      _value = _result.data!
-          .map(
-            (dynamic i) =>
-                ChatDirectoryUserResponse.fromJson(i as Map<String, dynamic>),
-          )
-          .toList();
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatInboxPageResponse> loadInbox({
-    String? cursor,
-    int? limit,
-    String? filter,
-    String? query,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'cursor': cursor,
-      r'limit': limit,
-      r'filter': filter,
-      r'query': query,
-    };
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatInboxPageResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/inbox',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatInboxPageResponse _value;
-    try {
-      _value = ChatInboxPageResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatInboxUnreadCountResponse> loadInboxUnreadCount() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatInboxUnreadCountResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/inbox/unread-count',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatInboxUnreadCountResponse _value;
-    try {
-      _value = ChatInboxUnreadCountResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
   Future<List<ChatConversationResponse>> listConversations() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -446,275 +318,6 @@ class _ChatApi implements ChatApi {
   }
 
   @override
-  Future<ChatUserStatusResponse> upsertStatus(
-    UpsertChatUserStatusPayload payload,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(payload.toJson());
-    final _options = _setStreamType<ChatUserStatusResponse>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/users/me/status',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatUserStatusResponse _value;
-    try {
-      _value = ChatUserStatusResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<void> clearStatus() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<void>(
-      Options(method: 'DELETE', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/users/me/status',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    await _dio.fetch<void>(_options);
-  }
-
-  @override
-  Future<ChatUserNotificationPreferenceResponse>
-  getUserNotificationPreferences() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatUserNotificationPreferenceResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/users/me/notification-preferences',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatUserNotificationPreferenceResponse _value;
-    try {
-      _value = ChatUserNotificationPreferenceResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatUserNotificationPreferenceResponse>
-  updateUserNotificationPreferences(
-    UpdateChatUserNotificationPreferencePayload payload,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(payload.toJson());
-    final _options = _setStreamType<ChatUserNotificationPreferenceResponse>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/users/me/notification-preferences',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatUserNotificationPreferenceResponse _value;
-    try {
-      _value = ChatUserNotificationPreferenceResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatUserStatusResponse?> getUserStatus(String userId) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatUserStatusResponse?>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/users/${userId}/status',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>?>(_options);
-    late ChatUserStatusResponse? _value;
-    try {
-      _value = _result.data == null
-          ? null
-          : ChatUserStatusResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatSearchResponse> search({
-    required String query,
-    String? conversationId,
-    String? senderId,
-    String? workspaceId,
-    String? projectId,
-    DateTime? fromUtc,
-    DateTime? toUtc,
-    String? mentionedUserId,
-    int? limit,
-    String? cursor,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'q': query,
-      r'conversationId': conversationId,
-      r'senderId': senderId,
-      r'workspaceId': workspaceId,
-      r'projectId': projectId,
-      r'fromUtc': fromUtc?.toIso8601String(),
-      r'toUtc': toUtc?.toIso8601String(),
-      r'mentionedUserId': mentionedUserId,
-      r'limit': limit,
-      r'cursor': cursor,
-    };
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatSearchResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/search',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatSearchResponse _value;
-    try {
-      _value = ChatSearchResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatSearchFacetsResponse> searchFacets({
-    required String query,
-    String? conversationId,
-    String? senderId,
-    String? workspaceId,
-    String? projectId,
-    DateTime? fromUtc,
-    DateTime? toUtc,
-    String? mentionedUserId,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'q': query,
-      r'conversationId': conversationId,
-      r'senderId': senderId,
-      r'workspaceId': workspaceId,
-      r'projectId': projectId,
-      r'fromUtc': fromUtc?.toIso8601String(),
-      r'toUtc': toUtc?.toIso8601String(),
-      r'mentionedUserId': mentionedUserId,
-    };
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatSearchFacetsResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/search/facets',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatSearchFacetsResponse _value;
-    try {
-      _value = ChatSearchFacetsResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<List<ChatMentionSuggestionResponse>> mentionSuggestions(
-    String conversationId,
-    String query,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'q': query};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ChatMentionSuggestionResponse>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/conversations/${conversationId}/mention-suggestions',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ChatMentionSuggestionResponse> _value;
-    try {
-      _value = _result.data!
-          .map(
-            (dynamic i) => ChatMentionSuggestionResponse.fromJson(
-              i as Map<String, dynamic>,
-            ),
-          )
-          .toList();
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
   Future<CursorPageResponse<ChatMessageResponse>> listMessages(
     String conversationId, {
     String? cursor,
@@ -838,6 +441,39 @@ class _ChatApi implements ChatApi {
   }
 
   @override
+  Future<CopyPrivateFileToChatAttachmentResponse>
+  copyPrivateFileToAttachmentSession(
+    String conversationId,
+    String sessionId,
+    CopyPrivateFileToChatAttachmentPayload payload,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(payload.toJson());
+    final _options = _setStreamType<CopyPrivateFileToChatAttachmentResponse>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/chat/conversations/${conversationId}/attachment-sessions/${sessionId}/private-files',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late CopyPrivateFileToChatAttachmentResponse _value;
+    try {
+      _value = CopyPrivateFileToChatAttachmentResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<CursorPageResponse<ChatMessageResponse>> listThreadMessages(
     String conversationId,
     String threadRootMessageId, {
@@ -936,98 +572,6 @@ class _ChatApi implements ChatApi {
     late ChatMessageWindowResponse _value;
     try {
       _value = ChatMessageWindowResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatLinkPreviewResponse> previewLink(
-    String conversationId,
-    String url,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'url': url};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatLinkPreviewResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/conversations/${conversationId}/link-preview',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatLinkPreviewResponse _value;
-    try {
-      _value = ChatLinkPreviewResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatSnippetResponse> prepareSnippet(
-    String conversationId,
-    ChatSnippetPayload payload,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(payload.toJson());
-    final _options = _setStreamType<ChatSnippetResponse>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/conversations/${conversationId}/snippet',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatSnippetResponse _value;
-    try {
-      _value = ChatSnippetResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatSnippetAttachmentResponse> createSnippetAttachment(
-    String messageId,
-    ChatSnippetPayload payload,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(payload.toJson());
-    final _options = _setStreamType<ChatSnippetAttachmentResponse>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/messages/${messageId}/snippet-attachment',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatSnippetAttachmentResponse _value;
-    try {
-      _value = ChatSnippetAttachmentResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -1186,6 +730,25 @@ class _ChatApi implements ChatApi {
   }
 
   @override
+  Future<void> markRead(String conversationId, String messageId) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<void>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/chat/conversations/${conversationId}/messages/${messageId}/read',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    await _dio.fetch<void>(_options);
+  }
+
+  @override
   Future<ChatMessageResponse> editMessage(
     String messageId,
     UpdateChatMessagePayload payload,
@@ -1287,66 +850,6 @@ class _ChatApi implements ChatApi {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     await _dio.fetch<void>(_options);
-  }
-
-  @override
-  Future<ChatNotificationPreferenceResponse> getNotificationPreference(
-    String conversationId,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ChatNotificationPreferenceResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/conversations/${conversationId}/notification-preference',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatNotificationPreferenceResponse _value;
-    try {
-      _value = ChatNotificationPreferenceResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ChatNotificationPreferenceResponse> setNotificationPreference(
-    String conversationId,
-    UpdateChatNotificationPreferencePayload payload,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(payload.toJson());
-    final _options = _setStreamType<ChatNotificationPreferenceResponse>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/conversations/${conversationId}/notification-preference',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ChatNotificationPreferenceResponse _value;
-    try {
-      _value = ChatNotificationPreferenceResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
   }
 
   @override
@@ -1593,6 +1096,42 @@ class _ChatApi implements ChatApi {
   }
 
   @override
+  Future<HttpResponse<List<int>>> getAttachmentThumbnail(
+    String messageId,
+    String storageFileId,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<HttpResponse<List<int>>>(
+      Options(
+            method: 'GET',
+            headers: _headers,
+            extra: _extra,
+            responseType: ResponseType.bytes,
+          )
+          .compose(
+            _dio.options,
+            '/api/v1/chat/messages/${messageId}/attachments/${storageFileId}/thumbnail',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<int> _value;
+    try {
+      _value = _result.data!.cast<int>();
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
   Future<ChatAttachmentResponse> attachFile(
     String messageId,
     AttachChatFilePayload payload,
@@ -1616,6 +1155,36 @@ class _ChatApi implements ChatApi {
     late ChatAttachmentResponse _value;
     try {
       _value = ChatAttachmentResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<SaveChatAttachmentToStorageResponse> saveAttachmentToStorage(
+    String messageId,
+    String storageFileId,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<SaveChatAttachmentToStorageResponse>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/chat/messages/${messageId}/attachments/${storageFileId}/save-to-storage',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late SaveChatAttachmentToStorageResponse _value;
+    try {
+      _value = SaveChatAttachmentToStorageResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -1769,25 +1338,6 @@ class _ChatApi implements ChatApi {
           .compose(
             _dio.options,
             '/api/v1/chat/messages/${messageId}/reactions/${emoji}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    await _dio.fetch<void>(_options);
-  }
-
-  @override
-  Future<void> markRead(String conversationId, String messageId) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<void>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/v1/chat/conversations/${conversationId}/messages/${messageId}/read',
             queryParameters: queryParameters,
             data: _data,
           )

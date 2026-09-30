@@ -57,7 +57,7 @@ final class ChatPanelSelectionCubit extends Cubit<ChatPanelSelection?> {
     String? targetMessageId,
     String? role,
   }) {
-    if (state?.conversation.id == conversation.id &&
+    if (state?.conversation == conversation &&
         state?.targetMessageId == targetMessageId &&
         state?.role == role) {
       return;

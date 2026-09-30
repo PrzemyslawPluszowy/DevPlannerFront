@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_server_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
@@ -92,8 +93,8 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
     final result = await server.readDraft(conversationId);
     if (result.isLeft()) return null;
     final draft = result.getOrElse(() => null);
-    if (draft != null) _serverDraftVersion = 1;
-    return draft;
+    if (draft != null) _serverDraftVersion = draft.version;
+    return draft?.draft;
   }
 
   void clearAfterSubmit() => unawaited(_clearPersisted());
@@ -108,6 +109,7 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
   }
 
   void _update(ChatComposerDraft draft) {
+    if (isClosed || draft == state.draft) return;
     emit(state.copyWith(draft: draft));
     _timer?.cancel();
     final version = ++_persistenceVersion;
@@ -178,7 +180,10 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
     if (server == null) return;
     if (delete) {
       final removed = await server.deleteDraft(conversationId);
-      if (removed.isRight()) _serverDraftVersion = 0;
+      removed.fold(_serverSyncFailed, (_) {
+        _serverDraftVersion = 0;
+        if (!isClosed) emit(state.copyWith(clearServerSyncFailure: true));
+      });
       return;
     }
     final saved = await server.saveDraft(
@@ -187,18 +192,51 @@ final class ChatComposerCubit extends Cubit<ChatComposerState> {
       version: _serverDraftVersion,
     );
     if (saved.isRight()) {
-      _serverDraftVersion = _serverDraftVersion + 1;
+      _acceptServerSnapshot(
+        saved.getOrElse(() => throw StateError('snapshot')),
+      );
+      return;
+    }
+    final failure = saved.swap().getOrElse(() => throw StateError('error'));
+    // Backend zgłasza konflikt wersji jako 400; retry ma sens wyłącznie po
+    // odczycie rzeczywiście innej wersji. Offline/401/403 nie uruchamiają retry.
+    if (failure.type != ApiErrorType.conflict && failure.statusCode != 400) {
+      _serverSyncFailed(failure);
       return;
     }
     final refreshed = await server.readDraft(conversationId);
-    _serverDraftVersion = refreshed.isRight()
-        ? _serverDraftVersion + 1
-        : _serverDraftVersion;
-    await server.saveDraft(
+    if (refreshed.isLeft()) {
+      _serverSyncFailed(refreshed.swap().getOrElse(() => failure));
+      return;
+    }
+    final snapshot = refreshed.getOrElse(() => null);
+    final refreshedVersion = snapshot?.version ?? 0;
+    if (refreshedVersion == _serverDraftVersion) {
+      _serverSyncFailed(failure);
+      return;
+    }
+    _serverDraftVersion = refreshedVersion;
+    final retried = await server.saveDraft(
       conversationId: conversationId,
       draft: draft,
       version: _serverDraftVersion,
     );
+    retried.fold(_serverSyncFailed, _acceptServerSnapshot);
+  }
+
+  void _acceptServerSnapshot(ChatServerDraftSnapshot snapshot) {
+    _serverDraftVersion = snapshot.version;
+    if (!isClosed && state.serverSyncFailureCode != null) {
+      emit(state.copyWith(clearServerSyncFailure: true));
+    }
+  }
+
+  void _serverSyncFailed(ApiError error) {
+    if (!isClosed) {
+      emit(
+        state.copyWith(serverSyncFailureCode: error.apiCode ?? error.message),
+      );
+    }
   }
 
   Future<void> _deleteCurrent() async {

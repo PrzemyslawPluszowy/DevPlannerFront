@@ -222,6 +222,25 @@ class _StorageApi implements StorageApi {
   }
 
   @override
+  Future<void> dismissSharedFile(String fileId) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<void>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/storage/files/${fileId}/shared-dismissal',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    await _dio.fetch<void>(_options);
+  }
+
+  @override
   Future<StorageFolderResponse> createFolder(
     CreateStorageFolderPayload payload,
   ) async {
@@ -786,6 +805,37 @@ class _StorageApi implements StorageApi {
   }
 
   @override
+  Future<StorageFileResponse> renameFile(
+    String fileId,
+    RenameStorageFilePayload payload,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(payload.toJson());
+    final _options = _setStreamType<StorageFileResponse>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/storage/files/${fileId}/name',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late StorageFileResponse _value;
+    try {
+      _value = StorageFileResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<StorageFileAnalysisJobResponse> retryFileAnalysis(
     String fileId,
   ) async {
@@ -937,6 +987,31 @@ class _StorageApi implements StorageApi {
       rethrow;
     }
     return _value;
+  }
+
+  @override
+  Future<void> deleteFileVersion(
+    String fileId,
+    int version,
+    int expectedVersion,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'expectedVersion': expectedVersion,
+    };
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<void>(
+      Options(method: 'DELETE', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/storage/files/${fileId}/versions/${version}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    await _dio.fetch<void>(_options);
   }
 
   @override

@@ -16,28 +16,31 @@ final class ChatServerDraftRepositoryImpl implements ChatServerDraftRepository {
   static const _errorMapper = ChatApiErrorMapper();
 
   @override
-  Future<Either<ApiError, ChatComposerDraft?>> readDraft(
+  Future<Either<ApiError, ChatServerDraftSnapshot?>> readDraft(
     String conversationId,
   ) => _guard(
     () async {
       final response = await _api.getDraft(conversationId);
       if (response == null) return null;
-      return ChatComposerDraft(
-        text: response.text ?? '',
-        deltaJson: response.deltaJson,
-        replyToMessageId: response.replyToMessageId,
-        attachmentIds:
-            response.attachments
-                ?.map((attachment) => attachment.storageFileId)
-                .toList(growable: false) ??
-            const <String>[],
+      return ChatServerDraftSnapshot(
+        version: response.version,
+        draft: ChatComposerDraft(
+          text: response.text ?? '',
+          deltaJson: response.deltaJson,
+          replyToMessageId: response.replyToMessageId,
+          attachmentIds:
+              response.attachments
+                  ?.map((attachment) => attachment.storageFileId)
+                  .toList(growable: false) ??
+              const <String>[],
+        ),
       );
     },
     code: ChatApiErrorCode.loadDraft,
   );
 
   @override
-  Future<Either<ApiError, ChatComposerDraft>> saveDraft({
+  Future<Either<ApiError, ChatServerDraftSnapshot>> saveDraft({
     required String conversationId,
     required ChatComposerDraft draft,
     required int version,
@@ -53,15 +56,18 @@ final class ChatServerDraftRepositoryImpl implements ChatServerDraftRepository {
           attachmentStorageFileIds: draft.attachmentIds,
         ),
       );
-      return ChatComposerDraft(
-        text: response.text ?? '',
-        deltaJson: response.deltaJson,
-        replyToMessageId: response.replyToMessageId,
-        attachmentIds:
-            response.attachments
-                ?.map((attachment) => attachment.storageFileId)
-                .toList(growable: false) ??
-            const <String>[],
+      return ChatServerDraftSnapshot(
+        version: response.version,
+        draft: ChatComposerDraft(
+          text: response.text ?? '',
+          deltaJson: response.deltaJson,
+          replyToMessageId: response.replyToMessageId,
+          attachmentIds:
+              response.attachments
+                  ?.map((attachment) => attachment.storageFileId)
+                  .toList(growable: false) ??
+              const <String>[],
+        ),
       );
     },
     code: ChatApiErrorCode.saveDraft,

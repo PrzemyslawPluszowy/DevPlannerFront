@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
-import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
-import 'package:devplanner/workspaces/domain/chat/directory/models/chat_directory_entry.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
 import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/management/models/chat_conversation_create_command.dart';
@@ -14,7 +12,7 @@ import 'package:devplanner/workspaces/presentation/chat/creation/chat_creation_s
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/participants/cubit/chat_directory_search_cubit.dart';
-import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_compose_directory_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -213,43 +211,10 @@ class _ChatComposePopoverContentState
                   ...kindRows,
                 Divider(height: compactHeight ? Sizes.p8 : Sizes.p16),
                 Flexible(
-                  child:
-                      BlocBuilder<
-                        ChatDirectorySearchCubit,
-                        ChatDirectorySearchState
-                      >(
-                        builder: (context, state) {
-                          // Stany rozstrzygamy po kolei: krótka fraza nie pyta
-                          // backendu, a trwające wyszukiwanie nie udaje pustego
-                          // wyniku ani gotowej listy.
-                          if (state.query.trim().isEmpty) {
-                            return _recentSection(context);
-                          }
-                          if (state.isQueryTooShort) {
-                            return _hint(
-                              context.l10n.chatCreationSearchTooShort,
-                            );
-                          }
-                          if (state.failureCode != null) {
-                            return _searchFailure(context);
-                          }
-                          if (state.isSearching && state.results.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.all(Sizes.p16),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-                          if (state.isEmpty) {
-                            return _hint(context.l10n.chatCreationSearchEmpty);
-                          }
-                          return _results(
-                            context,
-                            context.read<ChatCreationCubit>(),
-                            creation.isSubmitting,
-                            state.results,
-                          );
-                        },
-                      ),
+                  child: ChatComposeDirectorySection(
+                    recent: widget.recent,
+                    onCreated: widget.onCreated,
+                  ),
                 ),
                 if (creation.failureCode != null)
                   Padding(
@@ -285,146 +250,6 @@ class _ChatComposePopoverContentState
       }),
     );
   }
-
-  Widget _recentSection(BuildContext context) {
-    final recent = widget.recent.take(6).toList(growable: false);
-    if (recent.isEmpty) {
-      return _hint(context.l10n.chatComposeSearchPrompt);
-    }
-    final nowUtc = DateTime.now().toUtc();
-    return ListView(
-      shrinkWrap: true,
-      children: [
-        _sectionTitle(context, context.l10n.chatComposeRecentTitle),
-        for (final item in recent)
-          ChatInboxRow(
-            item: item,
-            nowUtc: nowUtc,
-            onTap: (selected) => widget.onCreated(selected.conversation),
-          ),
-      ],
-    );
-  }
-
-  Widget _searchFailure(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: Sizes.p12),
-    child: Row(
-      children: [
-        Icon(Symbols.error_outline, size: 18, color: context.chatTheme.error),
-        const SizedBox(width: Sizes.p8),
-        Expanded(
-          child: Text(
-            context.l10n.chatCreationFailureTitle,
-            style: context.chatTheme.metadataStyle.copyWith(
-              color: context.chatTheme.error,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () =>
-              unawaited(context.read<ChatDirectorySearchCubit>().retry()),
-          child: Text(context.l10n.chatCreationRetry),
-        ),
-      ],
-    ),
-  );
-
-  Widget _results(
-    BuildContext context,
-    ChatCreationCubit cubit,
-    bool busy,
-    List<ChatDirectoryEntry> entries,
-  ) => ListView.builder(
-    shrinkWrap: true,
-    itemCount: entries.length,
-    itemBuilder: (context, index) {
-      final entry = entries[index];
-      final chat = context.chatTheme;
-      return Padding(
-        padding: const EdgeInsets.only(bottom: Sizes.p4),
-        child: Material(
-          color: chat.listSurface,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            key: ValueKey<String>('chat-compose-entry-${entry.userId}'),
-            borderRadius: BorderRadius.circular(12),
-            onTap: busy ? null : () => unawaited(cubit.startDirectWith(entry)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: Sizes.p8,
-                vertical: Sizes.p6,
-              ),
-              child: Row(
-                children: [
-                  AppUserAvatar(
-                    userId: entry.userId,
-                    displayName: entry.label,
-                    avatarUrl: entry.avatarUrl,
-                    hasCustomAvatar: entry.avatarUrl?.trim().isNotEmpty == true,
-                    radius: 20,
-                    singleInitial: true,
-                  ),
-                  const SizedBox(width: Sizes.p8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          entry.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: chat.contentStyle.copyWith(
-                            color: chat.incomingText,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          entry.login,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: chat.metadataStyle.copyWith(
-                            color: chat.metadataText,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: Sizes.p8),
-                  Icon(
-                    Symbols.chat_bubble_outline_rounded,
-                    size: 18,
-                    color: chat.linkText,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    },
-  );
-
-  Widget _hint(String message) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: Sizes.p12),
-    child: Text(
-      message,
-      style: context.chatTheme.metadataStyle.copyWith(
-        color: context.chatTheme.metadataText,
-      ),
-    ),
-  );
-
-  Widget _sectionTitle(BuildContext context, String label) => Padding(
-    padding: const EdgeInsets.fromLTRB(Sizes.p4, Sizes.p8, Sizes.p4, Sizes.p4),
-    child: Text(
-      label.toUpperCase(),
-      style: context.chatTheme.metadataStyle.copyWith(
-        color: context.chatTheme.metadataText,
-        letterSpacing: .5,
-        fontWeight: FontWeight.w700,
-      ),
-    ),
-  );
 }
 
 class _ChatComposeKindRow extends StatelessWidget {

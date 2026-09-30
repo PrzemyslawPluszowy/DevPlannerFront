@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_prepared_file.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_session.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/ports/chat_attachment_session_repository.dart';
 import 'package:dio/dio.dart';
@@ -31,6 +33,29 @@ final class ChatAttachmentSessionRepositoryImpl
       );
     },
     code: ChatApiErrorCode.createAttachmentSession,
+  );
+
+  @override
+  Future<Either<ApiError, ChatAttachmentPreparedFile>>
+  copyPrivateFileToSession({
+    required String conversationId,
+    required String sessionId,
+    required String sourceStorageFileId,
+  }) => _guard(
+    () async {
+      final response = await _api.copyPrivateFileToAttachmentSession(
+        conversationId,
+        sessionId,
+        CopyPrivateFileToChatAttachmentPayload(
+          storageFileId: sourceStorageFileId,
+        ),
+      );
+      return ChatAttachmentPreparedFile(
+        storageFileId: response.storageFileId,
+        sessionId: response.sessionId,
+      );
+    },
+    code: ChatApiErrorCode.copyPrivateAttachment,
   );
 
   @override

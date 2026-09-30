@@ -16,6 +16,7 @@ enum ChatApiErrorCode {
   actOnMessage,
   searchMessages,
   createAttachmentSession,
+  copyPrivateAttachment,
   loadDraft,
   saveDraft,
   loadDirectory,
@@ -50,6 +51,7 @@ final class ChatApiErrorMapper {
       backendCode: mapped.backendCode,
       apiCode: _codeValue(code),
       traceId: mapped.traceId,
+      retryAfterUtc: mapped.retryAfterUtc,
     );
   }
 
@@ -77,6 +79,8 @@ final class ChatApiErrorMapper {
     ChatApiErrorCode.searchMessages => 'chat.search.failed',
     ChatApiErrorCode.createAttachmentSession =>
       'chat.attachments.session_failed',
+    ChatApiErrorCode.copyPrivateAttachment =>
+      'chat.attachments.private_file_failed',
     ChatApiErrorCode.loadDraft => 'chat.drafts.load_failed',
     ChatApiErrorCode.saveDraft => 'chat.drafts.save_failed',
     ChatApiErrorCode.loadDirectory => 'chat.directory.load_failed',

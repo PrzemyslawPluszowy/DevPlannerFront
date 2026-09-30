@@ -1,5 +1,23 @@
 # DevPlanner standalone — handoff zaakceptowanego stanu
 
+## 2026-09-24 — CHAT-R140: Retry-After wyszukiwarki
+
+W `ApiError` dodano parsowanie `Retry-After` w sekundach i standardowej dacie
+HTTP; `ChatApiErrorMapper` zachowuje termin. `ChatSearchCubit` utrzymuje
+odliczanie i nie rozpoczyna nowego requestu ani ręcznego retry przed upływem
+terminu, a widok pokazuje lokalizowaną liczbę sekund i blokuje przycisk.
+
+Pliki: `lib/foundation/error/api_error.dart`,
+`lib/workspaces/data/chat/errors/chat_api_error_mapper.dart`,
+`lib/workspaces/presentation/chat/search/cubit/chat_search_cubit.dart`,
+`lib/workspaces/presentation/chat/search/components/chat_search_view.dart` i
+komponenty wyszukiwarki, ARB oraz testy błędów/mappera/Cubita.
+`flutter gen-l10n`; trzy zestawy testów **30/30 PASS**; `dart analyze`
+zmienionego zakresu i `git diff --check` PASS. Zmiana Front-only: nie zmienia
+endpointu, DTO, enumów ani backendu. Następny krok: sprawdzić retry po realnym
+429 z nagłówkiem na stagingu; widgetów/goldenów nie uruchamiać przed akceptacją
+UI.
+
 ## 2026-09-23 — jawny probe inicjalizacji ONLYOFFICE
 
 Po kolejnym timeout bez logu zasobu/JS rozszerzono host HTML: `api.js` jest
@@ -8547,8 +8565,10 @@ PASS. Skrypt SQL migracji nie został wygenerowany: zmiana nie dotyczy schematu,
 repo nie ma ustawionego `ConnectionStrings:Workspaces`; EF wymaga także osobnego
 wyboru jednego z dwóch contextów. Front parsera, code block i mapowania formatów
 **25/25 PASS**, `dart analyze` dotkniętych plików i diff check PASS. Bez testów
-widgetowych/golden. Commit `446116a45b387db64f8affcc56a679c0013622b2` wdrożono
-ręcznym skryptem stagingowym. Po deployu API healthy, readiness `ready`,
+widgetowych/golden. Commit `446116a45b387db64f8affcc56a679c0013622b2` zawierał
+poprawkę; skryptem ręcznym stagingowym wdrożono później commit
+`537b92ad36bbd6f5f107ff968f564f4c2eed3849`. Po deployu API healthy,
+readiness `ready`,
 publiczny `/health/ready` zwrócił `Healthy`; migrator potwierdził aktualność
 schematu. Nie wysłano sztucznej wiadomości do cudzej rozmowy. Odbiór wyglądu
 Quilla pozostaje otwarty.
@@ -8702,3 +8722,1096 @@ Weryfikacja: `flutter gen-l10n`, suite search/members **15/15 PASS**,
 `dart analyze` zakresu PASS, `git diff --check` PASS. Bez testów widgetowych,
 bez zmian Backend/API/OpenAPI/enumów i bez deployu. Pozostaje ręczny scenariusz
 Owner → transfer → leave i potwierdzenie w drugiej sesji.
+
+### CHAT-R84 — zgodność nowych linków Quill z Backend (2026-09-23)
+
+Kontrola źródeł wykazała, że composer dopuszczał ścieżki `/…`, a backend
+wymagał pełnego URL HTTP/HTTPS bez userinfo; wysyłka takiego linku kończyła się
+400. Akcja dodawania linku Front akceptuje teraz wyłącznie poprawny absolutny
+HTTP/HTTPS z hostem, bez userinfo i o długości do limitu backendu. Względne
+ścieżki pozostają renderowane dla starszych danych, ale nie trafiają już do
+nowych wiadomości.
+
+Zmienione pliki: `chat_format_commands.dart`,
+`chat_format_commands_test.dart`, plan napraw Chat i ten handoff.
+Weryfikacja: `chat_format_commands_test.dart` **12/12 PASS**, `dart analyze`
+dotkniętego zakresu PASS, `git diff --check` PASS. Bez zmian Backend/API,
+OpenAPI, enumów i deployu. Szersza walidacja typów/wartości Delta i nieznanych
+embedów pozostaje otwarta w audycie.
+
+### CHAT-R85 — audyt możliwości Quill i walidacji Delta (2026-09-23)
+
+Porównano backendowe `ChatMessage.ValidateDelta`, aktywny toolbar i renderer
+historii Front oraz API atrybutów zależności `flutter_quill 11.5.1`. Backend
+przyjmuje szerszy zestaw atrybutów, niż Front oferuje/renderuje, i nie waliduje
+wartości ich typów/domen; nieznane nazwy embedów również nie są odrzucane.
+Quill zna dodatkowe formaty, ale nie są one automatycznie częścią kontraktu
+produktu. Szczegółowa tabela, lista różnic i następne decyzje są w
+`docs/global-chat-repair-plan-2026-09-23.md`, sekcja „Audyt kontraktu Quill ↔
+Backend”.
+
+Log staging z trace `0HNOPHJ607482:00000001` odrzucał `code`, chociaż obecna
+wersja źródła backendu dopuszcza `code: true` po CHAT-R78; request obsłużyła
+więc instancja bez tej wersji walidatora. `code` oznacza inline code, a
+`code-block` format linii — to odrębne atrybuty. To audyt dokumentacyjny:
+bez zmian aplikacyjnych, testów, deployu i uruchamiania widget/golden.
+
+### CHAT-R86 — widoczne markery list w edytorze i historii (2026-09-23)
+
+Quill 11.5.1 renderuje markery listy przez `DefaultStyles.leading`; samo
+ustawienie `lists` nie wystarcza. `ChatComposerRichTextField` przekazuje teraz
+leading w stylu `ChatTheme`, jawnie ustawiając kolor i wagę markerów. W historii
+`ChatRichTextBody` marker dostaje kolor/wagę treści dymka, a jego gutter ma
+minimalną szerokość 24 px i rośnie do naturalnej szerokości `123.`/dłuższych
+numerów zamiast ucinać je.
+
+Weryfikacja: `dart analyze` dotkniętego composera/renderera/codec PASS;
+`chat_rich_text_codec_test.dart` + `chat_code_block_codec_test.dart` **13/13
+PASS**; `git diff --check` PASS. Widget/golden testów nie uruchamiano zgodnie z
+ustaleniem do czasu odbioru UI. Nie zmieniano Backend/API/OpenAPI/enumów i nie
+wdrażano Frontu. Pogłębione pogrubienie oraz widoczność list wymagają runtime
+odbioru na obu motywach; testy domenowe nie dowodzą wyglądu.
+
+# STORAGE-BROWSER-UX — Front + Backend (2026-09-23)
+
+Front zmienia widok plików i folderów: `material_file_icon` dostarcza
+kolorowe ikony, a obrazy są pobierane przez istniejący uwierzytelniony Storage
+repository i pokazywane jako miniatury. Po uwadze o zbyt dużych ikonach
+zmniejszono pole kafelka z 92 do 72 px, a glyph ograniczono do 60% pola;
+wiersz zachowuje 36 px miniatury z glyph o rozmiarze 60%. Kliknięcie ikony
+pliku edytowalnego otwiera edytor; prawy klik i menu trzy kropki korzystają
+z jednego
+`AppContextMenu`. Dodano rename z niezmiennym rozszerzeniem, historię z nazwą
+autora i usuwaniem starszej wersji, oraz naprawiono obsługę błędów tworzenia
+linku i spójność dialogów z motywem Tasks.
+
+Backend dodaje `PUT /api/v1/storage/files/{fileId}/name` z ACL, tokenem
+optimistic concurrency i walidacją rozszerzenia; historię wzbogacono nazwą
+autora, a `DELETE /api/v1/storage/files/{fileId}/versions/{version}` usuwa
+wyłącznie wersję historyczną po kontroli ACL i bieżącego numeru wersji. Bez
+migracji. Zmiana nie dodaje ani nie zmienia enumów transportowych.
+
+Weryfikacja: Front scoped `flutter analyze --no-pub` PASS, `git diff --check`
+pliki Storage PASS; pełny analyze jest obciążony błędami w równolegle
+modyfikowanych plikach Chat. Backend `dotnet build veloryn-workspaces.csproj
+--no-restore` PASS (0 ostrzeżeń/błędów), diff check zmienionych plików Storage
+PASS. Testów i buildów platform nie uruchamiano. Następny krok: ręczny odbiór
+UI oraz kontraktów na stagingu przed publikacją.
+
+# CHAT-R87 — załącznik Chat do prywatnych Moich plików (2026-09-23)
+
+Endpoint `POST /api/v1/chat/messages/{messageId}/attachments/{storageFileId}/save-to-storage`
+kopiuje zawartość załącznika serwer-serwer do prywatnego zakresu bieżącego
+użytkownika. Wymaga członkostwa w rozmowie oraz aktywnej relacji załącznika z
+wiadomością; akceptuje wyłącznie gotowe pliki z czystym skanem. Klucz
+idempotencji jest stabilny dla użytkownika/wiadomości/pliku, a rezerwacja
+Storage przed S3 copy pozwala odzyskać próbę po awarii. Odpowiedź wskazuje, czy
+format nadaje się do OnlyOffice. Chat upload dopuszcza PDF/TXT/CSV oraz DOCX,
+XLSX i PPTX; nowo dopuszczone typy przechodzą istniejącą weryfikację ZIP
+sygnatury i AV.
+
+Front dodał w menu kontekstowym załącznika „Zapisz w Moich plikach” oraz,
+wyłącznie dla obsługiwanego formatu, „Zapisz i otwórz”. Drugie działanie
+pobiera świeże szczegóły prywatnej kopii i otwiera istniejący dialog OnlyOffice
+po ponownym sprawdzeniu `canEditOnline`.
+
+Enum audit: `StorageModule`, `StorageResourceType`, `StorageProcessingStatus`
+i `StorageScanStatus` w klasyfikacji przepływu są bez zmian; pełne wartości
+OpenAPI Backend porównano z enumami Flutter `@JsonValue` i `apiValue`. Brak
+migracji i nowych enumów.
+
+Weryfikacja: Backend targeted **23/23 PASS**, fixture’y OnlyOffice **2/2 PASS**
+po seedowaniu lokalnych kont w testach; build **0 warnings/0 errors**,
+`dotnet format --verify-no-changes` i skrypty EF idempotentne obu kontekstów
+PASS. Front full analyze PASS, adapter załączników + composer **19/19 PASS**,
+`git diff --check` PASS. Pełna suite Backend po poprawie fixture’ów:
+**1315 PASS / 4 SKIP / 0 FAIL**. Manualny odbiór GUI pozostaje otwarty do
+akceptacji wyglądu. Staging bez deployu: ręczny skrypt wymaga czystego checkoutu
+VPS; bieżący Backend ma niezapisane zmiany użytkownika i naprawy.
+
+
+# CHAT-R88 — zmiana nazwy grupy (24.09.2026)
+
+Front dodał akcję „Zmień nazwę rozmowy” do menu nagłówka. Jest dostępna dla
+Ownera/Moderatora w grupach, nie dla Direct, wątków i Resource Chat. Formularz
+ChatTheme zapisuje nazwę przez istniejący kontrakt i zachowuje postingPermission.
+Aktywna selekcja przyjmuje nowy snapshot po odpowiedzi backendu, a inbox jest
+odświeżany. Backend bez zmian.
+
+Dowody: `flutter analyze --no-pub` dotkniętego zakresu PASS;
+`chat_panel_selection_role_test.dart` **6/6 PASS**. Testy widgetowe/goldeny
+pozostają odłożone do akceptacji wyglądu; ręczny runtime odbiór jest otwarty.
+
+
+# CHAT-R89 — czytelne etykiety wzmianek (24.09.2026)
+
+Backend `ChatMessageResponse` zwraca `mentionLabels` z zapisanych relacji
+`ChatMessageMention` i aktywnego katalogu profili. Zapytanie uwzględnia relacje
+dodane w bieżącym `DbContext`, żeby odpowiedź pierwszej wysyłki miała te same
+etykiety co późniejszy odczyt. Flutter przenosi mapę do modelu wiadomości i
+renderuje nazwy w Delta i tekście; brak profilu daje lokalizowany fallback.
+
+Dowody: backend testy historii/OpenAPI **10/10 PASS**, format verify PASS;
+Front analyze zakresu PASS oraz testy codec, transportu, repozytorium i
+selekcji **31/31 PASS**. Pełna suite Backend jest w toku. Brak enumów i migracji.
+Widget/golden/runtime dwóch kont pozostaje otwarty.
+
+
+# CHAT-R90 — jeden kafelek na wielowierszowy blok kodu (24.09.2026)
+
+Parser Rich Text scala kolejne linie z formatem Quill `code-block` o tym samym
+języku w jeden blok renderera. Zmiana języka i zwykły tekst zamykają blok;
+zawartość zachowuje podziały linii i wcięcia. Renderer korzysta z istniejącego
+ciemnego kafelka i kolorowania składni.
+
+Dowody: `chat_rich_text_codec_test.dart` **9/9 PASS**, w tym Delta wygenerowana
+przez `ChatCodeBlockCodec`; `flutter analyze --no-pub` zakresu PASS. UI live i
+historia po API pozostają do odbioru. Widget/goldenów nie uruchamiano.
+
+
+# CHAT-R92 — miniatury zdjęć w composerze i historii (24.09.2026)
+
+Wybrane zdjęcie nie miało podglądu przed wysłaniem, a miniatura w historii
+miała tylko 36×36 px. Composer wyświetla teraz lokalne zdjęcie jako 64×64 px:
+na Web/drop używa bajtów, a na desktopie ścieżki pickera i cache dekodera
+128 px bez kopiowania całego pliku. Historia pokazuje autoryzowany obraz w
+podglądzie do 280×210 px, ograniczonym szerokością dymka. Pełny transfer
+bajtów obrazu w historii nadal jest problemem C13.
+
+Dowody: `flutter analyze --no-pub` pięciu dotkniętych komponentów i pomocników PASS, bez
+uwag; `git diff --check` PASS. Widgetów/goldenów nie uruchamiano. Runtime
+wyboru, wysyłki i odczytu obrazu pozostaje otwarty.
+
+
+# CHAT-R93 — prywatne pliki Storage w czacie (24.09.2026)
+
+Composer udostępnia „Z Moich plików” w menu `+`. Picker używa ChatTheme,
+przegląda prywatne foldery, wyszukuje, paginuje i pozwala wybrać kilka plików.
+Wyświetla tylko pliki `Private` z prawem odczytu i statusem `Clean + Ready`.
+Wybrane ID przechodzi przez kolejkę załączników bez lokalnego pobierania;
+Backend tworzy kopię serwerową w aktywnej sesji Chat, a istniejące API
+wiadomości dołącza ją jako załącznik.
+
+Menu kontekstowe załącznika zawiera „Zapisz w Moich plikach”. Dla formatów z
+`canEditOnline` pokazuje również „Zapisz i otwórz w OnlyOffice”; po zapisie
+Front pobiera szczegóły kopii i otwiera istniejący, autoryzowany edytor.
+
+Dowody: Front pełny analyzer PASS; `chat_attachment_upload_cubit_test.dart`
+**5/5 PASS**, test sesji/repozytorium **4/4 PASS**, adapter uploadu **9/9 PASS**.
+Backend testy lifecycle/OpenAPI **20/20 PASS**, pełna suite **1320 PASS / 4
+SKIP / 0 FAIL**, build **0 warning/error**, skrypty migracji EF obu kontekstów,
+format verify i diff check PASS. Testów widgetowych/goldenów nie uruchamiano;
+runtime UI i OnlyOffice pozostaje otwarty.
+
+
+# CHAT-R94 — tożsamość autora własnej wiadomości w pełnym ekranie i wątku (24.09.2026)
+
+Audyt kolejek dostawy znalazł dwie brakujące propagacje `currentUserId`.
+Pełnoekranowa strona rozmowy nie przekazywała ID do `ChatConversationCubit`,
+więc optymistyczny post miał pustego autora. Osobna kolejka odpowiedzi wątku
+również pomijała to ID. Pełny ekran i `ChatThreadSidePanel` przekazują teraz
+kanoniczne ID z `AuthSessionPort`; odpowiedzi optymistyczne zachowują je przed
+ACK i po potwierdzeniu.
+
+`ChatConversationCubit.currentUserId` jest teraz wymagany, żeby nowe call-site'y
+nie wracały do pustego autora. Weryfikacja: conversation Cubit + realtime
+**18/18 PASS**, `chat_thread_cubit_test.dart` **3/3 PASS**, z asercją autora
+przed i po ACK; pełny `flutter analyze --no-pub` i `git diff --check` PASS.
+Testów widgetowych/goldenów nie uruchamiano. Runtime pełnego ekranu i panelu
+wątku pozostaje otwarty.
+
+
+# CHAT-R95 — menu kontekstowe reakcji, forward i emoji (24.09.2026)
+
+Akcja reakcji otwiera teraz wspólne menu przy pozycji dymka zamiast dolnego
+arkusza. Pełny picker uruchomiony z `+` pozostaje zakotwiczony w tym samym
+miejscu i zachowuje kategorię, wyszukiwanie oraz ostatnio użyte emoji. Forward
+otwiera wyszukiwalny wybór rozmowy w menu kontekstowym; wybrana rozmowa nadal
+przechodzi przez istniejący Cubit i idempotency key. Gdy nie ma rozmowy
+ docelowej, menu pokazuje lokalizowany komunikat bez centralnego modala.
+
+Picker odcieni pokazuje próbki emoji zamiast kolorowych kropek. Modyfikator
+Unicode wstawiany jest po obsługiwanej bazie, przed ZWJ; zastępuje poprzedni
+modyfikator. Dodano testy emoji złożonych (`👩‍💻`, `🏃‍♂️`) i zmiany odcienia.
+Weryfikacja: `flutter analyze --no-pub` PASS; test katalogu/tonu **14/14 PASS**;
+`git diff --check` PASS. Testów widgetowych/goldenów nie uruchamiano zgodnie z
+ustaleniem użytkownika. Ręczny odbiór położenia, klawiatury i wyglądu w
+aplikacji pozostaje otwarty.
+
+
+# CHAT-R96 — arbiter prawego kliknięcia przy zaznaczonym tekście (24.09.2026)
+
+`SelectionArea` i `ChatMessageBubble` mogły reagować na ten sam prawy klik:
+menu wyboru tekstu otwierało się razem z menu akcji wiadomości. Historia
+rozmowy i panel wątku śledzą teraz `SelectionArea.onSelectionChanged`. Gdy
+zaznaczenie zawiera tekst, prawy klik nie przekazuje akcji do dymka, więc
+pozostaje pojedyncze menu zaznaczenia. Bez zaznaczenia prawy klik nadal otwiera
+menu wiadomości. Nie zmieniono obsługi menu przycisku `…`.
+
+Weryfikacja: `flutter analyze --no-pub` PASS; `git diff --check` PASS. Testów
+widgetowych nie uruchamiano zgodnie z ustaleniem użytkownika. Reprodukcja
+zaznaczenia i prawego kliknięcia w runtime pozostaje otwarta.
+
+
+# CHAT-R97 — korekta hipotezy o nieaktualnym stanie przypięć (24.09.2026)
+
+Ponowna kontrola C12 wykazała, że wcześniejsza diagnoza była nietrafna.
+`ChatMessageActionMenu.showAt` pobiera aktualne zbiory przypięć i zakładek z
+Cubita przy każdym otwarciu menu. Po udanej mutacji Cubit emituje zaktualizowany
+zbiór; pola przekazane do konstruktora menu nie sterują etykietami pozycji.
+Plan oznacza C12 jako hipotezę odrzuconą w aktualnym kodzie. Nie dodano
+zduplikowanego stanu. Jeżeli objaw wróci, wymaga zebrania odpowiedzi API i
+stanu po ponownym otwarciu menu.
+
+
+# CHAT-R98 — status przeczytania i podwójny znacznik (24.09.2026)
+
+Ponowny audyt potwierdził pełny łańcuch statusu: Backend liczy
+`DeliveredToCount` i `ReadByCount` z rekordów potwierdzeń (bez autora zgodnie z
+kontraktem); modele Front dekodują i mapują te pola do `ChatMessage`. Metadata
+rysuje status `read`/`done_all` wyłącznie dla własnej wiadomości z
+`readByCount > 0`. SignalR `chat.message.read` i `chat.message.delivered` są
+mapowane na `messageDeliveryChanged`; Cubit dociąga autorytatywne okno tej
+wiadomości także w historii okienkowej. C23 zmieniono z „do potwierdzenia
+kontraktu” na „naprawione kodowo; runtime dwóch kont otwarty”.
+
+Weryfikacja obecnego checkoutu: event mapper, realtime reducer i conversation
+Cubit **20/20 PASS**. Pełny Front analyzer PASS w tym pakiecie; stagingowego
+odczytu na dwóch kontach nie odtwarzano.
+
+
+### CHAT-R99 — pliki z rozmowy w prywatnym Storage (24.09.2026)
+
+- Załącznik ma menu kontekstowe „Zapisz w Moich plikach”; format wspierany
+  przez OnlyOffice dostaje także „Zapisz i otwórz”. Klient sprawdza zdolność
+  kopii na świeżych szczegółach Storage przed uruchomieniem istniejącego
+  edytora.
+- Backendowa idempotencja retry nie dopasowuje już tekstu komunikatu wyjątku,
+  tylko SQLSTATE `23505` i indeks `IX_storage_file_versions_SourceIdempotencyKey`
+  w obu przepływach kopiowania plików Chat.
+- Composer rozdzielono na właściciela **357 linii**, widok **254**, kontroler
+  edytora **367**, kontroler wzmianek **89** i kontroler wklejania **295**.
+  Każdy pozostaje poniżej limitu 400 linii.
+- Weryfikacja: pełny `flutter analyze --no-pub` PASS; testy nie-widgetowe
+  composera i adaptera załącznika **35/35 PASS**; backend lifecycle i OpenAPI
+  **20/20 PASS**; `dotnet format --verify-no-changes` i `git diff --check` PASS.
+  Widgetów/goldenów nie uruchamiano. Odbiór runtime Storage/OnlyOffice nadal
+  otwarty; brak wdrożenia staging.
+
+
+### CHAT-R100 — waga bold zgodna z fontem Inter (24.09.2026)
+
+Oba renderery Quilla i historii żądały wagi 900, podczas gdy aplikacja
+załącza warianty Inter 300/400/600/700. Ustawiono `bold:true` na wagę 700 w
+edytorze i po odczycie wiadomości; zmiany kontraktu nie było. Codec rich text i
+formatowanie **21/21 PASS**, pełny `flutter analyze --no-pub` PASS oraz
+`git diff --check` PASS. Widgetów/goldenów nie uruchamiano. Manualny odbiór
+pogrubienia i cytatu w jasnym/ciemnym motywie pozostaje otwarty.
+
+
+### CHAT-R101 — rozdzielenie renderera rich text (24.09.2026)
+
+`chat_rich_text_body.dart` (816 linii) łączył treść Quilla, listy, linki i
+podświetlanie składni. Podział: body **339 linii**, widget kodu **115**,
+highlighter **380**. Dodano testy jednostkowe preserve-source/kolorów
+highlightera. Weryfikacja: pełny `flutter analyze --no-pub` PASS, testy codec +
+highlighter **12/12 PASS**, `dart format` i `git diff --check` PASS. Bez
+widgetów/goldenów.
+
+Statyczny audyt `presentation/chat` ujawnił 12 innych plików ponad 400 linii;
+są ujęte jako otwarty C29 w planie napraw. Największy to
+`shell/chat_panel_conversation_parts.dart` (1110 linii). Kontynuować podział
+według odpowiedzialności, bez `part`/mixin.
+
+
+### CHAT-R102 — podział panelu historii rozmowy (24.09.2026)
+
+Usunięto 1110-liniowy agregat `chat_panel_conversation_parts.dart` i
+wydzielono banner (74), header (206), menu akcji (302), owner listy (272) oraz
+widok listy (340). Wszystkie nowe pliki są poniżej limitu 400 linii; bez
+`part`/mixin. Import testu identity wskazuje teraz bezpośrednio na header.
+
+Weryfikacja: pełny `flutter analyze --no-pub` PASS; `dart format` i
+`git diff --check` PASS. Widgetów/goldenów nie uruchamiano. Nie zmieniano
+Backendu, API, OpenAPI, enumów ani schematu. Kolejny priorytet C29 to
+`chat_panel_conversation.dart` (753 linii), dalej bubble (684). Nie zostawiono
+uruchomionej instancji aplikacji.
+
+
+### CHAT-R103 — rozdzielenie panelu rozmowy (24.09.2026)
+
+`chat_panel_conversation.dart` miał 753 linie. Rozdzielono lifecycle hosta
+(251), zawartość (335), projekcję danych inboxa (83) i potwierdzanie odczytu
+(120). Projekcja zachowuje źródła serwerowe i regułę `@all` Owner/Moderator;
+nowe testy jednostkowe sprawdzają DM, grupę, braki katalogu i role (4/4 PASS).
+
+Pełny `flutter analyze --no-pub`, formatowanie zmienionych plików i
+`git diff --check` PASS. Widgetów/goldenów nie uruchamiano. Backend, API,
+OpenAPI, enumy i schemat bez zmian. Następny plik C29:
+`messages/chat_message_bubble.dart` — sprawdzić aktualny rozmiar przed dalszym
+podziałem.
+
+
+### CHAT-R104 — rozdzielenie dymka wiadomości (24.09.2026)
+
+`chat_message_bubble.dart` rozbito według odpowiedzialności: dymek 327 linii,
+stopka/status 114, cytat 84, seria i awatar 185. Nie zmieniano zachowania ani
+kontraktu. `flutter analyze --no-pub`, formatowanie i `git diff --check` PASS.
+Testów widgetowych nie uruchamiano; odbiór całego UI pozostaje odroczony. Bez
+zmian backendu/API/OpenAPI/enumów/schematu. Kolejny kandydat C29:
+`chat_drawer.dart` (590 linii, rozmiar do potwierdzenia).
+
+
+### CHAT-R105 — podział arkusza uczestników (24.09.2026)
+
+chat_members_sheet.dart podzielono na host (295 linii) i listę (356 linii).
+Druga klasa zachowuje lifecycle statusów, menu kontekstowe i akcje członków.
+Pełny flutter analyze --no-pub, dart format i git diff --check PASS.
+Widgetów/goldenów nie uruchamiano. Ręczny odbiór dodawania, usuwania i
+opuszczania grupy pozostaje otwarty. Brak zmian backendu/API/OpenAPI/enumów.
+
+
+### CHAT-R106 — karta statusu i ochrona przed nieaktualną odpowiedzią
+
+Plik chat_status_menu.dart miał 621 linii. Kontroler statusu ma 286, karta
+318, wspólne komponenty 121. Naprawiono wyścig równoległych pobrań i zmianę
+`currentUserId`/repozytorium przy zachowanym State: poprzedni status jest
+czyszczony, wynik poprzedniego requestu ignorowany. Rozpoczęty zapis unieważnia
+starszy GET, a odpowiedź starego właściciela nie modyfikuje aktualnego UI.
+
+Weryfikacja: pełny analyzer PASS; testy presetów i terminów **5/5 PASS**;
+formatowanie i `git diff --check` PASS. Widgetów/goldenów nie uruchamiano.
+Ręczny odczyt/zapis statusu na runtime pozostaje otwarty. Backend/API bez zmian.
+
+
+### CHAT-R107 — rozdzielenie hosta globalnego panelu
+
+Plik chat_drawer.dart (590 linii) zastąpiono re-eksportem publicznego
+AppGlobalChatPanel. Host ma 128 linii, zawartość/nawigacja 384, synchronizacja
+filtra 66, akcje hosta 47. Shell i chat_export zachowują istniejący import.
+Pełny `flutter analyze --no-pub`, formatowanie i `git diff --check` PASS.
+Widgetów/goldenów nie uruchamiano. Bez zmian backendu/API/OpenAPI/enumów.
+Następny kandydat C29: chat_conversation_cubit.dart (549 linii; stan sprzed późniejszego podziału CHAT-R109).
+
+
+### CHAT-R108 — nie koalescuj replaceHistory ze starszym requestem
+
+Odtworzono błąd w ChatConversationCubit: realtime resync może trwać, gdy
+użytkownik wychodzi z okna historii; load(replaceHistory: true) wcześniej
+wracał z tego zwykłego requestu. Dodano generację, typ aktywnego loadu i
+warunkowe czyszczenie uchwytu, aby wymuszone zastąpienie mogło wygrać, a stara
+odpowiedź nie nadpisywała historii. Test regresyjny wraz z istniejącymi testami
+Cubit 10/10 PASS. Pełny analyzer i git diff --check PASS. Bez testów
+widgetowych i bez zmian Backend/API. Plik Cubita miał wtedy 564 linie; podział opisuje CHAT-R109.
+
+
+### CHAT-R109 — rozdzielenie śledzenia odczytu i realtime (24.09.2026)
+
+`chat_conversation_cubit.dart` ma teraz 399 linii. Śledzenie kursora
+przeczytania wydzielono do `chat_conversation_read_tracker.dart` (75), a
+subskrypcje SignalR, redukcję zdarzeń i lifecycle do
+`chat_conversation_realtime_coordinator.dart` (168). Testy Cubita i realtime
+**16/16 PASS**, pełny `flutter analyze --no-pub`, formatowanie i
+`git diff --check` PASS. Widgetów/goldenów nie uruchamiano. Bez zmian
+Backend/API/OpenAPI/enumów/schematu; pięć plików C29 pozostaje do podziału.
+
+## 2026-09-24 — CHAT-R110 (Front only)
+
+Inbox panelu listy wydzielono do `ChatPanelInboxView` (232 linii); host listy
+ma 353 linie. Zachowano wyszukiwanie, paginację, menu i akcje wierszy. Pełny
+`flutter analyze --no-pub`, formatowanie i `git diff --check` PASS. Widgetów i
+goldenów nie uruchamiano. C29 pozostaje otwarte dla czterech innych plików
+ponad 400 linii. Backend/API/OpenAPI/enumy/schemat bez zmian.
+
+## 2026-09-24 — CHAT-R111 (Front only)
+
+Popover nowej rozmowy (347 linii) deleguje wyszukiwanie katalogu i listę
+ostatnich rozmów do `ChatComposeDirectorySection` (191). Zachowano stany
+wyszukiwania, retry i wywołanie tworzenia DM. Pełny `flutter analyze --no-pub`,
+formatowanie i `git diff --check` PASS. Widgetów/goldenów nie uruchamiano. C29
+obejmuje jeszcze trzy pliki ponad 400 linii. Backend/API bez zmian.
+
+## 2026-09-24 — CHAT-R112: prawdziwy blok kodu także z trybu plain
+
+„Wstaw kod” przełącza teraz tryb zwykłego tekstu na Quill, zachowując treść i
+kursor, i wstawia `code-block` Delta. Wstawienie w środku akapitu rozdziela
+blok nieformatowanym newline; historia pokazuje kolorowany kafelek zamiast
+widocznych fence’ów Markdown. Testy codec/renderera **8/8 PASS**, analyze zakresu
+i pełny analyzer PASS, `git diff --check` PASS. Widgetów/goldenów nie
+uruchamiano; odbiór live wpisywania i wysyłki otwarty. Backend/API bez zmian.
+
+## 2026-09-24 — CHAT-R113 (Front only)
+
+`ChatThreadSidePanel` (226 linii) przekazuje stan historii do osobnego
+`ChatThreadMessageList` (242), który odpowiada za wiadomości, paginację,
+selekcję i menu akcji. Pełny analyzer Frontu, formatowanie i diff check PASS.
+Widgetów/goldenów nie uruchamiano. C29 obejmuje jeszcze dwa pliki ponad 400
+linii. Backend/API bez zmian.
+
+## 2026-09-24 — CHAT-R114 (Front only)
+
+Wyniki wyszukiwania i stany listy wydzielono do `ChatSearchViewComponents`
+(207 linii); host wyszukiwarki ma 228. Pełny analyzer, formatowanie i diff
+check PASS. Statycznie potwierdzono zgodność `q` → `ChatSearchQuery.Q` →
+backendowy search; zgłoszone „brak wyników” nadal wymaga reprodukcji API i
+kontroli `SearchText`/indeksu. Widgetów/goldenów nie uruchamiano. C29 obejmuje
+jeszcze jeden plik ponad 400 linii. Backend/API bez zmian.
+
+## 2026-09-24 — CHAT-R115 (Front only)
+
+Listy przypięć (183 linii), zakładek (176) i współdzielone wiersze/stany (106)
+są osobnymi plikami; `chat_message_list_sheets.dart` zachowuje kompatybilne
+re-eksporty. Pełny analyzer Frontu, formatowanie i diff check PASS. Ponowny
+skan `presentation/chat` wykazał zero plików powyżej 400 linii. Widgetów/goldenów
+nie uruchamiano. C29 zamknięte; Backend/API bez zmian.
+
+## 2026-09-24 — CHAT-R116 (Front + Backend)
+
+Miniatury listy załączników są generowane przez Backend i pobierane przez
+autoryzowany endpoint Chat, zamiast pobierać pełny plik przez Storage ticket.
+Pełny obraz ładuje się dopiero po otwarciu podglądu. Szczegóły kontraktu,
+limitów, testów i otwartych warunków staging opisano w
+`docs/global-chat-repair-plan-2026-09-23.md` w pakiecie CHAT-R116.
+
+## 2026-09-24 — CHAT-R117 (Front only)
+
+Aktywny panel zastąpił Material `FilterChip` własnym `ChatPanelFilterPill`
+z tokenami `ChatTheme`, stanem hover, zaznaczeniem i semantyką/obsługą Enter oraz
+Spacji. `ChatPanelSection` nadal rozdziela Czaty, Grupy, Kanały, Pliki i Zadania;
+sekcje Pliki/Zadania nie dziedziczą filtrów inboxa. Usunięto nieużywany
+`chat_inbox_list.dart` z dawnym poziomym paskiem siedmiu `ChoiceChip`.
+Test sekcji/panel Cubit 6/6 PASS, pełny `flutter analyze --no-pub` PASS,
+formatowanie i `git diff --check` PASS. Widgetów/goldenów nie uruchamiano;
+odbiór widoku 320/360/420 px pozostaje otwarty.
+
+### STORAGE-FOLDER-PERSONAL-CREATE — Front/Backend (2026-09-24)
+
+Frontendowy kontrakt już dopuszcza pominięte `ownerUserId`; Backend wcześniej
+odrzucał taką próbę. Backend przypisuje teraz bieżącego użytkownika po stronie
+serwera i zachowuje odmowę, jeśli podano obcy identyfikator. Bez zmian w Front,
+DTO, enumach i schemacie. Otwarta osobna obserwacja pliku w „Udostępnione”
+wymaga nazwy pliku i kodu/traceId odpowiedzi, by dobrać bezpieczne działanie.
+Backend build PASS (0 ostrzeżeń, 0 błędów); testów nie uruchamiano.
+
+### STORAGE-FAVORITE-ACCESS — 2026-09-24
+
+`StorageFileGrid` ma teraz klikalną gwiazdkę obok menu pliku; dodawanie i
+usuwanie ulubionych jest widoczne w stanie ikony w kafelku i wierszu. Backend
+sprawdza prawo odczytu metadanych zamiast ścieżki odczytu treści, aby pending
+plik z ACL `CanRead` mógł być oznaczony. Bez zmian schematu/DTO/enumów.
+
+Weryfikacja: scoped `flutter analyze --no-pub` PASS, Backend build PASS (0
+ostrzeżeń/błędów), `git diff --check` obu repo PASS. Nie uruchamiano testów ani
+runtime. TraceId podany przez użytkownika nie jest obecny w retained logs
+stagingu; odbiór gwiazdki na stagingu pozostaje otwarty.
+
+## 2026-09-24 — CHAT-R122: mniejsza czcionka i lepszy Dart
+
+Pliki: `lib/workspaces/presentation/chat/rich_text/chat_rich_text_code_block.dart`
+(rozmiar monospace 12,5 px), `chat_code_syntax_highlighter.dart` (lexer i
+kolory tokenów), `chat_dart_syntax.dart` (profil słów i typów Dart) oraz
+`test/workspaces/presentation/chat/rich_text/chat_code_syntax_highlighter_test.dart`.
+Testy highlightera oraz sanitizera Quill **7/7 PASS**; analyze zakresu bez
+uwag; pełny analyzer Frontu i skan limitu 400 linii w Chat PASS. Nie uruchamiano
+widgetów/goldenów. UI pozostaje niezaakceptowane; Front nie wdrożony. Backend,
+API i enumy bez zmian.
+
+### STORAGE-SHARED-DISMISSAL — 2026-09-24
+
+Użytkownik nie mógł nic zrobić z plikiem w „Udostępnione” po błędzie dostępu.
+Dodano do menu kontekstowego (prawy przycisk / menu pliku) akcję „Ukryj na
+liście Udostępnione”. Po potwierdzeniu Flutter wywołuje nowy endpoint
+`PUT /api/v1/storage/files/{fileId}/shared-dismissal`, a następnie odświeża listę
+i pokazuje Snackbar. Operacja dotyczy wyłącznie prywatnego widoku użytkownika;
+nie kasuje pliku ani nie cofa nikomu uprawnień. Backend udostępnia capability
+`canDismissFromShared` w DTO dla listy Shared. Teksty są w PL/EN.
+
+Główne pliki Front: `storage_api.dart` i wygenerowany klient Retrofit,
+`storage_contract_models.dart` i wygenerowany Freezed/JSON, interfejs oraz
+implementacja `StorageRepository`, Cubit/state mutacji, menu kontekstowe,
+`storage_shell_page.dart` i lokalizacje.
+
+Enumy przepływu sprawdzono w Dart i C#: query `StorageListView` — `My`, `Shared`,
+`Recent`, `Favorites`, `Trash`; DTO `StorageModule` — `Workspaces`, `Inventory`,
+`Bhp`, `Iqc`, `Fleet`, `Shared`; `StorageResourceType` — `Task`, `Comment`,
+`Project`, `Document`, `Sheet`, `AccidentProtocol`, `UserAvatar`, `Private`,
+`OkrObjective`, `Portfolio`; `StorageProcessingStatus` — `None`, `Queued`,
+`Processing`, `Ready`, `Failed`; `StorageScanStatus` — `Pending`, `Clean`,
+`Infected`, `Skipped`; `StorageAiStatus` — `None`, `Queued`, `Processing`,
+`Completed`, `Failed`; `StorageEffectiveAccessLevel` — `None`, `Reader`,
+`Commenter`, `Editor`, `Owner`. Casing zgadza się z `JsonStringEnumConverter`,
+`@JsonValue` i query `apiValue`. `StorageFileMutationType` jest lokalny UI.
+
+Weryfikacja: `dart run build_runner build --delete-conflicting-outputs` PASS
+(generator ostrzegł, że ta wersja ignoruje flagę `--delete-conflicting-outputs`);
+`flutter gen-l10n` PASS; `flutter analyze --no-pub` dla ośmiu zmienionych
+komponentów PASS; `dart format` i `git diff --check` PASS. Testów, runtime i
+deployu nie wykonywano. Zmiany Chat istniejące w working tree pozostały bez
+ingerencji.
+
+Następny krok: po wdrożeniu wspólnej wersji Front/Backend i migracji sprawdzić
+na zalogowanym użytkowniku, że po ukryciu wpis znika z „Udostępnione” także przy
+403, a plik właściciela i dostęp innych osób nie ulegają zmianie.
+
+### STORAGE-SHARED-DISMISSAL — poprawka po code review (2026-09-24)
+
+Backend review wykrył, że poprzedni warunek `&&` filtrował stan ukrycia tylko
+dla udziału folderu, a bezpośrednio udostępniony wpis pozostawał na liście.
+Predykat widoczności jest współdzielony przez endpoint listy i `PUT
+/api/v1/storage/files/{fileId}/shared-dismissal`; nieaktywny lub cudzy plik nie
+tworzy już rekordu stanu. Test HTTP direct share/ukrycie/brak dostępu **1/1
+PASS**, Backend build (0 warning/0 error), format verify i diff check PASS.
+
+Test macierzy obejmuje direct/workspace/project/folder share; klasa Backend
+`StorageHttpTests` **28/28 PASS**, idempotentne skrypty migracji obu kontekstów
+i build/format
+PASS. Nadal otwarte: wdrożenie zgodnych wersji, migracja na stagingu i zalogowany
+odbiór Front + Backend.
+
+Pełny Backend przechodzi **1329 PASS / 4 SKIP / 0 FAIL**, testy OpenAPI Storage
+14/14. Staging wymaga opublikowanego commita; `AGENTS.md` zabrania agentowi
+samodzielnego commit/push. Nie kopiować niezatwierdzonych plików na VPS.
+
+Backend dodał regresję dla gwiazdki: plik Pending z aktywnym `CanRead` można
+oznaczyć bez pobierania treści, a osoba postronna nie tworzy stanu. Pełna klasa
+`StorageHttpTests` Backend **27/27 PASS**.
+
+Regresja folderu Personal potwierdza, że pominięty `ownerUserId` przypisuje
+folder sesji, a obcy owner jest odrzucany bez zapisu. `StorageHttpTests`
+Backend **28/28 PASS**. `StorageFolderType` wire values `Personal`, `Workspace`,
+`Project`, `Shared` zgodne między C# i Flutter `@JsonValue`.
+
+### CHAT-R122 — doprecyzowanie kolorowania Darta (2026-09-24)
+
+Po zgłoszeniu słabego kolorowania uzupełniono zestaw współczesnych słów
+kluczowych Darta oraz powszechnych typów Fluttera w
+`lib/workspaces/presentation/chat/rich_text/chat_dart_syntax.dart`.
+`test/workspaces/presentation/chat/rich_text/chat_code_syntax_highlighter_test.dart`
+sprawdza teraz m.in. `sealed`, `async`, `FutureOr`, `BuildContext`, `Scaffold`,
+`EdgeInsets` i kolor wywołania. Highlighter **4/4 PASS**, analyzer dotkniętych
+plików PASS, format bez zmian, `git diff --check` PASS. Nie uruchamiano
+widget/goldenów; brak zmiany API i Backend.
+
+### CHAT-R122 — weryfikacja całego Front po zmianie profilu Dart (2026-09-24)
+
+Po rozszerzeniu zestawu tokenów wykonano pełny `flutter analyze --no-pub` w
+repozytorium Front: **PASS, No issues found**. Test jednostkowy highlightera
+**4/4 PASS** i `git diff --check` PASS. Bez testów widgetowych/goldenów,
+zgodnie z ustaleniem do czasu akceptacji UI.
+
+### CHAT-R123 — autor własnej wiadomości rich text po ACK/retry (2026-09-24)
+
+Test `test/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue_test.dart`
+modeluje teraz formatowaną wiadomość, retry po błędzie sieci i odpowiedź
+serwera z autorem bieżącego użytkownika. Sprawdza `authorUserId` wiadomości
+optymistycznej i potwierdzonej oraz zachowanie Delta. Test **1/1 PASS**,
+analyzer dotkniętego kodu i testu PASS, `git diff --check` PASS. Jest to
+regresja logiki kolejki, nie walidacja widgetu; C21/C22 nadal wymagają
+odbioru rich text w działającej aplikacji. Nie uruchamiano testów widgetowych.
+
+### CHAT-R124 — weryfikacja zapisu załącznika do prywatnego Storage
+
+Ponownie uruchomiono `dotnet test Tests/Veloryn.Workspaces.Tests/Veloryn.Workspaces.Tests.csproj --no-restore --filter FullyQualifiedName~ChatAttachmentLifecycleTests` w Backend: **13/13 PASS**. Testy obejmują m.in. idempotentny zapis, przywrócenie kopii z kosza i odmowę dostępu osobie spoza rozmowy. Nie wykonano wdrożenia ani testu end-to-end na stagingu.
+
+### CHAT-R125 — ponowienie błędnego ACK odczytu (2026-09-24)
+
+Poprawiono lukę w mark-read: UI wcześniej zapamiętywało najnowsze widoczne ID
+przed wynikiem żądania, więc odpowiedź Left zostawiała unread bez kolejnej
+próby. `ChatReadMarkOutcome` rozróżnia `marked`/`ignored`/`failed`; lista ponawia
+`failed` po 1/2/4 s (maksymalnie 3 retry), tylko po ponownej kontroli widoczności.
+Timer jest anulowany po schowaniu wpisu, zmianie trasy, opróżnieniu historii lub
+unmount. Po sukcesie odświeża inbox i badge. Test błędu→retry i pozostałe testy
+widoczności **7/7 PASS**, test Cubita **10/10 PASS**, pełny analyzer PASS,
+diff check PASS. Enum sklasyfikowano jako lokalny, bez serializacji/API; widgetów
+i runtime nie uruchamiano.
+
+### CHAT-R126 — lexer składni Darta (2026-09-24)
+
+`chat_code_syntax_highlighter.dart` kieruje teraz Dart do wydzielonego tokenizatora
+`chat_dart_tokenizer.dart`; obsługa obejmuje raw i potrójne stringi, escape,
+zagnieżdżone komentarze, liczby i wieloznakowe operatory. `chat_dart_syntax.dart`
+mapuje typy tokenów do własnej ciemnej palety. Inne języki bez zmian.
+Highlighter **5/5 PASS**, pełny `flutter analyze --no-pub` PASS, diff check PASS;
+pliki 350/196/192 linii. Nie dodano `syntax_highlight`, ponieważ `flutter pub add`
+wykazał konflikt zależności `win32` z `talker_flutter`/`share_plus`. Nie
+uruchamiano widgetów/goldenów; runtime wizualny nadal wymaga odbioru.
+
+### CHAT-R127 — mniejszy blok kodu i lepsze wyróżnianie Dart (2026-09-24)
+
+Po zgłoszeniu użytkownika zmniejszono rozmiar kodu z 12,5 px do 11,5 px,
+zachowując monospace i odstęp wierszy. Profil Darta rozpoznaje więcej
+popularnych typów Fluttera, a człony po kropce otrzymują turkusowe wyróżnienie;
+wywołania metod pozostają fioletowe. Dodano regresję dla `Theme.of`,
+`textTheme`, `Colors.blue` i widgetów. Test highlightera **6/6 PASS**, analyzer
+zmienionych plików PASS, `git diff --check` PASS. Nie zmieniono API, DTO,
+serializacji ani enumów; Backend bez zmian. Widgetów/goldenów nie uruchamiano.
+
+### CHAT-R128 — podgląd wyszukiwarki z Quill Delta (2026-09-24)
+
+Kodowa kontrola wykazała, że backend trafiał w `SearchText`, ale przekazywał
+podgląd `Highlight` wyliczony wyłącznie z `Text`; pasująca treść formatowana
+mogła więc nie pojawić się w snippecie. Backend tworzy teraz snippet z
+bezpiecznej projekcji indeksu w ścieżce PostgreSQL i fallbacku. Testy Backend
+**70/70 PASS**, zakresowy format verify oraz `git diff --check` PASS. Kontrakt,
+enumy i migracje bez zmian. Reprodukcja zgłoszenia w zalogowanym runtime
+stagingowym pozostaje otwarta; Backend nie został wdrożony.
+
+### CHAT-R129 — stylowanie dopasowania w podglądzie wyszukiwania (2026-09-24)
+
+`ChatSearchHitRow` pokazywał znaczniki `⟦…⟧` zwracane jako część pola
+`Highlight`. Dodano `ChatSearchSnippetSpans`, które zachowuje normalny tekst,
+wyróżnia dopasowanie boldem i kolorem `ChatTheme`, a techniczne delimitery
+usuwa z widoku. Niepoprawne znaczniki są zachowywane jako zwykły tekst. Test
+logiki **2/2 PASS**, zakresowy analyzer i diff check PASS. Bez zmian API,
+enumów, DTO i Backend; widgetów/goldenów nie uruchamiano. Runtime pozostaje
+otwarty.
+
+### CHAT-R130 — mniejszy kod i wykrywanie Darta bez etykiety (24.09.2026)
+
+Zmiany w `chat_code_syntax_highlighter.dart` rozpoznają charakterystyczny kod
+Flutter/Dart w bloku bez jawnej nazwy języka i uruchamiają pełny profil tokenów
+Darta. W `chat_rich_text_code_block.dart` zmniejszono monospace do 10,5 px oraz
+interlinię do 1,45. Dodano regresję nieoznaczonego kodu Flutter. Weryfikacja:
+`flutter test --no-pub test/workspaces/presentation/chat/rich_text/chat_code_syntax_highlighter_test.dart`
+**7/7 PASS**; `flutter analyze --no-pub` dla trzech zmienionych plików PASS;
+`git diff --check` PASS. Widgetów, goldenów ani runtime nie uruchamiano.
+
+### CHAT-R131 — chronologiczna kolejność historii i ACK odczytu (24.09.2026)
+
+Backend `Application/Chat/ChatService.cs` potwierdza kolejność strony
+`OrderByDescending(CreatedAtUtc).ThenByDescending(Id)`. Front
+`chat_conversation_cubit.dart` scalał wiadomości bez sortowania, choć widok
+oraz odczyt zakładają, że ostatni element to najnowsza wiadomość. `_mergeMessages`
+sortuje teraz po `(createdAtUtc, id)` rosnąco; obejmuje to strony, okno historii,
+aktualizacje i wiadomości po wysłaniu. Test obejmuje odpowiedź newest-first i
+monotoniczny ACK. Weryfikacja: testy Cubita i widoczności **18/18 PASS**,
+analyzer dwóch plików PASS, `git diff --check` PASS. Bez zmian API, enumów,
+backendu ani migracji; runtime/staging ACK nadal wymaga potwierdzenia.
+
+### CHAT-R132 — czytelniejsze zmienne w kolorowaniu Darta (24.09.2026)
+
+`chat_dart_syntax.dart` rozpoznaje deklaracje ze znacznikami `final`, `const`,
+`var`, `late` oraz proste deklaracje typowane. Wyróżnia też późniejsze
+odwołania do lokalnych nazw i argumenty nazwane, zachowując osobną regułę dla
+wywołań metod. Dodano test regresji na `TextEditingController` i `TextField`.
+Weryfikacja: testy highlightera **8/8 PASS**, analyzer dwóch plików PASS,
+`git diff --check` PASS. Nie uruchamiano widgetów/goldenów; wygląd na żywo
+pozostaje do odbioru.
+
+### CHAT-R133 — ponowienie odczytu po powrocie z tła (24.09.2026)
+
+`ChatPanelReadAwareMessages` przebudowuje listę przy każdej zmianie lifecycle i
+przekazuje `readAcknowledgementEnabled`. `ChatPanelMessageList` czyści retry
+oraz ostatnie zgłoszone ID, kiedy aplikacja nie jest `resumed`, a po wznowieniu
+planuje ponowny pomiar widoczności. W ten sposób callback `ignored` z okresu
+tła nie zostawia wiadomości w stanie „już obsłużonej”. Weryfikacja: analyzer
+zmienionych dwóch plików PASS, formatowanie PASS, `git diff --check` PASS.
+Testów widgetowych i goldenów nie uruchamiano; ręczny odbiór lifecycle
+pozostaje otwarty do akceptacji UI.
+
+### CHAT-R134 — komunikaty członkostwa podpowiadające dalszy krok (24.09.2026)
+
+W `ChatMembersReady` zapisują się `failureType` i status HTTP obok
+`failureCode`. `ChatMembersList` mapuje 403, konflikt, walidację HTTP 400/422
+(wspólny mapper określa 400 jako `badResponse`) i błąd połączenia na odrębne
+lokalizowane wskazówki PL/EN. Ostatni Owner nadal dostaje komunikat o
+przekazaniu własności. Dotknięte pliki: `members/cubit/chat_members_cubit.dart`,
+`members/chat_members_list.dart`, `app_{pl,en}.arb` i wygenerowane lokalizacje;
+test w `g5_search_and_members_test.dart` potwierdza zachowanie statusu 403 i 400.
+Weryfikacja: `flutter gen-l10n`; testy zakresu **15/15 PASS**; analyzer trzech
+plików PASS; `git diff --check` PASS. `ApiErrorType` to lokalna klasyfikacja,
+bez zmian API, DTO i enumów przewodowych. Nie uruchamiano widgetów/goldenów;
+runtime pozostaje otwarty.
+
+### CHAT-R135 — mniejszy blok kodu i kontrastowe kolory Darta (24.09.2026)
+
+Zmienione: `rich_text/chat_rich_text_code_block.dart` (9,5 px),
+`rich_text/chat_dart_syntax.dart` (jaśniejsze, rozdzielone role kolorów) oraz
+test `rich_text/chat_code_syntax_highlighter_test.dart`. Weryfikacja:
+highlighter **8/8 PASS**, analyzer tych trzech plików PASS, formatowanie PASS,
+`git diff --check` PASS. Widgetów i goldenów nie uruchamiano na prośbę
+użytkownika; sprawdzić wygląd po rebuildzie w runtime. Brak zmian backendu,
+kontraktu API i enumów.
+
+### CHAT-R136 — ponowienie pobrania polityki długiego tekstu (24.09.2026)
+
+Zmiany: nowy `composer/chat_link_policy_cache.dart`, integracja w
+`chat_composer_paste_controller.dart`, nowe lokalizacje PL/EN oraz test
+`chat_link_policy_cache_test.dart`. Błąd repository/wyjątek nie ustawia już
+flagi cache; udana odpowiedź jest używana przy kolejnych wklejeniach. Po błędzie
+polityki wklejenie jest zatrzymane z komunikatem i można ponowić Paste.
+Weryfikacja: test cache + `chat_long_paste_decision_test.dart` **11/11 PASS**,
+`flutter gen-l10n`, analyzer trzech plików i `git diff --check` PASS.
+Testów widgetowych/goldenów nie uruchamiano. Bez zmian Backend/API/enumów.
+
+### CHAT-R137 — scalanie wiadomości poza Cubitem (24.09.2026)
+
+Wydzielono `ChatConversationMessageMerger` do
+`cubit/chat_conversation_message_merger.dart`; `chat_conversation_cubit.dart`
+ma 389 linii (wcześniej 405), helper 30. Scalanie nadal zastępuje duplikaty
+po ID serwera lub `clientMessageId` i sortuje chronologicznie po
+`(createdAtUtc, id)`. Weryfikacja: `chat_conversation_cubit_test.dart` **11/11
+PASS**, analyzer Cubita/helpera/testu PASS, formatowanie i `git diff --check`
+PASS. Widgetów/goldenów nie uruchamiano. Backend/API bez zmian.
+
+### CHAT-R138 — utrzymanie okna historii przy ACK i paginacji (24.09.2026)
+
+Zmienione: `cubit/chat_conversation_state.dart` (jawne czyszczenie kursora i
+błędu), `chat_conversation_cubit.dart` (loadMore, mutacje/ACK i błędy),
+`chat_conversation_realtime_coordinator.dart` (zdarzenia i status połączenia)
+oraz regresje okna historii w `chat_conversation_cubit_test.dart`. Testy
+sprawdzają mutację wiadomości, pusty kursor okna oraz błąd doładowania: anchor
+pozostaje, błędny load wyłącza spinner i zachowuje kursor do retry, a strona
+terminalna kończy paginację. Weryfikacja: test Cubita + realtime **18/18 PASS**,
+analyzer pięciu plików PASS, formatowanie i `git diff --check` PASS.
+Widgetów/goldenów nie uruchamiano. Bez zmian Backend/API/enumów.
+
+### CHAT-R139 — normalizacja stanów formatowania Quilla (24.09.2026)
+
+`getSelectionStyle().attributes` zawiera `Attribute`, a pomocnicze logiki
+formatów oczekują surowych wartości. Dodano `ChatQuillSelectionAttributes` i
+użyto go w pasku oraz podczas toggle inline i formatów blokowych. Wcześniej
+aktywny format nie był zaznaczony w toolbarze, a ponowne kliknięcie nie mogło go
+zdjąć. Weryfikacja: `chat_format_commands_test.dart` **13/13 PASS**, analyzer
+czterech plików PASS, formatowanie i `git diff --check` PASS. Widgetów/goldenów
+nie uruchamiano; sprawdzić aktywne stany toolbaru w runtime. Bez zmian Backend,
+API i enumów.
+
+### CHAT-R140 — mniejszy blok kodu i poprawione kolorowanie Darta (24.09.2026)
+
+Zmieniono `chat_rich_text_code_block.dart` (8,5 px, ciaśniejsza interlinia),
+`chat_dart_syntax.dart` (typy, deklaracje i priorytet słów sterujących) oraz
+test `chat_code_syntax_highlighter_test.dart`. Sprawdzić testy highlightera,
+Test highlightera **9/9 PASS**, analyzer wskazanych plików PASS,
+`git diff --check` PASS. Widgetów/goldenów nie uruchamiano. Bez zmian
+Backend/API; odbiór UI pozostaje otwarty.
+
+### CHAT-R141 — kodowanie literalnych znaczników w snippetach (24.09.2026)
+
+Backend: `Application/Chat/ChatSearchText.cs` escapuje literalne ukośniki i
+`⟦`/`⟧`; `Contracts/Chat/ChatSearchContracts.cs` opisuje format w OpenAPI;
+`ChatFoundationTests.cs` testuje trafienie, fallback i frazę zawierającą
+znaczniki; `ApiEndpointTests.cs` sprawdza opis schematu. Front:
+`chat_search_snippet_spans.dart` dekoduje format, test parsera ma przypadki
+literalnych markerów i backslashy. Audyt enumu `ChatConversationType` potwierdza pięć wartości i casing w serializerze, OpenAPI, DTO JSON oraz kliencie Flutter; C# kontrakt 11/11 PASS, test Front wire contract 1/1 PASS. Testy helpera Backend **3/3**, parser Front **4/4**;
+Backend build (0 warning/error), format i EF idempotent script PASS. Pełna
+suite Backend **1333 PASS / 4 SKIP / 0 FAIL** przed rozszerzeniem istniejącej
+asercji DTO; po zmianie `ChatOpenApiContractTests` **11/11 PASS**. Bez migracji
+i zmian wartości enumów;
+nie wdrażano. Odbiór runtime wymaga zgodnego wdrożenia Front/Backend; wdrożenie
+pozostaje poza tym pakietem.
+
+### CHAT-R142 — mniejsza czcionka wklejonego kodu i czytelniejszy Dart
+
+Front zmieniono w `chat_rich_text_code_block.dart` (8 px, interlinia 1,35),
+`chat_dart_syntax.dart` (kategorie kolorów i uzupełnione typy) oraz
+`chat_code_syntax_highlighter_test.dart`. Test highlightera **9/9 PASS**,
+analyzer dotkniętego zakresu PASS, format i `git diff --check` PASS. Bez zmian
+Backend/API. Widgetów/goldenów nie uruchamiano; potrzebny odbiór UI w runtime.
+
+### CHAT-R143 — kursor odczytu i wcześniejsze wiadomości (24.09.2026)
+
+Front: `chat_conversation_read_tracker.dart` dopuszcza ACK najnowszej widocznej
+wiadomości, także własnej; test widoczności **7/7 PASS**. Realtime pomijał
+handler-y `chat.message.read`/`chat.message.delivered`; teraz są zarejestrowane.
+Read receipt odświeża wcześniej załadowaną historię w oknach do 101 wpisów,
+żeby zaktualizować liczniki wcześniejszych wiadomości. Testy mappera i
+koordynatora realtime **14/14 PASS**; analyzer dotkniętych plików i diff check
+PASS.
+Backend: `ChatService.ToMessageResponsesAsync` wylicza `readByCount` z
+monotonicznych kursorów `LastReadMessageAtUtc`/`LastReadMessageId` członków,
+dzięki czemu późniejszy ACK obejmuje wcześniejsze. UUID przy równym czasie jest
+porównywany w kolejności zgodnej z PostgreSQL. Test PostgreSQL **1/1 PASS**,
+build bez ostrzeżeń; pełna suite Backend **1333 PASS / 4 SKIP / 0 FAIL**,
+restore, format i idempotentny skrypt EF PASS. Bez zmian schematu/API
+shape/enumów; nie wdrożono. Pozostaje odczyt runtime dwóch kont dla DM/grupy i
+ponownego wejścia.
+
+### CHAT-R144 — cytat odpowiedzi poza załadowaną stroną (24.09.2026)
+
+Naprawiono brak pełnego preview odpowiedzi: API zwraca opcjonalny
+`ChatMessageResponse.replyPreview` z identyfikatorem/autorem, nazwą autora,
+tekstem do 240 znaków, oznaczeniem załącznika/usunięcia oraz etykietami tylko
+dla zapisanych relacji wzmianki. Backend pobiera cel wyłącznie z rozmowy
+wiadomości; usunięty tekst jest pusty. Test PostgreSQL obejmuje nazwę autora,
+cytat, wzmianki, ponowne odczytanie historii i redakcję po usunięciu; wraz z
+kontraktami OpenAPI/JSON **13/13 PASS**. Front używa wspólnego mappera w
+repozytoriach historii, wątków i akcji. Dekodowanie, mapowanie i JSON
+decode/encode **12/12 PASS**, analyzer i format PASS. Brak enumów/migracji;
+kształt DTO rozszerzono addytywnie. Reducer realtime redaguje zapamiętany cytat
+także w trybie okna historii, gdy usunięty cel nie jest załadowany. Testy
+adaptera, JSON, reduktora i koordynatora **28/28 PASS**. Nie uruchamiano
+widgetów/goldenów. Runtime UI/staging otwarte. Nie wdrażano: Backend checkout
+ma też niezależne zmiany Storage i nie należy ich przypadkiem dołączać do
+deployu tego pakietu.
+
+### CHAT-R145 — sanitizer Delty na granicy wysyłki (24.09.2026)
+
+Pliki: `lib/workspaces/domain/chat/rich_text/chat_delta_contract_sanitizer.dart`,
+`lib/workspaces/data/chat/repositories/chat_repository_impl.dart` oraz testy
+repozytorium/sanitizera. Przyczyną było pominięcie sanitizera na ścieżce
+wysyłania, mimo że był używany przy odtwarzaniu szkicu. Dozwolony jest tylko
+zestaw atrybutów kontraktu Chat; obce formaty z wklejonego HTML są usuwane,
+nieobsługiwane embedy stają się placeholderem, niepoprawna Delta przechodzi
+jako brak formatowania przy zachowaniu `text`. Weryfikacja: `flutter test --no-pub
+test/workspaces/data/chat/chat_repository_impl_test.dart
+test/workspaces/domain/chat/rich_text/chat_delta_contract_sanitizer_test.dart`
+**17/17 PASS**; analyzer dotkniętych plików i `git diff --check` PASS.
+Wartości graniczne są zgodne z Backendem: 200 000 znaków JSON i 10 000
+operacji; po przekroczeniu limitu wysyłany jest tekst bez Delty. Regresja
+obejmuje pełną allowlistę formatów Backend. Bez zmian API, enumów i Backend.
+Następny krok: potwierdzić w runtime wysyłkę tekstu wklejonego z HTML.
+
+### CHAT-R146 — wspólne mapowanie wiadomości HTTP i realtime (24.09.2026)
+
+Pliki: `chat_message_response_mapper.dart`, `chat_repository_impl.dart`,
+`chat_realtime_event_mapper.dart` oraz `chat_realtime_event_mapper_test.dart`.
+Wspólny mapper przenosi wszystkie pola wiadomości odpowiedzi API do modelu
+`ChatMessage`, w tym reply preview, wzmianki, załączniki i ich OnlyOffice,
+reakcje, liczniki, linki i stan edycji/usunięcia. Test pełnego payloadu Backend
+udowadnia te pola na ścieżce `chat.message.created`; adapter HTTP korzysta z
+tego samego mappera. Weryfikacja: mapper/repository/contract **20/20 PASS**,
+analyzer dotkniętego zakresu i `git diff --check` PASS. Bez zmian API, Backend,
+enumów i migracji. Następny krok: sprawdzić nową odpowiedź na drugim koncie bez
+odświeżania historii.
+
+### CHAT-R147 — limit długości frazy wyszukiwania (24.09.2026)
+
+Pliki: `chat_search_cubit.dart`, `chat_search_view.dart`, PL/EN ARB i testy
+`g5_search_and_members_test.dart`. Backend waliduje `q` w zakresie 2–160 znaków;
+Front nie ograniczał górnej granicy, wysyłał dłuższe frazy i pokazywał ogólny
+błąd walidacji. Cubit nie odpytuje API ani facetów, gdy fraza przekracza 160,
+blokuje retry, a widok pokazuje lokalizowany komunikat. Testy 160/161 i klasa
+search/members **18/18 PASS**, `flutter gen-l10n`, analyzer dotkniętego zakresu
+i `git diff --check` PASS. Bez zmiany backendu, DTO lub enumów. Następny krok:
+runtime test wyszukiwarki.
+
+### CHAT-R148 — otwieranie DM z karty uczestnika (24.09.2026)
+
+Pliki: `chat_members_sheet.dart`, `chat_members_list.dart`,
+`chat_person_card.dart`. Rootowy dialog karty osoby nie ma w przodkach
+`DevPlannerPanelsScope`, więc późny lookup po rozwiązaniu Direct mógł zwrócić
+null i nie otworzyć rozmowy. `ChatMembersSheet` pobiera `openConversation`
+z kontekstu źródłowego przed pokazaniem sheeta i przekazuje callback przez
+widgety; przy braku callbacku karta nie pokazuje akcji „Napisz”. Weryfikacja:
+formatowanie, analyzer wskazanego zakresu i `git diff --check` PASS. Widgetów ani
+runtime nie uruchamiano zgodnie z odroczeniem odbioru UI. Następny krok: ręcznie
+sprawdzić rozwiązanie i otwarcie DM z listy uczestników.
+
+
+### CHAT-R149 — aktualizacja reakcji realtime (24.09.2026)
+
+Pliki: `chat_realtime_event_mapper.dart`, `workspace_chat_realtime_service.dart`,
+`chat_conversation_realtime_event.dart`, `chat_conversation_realtime_reducer.dart`,
+`chat_conversation_realtime_coordinator.dart` i testy mappera, usługi oraz Cubita.
+Dodano odbiór `chat.reaction.changed/removed`. Koordynator po evencie odczytuje
+ponownie konkretną wiadomość, aby zachować serwerowe liczniki i stan reakcji
+bieżącego użytkownika również przy równoległych zmianach. Testy mappera, usługi SignalR i Cubita **26/26 PASS**, analyzer ośmiu plików PASS, pełny `flutter analyze` PASS (0 issues), formatowanie i `git diff --check` PASS. Backend nie wymaga zmian. Następny
+krok: manualny test reakcji między dwoma aktywnymi kontami.
+
+
+### CHAT-R150 — jawne wyniki reakcji, zakładki i forward (24.09.2026)
+
+Pliki: `chat_message_secondary_actions_cubit.dart`, wywołanie reakcji w
+`chat_panel_message_list_view.dart` oraz test Cubita. Bookmark/forward/react/
+removeReaction zwracają teraz `ChatMessageSecondaryActionOutcome`, zgodnie z pin.
+Test akcji **8/8 PASS**, połączony zestaw akcji + realtime **17/17 PASS**,
+analyzer wskazanych plików oraz pełny `flutter analyze` (0 issues) i `git diff --check` PASS. Brak zmian backendu/API
+i transportowych enumów. Następny krok: odbiór interakcji po zaakceptowaniu UI.
+
+
+### CHAT-R151 — informacja o błędzie akcji wiadomości (24.09.2026)
+
+`chat_message_action_menu.dart`, `chat_message_action_dialogs.dart` i
+`chat_panel_message_list_view.dart` pokazują error toast, gdy jawny outcome akcji
+ma wartość `failed`; sukces/`ignored` nie pokazują fałszywego błędu. Testy
+Cubit + realtime **17/17 PASS**, analyzer zakresu PASS, formatowanie oraz
+`git diff --check` PASS. Bez backendu/API/enumów; testów widgetowych nie
+uruchamiano. Pozostaje ręcznie potwierdzić, że komunikat jest widoczny i nie
+dubluje się w aplikacji.
+
+
+### CHAT-R152 — mapowanie pinów, załączników i metadanych rozmowy realtime (24.09.2026)
+
+Porównano emitowane nazwy `Application/Chat` z Front. Dodano obsługę
+załączników (odczyt snapshotu wiadomości), pinów (odczyt listy pinów w panelu i
+wątkach, z jawnie przekazanym streamem i zwalnianą dzierżawą) oraz zmian
+metadanych rozmowy (autorytatywny `getConversation`). `chat.mentioned` jest
+powiadomieniem, nie eventem huba. Testy **46/46 PASS**, pełny analyzer 0 issues,
+formatowanie i `git diff --check` PASS. Bez zmian Backend/API/enums. Następny
+krok: odbiór synchronizacji na dwóch klientach.
+
+
+### CHAT-R153 — zdarzenie gotowości załącznika (25.09.2026)
+
+Audyt 22 nazw emitowanych zdarzeń Backend wykazał brak subskrypcji
+`chat.attachment_ready` po wyniku skanowania; dodano ją i mapowanie snapshotu.
+Testy mapowania/usługi oraz pozostałych ścieżek realtime **46/46 PASS**; analyzer
+zakresu i pełny `flutter analyze` 0 issues; formatowanie i diff check PASS.
+Brak zmian backendu i kontraktu. Do sprawdzenia runtime pozostaje upload → scan
+→ aktualizacja załącznika na drugim kliencie.
+
+
+### CHAT-R154 — zachowanie oryginału przy błędzie przygotowania długiego wklejenia (25.09.2026)
+
+Przygotowanie pliku przez endpoint snippetów jest optymalizacją. Błąd API, wynik bez treści lub odpowiedź oznaczona jako skrócona przechodzi teraz na oryginalny tekst i ścieżkę uploadu Storage; nie wysyłamy pustego ani uciętego pliku. Dodano testy decyzji dla fallbacku, pustej/skróconej odpowiedzi oraz kompletnej odpowiedzi API. Testy logiki długiego wklejenia i cache polityki **14/14 PASS**; `flutter analyze` trzech dotkniętych plików bez uwag; `dart format` i `git diff --check` PASS. Zmiana Front-only: bez zmian endpointów, DTO, OpenAPI, enumów i Backend. Ręczny odbiór w aplikacji (wklejenie → przygotowanie/upload → wysłanie i pobranie TXT) pozostaje otwarty; widgetów/goldenów nie uruchamiano.
+
+
+### CHAT-R155 — pusty string snippet-u także uruchamia fallback (25.09.2026)
+
+Ponowny przegląd CHAT-R154 wykrył, że `content: ""` przechodziło jako poprawna odpowiedź, mimo że fallback obsługiwał `null` i truncation. Teraz pusty string również powoduje upload oryginalnego tekstu. Regresja rozszerza przypadek odpowiedzi null/pustej/skróconej. Testy długiego wklejenia i cache polityki **14/14 PASS**; analyzer trzech dotkniętych plików bez uwag; formatowanie i `git diff --check` PASS. Front-only, bez zmian kontraktu/API/enumów. Runtime nadal niezweryfikowany; aplikacja DevPlanner nie była uruchomiona.
+
+
+### CHAT-R156 — widoczny błąd przy niekompletnej kompozycji wątku (25.09.2026)
+
+Audyt C16 potwierdził jawne przekazanie wymaganych repozytoriów do rootowego side sheeta, ale wykazał cichy `return`, gdy któregokolwiek brakuje. Dodano lokalizowany komunikat błędu PL/EN przed wyjściem, aby kliknięcie „Otwórz wątek” nie wyglądało na martwe. `flutter gen-l10n`, analyzer czterech dotkniętych plików i `git diff --check` PASS. Brak zmian API/DTO/enumów/Backend. Testów widgetowych i runtime nie uruchamiano.
+
+
+### CHAT-QA-R157 — statyczny przegląd kontraktu wyszukiwania Front–Backend (25.09.2026)
+
+Przejrzano aktualny łańcuch wyszukiwania bez uruchamiania aplikacji: pole Front wysyła parametr `q`, adapter zachowuje limit/kursor i mapuje elementy odpowiedzi; Backend wiąże `q` do `ChatSearchQuery.Q`, filtruje dostępne rozmowy oraz wyszukuje w `ChatMessage.SearchText`, które domena przebudowuje przy utworzeniu i edycji. Nie znaleziono brakującego mapowania ani oczywistego rozjazdu requestu. To nie dowodzi działania w środowisku użytkownika: zgłoszenie „nic nie zwraca” nadal wymaga reprodukcji z rzeczywistym requestem/odpowiedzią i stanem indeksu. Tylko przegląd statyczny; bez zmian kodu, API, enumów i bez deklaracji wyników testów.
+
+
+### CHAT-R158 — nie pokazuj wyszukiwarki bez repozytorium (25.09.2026)
+
+Przegląd C15 ujawnił martwy przycisk w niepełnej kompozycji: `ChatPanelListPane` zawsze dostawał callback, który używał `context.read<ChatSearchCubit?>()?.open()`. Gdy `ChatSearchRepository` nie było dostępne, lupa pozostawała widoczna i kliknięcie nic nie robiło. Callback jest teraz null, jeśli Cubita/repozytorium brakuje, więc kontrolka jest ukryta przez istniejącą regułę widoku. Analyzer zmienionego pliku i `git diff --check` PASS. Zmiana Front-only; bez API, DTO i enumów. Nie uruchamiano testów widgetowych; zgłoszenie „brak wyników” dla dostępnej, działającej wyszukiwarki nadal wymaga reprodukcji runtime.
+
+
+### CHAT-QA-R159 — ponowny pełny skan limitu plików Chat (25.09.2026)
+
+Po ostatnich poprawkach wykonano ponownie skan wszystkich `*.dart` w `lib/workspaces/presentation/chat`; wynik: **0 plików powyżej 400 linii**. Bez zmian kodu.
+
+
+### CHAT-QA-R160 — code review akcji załączników Storage i OnlyOffice (25.09.2026)
+
+Sprawdzono akcje karty załącznika i pełny przepływ Front–Backend: zwykły zapis wywołuje endpoint kopiujący do prywatnego Storage; akcja „Zapisz i otwórz” pojawia się dla obsługiwanych typów Office, ale otwarcie wymaga `canEditOnline` z odpowiedzi zapisu i ponownie po `getFileDetails`. Backend ponownie sprawdza członkostwo rozmowy, powiązanie pliku z nieusuniętą wiadomością, własność/zakres Storage i status `Clean`; kopia jest idempotentna dla użytkownika, wiadomości i pliku. W tym przeglądzie nie znaleziono błędu kodowego. Jest to code review, bez uruchamiania transferu lub runtime; weryfikacja zachowania w aplikacji nadal otwarta.
+
+
+### CHAT-R161 — odśwież liczniki po udanym read ACK mimo zmiany trasy (25.09.2026)
+
+C02 code review wykrył wyścig: ACK rozpoczęty przy widocznej wiadomości, ale zakończony po zmianie trasy/lifecycle, zwracał sukces serwera, po czym widget pomijał refresh inbox/global unread z powodu ponownego sprawdzenia widoczności. Widoczność jest teraz sprawdzana przed requestem, a po potwierdzonym ACK refresh wykonuje się, jeśli widget nadal jest zamontowany. Testy Cubita odczytu i historii **19/19 PASS**; analyzer pliku read-aware listy bez uwag; `git diff --check` PASS. Bez zmian Backend/API/DTO/enumów. Widget/runtime dwóch sesji pozostają do odbioru.
+
+
+### CHAT-QA-R162 — ścieżka identyfikacji własnych wiadomości (25.09.2026)
+
+Statycznie przejrzano panel rozmowy, pełny ekran, panel wątku, konstrukcję kolejki optimistic i grupowanie serii. Każda powierzchnia pobiera `userId` z `AuthSessionPort`; to samo ID trafia do `ChatMessageDeliveryQueue` i `ChatMessageGrouping` (porównanie z `authorUserId`), co steruje stroną dymka, kolorem i wyświetlaniem awatara/autora. Nie znaleziono statycznego rozjazdu. To nie weryfikuje rzeczywistej wartości profilu z API ani obrazu w aplikacji; zgłoszony wygląd własnych wiadomości pozostaje do reprodukcji runtime. Bez zmian kodu i bez testów/widgetów w tym przeglądzie.
+
+
+### CHAT-R163 — odśwież miniaturę po przejściu załącznika do Ready (25.09.2026)
+
+Code review C08 znalazło, że `_AttachmentCard.didUpdateWidget` odświeżało miniaturę wyłącznie po zmianie `storageFileId`. Jeśli realtime zmienił ten sam załącznik z Pending/unavailable na Clean/available, karta pozostawała bez obrazu. Reload obejmuje teraz zmianę `messageId`, `storageFileId`, `isAvailable` i `isImage`; każda zmiana unieważnia poprzednie Future i jego późny wynik. Analyzer pliku i `git diff --check` PASS; nie uruchamiano testów widgetowych zgodnie z dyspozycją przed akceptacją UI. Front-only; API, DTO i enumy bez zmian. Runtime upload → scan → miniatura nadal do odbioru.
+
+
+### CHAT-R164 — trigger statusu czyści emoji po wygaśnięciu (25.09.2026)
+
+C14 code review wykazał, że `ChatStatusMenuButton` odświeżał status przy montowaniu i otwarciu, lecz nie planował obsługi `expiresAtUtc`; otwarty przez długi czas panel mógł pokazywać wygasłe emoji/DND. Po odczycie i zapisie statusu Front planuje timer do wygaśnięcia, usuwa wygasły stan z triggera/formularza, toleruje długie terminy przez dobowe odświeżanie i anuluje timer przy zmianie konta oraz dispose. Analyzer pliku i `git diff --check` PASS. Nie uruchamiano widgetów ani runtime. Front-only; Backend/API/DTO/enumy bez zmian.
+
+
+### CHAT-R165 — błędy otwierania załącznika nie blokują karty (25.09.2026)
+
+Audyt wykazał, że implementacja stub dla platform bez transportu rzucała
+UnsupportedError, a adapter otwierania nie chronił kontraktu wyniku; ponadto
+karta i podgląd resetowały wskaźnik dopiero po await bez finally. Adapter
+normalizuje nieoczekiwane wyjątki do stabilnego kodu błędu, oba widoki pokazują
+lokalizowany komunikat i zawsze kończą ładowanie także po wyjątku lub dispose.
+Dodano testy adaptera dla wyjątku transportu i repozytorium. `flutter analyze`
+zakresu bez uwag, test adaptera **10/10 PASS**, `flutter gen-l10n` i
+`git diff --check` PASS. Front-only; bez zmian Backend/API/DTO/enumów.
+Nie uruchamiano widgetów ani aplikacji.
+
+
+### CHAT-R166 — czytelniejsza czcionka bloków kodu (25.09.2026)
+
+Code review potwierdził, że renderowanie już używało tokenizera Dart i palety
+kolorów składni, ale rozmiar `fontSize: 8` był za mały do czytania.
+Zmieniono rozmiar na 12, zachowując ciemne tło, monospace, przewijanie poziome
+i istniejące kolory. Analyzer trzech plików highlightera bez uwag; testy
+highlightera, RichTextCodec, CodeBlockCodec i Delta sanitizer **33/33 PASS**;
+formatowanie i `git diff --check` PASS. Nie uruchamiano testu widgetowego ani
+aplikacji; odbiór wizualny nadal otwarty.
+
+
+### CHAT-QA-R167 — stan stagingu i próba kontroli macOS (25.09.2026)
+
+Odczyt statusu przez zatwierdzony operator stagingu potwierdził obraz API
+`d8527fabaaf98859ede403eba9ec2d6c017f7ae8`, kontener healthy oraz
+readiness ready. Commit jest potomkiem wdrożenia CHAT-R91 dopuszczającego
+`attributes.code`; logi błędu z 23.09 poprzedzają wdrożenie. Zbudowano i
+uruchomiono jedną instancję macOS z bieżącego Frontu; ręczna kontrola widoku
+była niemożliwa, bo systemowe okno autoryzacji zasłaniało aplikację. Nie
+wprowadzano danych ani nie odblokowywano systemowego okna. Proces Flutter i
+aplikacja zostały zakończone; kontrola procesów potwierdziła brak tej instancji.
+Runtime Chat, pogrubienie/listy i załączniki nadal OPEN. Bez zmian kodu w tym
+pakiecie.
+
+
+### CHAT-QA-R168 — zbiorcza walidacja aktualnego Frontu (25.09.2026)
+
+Po zmianach w naprawach Chat uruchomiono pełny `flutter analyze`:
+0 issue. Jeden zbiorczy pakiet 12 zestawów jednostkowych logiki Chat zakończył
+się **96/96 PASS**; obejmował read visibility, delivery queue, Cubity rozmowy
+i wątku, formatowanie/Delta, code highlighter, długie wklejenie, statusy i
+adapter załączników. Testów widgetowych/goldenów nie uruchamiano zgodnie z
+ustaleniem przed akceptacją UI. Powtórny skan `presentation/chat/**/*.dart`:
+0 plików powyżej 400 linii. `git diff --check` PASS. Runtime i odbiór wizualny
+nadal OPEN.
+
+
+### CHAT-QA-R169 — code review Front + Backend (25.09.2026)
+
+Raport w `docs/global-chat-code-review-2026-09-25.md`. Front: `flutter analyze`
+bez uwag, wybrane testy Chat 41/41 PASS. Backend: testy Chat 99 PASS i 1 FAIL;
+konkurencyjny `clientMessageId` ujawnił nieobsłużony wyjątek serializacji
+PostgreSQL `40001`. Pozostałe ustalenia: snippet wyszukiwarki przekracza 240
+znaków po escape, testy nie obejmują `ChatInvitationStatus`, `ChatApi` ma 506
+linii, a `ChatService` przekracza 1800 linii. Testów widgetowych i runtime nie
+uruchamiano. Następny krok: naprawić P1, uzupełnić testy kontraktowe i rozbić
+odpowiedzialności w osobnych pakietach.
+
+
+### CHAT-QA-R170 — naprawa ustaleń z code review (25.09.2026)
+
+Backend: filtr idempotencji rozpoznaje opakowany SQLSTATE `40001` i konflikt
+unikalności; snippet ma twardy limit po escapowaniu i zachowuje granice emoji.
+Wybrane testy PostgreSQL, wyszukiwania i OpenAPI **17/17 PASS**. Front:
+wydzielono klientów Retrofit dla skrzynki/read, wyszukiwania, katalogu,
+obecności, preferencji i treści; runtime tworzy ich instancje na tym samym
+transporcie sesyjnym. `ChatApi` ma 386 linii. Generator utworzył `.g.dart`,
+`flutter analyze` bez uwag, testy adapterów/kontraktu enumów **37/37 PASS**.
+`ChatInvitationStatus` nie jest zwracany przez trasę HTTP, więc sklasyfikowano
+go jako wewnętrzny i usunięto nieużywany DTO Front zamiast dopisywać enum do
+OpenAPI. Do osobnej pracy zostaje podział `chat_models.dart` (1008 linii) i
+refaktoryzacja `ChatService` (1885 linii). Nie uruchamiano widgetów/goldenów,
+aplikacji ani stagingu. Bez commit/push.
+
+
+### CHAT-QA-R171 — naprawa Chat Backend + Front (30.09.2026)
+
+Raport z pełną listą 17 napraw, enumami, plikami i wynikami: `../../Backend/docs/chat-review-remediation-2026-09-30.md`.
+Backend: ChatService jest fasadą; nowe ConversationAccess/Resolver/Lifecycle,
+Membership/Invitation, MessageCommand/Engagement/Attachment, Draft/History,
+Preference/ResponseMapper/PersistenceErrors. StorageAccess oraz nowy
+ChatCommentAttachmentAccessService sprawdzają current ACL także batch;
+lazy registry usuwa cykl DI z files provider. Realtime manager/outbox/broadcast
+chronią revoke/order i tekstowe enumy; Front ma adapter starych numeric JSON.
+
+Front: chat_models.dart to barrel nad15libraries Freezed; draft repository
+zwraca snapshot z rzeczywistą version. Composer/selection/actions/history/thread
+mają ACK/generation/Delta/lifecycle guards. ChatConversationPage providercreate
+jest ownerem realtime; klucze rozmowy/wątku/dyskusji izolują A→B. Publiczne sheets
+mają Material i przeniesione porty. Testowe shared fixtures poprawiono zgodnie
+z kontraktem; gridStorage overflow naprawiono bez zmiany hit targets.
+
+Nowe backend regresje: ChatAdmissionRegressionTests, ChatCommentFileAclHttpTests,
+ChatRealtimeRevokeRegressionTests, ChatRealtimeOutboxClaimTests,
+ChatRealtimeEnumWireTests; rozszerzone ChatOpenApiContractTests. Front regresje
+w composer/draft/history/attachment/actions/thread/scroller/recovery/enum/owner.
+Pełne komendy i rozdzielenie local validation od E2E są w raporcie.
+Backend1366/1366PASS, build0warnings, oba migration scripts i format PASS;
+Front generator/analyzer i ponowny końcowy webWasmPASS. Pełny Front1831/1831PASS, unsignedmacOS Release BUILD SUCCEEDED;
+signedmacOS zablokowane provisioning profile. Front pełny diffcheck pokazuje
+4 stare whitespace generatedKanban; zakres napraw bez whitespaceerrors.
+
+Następny krok przed release: dostarczyć provisioning profile i wykonać
+uwierzytelnione E2E na stagingu; nie jest to częścią wykonanej lokalnej walidacji.
+Nie uruchamiać deployment/commit/push bez polecenia użytkownika.

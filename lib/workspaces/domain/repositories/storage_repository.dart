@@ -120,6 +120,9 @@ abstract interface class StorageRepository {
     required bool isFavorite,
   });
 
+  /// Ukrywa plik na liście Udostępnione bieżącego użytkownika.
+  Future<Either<ApiError, Unit>> dismissSharedFile(String fileId);
+
   /// Usuwa plik do kosza (soft delete).
   Future<Either<ApiError, Unit>> deleteFile(String fileId);
 
@@ -130,6 +133,13 @@ abstract interface class StorageRepository {
   Future<Either<ApiError, StorageFileResponse>> updateFileDescription({
     required String fileId,
     required String description,
+  });
+
+  /// Zmienia nazwę pliku bez zmiany jego rozszerzenia.
+  Future<Either<ApiError, StorageFileResponse>> renameFile({
+    required String fileId,
+    required String fileName,
+    String? expectedConcurrencyToken,
   });
 
   /// Pobiera historię wersji pliku.
@@ -150,6 +160,13 @@ abstract interface class StorageRepository {
     required int version,
     required int expectedVersion,
     String? changeSummary,
+  });
+
+  /// Usuwa poprzednią wersję po kontroli bieżącego numeru wersji.
+  Future<Either<ApiError, Unit>> deleteFileVersion({
+    required String fileId,
+    required int version,
+    required int expectedVersion,
   });
 
   /// Pobiera token sesji OnlyOffice dla pliku.

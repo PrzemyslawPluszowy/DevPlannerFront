@@ -121,8 +121,10 @@ abstract final class ChatRichTextCodec {
   static List<ChatRichTextBlock> _parseOps(List<Object?> ops) {
     final blocks = <ChatRichTextBlock>[];
     var spans = <ChatRichTextSpan>[];
+    var lineSpans = <ChatRichTextSpan>[];
     var kind = ChatRichTextBlockKind.paragraph;
     String? language;
+    var hasCodeLine = false;
 
     void flush() {
       if (spans.isNotEmpty) {
@@ -137,6 +139,7 @@ abstract final class ChatRichTextCodec {
       spans = <ChatRichTextSpan>[];
       kind = ChatRichTextBlockKind.paragraph;
       language = null;
+      hasCodeLine = false;
     }
 
     for (final raw in ops) {
@@ -149,22 +152,47 @@ abstract final class ChatRichTextCodec {
       if (insert is Map) {
         // Osadzony obiekt (obraz, wideo, formuła): pokazujemy znacznik, ale
         // nie przerywamy renderowania reszty wiadomości.
-        spans.add(const ChatRichTextSpan.unsupported());
+        lineSpans.add(const ChatRichTextSpan.unsupported());
         continue;
       }
       if (insert is! String) continue;
       final segments = insert.split('\n');
       for (var index = 0; index < segments.length; index++) {
         if (segments[index].isNotEmpty) {
-          spans.add(_span(segments[index], attributes));
+          lineSpans.add(_span(segments[index], attributes));
         }
         final isLineBreak = index < segments.length - 1;
         if (!isLineBreak) continue;
         final blockKind = _blockKind(attributes);
+        if (blockKind.$1 == ChatRichTextBlockKind.code) {
+          if (kind != ChatRichTextBlockKind.code || language != blockKind.$2) {
+            flush();
+            kind = ChatRichTextBlockKind.code;
+            language = blockKind.$2;
+          }
+          if (hasCodeLine) spans.add(const ChatRichTextSpan(text: '\n'));
+          spans.addAll(lineSpans);
+          lineSpans = <ChatRichTextSpan>[];
+          hasCodeLine = true;
+          continue;
+        }
+
+        // Block-level Quill attributes are attached to the line terminator.
+        // A plain line after code ends the accumulated code card before its
+        // own content is appended.
+        if (kind == ChatRichTextBlockKind.code) flush();
+        if (spans.isNotEmpty) flush();
         kind = blockKind.$1;
         language = blockKind.$2;
+        spans.addAll(lineSpans);
+        lineSpans = <ChatRichTextSpan>[];
         flush();
       }
+    }
+    if (lineSpans.isNotEmpty) {
+      if (kind == ChatRichTextBlockKind.code) flush();
+      if (spans.isNotEmpty) flush();
+      spans.addAll(lineSpans);
     }
     if (spans.isNotEmpty) flush();
     return blocks.where((block) => !block.isEmpty).toList(growable: false);

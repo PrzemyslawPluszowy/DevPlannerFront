@@ -16532,6 +16532,54 @@ abstract class AppLocalizations {
   /// **'Enter a valid folder name.'**
   String get storageRenameFolderValidation;
 
+  /// No description provided for @storageRenameFileDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename file'**
+  String get storageRenameFileDialogTitle;
+
+  /// No description provided for @storageRenameFileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New file name'**
+  String get storageRenameFileHint;
+
+  /// No description provided for @storageRenameFileExtensionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The file extension cannot be changed.'**
+  String get storageRenameFileExtensionHint;
+
+  /// No description provided for @storageVersionAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'Author: {name}'**
+  String storageVersionAuthor(String name);
+
+  /// No description provided for @storageVersionDeleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete previous version'**
+  String get storageVersionDeleteAction;
+
+  /// No description provided for @storageVersionDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete version {version}? This cannot be undone.'**
+  String storageVersionDeleteConfirm(int version);
+
+  /// No description provided for @storageVersionAuthorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown author'**
+  String get storageVersionAuthorUnknown;
+
+  /// No description provided for @storagePublicLinkCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The link could not be created. Check your connection and try again.'**
+  String get storagePublicLinkCreateFailed;
+
   /// No description provided for @storageDeleteConfirmTitle.
   ///
   /// In en, this message translates to:
@@ -16771,6 +16819,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share'**
   String get storageShareAction;
+
+  /// No description provided for @storageDismissFromSharedAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide from Shared'**
+  String get storageDismissFromSharedAction;
+
+  /// No description provided for @storageDismissFromSharedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide this item?'**
+  String get storageDismissFromSharedTitle;
+
+  /// No description provided for @storageDismissFromSharedConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This file will disappear only from your Shared list. Access and the owner\'s file will remain unchanged.'**
+  String get storageDismissFromSharedConfirm;
+
+  /// No description provided for @storageDismissFromSharedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Item removed from your Shared list.'**
+  String get storageDismissFromSharedSuccess;
 
   /// No description provided for @storageShareAuthor.
   ///
@@ -17443,6 +17515,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Original message unavailable'**
   String get chatReplyOriginalUnavailable;
+
+  /// No description provided for @chatReplyGenericHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to a message'**
+  String get chatReplyGenericHeading;
+
+  /// No description provided for @chatReplyContainsAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Message contains an attachment'**
+  String get chatReplyContainsAttachment;
 
   /// No description provided for @chatComposerCancelReply.
   ///
@@ -19512,6 +19596,30 @@ abstract class AppLocalizations {
   /// **'Could not update membership. Try again.'**
   String get chatMembersMutationFailureMessage;
 
+  /// No description provided for @chatMembersMutationForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You no longer have permission to do this. Reopen the member list and check your role.'**
+  String get chatMembersMutationForbidden;
+
+  /// No description provided for @chatMembersMutationConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The member list has changed. Reopen it, then try again.'**
+  String get chatMembersMutationConflict;
+
+  /// No description provided for @chatMembersMutationValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'The server rejected this change. Check whether ownership must be transferred before leaving.'**
+  String get chatMembersMutationValidation;
+
+  /// No description provided for @chatMembersMutationConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'The change could not be confirmed. Reopen the member list before trying again.'**
+  String get chatMembersMutationConnection;
+
   /// No description provided for @chatActionFailureMessage.
   ///
   /// In en, this message translates to:
@@ -19535,6 +19643,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load this thread. Try again.'**
   String get chatThreadLoadFailureMessage;
+
+  /// No description provided for @chatThreadUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This thread cannot open because chat is not fully configured.'**
+  String get chatThreadUnavailableMessage;
 
   /// No description provided for @chatDiscussionLoadFailureMessage.
   ///
@@ -19716,6 +19830,18 @@ abstract class AppLocalizations {
   /// **'The phrase must have at least {count} characters.'**
   String chatSearchTooShortMessage(int count);
 
+  /// No description provided for @chatSearchTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Use no more than {count} characters'**
+  String chatSearchTooLong(int count);
+
+  /// No description provided for @chatSearchTooLongMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The phrase can contain at most {count} characters.'**
+  String chatSearchTooLongMessage(int count);
+
   /// No description provided for @chatSearchFailureTitle.
   ///
   /// In en, this message translates to:
@@ -19733,6 +19859,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too many requests'**
   String get chatSearchRateLimitedTitle;
+
+  /// No description provided for @chatSearchRetryAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in {seconds} s.'**
+  String chatSearchRetryAfter(int seconds);
 
   /// No description provided for @chatSearchEmptyTitle.
   ///
@@ -20016,6 +20148,12 @@ abstract class AppLocalizations {
   /// **'The text exceeds the single file size limit. Save it in smaller parts.'**
   String get chatLongPasteAttachmentTooLarge;
 
+  /// No description provided for @chatLongPastePolicyLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check the long-text limit. Try again; the text was not pasted.'**
+  String get chatLongPastePolicyLoadFailed;
+
   /// No description provided for @chatLinkOpen.
   ///
   /// In en, this message translates to:
@@ -20244,6 +20382,48 @@ abstract class AppLocalizations {
   /// **'Open file'**
   String get chatAttachmentOpen;
 
+  /// No description provided for @chatAttachmentOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the attachment. Try again.'**
+  String get chatAttachmentOpenFailed;
+
+  /// No description provided for @chatAttachmentSaveToStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to My files'**
+  String get chatAttachmentSaveToStorage;
+
+  /// No description provided for @chatAttachmentSaveAndOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and open in OnlyOffice'**
+  String get chatAttachmentSaveAndOpen;
+
+  /// No description provided for @chatAttachmentSavedToStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to My files'**
+  String get chatAttachmentSavedToStorage;
+
+  /// No description provided for @chatAttachmentSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the file to My files.'**
+  String get chatAttachmentSaveFailed;
+
+  /// No description provided for @chatAttachmentSavedOpenUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to My files. This file cannot be opened in OnlyOffice.'**
+  String get chatAttachmentSavedOpenUnsupported;
+
+  /// No description provided for @chatAttachmentSavedOpenUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to My files, but the editor could not be opened.'**
+  String get chatAttachmentSavedOpenUnavailable;
+
   /// No description provided for @chatComposerMoreActions.
   ///
   /// In en, this message translates to:
@@ -20261,6 +20441,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'File'**
   String get chatComposerAddFile;
+
+  /// No description provided for @chatComposerAddPrivateFile.
+  ///
+  /// In en, this message translates to:
+  /// **'From My files'**
+  String get chatComposerAddPrivateFile;
+
+  /// No description provided for @chatPrivateFilesOnlyClean.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a clean file from your private storage.'**
+  String get chatPrivateFilesOnlyClean;
+
+  /// No description provided for @chatPrivateFilesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'My files are unavailable in this chat session.'**
+  String get chatPrivateFilesUnavailable;
+
+  /// No description provided for @chatPrivateFilesSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search My files'**
+  String get chatPrivateFilesSearch;
+
+  /// No description provided for @chatPrivateFilesParentFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent folder'**
+  String get chatPrivateFilesParentFolder;
+
+  /// No description provided for @chatPrivateFilesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No ready files in this folder.'**
+  String get chatPrivateFilesEmpty;
+
+  /// No description provided for @chatPrivateFilesLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more files'**
+  String get chatPrivateFilesLoadMore;
+
+  /// No description provided for @chatPrivateFilesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add selected ({count})'**
+  String chatPrivateFilesAdd(int count);
 
   /// No description provided for @chatComposerAttachmentsUnavailable.
   ///
@@ -20693,6 +20921,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This page has no conversations available to you, but more pages exist.'**
   String get chatInboxEmptyPageMore;
+
+  /// No description provided for @chatConversationRenameAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename conversation'**
+  String get chatConversationRenameAction;
+
+  /// No description provided for @chatConversationRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename conversation'**
+  String get chatConversationRenameTitle;
+
+  /// No description provided for @chatConversationNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation name'**
+  String get chatConversationNameLabel;
+
+  /// No description provided for @chatConversationNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get chatConversationNameHint;
+
+  /// No description provided for @chatConversationRenameFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not rename the conversation.'**
+  String get chatConversationRenameFailure;
+
+  /// No description provided for @chatConversationRenameSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation name updated.'**
+  String get chatConversationRenameSuccess;
 }
 
 class _AppLocalizationsDelegate

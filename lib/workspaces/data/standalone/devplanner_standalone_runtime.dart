@@ -4,6 +4,12 @@ import 'package:devplanner/auth/data/auth_composition.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_content_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_directory_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_inbox_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_notification_settings_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_presence_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_search_api.dart';
 import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_access_port_adapter.dart';
 import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_session_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_upload_port_adapter.dart';
@@ -80,6 +86,36 @@ final class DevPlannerStandaloneRuntime {
          baseUrl: transport.baseUrl,
          errorLogger: const ChatParseErrorLogger(),
        ),
+       _chatInboxApi = ChatInboxApi(
+         transport.apiDio,
+         baseUrl: transport.baseUrl,
+         errorLogger: const ChatParseErrorLogger(),
+       ),
+       _chatContentApi = ChatContentApi(
+         transport.apiDio,
+         baseUrl: transport.baseUrl,
+         errorLogger: const ChatParseErrorLogger(),
+       ),
+       _chatDirectoryApi = ChatDirectoryApi(
+         transport.apiDio,
+         baseUrl: transport.baseUrl,
+         errorLogger: const ChatParseErrorLogger(),
+       ),
+       _chatSearchApi = ChatSearchApi(
+         transport.apiDio,
+         baseUrl: transport.baseUrl,
+         errorLogger: const ChatParseErrorLogger(),
+       ),
+       _chatPresenceApi = ChatPresenceApi(
+         transport.apiDio,
+         baseUrl: transport.baseUrl,
+         errorLogger: const ChatParseErrorLogger(),
+       ),
+       _chatNotificationSettingsApi = ChatNotificationSettingsApi(
+         transport.apiDio,
+         baseUrl: transport.baseUrl,
+         errorLogger: const ChatParseErrorLogger(),
+       ),
        _notificationsApi = NotificationsApi(
          transport.apiDio,
          baseUrl: transport.baseUrl,
@@ -110,6 +146,12 @@ final class DevPlannerStandaloneRuntime {
 
   final ChatDraftRepository _draftRepository;
   final ChatApi _chatApi;
+  final ChatInboxApi _chatInboxApi;
+  final ChatContentApi _chatContentApi;
+  final ChatDirectoryApi _chatDirectoryApi;
+  final ChatSearchApi _chatSearchApi;
+  final ChatPresenceApi _chatPresenceApi;
+  final ChatNotificationSettingsApi _chatNotificationSettingsApi;
   final NotificationsApi _notificationsApi;
 
   late final ChatRepository _chatRepository = ChatRepositoryImpl(_chatApi);
@@ -151,25 +193,26 @@ final class DevPlannerStandaloneRuntime {
     return _attachmentAccessAdapter ??= ChatAttachmentAccessPortAdapter(
       storageRepository: storage,
       downloadTransport: const DownloadTransportImpl(),
+      chatApi: _chatApi,
     );
   }
 
   late final ChatInboxRepository _chatInboxRepository = ChatInboxRepositoryImpl(
-    _chatApi,
+    _chatInboxApi,
   );
   late final ChatLinkPolicyRepository _chatLinkPolicy =
-      ChatLinkPolicyRepositoryImpl(_chatApi);
+      ChatLinkPolicyRepositoryImpl(_chatContentApi);
   late final ChatLinkPreviewRepository _chatLinkPreviews =
-      ChatLinkPreviewRepositoryImpl(_chatApi);
+      ChatLinkPreviewRepositoryImpl(_chatContentApi);
   late final ChatSnippetRepository _chatSnippets = ChatSnippetRepositoryImpl(
-    _chatApi,
+    _chatContentApi,
   );
   late final ChatNotificationSettingsRepository _chatNotificationSettings =
-      ChatNotificationSettingsRepositoryImpl(_chatApi);
+      ChatNotificationSettingsRepositoryImpl(_chatNotificationSettingsApi);
   late final ChatConversationManagementRepository _chatManagement =
       ChatConversationManagementRepositoryImpl(_chatApi);
   late final ChatDirectoryRepository _chatDirectory =
-      ChatDirectoryRepositoryImpl(_chatApi);
+      ChatDirectoryRepositoryImpl(_chatDirectoryApi);
   late final ChatPendingSendStore _chatPendingSends =
       ChatPendingSendStoreImpl();
   late final ChatServerDraftRepository _chatServerDrafts =
@@ -181,10 +224,10 @@ final class DevPlannerStandaloneRuntime {
     _chatApi,
   );
   late final ChatSearchRepository _chatSearch = ChatSearchRepositoryImpl(
-    _chatApi,
+    _chatSearchApi,
   );
   late final ChatPresenceRepository _chatPresence = ChatPresenceRepositoryImpl(
-    _chatApi,
+    _chatPresenceApi,
   );
   late final ChatMessageActionsRepository _chatMessageActions =
       ChatMessageActionsRepositoryImpl(_chatApi);

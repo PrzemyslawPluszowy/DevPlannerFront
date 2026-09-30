@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy.dart';
+import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
 
 /// Jak potraktować długie wklejenie.
 enum ChatLongPasteKind {
@@ -44,6 +45,25 @@ final class ChatLongPasteAssessment {
 abstract final class ChatLongPasteDecision {
   /// Liczba linii pokazywanych w podglądzie karty.
   static const int previewLineCount = 3;
+
+  /// Wybiera treść pliku, nigdy nie zwracając skróconego lub pustego tekstu.
+  ///
+  /// Przygotowanie API jest optymalizacją. Błąd, pusta odpowiedź albo truncation
+  /// przechodzą na oryginalne bajty, które można wysłać przez Storage.
+  static String contentForUpload({
+    required String originalText,
+    required ChatSnippetPreparation? preparation,
+    bool forceOriginal = false,
+  }) {
+    if (forceOriginal ||
+        preparation == null ||
+        preparation.isTruncated ||
+        preparation.content == null ||
+        preparation.content!.isEmpty) {
+      return originalText;
+    }
+    return preparation.content!;
+  }
 
   /// Ocenia wklejenie wobec polityki serwera.
   static ChatLongPasteAssessment assess({

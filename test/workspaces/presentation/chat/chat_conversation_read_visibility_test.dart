@@ -3,6 +3,7 @@ import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_read_tracker.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,6 +13,7 @@ final class _ReadTrackingRepository implements ChatConversationRepository {
 
   final List<ChatMessage> messages;
   final List<String> readCalls = <String>[];
+  bool failNextRead = false;
 
   @override
   Future<Either<ApiError, ChatConversation>> getConversation(String id) async =>
@@ -60,6 +62,12 @@ final class _ReadTrackingRepository implements ChatConversationRepository {
     required String messageId,
   }) async {
     readCalls.add(messageId);
+    if (failNextRead) {
+      failNextRead = false;
+      return const Left(
+        ApiError(type: ApiErrorType.connection, message: 'Offline.'),
+      );
+    }
     return const Right(null);
   }
 }
@@ -124,10 +132,10 @@ void main() {
         final first = await cubit.markVisibleAsRead('m1');
         final second = await cubit.markVisibleAsRead('m1');
 
-        expect(first, isTrue);
+        expect(first, ChatReadMarkOutcome.marked);
         expect(
           second,
-          isFalse,
+          ChatReadMarkOutcome.ignored,
           reason: 'powtórzenie dla tej samej wiadomości nic nie wysyła',
         );
         expect(repository.readCalls, <String>['m1']);
@@ -136,22 +144,22 @@ void main() {
       },
     );
 
-    test('nie oznacza cudzej historii jako odczytanej poza widokiem', () async {
-      final repository = _ReadTrackingRepository(
-        messages: <ChatMessage>[
-          message(id: 'm1', authorUserId: currentUserId),
-        ],
-      );
-      final cubit = await loadCubit(repository);
+    test(
+      'widoczna własna wiadomość przesuwa kursor odczytu rozmowy',
+      () async {
+        final repository = _ReadTrackingRepository(
+          messages: <ChatMessage>[
+            message(id: 'm1', authorUserId: currentUserId),
+          ],
+        );
+        final cubit = await loadCubit(repository);
 
-      expect(await cubit.markVisibleAsRead('m1'), isFalse);
-      expect(
-        repository.readCalls,
-        isEmpty,
-        reason: 'własna wiadomość nie wymaga odczytu',
-      );
-      await cubit.close();
-    });
+        expect(await cubit.markVisibleAsRead('m1'), ChatReadMarkOutcome.marked);
+        expect(repository.readCalls, <String>['m1']);
+        expect(cubit.lastReadMessageId, 'm1');
+        await cubit.close();
+      },
+    );
 
     test('pomija wiadomości lokalne i usunięte', () async {
       final repository = _ReadTrackingRepository(
@@ -162,8 +170,11 @@ void main() {
       );
       final cubit = await loadCubit(repository);
 
-      expect(await cubit.markVisibleAsRead('local:client-1'), isFalse);
-      expect(await cubit.markVisibleAsRead('m2'), isFalse);
+      expect(
+        await cubit.markVisibleAsRead('local:client-1'),
+        ChatReadMarkOutcome.ignored,
+      );
+      expect(await cubit.markVisibleAsRead('m2'), ChatReadMarkOutcome.ignored);
       expect(repository.readCalls, isEmpty);
       await cubit.close();
     });
@@ -174,7 +185,10 @@ void main() {
       );
       final cubit = await loadCubit(repository);
 
-      expect(await cubit.markVisibleAsRead('nie-istnieje'), isFalse);
+      expect(
+        await cubit.markVisibleAsRead('nie-istnieje'),
+        ChatReadMarkOutcome.ignored,
+      );
       expect(repository.readCalls, isEmpty);
       await cubit.close();
     });
@@ -188,10 +202,30 @@ void main() {
       );
       final cubit = await loadCubit(repository);
 
-      expect(await cubit.markVisibleAsRead('m2'), isTrue);
-      expect(await cubit.markVisibleAsRead('m1'), isFalse);
+      expect(await cubit.markVisibleAsRead('m2'), ChatReadMarkOutcome.marked);
+      expect(await cubit.markVisibleAsRead('m1'), ChatReadMarkOutcome.ignored);
       expect(repository.readCalls, <String>['m2']);
       expect(cubit.lastReadMessageId, 'm2');
+      await cubit.close();
+    });
+
+    test('raportuje błąd API osobno i można ponowić ten sam odczyt', () async {
+      final repository = _ReadTrackingRepository(
+        messages: <ChatMessage>[message(id: 'm1', authorUserId: 'peer')],
+      )..failNextRead = true;
+      final cubit = await loadCubit(repository);
+
+      expect(
+        await cubit.markVisibleAsRead('m1'),
+        ChatReadMarkOutcome.failed,
+      );
+      expect(cubit.lastReadMessageId, isNull);
+      expect(
+        await cubit.markVisibleAsRead('m1'),
+        ChatReadMarkOutcome.marked,
+      );
+      expect(repository.readCalls, <String>['m1', 'm1']);
+      expect(cubit.lastReadMessageId, 'm1');
       await cubit.close();
     });
   });

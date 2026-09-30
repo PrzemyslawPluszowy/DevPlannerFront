@@ -12,6 +12,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storag
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_preview_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_rename_file_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:devplanner/workspaces/presentation/storage/versions/storage_versions_dialog.dart';
@@ -30,6 +31,10 @@ abstract final class StorageFileContextMenu {
     final l10n = context.l10n;
     final mutation = context.read<StorageFileMutationCubit>();
     final isTrash = context.read<StorageBrowserCubit>().currentScope.isTrash;
+    final isShared = context
+        .read<StorageBrowserCubit>()
+        .currentScope
+        .isSharedWithMe;
     final openDetails = onOpenFileDetails;
     unawaited(
       AppContextMenu.show(
@@ -48,6 +53,12 @@ abstract final class StorageFileContextMenu {
               label: l10n.storageDetailsTitle,
               icon: Icons.info_outline,
               onTap: (_) => openDetails(file.id),
+            ),
+          if (capabilities.canRenameFile && file.canEdit && !isTrash)
+            AppContextMenuAction(
+              label: l10n.storageRenameFileDialogTitle,
+              icon: Icons.drive_file_rename_outline,
+              onTap: (_) => StorageRenameFileDialog.show(context, file),
             ),
           if (file.canEditOnline && !isTrash)
             AppContextMenuAction(
@@ -83,6 +94,33 @@ abstract final class StorageFileContextMenu {
               icon: AppIcons.star,
               onTap: (_) => mutation.toggleFavorite(file),
             ),
+          if (isShared && file.canDismissFromShared)
+            AppContextMenuAction(
+              label: l10n.storageDismissFromSharedAction,
+              icon: Icons.visibility_off_outlined,
+              onTap: (_) async {
+                final shouldDismiss = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: Text(l10n.storageDismissFromSharedTitle),
+                    content: Text(l10n.storageDismissFromSharedConfirm),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(false),
+                        child: Text(l10n.cancel),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                        child: Text(l10n.storageDismissFromSharedAction),
+                      ),
+                    ],
+                  ),
+                );
+                if (shouldDismiss == true) {
+                  await mutation.dismissSharedFile(file.id);
+                }
+              },
+            ),
           if (capabilities.canDownload && file.canDownload)
             AppContextMenuAction(
               label: l10n.storageDownloadAction,
@@ -99,6 +137,8 @@ abstract final class StorageFileContextMenu {
                   file: file,
                   repository: context.read<StorageRepository>(),
                   downloadTransport: context.read<DownloadTransport>(),
+                  canDeleteVersions:
+                      capabilities.canManageVersions && file.canManageVersions,
                 );
                 if (restored == true && context.mounted) {
                   unawaited(

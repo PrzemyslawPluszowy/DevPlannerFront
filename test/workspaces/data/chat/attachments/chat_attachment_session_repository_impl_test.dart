@@ -10,6 +10,11 @@ final class _MockChatApi extends Mock implements ChatApi {}
 void main() {
   late _MockChatApi api;
 
+  setUpAll(() {
+    registerFallbackValue(
+      const CopyPrivateFileToChatAttachmentPayload(storageFileId: 'fallback'),
+    );
+  });
   setUp(() => api = _MockChatApi());
 
   group('ChatAttachmentSessionRepositoryImpl', () {
@@ -56,6 +61,52 @@ void main() {
         () => api.cancelAttachmentSession('conversation-1', 'session-1'),
       ).called(1);
     });
+
+    test(
+      'kopiowanie prywatnego pliku trafia do aktywnej sesji bez uploadu',
+      () async {
+        when(
+          () => api.copyPrivateFileToAttachmentSession(
+            'conversation-1',
+            'session-1',
+            any(),
+          ),
+        ).thenAnswer(
+          (_) async => const CopyPrivateFileToChatAttachmentResponse(
+            storageFileId: 'comment-file-1',
+            sessionId: 'session-1',
+            fileName: 'brief.docx',
+            mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            fileSizeBytes: 42,
+          ),
+        );
+
+        final result =
+            await ChatAttachmentSessionRepositoryImpl(
+              api,
+            ).copyPrivateFileToSession(
+              conversationId: 'conversation-1',
+              sessionId: 'session-1',
+              sourceStorageFileId: 'private-file-1',
+            );
+
+        final prepared = result.getOrElse(
+          () => throw StateError('oczekiwano przygotowanego pliku'),
+        );
+        expect(prepared.storageFileId, 'comment-file-1');
+        expect(prepared.sessionId, 'session-1');
+        final payload =
+            verify(
+                  () => api.copyPrivateFileToAttachmentSession(
+                    'conversation-1',
+                    'session-1',
+                    captureAny(),
+                  ),
+                ).captured.single
+                as CopyPrivateFileToChatAttachmentPayload;
+        expect(payload.storageFileId, 'private-file-1');
+      },
+    );
 
     test('odmowa wydania sesji ma własny kod domenowy', () async {
       when(() => api.createAttachmentSession(any())).thenThrow(

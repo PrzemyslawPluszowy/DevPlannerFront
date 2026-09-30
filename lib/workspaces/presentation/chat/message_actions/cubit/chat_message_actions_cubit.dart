@@ -25,7 +25,8 @@ final class ChatMessageActionsCubit extends Cubit<ChatMessageActionsState> {
     final result = await repository.editMessage(
       messageId: message.id,
       text: normalizedText,
-      deltaJson: message.deltaJson,
+      // Dialog edytuje plain text; poprzednia Delta nie opisuje nowej treści.
+      deltaJson: null,
       version: message.version,
     );
     if (isClosed || generation != _generation) return;

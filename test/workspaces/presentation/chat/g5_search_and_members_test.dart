@@ -210,6 +210,40 @@ void main() {
       await cubit.close();
     });
 
+    test('nie pyta backendu o frazę przekraczającą limit API', () async {
+      final repository = _SearchFake();
+      final cubit = ChatSearchCubit(
+        repository: repository,
+        debounce: Duration.zero,
+      );
+
+      cubit.updateTerm('a' * 161);
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+
+      expect(cubit.state.isTermTooLong(160), isTrue);
+      expect(cubit.state.isSearching, isFalse);
+      expect(repository.queries, isEmpty);
+      expect(repository.facetTerms, isEmpty);
+      await cubit.retry();
+      expect(repository.queries, isEmpty);
+      await cubit.close();
+    });
+
+    test('dopuszcza frazę o maksymalnej długości kontraktu', () async {
+      final repository = _SearchFake();
+      final cubit = ChatSearchCubit(
+        repository: repository,
+        debounce: Duration.zero,
+      );
+
+      cubit.updateTerm('a' * 160);
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+
+      expect(repository.queries, hasLength(1));
+      expect(repository.queries.single.term, 'a' * 160);
+      await cubit.close();
+    });
+
     test('debounce ogranicza zapytania i mapuje wyniki', () async {
       final repository = _SearchFake(
         page: ChatSearchPage(
@@ -346,6 +380,42 @@ void main() {
 
       expect(cubit.state.isRateLimited, isTrue);
       expect(cubit.state.page, isNull);
+      await cubit.close();
+    });
+
+    test('retry respektuje termin Retry-After', () async {
+      final repository = _SearchFake(
+        failure: ApiError(
+          type: ApiErrorType.badResponse,
+          message: 'chat.rate_limit_exceeded',
+          apiCode: 'chat.rate_limit_exceeded',
+          statusCode: 429,
+          retryAfterUtc: DateTime.now().toUtc().add(
+            const Duration(milliseconds: 1200),
+          ),
+        ),
+      );
+      final cubit = ChatSearchCubit(
+        repository: repository,
+        debounce: Duration.zero,
+      );
+
+      cubit.updateTerm('anna');
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(cubit.state.retryWaitSeconds, greaterThan(0));
+      await cubit.retry();
+      expect(repository.queries, hasLength(1));
+      cubit.updateTerm('inna');
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(repository.queries, hasLength(1));
+      expect(cubit.state.term, 'inna');
+      expect(cubit.state.isRateLimited, isTrue);
+
+      await Future<void>.delayed(const Duration(milliseconds: 1250));
+      expect(cubit.state.retryWaitSeconds, 0);
+      await cubit.retry();
+      expect(repository.queries, hasLength(2));
+      expect(repository.queries.last.term, 'inna');
       await cubit.close();
     });
 
@@ -503,7 +573,20 @@ void main() {
 
       final state = cubit.state as ChatMembersReady;
       expect(state.failureCode, 'chat.members.change_failed');
+      expect(state.failureType, ApiErrorType.forbidden);
+      expect(state.failureStatusCode, 403);
       expect(state.isMutating, isFalse);
+
+      repository.failure = const ApiError(
+        type: ApiErrorType.badResponse,
+        message: 'chat.members.change_failed',
+        apiCode: 'chat.members.change_failed',
+        statusCode: 400,
+      );
+      await cubit.removeMember('peer');
+      final validationState = cubit.state as ChatMembersReady;
+      expect(validationState.failureType, ApiErrorType.badResponse);
+      expect(validationState.failureStatusCode, 400);
       await cubit.close();
     });
 

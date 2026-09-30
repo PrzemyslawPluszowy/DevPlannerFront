@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/l10n/l10n.dart';
-import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/shared/presentation/widgets/app_toast.dart';
@@ -61,7 +60,7 @@ class ChatMessageActionMenu extends StatelessWidget {
   final ValueChanged<ChatMessage>? onDelete;
 
   /// Żądanie przekazania; UI wybiera rozmowę docelową.
-  final ValueChanged<ChatMessage>? onForward;
+  final void Function(ChatMessage, Offset)? onForward;
 
   /// Powiadamia o zmianie przypięcia, żeby odświeżyć listę przypięć.
   final ValueChanged<bool>? onPinnedChanged;
@@ -80,6 +79,7 @@ class ChatMessageActionMenu extends StatelessWidget {
         context,
         cubit,
         onPinnedChanged,
+        position: position,
         isPinned: state.pinnedMessageIds.contains(message.id),
         isBookmarked: state.bookmarkedMessageIds.contains(message.id),
       ),
@@ -127,6 +127,7 @@ class ChatMessageActionMenu extends StatelessWidget {
     BuildContext context,
     ChatMessageSecondaryActionsCubit cubit,
     ValueChanged<bool>? onPinnedChanged, {
+    required Offset position,
     required bool isPinned,
     required bool isBookmarked,
   }) {
@@ -145,7 +146,7 @@ class ChatMessageActionMenu extends StatelessWidget {
       // dziedziczy lokalnych providerów ani Actions z obszaru wiadomości,
       // dlatego akcje wymagające scope'u (reakcje, kopiowanie zaznaczenia)
       // muszą dostać kontekst przycisku, który otworzył menu.
-      onTap: (_) => _handle(context, cubit, key, onPinnedChanged),
+      onTap: (_) => _handle(context, cubit, key, onPinnedChanged, position),
     );
 
     return <AppContextMenuAction>[
@@ -193,6 +194,7 @@ class ChatMessageActionMenu extends StatelessWidget {
     ChatMessageSecondaryActionsCubit cubit,
     String action,
     ValueChanged<bool>? onPinnedChanged,
+    Offset position,
   ) async {
     switch (action) {
       case 'copy':
@@ -208,7 +210,7 @@ class ChatMessageActionMenu extends StatelessWidget {
       case 'delete':
         onDelete?.call(message);
       case 'forward':
-        onForward?.call(message);
+        onForward?.call(message, position);
       case 'pin':
         final outcome = await cubit.togglePin(
           conversationId: message.conversationId,
@@ -217,15 +219,26 @@ class ChatMessageActionMenu extends StatelessWidget {
         );
         if (outcome == ChatMessageSecondaryActionOutcome.succeeded) {
           onPinnedChanged?.call(!isPinned);
+        } else if (outcome == ChatMessageSecondaryActionOutcome.failed) {
+          if (!context.mounted) return;
+          _showSecondaryActionFailure(context);
         }
       case 'bookmark':
-        await cubit.toggleBookmark(
+        final outcome = await cubit.toggleBookmark(
           messageId: message.id,
           isBookmarked: isBookmarked,
         );
+        if (outcome == ChatMessageSecondaryActionOutcome.failed) {
+          if (!context.mounted) return;
+          _showSecondaryActionFailure(context);
+        }
       case 'react':
         if (!context.mounted) return;
-        await showChatQuickReactionPicker(context, message: message);
+        await showChatQuickReactionPicker(
+          context,
+          message: message,
+          globalPosition: position,
+        );
     }
   }
 }
@@ -264,60 +277,77 @@ Future<void> copyChatSelection(BuildContext context) => Future<void>.sync(
 Future<void> showChatQuickReactionPicker(
   BuildContext context, {
   required ChatMessage message,
+  required Offset globalPosition,
 }) async {
   final cubit = context.read<ChatMessageSecondaryActionsCubit>();
   final chat = context.chatTheme;
-  final selected = await DevPlannerModalHost.showBottomSheet<String>(
+  String? selected;
+  await AppContextMenu.showCustom(
     context,
-    showDragHandle: true,
-    backgroundColor: chat.panelSurface,
-    barrierColor: Colors.black.withValues(alpha: .36),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(chat.composerRadius),
-      ),
-      side: BorderSide(color: chat.separator),
-    ),
-    builder: (sheetContext) => Material(
-      color: chat.panelSurface,
-      surfaceTintColor: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.all(Sizes.p12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            for (final emoji in ChatEmojiCatalog.quickReactions)
-              IconButton(
-                key: ValueKey<String>('chat-reaction-$emoji'),
-                tooltip: emoji,
-                onPressed: () => Navigator.of(sheetContext).pop(emoji),
-                icon: Text(emoji, style: const TextStyle(fontSize: 22)),
-              ),
+    globalPosition: globalPosition,
+    maxWidth: 304,
+    maxHeight: 76,
+    contentBuilder: (_, dismiss) => Theme(
+      data: chat.applyControls(Theme.of(context)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          for (final emoji in ChatEmojiCatalog.quickReactions)
             IconButton(
-              key: const ValueKey('chat-reaction-more'),
-              tooltip: context.l10n.chatComposerEmoji,
-              onPressed: () => Navigator.of(sheetContext).pop(
-                _moreReactionsToken,
-              ),
-              icon: const Icon(Symbols.add_reaction, size: 22),
+              key: ValueKey<String>('chat-reaction-$emoji'),
+              tooltip: emoji,
+              onPressed: () {
+                selected = emoji;
+                dismiss();
+              },
+              icon: Text(emoji, style: const TextStyle(fontSize: 22)),
             ),
-          ],
-        ),
+          IconButton(
+            key: const ValueKey('chat-reaction-more'),
+            tooltip: context.l10n.chatComposerEmoji,
+            onPressed: () {
+              selected = _moreReactionsToken;
+              dismiss();
+            },
+            icon: const Icon(Symbols.add_reaction, size: 22),
+          ),
+        ],
       ),
     ),
   );
-  if (selected == null) return;
-  if (selected == _moreReactionsToken) {
+  final selectedReaction = selected;
+  if (selectedReaction == null) return;
+  if (selectedReaction == _moreReactionsToken) {
     if (!context.mounted) return;
     final emoji = await showChatEmojiPicker(
       context,
       recent: context.read<ChatEmojiRecentCubit?>(),
+      anchorPosition: globalPosition,
     );
     if (emoji == null) return;
-    await cubit.react(messageId: message.id, emoji: emoji);
+    final outcome = await cubit.react(messageId: message.id, emoji: emoji);
+    if (outcome == ChatMessageSecondaryActionOutcome.failed &&
+        context.mounted) {
+      _showSecondaryActionFailure(context);
+    }
     return;
   }
-  await cubit.react(messageId: message.id, emoji: selected);
+  final outcome = await cubit.react(
+    messageId: message.id,
+    emoji: selectedReaction,
+  );
+  if (outcome == ChatMessageSecondaryActionOutcome.failed && context.mounted) {
+    _showSecondaryActionFailure(context);
+  }
+}
+
+void _showSecondaryActionFailure(BuildContext context) {
+  if (!context.mounted) return;
+  AppToast.show(
+    context,
+    message: context.l10n.chatActionFailureMessage,
+    tone: AppToastTone.error,
+  );
 }
 
 /// Znacznik pozycji `+` w pasku szybkich reakcji.

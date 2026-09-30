@@ -327,6 +327,16 @@ class _StorageShellViewState extends State<_StorageShellView> {
                 context.read<StorageBrowserCubit>().load(showLoading: false),
               );
             }
+            if (state is StorageFileMutationSuccess &&
+                state.type == StorageFileMutationType.sharedFileDismissed) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text(context.l10n.storageDismissFromSharedSuccess),
+                  ),
+                );
+            }
             if (state is StorageFileMutationFailure) {
               _showMutationError(
                 StorageMutationError(

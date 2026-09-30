@@ -8,13 +8,32 @@ import 'package:flutter/services.dart';
 ///
 /// Widget nie zna repozytorium ani endpointu. Otrzymuje callback, który
 /// wykonuje Cubit i zwraca już zbudowany bezpieczny link.
+typedef StoragePublicShareCreation = ({String? url, String? error});
+
 final class StoragePublicShareForm extends StatefulWidget {
   /// Tworzy formularz hasła, expiry oraz kopiowania linku.
-  const StoragePublicShareForm({required this.onCreate, super.key});
+  const StoragePublicShareForm({required this.onCreate, super.key})
+    : onCreateDetailed = null;
+
+  /// Tworzy formularz z błędem inline, zachowując starą sygnaturę callbacku.
+  const StoragePublicShareForm.detailed({
+    required this.onCreateDetailed,
+    super.key,
+  }) : onCreate = null;
 
   /// Zwraca link po potwierdzonym utworzeniu grantu albo `null` po błędzie.
-  final Future<String?> Function(String? password, DateTime? expiresAtUtc)
+  final Future<String?> Function(
+    String? password,
+    DateTime? expiresAtUtc,
+  )?
   onCreate;
+
+  /// Callback wariantowy ze szczegółowym błędem do pokazania w formularzu.
+  final Future<StoragePublicShareCreation> Function(
+    String? password,
+    DateTime? expiresAtUtc,
+  )?
+  onCreateDetailed;
 
   @override
   State<StoragePublicShareForm> createState() => _StoragePublicShareFormState();
@@ -113,6 +132,24 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
                       : const Icon(AppIcons.link, size: 16),
                   label: Text(context.l10n.storageGenerateLinkButton),
                 ),
+              if (state.errorMessage case final error?) ...[
+                const SizedBox(height: 8),
+                Text(
+                  error,
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.colors.error,
+                  ),
+                ),
+              ],
+              if (state.copied) ...[
+                const SizedBox(height: 8),
+                Text(
+                  context.l10n.storageLinkCopied,
+                  style: context.text.labelMedium?.copyWith(
+                    color: context.colors.primary,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -155,24 +192,32 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
     if (_viewState.value.isCreating) return;
     _viewState.value = _viewState.value.copyWith(isCreating: true);
     final password = _passwordController.text.trim();
-    final url = await widget.onCreate(
-      password.isEmpty ? null : password,
-      _viewState.value.expiresAtUtc,
-    );
+    final result = widget.onCreateDetailed != null
+        ? await widget.onCreateDetailed!(
+            password.isEmpty ? null : password,
+            _viewState.value.expiresAtUtc,
+          )
+        : (
+            url: await widget.onCreate!(
+              password.isEmpty ? null : password,
+              _viewState.value.expiresAtUtc,
+            ),
+            error: null,
+          );
     if (!mounted) return;
     _viewState.value = _viewState.value.copyWith(
       isCreating: false,
-      createdUrl: url,
+      createdUrl: result.url,
+      errorMessage: result.error,
+      clearError: result.error == null,
     );
-    if (url != null) await _copy(url);
+    if (result.url != null) await _copy(result.url!);
   }
 
   Future<void> _copy(String url) async {
     await Clipboard.setData(ClipboardData(text: url));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.storageLinkCopied)),
-    );
+    _viewState.value = _viewState.value.copyWith(copied: true);
   }
 }
 
@@ -181,20 +226,29 @@ final class _StoragePublicShareFormViewState {
     this.expiresAtUtc,
     this.createdUrl,
     this.isCreating = false,
+    this.errorMessage,
+    this.copied = false,
   });
 
   final DateTime? expiresAtUtc;
   final String? createdUrl;
   final bool isCreating;
+  final String? errorMessage;
+  final bool copied;
 
   _StoragePublicShareFormViewState copyWith({
     DateTime? expiresAtUtc,
     String? createdUrl,
     bool? isCreating,
+    String? errorMessage,
+    bool clearError = false,
+    bool? copied,
     bool clearCreatedUrl = false,
   }) => _StoragePublicShareFormViewState(
     expiresAtUtc: expiresAtUtc ?? this.expiresAtUtc,
     createdUrl: clearCreatedUrl ? null : createdUrl ?? this.createdUrl,
     isCreating: isCreating ?? this.isCreating,
+    errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
+    copied: copied ?? this.copied,
   );
 }

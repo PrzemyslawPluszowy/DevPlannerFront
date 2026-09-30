@@ -151,6 +151,7 @@ class _DevPlannerAppState extends State<DevPlannerApp> {
       chat: runtime?.chatComposition,
       notifications: runtime?.notificationsComposition,
       authSession: widget.auth?.session,
+      storageRepository: _storage.repository,
       child: child,
     );
   }

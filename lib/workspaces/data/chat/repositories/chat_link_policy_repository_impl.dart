@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_content_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy.dart';
 import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy_repository.dart';
@@ -14,7 +14,7 @@ final class ChatLinkPolicyRepositoryImpl implements ChatLinkPolicyRepository {
   /// Tworzy adapter na uwierzytelnionym kliencie Chat.
   ChatLinkPolicyRepositoryImpl(this._api);
 
-  final ChatApi _api;
+  final ChatContentApi _api;
   static const _errorMapper = ChatApiErrorMapper();
 
   @override

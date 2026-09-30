@@ -33,6 +33,7 @@ class ApiError extends Equatable {
     this.backendCode,
     this.apiCode,
     this.traceId,
+    this.retryAfterUtc,
   });
 
   /// Tworzy znormalizowany blad na podstawie `DioException`.
@@ -85,6 +86,9 @@ class ApiError extends Equatable {
         backendMessage: backendMessage,
         apiCode: contractResponse?.code,
         traceId: contractResponse?.traceId,
+        retryAfterUtc: _parseRetryAfter(
+          error.response?.headers.value('retry-after'),
+        ),
       ),
       DioExceptionType.unknown => ApiError(
         type: statusCode == null
@@ -106,6 +110,9 @@ class ApiError extends Equatable {
             : ApiErrorType.badResponse,
         statusCode: statusCode,
         backendCode: backendCode,
+        retryAfterUtc: _parseRetryAfter(
+          error.response?.headers.value('retry-after'),
+        ),
         message:
             backendMessage ??
             error.message ??
@@ -131,6 +138,7 @@ class ApiError extends Equatable {
     required String? backendMessage,
     this.apiCode,
     this.traceId,
+    this.retryAfterUtc,
   }) : type = statusCode == 400
            ? ApiErrorType.badResponse
            : statusCode == 401
@@ -188,6 +196,10 @@ class ApiError extends Equatable {
   /// Identyfikator korelacyjny zwrócony przez backend, jeżeli go opublikował.
   final String? traceId;
 
+  /// Najwcześniejszy czas ponowienia przekazany przez HTTP `Retry-After`.
+  /// Wartość jest UTC i może być użyta przez UI do blokady zbyt wczesnego retry.
+  final DateTime? retryAfterUtc;
+
   @override
   List<Object?> get props => [
     type,
@@ -196,7 +208,55 @@ class ApiError extends Equatable {
     backendCode,
     apiCode,
     traceId,
+    retryAfterUtc,
   ];
+
+  /// Parsuje sekundy lub standardową datę HTTP z nagłówka `Retry-After`.
+  static DateTime? _parseRetryAfter(String? header) {
+    final value = header?.trim();
+    if (value == null || value.isEmpty) return null;
+    final seconds = int.tryParse(value);
+    if (seconds != null && seconds >= 0) {
+      // Pozostaw zapas względem maksymalnego zakresu DateTime i Duration.
+      if (seconds > 8000000000000) return null;
+      return DateTime.now().toUtc().add(Duration(seconds: seconds));
+    }
+    // IMF-fixdate: Wed, 21 Oct 2015 07:28:00 GMT.
+    final match = RegExp(
+      r'^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d{2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d{2}):(\d{2}):(\d{2}) GMT$',
+    ).firstMatch(value);
+    if (match == null) return null;
+    const months = <String, int>{
+      'Jan': 1,
+      'Feb': 2,
+      'Mar': 3,
+      'Apr': 4,
+      'May': 5,
+      'Jun': 6,
+      'Jul': 7,
+      'Aug': 8,
+      'Sep': 9,
+      'Oct': 10,
+      'Nov': 11,
+      'Dec': 12,
+    };
+    try {
+      final date = DateTime.utc(
+        int.parse(match[3]!),
+        months[match[2]]!,
+        int.parse(match[1]!),
+        int.parse(match[4]!),
+        int.parse(match[5]!),
+        int.parse(match[6]!),
+      );
+      if (date.day != int.parse(match[1]!) || date.month != months[match[2]]) {
+        return null;
+      }
+      return date;
+    } on FormatException {
+      return null;
+    }
+  }
 
   static String? _fallbackForStatus(int? statusCode) {
     return switch (statusCode) {

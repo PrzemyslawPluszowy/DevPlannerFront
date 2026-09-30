@@ -1,10 +1,10 @@
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_content_api.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_link_preview_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-final class _ChatApiMock extends Mock implements ChatApi {}
+final class _ChatApiMock extends Mock implements ChatContentApi {}
 
 void main() {
   test('pobiera preview przez endpoint backendu dla rozmowy i URL-a', () async {

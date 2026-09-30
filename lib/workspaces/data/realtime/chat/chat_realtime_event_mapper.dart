@@ -1,7 +1,9 @@
 import 'dart:convert';
 
-import 'package:devplanner/workspaces/data/chat/models/chat_link_mapper.dart';
+import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_message_response_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/data/realtime/chat/chat_realtime_legacy_enum_codec.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/models/chat_user_status.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
@@ -14,6 +16,52 @@ const int workspaceChatRealtimeContractVersion = 1;
 
 /// Dekoduje envelope SignalR Chat do kontraktu domenowego bez przecieku JSON.
 final class ChatRealtimeEventMapper {
+  /// Tłumaczy błąd transportu na stabilny typ domenowy.
+  ChatConversationRealtimeErrorKind mapErrorKind(Object error) {
+    if (error case ApiError(
+      type: ApiErrorType.unauthorized || ApiErrorType.forbidden,
+    )) {
+      return ChatConversationRealtimeErrorKind.accessRevoked;
+    }
+    return ChatConversationRealtimeErrorKind.transport;
+  }
+
+  /// Odczytuje pierwszy payload callbacku SignalR bez zależności od klienta.
+  Map<String, dynamic>? mapArgument(List<Object?>? arguments) {
+    final value = arguments?.firstOrNull;
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  static const List<String> eventMethods = <String>[
+    'chat.message.created',
+    'chat.message.updated',
+    'chat.message.deleted',
+    'chat.message.read',
+    'chat.message.delivered',
+    'chat.reaction.changed',
+    'chat.reaction.removed',
+    'chat.attachment.added',
+    'chat.attachment.removed',
+    'chat.attachment_ready',
+    'chat.message.pinned',
+    'chat.message.unpinned',
+    'chat.conversation.updated',
+    'chat.conversation.archived',
+    'chat.conversation.restored',
+    'chat.inbox.changed',
+    'chat.typing.changed',
+    'chat.presence.changed',
+    'chat.user_status.changed',
+    'chat.member.access_revoked',
+    'chat.member.added',
+    'chat.member.left',
+    'chat.member.rejoined',
+    'chat.member.removed',
+    'chat.member.role_changed',
+  ];
+
   /// Dekoduje snapshot ulotnej obecności z `chat.presence.changed`.
   ChatConversationPresenceSnapshot? mapPresence(
     Map<String, dynamic> payload,
@@ -139,6 +187,7 @@ final class ChatRealtimeEventMapper {
       message: message,
       messageId: _nonEmptyString(normalizedPayload['messageId']),
       messageVersion: _int(normalizedPayload['version']),
+      isReadReceipt: method == 'chat.message.read',
       typingUserId: kind == ChatConversationRealtimeEventKind.typingChanged
           ? _nonEmptyString(normalizedPayload['userId'])
           : null,
@@ -213,6 +262,18 @@ final class ChatRealtimeEventMapper {
     'chat.message.deleted' => ChatConversationRealtimeEventKind.messageDeleted,
     'chat.message.read' || 'chat.message.delivered' =>
       ChatConversationRealtimeEventKind.messageDeliveryChanged,
+    'chat.reaction.changed' ||
+    'chat.reaction.removed' ||
+    'chat.attachment.added' ||
+    'chat.attachment.removed' ||
+    'chat.attachment_ready' =>
+      ChatConversationRealtimeEventKind.messageSnapshotChanged,
+    'chat.message.pinned' || 'chat.message.unpinned' =>
+      ChatConversationRealtimeEventKind.conversationPinsChanged,
+    'chat.conversation.updated' ||
+    'chat.conversation.archived' ||
+    'chat.conversation.restored' =>
+      ChatConversationRealtimeEventKind.conversationChanged,
     'chat.typing.changed' => ChatConversationRealtimeEventKind.typingChanged,
     'chat.member.access_revoked' ||
     'chat.member.added' ||
@@ -227,24 +288,7 @@ final class ChatRealtimeEventMapper {
   ChatMessage? _messageFrom(Map<String, dynamic> payload) {
     try {
       final response = ChatMessageResponse.fromJson(payload);
-      return ChatMessage(
-        id: response.id,
-        conversationId: response.conversationId,
-        authorUserId: response.authorUserId,
-        clientMessageId: response.clientMessageId,
-        text: response.text,
-        deltaJson: response.deltaJson,
-        replyToMessageId: response.replyToMessageId,
-        payloadHash: response.payloadHash,
-        version: response.version,
-        createdAtUtc: response.createdAtUtc,
-        isDeleted: response.isDeleted,
-        threadRootMessageId: response.threadRootMessageId,
-        isEdited: response.isEdited,
-        deletedAtUtc: response.deletedAtUtc,
-        deliveryState: ChatMessageDeliveryState.sent,
-        links: ChatLinkMapper.toDomain(response.links),
-      );
+      return ChatMessageResponseMapper.toDomain(response);
     } on Object {
       // Wygenerowany fromJson może rzucić także TypeError dla brakującego lub
       // błędnie typowanego pola. Tylko granica deserializacji jest fail-closed;
@@ -278,7 +322,11 @@ final class ChatRealtimeEventMapper {
     for (final entry in value.entries) {
       final key = entry.key;
       if (key is! String) continue;
-      normalized[_normalizeKey(key)] = _normalizeValue(entry.value);
+      final field = _normalizeKey(key);
+      normalized[field] = ChatRealtimeLegacyEnumCodec.normalize(
+        field,
+        _normalizeValue(entry.value),
+      );
     }
     return normalized;
   }

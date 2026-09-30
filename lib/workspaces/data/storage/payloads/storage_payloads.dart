@@ -20,6 +20,7 @@ export '../models/storage_extended_models.dart'
         OnlyOfficeCallbackPayload,
         PublicShareAccessPayload,
         QuillCleanUnusedImagesPayload,
+        RenameStorageFilePayload,
         RestoreStorageFileVersionPayload,
         SetStorageFileFavoritePayload,
         SetUserAvatarPayload,

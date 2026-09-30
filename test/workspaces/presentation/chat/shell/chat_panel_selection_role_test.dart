@@ -53,7 +53,10 @@ final class _ManagementFake implements ChatConversationManagementRepository {
   listArchivedConversations() async => throw UnimplementedError();
 }
 
-ChatConversation conversation({bool isArchived = false}) => ChatConversation(
+ChatConversation conversation({
+  bool isArchived = false,
+  String name = 'Grupa',
+}) => ChatConversation(
   id: 'conversation-1',
   type: 'group',
   scopeKind: 'global',
@@ -62,7 +65,7 @@ ChatConversation conversation({bool isArchived = false}) => ChatConversation(
   createdAtUtc: DateTime.utc(2026, 9, 21),
   postingPermission: 'Everyone',
   isArchived: isArchived,
-  name: 'Grupa',
+  name: name,
 );
 
 void main() {
@@ -110,6 +113,17 @@ void main() {
         await cubit.close();
       },
     );
+
+    test('aktualizuje nazwę, gdy odświeżono wybraną rozmowę', () async {
+      final cubit = ChatPanelSelectionCubit();
+      cubit.select(conversation(), role: 'Owner');
+
+      cubit.select(conversation(name: 'Nowa nazwa'), role: 'Owner');
+
+      expect(cubit.state?.conversation.name, 'Nowa nazwa');
+      expect(cubit.state?.role, 'Owner');
+      await cubit.close();
+    });
   });
 
   group('ChatConversationManagementRepository — archiwizacja', () {

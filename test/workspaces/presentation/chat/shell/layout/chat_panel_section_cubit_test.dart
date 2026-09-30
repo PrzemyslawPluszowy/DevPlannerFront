@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_section.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/cubit/chat_panel_section_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +24,26 @@ void main() {
         )) {
           expect(section.showsGlobalUnreadBadge, isFalse, reason: '$section');
         }
+      },
+    );
+
+    test(
+      'sekcje rozmów mają własne filtry, a sekcje plików i zadań ich nie mają',
+      () {
+        expect(ChatPanelSection.chats.visibleFilters, [
+          ChatInboxFilter.all,
+          ChatInboxFilter.unread,
+          ChatInboxFilter.mentions,
+          ChatInboxFilter.direct,
+        ]);
+        expect(ChatPanelSection.groups.visibleFilters, [
+          ChatInboxFilter.groups,
+        ]);
+        expect(ChatPanelSection.channels.visibleFilters, [
+          ChatInboxFilter.channels,
+        ]);
+        expect(ChatPanelSection.files.visibleFilters, isEmpty);
+        expect(ChatPanelSection.tasks.visibleFilters, isEmpty);
       },
     );
 

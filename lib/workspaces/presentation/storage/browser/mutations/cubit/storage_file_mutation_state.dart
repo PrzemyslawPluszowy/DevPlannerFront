@@ -6,8 +6,14 @@ enum StorageFileMutationType {
   /// Zmiana stanu ulubionego.
   favoriteToggled,
 
+  /// Ukrycie pliku na liście Udostępnione bieżącego użytkownika.
+  sharedFileDismissed,
+
   /// Zmiana opisu pliku.
   descriptionUpdated,
+
+  /// Zmiana nazwy pliku.
+  renamed,
 
   /// Usunięcie pojedynczego pliku do kosza.
   deleted,

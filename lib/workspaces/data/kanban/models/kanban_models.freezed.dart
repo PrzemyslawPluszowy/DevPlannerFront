@@ -1814,7 +1814,7 @@ as int,
 @override
 @pragma('vm:prefer-inline')
 $KanbanTaskCardResponseCopyWith<$Res> get task {
-
+  
   return $KanbanTaskCardResponseCopyWith<$Res>(_self.task, (value) {
     return _then(_self.copyWith(task: value));
   });
@@ -2031,7 +2031,7 @@ as int,
 @override
 @pragma('vm:prefer-inline')
 $KanbanTaskCardResponseCopyWith<$Res> get task {
-
+  
   return $KanbanTaskCardResponseCopyWith<$Res>(_self.task, (value) {
     return _then(_self.copyWith(task: value));
   });
@@ -2949,7 +2949,7 @@ as bool,
 @override
 @pragma('vm:prefer-inline')
 $KanbanTaskCardResponseCopyWith<$Res> get task {
-
+  
   return $KanbanTaskCardResponseCopyWith<$Res>(_self.task, (value) {
     return _then(_self.copyWith(task: value));
   });
@@ -3164,7 +3164,7 @@ as bool,
 @override
 @pragma('vm:prefer-inline')
 $KanbanTaskCardResponseCopyWith<$Res> get task {
-
+  
   return $KanbanTaskCardResponseCopyWith<$Res>(_self.task, (value) {
     return _then(_self.copyWith(task: value));
   });

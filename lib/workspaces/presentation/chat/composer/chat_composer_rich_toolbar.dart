@@ -5,6 +5,7 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/presentation/chat/composer/chat_format_actions.dart';
 import 'package:devplanner/workspaces/presentation/chat/composer/chat_format_commands.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_quill_selection_attributes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:material_symbols_icons/symbols.dart';
@@ -24,7 +25,9 @@ class ChatComposerRichToolbar extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
     builder: (context, _) {
-      final attributes = controller.getSelectionStyle().attributes;
+      final attributes = ChatQuillSelectionAttributes.fromController(
+        controller,
+      );
       return Padding(
         padding: const EdgeInsets.only(bottom: Sizes.p4),
         child: LayoutBuilder(
@@ -111,7 +114,7 @@ class ChatComposerRichToolbar extends StatelessWidget {
 class _OverflowActions extends StatelessWidget {
   const _OverflowActions({required this.attributes, required this.controller});
 
-  final Map<String, quill.Attribute<dynamic>> attributes;
+  final Map<String, Object?> attributes;
   final quill.QuillController controller;
 
   @override
@@ -192,26 +195,25 @@ extension on _OverflowAction {
     _OverflowAction.clearFormat => context.l10n.chatComposerClearFormat,
   };
 
-  bool active(Map<String, quill.Attribute<dynamic>> attributes) =>
-      switch (this) {
-        _OverflowAction.bulletList => ChatLineFormatCommands.isActive(
-          ChatLineFormatCommand.bulletList,
-          attributes,
-        ),
-        _OverflowAction.orderedList => ChatLineFormatCommands.isActive(
-          ChatLineFormatCommand.orderedList,
-          attributes,
-        ),
-        _OverflowAction.quote => ChatLineFormatCommands.isActive(
-          ChatLineFormatCommand.quote,
-          attributes,
-        ),
-        _OverflowAction.codeBlock => ChatLineFormatCommands.isActive(
-          ChatLineFormatCommand.codeBlock,
-          attributes,
-        ),
-        _OverflowAction.clearFormat => false,
-      };
+  bool active(Map<String, Object?> attributes) => switch (this) {
+    _OverflowAction.bulletList => ChatLineFormatCommands.isActive(
+      ChatLineFormatCommand.bulletList,
+      attributes,
+    ),
+    _OverflowAction.orderedList => ChatLineFormatCommands.isActive(
+      ChatLineFormatCommand.orderedList,
+      attributes,
+    ),
+    _OverflowAction.quote => ChatLineFormatCommands.isActive(
+      ChatLineFormatCommand.quote,
+      attributes,
+    ),
+    _OverflowAction.codeBlock => ChatLineFormatCommands.isActive(
+      ChatLineFormatCommand.codeBlock,
+      attributes,
+    ),
+    _OverflowAction.clearFormat => false,
+  };
 }
 
 /// Stosuje akcję struktury linii do bieżącego zaznaczenia lub akapitu.
@@ -221,7 +223,7 @@ void applyLineFormatCommand({
 }) {
   final active = ChatLineFormatCommands.isActive(
     command,
-    controller.getSelectionStyle().attributes,
+    ChatQuillSelectionAttributes.fromController(controller),
   );
   final value = ChatLineFormatCommands.toggledValue(
     command,

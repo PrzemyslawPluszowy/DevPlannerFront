@@ -11,6 +11,7 @@ class StorageUploadInput extends Equatable {
     this.bytes,
     this.mimeType,
     this.path,
+    this.sourceStorageFileId,
   });
 
   /// Oryginalna nazwa pliku z rozszerzeniem.
@@ -28,6 +29,10 @@ class StorageUploadInput extends Equatable {
   /// Opcjonalna ścieżka systemowa (na desktopie).
   final String? path;
 
+  /// Id własnego pliku Storage do serwerowego skopiowania do sesji Chat.
+  /// Gdy jest ustawione, [bytes] i [path] nie są źródłem uploadu.
+  final String? sourceStorageFileId;
+
   /// Rozszerzenie pliku wyodrębnione z nazwy.
   String get extension {
     final dotIndex = name.lastIndexOf('.');
@@ -38,5 +43,5 @@ class StorageUploadInput extends Equatable {
   }
 
   @override
-  List<Object?> get props => [name, size, mimeType, path];
+  List<Object?> get props => [name, size, mimeType, path, sourceStorageFileId];
 }

@@ -35,9 +35,16 @@ final class ChatComposerRichTextField extends StatelessWidget {
       quill.VerticalSpacing.zero,
       null,
     );
+    final leadingStyle = quill.DefaultTextBlockStyle(
+      bodyStyle.copyWith(fontWeight: FontWeight.w700),
+      quill.HorizontalSpacing.zero,
+      quill.VerticalSpacing.zero,
+      quill.VerticalSpacing.zero,
+      null,
+    );
     final customStyles = quill.DefaultStyles(
       paragraph: blockStyle,
-      bold: const TextStyle(fontWeight: FontWeight.w900),
+      bold: const TextStyle(fontWeight: FontWeight.w700),
       link: TextStyle(
         color: chat.linkText,
         decoration: TextDecoration.underline,
@@ -55,6 +62,10 @@ final class ChatComposerRichTextField extends StatelessWidget {
         null,
         null,
       ),
+      // Quill draws bullet and ordered markers from `leading`, not `lists`.
+      // Leaving this unset makes marker color/weight come from ThemeData and
+      // can make them disappear against the Chat composer surface.
+      leading: leadingStyle,
       quote: quill.DefaultTextBlockStyle(
         bodyStyle,
         quill.HorizontalSpacing.zero,

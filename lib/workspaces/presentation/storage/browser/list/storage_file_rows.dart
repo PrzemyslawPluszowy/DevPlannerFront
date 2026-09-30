@@ -9,11 +9,13 @@ import 'package:devplanner/workspaces/domain/storage/models/storage_view_prefere
 import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_drag_and_drop.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_move_action.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_open_document_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_preview_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_artwork.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_context_menu.dart';
 import 'package:devplanner/workspaces/presentation/storage/shared/storage_formatters.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
@@ -66,10 +68,6 @@ class StorageFileRows extends StatelessWidget {
       itemBuilder: (context, index) {
         final file = files[index];
         final isSelected = selectionCubit.state.isFileSelected(file.id);
-        final iconData = StorageFormatters.iconForFile(
-          mimeType: file.mimeType,
-          extension: file.extension,
-        );
 
         return StorageFileDragSource(
           fileId: file.id,
@@ -90,9 +88,18 @@ class StorageFileRows extends StatelessWidget {
               selectedTileColor: context.colors.primaryContainer.withValues(
                 alpha: 0.3,
               ),
-              leading: Icon(
-                iconData,
-                color: Theme.of(context).colorScheme.primary,
+              leading: StorageFileArtwork(
+                file: file,
+                size: 36,
+                onTap: () {
+                  if (file.canEditOnline) {
+                    unawaited(
+                      runStorageOpenOfficeDocument(context, file: file),
+                    );
+                  } else {
+                    _openPreview(context, file);
+                  }
+                },
               ),
               title: Text(
                 file.originalFileName,
@@ -145,7 +152,9 @@ class StorageFileRows extends StatelessWidget {
                   if (capabilities.canFavorite && file.canRead)
                     IconButton(
                       icon: Icon(
-                        file.isFavorite ? AppIcons.star : AppIcons.star,
+                        file.isFavorite
+                            ? AppIcons.star
+                            : Icons.star_border_rounded,
                         size: 18,
                         color: file.isFavorite
                             ? context.colors.tertiary

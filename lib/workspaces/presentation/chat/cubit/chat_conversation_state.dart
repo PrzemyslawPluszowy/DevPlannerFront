@@ -59,10 +59,13 @@ final class ChatConversationReady extends ChatConversationState {
 
   /// Tworzy kopię stanu z nowymi wartościami; `clearJumpFailure` usuwa kod błędu.
   ChatConversationReady copyWith({
+    ChatConversation? conversation,
     List<ChatMessage>? messages,
     String? nextCursor,
+    bool clearNextCursor = false,
     bool? isLoadingMore,
     String? loadError,
+    bool clearLoadError = false,
     String? realtimeError,
     bool? isJumpingToMessage,
     String? jumpFailureCode,
@@ -70,11 +73,11 @@ final class ChatConversationReady extends ChatConversationState {
     String? jumpAnchorMessageId,
     bool clearWindowHistory = false,
   }) => ChatConversationReady(
-    conversation: conversation,
+    conversation: conversation ?? this.conversation,
     messages: messages ?? this.messages,
-    nextCursor: nextCursor ?? this.nextCursor,
+    nextCursor: clearNextCursor ? null : nextCursor ?? this.nextCursor,
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-    loadError: loadError ?? this.loadError,
+    loadError: clearLoadError ? null : loadError ?? this.loadError,
     realtimeError: realtimeError ?? this.realtimeError,
     isJumpingToMessage: isJumpingToMessage ?? this.isJumpingToMessage,
     jumpFailureCode: clearJumpFailure

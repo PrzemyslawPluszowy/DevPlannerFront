@@ -57,6 +57,20 @@ abstract class UpdateStorageFileDescriptionPayload
   ) => _$UpdateStorageFileDescriptionPayloadFromJson(json);
 }
 
+/// Payload zmiany nazwy pliku bez zmiany jego rozszerzenia.
+@freezed
+abstract class RenameStorageFilePayload with _$RenameStorageFilePayload {
+  /// Przekazuje pełną nazwę pliku i token optimistic concurrency.
+  const factory RenameStorageFilePayload({
+    required String fileName,
+    String? expectedConcurrencyToken,
+  }) = _RenameStorageFilePayload;
+
+  /// Odtwarza payload z JSON.
+  factory RenameStorageFilePayload.fromJson(Map<String, dynamic> json) =>
+      _$RenameStorageFilePayloadFromJson(json);
+}
+
 /// Payload zmiany folderu.
 @freezed
 abstract class UpdateStorageFolderPayload with _$UpdateStorageFolderPayload {
@@ -193,6 +207,7 @@ abstract class StorageFileVersionResponse with _$StorageFileVersionResponse {
     String? changeSummary,
     @Default(false) bool isCurrent,
     String? changedByUserId,
+    String? changedByDisplayName,
   }) = _StorageFileVersionResponse;
 
   /// Odtwarza wersję z JSON.

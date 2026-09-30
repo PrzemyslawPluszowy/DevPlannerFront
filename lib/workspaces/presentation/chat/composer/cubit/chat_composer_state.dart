@@ -7,6 +7,7 @@ final class ChatComposerState {
   const ChatComposerState({
     required this.draft,
     this.mode = ChatComposerMode.plainText,
+    this.serverSyncFailureCode,
   });
 
   /// Snapshot przekazywany do kolejki dokładnie w chwili wysłania.
@@ -14,6 +15,9 @@ final class ChatComposerState {
 
   /// Wybrany przez użytkownika sposób edycji tej wiadomości.
   final ChatComposerMode mode;
+
+  /// Kod nieudanego zapisu na serwerze; lokalny szkic pozostaje zachowany.
+  final String? serverSyncFailureCode;
 
   /// Czy zmiana wymaga przebudowania całej powierzchni composera.
   ///
@@ -23,7 +27,8 @@ final class ChatComposerState {
   /// kompozycję IME i sprawiać wrażenie, że tekst pojawia się dopiero później.
   bool shouldRebuildComparedTo(ChatComposerState previous) {
     final before = previous.draft;
-    return mode != previous.mode ||
+    return serverSyncFailureCode != previous.serverSyncFailureCode ||
+        mode != previous.mode ||
         draft.isEmpty != before.isEmpty ||
         draft.replyToMessageId != before.replyToMessageId ||
         !listEquals(draft.attachmentIds, before.attachmentIds) ||
@@ -34,8 +39,13 @@ final class ChatComposerState {
   ChatComposerState copyWith({
     ChatComposerDraft? draft,
     ChatComposerMode? mode,
+    String? serverSyncFailureCode,
+    bool clearServerSyncFailure = false,
   }) => ChatComposerState(
     draft: draft ?? this.draft,
     mode: mode ?? this.mode,
+    serverSyncFailureCode: clearServerSyncFailure
+        ? null
+        : serverSyncFailureCode ?? this.serverSyncFailureCode,
   );
 }

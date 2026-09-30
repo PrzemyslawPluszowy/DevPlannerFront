@@ -26,6 +26,7 @@ import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.
 import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
@@ -55,6 +56,7 @@ final class DevPlannerGlobalPanelsHost extends StatefulWidget {
     this.chat,
     this.notifications,
     this.authSession,
+    this.storageRepository,
     super.key,
   });
 
@@ -63,6 +65,7 @@ final class DevPlannerGlobalPanelsHost extends StatefulWidget {
   final DevPlannerGlobalChatComposition? chat;
   final DevPlannerGlobalNotificationsComposition? notifications;
   final AuthSessionPort? authSession;
+  final StorageRepository? storageRepository;
 
   @override
   State<DevPlannerGlobalPanelsHost> createState() =>
@@ -451,6 +454,13 @@ final class _DevPlannerGlobalPanelsHostState
       value: inboxRepository,
       child: panel,
     );
+    final storage = widget.storageRepository;
+    if (storage != null) {
+      panel = RepositoryProvider<StorageRepository>.value(
+        value: storage,
+        child: panel,
+      );
+    }
     panel = RepositoryProvider<ChatDraftRepository>.value(
       value: composition.draftRepository,
       child: panel,

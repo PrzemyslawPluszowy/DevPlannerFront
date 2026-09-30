@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -55,13 +57,25 @@ void main() {
         'clientMessageId': 'client-1',
         'text': 'Cześć',
         'deltaJson': null,
-        'replyToMessageId': null,
+        'replyToMessageId': '77777777-7777-7777-7777-777777777777',
         'payloadHash': 'hash',
         'version': 1,
         'createdAtUtc': '2026-01-01T10:00:00Z',
         'isDeleted': false,
         'links': null,
         'reactions': null,
+        'mentionLabels': {
+          '22222222-2222-2222-2222-222222222222': 'Jan Kowalski',
+        },
+        'replyPreview': {
+          'messageId': '77777777-7777-7777-7777-777777777777',
+          'authorUserId': '22222222-2222-2222-2222-222222222222',
+          'authorLabel': 'Jan Kowalski',
+          'text': 'Wiadomość źródłowa',
+          'isDeleted': false,
+          'hasAttachments': false,
+          'mentionLabels': <String, String>{},
+        },
         'attachments': [
           {
             'id': '55555555-5555-5555-5555-555555555555',
@@ -78,11 +92,28 @@ void main() {
       });
 
       expect(message.authorUserId, '11111111-1111-1111-1111-111111111111');
+      expect(message.replyPreview?.messageId, message.replyToMessageId);
+      expect(message.replyPreview?.authorLabel, 'Jan Kowalski');
+      expect(message.replyPreview?.text, 'Wiadomość źródłowa');
+      expect(
+        message.mentionLabels,
+        {'22222222-2222-2222-2222-222222222222': 'Jan Kowalski'},
+      );
       expect(
         message.attachments!.single.attachedByUserId,
         message.authorUserId,
       );
       expect(message.toJson().keys, isNot(contains('authorCoreUserId')));
+      expect(
+        ((jsonDecode(jsonEncode(message))
+                as Map<String, dynamic>)['replyPreview']
+            as Map<String, dynamic>)['authorLabel'],
+        'Jan Kowalski',
+      );
+      expect(
+        message.toJson()['mentionLabels'],
+        {'22222222-2222-2222-2222-222222222222': 'Jan Kowalski'},
+      );
     });
   });
 }

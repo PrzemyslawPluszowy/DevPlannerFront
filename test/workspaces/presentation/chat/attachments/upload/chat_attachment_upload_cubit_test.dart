@@ -26,6 +26,32 @@ void main() {
     expect(port.cancelled, [('c', 'session-1')]);
   });
 
+  test(
+    'private Storage file is copied server-side without local upload',
+    () async {
+      final port = FakePort(const []);
+      final cubit = ChatAttachmentUploadCubit(port, pollDelay: Duration.zero);
+      await cubit.start(
+        'conversation-1',
+        const StorageUploadInput(
+          name: 'specyfikacja.docx',
+          size: 4096,
+          mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          sourceStorageFileId: 'private-file-9',
+        ),
+      );
+      expect(cubit.state, isA<ChatAttachmentUploadReady>());
+      expect(
+        (cubit.state as ChatAttachmentUploadReady).storageFileId,
+        'copied-private-file-9',
+      );
+      expect(port.copied, [('conversation-1', 'session-1', 'private-file-9')]);
+      expect(port.uploads, 0);
+      expect(port.polls, 0);
+      await cubit.close();
+    },
+  );
+
   test('infected, failed and timeout cancel the session', () async {
     for (final statuses in [
       [ChatAttachmentRemoteStatus.infected],
@@ -78,6 +104,8 @@ final class FakePort implements ChatAttachmentUploadPort {
   FakePort(this.statuses);
   final List<ChatAttachmentRemoteStatus> statuses;
   final cancelled = <(String, String)>[];
+  final copied = <(String, String, String)>[];
+  int uploads = 0;
   Completer<ChatAttachmentUploadSession>? firstCreate;
   int creates = 0;
   int polls = 0;
@@ -91,6 +119,16 @@ final class FakePort implements ChatAttachmentUploadPort {
   }
 
   @override
+  Future<String> copyPrivateFileToSession({
+    required String conversationId,
+    required String sessionId,
+    required String sourceStorageFileId,
+  }) async {
+    copied.add((conversationId, sessionId, sourceStorageFileId));
+    return 'copied-$sourceStorageFileId';
+  }
+
+  @override
   Future<ChatAttachmentTicket> createTicket({
     required String sessionId,
     required StorageUploadInput input,
@@ -101,7 +139,7 @@ final class FakePort implements ChatAttachmentUploadPort {
   Future<void> upload(
     ChatAttachmentTicket ticket,
     StorageUploadInput input,
-  ) async {}
+  ) async => uploads++;
   @override
   Future<ChatAttachmentRemoteStatus> status(String storageFileId) async =>
       statuses[polls++ < statuses.length ? polls - 1 : statuses.length - 1];

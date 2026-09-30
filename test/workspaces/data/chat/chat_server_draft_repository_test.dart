@@ -53,15 +53,20 @@ final class _ServerDraftFake implements ChatServerDraftRepository {
   ChatComposerDraft? stored;
   final List<int> savedVersions = <int>[];
   ApiError? saveFailure;
+  int version = 0;
   int deletes = 0;
 
   @override
-  Future<Either<ApiError, ChatComposerDraft?>> readDraft(
+  Future<Either<ApiError, ChatServerDraftSnapshot?>> readDraft(
     String conversationId,
-  ) async => Right(stored);
+  ) async => Right(
+    stored == null
+        ? null
+        : ChatServerDraftSnapshot(draft: stored!, version: version),
+  );
 
   @override
-  Future<Either<ApiError, ChatComposerDraft>> saveDraft({
+  Future<Either<ApiError, ChatServerDraftSnapshot>> saveDraft({
     required String conversationId,
     required ChatComposerDraft draft,
     required int version,
@@ -70,7 +75,8 @@ final class _ServerDraftFake implements ChatServerDraftRepository {
     if (error != null) return Left(error);
     savedVersions.add(version);
     stored = draft;
-    return Right(draft);
+    this.version++;
+    return Right(ChatServerDraftSnapshot(draft: draft, version: this.version));
   }
 
   @override
@@ -81,7 +87,101 @@ final class _ServerDraftFake implements ChatServerDraftRepository {
   }
 }
 
+final class _VersionedServerDraft implements ChatServerDraftRepository {
+  int version = 3;
+  ChatComposerDraft stored = const ChatComposerDraft(text: 'Serwerowy');
+  final List<int> attemptedVersions = [];
+  bool failRetry = false;
+  @override
+  Future<Either<ApiError, ChatServerDraftSnapshot?>> readDraft(
+    String id,
+  ) async => Right(ChatServerDraftSnapshot(draft: stored, version: version));
+  @override
+  Future<Either<ApiError, ChatServerDraftSnapshot>> saveDraft({
+    required String conversationId,
+    required ChatComposerDraft draft,
+    required int version,
+  }) async {
+    attemptedVersions.add(version);
+    if (failRetry || version != this.version) {
+      return const Left(
+        ApiError(
+          type: ApiErrorType.conflict,
+          statusCode: 400,
+          apiCode: 'draft.conflict',
+          message: 'Conflict',
+        ),
+      );
+    }
+    stored = draft;
+    this.version++;
+    return Right(ChatServerDraftSnapshot(draft: draft, version: this.version));
+  }
+
+  @override
+  Future<Either<ApiError, void>> deleteDraft(String id) async =>
+      const Right(null);
+}
+
 void main() {
+  test('restore zachowuje v3 i zapis używa autorytatywnej v4', () async {
+    final server = _VersionedServerDraft();
+    final cubit = ChatComposerCubit(
+      repository: _LocalDraftFake(),
+      serverRepository: server,
+      userId: 'u',
+      conversationId: 'c',
+    );
+    await cubit.restore();
+    cubit.updatePlainText('Nowy szkic');
+    await cubit.flush();
+    cubit.updatePlainText('Następna zmiana');
+    await cubit.flush();
+    expect(server.attemptedVersions, [3, 4]);
+    expect(server.stored.text, 'Następna zmiana');
+    expect(cubit.state.serverSyncFailureCode, isNull);
+    await cubit.close();
+  });
+  test(
+    'retry czyta rzeczywistą wersję innego urządzenia i sprawdza ACK',
+    () async {
+      final server = _VersionedServerDraft();
+      final cubit = ChatComposerCubit(
+        repository: _LocalDraftFake(),
+        serverRepository: server,
+        userId: 'u',
+        conversationId: 'c',
+      );
+      await cubit.restore();
+      server.version = 9;
+      cubit.updatePlainText('Zmiana lokalna');
+      await cubit.flush();
+      expect(server.attemptedVersions, [3, 9]);
+      expect(server.stored.text, 'Zmiana lokalna');
+      expect(cubit.state.serverSyncFailureCode, isNull);
+      await cubit.close();
+    },
+  );
+  test('nieudany retry ujawnia failure i zachowuje lokalny szkic', () async {
+    final server = _VersionedServerDraft();
+    final local = _LocalDraftFake();
+    final cubit = ChatComposerCubit(
+      repository: local,
+      serverRepository: server,
+      userId: 'u',
+      conversationId: 'c',
+    );
+    await cubit.restore();
+    server.version = 9;
+    server.failRetry = true;
+    cubit.updatePlainText('Zmiana lokalna');
+    await cubit.flush();
+    expect(server.attemptedVersions, [3, 9]);
+    expect(cubit.state.serverSyncFailureCode, 'draft.conflict');
+    expect(local.drafts['u:c']?.text, 'Zmiana lokalna');
+    await cubit.close();
+  });
+
   setUpAll(() {
     registerFallbackValue(const UpsertChatDraftPayload());
   });
@@ -113,9 +213,10 @@ void main() {
       ).readDraft('conversation-1');
 
       final draft = result.getOrElse(() => null);
-      expect(draft?.text, 'Treść szkicu');
-      expect(draft?.replyToMessageId, 'message-1');
-      expect(draft?.attachmentIds, <String>['file-1']);
+      expect(draft?.version, 3);
+      expect(draft?.draft.text, 'Treść szkicu');
+      expect(draft?.draft.replyToMessageId, 'message-1');
+      expect(draft?.draft.attachmentIds, <String>['file-1']);
     });
 
     test('brak szkicu jest poprawną odpowiedzią, nie błędem', () async {

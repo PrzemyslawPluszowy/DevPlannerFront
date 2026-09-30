@@ -826,6 +826,272 @@ as String?,
 
 
 /// @nodoc
+mixin _$RenameStorageFilePayload {
+
+ String get fileName; String? get expectedConcurrencyToken;
+/// Create a copy of RenameStorageFilePayload
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RenameStorageFilePayloadCopyWith<RenameStorageFilePayload> get copyWith => _$RenameStorageFilePayloadCopyWithImpl<RenameStorageFilePayload>(this as RenameStorageFilePayload, _$identity);
+
+  /// Serializes this RenameStorageFilePayload to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RenameStorageFilePayload&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.expectedConcurrencyToken, expectedConcurrencyToken) || other.expectedConcurrencyToken == expectedConcurrencyToken));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,fileName,expectedConcurrencyToken);
+
+@override
+String toString() {
+  return 'RenameStorageFilePayload(fileName: $fileName, expectedConcurrencyToken: $expectedConcurrencyToken)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RenameStorageFilePayloadCopyWith<$Res>  {
+  factory $RenameStorageFilePayloadCopyWith(RenameStorageFilePayload value, $Res Function(RenameStorageFilePayload) _then) = _$RenameStorageFilePayloadCopyWithImpl;
+@useResult
+$Res call({
+ String fileName, String? expectedConcurrencyToken
+});
+
+
+
+
+}
+/// @nodoc
+class _$RenameStorageFilePayloadCopyWithImpl<$Res>
+    implements $RenameStorageFilePayloadCopyWith<$Res> {
+  _$RenameStorageFilePayloadCopyWithImpl(this._self, this._then);
+
+  final RenameStorageFilePayload _self;
+  final $Res Function(RenameStorageFilePayload) _then;
+
+/// Create a copy of RenameStorageFilePayload
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? fileName = null,Object? expectedConcurrencyToken = freezed,}) {
+  return _then(_self.copyWith(
+fileName: null == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
+as String,expectedConcurrencyToken: freezed == expectedConcurrencyToken ? _self.expectedConcurrencyToken : expectedConcurrencyToken // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RenameStorageFilePayload].
+extension RenameStorageFilePayloadPatterns on RenameStorageFilePayload {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RenameStorageFilePayload value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RenameStorageFilePayload() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RenameStorageFilePayload value)  $default,){
+final _that = this;
+switch (_that) {
+case _RenameStorageFilePayload():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RenameStorageFilePayload value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RenameStorageFilePayload() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String fileName,  String? expectedConcurrencyToken)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RenameStorageFilePayload() when $default != null:
+return $default(_that.fileName,_that.expectedConcurrencyToken);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String fileName,  String? expectedConcurrencyToken)  $default,) {final _that = this;
+switch (_that) {
+case _RenameStorageFilePayload():
+return $default(_that.fileName,_that.expectedConcurrencyToken);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String fileName,  String? expectedConcurrencyToken)?  $default,) {final _that = this;
+switch (_that) {
+case _RenameStorageFilePayload() when $default != null:
+return $default(_that.fileName,_that.expectedConcurrencyToken);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RenameStorageFilePayload implements RenameStorageFilePayload {
+  const _RenameStorageFilePayload({required this.fileName, this.expectedConcurrencyToken});
+  factory _RenameStorageFilePayload.fromJson(Map<String, dynamic> json) => _$RenameStorageFilePayloadFromJson(json);
+
+@override final  String fileName;
+@override final  String? expectedConcurrencyToken;
+
+/// Create a copy of RenameStorageFilePayload
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RenameStorageFilePayloadCopyWith<_RenameStorageFilePayload> get copyWith => __$RenameStorageFilePayloadCopyWithImpl<_RenameStorageFilePayload>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RenameStorageFilePayloadToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RenameStorageFilePayload&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.expectedConcurrencyToken, expectedConcurrencyToken) || other.expectedConcurrencyToken == expectedConcurrencyToken));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,fileName,expectedConcurrencyToken);
+
+@override
+String toString() {
+  return 'RenameStorageFilePayload(fileName: $fileName, expectedConcurrencyToken: $expectedConcurrencyToken)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RenameStorageFilePayloadCopyWith<$Res> implements $RenameStorageFilePayloadCopyWith<$Res> {
+  factory _$RenameStorageFilePayloadCopyWith(_RenameStorageFilePayload value, $Res Function(_RenameStorageFilePayload) _then) = __$RenameStorageFilePayloadCopyWithImpl;
+@override @useResult
+$Res call({
+ String fileName, String? expectedConcurrencyToken
+});
+
+
+
+
+}
+/// @nodoc
+class __$RenameStorageFilePayloadCopyWithImpl<$Res>
+    implements _$RenameStorageFilePayloadCopyWith<$Res> {
+  __$RenameStorageFilePayloadCopyWithImpl(this._self, this._then);
+
+  final _RenameStorageFilePayload _self;
+  final $Res Function(_RenameStorageFilePayload) _then;
+
+/// Create a copy of RenameStorageFilePayload
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? fileName = null,Object? expectedConcurrencyToken = freezed,}) {
+  return _then(_RenameStorageFilePayload(
+fileName: null == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
+as String,expectedConcurrencyToken: freezed == expectedConcurrencyToken ? _self.expectedConcurrencyToken : expectedConcurrencyToken // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$UpdateStorageFolderPayload {
 
  String? get name; String? get parentFolderId;
@@ -2980,7 +3246,7 @@ as StorageScanStatus,
 /// @nodoc
 mixin _$StorageFileVersionResponse {
 
- String get id; int get version; int get fileSizeBytes; String? get contentSha256; String get createdByUserId; DateTime get createdAtUtc; String? get changeSummary; bool get isCurrent; String? get changedByUserId;
+ String get id; int get version; int get fileSizeBytes; String? get contentSha256; String get createdByUserId; DateTime get createdAtUtc; String? get changeSummary; bool get isCurrent; String? get changedByUserId; String? get changedByDisplayName;
 /// Create a copy of StorageFileVersionResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2993,16 +3259,16 @@ $StorageFileVersionResponseCopyWith<StorageFileVersionResponse> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFileVersionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.version, version) || other.version == version)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.contentSha256, contentSha256) || other.contentSha256 == contentSha256)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.changeSummary, changeSummary) || other.changeSummary == changeSummary)&&(identical(other.isCurrent, isCurrent) || other.isCurrent == isCurrent)&&(identical(other.changedByUserId, changedByUserId) || other.changedByUserId == changedByUserId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFileVersionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.version, version) || other.version == version)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.contentSha256, contentSha256) || other.contentSha256 == contentSha256)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.changeSummary, changeSummary) || other.changeSummary == changeSummary)&&(identical(other.isCurrent, isCurrent) || other.isCurrent == isCurrent)&&(identical(other.changedByUserId, changedByUserId) || other.changedByUserId == changedByUserId)&&(identical(other.changedByDisplayName, changedByDisplayName) || other.changedByDisplayName == changedByDisplayName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,version,fileSizeBytes,contentSha256,createdByUserId,createdAtUtc,changeSummary,isCurrent,changedByUserId);
+int get hashCode => Object.hash(runtimeType,id,version,fileSizeBytes,contentSha256,createdByUserId,createdAtUtc,changeSummary,isCurrent,changedByUserId,changedByDisplayName);
 
 @override
 String toString() {
-  return 'StorageFileVersionResponse(id: $id, version: $version, fileSizeBytes: $fileSizeBytes, contentSha256: $contentSha256, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc, changeSummary: $changeSummary, isCurrent: $isCurrent, changedByUserId: $changedByUserId)';
+  return 'StorageFileVersionResponse(id: $id, version: $version, fileSizeBytes: $fileSizeBytes, contentSha256: $contentSha256, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc, changeSummary: $changeSummary, isCurrent: $isCurrent, changedByUserId: $changedByUserId, changedByDisplayName: $changedByDisplayName)';
 }
 
 
@@ -3013,7 +3279,7 @@ abstract mixin class $StorageFileVersionResponseCopyWith<$Res>  {
   factory $StorageFileVersionResponseCopyWith(StorageFileVersionResponse value, $Res Function(StorageFileVersionResponse) _then) = _$StorageFileVersionResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, int version, int fileSizeBytes, String? contentSha256, String createdByUserId, DateTime createdAtUtc, String? changeSummary, bool isCurrent, String? changedByUserId
+ String id, int version, int fileSizeBytes, String? contentSha256, String createdByUserId, DateTime createdAtUtc, String? changeSummary, bool isCurrent, String? changedByUserId, String? changedByDisplayName
 });
 
 
@@ -3030,7 +3296,7 @@ class _$StorageFileVersionResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageFileVersionResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? version = null,Object? fileSizeBytes = null,Object? contentSha256 = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,Object? changeSummary = freezed,Object? isCurrent = null,Object? changedByUserId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? version = null,Object? fileSizeBytes = null,Object? contentSha256 = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,Object? changeSummary = freezed,Object? isCurrent = null,Object? changedByUserId = freezed,Object? changedByDisplayName = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
@@ -3041,6 +3307,7 @@ as String,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc
 as DateTime,changeSummary: freezed == changeSummary ? _self.changeSummary : changeSummary // ignore: cast_nullable_to_non_nullable
 as String?,isCurrent: null == isCurrent ? _self.isCurrent : isCurrent // ignore: cast_nullable_to_non_nullable
 as bool,changedByUserId: freezed == changedByUserId ? _self.changedByUserId : changedByUserId // ignore: cast_nullable_to_non_nullable
+as String?,changedByDisplayName: freezed == changedByDisplayName ? _self.changedByDisplayName : changedByDisplayName // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -3126,10 +3393,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int version,  int fileSizeBytes,  String? contentSha256,  String createdByUserId,  DateTime createdAtUtc,  String? changeSummary,  bool isCurrent,  String? changedByUserId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int version,  int fileSizeBytes,  String? contentSha256,  String createdByUserId,  DateTime createdAtUtc,  String? changeSummary,  bool isCurrent,  String? changedByUserId,  String? changedByDisplayName)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StorageFileVersionResponse() when $default != null:
-return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_that.createdByUserId,_that.createdAtUtc,_that.changeSummary,_that.isCurrent,_that.changedByUserId);case _:
+return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_that.createdByUserId,_that.createdAtUtc,_that.changeSummary,_that.isCurrent,_that.changedByUserId,_that.changedByDisplayName);case _:
   return orElse();
 
 }
@@ -3147,10 +3414,10 @@ return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int version,  int fileSizeBytes,  String? contentSha256,  String createdByUserId,  DateTime createdAtUtc,  String? changeSummary,  bool isCurrent,  String? changedByUserId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int version,  int fileSizeBytes,  String? contentSha256,  String createdByUserId,  DateTime createdAtUtc,  String? changeSummary,  bool isCurrent,  String? changedByUserId,  String? changedByDisplayName)  $default,) {final _that = this;
 switch (_that) {
 case _StorageFileVersionResponse():
-return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_that.createdByUserId,_that.createdAtUtc,_that.changeSummary,_that.isCurrent,_that.changedByUserId);case _:
+return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_that.createdByUserId,_that.createdAtUtc,_that.changeSummary,_that.isCurrent,_that.changedByUserId,_that.changedByDisplayName);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3167,10 +3434,10 @@ return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int version,  int fileSizeBytes,  String? contentSha256,  String createdByUserId,  DateTime createdAtUtc,  String? changeSummary,  bool isCurrent,  String? changedByUserId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int version,  int fileSizeBytes,  String? contentSha256,  String createdByUserId,  DateTime createdAtUtc,  String? changeSummary,  bool isCurrent,  String? changedByUserId,  String? changedByDisplayName)?  $default,) {final _that = this;
 switch (_that) {
 case _StorageFileVersionResponse() when $default != null:
-return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_that.createdByUserId,_that.createdAtUtc,_that.changeSummary,_that.isCurrent,_that.changedByUserId);case _:
+return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_that.createdByUserId,_that.createdAtUtc,_that.changeSummary,_that.isCurrent,_that.changedByUserId,_that.changedByDisplayName);case _:
   return null;
 
 }
@@ -3182,7 +3449,7 @@ return $default(_that.id,_that.version,_that.fileSizeBytes,_that.contentSha256,_
 @JsonSerializable()
 
 class _StorageFileVersionResponse implements StorageFileVersionResponse {
-  const _StorageFileVersionResponse({required this.id, required this.version, required this.fileSizeBytes, this.contentSha256, required this.createdByUserId, required this.createdAtUtc, this.changeSummary, this.isCurrent = false, this.changedByUserId});
+  const _StorageFileVersionResponse({required this.id, required this.version, required this.fileSizeBytes, this.contentSha256, required this.createdByUserId, required this.createdAtUtc, this.changeSummary, this.isCurrent = false, this.changedByUserId, this.changedByDisplayName});
   factory _StorageFileVersionResponse.fromJson(Map<String, dynamic> json) => _$StorageFileVersionResponseFromJson(json);
 
 @override final  String id;
@@ -3194,6 +3461,7 @@ class _StorageFileVersionResponse implements StorageFileVersionResponse {
 @override final  String? changeSummary;
 @override@JsonKey() final  bool isCurrent;
 @override final  String? changedByUserId;
+@override final  String? changedByDisplayName;
 
 /// Create a copy of StorageFileVersionResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -3208,16 +3476,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageFileVersionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.version, version) || other.version == version)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.contentSha256, contentSha256) || other.contentSha256 == contentSha256)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.changeSummary, changeSummary) || other.changeSummary == changeSummary)&&(identical(other.isCurrent, isCurrent) || other.isCurrent == isCurrent)&&(identical(other.changedByUserId, changedByUserId) || other.changedByUserId == changedByUserId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageFileVersionResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.version, version) || other.version == version)&&(identical(other.fileSizeBytes, fileSizeBytes) || other.fileSizeBytes == fileSizeBytes)&&(identical(other.contentSha256, contentSha256) || other.contentSha256 == contentSha256)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.changeSummary, changeSummary) || other.changeSummary == changeSummary)&&(identical(other.isCurrent, isCurrent) || other.isCurrent == isCurrent)&&(identical(other.changedByUserId, changedByUserId) || other.changedByUserId == changedByUserId)&&(identical(other.changedByDisplayName, changedByDisplayName) || other.changedByDisplayName == changedByDisplayName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,version,fileSizeBytes,contentSha256,createdByUserId,createdAtUtc,changeSummary,isCurrent,changedByUserId);
+int get hashCode => Object.hash(runtimeType,id,version,fileSizeBytes,contentSha256,createdByUserId,createdAtUtc,changeSummary,isCurrent,changedByUserId,changedByDisplayName);
 
 @override
 String toString() {
-  return 'StorageFileVersionResponse(id: $id, version: $version, fileSizeBytes: $fileSizeBytes, contentSha256: $contentSha256, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc, changeSummary: $changeSummary, isCurrent: $isCurrent, changedByUserId: $changedByUserId)';
+  return 'StorageFileVersionResponse(id: $id, version: $version, fileSizeBytes: $fileSizeBytes, contentSha256: $contentSha256, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc, changeSummary: $changeSummary, isCurrent: $isCurrent, changedByUserId: $changedByUserId, changedByDisplayName: $changedByDisplayName)';
 }
 
 
@@ -3228,7 +3496,7 @@ abstract mixin class _$StorageFileVersionResponseCopyWith<$Res> implements $Stor
   factory _$StorageFileVersionResponseCopyWith(_StorageFileVersionResponse value, $Res Function(_StorageFileVersionResponse) _then) = __$StorageFileVersionResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, int version, int fileSizeBytes, String? contentSha256, String createdByUserId, DateTime createdAtUtc, String? changeSummary, bool isCurrent, String? changedByUserId
+ String id, int version, int fileSizeBytes, String? contentSha256, String createdByUserId, DateTime createdAtUtc, String? changeSummary, bool isCurrent, String? changedByUserId, String? changedByDisplayName
 });
 
 
@@ -3245,7 +3513,7 @@ class __$StorageFileVersionResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageFileVersionResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? version = null,Object? fileSizeBytes = null,Object? contentSha256 = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,Object? changeSummary = freezed,Object? isCurrent = null,Object? changedByUserId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? version = null,Object? fileSizeBytes = null,Object? contentSha256 = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,Object? changeSummary = freezed,Object? isCurrent = null,Object? changedByUserId = freezed,Object? changedByDisplayName = freezed,}) {
   return _then(_StorageFileVersionResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
@@ -3256,6 +3524,7 @@ as String,createdAtUtc: null == createdAtUtc ? _self.createdAtUtc : createdAtUtc
 as DateTime,changeSummary: freezed == changeSummary ? _self.changeSummary : changeSummary // ignore: cast_nullable_to_non_nullable
 as String?,isCurrent: null == isCurrent ? _self.isCurrent : isCurrent // ignore: cast_nullable_to_non_nullable
 as bool,changedByUserId: freezed == changedByUserId ? _self.changedByUserId : changedByUserId // ignore: cast_nullable_to_non_nullable
+as String?,changedByDisplayName: freezed == changedByDisplayName ? _self.changedByDisplayName : changedByDisplayName // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

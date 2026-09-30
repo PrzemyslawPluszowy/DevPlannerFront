@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_content_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/domain/chat/links/chat_link_preview.dart';
 import 'package:devplanner/workspaces/domain/chat/links/chat_link_preview_repository.dart';
@@ -11,7 +11,7 @@ final class ChatLinkPreviewRepositoryImpl implements ChatLinkPreviewRepository {
   /// Tworzy adapter na sesyjnym kliencie API Chat.
   ChatLinkPreviewRepositoryImpl(this._api);
 
-  final ChatApi _api;
+  final ChatContentApi _api;
   static const _errorMapper = ChatApiErrorMapper();
 
   @override

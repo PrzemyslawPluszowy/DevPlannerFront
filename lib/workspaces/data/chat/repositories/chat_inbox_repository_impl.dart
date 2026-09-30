@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_inbox_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_conversation_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
@@ -17,7 +17,7 @@ final class ChatInboxRepositoryImpl implements ChatInboxRepository {
   /// Tworzy adapter na uwierzytelnionym kliencie Chat.
   ChatInboxRepositoryImpl(this._api, {this.defaultLimit = 30});
 
-  final ChatApi _api;
+  final ChatInboxApi _api;
 
   /// Domyślny rozmiar strony skrzynki używany, gdy UI go nie poda.
   final int defaultLimit;

@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_attachment.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_reply_preview.dart';
 import 'package:devplanner/workspaces/domain/chat/links/chat_message_link.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
 import 'package:equatable/equatable.dart';
@@ -23,6 +24,7 @@ final class ChatMessage extends Equatable {
     this.deltaJson,
     this.displayText,
     this.replyToMessageId,
+    this.replyPreview,
     this.threadRootMessageId,
     this.isEdited = false,
     this.deletedAtUtc,
@@ -32,6 +34,7 @@ final class ChatMessage extends Equatable {
     this.deliveredToCount = 0,
     this.readByCount = 0,
     this.links = const <ChatMessageLink>[],
+    this.mentionLabels = const <String, String>{},
   });
 
   final String id;
@@ -47,6 +50,7 @@ final class ChatMessage extends Equatable {
   /// a pole to pozwala autorowi widzieć nazwy wybrane w pickerze po potwierdzeniu.
   final String? displayText;
   final String? replyToMessageId;
+  final ChatMessageReplyTargetPreview? replyPreview;
   final String payloadHash;
   final int version;
   final DateTime createdAtUtc;
@@ -70,6 +74,9 @@ final class ChatMessage extends Equatable {
   /// Linki rozpoznane przez backend; używane do klikalnego tekstu i preview.
   final List<ChatMessageLink> links;
 
+  /// Czytelne etykiety dla zapisanych wzmianek, zwrócone przez backend.
+  final Map<String, String> mentionLabels;
+
   /// Zwraca kopię wpisu z nowym wynikiem dostawy bez zmiany idempotency key.
   ChatMessage copyWithDelivery({
     required ChatMessageDeliveryState deliveryState,
@@ -86,6 +93,7 @@ final class ChatMessage extends Equatable {
       deltaJson: source.deltaJson,
       displayText: displayText ?? source.displayText,
       replyToMessageId: source.replyToMessageId,
+      replyPreview: source.replyPreview,
       payloadHash: source.payloadHash,
       version: source.version,
       createdAtUtc: source.createdAtUtc,
@@ -99,6 +107,7 @@ final class ChatMessage extends Equatable {
       deliveredToCount: source.deliveredToCount,
       readByCount: source.readByCount,
       links: source.links,
+      mentionLabels: source.mentionLabels,
     );
   }
 
@@ -111,6 +120,7 @@ final class ChatMessage extends Equatable {
     text: text,
     deltaJson: deltaJson,
     replyToMessageId: replyToMessageId,
+    replyPreview: replyPreview,
     payloadHash: payloadHash,
     version: version,
     createdAtUtc: createdAtUtc,
@@ -122,6 +132,35 @@ final class ChatMessage extends Equatable {
     deliveryError: deliveryError,
     attachments: attachments,
     links: links,
+    mentionLabels: mentionLabels,
+  );
+
+  /// Redacts the cached quote when its target is deleted over realtime.
+  ChatMessage copyWithDeletedReplyTarget() => ChatMessage(
+    id: id,
+    conversationId: conversationId,
+    authorUserId: authorUserId,
+    clientMessageId: clientMessageId,
+    text: text,
+    deltaJson: deltaJson,
+    displayText: displayText,
+    replyToMessageId: replyToMessageId,
+    replyPreview: replyPreview?.copyWithDeleted(),
+    payloadHash: payloadHash,
+    version: version,
+    createdAtUtc: createdAtUtc,
+    isDeleted: isDeleted,
+    threadRootMessageId: threadRootMessageId,
+    isEdited: isEdited,
+    deletedAtUtc: deletedAtUtc,
+    deliveryState: deliveryState,
+    deliveryError: deliveryError,
+    attachments: attachments,
+    reactions: reactions,
+    deliveredToCount: deliveredToCount,
+    readByCount: readByCount,
+    links: links,
+    mentionLabels: mentionLabels,
   );
 
   @override
@@ -134,6 +173,7 @@ final class ChatMessage extends Equatable {
     deltaJson,
     displayText,
     replyToMessageId,
+    replyPreview,
     payloadHash,
     version,
     createdAtUtc,
@@ -148,5 +188,6 @@ final class ChatMessage extends Equatable {
     deliveredToCount,
     readByCount,
     links,
+    mentionLabels,
   ];
 }

@@ -7,6 +7,9 @@ enum ChatConversationRealtimeEventKind {
   messageUpdated,
   messageDeleted,
   messageDeliveryChanged,
+  messageSnapshotChanged,
+  conversationPinsChanged,
+  conversationChanged,
   membershipChanged,
 
   /// Zmiana stanu pisania innego uczestnika; nie zmienia historii wiadomości.
@@ -28,6 +31,7 @@ final class ChatConversationRealtimeEvent extends Equatable {
     this.message,
     this.messageId,
     this.messageVersion,
+    this.isReadReceipt = false,
     this.typingUserId,
     this.isTyping,
     this.typingExpiresAtUtc,
@@ -41,6 +45,9 @@ final class ChatConversationRealtimeEvent extends Equatable {
   final ChatMessage? message;
   final String? messageId;
   final int? messageVersion;
+
+  /// Read event advances a conversation cursor and can affect earlier messages.
+  final bool isReadReceipt;
 
   /// UUID uczestnika, którego dotyczy stan pisania.
   final String? typingUserId;
@@ -61,6 +68,7 @@ final class ChatConversationRealtimeEvent extends Equatable {
     message,
     messageId,
     messageVersion,
+    isReadReceipt,
     typingUserId,
     isTyping,
     typingExpiresAtUtc,

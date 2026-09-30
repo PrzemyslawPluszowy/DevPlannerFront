@@ -171,6 +171,15 @@ class StorageSharingCubit extends Cubit<StorageSharingState> {
     );
   }
 
+  /// Usuwa grant, jeśli jego tokenu nie udało się zamienić na publiczny URL.
+  Future<void> revokeShareToken(String token) async {
+    final current = state;
+    if (current is! StorageSharingReady) return;
+    final matching = current.shares.where((share) => share.shareToken == token);
+    if (matching.isEmpty) return;
+    await revokeShare(matching.first.id);
+  }
+
   Future<bool> _createShare(CreateStorageFileSharePayload payload) async {
     final currentState = state;
     if (currentState is StorageSharingReady) {

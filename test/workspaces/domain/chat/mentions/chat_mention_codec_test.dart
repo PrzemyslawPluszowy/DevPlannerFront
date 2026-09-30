@@ -22,13 +22,27 @@ void main() {
       );
     });
 
-    test('renderer podmienia token na etykietę, a nieznany zostawia', () {
+    test('renderer podmienia token na etykietę i nigdy nie pokazuje UUID', () {
       const unknown = '22222222-2222-2222-2222-222222222222';
       const text = 'Hej @$userId i @$unknown oraz @all';
 
       final rendered = ChatMentionCodec.renderText(text, {userId: 'Ola'});
 
-      expect(rendered, 'Hej @Ola i @$unknown oraz @all');
+      expect(rendered, 'Hej @Ola i @Member oraz @all');
+      expect(rendered, isNot(contains(unknown)));
+    });
+
+    test('nieznana wzmianka używa lokalizowanego fallbacku', () {
+      const unknown = '22222222-2222-2222-2222-222222222222';
+
+      expect(
+        ChatMentionCodec.renderText(
+          'Hej @$unknown',
+          const {},
+          fallbackLabel: 'Nieznany członek',
+        ),
+        'Hej @Nieznany członek',
+      );
     });
 
     test('wykrywa aktywne wywołanie wzmianki z frazą', () {

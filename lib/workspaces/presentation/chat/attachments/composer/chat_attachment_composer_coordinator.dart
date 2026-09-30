@@ -183,6 +183,8 @@ final class ChatAttachmentComposerCoordinatorCubit
     _consumedGeneration = _generation;
     await _uploadQueue.markConsumedAfterConfirmedSend(confirmedAttachmentIds);
     if (isClosed || _generation != _consumedGeneration) return;
+    await _selection.revokeAndDispose();
+    if (isClosed || _generation != _consumedGeneration) return;
     _updateDraftAttachmentIds(const <String>[]);
     emit(const ChatAttachmentComposerCoordinatorIdle());
   }

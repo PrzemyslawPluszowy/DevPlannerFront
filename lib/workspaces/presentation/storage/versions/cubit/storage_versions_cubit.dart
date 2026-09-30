@@ -80,4 +80,28 @@ final class StorageVersionsCubit extends Cubit<StorageVersionsState> {
       },
     );
   }
+
+  /// Usuwa wersję historyczną, a następnie odświeża pozostałą historię.
+  Future<bool> delete(int version) async {
+    final current = state;
+    if (current is! StorageVersionsReady || current.busyVersion != null) {
+      return false;
+    }
+    emit(current.copyWith(busyVersion: version));
+    final result = await _repository.deleteFileVersion(
+      fileId: fileId,
+      version: version,
+      expectedVersion: expectedVersion,
+    );
+    if (isClosed) return false;
+    final succeeded = result.fold(
+      (error) {
+        emit(StorageVersionsFailure(error.message));
+        return false;
+      },
+      (_) => true,
+    );
+    if (succeeded && !isClosed) await load();
+    return succeeded;
+  }
 }

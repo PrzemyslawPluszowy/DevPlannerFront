@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/config/app_env.dart';
 import 'package:devplanner/foundation/error/error.dart';
 
 /// Desktop link builder using an explicit public Web application address.
@@ -10,12 +11,15 @@ final class StoragePublicShareLinkPlatform {
   );
 
   static Either<ApiError, String> build(String shareToken) {
-    final base = Uri.tryParse(_publicAppBaseUrl.trim());
+    final configured = _publicAppBaseUrl.trim();
+    final base = Uri.tryParse(
+      configured.isEmpty ? AppEnv.apiBaseUrl : configured,
+    );
     if (base == null || !base.hasScheme || base.host.isEmpty) {
       return const Left(
         ApiError(
           type: ApiErrorType.validation,
-          message: 'Desktop wymaga konfiguracji PUBLIC_APP_BASE_URL do tworzenia linków publicznych.',
+          message: 'Nie udało się ustalić publicznego adresu aplikacji. Skonfiguruj PUBLIC_APP_BASE_URL.',
         ),
       );
     }

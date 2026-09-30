@@ -7,7 +7,9 @@ import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/shared/presentation/widgets/app_toast.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_attachment.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart';
-import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_storage_actions.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_image_preview_dialog.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_inline_image_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -85,11 +87,21 @@ class _AttachmentCardState extends State<_AttachmentCard> {
   @override
   void didUpdateWidget(covariant _AttachmentCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.attachment.storageFileId != widget.attachment.storageFileId) {
-      _thumbnail = null;
-      _thumbnailBytes = null;
-      _loadThumbnail();
+    final previous = oldWidget.attachment;
+    final current = widget.attachment;
+    if (previous.messageId == current.messageId &&
+        previous.storageFileId == current.storageFileId &&
+        previous.isAvailable == current.isAvailable &&
+        previous.isImage == current.isImage) {
+      return;
     }
+
+    // The same attachment row can become Clean/available after realtime scan.
+    // Invalidate any pending request so its late result cannot restore a stale
+    // thumbnail after the attachment identity or availability has changed.
+    _thumbnail = null;
+    _thumbnailBytes = null;
+    _loadThumbnail();
   }
 
   /// Miniatura tylko dla obrazów i tylko przez autoryzowany port Storage.
@@ -101,7 +113,10 @@ class _AttachmentCardState extends State<_AttachmentCard> {
     if (!attachment.isAvailable || !attachment.isImage) return;
     final port = context.read<ChatAttachmentAccessPort?>();
     if (port == null) return;
-    final request = port.thumbnail(attachment.storageFileId);
+    final request = port.thumbnail(
+      messageId: attachment.messageId,
+      storageFileId: attachment.storageFileId,
+    );
     _thumbnail = request;
     unawaited(_captureThumbnail(request));
   }
@@ -146,6 +161,18 @@ class _AttachmentCardState extends State<_AttachmentCard> {
           icon: Symbols.download,
           onTap: (_) => unawaited(_download(port)),
         ),
+      if (canUse)
+        AppContextMenuAction(
+          label: context.l10n.chatAttachmentSaveToStorage,
+          icon: Symbols.save_alt,
+          onTap: (_) => unawaited(_saveToStorage(port)),
+        ),
+      if (canUse && attachment.isOfficeDocument)
+        AppContextMenuAction(
+          label: context.l10n.chatAttachmentSaveAndOpen,
+          icon: Symbols.drive_file_move,
+          onTap: (_) => unawaited(_saveToStorage(port, openAfterSave: true)),
+        ),
       AppContextMenuAction(
         label: context.l10n.chatAttachmentCopyName,
         icon: Symbols.content_copy,
@@ -168,9 +195,10 @@ class _AttachmentCardState extends State<_AttachmentCard> {
     if (_thumbnailBytes case final bytes?) {
       await DevPlannerModalHost.showDialog<void>(
         context,
-        builder: (_) => _ChatImagePreviewDialog(
+        builder: (_) => ChatImagePreviewDialog(
           attachment: widget.attachment,
           bytes: Future<Uint8List?>.value(bytes),
+          fullResolutionBytes: port.fullImage(widget.attachment.storageFileId),
           port: port,
         ),
       );
@@ -186,15 +214,44 @@ class _AttachmentCardState extends State<_AttachmentCard> {
   Future<void> _download(ChatAttachmentAccessPort port) async {
     if (_opening) return;
     setState(() => _opening = true);
-    final failure = await port.open(widget.attachment.storageFileId);
-    if (!mounted) return;
-    setState(() => _opening = false);
-    if (failure == null) return;
-    AppToast.show(
-      context,
-      message: failure.message,
-      tone: AppToastTone.error,
-    );
+    try {
+      final failure = await port.open(widget.attachment.storageFileId);
+      if (!mounted || failure == null) return;
+      AppToast.show(
+        context,
+        message: failure.code == 'chat.attachment.open_failed'
+            ? context.l10n.chatAttachmentOpenFailed
+            : failure.message,
+        tone: AppToastTone.error,
+      );
+    } on Object {
+      if (!mounted) return;
+      AppToast.show(
+        context,
+        message: context.l10n.chatAttachmentOpenFailed,
+        tone: AppToastTone.error,
+      );
+    } finally {
+      if (mounted) setState(() => _opening = false);
+    }
+  }
+
+  Future<void> _saveToStorage(
+    ChatAttachmentAccessPort port, {
+    bool openAfterSave = false,
+  }) async {
+    if (_opening) return;
+    setState(() => _opening = true);
+    try {
+      await ChatAttachmentStorageActions.save(
+        context,
+        attachment: widget.attachment,
+        port: port,
+        openAfterSave: openAfterSave,
+      );
+    } finally {
+      if (mounted) setState(() => _opening = false);
+    }
   }
 
   @override
@@ -227,62 +284,82 @@ class _AttachmentCardState extends State<_AttachmentCard> {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           child: Padding(
             padding: const EdgeInsets.all(Sizes.p8),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _AttachmentThumbnail(
-                  future: _thumbnail,
-                  fallback: Icon(
-                    available ? Symbols.insert_drive_file : Symbols.link_off,
-                    size: 18,
-                    color: available ? muted : chat.error,
+                if (attachment.isImage && available && _thumbnail != null) ...[
+                  ChatInlineImagePreview(
+                    future: _thumbnail,
+                    fallback: Icon(
+                      Symbols.broken_image,
+                      color: muted,
+                      size: 32,
+                    ),
                   ),
-                ),
-                const SizedBox(width: Sizes.p8),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        attachment.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: chat.contentStyle.copyWith(
-                          color: chat.incomingText,
-                        ),
-                      ),
-                      Text(
-                        available
-                            ? details
-                            : context.l10n.chatAttachmentUnavailable,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: chat.metadataStyle.copyWith(
+                  const SizedBox(height: Sizes.p8),
+                ],
+                Row(
+                  children: [
+                    if (!attachment.isImage || _thumbnail == null)
+                      _AttachmentThumbnail(
+                        future: _thumbnail,
+                        fallback: Icon(
+                          available
+                              ? Symbols.insert_drive_file
+                              : Symbols.link_off,
+                          size: 18,
                           color: available ? muted : chat.error,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                if (canOpen) ...[
-                  const SizedBox(width: Sizes.p8),
-                  if (_opening)
-                    const SizedBox.square(
-                      dimension: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  else
-                    Tooltip(
-                      message: context.l10n.chatAttachmentOpen,
-                      child: Icon(
-                        _thumbnailBytes == null
-                            ? Symbols.download
-                            : Symbols.visibility,
-                        size: 18,
-                        color: muted,
+                    if (!attachment.isImage || _thumbnail == null)
+                      const SizedBox(width: Sizes.p8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            attachment.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: chat.contentStyle.copyWith(
+                              color: chat.incomingText,
+                            ),
+                          ),
+                          Text(
+                            available
+                                ? details
+                                : context.l10n.chatAttachmentUnavailable,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: chat.metadataStyle.copyWith(
+                              color: available ? muted : chat.error,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                ],
+                    if (canOpen) ...[
+                      const SizedBox(width: Sizes.p8),
+                      if (_opening)
+                        const SizedBox.square(
+                          dimension: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      else
+                        Tooltip(
+                          message: context.l10n.chatAttachmentOpen,
+                          child: Icon(
+                            _thumbnailBytes == null
+                                ? Symbols.download
+                                : Symbols.visibility,
+                            size: 18,
+                            color: muted,
+                          ),
+                        ),
+                    ],
+                  ],
+                ),
               ],
             ),
           ),
@@ -316,91 +393,6 @@ class _AttachmentThumbnail extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-/// Pełnoekranowy podgląd obrazu z już pobranych, autoryzowanych bajtów.
-///
-/// Galeria pokazuje wyłącznie bajty uzyskane portem Storage; pobranie pliku na
-/// urządzenie zostaje osobną akcją, żeby podgląd nie zapisywał nic po cichu.
-class _ChatImagePreviewDialog extends StatefulWidget {
-  const _ChatImagePreviewDialog({
-    required this.attachment,
-    required this.bytes,
-    required this.port,
-  });
-
-  final ChatMessageAttachment attachment;
-  final Future<Uint8List?> bytes;
-  final ChatAttachmentAccessPort port;
-
-  @override
-  State<_ChatImagePreviewDialog> createState() =>
-      _ChatImagePreviewDialogState();
-}
-
-class _ChatImagePreviewDialogState extends State<_ChatImagePreviewDialog> {
-  bool _downloading = false;
-
-  Future<void> _download() async {
-    if (_downloading) return;
-    setState(() => _downloading = true);
-    final failure = await widget.port.open(widget.attachment.storageFileId);
-    if (!mounted) return;
-    setState(() => _downloading = false);
-    if (failure == null) return;
-    AppToast.show(
-      context,
-      message: failure.message,
-      tone: AppToastTone.error,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ChatSurfaceDialog(
-      title: widget.attachment.label,
-      maxWidth: 720,
-      content: SizedBox(
-        height: 440,
-        child: FutureBuilder<Uint8List?>(
-          future: widget.bytes,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final bytes = snapshot.data;
-            if (bytes == null || bytes.isEmpty) {
-              return Center(
-                child: Text(
-                  context.l10n.chatAttachmentUnavailable,
-                  textAlign: TextAlign.center,
-                ),
-              );
-            }
-            return InteractiveViewer(
-              child: Image.memory(bytes, fit: BoxFit.contain),
-            );
-          },
-        ),
-      ),
-      actions: [
-        if (_downloading)
-          const Padding(
-            padding: EdgeInsets.all(Sizes.p8),
-            child: SizedBox.square(
-              dimension: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          )
-        else
-          TextButton.icon(
-            onPressed: _download,
-            icon: const Icon(Symbols.download),
-            label: Text(context.l10n.chatAttachmentOpen),
-          ),
-      ],
     );
   }
 }

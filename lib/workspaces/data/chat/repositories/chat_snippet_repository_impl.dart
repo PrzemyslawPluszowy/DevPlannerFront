@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_content_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
@@ -14,7 +14,7 @@ final class ChatSnippetRepositoryImpl implements ChatSnippetRepository {
   /// Tworzy adapter na uwierzytelnionym kliencie Chat.
   ChatSnippetRepositoryImpl(this._api);
 
-  final ChatApi _api;
+  final ChatContentApi _api;
   static const _errorMapper = ChatApiErrorMapper();
 
   @override

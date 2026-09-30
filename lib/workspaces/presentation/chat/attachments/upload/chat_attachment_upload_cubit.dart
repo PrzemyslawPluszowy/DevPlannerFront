@@ -37,6 +37,11 @@ final class ChatAttachmentUploadFailed extends ChatAttachmentUploadState {
 /// Port 7C/Storage ukrywający kontrakt HTTP i presigned URL przed presentation.
 abstract interface class ChatAttachmentUploadPort {
   Future<ChatAttachmentUploadSession> createSession(String conversationId);
+  Future<String> copyPrivateFileToSession({
+    required String conversationId,
+    required String sessionId,
+    required String sourceStorageFileId,
+  });
   Future<ChatAttachmentTicket> createTicket({
     required String sessionId,
     required StorageUploadInput input,
@@ -106,6 +111,21 @@ final class ChatAttachmentUploadCubit extends Cubit<ChatAttachmentUploadState>
         return;
       }
       _sessionId = session.id;
+      final privateSourceId = input.sourceStorageFileId;
+      if (privateSourceId != null) {
+        emit(const ChatAttachmentUploadWorking('copy'));
+        final storageFileId = await _port.copyPrivateFileToSession(
+          conversationId: conversationId,
+          sessionId: session.id,
+          sourceStorageFileId: privateSourceId,
+        );
+        if (generation != _generation) {
+          await _port.cancelSession(conversationId, session.id);
+          return;
+        }
+        emit(ChatAttachmentUploadReady(storageFileId, session.id));
+        return;
+      }
       emit(const ChatAttachmentUploadWorking('upload'));
       final ticket = await _port.createTicket(
         sessionId: session.id,

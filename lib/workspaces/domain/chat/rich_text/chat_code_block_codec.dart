@@ -41,6 +41,28 @@ abstract final class ChatCodeBlockCodec {
     return operations;
   }
 
+  /// Buduje blok do wstawienia w istniejący dokument Quilla.
+  ///
+  /// Jeśli kursor znajduje się w środku akapitu, osobny nieformatowany
+  /// newline zamyka go przed blokiem, aby tekst poprzedzający kod nie dostał
+  /// przypadkiem atrybutu `code-block`.
+  static List<Map<String, Object?>> buildInsertion({
+    required String code,
+    required String precedingText,
+    String? language,
+  }) {
+    final operations = build(code: code, language: language);
+    if (operations.isEmpty ||
+        precedingText.isEmpty ||
+        precedingText.endsWith('\n')) {
+      return operations;
+    }
+    return <Map<String, Object?>>[
+      <String, Object?>{'insert': '\n'},
+      ...operations,
+    ];
+  }
+
   /// Serializuje operacje do JSON-a przyjmowanego przez API.
   static String encode({required String code, String? language}) =>
       jsonEncode(build(code: code, language: language));

@@ -1,4 +1,7 @@
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_directory_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_presence_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_search_api.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_conversation_management_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_directory_repository_impl.dart';
@@ -15,7 +18,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-final class _MockChatApi extends Mock implements ChatApi {}
+final class _MockChatApi extends Mock
+    implements ChatApi, ChatDirectoryApi, ChatPresenceApi, ChatSearchApi {}
 
 ChatConversationResponse conversationResponse() => ChatConversationResponse(
   id: 'conversation-1',

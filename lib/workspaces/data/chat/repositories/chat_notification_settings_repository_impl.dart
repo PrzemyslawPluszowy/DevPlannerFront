@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/data/api_repository.dart';
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_notification_settings_api.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart'
     as transport;
@@ -12,9 +12,10 @@ import 'package:devplanner/workspaces/domain/notifications/models/chat_notificat
 final class ChatNotificationSettingsRepositoryImpl extends ApiRepository
     implements ChatNotificationSettingsRepository {
   /// Tworzy adapter na prywatnym kliencie Chat Workspaces.
-  ChatNotificationSettingsRepositoryImpl(ChatApi api) : _api = api;
+  ChatNotificationSettingsRepositoryImpl(ChatNotificationSettingsApi api)
+    : _api = api;
 
-  final ChatApi _api;
+  final ChatNotificationSettingsApi _api;
 
   @override
   Future<Either<ApiError, ChatNotificationSettings>> getGlobalSettings() =>

@@ -1,4 +1,3 @@
-import 'package:devplanner/workspaces/data/chat/models/chat_link_policy_dto.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:dio/dio.dart';
@@ -22,30 +21,6 @@ abstract class ChatApi {
   Future<ChatConversationResponse> resolve(
     @Body() ResolveChatConversationPayload payload,
   );
-
-  /// Pobiera politykę snippetów obowiązującą na serwerze.
-  @GET('/api/v1/chat/link-policy')
-  Future<ChatLinkPolicyDtoResponse> loadLinkPolicy();
-
-  /// Pobiera katalog lokalnych kont dla nowej rozmowy.
-  @GET('/api/v1/chat/users')
-  Future<List<ChatDirectoryUserResponse>> searchDirectory({
-    @Query('q') required String query,
-    @Query('limit') int? limit,
-  });
-
-  /// Pobiera stronę serwerowej skrzynki rozmów bieżącego użytkownika.
-  @GET('/api/v1/chat/inbox')
-  Future<ChatInboxPageResponse> loadInbox({
-    @Query('cursor') String? cursor,
-    @Query('limit') int? limit,
-    @Query('filter') String? filter,
-    @Query('query') String? query,
-  });
-
-  /// Pobiera agregat nieprzeczytanych wiadomości bez pobierania stron skrzynki.
-  @GET('/api/v1/chat/inbox/unread-count')
-  Future<ChatInboxUnreadCountResponse> loadInboxUnreadCount();
 
   /// Pobiera aktywne rozmowy bieżącego użytkownika.
   @GET('/api/v1/chat/conversations')
@@ -106,67 +81,6 @@ abstract class ChatApi {
     @Path('placementId') String placementId,
   );
 
-  /// Ustawia własny status użytkownika Chat.
-  @PUT('/api/v1/chat/users/me/status')
-  Future<ChatUserStatusResponse> upsertStatus(
-    @Body() UpsertChatUserStatusPayload payload,
-  );
-
-  /// Czyści własny status użytkownika Chat.
-  @DELETE('/api/v1/chat/users/me/status')
-  Future<void> clearStatus();
-
-  /// Pobiera globalne preferencje powiadomień Chat.
-  @GET('/api/v1/chat/users/me/notification-preferences')
-  Future<ChatUserNotificationPreferenceResponse>
-  getUserNotificationPreferences();
-
-  /// Aktualizuje globalne preferencje powiadomień Chat.
-  @PUT('/api/v1/chat/users/me/notification-preferences')
-  Future<ChatUserNotificationPreferenceResponse>
-  updateUserNotificationPreferences(
-    @Body() UpdateChatUserNotificationPreferencePayload payload,
-  );
-
-  /// Pobiera aktywny status wskazanego użytkownika.
-  @GET('/api/v1/chat/users/{userId}/status')
-  Future<ChatUserStatusResponse?> getUserStatus(@Path('userId') String userId);
-
-  /// Wyszukuje wiadomości dostępne dla bieżącego użytkownika.
-  @GET('/api/v1/chat/search')
-  Future<ChatSearchResponse> search({
-    @Query('q') required String query,
-    @Query('conversationId') String? conversationId,
-    @Query('senderId') String? senderId,
-    @Query('workspaceId') String? workspaceId,
-    @Query('projectId') String? projectId,
-    @Query('fromUtc') DateTime? fromUtc,
-    @Query('toUtc') DateTime? toUtc,
-    @Query('mentionedUserId') String? mentionedUserId,
-    @Query('limit') int? limit,
-    @Query('cursor') String? cursor,
-  });
-
-  /// Pobiera facety wyszukiwania wiadomości.
-  @GET('/api/v1/chat/search/facets')
-  Future<ChatSearchFacetsResponse> searchFacets({
-    @Query('q') required String query,
-    @Query('conversationId') String? conversationId,
-    @Query('senderId') String? senderId,
-    @Query('workspaceId') String? workspaceId,
-    @Query('projectId') String? projectId,
-    @Query('fromUtc') DateTime? fromUtc,
-    @Query('toUtc') DateTime? toUtc,
-    @Query('mentionedUserId') String? mentionedUserId,
-  });
-
-  /// Pobiera sugestie użytkowników do wzmianki.
-  @GET('/api/v1/chat/conversations/{conversationId}/mention-suggestions')
-  Future<List<ChatMentionSuggestionResponse>> mentionSuggestions(
-    @Path('conversationId') String conversationId,
-    @Query('q') String query,
-  );
-
   /// Pobiera cursorową historię rozmowy.
   @GET('/api/v1/chat/conversations/{conversationId}/messages')
   Future<CursorPageResponse<ChatMessageResponse>> listMessages(
@@ -194,6 +108,17 @@ abstract class ChatApi {
   Future<void> cancelAttachmentSession(
     @Path('conversationId') String conversationId,
     @Path('sessionId') String sessionId,
+  );
+
+  /// Kopiuje prywatny plik do istniejącej sesji tymczasowych załączników.
+  @POST(
+    '/api/v1/chat/conversations/{conversationId}/attachment-sessions/{sessionId}/private-files',
+  )
+  Future<CopyPrivateFileToChatAttachmentResponse>
+  copyPrivateFileToAttachmentSession(
+    @Path('conversationId') String conversationId,
+    @Path('sessionId') String sessionId,
+    @Body() CopyPrivateFileToChatAttachmentPayload payload,
   );
 
   /// Pobiera cursorową historię odpowiedzi wątku.
@@ -224,27 +149,6 @@ abstract class ChatApi {
     @Query('before') int? before,
     @Query('after') int? after,
   });
-
-  /// Generuje bezpieczny podgląd linku.
-  @GET('/api/v1/chat/conversations/{conversationId}/link-preview')
-  Future<ChatLinkPreviewResponse> previewLink(
-    @Path('conversationId') String conversationId,
-    @Query('url') String url,
-  );
-
-  /// Przygotowuje długi tekst jako snippet.
-  @POST('/api/v1/chat/conversations/{conversationId}/snippet')
-  Future<ChatSnippetResponse> prepareSnippet(
-    @Path('conversationId') String conversationId,
-    @Body() ChatSnippetPayload payload,
-  );
-
-  /// Tworzy i dołącza snippet do wiadomości.
-  @POST('/api/v1/chat/messages/{messageId}/snippet-attachment')
-  Future<ChatSnippetAttachmentResponse> createSnippetAttachment(
-    @Path('messageId') String messageId,
-    @Body() ChatSnippetPayload payload,
-  );
 
   /// Dodaje członków do rozmowy.
   @POST('/api/v1/chat/conversations/{conversationId}/members')
@@ -283,6 +187,13 @@ abstract class ChatApi {
     @Body() SendChatMessagePayload payload,
   );
 
+  /// Potwierdza odczyt wiadomości w rozmowie.
+  @POST('/api/v1/chat/conversations/{conversationId}/messages/{messageId}/read')
+  Future<void> markRead(
+    @Path('conversationId') String conversationId,
+    @Path('messageId') String messageId,
+  );
+
   /// Edytuje wiadomość.
   @PATCH('/api/v1/chat/messages/{messageId}')
   Future<ChatMessageResponse> editMessage(
@@ -309,19 +220,6 @@ abstract class ChatApi {
   Future<void> muteConversation(
     @Path('conversationId') String conversationId,
     @Body() ChatMutePayload payload,
-  );
-
-  /// Pobiera preferencję powiadomień rozmowy.
-  @GET('/api/v1/chat/conversations/{conversationId}/notification-preference')
-  Future<ChatNotificationPreferenceResponse> getNotificationPreference(
-    @Path('conversationId') String conversationId,
-  );
-
-  /// Ustawia preferencję powiadomień rozmowy.
-  @PUT('/api/v1/chat/conversations/{conversationId}/notification-preference')
-  Future<ChatNotificationPreferenceResponse> setNotificationPreference(
-    @Path('conversationId') String conversationId,
-    @Body() UpdateChatNotificationPreferencePayload payload,
   );
 
   /// Wycisza wątek wiadomości.
@@ -386,11 +284,30 @@ abstract class ChatApi {
     @Path('messageId') String messageId,
   );
 
+  /// Pobiera miniaturę JPEG załącznika przez autoryzowany endpoint Chat.
+  @GET(
+    '/api/v1/chat/messages/{messageId}/attachments/{storageFileId}/thumbnail',
+  )
+  @DioResponseType(ResponseType.bytes)
+  Future<HttpResponse<List<int>>> getAttachmentThumbnail(
+    @Path('messageId') String messageId,
+    @Path('storageFileId') String storageFileId,
+  );
+
   /// Dołącza plik Storage do wiadomości.
   @POST('/api/v1/chat/messages/{messageId}/attachments')
   Future<ChatAttachmentResponse> attachFile(
     @Path('messageId') String messageId,
     @Body() AttachChatFilePayload payload,
+  );
+
+  /// Kopiuje załącznik aktywnej wiadomości do prywatnego Storage.
+  @POST(
+    '/api/v1/chat/messages/{messageId}/attachments/{storageFileId}/save-to-storage',
+  )
+  Future<SaveChatAttachmentToStorageResponse> saveAttachmentToStorage(
+    @Path('messageId') String messageId,
+    @Path('storageFileId') String storageFileId,
   );
 
   /// Odłącza plik Storage od wiadomości.
@@ -428,13 +345,6 @@ abstract class ChatApi {
   Future<void> removeReaction(
     @Path('messageId') String messageId,
     @Path('emoji') String emoji,
-  );
-
-  /// Oznacza wiadomość jako przeczytaną w rozmowie.
-  @POST('/api/v1/chat/conversations/{conversationId}/messages/{messageId}/read')
-  Future<void> markRead(
-    @Path('conversationId') String conversationId,
-    @Path('messageId') String messageId,
   );
 
   /// Pobiera szkic wiadomości rozmowy.

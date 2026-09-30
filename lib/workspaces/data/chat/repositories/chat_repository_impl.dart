@@ -3,14 +3,14 @@ import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_conversation_mapper.dart';
-import 'package:devplanner/workspaces/data/chat/models/chat_link_mapper.dart';
+import 'package:devplanner/workspaces/data/chat/models/chat_message_response_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/chat_enums.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
-import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_request.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/rich_text/chat_delta_contract_sanitizer.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
 import 'package:dio/dio.dart';
 
@@ -126,7 +126,9 @@ final class ChatRepositoryImpl
         SendChatMessagePayload(
           clientMessageId: command.clientMessageId,
           text: command.text,
-          deltaJson: command.deltaJson,
+          deltaJson: ChatDeltaContractSanitizer.sanitizeJson(
+            command.deltaJson,
+          ),
           replyToMessageId: command.replyToMessageId,
           attachmentFileIds: command.attachmentFileIds,
         ),
@@ -173,55 +175,8 @@ final class ChatRepositoryImpl
     code: ChatApiErrorCode.loadConversations,
   );
 
-  ChatMessage _toMessage(ChatMessageResponse response) => ChatMessage(
-    id: response.id,
-    conversationId: response.conversationId,
-    authorUserId: response.authorUserId,
-    clientMessageId: response.clientMessageId,
-    text: response.text,
-    deltaJson: response.deltaJson,
-    replyToMessageId: response.replyToMessageId,
-    payloadHash: response.payloadHash,
-    version: response.version,
-    createdAtUtc: response.createdAtUtc,
-    isDeleted: response.isDeleted,
-    threadRootMessageId: response.threadRootMessageId,
-    isEdited: response.isEdited,
-    deliveredToCount: response.deliveredToCount,
-    readByCount: response.readByCount,
-    links: ChatLinkMapper.toDomain(response.links),
-    deletedAtUtc: response.deletedAtUtc,
-    deliveryState: ChatMessageDeliveryState.sent,
-    reactions:
-        response.reactions
-            ?.map(
-              (reaction) => ChatReactionSummary(
-                emoji: reaction.emoji,
-                count: reaction.count,
-                reactedByCurrentUser: reaction.reactedByCurrentUser,
-              ),
-            )
-            .toList(growable: false) ??
-        const <ChatReactionSummary>[],
-    attachments:
-        response.attachments
-            ?.map(
-              (attachment) => ChatMessageAttachment(
-                id: attachment.id,
-                messageId: attachment.messageId,
-                storageFileId: attachment.storageFileId,
-                attachedByUserId: attachment.attachedByUserId,
-                position: attachment.position,
-                createdAtUtc: attachment.createdAtUtc,
-                fileName: attachment.fileName,
-                fileSizeBytes: attachment.fileSizeBytes,
-                contentType: attachment.contentType,
-                isAvailable: attachment.isAvailable,
-              ),
-            )
-            .toList(growable: false) ??
-        const <ChatMessageAttachment>[],
-  );
+  ChatMessage _toMessage(ChatMessageResponse response) =>
+      ChatMessageResponseMapper.toDomain(response);
 
   Future<Either<ApiError, T>> _guard<T>(
     Future<T> Function() call, {

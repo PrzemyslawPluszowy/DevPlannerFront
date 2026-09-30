@@ -134,6 +134,7 @@ abstract class StorageFileResponse with _$StorageFileResponse {
     @Default(false) bool canEdit,
     @Default(false) bool canShare,
     @Default(false) bool canDelete,
+    @Default(false) bool canDismissFromShared,
     @Default(false) bool isFavorite,
     DateTime? favoritedAtUtc,
     DateTime? lastAccessedAtUtc,

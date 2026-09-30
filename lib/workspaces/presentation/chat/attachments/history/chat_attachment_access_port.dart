@@ -39,9 +39,38 @@ abstract interface class ChatAttachmentAccessPort {
   /// rzucana, żeby UI mogło pokazać kod i `traceId` zamiast pustego ekranu.
   Future<ChatAttachmentAccessFailure?> open(String storageFileId);
 
-  /// Pobiera bajty pliku tym samym autoryzowanym adresem (miniatura obrazu).
+  /// Kopiuje załącznik wiadomości do prywatnego Storage bieżącego użytkownika.
+  Future<ChatAttachmentSaveResult> saveToStorage({
+    required String messageId,
+    required String storageFileId,
+  });
+
+  /// Pobiera małą miniaturę przez endpoint Chat sprawdzający członkostwo.
   ///
   /// `null` oznacza, że miniatury nie da się pokazać; karta wraca wtedy do
   /// ikony pliku i nie pokazuje użytkownikowi fałszywego podglądu.
-  Future<Uint8List?> thumbnail(String storageFileId);
+  Future<Uint8List?> thumbnail({
+    required String messageId,
+    required String storageFileId,
+  });
+
+  /// Pobiera pełny obraz dopiero po jawnym otwarciu podglądu przez użytkownika.
+  Future<Uint8List?> fullImage(String storageFileId);
+}
+
+/// Wynik serwerowego zapisu kopii załącznika.
+final class ChatAttachmentSaveResult {
+  const ChatAttachmentSaveResult({
+    this.storageFileId,
+    this.fileName,
+    this.canEditOnline = false,
+    this.failure,
+  });
+
+  final String? storageFileId;
+  final String? fileName;
+  final bool canEditOnline;
+  final ChatAttachmentAccessFailure? failure;
+
+  bool get succeeded => storageFileId != null && failure == null;
 }

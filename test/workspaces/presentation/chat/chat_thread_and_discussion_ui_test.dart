@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
@@ -14,9 +16,12 @@ import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/chat_conversation_message_list.dart';
 import 'package:devplanner/workspaces/presentation/chat/chat_conversation_page.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_message_composer.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/chat_thread_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/thread/chat_thread_side_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +30,112 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  testWidgets(
+    'parent rebuild zachowuje jedną dzierżawę realtime',
+    (tester) async {
+      final factory = WorkspaceChatRealtimeFactory(
+        baseUrl: 'http://127.0.0.1:1',
+        credentials: WorkspaceRealtimeCredentials.bearer(() async => null),
+      );
+      addTearDown(factory.closeAll);
+      final repository = _ConversationRepository()..deny = true;
+      Widget page(String? target, {String conversationId = 'parent'}) =>
+          MaterialApp(
+            locale: const Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: _ChatFixture.conversation(
+              conversation: repository,
+              realtimeFactory: factory,
+              targetMessageId: target,
+              conversationId: conversationId,
+            ),
+          );
+      await tester.pumpWidget(page(null));
+      await tester.pumpAndSettle();
+      expect(factory.openConversationCount, 1);
+      await tester.pumpWidget(page('root'));
+      await tester.pumpAndSettle();
+      expect(factory.openConversationCount, 1);
+      // Jedno zwolnienie musi wyzerować pulę; refcount >1 oznacza lease
+      // porzucony podczas przebudowy tego samego ownera.
+      unawaited(factory.release('parent'));
+      expect(factory.openConversationCount, 0);
+      await tester.pumpWidget(page(null, conversationId: 'next-parent'));
+      await tester.pumpAndSettle();
+      expect(_ChatFixture.parentCubit(tester).conversationId, 'next-parent');
+      unawaited(factory.release('next-parent'));
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    },
+  );
+
+  for (final width in [700.0, 1200.0]) {
+    testWidgets(
+      'zmiana inline thread A na B izoluje owner i draft przy width $width',
+      (tester) async {
+        tester.view.physicalSize = Size(width, 1000);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        final repository = _ConversationRepository();
+        final drafts = _DraftRepository();
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: _ChatFixture.conversation(
+              conversation: repository,
+              drafts: drafts,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final openThread = tester
+            .widget<ChatConversationMessageList>(
+              find.byType(ChatConversationMessageList),
+            )
+            .onThread;
+        openThread(_message('root-a'));
+        await tester.pumpAndSettle();
+        final composer = find.descendant(
+          of: find.byType(ChatThreadSidePanel),
+          matching: find.byType(TextField),
+        );
+        await tester.enterText(composer, 'draft A');
+        await tester.pump();
+        openThread(_message('root-b'));
+        await tester.pumpAndSettle();
+        expect(find.text('draft A'), findsNothing);
+        expect(
+          drafts.readKeys,
+          containsAll(['user-1/thread:root-a', 'user-1/thread:root-b']),
+        );
+        await tester.enterText(composer, 'reply B');
+        await tester.pump();
+        await tester.tap(
+          find.descendant(
+            of: find.byType(ChatThreadSidePanel),
+            matching: find.byTooltip('Send message'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(repository.sent.single.replyToMessageId, 'root-b');
+        expect(
+          tester
+              .widget<ChatMessageComposer>(
+                find.descendant(
+                  of: find.byType(ChatThreadSidePanel),
+                  matching: find.byType(ChatMessageComposer),
+                ),
+              )
+              .conversationId,
+          'thread:root-b',
+        );
+      },
+    );
+  }
+
   testWidgets(
     'wątek zachowuje cursor, wysyła reply do parenta i izoluje draft',
     (
@@ -49,6 +160,7 @@ void main() {
       expect(thread.cursors, <String?>[null, 'older']);
 
       await tester.enterText(find.byType(TextField), 'reply');
+      await tester.pump();
       await tester.tap(find.byTooltip('Send message'));
       await tester.pumpAndSettle();
       expect(conversation.sent.single.conversationId, 'parent');
@@ -129,9 +241,28 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Open discussion'));
-    await tester.pump();
+    unawaited(
+      ChatThreadSheet.showDiscussion(
+        tester.element(
+          find
+              .byWidgetPredicate(
+                (widget) =>
+                    widget
+                        is BlocListener<
+                          ChatConversationCubit,
+                          ChatConversationState
+                        >,
+              )
+              .first,
+        ),
+        repository: _DiscussionRepository(),
+        parentConversation: _conversation(),
+        rootMessage: _message('root'),
+      ),
+    );
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, 'Project discussion');
+    await tester.pump();
     await tester.tap(
       find.widgetWithText(FilledButton, 'Open discussion').first,
     );
@@ -159,7 +290,14 @@ void main() {
         .load();
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    expect(find.text('Forbidden'), findsOneWidget);
+    expect(
+      find.text(
+        AppLocalizations.of(
+          tester.element(find.byType(ChatConversationPageView).first),
+        )!.chatConversationAccessRevokedMessage,
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Named discussion'), findsNothing);
   });
 
@@ -191,7 +329,30 @@ void main() {
       addTearDown(router.dispose);
       await tester.pumpWidget(_ChatFixture.router(router));
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Open thread'));
+      final parent = _ChatFixture.parentCubit(tester);
+      final panelContext = tester.element(
+        find
+            .byWidgetPredicate(
+              (widget) =>
+                  widget
+                      is BlocListener<
+                        ChatConversationCubit,
+                        ChatConversationState
+                      >,
+            )
+            .first,
+      );
+      unawaited(
+        ChatThreadSheet.showThread(
+          panelContext,
+          repository: _ThreadRepository(),
+          deliveryRepository: conversations,
+          draftRepository: drafts,
+          conversationId: 'parent',
+          rootMessage: _message('root'),
+          parentConversationStates: parent.stream,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('Thread'), findsOneWidget);
       expect(find.text('Prywatny draft wątku'), findsOneWidget);
@@ -253,6 +414,9 @@ abstract final class _ChatFixture {
   static Widget conversation({
     required _ConversationRepository conversation,
     _DraftRepository? drafts,
+    WorkspaceChatRealtimeFactory? realtimeFactory,
+    String? targetMessageId,
+    String conversationId = 'parent',
   }) => MultiRepositoryProvider(
     providers: [
       ListenableProvider<AuthSessionPort>.value(
@@ -276,16 +440,21 @@ abstract final class _ChatFixture {
         value: _DiscussionRepository(),
       ),
       RepositoryProvider<WorkspaceChatRealtimeFactory>.value(
-        value: WorkspaceChatRealtimeFactory(
-          baseUrl: 'http://127.0.0.1:1',
-          credentials: WorkspaceRealtimeCredentials.bearer(
-            () async => null,
-          ),
-        ),
+        value:
+            realtimeFactory ??
+            WorkspaceChatRealtimeFactory(
+              baseUrl: 'http://127.0.0.1:1',
+              credentials: WorkspaceRealtimeCredentials.bearer(
+                () async => null,
+              ),
+            ),
       ),
     ],
-    child: const Scaffold(
-      body: ChatConversationPageView(conversationId: 'parent'),
+    child: Scaffold(
+      body: ChatConversationPageView(
+        conversationId: conversationId,
+        targetMessageId: targetMessageId,
+      ),
     ),
   );
 
@@ -468,7 +637,7 @@ final class _MessageActionsRepository implements ChatMessageActionsRepository {
   @override
   Future<Either<ApiError, List<ChatPinnedMessage>>> listPins(
     String conversationId,
-  ) async => throw UnimplementedError();
+  ) async => const Right([]);
 
   @override
   Future<Either<ApiError, ChatBookmark>> bookmarkMessage({
@@ -482,7 +651,7 @@ final class _MessageActionsRepository implements ChatMessageActionsRepository {
 
   @override
   Future<Either<ApiError, List<ChatBookmark>>> listBookmarks() async =>
-      throw UnimplementedError();
+      const Right([]);
 
   @override
   Future<Either<ApiError, ChatMessageReaction>> addReaction({
@@ -513,6 +682,13 @@ final class _AttachmentUploadPort implements ChatAttachmentUploadPort {
   Future<ChatAttachmentUploadSession> createSession(
     String conversationId,
   ) async => const ChatAttachmentUploadSession('session');
+
+  @override
+  Future<String> copyPrivateFileToSession({
+    required String conversationId,
+    required String sessionId,
+    required String sourceStorageFileId,
+  }) async => 'copied-$sourceStorageFileId';
 
   @override
   Future<ChatAttachmentTicket> createTicket({

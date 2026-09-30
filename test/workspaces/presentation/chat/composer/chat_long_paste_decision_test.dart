@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy.dart';
+import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/composer/chat_long_paste_decision.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,6 +12,64 @@ void main() {
   );
 
   group('ChatLongPasteDecision', () {
+    test('błąd przygotowania przechodzi na niezmieniony oryginał', () {
+      const original = 'żółć\nDruga linia';
+
+      expect(
+        ChatLongPasteDecision.contentForUpload(
+          originalText: original,
+          preparation: null,
+        ),
+        original,
+      );
+    });
+
+    test('pusta lub skrócona odpowiedź API nie gubi wklejonego tekstu', () {
+      const original = 'pełna treść';
+      for (final preparation in <ChatSnippetPreparation>[
+        const ChatSnippetPreparation(
+          isSnippet: true,
+          originalLength: 10,
+          content: null,
+          isTruncated: false,
+        ),
+        const ChatSnippetPreparation(
+          isSnippet: true,
+          originalLength: 10,
+          content: '',
+          isTruncated: false,
+        ),
+        const ChatSnippetPreparation(
+          isSnippet: true,
+          originalLength: 10,
+          content: 'ucięta',
+          isTruncated: true,
+        ),
+      ]) {
+        expect(
+          ChatLongPasteDecision.contentForUpload(
+            originalText: original,
+            preparation: preparation,
+          ),
+          original,
+        );
+      }
+    });
+
+    test('używa treści przygotowanej przez API, gdy jest kompletna', () {
+      final result = ChatLongPasteDecision.contentForUpload(
+        originalText: 'oryginał',
+        preparation: const ChatSnippetPreparation(
+          isSnippet: true,
+          originalLength: 8,
+          content: 'gotowy plik',
+          isTruncated: false,
+        ),
+      );
+
+      expect(result, 'gotowy plik');
+    });
+
     test('krótki tekst zostaje tekstem', () {
       final assessment = ChatLongPasteDecision.assess(
         text: 'krótko',

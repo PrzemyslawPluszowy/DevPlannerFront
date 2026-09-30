@@ -3,16 +3,18 @@ import 'dart:async';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/shared/presentation/widgets/app_toast.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
+import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_forward_target_picker.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 /// Dialogi akcji wiadomości, montowane w rootowym hoście modali.
 ///
@@ -116,104 +118,65 @@ abstract final class ChatMessageActionDialogs {
     BuildContext context, {
     required ChatMessage message,
     required List<ChatInboxItem> conversations,
+    required Offset globalPosition,
     ChatClientMessageIdFactory? idFactory,
   }) async {
     final targets = conversations
         .where((item) => item.conversation.id != message.conversationId)
         .toList(growable: false);
     if (targets.isEmpty) {
-      await DevPlannerModalHost.showDialog<void>(
+      await AppContextMenu.showCustom(
         context,
-        builder: (dialogContext) => ChatSurfaceDialog(
-          title: dialogContext.l10n.chatMessageForwardTitle,
-          content: Text(dialogContext.l10n.chatMessageForwardEmpty),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(dialogContext.l10n.frameworkClose),
+        globalPosition: globalPosition,
+        headerTitle: context.l10n.chatMessageForwardTitle,
+        maxHeight: 100,
+        contentBuilder: (menuContext, dismiss) => Padding(
+          padding: const EdgeInsets.all(Sizes.p12),
+          child: Text(
+            menuContext.l10n.chatMessageForwardEmpty,
+            style: menuContext.chatTheme.metadataStyle.copyWith(
+              color: menuContext.chatTheme.metadataText,
             ),
-          ],
+          ),
         ),
       );
       return;
     }
-    final target = await DevPlannerModalHost.showDialog<ChatInboxItem>(
+    ChatInboxItem? target;
+    await AppContextMenu.showCustom(
       context,
-      builder: (dialogContext) => ChatSurfaceDialog(
-        title: dialogContext.l10n.chatMessageForwardTitle,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final item in targets)
-              Padding(
-                padding: const EdgeInsets.only(bottom: Sizes.p8),
-                child: Material(
-                  color: dialogContext.chatTheme.panelSurface,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  child: InkWell(
-                    borderRadius: const BorderRadius.all(Radius.circular(12)),
-                    onTap: () => Navigator.of(dialogContext).pop(item),
-                    child: Padding(
-                      padding: const EdgeInsets.all(Sizes.p10),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Symbols.forum_rounded,
-                            color: dialogContext.chatTheme.metadataText,
-                            size: 20,
-                          ),
-                          const SizedBox(width: Sizes.p10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  item.displayName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: dialogContext.chatTheme.contentStyle
-                                      .copyWith(
-                                        color: dialogContext
-                                            .chatTheme
-                                            .incomingText,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                ),
-                                if (item.lastMessage?.text case final preview?)
-                                  Text(
-                                    preview,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: dialogContext.chatTheme.metadataStyle
-                                        .copyWith(
-                                          color: dialogContext
-                                              .chatTheme
-                                              .metadataText,
-                                        ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
+      globalPosition: globalPosition,
+      headerTitle: context.l10n.chatMessageForwardTitle,
+      maxWidth: 380,
+      maxHeight: 440,
+      contentBuilder: (_, dismiss) => ChatForwardTargetPicker(
+        targets: targets,
+        onSelected: (selected) {
+          target = selected;
+          dismiss();
+        },
       ),
     );
-    if (target == null || !context.mounted) return;
+    final selectedTarget = target;
+    if (selectedTarget == null || !context.mounted) return;
     // Nowy idempotency key dla przekazania; powtórzenie użyje tego samego.
     final clientMessageId = (idFactory ?? ChatClientMessageIdFactory())
         .create();
-    await context.read<ChatMessageSecondaryActionsCubit>().forward(
-      messageId: message.id,
-      targetConversationId: target.conversation.id,
-      clientMessageId: clientMessageId,
-    );
+    final outcome = await context
+        .read<ChatMessageSecondaryActionsCubit>()
+        .forward(
+          messageId: message.id,
+          targetConversationId: selectedTarget.conversation.id,
+          clientMessageId: clientMessageId,
+        );
+    if (outcome == ChatMessageSecondaryActionOutcome.failed &&
+        context.mounted) {
+      AppToast.show(
+        context,
+        message: context.l10n.chatActionFailureMessage,
+        tone: AppToastTone.error,
+      );
+    }
   }
 }
 

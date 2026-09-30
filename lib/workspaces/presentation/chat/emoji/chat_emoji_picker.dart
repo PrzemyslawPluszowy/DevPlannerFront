@@ -1,6 +1,7 @@
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/presentation/chat/emoji/chat_emoji_catalog.dart';
 import 'package:devplanner/workspaces/presentation/chat/emoji/cubit/chat_emoji_recent_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
@@ -15,48 +16,52 @@ Future<String?> showChatEmojiPicker(
   BuildContext context, {
   ChatEmojiRecentCubit? recent,
   GlobalKey? anchorKey,
+  Offset? anchorPosition,
 }) async {
-  if (anchorKey == null) {
+  if (anchorKey == null && anchorPosition == null) {
     return DevPlannerModalHost.showDialog<String>(
       context,
       builder: (_) => _ChatEmojiPickerDialog(recent: recent),
     );
   }
 
-  final renderObject = anchorKey.currentContext?.findRenderObject();
-  if (renderObject is! RenderBox || !renderObject.hasSize) return null;
-
-  final anchorRect =
-      renderObject.localToGlobal(Offset.zero) & renderObject.size;
-  final viewport = Offset.zero & MediaQuery.sizeOf(context);
-  final chat = context.chatTheme;
-  return showMenu<String>(
-    context: context,
-    useRootNavigator: true,
-    position: RelativeRect.fromRect(anchorRect, viewport),
-    color: chat.panelSurface,
-    elevation: 16,
-    constraints: const BoxConstraints(minWidth: 360, maxWidth: 384),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(chat.composerRadius),
-      side: BorderSide(color: chat.separator.withValues(alpha: .8)),
+  final position = anchorPosition ?? _anchorPosition(anchorKey);
+  if (position == null) return null;
+  String? selected;
+  await AppContextMenu.showCustom(
+    context,
+    globalPosition: position,
+    headerTitle: context.l10n.chatComposerEmoji,
+    maxWidth: 384,
+    maxHeight: 500,
+    contentBuilder: (_, dismiss) => _ChatEmojiPickerDialog(
+      recent: recent,
+      compact: true,
+      onSelected: (emoji) {
+        selected = emoji;
+        dismiss();
+      },
     ),
-    items: <PopupMenuEntry<String>>[
-      PopupMenuItem<String>(
-        enabled: false,
-        height: 364,
-        padding: EdgeInsets.zero,
-        child: _ChatEmojiPickerDialog(recent: recent, compact: true),
-      ),
-    ],
   );
+  return selected;
+}
+
+Offset? _anchorPosition(GlobalKey? anchorKey) {
+  final renderObject = anchorKey?.currentContext?.findRenderObject();
+  if (renderObject is! RenderBox || !renderObject.hasSize) return null;
+  return renderObject.localToGlobal(Offset(0, renderObject.size.height));
 }
 
 class _ChatEmojiPickerDialog extends StatefulWidget {
-  const _ChatEmojiPickerDialog({this.recent, this.compact = false});
+  const _ChatEmojiPickerDialog({
+    this.recent,
+    this.compact = false,
+    this.onSelected,
+  });
 
   final ChatEmojiRecentCubit? recent;
   final bool compact;
+  final ValueChanged<String>? onSelected;
 
   @override
   State<_ChatEmojiPickerDialog> createState() => _ChatEmojiPickerDialogState();
@@ -97,7 +102,12 @@ class _ChatEmojiPickerDialogState extends State<_ChatEmojiPickerDialog> {
   void _select(ChatEmojiEntry entry) {
     final emoji = ChatEmojiSkinTone.apply(entry, _tone);
     widget.recent?.remember(emoji);
-    Navigator.of(context).pop(emoji);
+    final onSelected = widget.onSelected;
+    if (onSelected != null) {
+      onSelected(emoji);
+    } else {
+      Navigator.of(context).pop(emoji);
+    }
   }
 
   @override
@@ -241,10 +251,10 @@ class _ChatEmojiPickerDialogState extends State<_ChatEmojiPickerDialog> {
                         Radius.circular(12),
                       ),
                       child: Container(
-                        width: 20,
-                        height: 20,
+                        width: 26,
+                        height: 26,
                         decoration: BoxDecoration(
-                          color: _toneColor(index),
+                          color: chat.composerSurface,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: _tone == index
@@ -252,6 +262,11 @@ class _ChatEmojiPickerDialogState extends State<_ChatEmojiPickerDialog> {
                                 : chat.separator,
                             width: _tone == index ? 2 : 1,
                           ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          ChatEmojiSkinTone.apply(_tonePreviewEntry, index),
+                          style: const TextStyle(fontSize: 18),
                         ),
                       ),
                     ),
@@ -295,16 +310,8 @@ class _ChatEmojiPickerDialogState extends State<_ChatEmojiPickerDialog> {
     ChatEmojiCategory.symbols => context.l10n.chatEmojiCategorySymbols,
   };
 
-  /// Kolor próbki odcienia; pierwszy wariant jest neutralny (bez modyfikatora).
-  static Color _toneColor(int index) => switch (index) {
-    0 => const Color(0xfff1c27d),
-    1 => const Color(0xffffd8b1),
-    2 => const Color(0xffe8b88a),
-    3 => const Color(0xffc68d5c),
-    4 => const Color(0xffa16b3f),
-    5 => const Color(0xff6f4a2c),
-    _ => const Color(0xfff1c27d),
-  };
+  static final ChatEmojiEntry _tonePreviewEntry = ChatEmojiCatalog.all
+      .firstWhere((entry) => entry.emoji == '👋');
 }
 
 /// Szybkie reakcje pod dymkiem z wejściem do pełnego pickera.

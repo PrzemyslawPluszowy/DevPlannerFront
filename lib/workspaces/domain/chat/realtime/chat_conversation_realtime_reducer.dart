@@ -7,6 +7,8 @@ enum ChatConversationRealtimeDecision {
   ignored,
   resyncRequired,
   refreshMessageDelivery,
+  refreshMessageSnapshot,
+  refreshConversation,
 }
 
 /// Wynik czystej redukcji jednego eventu dla aktualnie otwartej rozmowy.
@@ -49,9 +51,31 @@ final class ChatConversationRealtimeReducer {
       );
     }
     if (event.kind ==
+        ChatConversationRealtimeEventKind.conversationPinsChanged) {
+      return ChatConversationRealtimeReduction(
+        decision: ChatConversationRealtimeDecision.ignored,
+        messages: messages,
+      );
+    }
+    if (event.kind ==
         ChatConversationRealtimeEventKind.messageDeliveryChanged) {
       return ChatConversationRealtimeReduction(
         decision: ChatConversationRealtimeDecision.refreshMessageDelivery,
+        messages: messages,
+      );
+    }
+    if (event.kind ==
+        ChatConversationRealtimeEventKind.messageSnapshotChanged) {
+      return ChatConversationRealtimeReduction(
+        decision: event.messageId == null
+            ? ChatConversationRealtimeDecision.resyncRequired
+            : ChatConversationRealtimeDecision.refreshMessageSnapshot,
+        messages: messages,
+      );
+    }
+    if (event.kind == ChatConversationRealtimeEventKind.conversationChanged) {
+      return ChatConversationRealtimeReduction(
+        decision: ChatConversationRealtimeDecision.refreshConversation,
         messages: messages,
       );
     }
@@ -78,6 +102,10 @@ final class ChatConversationRealtimeReducer {
       case ChatConversationRealtimeEventKind.messageDeleted:
         _markDeleted(updated, event);
       case ChatConversationRealtimeEventKind.messageDeliveryChanged:
+      case ChatConversationRealtimeEventKind.messageSnapshotChanged:
+        break;
+      case ChatConversationRealtimeEventKind.conversationPinsChanged:
+      case ChatConversationRealtimeEventKind.conversationChanged:
         break;
       case ChatConversationRealtimeEventKind.typingChanged:
       case ChatConversationRealtimeEventKind.membershipChanged:
@@ -127,9 +155,19 @@ final class ChatConversationRealtimeReducer {
     final messageId = event.messageId;
     if (messageId == null) return;
     final index = messages.indexWhere((item) => item.id == messageId);
-    if (index == -1) return;
     final version = event.messageVersion;
-    if (version == null || version < messages[index].version) return;
-    messages[index] = messages[index].copyWithDeletion(version: version);
+    if (index != -1) {
+      if (version == null || version < messages[index].version) return;
+      messages[index] = messages[index].copyWithDeletion(version: version);
+    }
+    // A reply may retain a server-provided quote while its original post is
+    // outside the loaded page. Redact that snapshot when the delete event
+    // arrives even if the target itself is not in the local message list.
+    for (var replyIndex = 0; replyIndex < messages.length; replyIndex++) {
+      final reply = messages[replyIndex];
+      if (reply.replyToMessageId == messageId && reply.replyPreview != null) {
+        messages[replyIndex] = reply.copyWithDeletedReplyTarget();
+      }
+    }
   }
 }

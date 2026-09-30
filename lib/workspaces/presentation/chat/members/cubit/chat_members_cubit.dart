@@ -24,6 +24,8 @@ final class ChatMembersReady extends ChatMembersState {
     required this.currentUserId,
     this.isMutating = false,
     this.failureCode,
+    this.failureType,
+    this.failureStatusCode,
   });
 
   final List<ChatMember> members;
@@ -32,6 +34,12 @@ final class ChatMembersReady extends ChatMembersState {
 
   /// Kod domenowy ostatniej porażki; UI mapuje go na tekst przez ARB.
   final String? failureCode;
+
+  /// Klasyfikacja błędu API potrzebna do podania użytkownikowi następnego kroku.
+  final ApiErrorType? failureType;
+
+  /// HTTP status zachowany, bo 400 walidacji klasyfikuje się jako badResponse.
+  final int? failureStatusCode;
 
   /// Rola bieżącego użytkownika w rozmowie albo `null`, gdy nie jest członkiem.
   ChatMemberRole? get currentRole => members
@@ -53,12 +61,18 @@ final class ChatMembersReady extends ChatMembersState {
     List<ChatMember>? members,
     bool? isMutating,
     String? failureCode,
+    ApiErrorType? failureType,
+    int? failureStatusCode,
     bool clearFailure = false,
   }) => ChatMembersReady(
     members: members ?? this.members,
     currentUserId: currentUserId,
     isMutating: isMutating ?? this.isMutating,
     failureCode: clearFailure ? null : failureCode ?? this.failureCode,
+    failureType: clearFailure ? null : failureType ?? this.failureType,
+    failureStatusCode: clearFailure
+        ? null
+        : failureStatusCode ?? this.failureStatusCode,
   );
 }
 
@@ -190,6 +204,8 @@ final class ChatMembersCubit extends Cubit<ChatMembersState> {
         current.copyWith(
           isMutating: false,
           failureCode: error.apiCode ?? error.message,
+          failureType: error.type,
+          failureStatusCode: error.statusCode,
         ),
       );
       return;

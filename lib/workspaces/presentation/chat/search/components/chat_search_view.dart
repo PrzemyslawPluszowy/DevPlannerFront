@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
-import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
 import 'package:devplanner/workspaces/domain/chat/search/models/chat_search_models.dart';
+import 'package:devplanner/workspaces/presentation/chat/search/components/chat_search_view_components.dart';
 import 'package:devplanner/workspaces/presentation/chat/search/cubit/chat_search_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,7 +57,9 @@ class _ChatSearchViewState extends State<ChatSearchView> {
 
   @override
   Widget build(BuildContext context) {
-    const minimumTermLength = 2;
+    final searchCubit = context.read<ChatSearchCubit>();
+    final minimumTermLength = searchCubit.minimumTermLength;
+    final maximumTermLength = searchCubit.maximumTermLength;
     final chat = context.chatTheme;
     return Column(
       children: [
@@ -98,21 +100,21 @@ class _ChatSearchViewState extends State<ChatSearchView> {
               icon: const Icon(Symbols.close, size: 16),
             ),
           ),
-          onChanged: context.read<ChatSearchCubit>().updateTerm,
+          onChanged: searchCubit.updateTerm,
         ),
         const SizedBox(height: Sizes.p8),
         Expanded(
           child: BlocBuilder<ChatSearchCubit, ChatSearchState>(
             builder: (context, state) {
               if (state.term.trim().isEmpty) {
-                return _SearchMessage(
+                return ChatSearchMessage(
                   icon: Symbols.search,
                   title: context.l10n.chatSearchPromptTitle,
                   message: context.l10n.chatSearchPromptMessage,
                 );
               }
               if (state.isTermTooShort(minimumTermLength)) {
-                return _SearchMessage(
+                return ChatSearchMessage(
                   icon: Symbols.search,
                   title: context.l10n.chatSearchTooShort(minimumTermLength),
                   message: context.l10n.chatSearchTooShortMessage(
@@ -120,23 +122,37 @@ class _ChatSearchViewState extends State<ChatSearchView> {
                   ),
                 );
               }
+              if (state.isTermTooLong(maximumTermLength)) {
+                return ChatSearchMessage(
+                  icon: Symbols.search,
+                  title: context.l10n.chatSearchTooLong(maximumTermLength),
+                  message: context.l10n.chatSearchTooLongMessage(
+                    maximumTermLength,
+                  ),
+                );
+              }
               if (state.isSearching && state.page == null) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (state.failureCode != null) {
-                return _SearchMessage(
+                return ChatSearchMessage(
                   icon: Symbols.error_outline,
                   title: state.isRateLimited
                       ? context.l10n.chatSearchRateLimitedTitle
                       : context.l10n.chatSearchFailureTitle,
-                  message: context.l10n.chatActionFailureMessage,
+                  message: state.isRateLimited && state.retryWaitSeconds > 0
+                      ? context.l10n.chatSearchRetryAfter(
+                          state.retryWaitSeconds,
+                        )
+                      : context.l10n.chatActionFailureMessage,
+                  retryEnabled: state.retryWaitSeconds == 0,
                   onRetry: () => unawaited(
                     context.read<ChatSearchCubit>().retry(),
                   ),
                 );
               }
               if (state.isEmpty) {
-                return _SearchMessage(
+                return ChatSearchMessage(
                   icon: Symbols.search_off,
                   title: context.l10n.chatSearchEmptyTitle,
                   message: context.l10n.chatSearchEmptyMessage,
@@ -167,7 +183,7 @@ class _ChatSearchViewState extends State<ChatSearchView> {
                         _resultActions(menuContext, hit, conversation),
                     headerTitle:
                         conversation?.displayName ?? hit.conversationName,
-                    child: _ChatSearchHitRow(
+                    child: ChatSearchHitRow(
                       hit: hit,
                       conversation: conversation,
                       isOpening: _openingMessageId == hit.messageId,
@@ -225,204 +241,4 @@ class _ChatSearchViewState extends State<ChatSearchView> {
   ChatInboxItem? _conversationFor(String conversationId) => widget.conversations
       .where((item) => item.conversation.id == conversationId)
       .firstOrNull;
-}
-
-class _ChatSearchHitRow extends StatelessWidget {
-  const _ChatSearchHitRow({
-    required this.hit,
-    required this.conversation,
-    required this.isOpening,
-    required this.onTap,
-    required this.onLongPress,
-  });
-
-  final ChatSearchHit hit;
-  final ChatInboxItem? conversation;
-  final bool isOpening;
-  final VoidCallback onTap;
-  final VoidCallback onLongPress;
-
-  @override
-  Widget build(BuildContext context) {
-    final chat = context.chatTheme;
-    final currentConversation = conversation;
-    final sender = currentConversation?.participants
-        .where((participant) => participant.userId == hit.authorUserId)
-        .firstOrNull;
-    final other = currentConversation?.otherParticipants.firstOrNull;
-    final isDirect = currentConversation?.conversation.type == 'direct';
-    final localTime = MaterialLocalizations.of(context).formatTimeOfDay(
-      TimeOfDay.fromDateTime(hit.createdAtUtc.toLocal()),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Sizes.p8,
-        vertical: Sizes.p2,
-      ),
-      child: Material(
-        color: chat.listSurface,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          onLongPress: onLongPress,
-          child: Padding(
-            padding: const EdgeInsets.all(Sizes.p12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isDirect)
-                  AppUserAvatar(
-                    userId: other?.userId,
-                    displayName:
-                        other?.label ?? currentConversation?.displayName,
-                    avatarUrl: other?.avatarUrl,
-                    hasCustomAvatar:
-                        other?.avatarUrl?.trim().isNotEmpty == true,
-                    radius: 18,
-                    singleInitial: true,
-                  )
-                else
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: chat.selectedSurface,
-                    child: Icon(
-                      currentConversation?.conversation.type == 'channel'
-                          ? Symbols.campaign_rounded
-                          : Symbols.group_rounded,
-                      size: 18,
-                      color: chat.linkText,
-                    ),
-                  ),
-                const SizedBox(width: Sizes.p10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              currentConversation?.displayName ??
-                                  hit.conversationName ??
-                                  context.l10n.chatSearchOpenResult,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: chat.contentStyle.copyWith(
-                                color: chat.incomingText,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: Sizes.p8),
-                          if (!isOpening)
-                            Text(
-                              localTime,
-                              style: chat.metadataStyle.copyWith(
-                                color: chat.metadataText,
-                              ),
-                            )
-                          else
-                            SizedBox.square(
-                              dimension: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: chat.linkText,
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: Sizes.p2),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              sender?.label ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: chat.metadataStyle.copyWith(
-                                color: chat.metadataText,
-                              ),
-                            ),
-                          ),
-                          if (hit.hasMention)
-                            Icon(
-                              Symbols.alternate_email,
-                              size: 14,
-                              color: chat.mentionText,
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: Sizes.p4),
-                      Text(
-                        hit.highlight ?? hit.text,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: chat.contentStyle.copyWith(
-                          color: chat.metadataText,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SearchMessage extends StatelessWidget {
-  const _SearchMessage({
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.onRetry,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-  final VoidCallback? onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final chat = context.chatTheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Sizes.p16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 26, color: chat.metadataText),
-            const SizedBox(height: Sizes.p8),
-            Text(
-              title,
-              style: chat.contentStyle.copyWith(
-                fontWeight: FontWeight.w700,
-                color: chat.incomingText,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: Sizes.p4),
-            Text(
-              message,
-              style: chat.metadataStyle.copyWith(color: chat.metadataText),
-              textAlign: TextAlign.center,
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(height: Sizes.p8),
-              TextButton(
-                onPressed: onRetry,
-                child: Text(context.l10n.chatInboxRetry),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 }

@@ -1,23 +1,15 @@
 import 'dart:async';
 
-import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
-import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
-import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
-import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
-import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
-import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
-import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_empty_copy.dart';
-import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row.dart';
-import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row_menu.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
-import 'package:devplanner/workspaces/presentation/chat/members/chat_members_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_context_conversations_pane.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_context_source.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_filter_pill.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_inbox_view.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_section.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_size.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_saved_messages_pane.dart';
@@ -259,7 +251,6 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
   }
 
   Widget _filterBar(BuildContext context, ChatPanelSection section) {
-    final chat = context.chatTheme;
     final cubit = context.read<ChatInboxCubit?>();
     final active = cubit?.filter ?? section.inboxFilter;
     return Padding(
@@ -268,31 +259,13 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
         spacing: Sizes.p6,
         children: [
           for (final filter in section.visibleFilters)
-            FilterChip(
+            ChatPanelFilterPill(
               key: ValueKey<String>('chat-panel-filter-${filter.name}'),
-              label: Text(
-                ChatPanelSectionPresentation.filterLabel(context, filter),
-                style: chat.metadataStyle.copyWith(
-                  color: filter == active ? chat.focusRing : chat.metadataText,
-                  fontWeight: filter == active
-                      ? FontWeight.w700
-                      : FontWeight.w500,
-                ),
-              ),
+              label: ChatPanelSectionPresentation.filterLabel(context, filter),
               selected: filter == active,
-              showCheckmark: false,
-              visualDensity: VisualDensity.compact,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              backgroundColor: chat.panelSurface,
-              selectedColor: chat.selectedSurface,
-              side: BorderSide(
-                color: filter == active ? chat.focusRing : chat.separator,
-              ),
-              shape: const StadiumBorder(),
-              padding: const EdgeInsets.symmetric(horizontal: Sizes.p4),
-              onSelected: cubit == null
+              onTap: cubit == null
                   ? null
-                  : (_) => unawaited(cubit.setFilter(filter)),
+                  : () => unawaited(cubit.setFilter(filter)),
             ),
         ],
       ),
@@ -325,144 +298,12 @@ class _ChatPanelListPaneState extends State<ChatPanelListPane> {
   }
 
   Widget _inboxBody(BuildContext context) {
-    final cubit = context.read<ChatInboxCubit?>();
-    if (cubit == null) {
-      return _ChatPanelListMessage(
-        icon: Symbols.forum_rounded,
-        message: context.l10n.chatPanelListUnavailable,
-      );
-    }
-    return BlocBuilder<ChatInboxCubit, ChatInboxState>(
-      bloc: cubit,
-      builder: (context, state) => switch (state) {
-        ChatInboxLoading() => const Center(child: CircularProgressIndicator()),
-        ChatInboxFailure() => _ChatPanelListMessage(
-          icon: Symbols.error_outline,
-          message: context.l10n.chatInboxLoadMoreFailed,
-          onRetry: () => unawaited(cubit.retry()),
-        ),
-        ChatInboxEmpty(:final filter) => _ChatPanelListMessage(
-          icon: Symbols.forum_rounded,
-          message: ChatInboxEmptyCopy.forFilter(context.l10n, filter),
-        ),
-        ChatInboxReady(:final items) => _rows(context, cubit, items),
-      },
-    );
-  }
-
-  Widget _rows(
-    BuildContext context,
-    ChatInboxCubit cubit,
-    List<ChatInboxItem> items,
-  ) {
-    final now = (widget.nowUtc ?? DateTime.now)();
-    final archived =
-        context.read<ChatPanelSectionCubit>().state.section ==
-        ChatPanelSection.archived;
-    final query = _query.toLowerCase();
-    final filtered = query.length >= 2
-        ? items
-        : query.isEmpty
-        ? items
-        : items
-              .where(
-                (item) => item.displayName.toLowerCase().contains(query),
-              )
-              .toList(growable: false);
-    if (filtered.isEmpty) {
-      // Pusta strona nie oznacza końca rozmów: backend odfiltrowuje niedostępne
-      // pozycje. Dopóki kursor istnieje, użytkownik musi mieć drogę do dalszych stron.
-      final state = cubit.state;
-      final hasMore = state is ChatInboxReady && state.hasMore;
-      return _ChatPanelListMessage(
-        icon: query.isEmpty
-            ? Symbols.forum_rounded
-            : Symbols.search_off_rounded,
-        message: query.isEmpty
-            ? context.l10n.chatInboxEmptyPageMore
-            : context.l10n.chatInboxNoResultsMessage,
-        onRetry: hasMore ? () => unawaited(cubit.loadMore()) : null,
-        actionLabel: hasMore ? context.l10n.chatInboxLoadMore : null,
-        busy: state is ChatInboxReady && state.isLoadingMore,
-      );
-    }
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.fromLTRB(Sizes.p8, 0, Sizes.p8, Sizes.p16),
-      itemCount: filtered.length + 1,
-      itemBuilder: (context, index) {
-        if (index == filtered.length) return _footer(context, cubit);
-        final item = filtered[index];
-        final actionsBuilder = _rowActions(context, item, archived: archived);
-        return Padding(
-          padding: const EdgeInsets.only(bottom: Sizes.p2),
-          child: AppContextMenuRegion(
-            actionsBuilder: actionsBuilder,
-            headerTitle: item.displayName,
-            child: ChatInboxRow(
-              item: item,
-              nowUtc: now,
-              selected: item.conversation.id == widget.selectedConversationId,
-              onTap: widget.onConversationSelected,
-              actionsBuilder: actionsBuilder,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// Akcje menu wiersza: jedno menu dla prawego kliku i długiego przytrzymania.
-  ///
-  /// Sekcja skrzynki rozstrzyga, czy pokazać archiwizację, czy przywrócenie;
-  /// informacje otwierają istniejący arkusz członków, więc nie tworzymy drugiego
-  /// widoku tych samych danych.
-  List<AppContextMenuAction> Function(BuildContext context) _rowActions(
-    BuildContext context,
-    ChatInboxItem item, {
-    required bool archived,
-  }) {
-    return (menuContext) => ChatInboxRowMenu.actions(
-      menuContext,
-      item: item,
-      archived: archived,
-      onOpen: () => widget.onConversationSelected(item),
-      onInfo: context.read<ChatMembersRepository?>() == null
-          ? null
-          : () => unawaited(
-              ChatMembersSheet.show(
-                context,
-                membersRepository: context.read<ChatMembersRepository?>(),
-                conversation: item.conversation,
-                currentUserId:
-                    context.read<AuthSessionPort?>()?.snapshot.user?.userId ??
-                    '',
-                conversationManagement: context
-                    .read<ChatConversationManagementRepository?>(),
-                presenceRepository: context.read<ChatPresenceRepository?>(),
-                directoryRepository: context.read<ChatDirectoryRepository?>(),
-              ),
-            ),
-    );
-  }
-
-  /// Stopka listy: doładowanie, błąd doładowania albo koniec listy.
-  Widget _footer(BuildContext context, ChatInboxCubit cubit) {
-    final state = cubit.state;
-    if (state is! ChatInboxReady) return Gaps.h8;
-    if (state.loadMoreFailed) {
-      return Padding(
-        padding: const EdgeInsets.all(Sizes.p8),
-        child: TextButton(
-          onPressed: () => unawaited(cubit.loadMore()),
-          child: Text(context.l10n.chatInboxRetry),
-        ),
-      );
-    }
-    if (!state.hasMore) return Gaps.h8;
-    return const Padding(
-      padding: EdgeInsets.all(Sizes.p8),
-      child: Center(child: CircularProgressIndicator()),
+    return ChatPanelInboxView(
+      scrollController: _scrollController,
+      query: _query,
+      selectedConversationId: widget.selectedConversationId,
+      onConversationSelected: widget.onConversationSelected,
+      nowUtc: widget.nowUtc,
     );
   }
 }
@@ -487,60 +328,6 @@ class _UnreadTotalBadge extends StatelessWidget {
             color: chat.sendButtonForeground,
             fontWeight: FontWeight.w700,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ChatPanelListMessage extends StatelessWidget {
-  const _ChatPanelListMessage({
-    required this.icon,
-    required this.message,
-    this.onRetry,
-    this.actionLabel,
-    this.busy = false,
-  });
-  final IconData icon;
-  final String message;
-  final VoidCallback? onRetry;
-
-  /// Etykieta akcji ratunkowej (np. doładowanie dalszych stron).
-  final String? actionLabel;
-
-  /// Czy akcja już trwa; wtedy przycisk zamienia się w wskaźnik.
-  final bool busy;
-  @override
-  Widget build(BuildContext context) {
-    final chat = context.chatTheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Sizes.p24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 36, color: chat.metadataText),
-            Gaps.h12,
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: chat.metadataStyle.copyWith(color: chat.metadataText),
-            ),
-            if (onRetry != null) ...[
-              Gaps.h8,
-              if (busy)
-                const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else
-                TextButton(
-                  onPressed: onRetry,
-                  child: Text(actionLabel ?? context.l10n.chatInboxRetry),
-                ),
-            ],
-          ],
         ),
       ),
     );

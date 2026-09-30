@@ -61,6 +61,12 @@ void main() {
     final rocket = ChatEmojiCatalog.all.firstWhere(
       (entry) => entry.emoji == '🚀',
     );
+    const technologist = ChatEmojiEntry(
+      '👩‍💻',
+      'programistka',
+      skinTones: true,
+    );
+    const runner = ChatEmojiEntry('🏃‍♂️', 'biegacz', skinTones: true);
 
     test('wariant jest doklejany tylko do znaków, które go wspierają', () {
       expect(ChatEmojiSkinTone.apply(thumb, 3), '👍\u{1F3FD}');
@@ -79,6 +85,20 @@ void main() {
           '${thumb.emoji}${ChatEmojiSkinTone.modifiers[index]}',
         );
       }
+    });
+
+    test('wstawia odcień przed ZWJ w złożonym emoji', () {
+      expect(ChatEmojiSkinTone.apply(technologist, 3), '👩🏽‍💻');
+      expect(ChatEmojiSkinTone.apply(runner, 4), '🏃🏾‍♂️');
+    });
+
+    test('zmienia istniejący odcień zamiast dodawać drugi', () {
+      const alreadyToned = ChatEmojiEntry(
+        '👩🏻‍💻',
+        'programistka',
+        skinTones: true,
+      );
+      expect(ChatEmojiSkinTone.apply(alreadyToned, 5), '👩🏿‍💻');
     });
   });
 

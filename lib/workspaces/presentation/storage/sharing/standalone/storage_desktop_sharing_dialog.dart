@@ -100,78 +100,105 @@ final class _StorageDesktopSharingView extends StatelessWidget {
   final PublicShareLinkBuilder publicShareLinkBuilder;
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Row(
-      children: [
-        Icon(AppIcons.share, color: context.colors.primary),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            context.l10n.storageShareTitle(file.originalFileName),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    ),
-    content: ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: 600),
-      child: SingleChildScrollView(
-        child: SizedBox(
-          width: 520,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionTitle(context.l10n.storageSharePeopleSection),
-              const SizedBox(height: 8),
-              StorageSharePeopleSection(
-                workspaceId: file.workspaceId,
-                userDirectory: userDirectory,
+  Widget build(BuildContext context) => Dialog(
+    backgroundColor: context.colors.surface,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 680, maxHeight: 760),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(22, 16, 14, 14),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(AppIcons.share, color: context.colors.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    context.l10n.storageShareTitle(file.originalFileName),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: context.l10n.close,
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: SingleChildScrollView(
+                child: SizedBox(
+                  width: 600,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SectionTitle(context.l10n.storageSharePeopleSection),
+                      const SizedBox(height: 8),
+                      StorageSharePeopleSection(
+                        workspaceId: file.workspaceId,
+                        userDirectory: userDirectory,
+                      ),
+                      const SizedBox(height: 20),
+                      _SectionTitle(context.l10n.storageShareWorkspaceSection),
+                      const SizedBox(height: 8),
+                      _ShareTargets(file: file),
+                      const SizedBox(height: 20),
+                      _SectionTitle(context.l10n.storageShareLinkSection),
+                      const SizedBox(height: 8),
+                      StoragePublicShareForm.detailed(
+                        onCreateDetailed: (password, expiresAtUtc) async {
+                          final sharingCubit = context
+                              .read<StorageSharingCubit>();
+                          final l10n = context.l10n;
+                          final token = await sharingCubit.createPublicLink(
+                            accessLevel: StorageShareAccessLevel.reader,
+                            password: password,
+                            expiresAtUtc: expiresAtUtc,
+                          );
+                          if (!context.mounted) {
+                            return (
+                              url: null,
+                              error: l10n.storagePublicLinkCreateFailed,
+                            );
+                          }
+                          if (token == null) {
+                            final current = sharingCubit.state;
+                            return (
+                              url: null,
+                              error: current is StorageSharingFailure
+                                  ? current.message
+                                  : l10n.storagePublicLinkCreateFailed,
+                            );
+                          }
+                          return publicShareLinkBuilder.build(token).fold(
+                            (error) {
+                              unawaited(sharingCubit.revokeShareToken(token));
+                              return (url: null, error: error.message);
+                            },
+                            (url) => (url: url, error: null),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _SectionTitle(context.l10n.storageActiveShares),
+                      const SizedBox(height: 8),
+                      const SizedBox(height: 280, child: _ShareList()),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 20),
-              _SectionTitle(context.l10n.storageShareWorkspaceSection),
-              const SizedBox(height: 8),
-              _ShareTargets(file: file),
-              const SizedBox(height: 20),
-              _SectionTitle(context.l10n.storageShareLinkSection),
-              const SizedBox(height: 8),
-              StoragePublicShareForm(
-                onCreate: (password, expiresAtUtc) async {
-                  final token = await context
-                      .read<StorageSharingCubit>()
-                      .createPublicLink(
-                        accessLevel: StorageShareAccessLevel.reader,
-                        password: password,
-                        expiresAtUtc: expiresAtUtc,
-                      );
-                  if (token == null || !context.mounted) return null;
-                  return publicShareLinkBuilder.build(token).fold(
-                    (error) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(error.message)),
-                      );
-                      return null;
-                    },
-                    (url) => url,
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              _SectionTitle(context.l10n.storageActiveShares),
-              const SizedBox(height: 8),
-              const SizedBox(height: 280, child: _ShareList()),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: Text(context.l10n.close),
-      ),
-    ],
   );
 }
 
@@ -183,7 +210,10 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+    style: context.text.labelLarge?.copyWith(
+      color: context.colors.primary,
+      fontWeight: FontWeight.w700,
+    ),
   );
 }
 

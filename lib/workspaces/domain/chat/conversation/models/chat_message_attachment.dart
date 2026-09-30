@@ -14,6 +14,7 @@ final class ChatMessageAttachment extends Equatable {
     this.fileSizeBytes,
     this.contentType,
     this.isAvailable = false,
+    this.isOfficeDocument = false,
   });
 
   final String id;
@@ -34,6 +35,9 @@ final class ChatMessageAttachment extends Equatable {
 
   /// Czy plik istnieje, nie został usunięty i przeszedł skan AV.
   final bool isAvailable;
+
+  /// Czy typ pliku obsługuje serwerowy przepływ OnlyOffice.
+  final bool isOfficeDocument;
 
   /// Etykieta do prezentacji: nazwa pliku, a bez niej identyfikator pliku.
   String get label {
@@ -60,5 +64,6 @@ final class ChatMessageAttachment extends Equatable {
     fileSizeBytes,
     contentType,
     isAvailable,
+    isOfficeDocument,
   ];
 }

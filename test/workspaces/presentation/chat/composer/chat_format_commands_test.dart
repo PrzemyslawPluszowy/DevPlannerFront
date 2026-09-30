@@ -1,4 +1,6 @@
 import 'package:devplanner/workspaces/presentation/chat/composer/chat_format_commands.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_quill_selection_attributes.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -127,25 +129,37 @@ void main() {
       expect(ChatFormatCommands.isSafeLink('HTTP://EXAMPLE.TEST'), isTrue);
       expect(ChatFormatCommands.isSafeLink('/workspaces/1/chat'), isFalse);
       expect(ChatFormatCommands.isSafeLink('//example.test/path'), isFalse);
+      expect(ChatFormatCommands.isSafeLink('https://'), isFalse);
+      expect(
+        ChatFormatCommands.isSafeLink('https://user:secret@example.test'),
+        isFalse,
+      );
       expect(ChatFormatCommands.isSafeLink('javascript:alert(1)'), isFalse);
       expect(ChatFormatCommands.isSafeLink('data:text/html,<b>x</b>'), isFalse);
       expect(ChatFormatCommands.isSafeLink(''), isFalse);
       expect(ChatFormatCommands.isSafeLink(null), isFalse);
     });
 
-    test('adres bez schematu dostaje https, a ścieżka aplikacji zostaje', () {
-      expect(
-        ChatFormatCommands.normalizeLink('devplanner.example'),
-        'https://devplanner.example',
-      );
-      expect(
-        ChatFormatCommands.normalizeLink('https://a.test'),
-        'https://a.test',
-      );
-      final appPath = ChatFormatCommands.normalizeLink('/workspaces/2');
-      expect(appPath, '/workspaces/2');
-      expect(ChatFormatCommands.isSafeLink(appPath), isFalse);
-    });
+    test(
+      'adres bez schematu dostaje https, a ścieżka aplikacji jest odrzucona',
+      () {
+        expect(
+          ChatFormatCommands.normalizeLink('devplanner.example'),
+          'https://devplanner.example',
+        );
+        expect(
+          ChatFormatCommands.normalizeLink('https://a.test'),
+          'https://a.test',
+        );
+        expect(
+          ChatFormatCommands.normalizeLink('javascript:alert(1)'),
+          'javascript:alert(1)',
+        );
+        final appPath = ChatFormatCommands.normalizeLink('/workspaces/2');
+        expect(appPath, '/workspaces/2');
+        expect(ChatFormatCommands.isSafeLink(appPath), isFalse);
+      },
+    );
   });
 
   group('ChatLineFormatCommands', () {
@@ -216,6 +230,49 @@ void main() {
         ),
         isFalse,
         reason: 'niepoprawny typ JSON nie może udawać poprawnego formatu Quill',
+      );
+    });
+
+    test('odczytuje aktywne formaty z obiektów Attribute Quilla', () {
+      final values = ChatQuillSelectionAttributes.fromAttributes(
+        <String, quill.Attribute<dynamic>>{
+          'bold': quill.Attribute.bold,
+          'list': quill.Attribute.ul,
+          'blockquote': quill.Attribute.blockQuote,
+        },
+      );
+
+      expect(
+        ChatFormatCommands.isActive(ChatFormatCommand.bold, values),
+        isTrue,
+      );
+      expect(
+        ChatFormatCommands.toggledValue(
+          ChatFormatCommand.bold,
+          currentlyActive: ChatFormatCommands.isActive(
+            ChatFormatCommand.bold,
+            values,
+          ),
+        ),
+        isNull,
+      );
+      expect(
+        ChatLineFormatCommands.isActive(
+          ChatLineFormatCommand.bulletList,
+          values,
+        ),
+        isTrue,
+      );
+      expect(
+        ChatLineFormatCommands.isActive(ChatLineFormatCommand.quote, values),
+        isTrue,
+      );
+      expect(
+        ChatLineFormatCommands.toggledValue(
+          ChatLineFormatCommand.bulletList,
+          currentlyActive: true,
+        ),
+        isNull,
       );
     });
 

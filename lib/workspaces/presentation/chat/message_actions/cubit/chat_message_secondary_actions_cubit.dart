@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,6 +25,23 @@ final class ChatMessageSecondaryActionsCubit
   final ChatMessageActionsRepository repository;
   int _pinsGeneration = 0;
   int _bookmarksGeneration = 0;
+  StreamSubscription<ChatConversationRealtimeEvent>? _pinEvents;
+
+  /// Odświeża zbiór przypięć po zmianie wykonanej przez innego uczestnika.
+  void watchConversationPins({
+    required String conversationId,
+    required Stream<ChatConversationRealtimeEvent> events,
+  }) {
+    unawaited(_pinEvents?.cancel());
+    _pinEvents = events.listen((event) {
+      if (event.conversationId != conversationId ||
+          event.kind !=
+              ChatConversationRealtimeEventKind.conversationPinsChanged) {
+        return;
+      }
+      unawaited(loadConversationPins(conversationId));
+    });
+  }
 
   /// Przypina albo odpina wiadomość w zależności od aktualnego stanu.
   Future<ChatMessageSecondaryActionOutcome> togglePin({
@@ -60,73 +80,65 @@ final class ChatMessageSecondaryActionsCubit
   );
 
   /// Dodaje albo usuwa prywatną zakładkę użytkownika.
-  Future<void> toggleBookmark({
+  Future<ChatMessageSecondaryActionOutcome> toggleBookmark({
     required String messageId,
     required bool isBookmarked,
     String? note,
-  }) async {
-    await _run(
-      messageId: messageId,
-      action: isBookmarked
-          ? ChatMessageSecondaryAction.removeBookmark
-          : ChatMessageSecondaryAction.bookmark,
-      call: () => isBookmarked
-          ? repository.removeBookmark(messageId)
-          : repository.bookmarkMessage(messageId: messageId, note: note),
-      onSuccess: () {
-        _bookmarksGeneration++;
-        final bookmarkedIds = Set<String>.of(state.bookmarkedMessageIds);
-        if (isBookmarked) {
-          bookmarkedIds.remove(messageId);
-        } else {
-          bookmarkedIds.add(messageId);
-        }
-        emit(state.copyWith(bookmarkedMessageIds: bookmarkedIds));
-      },
-    );
-  }
+  }) => _run(
+    messageId: messageId,
+    action: isBookmarked
+        ? ChatMessageSecondaryAction.removeBookmark
+        : ChatMessageSecondaryAction.bookmark,
+    call: () => isBookmarked
+        ? repository.removeBookmark(messageId)
+        : repository.bookmarkMessage(messageId: messageId, note: note),
+    onSuccess: () {
+      _bookmarksGeneration++;
+      final bookmarkedIds = Set<String>.of(state.bookmarkedMessageIds);
+      if (isBookmarked) {
+        bookmarkedIds.remove(messageId);
+      } else {
+        bookmarkedIds.add(messageId);
+      }
+      emit(state.copyWith(bookmarkedMessageIds: bookmarkedIds));
+    },
+  );
 
   /// Przekazuje wiadomość do innej rozmowy z nowym idempotency key.
-  Future<void> forward({
+  Future<ChatMessageSecondaryActionOutcome> forward({
     required String messageId,
     required String targetConversationId,
     required String clientMessageId,
-  }) async {
-    await _run(
+  }) => _run(
+    messageId: messageId,
+    action: ChatMessageSecondaryAction.forward,
+    call: () => repository.forwardMessage(
       messageId: messageId,
-      action: ChatMessageSecondaryAction.forward,
-      call: () => repository.forwardMessage(
-        messageId: messageId,
-        targetConversationId: targetConversationId,
-        clientMessageId: clientMessageId,
-      ),
-      onSuccess: () => emit(state.copyWith(forwardedMessageId: messageId)),
-    );
-  }
+      targetConversationId: targetConversationId,
+      clientMessageId: clientMessageId,
+    ),
+    onSuccess: () => emit(state.copyWith(forwardedMessageId: messageId)),
+  );
 
   /// Dodaje własną reakcję emoji do wiadomości.
-  Future<void> react({
+  Future<ChatMessageSecondaryActionOutcome> react({
     required String messageId,
     required String emoji,
-  }) async {
-    await _run(
-      messageId: messageId,
-      action: ChatMessageSecondaryAction.reaction,
-      call: () => repository.addReaction(messageId: messageId, emoji: emoji),
-    );
-  }
+  }) => _run(
+    messageId: messageId,
+    action: ChatMessageSecondaryAction.reaction,
+    call: () => repository.addReaction(messageId: messageId, emoji: emoji),
+  );
 
   /// Usuwa własną reakcję emoji z wiadomości.
-  Future<void> removeReaction({
+  Future<ChatMessageSecondaryActionOutcome> removeReaction({
     required String messageId,
     required String emoji,
-  }) async {
-    await _run(
-      messageId: messageId,
-      action: ChatMessageSecondaryAction.removeReaction,
-      call: () => repository.removeReaction(messageId: messageId, emoji: emoji),
-    );
-  }
+  }) => _run(
+    messageId: messageId,
+    action: ChatMessageSecondaryAction.removeReaction,
+    call: () => repository.removeReaction(messageId: messageId, emoji: emoji),
+  );
 
   /// Wczytuje przypięcia rozmowy, żeby menu pokazywało realny stan.
   Future<void> loadConversationPins(String conversationId) async {
@@ -226,5 +238,12 @@ final class ChatMessageSecondaryActionsCubit
     if (!state.failures.containsKey(messageId)) return;
     final failures = Map<String, String>.of(state.failures)..remove(messageId);
     emit(state.copyWith(failures: failures));
+  }
+
+  @override
+  Future<void> close() async {
+    await _pinEvents?.cancel();
+    _pinEvents = null;
+    await super.close();
   }
 }

@@ -6,6 +6,8 @@ import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/domain/chat/mentions/chat_mention_codec.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_message_merger.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_read_tracker.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,6 +19,8 @@ final class _FakeConversationRepository implements ChatConversationRepository {
     this.onSend,
     this.windowResult,
     this.markReadCompleter,
+    this.onListMessages,
+    this.onWindow,
   }) : _pageResults = pageResults ?? <Either<ApiError, ChatMessagePage>>[];
 
   Either<ApiError, ChatConversation>? conversationResult;
@@ -29,6 +33,9 @@ final class _FakeConversationRepository implements ChatConversationRepository {
   final sentCommands = <ChatSendMessageCommand>[];
   final markedReadMessageIds = <String>[];
   final Completer<Either<ApiError, void>>? markReadCompleter;
+  final Future<Either<ApiError, ChatMessagePage>> Function()? onListMessages;
+  int listMessageCalls = 0;
+  final Future<Either<ApiError, ChatMessageWindow>> Function(String)? onWindow;
 
   @override
   Future<Either<ApiError, ChatConversation>> getConversation(
@@ -41,23 +48,29 @@ final class _FakeConversationRepository implements ChatConversationRepository {
     required String messageId,
     int before = 20,
     int after = 20,
-  }) async =>
-      windowResult ??
-      Right(
-        ChatMessageWindow(
-          anchorMessageId: messageId,
-          messages: const <ChatMessage>[],
-          hasMoreBefore: false,
-          hasMoreAfter: false,
-        ),
-      );
+  }) async => onWindow != null
+      ? await onWindow!(messageId)
+      : windowResult ??
+            Right(
+              ChatMessageWindow(
+                anchorMessageId: messageId,
+                messages: const <ChatMessage>[],
+                hasMoreBefore: false,
+                hasMoreAfter: false,
+              ),
+            );
 
   @override
   Future<Either<ApiError, ChatMessagePage>> listConversationMessages({
     required String conversationId,
     String? cursor,
     int limit = 50,
-  }) async => _pageResults.removeAt(0);
+  }) async {
+    listMessageCalls++;
+    final callback = onListMessages;
+    if (callback != null) return callback();
+    return _pageResults.removeAt(0);
+  }
 
   @override
   Future<Either<ApiError, ChatMessage>> sendConversationMessage(
@@ -99,6 +112,199 @@ final class _FakeConversationRepository implements ChatConversationRepository {
 }
 
 void main() {
+  test('scalanie nie cofa nowszej edycji i nie wskrzesza usuniętej wersji', () {
+    final edited = _ChatConversationFixture.message(
+      'm',
+      text: 'Nowa',
+      version: 3,
+    );
+    final oldSnapshot = _ChatConversationFixture.message(
+      'm',
+      text: 'Stara',
+      version: 2,
+    );
+    expect(
+      ChatConversationMessageMerger.merge([edited], [oldSnapshot]).single.text,
+      'Nowa',
+    );
+    final deleted = edited.copyWithDeletion(version: 4);
+    final staleAck = _ChatConversationFixture.message(
+      'm',
+      text: 'Nowa',
+      version: 4,
+    );
+    expect(
+      ChatConversationMessageMerger.merge(
+        [deleted],
+        [staleAck],
+      ).single.isDeleted,
+      true,
+    );
+  });
+
+  test('skok do dostępnego celu unieważnia starsze okno w locie', () async {
+    final pending = Completer<Either<ApiError, ChatMessageWindow>>();
+    final repository = _FakeConversationRepository(
+      pageResults: [
+        Right(
+          ChatMessagePage(
+            items: [_ChatConversationFixture.message('fresh')],
+            nextCursor: 'fresh-cursor',
+          ),
+        ),
+      ],
+      onWindow: (_) => pending.future,
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+      currentUserId: 'u',
+    );
+    await cubit.load();
+    final jumping = cubit.ensureTargetLoaded('old');
+    await cubit.ensureTargetLoaded('fresh');
+    pending.complete(
+      Right(
+        ChatMessageWindow(
+          anchorMessageId: 'old',
+          messages: [_ChatConversationFixture.message('old')],
+          hasMoreBefore: false,
+          hasMoreAfter: true,
+        ),
+      ),
+    );
+    await jumping;
+    final state = cubit.state as ChatConversationReady;
+    expect(state.messages.single.id, 'fresh');
+    expect(state.isJumpingToMessage, false);
+    expect(state.isWindowedHistory, false);
+    expect(state.nextCursor, 'fresh-cursor');
+    await cubit.close();
+  });
+
+  test('stara paginacja nie zanieczyszcza nowego okna', () async {
+    var count = 0;
+    final pending = Completer<Either<ApiError, ChatMessagePage>>();
+    final repository = _FakeConversationRepository(
+      onListMessages: () async {
+        if (++count == 1) {
+          return Right(
+            ChatMessagePage(
+              items: [
+                _ChatConversationFixture.message(
+                  'fresh',
+                  clientMessageId: 'fresh',
+                ),
+              ],
+              nextCursor: 'fresh-cursor',
+            ),
+          );
+        }
+        return pending.future;
+      },
+      windowResult: Right(
+        ChatMessageWindow(
+          anchorMessageId: 'old',
+          messages: [
+            _ChatConversationFixture.message('old', clientMessageId: 'old'),
+          ],
+          beforeCursor: 'window-cursor',
+          hasMoreBefore: true,
+          hasMoreAfter: true,
+        ),
+      ),
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+      currentUserId: 'u',
+    );
+    await cubit.load();
+    final paging = cubit.loadMore();
+    await cubit.ensureTargetLoaded('old');
+    expect((cubit.state as ChatConversationReady).nextCursor, 'window-cursor');
+    pending.complete(
+      Right(
+        ChatMessagePage(
+          items: [
+            _ChatConversationFixture.message(
+              'fresh-page2',
+              clientMessageId: 'fresh-page2',
+            ),
+          ],
+          nextCursor: 'fresh-page2-cursor',
+        ),
+      ),
+    );
+    await paging;
+    final state = cubit.state as ChatConversationReady;
+    expect(state.isWindowedHistory, true);
+    expect(state.messages.map((item) => item.id), ['old']);
+    expect(state.nextCursor, 'window-cursor');
+    await cubit.close();
+  });
+
+  test('replaceHistory nie scala się ze starszym load w locie', () async {
+    final olderReload = Completer<Either<ApiError, ChatMessagePage>>();
+    final historyReplacement = Completer<Either<ApiError, ChatMessagePage>>();
+    var request = 0;
+    final repository = _FakeConversationRepository(
+      onListMessages: () {
+        request++;
+        return switch (request) {
+          1 => Future.value(
+            Right(
+              ChatMessagePage(
+                items: [_ChatConversationFixture.message('initial')],
+              ),
+            ),
+          ),
+          2 => olderReload.future,
+          3 => historyReplacement.future,
+          _ => throw StateError('unexpected history request $request'),
+        };
+      },
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+      currentUserId: 'test-user',
+    );
+    await cubit.load();
+
+    final olderLoad = cubit.load();
+    await Future<void>.delayed(Duration.zero);
+    final replacementLoad = cubit.load(replaceHistory: true);
+    await Future<void>.delayed(Duration.zero);
+    expect(repository.listMessageCalls, 3);
+
+    historyReplacement.complete(
+      Right(
+        ChatMessagePage(
+          items: [_ChatConversationFixture.message('latest-window')],
+        ),
+      ),
+    );
+    await replacementLoad;
+    expect(
+      (cubit.state as ChatConversationReady).messages.map((item) => item.id),
+      ['latest-window'],
+    );
+
+    olderReload.complete(
+      Right(
+        ChatMessagePage(
+          items: [_ChatConversationFixture.message('stale-latest-page')],
+        ),
+      ),
+    );
+    await olderLoad;
+    expect(
+      (cubit.state as ChatConversationReady).messages.map((item) => item.id),
+      ['latest-window'],
+    );
+    await cubit.close();
+  });
   test('odczyt widocznej wiadomości jest idempotentny', () async {
     final repository = _FakeConversationRepository(
       pageResults: [
@@ -116,8 +322,14 @@ void main() {
     );
     await cubit.load();
 
-    expect(await cubit.markVisibleAsRead('visible-1'), isTrue);
-    expect(await cubit.markVisibleAsRead('visible-1'), isFalse);
+    expect(
+      await cubit.markVisibleAsRead('visible-1'),
+      ChatReadMarkOutcome.marked,
+    );
+    expect(
+      await cubit.markVisibleAsRead('visible-1'),
+      ChatReadMarkOutcome.ignored,
+    );
     expect(repository.markedReadMessageIds, ['visible-1']);
 
     await cubit.close();
@@ -144,10 +356,13 @@ void main() {
 
     final first = cubit.markVisibleAsRead('visible-race');
     await Future<void>.delayed(Duration.zero);
-    expect(await cubit.markVisibleAsRead('visible-race'), isFalse);
+    expect(
+      await cubit.markVisibleAsRead('visible-race'),
+      ChatReadMarkOutcome.ignored,
+    );
     markReadCompleter.complete(const Right(null));
 
-    expect(await first, isTrue);
+    expect(await first, ChatReadMarkOutcome.marked);
     expect(repository.markedReadMessageIds, ['visible-race']);
     await cubit.close();
   });
@@ -166,6 +381,7 @@ void main() {
     final cubit = ChatConversationCubit(
       repository: repository,
       conversationId: 'conversation-1',
+      currentUserId: 'test-user',
     );
     await cubit.load();
 
@@ -194,6 +410,7 @@ void main() {
       final cubit = ChatConversationCubit(
         repository: repository,
         conversationId: 'conversation-1',
+        currentUserId: 'test-user',
       );
 
       await cubit.load();
@@ -234,6 +451,7 @@ void main() {
       final cubit = ChatConversationCubit(
         repository: repository,
         conversationId: 'conversation-1',
+        currentUserId: 'test-user',
       );
 
       await cubit.load();
@@ -245,6 +463,46 @@ void main() {
         'message-2',
       ]);
       expect(state.nextCursor, isNull);
+      await cubit.close();
+    },
+  );
+
+  test(
+    'normalizuje stronę newest-first i potwierdza najnowszą jako odczytaną',
+    () async {
+      final older = _ChatConversationFixture.message(
+        'older',
+        clientMessageId: 'client-older',
+        createdAtUtc: DateTime.utc(2026, 9, 23, 10),
+      );
+      final newest = _ChatConversationFixture.message(
+        'newest',
+        clientMessageId: 'client-newest',
+        createdAtUtc: DateTime.utc(2026, 9, 23, 11),
+      );
+      final repository = _FakeConversationRepository(
+        pageResults: [
+          Right(ChatMessagePage(items: [newest, older])),
+        ],
+      );
+      final cubit = ChatConversationCubit(
+        repository: repository,
+        conversationId: 'conversation-1',
+        currentUserId: 'user-2',
+      );
+
+      await cubit.load();
+      final state = cubit.state as ChatConversationReady;
+      expect(state.messages.map((message) => message.id), ['older', 'newest']);
+      expect(
+        await cubit.markVisibleAsRead(state.messages.last.id),
+        ChatReadMarkOutcome.marked,
+      );
+      expect(repository.markedReadMessageIds, ['newest']);
+      expect(
+        await cubit.markVisibleAsRead(older.id),
+        ChatReadMarkOutcome.ignored,
+      );
       await cubit.close();
     },
   );
@@ -275,10 +533,15 @@ void main() {
       final cubit = ChatConversationCubit(
         repository: repository,
         conversationId: 'conversation-1',
+        currentUserId: 'test-user',
       );
       await cubit.load();
 
       cubit.send('Wiadomość');
+      expect(
+        (cubit.state as ChatConversationReady).messages.single.authorUserId,
+        'test-user',
+      );
       await _ChatConversationFixture.flushMicrotasks();
       var state = cubit.state as ChatConversationReady;
       expect(
@@ -324,6 +587,19 @@ void main() {
               nextCursor: 'cursor-najnowszy',
             ),
           ),
+          const Left(
+            ApiError(type: ApiErrorType.server, message: 'Błąd strony.'),
+          ),
+          Right(
+            ChatMessagePage(
+              items: [
+                _ChatConversationFixture.message(
+                  'old-0',
+                  clientMessageId: 'client-old-0',
+                ),
+              ],
+            ),
+          ),
           Right(
             ChatMessagePage(
               items: [
@@ -358,6 +634,7 @@ void main() {
       final cubit = ChatConversationCubit(
         repository: repository,
         conversationId: 'conversation-1',
+        currentUserId: 'test-user',
       );
       await cubit.load();
 
@@ -375,6 +652,37 @@ void main() {
       expect(state.isJumpingToMessage, isFalse);
       expect(state.jumpFailureCode, isNull);
 
+      cubit.applyMessageActionResult(
+        _ChatConversationFixture.message(
+          'old-1',
+          clientMessageId: 'client-old-1',
+          text: 'Zmieniona treść',
+        ),
+      );
+      state = cubit.state as ChatConversationReady;
+      expect(state.isWindowedHistory, isTrue);
+      expect(state.jumpAnchorMessageId, 'old-1');
+      expect(state.messages.first.text, 'Zmieniona treść');
+
+      await cubit.loadMore();
+      state = cubit.state as ChatConversationReady;
+      expect(state.isWindowedHistory, isTrue);
+      expect(state.jumpAnchorMessageId, 'old-1');
+      expect(state.isLoadingMore, isFalse);
+      expect(state.nextCursor, 'cursor-starszy');
+      expect(state.loadError, 'Błąd strony.');
+
+      await cubit.loadMore();
+      state = cubit.state as ChatConversationReady;
+      expect(state.isWindowedHistory, isTrue);
+      expect(state.jumpAnchorMessageId, 'old-1');
+      expect(state.isLoadingMore, isFalse);
+      expect(state.nextCursor, isNull);
+      expect(
+        state.messages.map((message) => message.id),
+        <String>['old-0', 'old-1', 'old-2'],
+      );
+
       // Wyjście z trybu okna pobiera najnowszą stronę od nowa.
       await cubit.exitWindowHistory();
 
@@ -382,6 +690,46 @@ void main() {
       expect(state.messages.map((message) => message.id), <String>['fresh-2']);
       expect(state.isWindowedHistory, isFalse);
       expect(state.nextCursor, 'cursor-najnowszy-2');
+      await cubit.close();
+    },
+  );
+
+  test(
+    'okno bez starszego kursora nie odziedzicza kursora najnowszej strony',
+    () async {
+      final repository = _FakeConversationRepository(
+        pageResults: [
+          Right(
+            ChatMessagePage(
+              items: [_ChatConversationFixture.message('latest')],
+              nextCursor: 'cursor-najnowszy',
+            ),
+          ),
+        ],
+        windowResult: Right(
+          ChatMessageWindow(
+            anchorMessageId: 'old-target',
+            messages: [_ChatConversationFixture.message('old-target')],
+            hasMoreBefore: false,
+            hasMoreAfter: true,
+          ),
+        ),
+      );
+      final cubit = ChatConversationCubit(
+        repository: repository,
+        conversationId: 'conversation-1',
+        currentUserId: 'test-user',
+      );
+      await cubit.load();
+
+      await cubit.ensureTargetLoaded('old-target');
+      final state = cubit.state as ChatConversationReady;
+      expect(state.isWindowedHistory, isTrue);
+      expect(state.jumpAnchorMessageId, 'old-target');
+      expect(state.nextCursor, isNull);
+
+      await cubit.loadMore();
+      expect(repository.listMessageCalls, 1);
       await cubit.close();
     },
   );
@@ -402,6 +750,7 @@ void main() {
     final cubit = ChatConversationCubit(
       repository: repository,
       conversationId: 'conversation-1',
+      currentUserId: 'test-user',
     );
     await cubit.load();
 
@@ -442,6 +791,7 @@ void main() {
     final cubit = ChatConversationCubit(
       repository: repository,
       conversationId: 'conversation-1',
+      currentUserId: 'test-user',
     );
     await cubit.load();
 
@@ -472,6 +822,8 @@ abstract final class _ChatConversationFixture {
     String clientMessageId = 'client-message-1',
     String text = 'Treść',
     String payloadHash = 'hash',
+    int version = 1,
+    DateTime? createdAtUtc,
   }) => ChatMessage(
     id: id,
     conversationId: 'conversation-1',
@@ -479,8 +831,8 @@ abstract final class _ChatConversationFixture {
     clientMessageId: clientMessageId,
     text: text,
     payloadHash: payloadHash,
-    version: 1,
-    createdAtUtc: DateTime.utc(2026),
+    version: version,
+    createdAtUtc: createdAtUtc ?? DateTime.utc(2026),
     isDeleted: false,
     deliveryState: ChatMessageDeliveryState.sent,
   );

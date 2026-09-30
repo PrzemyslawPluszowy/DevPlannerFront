@@ -6,6 +6,7 @@ import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_messa
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_revision.dart';
+import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -269,10 +270,22 @@ void main() {
       final repository = _ActionsFake();
       final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
 
-      await cubit.toggleBookmark(messageId: 'message-1', isBookmarked: false);
+      expect(
+        await cubit.toggleBookmark(
+          messageId: 'message-1',
+          isBookmarked: false,
+        ),
+        ChatMessageSecondaryActionOutcome.succeeded,
+      );
       expect(cubit.state.bookmarkedMessageIds, contains('message-1'));
 
-      await cubit.toggleBookmark(messageId: 'message-1', isBookmarked: true);
+      expect(
+        await cubit.toggleBookmark(
+          messageId: 'message-1',
+          isBookmarked: true,
+        ),
+        ChatMessageSecondaryActionOutcome.succeeded,
+      );
       expect(cubit.state.bookmarkedMessageIds, isEmpty);
       await cubit.close();
     });
@@ -296,12 +309,45 @@ void main() {
       await cubit.close();
     });
 
+    test('zmiana przypięcia realtime odświeża stan z API', () async {
+      final repository = _ActionsFake()..pinned.add('message-remote');
+      final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
+      final events = StreamController<ChatConversationRealtimeEvent>();
+      cubit.watchConversationPins(
+        conversationId: 'conversation-1',
+        events: events.stream,
+      );
+
+      events.add(
+        const ChatConversationRealtimeEvent(
+          eventId: 'pin-event-1',
+          sequence: 1,
+          conversationId: 'conversation-1',
+          kind: ChatConversationRealtimeEventKind.conversationPinsChanged,
+          isReplay: false,
+          messageId: 'message-remote',
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.pinnedMessageIds, contains('message-remote'));
+      expect(repository.calls, contains('listPins'));
+      await events.close();
+      await cubit.close();
+    });
+
     test('reakcja i jej usunięcie trafiają do portu z emoji', () async {
       final repository = _ActionsFake();
       final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
 
-      await cubit.react(messageId: 'message-1', emoji: '👍');
-      await cubit.removeReaction(messageId: 'message-1', emoji: '👍');
+      expect(
+        await cubit.react(messageId: 'message-1', emoji: '👍'),
+        ChatMessageSecondaryActionOutcome.succeeded,
+      );
+      expect(
+        await cubit.removeReaction(messageId: 'message-1', emoji: '👍'),
+        ChatMessageSecondaryActionOutcome.succeeded,
+      );
 
       expect(repository.calls, <String>[
         'react:message-1:👍',
@@ -314,10 +360,13 @@ void main() {
       final repository = _ActionsFake();
       final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
 
-      await cubit.forward(
-        messageId: 'message-1',
-        targetConversationId: 'conversation-2',
-        clientMessageId: 'client-key-1',
+      expect(
+        await cubit.forward(
+          messageId: 'message-1',
+          targetConversationId: 'conversation-2',
+          clientMessageId: 'client-key-1',
+        ),
+        ChatMessageSecondaryActionOutcome.succeeded,
       );
 
       expect(
@@ -340,7 +389,10 @@ void main() {
           );
         final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
 
-        await cubit.react(messageId: 'message-1', emoji: '✅');
+        expect(
+          await cubit.react(messageId: 'message-1', emoji: '✅'),
+          ChatMessageSecondaryActionOutcome.failed,
+        );
 
         expect(
           cubit.state.failureFor('message-1'),
@@ -363,7 +415,8 @@ void main() {
 
         final first = cubit.react(messageId: 'message-1', emoji: '👍');
         final second = cubit.react(messageId: 'message-1', emoji: '✅');
-        await Future.wait(<Future<void>>[first, second]);
+        expect(await second, ChatMessageSecondaryActionOutcome.ignored);
+        expect(await first, ChatMessageSecondaryActionOutcome.succeeded);
 
         expect(repository.calls, hasLength(1));
         await cubit.close();

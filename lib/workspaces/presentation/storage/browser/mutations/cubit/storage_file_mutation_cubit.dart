@@ -58,6 +58,31 @@ final class StorageFileMutationCubit extends Cubit<StorageFileMutationState> {
     );
   }
 
+  /// Ukrywa plik z listy Udostępnione bieżącego użytkownika.
+  Future<void> dismissSharedFile(String fileId) async {
+    emit(const StorageFileMutationLoading());
+    final result = await repository.dismissSharedFile(fileId);
+    if (isClosed) return;
+
+    result.fold(
+      (err) => emit(
+        StorageFileMutationFailure(
+          message: err.message,
+          statusCode: err.statusCode,
+          backendCode: err.backendCode,
+          apiCode: err.apiCode,
+          traceId: err.traceId,
+        ),
+      ),
+      (_) => emit(
+        StorageFileMutationSuccess(
+          type: StorageFileMutationType.sharedFileDismissed,
+          fileId: fileId,
+        ),
+      ),
+    );
+  }
+
   /// Aktualizuje opis pliku.
   Future<void> updateDescription({
     required String fileId,
@@ -87,6 +112,44 @@ final class StorageFileMutationCubit extends Cubit<StorageFileMutationState> {
           fileId: fileId,
         ),
       ),
+    );
+  }
+
+  /// Zmienia nazwę pliku bez zmiany rozszerzenia i zawartości.
+  Future<bool> renameFile({
+    required StorageFileResponse file,
+    required String fileName,
+  }) async {
+    emit(const StorageFileMutationLoading());
+    final result = await repository.renameFile(
+      fileId: file.id,
+      fileName: fileName,
+      expectedConcurrencyToken: file.concurrencyToken,
+    );
+    if (isClosed) return false;
+    return result.fold(
+      (err) {
+        emit(
+          StorageFileMutationFailure(
+            message: err.message,
+            statusCode: err.statusCode,
+            backendCode: err.backendCode,
+            apiCode: err.apiCode,
+            traceId: err.traceId,
+          ),
+        );
+        return false;
+      },
+      (renamed) {
+        emit(
+          StorageFileMutationSuccess(
+            type: StorageFileMutationType.renamed,
+            file: renamed,
+            fileId: file.id,
+          ),
+        );
+        return true;
+      },
     );
   }
 

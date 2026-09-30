@@ -1,5 +1,5 @@
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_notification_settings_api.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_notification_settings_repository_impl.dart';
 import 'package:devplanner/workspaces/data/notifications/api/notifications_api.dart';
@@ -20,7 +20,7 @@ import 'package:mocktail/mocktail.dart';
 
 final class _MockNotificationsApi extends Mock implements NotificationsApi {}
 
-final class _MockChatApi extends Mock implements ChatApi {}
+final class _MockChatApi extends Mock implements ChatNotificationSettingsApi {}
 
 void main() {
   test('kontrakt preferencji rozmowy używa nazw enum backendu', () {

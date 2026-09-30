@@ -2,6 +2,7 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/presentation/chat/composer/chat_format_commands.dart';
+import 'package:devplanner/workspaces/presentation/chat/composer/chat_quill_selection_attributes.dart';
 import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
@@ -35,7 +36,7 @@ Future<void> applyFormatCommand(
   if (base == null || key == null) return;
   final active = ChatFormatCommands.isActive(
     command,
-    controller.getSelectionStyle().attributes,
+    ChatQuillSelectionAttributes.fromController(controller),
   );
   final value = ChatFormatCommands.toggledValue(
     command,

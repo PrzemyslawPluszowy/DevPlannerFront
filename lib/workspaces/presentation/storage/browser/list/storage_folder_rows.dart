@@ -70,9 +70,18 @@ class StorageFolderRows extends StatelessWidget {
               selectedTileColor: context.colors.primaryContainer.withValues(
                 alpha: 0.3,
               ),
-              leading: Icon(
-                AppIcons.folder,
-                color: Theme.of(context).colorScheme.primary,
+              leading: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  AppIcons.folder,
+                  color: Color(0xFFD58A00),
+                  size: 20,
+                ),
               ),
               title: Text(
                 folder.name,

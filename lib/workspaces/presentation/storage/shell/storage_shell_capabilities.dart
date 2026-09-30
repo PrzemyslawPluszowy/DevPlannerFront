@@ -17,6 +17,7 @@ final class StorageShellCapabilities {
     this.canUpload = false,
     this.canCreateFolder = false,
     this.canRenameFolder = false,
+    this.canRenameFile = false,
     this.canCreateDocument = false,
     this.canDelete = false,
     this.canDownload = false,
@@ -34,6 +35,7 @@ final class StorageShellCapabilities {
     canUpload: true,
     canCreateFolder: true,
     canRenameFolder: true,
+    canRenameFile: true,
     canCreateDocument: true,
     canDelete: true,
     canDownload: true,
@@ -51,6 +53,9 @@ final class StorageShellCapabilities {
 
   /// Czy klient może zmieniać nazwę folderu.
   final bool canRenameFolder;
+
+  /// Czy kompozycja może zmieniać nazwę pliku.
+  final bool canRenameFile;
 
   /// Czy klient może tworzyć puste dokumenty biurowe.
   final bool canCreateDocument;

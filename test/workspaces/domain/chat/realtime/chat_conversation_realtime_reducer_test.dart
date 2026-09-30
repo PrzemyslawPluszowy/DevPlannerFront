@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_reply_preview.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -72,6 +73,41 @@ void main() {
       expect(deleted.messages.single.isDeleted, isTrue);
       expect(deleted.messages.single.version, 3);
     });
+
+    test(
+      'usuwa treść cytatu, gdy cel odpowiedzi jest poza załadowaną stroną',
+      () {
+        final reducer = ChatConversationRealtimeReducer();
+        final reply = _ChatRealtimeFixture.message(
+          id: 'reply-1',
+          replyToMessageId: 'old-target',
+          replyPreview: const ChatMessageReplyTargetPreview(
+            messageId: 'old-target',
+            authorUserId: 'user-2',
+            authorLabel: 'Anna',
+            text: 'Treść usuniętego posta',
+            isDeleted: false,
+            hasAttachments: false,
+          ),
+        );
+
+        final result = reducer.apply(
+          messages: <ChatMessage>[reply],
+          event: _ChatRealtimeFixture.event(
+            eventId: 'deleted-old-target',
+            sequence: 12,
+            kind: ChatConversationRealtimeEventKind.messageDeleted,
+            messageId: 'old-target',
+            messageVersion: 2,
+          ),
+        );
+
+        expect(result.decision, ChatConversationRealtimeDecision.applied);
+        expect(result.messages.single.replyPreview?.isDeleted, isTrue);
+        expect(result.messages.single.replyPreview?.text, isEmpty);
+        expect(result.messages.single.replyPreview?.mentionLabels, isEmpty);
+      },
+    );
 
     test('ignoruje identyczny eventId z live i replayu', () {
       final reducer = ChatConversationRealtimeReducer();
@@ -264,6 +300,8 @@ abstract final class _ChatRealtimeFixture {
     String text = 'Treść',
     int version = 1,
     bool isEdited = false,
+    String? replyToMessageId,
+    ChatMessageReplyTargetPreview? replyPreview,
     ChatMessageDeliveryState deliveryState = ChatMessageDeliveryState.sent,
   }) => ChatMessage(
     id: id,
@@ -275,6 +313,8 @@ abstract final class _ChatRealtimeFixture {
     version: version,
     createdAtUtc: DateTime.utc(2026),
     isDeleted: false,
+    replyToMessageId: replyToMessageId,
+    replyPreview: replyPreview,
     isEdited: isEdited,
     deliveryState: deliveryState,
   );

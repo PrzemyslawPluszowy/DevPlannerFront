@@ -18,6 +18,39 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets(
+    'przyjęty UUID czyści composer i drugi Enter nie duplikuje wysyłki',
+    (tester) async {
+      final sent = <ChatComposerDraft>[];
+      final repository = _MemoryDraftRepository();
+      await tester.pumpWidget(
+        _ComposerWidgetFixture.app(
+          sent,
+          repository: repository,
+          onSubmit: (draft) {
+            sent.add(draft);
+            return 'client-accepted';
+          },
+        ),
+      );
+      await tester.tap(find.byType(TextField));
+      await tester.enterText(find.byType(TextField), 'Odpowiedź w wątku');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(sent, hasLength(1));
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        isEmpty,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(sent, hasLength(1));
+      expect(repository.value, isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    },
+  );
+
   group('ChatMessageComposer keyboard', () {
     testWidgets('plain Enter wysyła dokładnie raz', (tester) async {
       final sent = <ChatComposerDraft>[];
@@ -78,7 +111,9 @@ void main() {
       await tester.pumpWidget(
         _ComposerWidgetFixture.app(sent, richController: richController),
       );
-      await tester.tap(find.text('Rich text'));
+      await tester.tap(find.byTooltip('More actions'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Expanded editor'));
       await tester.pumpAndSettle();
       final editor = find.byType(quill.QuillEditor);
       expect(editor, findsOneWidget);
@@ -272,7 +307,9 @@ void main() {
           onAttachmentCoordinatorCreated: (value) => coordinator = value,
         ),
       );
-      await tester.tap(find.text('Add files'));
+      await tester.tap(find.byTooltip('More actions'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('File'));
       await tester.pumpAndSettle();
       expect(picker.calls, 1);
       expect(coordinator!.state, isA<ChatAttachmentComposerCoordinatorReady>());
@@ -306,7 +343,9 @@ void main() {
         clientMessageId: 'c1',
         attachmentIds: const ['file-1'],
       );
-      await tester.tap(find.text('Add files'));
+      await tester.tap(find.byTooltip('More actions'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('File'));
       await tester.pump();
       expect(picker.calls, 0);
     });
@@ -437,6 +476,13 @@ final class _FakeAttachmentUploadPort implements ChatAttachmentUploadPort {
   Future<ChatAttachmentUploadSession> createSession(
     String conversationId,
   ) async => const ChatAttachmentUploadSession('session-1');
+
+  @override
+  Future<String> copyPrivateFileToSession({
+    required String conversationId,
+    required String sessionId,
+    required String sourceStorageFileId,
+  }) async => 'copied-$sourceStorageFileId';
 
   @override
   Future<ChatAttachmentTicket> createTicket({

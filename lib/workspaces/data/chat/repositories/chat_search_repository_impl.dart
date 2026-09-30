@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_search_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
@@ -12,7 +12,7 @@ final class ChatSearchRepositoryImpl implements ChatSearchRepository {
   /// Tworzy adapter na uwierzytelnionym kliencie Chat.
   ChatSearchRepositoryImpl(this._api);
 
-  final ChatApi _api;
+  final ChatSearchApi _api;
   static const _errorMapper = ChatApiErrorMapper();
 
   @override

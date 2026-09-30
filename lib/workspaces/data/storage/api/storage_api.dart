@@ -62,6 +62,10 @@ abstract class StorageApi {
     @Path('shareId') String shareId,
   );
 
+  /// Ukrywa plik z listy Udostępnione bieżącego użytkownika, bez zmiany uprawnień.
+  @PUT('/api/v1/storage/files/{fileId}/shared-dismissal')
+  Future<void> dismissSharedFile(@Path('fileId') String fileId);
+
   /// Tworzy wirtualny folder bez kopiowania obiektów w Storage.
   @POST('/api/v1/storage/folders')
   Future<StorageFolderResponse> createFolder(
@@ -188,6 +192,13 @@ abstract class StorageApi {
     @Body() UpdateStorageFileDescriptionPayload payload,
   );
 
+  /// Zmienia nazwę pliku bez zmiany jego rozszerzenia.
+  @PUT('/api/v1/storage/files/{fileId}/name')
+  Future<StorageFileResponse> renameFile(
+    @Path('fileId') String fileId,
+    @Body() RenameStorageFilePayload payload,
+  );
+
   /// Ponawia analizę AI pliku.
   @POST('/api/v1/storage/files/{fileId}/analysis/retry')
   Future<StorageFileAnalysisJobResponse> retryFileAnalysis(
@@ -219,6 +230,14 @@ abstract class StorageApi {
     @Path('fileId') String fileId,
     @Path('version') int version,
     @Body() RestoreStorageFileVersionPayload payload,
+  );
+
+  /// Usuwa poprzednią wersję, pozostawiając bieżącą treść bez zmian.
+  @DELETE('/api/v1/storage/files/{fileId}/versions/{version}')
+  Future<void> deleteFileVersion(
+    @Path('fileId') String fileId,
+    @Path('version') int version,
+    @Query('expectedVersion') int expectedVersion,
   );
 
   /// Usuwa plik.

@@ -29,4 +29,27 @@ void main() {
     expect(error.apiCode, 'chat.response.invalid');
     expect(error.message, error.apiCode);
   });
+
+  test('preserves Retry-After from Dio response', () {
+    final before = DateTime.now().toUtc();
+    final error = mapper.fromDioException(
+      DioException.badResponse(
+        statusCode: 429,
+        requestOptions: RequestOptions(path: '/api/v1/chat/search'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/api/v1/chat/search'),
+          statusCode: 429,
+          headers: Headers.fromMap({
+            'retry-after': ['60'],
+          }),
+        ),
+      ),
+      code: ChatApiErrorCode.searchMessages,
+    );
+
+    expect(error.statusCode, 429);
+    expect(error.apiCode, 'chat.search.failed');
+    expect(error.retryAfterUtc, isNotNull);
+    expect(error.retryAfterUtc!.isAfter(before), isTrue);
+  });
 }

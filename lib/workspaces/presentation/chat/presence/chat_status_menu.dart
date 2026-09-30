@@ -2,15 +2,13 @@ import 'dart:async';
 
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
-import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
-import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/models/chat_user_status.dart';
 import 'package:devplanner/workspaces/presentation/chat/emoji/chat_emoji_picker.dart';
 import 'package:devplanner/workspaces/presentation/chat/emoji/cubit/chat_emoji_recent_cubit.dart';
-import 'package:devplanner/workspaces/presentation/chat/presence/chat_status_label.dart';
+import 'package:devplanner/workspaces/presentation/chat/presence/chat_status_menu_card.dart';
+import 'package:devplanner/workspaces/presentation/chat/presence/chat_status_menu_components.dart';
 import 'package:devplanner/workspaces/presentation/chat/presence/chat_status_presets.dart';
-import 'package:devplanner/workspaces/presentation/chat/shared/chat_toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -71,16 +69,40 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
   /// Wybór terminu w tej sesji edycji; `null` oznacza brak zmiany terminu.
   ChatStatusDurationOption? _durationChoice;
   String? _failureCode;
+  int _loadRevision = 0;
+  Timer? _expiryTimer;
 
   @override
   void initState() {
     super.initState();
-    // The panel trigger must reflect the saved status before the editor opens.
+    // Przycisk panelu ma pokazywać zapisany status jeszcze przed otwarciem karty.
+    unawaited(_load());
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatStatusMenuButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentUserId == widget.currentUserId &&
+        identical(oldWidget.repository, widget.repository)) {
+      return;
+    }
+    setState(() {
+      _setCurrentStatus(null);
+      _preset = null;
+      _emoji = null;
+      _text.clear();
+      _isDnd = false;
+      _durationChoice = null;
+      _failureCode = null;
+      _saving = false;
+    });
+    _menu.close();
     unawaited(_load());
   }
 
   @override
   void dispose() {
+    _expiryTimer?.cancel();
     _text.dispose();
     super.dispose();
   }
@@ -96,13 +118,14 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
   }
 
   Future<void> _load() async {
+    final revision = ++_loadRevision;
     setState(() {
       _loading = true;
       _loadFailed = false;
       _failureCode = null;
     });
     final result = await widget.repository.getUserStatus(widget.currentUserId);
-    if (!mounted) return;
+    if (!mounted || revision != _loadRevision) return;
     result.fold(
       (error) => setState(() {
         _loading = false;
@@ -111,10 +134,10 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
       (status) => setState(() {
         _loading = false;
         _loadFailed = false;
-        _current = status;
-        _emoji = status?.emoji;
-        _text.text = status?.text ?? '';
-        _isDnd = status?.isDnd ?? false;
+        _setCurrentStatus(status);
+        _emoji = _current?.emoji;
+        _text.text = _current?.text ?? '';
+        _isDnd = _current?.isDnd ?? false;
         _preset = null;
         // Termin zostaje bez zmian, dopóki użytkownik nie wybierze opcji.
         _durationChoice = null;
@@ -135,20 +158,25 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
     setState(() {
       _preset = preset;
       _emoji = preset.emoji;
-      _text.text = _presetLabel(context, preset);
+      _text.text = chatStatusPresetLabel(context, preset);
     });
   }
 
   Future<void> _save() async {
+    ++_loadRevision;
+    final userId = widget.currentUserId;
+    final repository = widget.repository;
     setState(() {
       _saving = true;
+      _loading = false;
+      _loadFailed = false;
       _failureCode = null;
     });
     final choice = _durationChoice;
     final expiresAtUtc = choice == null
         ? _current?.expiresAtUtc
         : ChatStatusDurations.expiresAtLocal(choice, DateTime.now())?.toUtc();
-    final result = await widget.repository.setOwnStatus(
+    final result = await repository.setOwnStatus(
       ChatUserStatusUpdate(
         emoji: _emoji?.trim().isEmpty ?? true ? null : _emoji!.trim(),
         text: _text.text.trim().isEmpty ? null : _text.text.trim(),
@@ -156,7 +184,11 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
         expiresAtUtc: expiresAtUtc,
       ),
     );
-    if (!mounted) return;
+    if (!mounted ||
+        userId != widget.currentUserId ||
+        !identical(repository, widget.repository)) {
+      return;
+    }
     result.fold(
       (error) => setState(() {
         _saving = false;
@@ -165,7 +197,10 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
       (status) {
         setState(() {
           _saving = false;
-          _current = status;
+          _setCurrentStatus(status);
+          _emoji = _current?.emoji;
+          _text.text = _current?.text ?? '';
+          _isDnd = _current?.isDnd ?? false;
         });
         _menu.close();
       },
@@ -173,12 +208,21 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
   }
 
   Future<void> _clear() async {
+    ++_loadRevision;
+    final userId = widget.currentUserId;
+    final repository = widget.repository;
     setState(() {
       _saving = true;
+      _loading = false;
+      _loadFailed = false;
       _failureCode = null;
     });
-    final result = await widget.repository.clearOwnStatus();
-    if (!mounted) return;
+    final result = await repository.clearOwnStatus();
+    if (!mounted ||
+        userId != widget.currentUserId ||
+        !identical(repository, widget.repository)) {
+      return;
+    }
     result.fold(
       (error) => setState(() {
         _saving = false;
@@ -187,7 +231,7 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
       (_) {
         setState(() {
           _saving = false;
-          _current = null;
+          _setCurrentStatus(null);
           _emoji = null;
           _text.clear();
           _isDnd = false;
@@ -199,12 +243,72 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
     );
   }
 
+  /// Utrzymuje trigger zgodny z terminem statusu bez ponownego otwierania
+  /// menu. Długi termin jest sprawdzany co dobę, także na Web, gdzie timery
+  /// mają ograniczony maksymalny czas.
+  void _setCurrentStatus(ChatUserStatus? status) {
+    _expiryTimer?.cancel();
+    final current = status?.isExpiredAt(DateTime.now().toUtc()) == true
+        ? null
+        : status;
+    _current = current;
+    final expiry = current?.expiresAtUtc?.toUtc();
+    if (expiry == null) return;
+
+    const maxTimerDelay = Duration(days: 1);
+    final remaining = expiry.difference(DateTime.now().toUtc());
+    final delay = remaining > maxTimerDelay
+        ? maxTimerDelay
+        : remaining.isNegative
+        ? Duration.zero
+        : remaining;
+    _expiryTimer = Timer(delay, () {
+      if (!mounted || _current != current) return;
+      if (current!.isExpiredAt(DateTime.now().toUtc())) {
+        setState(() {
+          _current = null;
+          _emoji = null;
+          _text.clear();
+          _isDnd = false;
+          _preset = null;
+          _durationChoice = null;
+        });
+      } else {
+        _setCurrentStatus(current);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) => MenuAnchor(
     controller: _menu,
     crossAxisUnconstrained: false,
     alignmentOffset: const Offset(Sizes.p8, -Sizes.p8),
-    menuChildren: [_buildCard(context)],
+    menuChildren: [
+      ChatStatusMenuCard(
+        current: _current,
+        textController: _text,
+        loading: _loading,
+        loadFailed: _loadFailed,
+        saving: _saving,
+        isDnd: _isDnd,
+        emoji: _emoji,
+        preset: _preset,
+        durationChoice: _durationChoice,
+        failureMessage: _failureCode,
+        displayName: widget.displayName,
+        login: widget.login,
+        onPickEmoji: () => unawaited(_pickEmoji()),
+        onRetry: () => unawaited(_load()),
+        onPreset: _applyPreset,
+        onDuration: (value) {
+          if (mounted) setState(() => _durationChoice = value);
+        },
+        onDnd: (value) => setState(() => _isDnd = value),
+        onClear: () => unawaited(_clear()),
+        onSave: () => unawaited(_save()),
+      ),
+    ],
     builder: (context, controller, child) => IconButton(
       key: const ValueKey('chat-own-status-menu'),
       tooltip: _current?.text?.trim().isNotEmpty == true
@@ -220,402 +324,4 @@ class _ChatStatusMenuButtonState extends State<ChatStatusMenuButton> {
           : widget.icon ?? const Icon(Symbols.mood, size: 18),
     ),
   );
-
-  Widget _buildCard(BuildContext context) {
-    final chat = context.chatTheme;
-    final busy = _loading || _saving;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 340, maxHeight: 460),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: chat.panelSurface,
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-          border: Border.all(color: chat.separator),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(Sizes.p12),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _header(context),
-                const SizedBox(height: Sizes.p8),
-                Divider(height: 1, color: chat.separator),
-                const SizedBox(height: Sizes.p8),
-                if (_loading)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: Sizes.p16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (_loadFailed)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Sizes.p8,
-                      vertical: Sizes.p16,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.l10n.chatStatusLoadFailed,
-                          style: chat.contentStyle.copyWith(
-                            color: chat.metadataText,
-                          ),
-                        ),
-                        const SizedBox(height: Sizes.p8),
-                        TextButton.icon(
-                          onPressed: _loading ? null : () => unawaited(_load()),
-                          icon: const Icon(Symbols.refresh_rounded, size: 18),
-                          label: Text(context.l10n.workspacesRetry),
-                        ),
-                      ],
-                    ),
-                  )
-                else ...[
-                  Text(
-                    context.l10n.chatStatusPresets,
-                    style: chat.metadataStyle.copyWith(
-                      color: chat.metadataText,
-                    ),
-                  ),
-                  const SizedBox(height: Sizes.p4),
-                  Wrap(
-                    spacing: Sizes.p4,
-                    runSpacing: Sizes.p4,
-                    children: [
-                      for (final preset in ChatStatusPreset.values)
-                        _PresetChip(
-                          preset: preset,
-                          label: _presetLabel(context, preset),
-                          selected: _preset == preset,
-                          onTap: _saving ? null : () => _applyPreset(preset),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: Sizes.p8),
-                  Row(
-                    children: [
-                      SizedBox.square(
-                        dimension: chat.composerActionSize,
-                        child: OutlinedButton(
-                          key: const ValueKey('chat-status-emoji'),
-                          onPressed: _saving
-                              ? null
-                              : () => unawaited(_pickEmoji()),
-                          style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                          ),
-                          child: Text(
-                            _emoji?.isNotEmpty ?? false ? _emoji! : '🙂',
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: Sizes.p8),
-                      Expanded(
-                        child: TextField(
-                          controller: _text,
-                          enabled: !_saving,
-                          maxLength: 240,
-                          style: chat.contentStyle.copyWith(
-                            color: chat.incomingText,
-                          ),
-                          decoration: InputDecoration(
-                            isDense: true,
-                            counterText: '',
-                            filled: true,
-                            fillColor: chat.listSurface,
-                            hintText: context.l10n.chatStatusText,
-                            hintStyle: chat.contentStyle.copyWith(
-                              color: chat.metadataText,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(12),
-                              ),
-                              borderSide: BorderSide(color: chat.separator),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(12),
-                              ),
-                              borderSide: BorderSide(
-                                color: chat.focusRing,
-                                width: 1.5,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(12),
-                              ),
-                              borderSide: BorderSide(color: chat.separator),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Sizes.p4),
-                  Builder(
-                    builder: (anchorContext) => Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        key: const ValueKey('chat-status-duration'),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(12),
-                        ),
-                        onTap: _saving
-                            ? null
-                            : () => unawaited(() async {
-                                final selected =
-                                    await AppContextMenu.select<
-                                      ChatStatusDurationOption
-                                    >(
-                                      anchorContext,
-                                      globalPosition:
-                                          AppContextMenu.positionFor(
-                                            anchorContext,
-                                          ),
-                                      options: [
-                                        AppContextMenuOption(
-                                          value:
-                                              ChatStatusDurationOption.oneHour,
-                                          label:
-                                              context.l10n.chatStatusExpiryHour,
-                                          selected:
-                                              _durationChoice ==
-                                              ChatStatusDurationOption.oneHour,
-                                        ),
-                                        AppContextMenuOption(
-                                          value: ChatStatusDurationOption.today,
-                                          label: context
-                                              .l10n
-                                              .chatStatusExpiryToday,
-                                          selected:
-                                              _durationChoice ==
-                                              ChatStatusDurationOption.today,
-                                        ),
-                                        AppContextMenuOption(
-                                          value: ChatStatusDurationOption.none,
-                                          label:
-                                              context.l10n.chatStatusExpiryNone,
-                                          selected:
-                                              _durationChoice ==
-                                              ChatStatusDurationOption.none,
-                                        ),
-                                      ],
-                                    );
-                                if (selected != null && mounted) {
-                                  setState(() => _durationChoice = selected);
-                                }
-                              }()),
-                        child: InputDecorator(
-                          decoration: InputDecoration(
-                            isDense: true,
-                            filled: true,
-                            fillColor: chat.listSurface,
-                            labelText: context.l10n.chatStatusExpiry,
-                            labelStyle: chat.metadataStyle.copyWith(
-                              color: chat.metadataText,
-                            ),
-                            suffixIcon: Icon(
-                              Symbols.expand_more_rounded,
-                              color: chat.metadataText,
-                              size: 20,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(12),
-                              ),
-                              borderSide: BorderSide(color: chat.separator),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(12),
-                              ),
-                              borderSide: BorderSide(color: chat.separator),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(12),
-                              ),
-                              borderSide: BorderSide(
-                                color: chat.focusRing,
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                          child: Text(
-                            _durationLabel(context),
-                            style: chat.contentStyle.copyWith(
-                              color: chat.incomingText,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: Sizes.p4),
-                  _dndControl(context),
-                  if (_failureCode != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: Sizes.p8),
-                      child: Text(
-                        _failureCode!,
-                        style: chat.metadataStyle.copyWith(color: chat.error),
-                      ),
-                    ),
-                  const SizedBox(height: Sizes.p8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: busy ? null : _clear,
-                        child: Text(context.l10n.chatStatusClear),
-                      ),
-                      const SizedBox(width: Sizes.p8),
-                      FilledButton(
-                        onPressed: busy ? null : _save,
-                        child: Text(context.l10n.chatStatusSave),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Etykieta wybranego terminu; bez wyboru pokazuje stan bez zmian.
-  String _durationLabel(BuildContext context) => switch (_durationChoice) {
-    ChatStatusDurationOption.oneHour => context.l10n.chatStatusExpiryHour,
-    ChatStatusDurationOption.today => context.l10n.chatStatusExpiryToday,
-    ChatStatusDurationOption.none => context.l10n.chatStatusExpiryNone,
-    null => context.l10n.chatStatusExpiryUnchanged,
-  };
-
-  /// Widoczny, samodzielnie stylowany przełącznik DND zamiast Material Switch.
-  Widget _dndControl(BuildContext context) {
-    final chat = context.chatTheme;
-    return ChatToggle(
-      key: const ValueKey('chat-status-dnd-toggle'),
-      value: _isDnd,
-      label: context.l10n.chatStatusDnd,
-      showLabel: true,
-      activeColor: chat.presenceDnd,
-      onChanged: _saving ? null : (value) => setState(() => _isDnd = value),
-    );
-  }
-
-  Widget _header(BuildContext context) {
-    final chat = context.chatTheme;
-    final name = widget.displayName?.trim();
-    final fallback = widget.login?.trim();
-    final label = name != null && name.isNotEmpty
-        ? name
-        : (fallback != null && fallback.isNotEmpty ? fallback : null);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppUserAvatar(
-          isCurrentUser: true,
-          displayName: label,
-          radius: 22,
-          singleInitial: true,
-        ),
-        const SizedBox(width: Sizes.p8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (label != null)
-                Text(
-                  label,
-                  style: chat.authorStyle.copyWith(color: chat.incomingText),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              const SizedBox(height: Sizes.p2),
-              if (_current != null)
-                ChatStatusLabel(
-                  status: _current,
-                  style: chat.metadataStyle.copyWith(
-                    color: chat.metadataText,
-                  ),
-                )
-              else
-                Text(
-                  context.l10n.chatStatusNone,
-                  style: chat.metadataStyle.copyWith(
-                    color: chat.metadataText,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 }
-
-class _PresetChip extends StatelessWidget {
-  const _PresetChip({
-    required this.preset,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final ChatStatusPreset preset;
-  final String label;
-  final bool selected;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final chat = context.chatTheme;
-    return InkWell(
-      key: ValueKey<String>('chat-status-preset-${preset.name}'),
-      onTap: onTap,
-      borderRadius: const BorderRadius.all(Radius.circular(12)),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Sizes.p8,
-          vertical: Sizes.p4,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? chat.selectedSurface : chat.hoverSurface,
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          border: Border.all(color: selected ? chat.focusRing : chat.separator),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(preset.emoji, style: const TextStyle(fontSize: 14)),
-            const SizedBox(width: Sizes.p4),
-            Text(
-              label,
-              style: chat.metadataStyle.copyWith(color: chat.incomingText),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Etykieta presetu w języku interfejsu.
-String _presetLabel(BuildContext context, ChatStatusPreset preset) =>
-    switch (preset) {
-      ChatStatusPreset.focus => context.l10n.chatStatusPresetFocus,
-      ChatStatusPreset.inMeeting => context.l10n.chatStatusPresetInMeeting,
-      ChatStatusPreset.brb => context.l10n.chatStatusPresetBrb,
-      ChatStatusPreset.commuting => context.l10n.chatStatusPresetCommuting,
-      ChatStatusPreset.lunch => context.l10n.chatStatusPresetLunch,
-    };

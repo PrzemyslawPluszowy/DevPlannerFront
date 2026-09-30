@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_presence_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
@@ -15,7 +15,7 @@ final class ChatPresenceRepositoryImpl implements ChatPresenceRepository {
   /// Tworzy adapter na uwierzytelnionym kliencie Chat.
   ChatPresenceRepositoryImpl(this._api);
 
-  final ChatApi _api;
+  final ChatPresenceApi _api;
   static const _errorMapper = ChatApiErrorMapper();
 
   @override

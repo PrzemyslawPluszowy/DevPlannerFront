@@ -16,6 +16,7 @@ void main() {
       final queue = ChatMessageDeliveryQueue(
         repository,
         idFactory: ChatClientMessageIdFactory(random: _FixedRandom()),
+        userId: 'user-1',
       );
       final changes = <ChatMessage>[];
       final confirmations = <ChatMessageDeliveryConfirmation>[];
@@ -35,6 +36,7 @@ void main() {
         ),
       );
       await _ComposerDeliveryFixture.flush();
+      expect(local.authorUserId, 'user-1');
       expect(confirmations, isEmpty);
       queue.retry(local.clientMessageId);
       await _ComposerDeliveryFixture.flush();
@@ -72,6 +74,8 @@ void main() {
             ),
       ]);
       expect(changes.last.deliveryState, ChatMessageDeliveryState.sent);
+      expect(changes.last.authorUserId, 'user-1');
+      expect(changes.last.deltaJson, local.deltaJson);
       await subscription.cancel();
       await confirmationSubscription.cancel();
       await queue.dispose();

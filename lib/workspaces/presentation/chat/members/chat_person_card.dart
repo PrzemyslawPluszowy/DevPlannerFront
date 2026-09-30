@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
-import 'package:devplanner/foundation/presentation/devplanner_panels.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/models/chat_directory_entry.dart';
@@ -30,6 +29,7 @@ abstract final class ChatPersonCard {
     required bool isCurrentUser,
     ChatPresenceRepository? presenceRepository,
     ChatConversationManagementRepository? conversationManagement,
+    ValueChanged<String>? onOpenConversation,
   }) => DevPlannerModalHost.showDialog<void>(
     context,
     builder: (_) => _ChatPersonCardDialog(
@@ -37,6 +37,7 @@ abstract final class ChatPersonCard {
       isCurrentUser: isCurrentUser,
       presenceRepository: presenceRepository,
       conversationManagement: conversationManagement,
+      onOpenConversation: onOpenConversation,
     ),
   );
 }
@@ -47,12 +48,14 @@ class _ChatPersonCardDialog extends StatefulWidget {
     required this.isCurrentUser,
     this.presenceRepository,
     this.conversationManagement,
+    this.onOpenConversation,
   });
 
   final ChatMember member;
   final bool isCurrentUser;
   final ChatPresenceRepository? presenceRepository;
   final ChatConversationManagementRepository? conversationManagement;
+  final ValueChanged<String>? onOpenConversation;
 
   @override
   State<_ChatPersonCardDialog> createState() => _ChatPersonCardDialogState();
@@ -107,7 +110,7 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
         });
         return;
       }
-      DevPlannerPanelsScope.openConversationOf(context)?.call(created.id);
+      widget.onOpenConversation?.call(created.id);
       Navigator.of(context).maybePop();
     } finally {
       await cubit.close();
@@ -119,7 +122,9 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
     final chat = context.chatTheme;
     final member = widget.member;
     final canWrite =
-        !widget.isCurrentUser && widget.conversationManagement != null;
+        !widget.isCurrentUser &&
+        widget.conversationManagement != null &&
+        widget.onOpenConversation != null;
     return ChatSurfaceDialog(
       title: member.label,
       subtitle: _roleLabel(context, member.role),

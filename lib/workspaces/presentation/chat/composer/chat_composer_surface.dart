@@ -102,7 +102,14 @@ class ChatComposerActionButton extends StatelessWidget {
 }
 
 /// Akcje menu `+` composera.
-enum ChatComposerMoreAction { image, file, code, textAsFile, expandedEditor }
+enum ChatComposerMoreAction {
+  image,
+  file,
+  privateFile,
+  code,
+  textAsFile,
+  expandedEditor,
+}
 
 /// Menu `+`: obraz, plik, kod, tekst jako plik i rozbudowany edytor.
 ///
@@ -113,6 +120,7 @@ class ChatComposerMoreMenu extends StatelessWidget {
   const ChatComposerMoreMenu({
     this.onPickImage,
     this.onPickFile,
+    this.onPickPrivateFile,
     this.onInsertCode,
     this.onTextAsFile,
     this.onToggleExpandedEditor,
@@ -125,6 +133,9 @@ class ChatComposerMoreMenu extends StatelessWidget {
 
   /// Wybór dowolnego pliku; brak portu wyłącza pozycję.
   final VoidCallback? onPickFile;
+
+  /// Wybór istniejącego, czystego pliku z prywatnego Storage.
+  final VoidCallback? onPickPrivateFile;
 
   /// Wstawienie bloku kodu do edytora.
   final VoidCallback? onInsertCode;
@@ -165,6 +176,12 @@ class ChatComposerMoreMenu extends StatelessWidget {
                 icon: Symbols.attach_file_rounded,
                 enabled: onPickFile != null,
                 onTap: (_) => onPickFile?.call(),
+              ),
+              AppContextMenuAction(
+                label: context.l10n.chatComposerAddPrivateFile,
+                icon: Symbols.folder_open,
+                enabled: onPickPrivateFile != null,
+                onTap: (_) => onPickPrivateFile?.call(),
               ),
               AppContextMenuAction(
                 label: context.l10n.chatComposerInsertCode,

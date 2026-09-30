@@ -260,10 +260,13 @@ void main() {
   testWidgets('ponowne naciśnięcie przycisku chowa panel', (tester) async {
     await pumpHostWithPanel(
       tester,
-      routeContent: (context) => TextButton(
-        key: const ValueKey('toggle-panel'),
-        onPressed: DevPlannerPanelsScope.controllerOf(context)!.toggleChat,
-        child: const Text('Czat'),
+      routeContent: (context) => Align(
+        alignment: Alignment.topLeft,
+        child: TextButton(
+          key: const ValueKey('toggle-panel'),
+          onPressed: DevPlannerPanelsScope.controllerOf(context)!.toggleChat,
+          child: const Text('Czat'),
+        ),
       ),
     );
 
@@ -340,11 +343,11 @@ void main() {
 
     // Uchwyt jest na lewej krawędzi, więc zwężanie to ruch w prawo. Pierwszy
     // ruch zjada slop gestu, drugi trafia do uchwytu. Przejście z domyślnych
-    // 1050 px przez minimum 320 px wymaga ponad 800 px łącznego ruchu, aby
+    // 1050 px przez minimum 320 px wymaga ponad 800 px ruchu po slopie, aby
     // zebrać nadwyżkę większą niż próg 5% szerokości okna.
     final gesture = await tester.startGesture(tester.getCenter(handle));
     await gesture.moveBy(const Offset(60, 0));
-    await gesture.moveBy(const Offset(800, 0));
+    await gesture.moveBy(const Offset(820, 0));
     await gesture.up();
     await tester.pump();
     expect(

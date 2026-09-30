@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
-import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_directory_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
@@ -12,7 +12,7 @@ final class ChatDirectoryRepositoryImpl implements ChatDirectoryRepository {
   /// Tworzy adapter na uwierzytelnionym kliencie Chat.
   ChatDirectoryRepositoryImpl(this._api, {this.defaultLimit = 20});
 
-  final ChatApi _api;
+  final ChatDirectoryApi _api;
 
   /// Domyślna liczba kandydatów, gdy UI nie poda własnej.
   final int defaultLimit;

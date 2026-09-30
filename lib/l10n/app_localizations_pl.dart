@@ -9279,6 +9279,36 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wprowadź prawidłową nazwę folderu.';
 
   @override
+  String get storageRenameFileDialogTitle => 'Zmień nazwę pliku';
+
+  @override
+  String get storageRenameFileHint => 'Nowa nazwa pliku';
+
+  @override
+  String get storageRenameFileExtensionHint =>
+      'Rozszerzenia pliku nie można zmienić.';
+
+  @override
+  String storageVersionAuthor(String name) {
+    return 'Autor: $name';
+  }
+
+  @override
+  String get storageVersionDeleteAction => 'Usuń poprzednią wersję';
+
+  @override
+  String storageVersionDeleteConfirm(int version) {
+    return 'Usunąć wersję $version? Tej operacji nie można cofnąć.';
+  }
+
+  @override
+  String get storageVersionAuthorUnknown => 'Nieznany autor';
+
+  @override
+  String get storagePublicLinkCreateFailed =>
+      'Nie udało się utworzyć linku. Sprawdź połączenie i spróbuj ponownie.';
+
+  @override
   String get storageDeleteConfirmTitle => 'Potwierdź usunięcie';
 
   @override
@@ -9417,6 +9447,20 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageShareAction => 'Udostępnij';
+
+  @override
+  String get storageDismissFromSharedAction => 'Ukryj na liście Udostępnione';
+
+  @override
+  String get storageDismissFromSharedTitle => 'Ukryć wpis?';
+
+  @override
+  String get storageDismissFromSharedConfirm =>
+      'Plik zniknie tylko z Twojej listy Udostępnione. Nie zmienimy dostępu ani pliku właściciela.';
+
+  @override
+  String get storageDismissFromSharedSuccess =>
+      'Usunięto wpis z Twojej listy Udostępnione.';
 
   @override
   String storageShareAuthor(Object identifier) {
@@ -9825,6 +9869,12 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get chatReplyOriginalUnavailable =>
       'Oryginalna wiadomość jest niedostępna';
+
+  @override
+  String get chatReplyGenericHeading => 'Odpowiedź na wiadomość';
+
+  @override
+  String get chatReplyContainsAttachment => 'Wiadomość zawiera załącznik';
 
   @override
   String get chatComposerCancelReply => 'Anuluj odpowiedź';
@@ -11000,6 +11050,22 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie udało się zmienić członkostwa. Spróbuj ponownie.';
 
   @override
+  String get chatMembersMutationForbidden =>
+      'Nie masz już uprawnień do tej operacji. Odśwież listę członków i sprawdź swoją rolę.';
+
+  @override
+  String get chatMembersMutationConflict =>
+      'Lista członków zmieniła się. Zamknij i otwórz ją ponownie, a potem spróbuj jeszcze raz.';
+
+  @override
+  String get chatMembersMutationValidation =>
+      'Serwer odrzucił zmianę. Sprawdź, czy przed opuszczeniem rozmowy trzeba przekazać własność.';
+
+  @override
+  String get chatMembersMutationConnection =>
+      'Nie udało się potwierdzić zmiany. Otwórz listę członków ponownie przed ponowieniem operacji.';
+
+  @override
   String get chatActionFailureMessage =>
       'Nie udało się wykonać tej czynności. Spróbuj ponownie.';
 
@@ -11014,6 +11080,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get chatThreadLoadFailureMessage =>
       'Nie udało się wczytać wątku. Spróbuj ponownie.';
+
+  @override
+  String get chatThreadUnavailableMessage =>
+      'Nie można otworzyć wątku, ponieważ konfiguracja czatu jest niekompletna.';
 
   @override
   String get chatDiscussionLoadFailureMessage =>
@@ -11118,6 +11188,16 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String chatSearchTooLong(int count) {
+    return 'Użyj najwyżej $count znaków';
+  }
+
+  @override
+  String chatSearchTooLongMessage(int count) {
+    return 'Fraza może mieć maksymalnie $count znaków.';
+  }
+
+  @override
   String get chatSearchFailureTitle => 'Nie udało się wyszukać';
 
   @override
@@ -11126,6 +11206,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatSearchRateLimitedTitle => 'Zbyt wiele zapytań';
+
+  @override
+  String chatSearchRetryAfter(int seconds) {
+    return 'Spróbuj ponownie za $seconds s.';
+  }
 
   @override
   String get chatSearchEmptyTitle => 'Brak wyników';
@@ -11298,6 +11383,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Tekst jest większy niż limit pojedynczego pliku. Zapisz go mniejszymi częściami.';
 
   @override
+  String get chatLongPastePolicyLoadFailed =>
+      'Nie udało się sprawdzić limitu długiego tekstu. Spróbuj ponownie; wklejenie nie zostało dodane.';
+
+  @override
   String get chatLinkOpen => 'Otwórz';
 
   @override
@@ -11418,6 +11507,31 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatAttachmentOpen => 'Otwórz plik';
 
   @override
+  String get chatAttachmentOpenFailed =>
+      'Nie udało się otworzyć załącznika. Spróbuj ponownie.';
+
+  @override
+  String get chatAttachmentSaveToStorage => 'Zapisz w Moich plikach';
+
+  @override
+  String get chatAttachmentSaveAndOpen => 'Zapisz i otwórz w OnlyOffice';
+
+  @override
+  String get chatAttachmentSavedToStorage => 'Zapisano w Moich plikach';
+
+  @override
+  String get chatAttachmentSaveFailed =>
+      'Nie udało się zapisać pliku w Moich plikach.';
+
+  @override
+  String get chatAttachmentSavedOpenUnsupported =>
+      'Zapisano w Moich plikach. Tego pliku nie można otworzyć w OnlyOffice.';
+
+  @override
+  String get chatAttachmentSavedOpenUnavailable =>
+      'Zapisano w Moich plikach, ale nie udało się otworzyć edytora.';
+
+  @override
   String get chatComposerMoreActions => 'Więcej akcji';
 
   @override
@@ -11425,6 +11539,34 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatComposerAddFile => 'Plik';
+
+  @override
+  String get chatComposerAddPrivateFile => 'Z Moich plików';
+
+  @override
+  String get chatPrivateFilesOnlyClean =>
+      'Wybierz czysty plik z prywatnego Storage.';
+
+  @override
+  String get chatPrivateFilesUnavailable =>
+      'Moje pliki nie są dostępne w tej sesji czatu.';
+
+  @override
+  String get chatPrivateFilesSearch => 'Szukaj w Moich plikach';
+
+  @override
+  String get chatPrivateFilesParentFolder => 'Folder nadrzędny';
+
+  @override
+  String get chatPrivateFilesEmpty => 'Brak gotowych plików w tym folderze.';
+
+  @override
+  String get chatPrivateFilesLoadMore => 'Pokaż więcej plików';
+
+  @override
+  String chatPrivateFilesAdd(int count) {
+    return 'Dodaj wybrane ($count)';
+  }
 
   @override
   String get chatComposerAttachmentsUnavailable =>
@@ -11665,4 +11807,23 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get chatInboxEmptyPageMore =>
       'Ta strona nie zawiera dostępnych rozmów, ale są kolejne.';
+
+  @override
+  String get chatConversationRenameAction => 'Zmień nazwę rozmowy';
+
+  @override
+  String get chatConversationRenameTitle => 'Zmień nazwę rozmowy';
+
+  @override
+  String get chatConversationNameLabel => 'Nazwa rozmowy';
+
+  @override
+  String get chatConversationNameHint => 'Wpisz nazwę';
+
+  @override
+  String get chatConversationRenameFailure =>
+      'Nie udało się zmienić nazwy rozmowy.';
+
+  @override
+  String get chatConversationRenameSuccess => 'Zmieniono nazwę rozmowy.';
 }

@@ -21,6 +21,7 @@ import 'package:devplanner/workspaces/presentation/chat/chat_conversation_messag
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
+import 'package:devplanner/workspaces/presentation/chat/chat_conversation_panels.dart';
 import 'package:devplanner/workspaces/presentation/chat/discussion/chat_discussion_side_panel.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/message_actions_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/chat_conversation_notification_settings_modal.dart';
@@ -39,16 +40,20 @@ class ChatConversationPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final realtime = context.read<WorkspaceChatRealtimeFactory>().open(
-      conversationId,
-    );
+    final currentUserId =
+        context.read<AuthSessionPort?>()?.snapshot.user?.userId ?? '';
     return MultiBlocProvider(
+      key: ValueKey('conversation:$currentUserId:$conversationId'),
       providers: [
         BlocProvider(
           create: (context) {
+            final realtime = context.read<WorkspaceChatRealtimeFactory>().open(
+              conversationId,
+            );
             final cubit = ChatConversationCubit(
               repository: context.read<ChatConversationRepository>(),
               conversationId: conversationId,
+              currentUserId: currentUserId,
               realtime: realtime,
               disposeRealtime: realtime.dispose,
             );
@@ -77,8 +82,8 @@ class _ChatConversationView extends StatefulWidget {
 }
 
 class _ChatConversationViewState extends State<_ChatConversationView> {
-  final ValueNotifier<_ChatConversationPanels> _panels = ValueNotifier(
-    const _ChatConversationPanels(),
+  final ValueNotifier<ChatConversationPanels> _panels = ValueNotifier(
+    const ChatConversationPanels(),
   );
 
   @override
@@ -125,7 +130,7 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
         },
       ),
     ],
-    child: ValueListenableBuilder<_ChatConversationPanels>(
+    child: ValueListenableBuilder<ChatConversationPanels>(
       valueListenable: _panels,
       builder: (context, panels, _) => Padding(
         padding: const EdgeInsets.all(Sizes.p24),
@@ -178,6 +183,9 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
                         ),
                         (final root?, _) when constraints.maxWidth < 900 =>
                           ChatThreadSidePanel(
+                            key: ValueKey(
+                              'thread:${context.read<ChatConversationCubit>().conversationId}:${root.id}',
+                            ),
                             conversationId: context
                                 .read<ChatConversationCubit>()
                                 .conversationId,
@@ -185,6 +193,10 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
                             parentConversationStates: context
                                 .read<ChatConversationCubit>()
                                 .stream,
+                            conversationEvents: context
+                                .read<ChatConversationCubit>()
+                                .realtime
+                                ?.conversationEvents,
                             messageActionsRepository: context
                                 .read<ChatMessageActionsRepository?>(),
                             onClose: () => _updatePanels(
@@ -199,6 +211,9 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
                       SizedBox(
                         width: 340,
                         child: ChatThreadSidePanel(
+                          key: ValueKey(
+                            'thread:${context.read<ChatConversationCubit>().conversationId}:${root.id}',
+                          ),
                           conversationId: context
                               .read<ChatConversationCubit>()
                               .conversationId,
@@ -206,6 +221,10 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
                           parentConversationStates: context
                               .read<ChatConversationCubit>()
                               .stream,
+                          conversationEvents: context
+                              .read<ChatConversationCubit>()
+                              .realtime
+                              ?.conversationEvents,
                           messageActionsRepository: context
                               .read<ChatMessageActionsRepository?>(),
                           onClose: () => _updatePanels(
@@ -291,7 +310,7 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
         },
       );
 
-  void _updatePanels(_ChatConversationPanels next) {
+  void _updatePanels(ChatConversationPanels next) {
     if (_panels.value == next) return;
     _panels.value = next;
   }
@@ -299,48 +318,6 @@ class _ChatConversationViewState extends State<_ChatConversationView> {
 
 /// Lokalny, niemutowalny wybór paneli rozmowy; nie należy do logiki Cubita.
 @immutable
-final class _ChatConversationPanels {
-  const _ChatConversationPanels({
-    this.replyTarget,
-    this.threadRoot,
-    this.discussionRoot,
-  });
-
-  final ChatMessage? replyTarget;
-  final ChatMessage? threadRoot;
-  final ChatMessage? discussionRoot;
-
-  _ChatConversationPanels clearReply() => copyWith(clearReplyTarget: true);
-
-  _ChatConversationPanels clearPanels() =>
-      copyWith(clearThreadRoot: true, clearDiscussionRoot: true);
-
-  _ChatConversationPanels copyWith({
-    ChatMessage? replyTarget,
-    ChatMessage? threadRoot,
-    ChatMessage? discussionRoot,
-    bool clearReplyTarget = false,
-    bool clearThreadRoot = false,
-    bool clearDiscussionRoot = false,
-  }) => _ChatConversationPanels(
-    replyTarget: clearReplyTarget ? null : replyTarget ?? this.replyTarget,
-    threadRoot: clearThreadRoot ? null : threadRoot ?? this.threadRoot,
-    discussionRoot: clearDiscussionRoot
-        ? null
-        : discussionRoot ?? this.discussionRoot,
-  );
-
-  @override
-  bool operator ==(Object other) =>
-      other is _ChatConversationPanels &&
-      other.replyTarget == replyTarget &&
-      other.threadRoot == threadRoot &&
-      other.discussionRoot == discussionRoot;
-
-  @override
-  int get hashCode => Object.hash(replyTarget, threadRoot, discussionRoot);
-}
-
 /// Chroni panel dyskusji przed użyciem rozmowy nadrzędnej po jej odłączeniu.
 class _DiscussionPanelOrConversation extends StatelessWidget {
   const _DiscussionPanelOrConversation({
@@ -358,6 +335,7 @@ class _DiscussionPanelOrConversation extends StatelessWidget {
       BlocBuilder<ChatConversationCubit, ChatConversationState>(
         builder: (context, state) => switch (state) {
           ChatConversationReady(:final conversation) => ChatDiscussionSidePanel(
+            key: ValueKey('discussion:${conversation.id}:${rootMessage.id}'),
             parentConversation: conversation,
             rootMessage: rootMessage,
             onClose: onClose,

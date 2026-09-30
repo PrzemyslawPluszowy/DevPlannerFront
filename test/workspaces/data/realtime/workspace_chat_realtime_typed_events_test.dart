@@ -220,6 +220,59 @@ void main() {
           'chat.message.deleted',
           ChatRealtimeTestPayload.deletion(eventId: 'deleted-1', sequence: 3),
         );
+        transport.emit('chat.reaction.changed', <String, dynamic>{
+          'conversationId': 'conversation-1',
+          'messageId': 'message-1',
+          'eventId': 'reaction-added-1',
+          'sequence': 4,
+        });
+        transport.emit('chat.reaction.removed', <String, dynamic>{
+          'conversationId': 'conversation-1',
+          'messageId': 'message-1',
+          'eventId': 'reaction-removed-1',
+          'sequence': 5,
+        });
+        transport.emit('chat.attachment.added', <String, dynamic>{
+          'conversationId': 'conversation-1',
+          'messageId': 'message-1',
+          'eventId': 'attachment-added-1',
+          'sequence': 6,
+        });
+        transport.emit('chat.attachment.removed', <String, dynamic>{
+          'conversationId': 'conversation-1',
+          'messageId': 'message-1',
+          'eventId': 'attachment-removed-1',
+          'sequence': 7,
+        });
+        transport.emit('chat.attachment_ready', <String, dynamic>{
+          'conversationId': 'conversation-1',
+          'messageId': 'message-1',
+          'eventId': 'attachment-ready-1',
+          'sequence': 8,
+        });
+        transport.emit('chat.message.pinned', <String, dynamic>{
+          'conversationId': 'conversation-1',
+          'messageId': 'message-1',
+          'eventId': 'pinned-1',
+          'sequence': 9,
+        });
+        transport.emit('chat.message.unpinned', <String, dynamic>{
+          'conversationId': 'conversation-1',
+          'messageId': 'message-1',
+          'eventId': 'unpinned-1',
+          'sequence': 10,
+        });
+        for (final entry in <(String, int)>[
+          ('chat.conversation.updated', 11),
+          ('chat.conversation.archived', 12),
+          ('chat.conversation.restored', 13),
+        ]) {
+          transport.emit(entry.$1, <String, dynamic>{
+            'conversationId': 'conversation-1',
+            'eventId': 'conversation-${entry.$2}',
+            'sequence': entry.$2,
+          });
+        }
         await ChatRealtimeTestPayload.flush();
 
         expect(
@@ -228,11 +281,27 @@ void main() {
             ChatConversationRealtimeEventKind.messageCreated,
             ChatConversationRealtimeEventKind.messageUpdated,
             ChatConversationRealtimeEventKind.messageDeleted,
+            ChatConversationRealtimeEventKind.messageSnapshotChanged,
+            ChatConversationRealtimeEventKind.messageSnapshotChanged,
+            ChatConversationRealtimeEventKind.messageSnapshotChanged,
+            ChatConversationRealtimeEventKind.messageSnapshotChanged,
+            ChatConversationRealtimeEventKind.messageSnapshotChanged,
+            ChatConversationRealtimeEventKind.conversationPinsChanged,
+            ChatConversationRealtimeEventKind.conversationPinsChanged,
+            ChatConversationRealtimeEventKind.conversationChanged,
+            ChatConversationRealtimeEventKind.conversationChanged,
+            ChatConversationRealtimeEventKind.conversationChanged,
           ],
         );
         expect(events[0].message?.id, 'message-1');
         expect(events[1].message?.text, 'Po zmianie');
         expect(events[2].messageId, 'message-1');
+        expect(events[3].messageId, 'message-1');
+        expect(events[4].messageId, 'message-1');
+        expect(events[5].messageId, 'message-1');
+        expect(events[6].messageId, 'message-1');
+        expect(events[7].messageId, 'message-1');
+        expect(events[8].messageId, 'message-1');
         await subscription.cancel();
         await service.dispose();
       },

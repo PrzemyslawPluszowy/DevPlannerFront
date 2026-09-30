@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:devplanner/foundation/l10n/l10n.dart';
@@ -7,6 +8,9 @@ import 'package:devplanner/shared/presentation/widgets/app_toast.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_drop_input_adapter.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_local_image_provider_stub.dart'
+    if (dart.library.io) 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_local_image_provider_io.dart'
+    as local_image;
 import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +81,14 @@ final class ChatAttachmentComposerControls extends StatelessWidget {
                           _AttachmentCard(
                             name: item.input.name,
                             status: _label(context, queueState),
+                            previewBytes:
+                                _isImage(item.input.name, item.input.mimeType)
+                                ? item.input.bytes
+                                : null,
+                            previewPath:
+                                _isImage(item.input.name, item.input.mimeType)
+                                ? item.input.path
+                                : null,
                             onRemove: _locked
                                 ? null
                                 : () => coordinator.remove(
@@ -136,6 +148,19 @@ final class ChatAttachmentComposerControls extends StatelessWidget {
     ChatAttachmentRejectionReason.messageTooLarge =>
       context.l10n.chatAttachmentMessageTooLarge,
   };
+
+  bool _isImage(String name, String? mimeType) {
+    if (mimeType?.toLowerCase().startsWith('image/') ?? false) return true;
+    final extension = name.split('.').last.toLowerCase();
+    return const <String>{
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+      'bmp',
+    }.contains(extension);
+  }
 }
 
 /// Stała strefa dropu obejmująca cały composer, także gdy kolejka jest pusta.
@@ -236,12 +261,16 @@ final class _AttachmentCard extends StatelessWidget {
   const _AttachmentCard({
     required this.name,
     required this.status,
+    this.previewBytes,
+    this.previewPath,
     this.onRemove,
     this.failed = false,
   });
 
   final String name;
   final String status;
+  final Uint8List? previewBytes;
+  final String? previewPath;
   final VoidCallback? onRemove;
   final bool failed;
 
@@ -249,33 +278,55 @@ final class _AttachmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final chat = context.chatTheme;
     final color = failed ? chat.error : chat.metadataText;
+    final preview = previewBytes;
+    final previewImage = local_image.createLocalImageProvider(
+      bytes: preview,
+      path: previewPath,
+      cacheWidth: 128,
+    );
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Sizes.p2),
+      padding: const EdgeInsets.symmetric(vertical: Sizes.p4),
       child: Row(
         children: [
-          Icon(
-            failed ? Symbols.link_off : Symbols.insert_drive_file,
-            size: Sizes.p18,
-            color: color,
-          ),
-          const SizedBox(width: Sizes.p8),
+          if (previewImage != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image(
+                image: previewImage,
+                width: 64,
+                height: 64,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => _fileIcon(color),
+              ),
+            )
+          else
+            _fileIcon(color),
+          const SizedBox(width: Sizes.p10),
           Expanded(
-            child: Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: chat.contentStyle.copyWith(color: chat.incomingText),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: chat.contentStyle.copyWith(color: chat.incomingText),
+                ),
+                const SizedBox(height: Sizes.p2),
+                Text(
+                  status,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: chat.metadataStyle.copyWith(color: color),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(width: Sizes.p8),
-          Text(
-            status,
-            style: chat.metadataStyle.copyWith(color: color),
           ),
           if (onRemove != null) ...[
             const SizedBox(width: Sizes.p4),
             SizedBox.square(
-              dimension: Sizes.p24,
+              dimension: Sizes.p32,
               child: IconButton(
                 onPressed: onRemove,
                 padding: EdgeInsets.zero,
@@ -290,4 +341,19 @@ final class _AttachmentCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _fileIcon(Color color) => SizedBox.square(
+    dimension: 64,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .10),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(
+        failed ? Symbols.link_off : Symbols.insert_drive_file,
+        size: Sizes.p24,
+        color: color,
+      ),
+    ),
+  );
 }

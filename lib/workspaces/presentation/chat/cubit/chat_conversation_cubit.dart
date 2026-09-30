@@ -5,6 +5,9 @@ import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_queue.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_message_merger.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_read_tracker.dart';
+import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_realtime_coordinator.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,8 +17,8 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   ChatConversationCubit({
     required ChatConversationRepository repository,
     required this.conversationId,
+    required this.currentUserId,
     ChatMessageDeliveryQueue? deliveryQueue,
-    this.currentUserId = '',
     this.realtime,
     this.disposeRealtime,
   }) : _repository = repository,
@@ -24,13 +27,29 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
            ChatMessageDeliveryQueue(repository, userId: currentUserId),
        super(const ChatConversationInitial()) {
     _deliveryQueue.bindConversation(conversationId);
+    _readTracker = ChatConversationReadTracker(
+      repository: _repository,
+      conversationId: conversationId,
+      isClosed: () => isClosed,
+    );
+    _realtimeCoordinator = ChatConversationRealtimeCoordinator(
+      conversationId: conversationId,
+      repository: _repository,
+      realtime: realtime,
+      isClosed: () => isClosed,
+      currentState: () => state,
+      emitReady: emit,
+      detach: _detach,
+      replaceMessage: _replaceMessage,
+      resync: load,
+    );
     _deliverySubscription = _deliveryQueue.changes.listen(_onDeliveryChanged);
   }
 
   final ChatConversationRepository _repository;
   final ChatMessageDeliveryQueue _deliveryQueue;
-  final ChatConversationRealtimeReducer _realtimeReducer =
-      ChatConversationRealtimeReducer();
+  late final ChatConversationReadTracker _readTracker;
+  late final ChatConversationRealtimeCoordinator _realtimeCoordinator;
   final String conversationId;
 
   /// Local UserId bieżącej sesji; dzięki niemu odczyt nie dotyczy własnych wiadomości.
@@ -43,26 +62,41 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   Stream<ChatMessageDeliveryConfirmation> get deliveryConfirmations =>
       _deliveryQueue.confirmations;
   late final StreamSubscription<ChatMessage> _deliverySubscription;
-  StreamSubscription<ChatConversationRealtimeEvent>? _realtimeSubscription;
-  StreamSubscription<ChatConversationRealtimeError>? _realtimeErrorSubscription;
   Future<void>? _loadInFlight;
+  bool _replaceHistoryLoadInFlight = false;
   int _loadGeneration = 0;
+  int _historyGeneration = 0;
 
-  /// Pobiera snapshot rozmowy i pierwszą stronę historii bez kasowania retry.
-  ///
-  /// `replaceHistory` służy wyjściu z trybu okna: historia sprzed okna jest
-  /// rozłączna z najnowszą stroną, więc scalanie ich zostawiłoby lukę.
+  /// Pobiera pierwszą stronę; replaceHistory odrzuca rozłączne stare okno.
   Future<void> load({bool replaceHistory = false}) async {
     final inFlight = _loadInFlight;
-    if (inFlight != null) return inFlight;
+    if (inFlight != null && (!replaceHistory || _replaceHistoryLoadInFlight)) {
+      return inFlight;
+    }
+    final generation = ++_loadGeneration;
+    final historyGeneration = ++_historyGeneration;
     final operation = _loadInternal(
-      ++_loadGeneration,
+      generation,
+      historyGeneration,
       replaceHistory: replaceHistory,
     );
     _loadInFlight = operation;
-    await operation.whenComplete(() => _loadInFlight = null);
-    // Po pierwszej stronie historii wznawiamy próby, które przetrwały restart.
-    if (!isClosed) await restorePendingSends();
+    _replaceHistoryLoadInFlight = replaceHistory;
+    try {
+      await operation;
+    } finally {
+      // Starsze żądanie nie może wyczyścić uchwytu nowszego reloadu.
+      if (identical(_loadInFlight, operation)) {
+        _loadInFlight = null;
+        _replaceHistoryLoadInFlight = false;
+      }
+    }
+    // Po najnowszej stronie historii wznawiamy próby po restarcie.
+    if (!isClosed &&
+        generation == _loadGeneration &&
+        historyGeneration == _historyGeneration) {
+      await restorePendingSends();
+    }
   }
 
   /// Pobiera kolejną stronę historii przez nieprzezroczysty cursor backendu.
@@ -74,32 +108,31 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
         isClosed) {
       return;
     }
-    emit(
-      ChatConversationReady(
-        conversation: current.conversation,
-        messages: current.messages,
-        nextCursor: current.nextCursor,
-        isLoadingMore: true,
-        realtimeError: current.realtimeError,
-      ),
-    );
+    final historyGeneration = _historyGeneration;
+    emit(current.copyWith(isLoadingMore: true, clearLoadError: true));
     final result = await _repository.listConversationMessages(
       conversationId: conversationId,
       cursor: current.nextCursor,
     );
-    if (isClosed || state is! ChatConversationReady) {
+    if (isClosed ||
+        historyGeneration != _historyGeneration ||
+        state is! ChatConversationReady) {
       return;
     }
     result.fold(
-      _handleAccessOrLoadError,
+      (error) => _handleAccessOrLoadError(error, clearLoadingMore: true),
       (page) {
         final latest = state as ChatConversationReady;
         emit(
-          ChatConversationReady(
-            conversation: latest.conversation,
-            messages: _mergeMessages(latest.messages, page.items),
+          latest.copyWith(
+            messages: ChatConversationMessageMerger.merge(
+              latest.messages,
+              page.items,
+            ),
             nextCursor: page.nextCursor,
-            realtimeError: latest.realtimeError,
+            clearNextCursor: page.nextCursor == null,
+            isLoadingMore: false,
+            clearLoadError: true,
           ),
         );
       },
@@ -108,21 +141,33 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
 
   /// Doładowuje okno wokół wskazanej wiadomości, gdy nie ma jej w historii.
   ///
-  /// Skok do starej wiadomości z wyszukiwania, zapisanych albo przypiętych nie
-  /// może zależeć od liczby już pobranych stron. Brak dostępu do rozmowy odłącza
-  /// historię, a brak samej wiadomości daje komunikat z ponowieniem, nie pustą listę.
+  /// Brak dostępu odłącza historię, a brak celu daje błąd z ponowieniem.
   Future<void> ensureTargetLoaded(String messageId) async {
     final current = state;
     if (current is! ChatConversationReady || isClosed || messageId.isEmpty) {
       return;
     }
-    if (current.messages.any((message) => message.id == messageId)) return;
-    emit(current.copyWith(isJumpingToMessage: true, clearJumpFailure: true));
+    final historyGeneration = ++_historyGeneration;
+    if (current.messages.any((message) => message.id == messageId)) {
+      emit(current.copyWith(isJumpingToMessage: false, isLoadingMore: false));
+      return;
+    }
+    emit(
+      current.copyWith(
+        isJumpingToMessage: true,
+        isLoadingMore: false,
+        clearJumpFailure: true,
+      ),
+    );
     final result = await _repository.loadMessageWindow(
       conversationId: conversationId,
       messageId: messageId,
     );
-    if (isClosed || state is! ChatConversationReady) return;
+    if (isClosed ||
+        historyGeneration != _historyGeneration ||
+        state is! ChatConversationReady) {
+      return;
+    }
     final latest = state as ChatConversationReady;
     result.fold(
       (error) {
@@ -140,11 +185,10 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
       },
       (window) => emit(
         latest.copyWith(
-          // Tryb okna: pokazujemy ciągły zakres wokół wiadomości. Scalanie z
-          // najnowszą stroną zostawiłoby niewidoczną lukę, a kursor okna
-          // doładowuje wyłącznie starszą część tego samego zakresu.
+          // Okno i kursor muszą pochodzić z tego samego ciągłego zakresu.
           messages: window.messages,
           nextCursor: window.beforeCursor,
+          clearNextCursor: window.beforeCursor == null,
           jumpAnchorMessageId: window.anchorMessageId,
           isJumpingToMessage: false,
           clearJumpFailure: true,
@@ -182,68 +226,20 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
 
   /// Oznacza odczyt, gdy widok potwierdzi, że wiadomość jest faktycznie widoczna.
   ///
-  /// Samo pobranie historii, tło aplikacji ani zamknięty panel nie mogą
-  /// oznaczać odczytu, dlatego decyzję podejmuje widok, a metoda jest
-  /// idempotentna: powtórzenie dla tej samej wiadomości nie wysyła żądania.
-  Future<bool> markVisibleAsRead(String messageId) async {
+  /// Widok decyduje o widoczności; potwierdzenia są idempotentne.
+  Future<ChatReadMarkOutcome> markVisibleAsRead(String messageId) {
     final current = state;
-    if (current is! ChatConversationReady || isClosed) return false;
-    if (messageId.isEmpty ||
-        messageId == _lastReadMessageId ||
-        _readMarkersInFlight.contains(messageId)) {
-      return false;
+    if (current is! ChatConversationReady || isClosed) {
+      return Future<ChatReadMarkOutcome>.value(ChatReadMarkOutcome.ignored);
     }
-    final message = current.messages
-        .where((item) => item.id == messageId)
-        .firstOrNull;
-    if (message == null ||
-        message.isDeleted ||
-        (currentUserId.isNotEmpty && message.authorUserId == currentUserId)) {
-      return false;
-    }
-    if (message.id.startsWith('local:')) return false;
-    final readCursor = _lastReadMessage;
-    if (readCursor != null && _compareMessages(message, readCursor) <= 0) {
-      return false;
-    }
-    _readMarkersInFlight.add(messageId);
-    var marked = false;
-    try {
-      final result = await _repository.markConversationRead(
-        conversationId: conversationId,
-        messageId: messageId,
-      );
-      if (!isClosed) {
-        result.fold((_) {}, (_) {
-          final latestRead = _lastReadMessage;
-          if (latestRead == null || _compareMessages(message, latestRead) > 0) {
-            _lastReadMessage = message;
-            _lastReadMessageId = messageId;
-            marked = true;
-          }
-        });
-      }
-    } finally {
-      _readMarkersInFlight.remove(messageId);
-    }
-    return marked;
+    return _readTracker.markVisibleAsRead(
+      current: current,
+      messageId: messageId,
+    );
   }
 
   /// Ostatnio oznaczona wiadomość; chroni przed powtarzaniem żądania.
-  String? _lastReadMessageId;
-  ChatMessage? _lastReadMessage;
-  final Set<String> _readMarkersInFlight = <String>{};
-  final Set<String> _deliveryRefreshInFlight = <String>{};
-  final Set<String> _deliveryRefreshPending = <String>{};
-
-  /// Widoczna wiadomość oznaczona lokalnie jako odczytana albo `null`.
-  String? get lastReadMessageId => _lastReadMessageId;
-
-  /// Taki sam porządek jak kursor backendu: `(CreatedAtUtc, Id)`.
-  static int _compareMessages(ChatMessage left, ChatMessage right) {
-    final byTimestamp = left.createdAtUtc.compareTo(right.createdAtUtc);
-    return byTimestamp != 0 ? byTimestamp : left.id.compareTo(right.id);
-  }
+  String? get lastReadMessageId => _readTracker.lastReadMessageId;
 
   /// Ponawia konkretną nieudaną wiadomość z tym samym UUID i payload hash.
   void retry(String clientMessageId) => _deliveryQueue.retry(clientMessageId);
@@ -254,17 +250,9 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
 
   /// Zgłasza hubowi, że bieżący użytkownik pisze albo przestał pisać.
   ///
-  /// Sygnał jest ulotny i nie blokuje wysyłki: brak subskrypcji oznacza brak
-  /// wywołania, a serwer i tak trzyma własny TTL.
-  Future<void> notifyTyping(bool isTyping) async {
-    final client = realtime;
-    if (client == null) return;
-    try {
-      await client.setTyping(isTyping);
-    } on Object {
-      // Zerwane połączenie nie może przerwać pisania wiadomości.
-    }
-  }
+  /// Ulotny sygnał nie blokuje wysyłki; serwer utrzymuje TTL.
+  Future<void> notifyTyping(bool isTyping) =>
+      _realtimeCoordinator.notifyTyping(isTyping);
 
   /// Odrzuca historię, gdy mutacja wiadomości ujawniła utratę dostępu.
   void detachForMessageAction(String message) => _detach(message);
@@ -273,8 +261,7 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   Future<int> restorePendingSends() async {
     final restored = await _deliveryQueue.restorePending();
     if (isClosed || restored == 0) return restored;
-    // Kolejka publikuje wpisy przez `changes`, więc stan odświeża się sam; tutaj
-    // tylko potwierdzamy liczbę wznowionych prób dla właściciela ekranu.
+    // Kolejka publikuje wpisy przez changes.
     return restored;
   }
 
@@ -282,7 +269,8 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   Future<void> clearForSignedOutSession() => _deliveryQueue.clearForSession();
 
   Future<void> _loadInternal(
-    int generation, {
+    int generation,
+    int historyGeneration, {
     bool replaceHistory = false,
   }) async {
     if (isClosed) return;
@@ -290,7 +278,11 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     final conversationResult = await _repository.getConversation(
       conversationId,
     );
-    if (isClosed || generation != _loadGeneration) return;
+    if (isClosed ||
+        generation != _loadGeneration ||
+        historyGeneration != _historyGeneration) {
+      return;
+    }
     final conversation = conversationResult.fold<ChatConversation?>(
       (error) {
         _handleAccessOrLoadError(error);
@@ -298,13 +290,18 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
       },
       (value) => value,
     );
-    if (conversation == null || isClosed || generation != _loadGeneration) {
+    if (conversation == null ||
+        isClosed ||
+        generation != _loadGeneration ||
+        historyGeneration != _historyGeneration) {
       return;
     }
     final messagesResult = await _repository.listConversationMessages(
       conversationId: conversationId,
     );
-    if (isClosed || generation != _loadGeneration) {
+    if (isClosed ||
+        generation != _loadGeneration ||
+        historyGeneration != _historyGeneration) {
       return;
     }
     messagesResult.fold(
@@ -318,7 +315,10 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
         emit(
           ChatConversationReady(
             conversation: conversation,
-            messages: _mergeMessages(previousMessages, page.items),
+            messages: ChatConversationMessageMerger.merge(
+              previousMessages,
+              page.items,
+            ),
             nextCursor: page.nextCursor,
             realtimeError: previous is ChatConversationReady
                 ? previous.realtimeError
@@ -330,49 +330,9 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
                 : null,
           ),
         );
-        unawaited(_startRealtime());
+        unawaited(_realtimeCoordinator.start());
       },
     );
-  }
-
-  Future<void> _startRealtime() async {
-    final service = realtime;
-    if (service == null || _realtimeSubscription != null || isClosed) return;
-    try {
-      _realtimeSubscription = service.conversationEvents.listen(
-        _onRealtimeEvent,
-      );
-      _realtimeErrorSubscription = service.conversationErrors.listen((error) {
-        if (error.kind == ChatConversationRealtimeErrorKind.accessRevoked) {
-          _detach(error.message);
-          return;
-        }
-        final current = state;
-        if (isClosed || current is! ChatConversationReady) return;
-        emit(
-          ChatConversationReady(
-            conversation: current.conversation,
-            messages: current.messages,
-            nextCursor: current.nextCursor,
-            realtimeError: error.message,
-          ),
-        );
-      });
-      await service.start(conversationId);
-    } catch (error) {
-      await _stopRealtime();
-      final current = state;
-      if (!isClosed && current is ChatConversationReady) {
-        emit(
-          ChatConversationReady(
-            conversation: current.conversation,
-            messages: current.messages,
-            nextCursor: current.nextCursor,
-            realtimeError: error.toString(),
-          ),
-        );
-      }
-    }
   }
 
   void _onDeliveryChanged(ChatMessage message) {
@@ -381,127 +341,23 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     }
   }
 
-  void _onRealtimeEvent(ChatConversationRealtimeEvent event) {
-    final current = state;
-    if (isClosed ||
-        current is! ChatConversationReady ||
-        event.conversationId != conversationId) {
-      return;
-    }
-    // W trybie okna nowe wiadomości nie sąsiadują z pokazanym zakresem.
-    // Zdarzenia dostarczenia/odczytu mogą jednak odświeżyć konkretną wiadomość.
-    if (current.isWindowedHistory &&
-        event.kind !=
-            ChatConversationRealtimeEventKind.messageDeliveryChanged) {
-      return;
-    }
-    final reduction = _realtimeReducer.apply(
-      messages: current.messages,
-      event: event,
-    );
-    switch (reduction.decision) {
-      case ChatConversationRealtimeDecision.applied:
-        emit(
-          ChatConversationReady(
-            conversation: current.conversation,
-            messages: reduction.messages,
-            nextCursor: current.nextCursor,
-            isLoadingMore: current.isLoadingMore,
-            realtimeError: current.realtimeError,
-          ),
-        );
-      case ChatConversationRealtimeDecision.ignored:
-        return;
-      case ChatConversationRealtimeDecision.refreshMessageDelivery:
-        final messageId = event.messageId;
-        if (messageId != null &&
-            current.messages.any((message) => message.id == messageId)) {
-          unawaited(_refreshMessageDelivery(messageId));
-        }
-        return;
-      case ChatConversationRealtimeDecision.resyncRequired:
-        unawaited(load());
-    }
-  }
-
-  Future<void> _refreshMessageDelivery(String messageId) async {
-    if (!_deliveryRefreshInFlight.add(messageId)) {
-      _deliveryRefreshPending.add(messageId);
-      return;
-    }
-    try {
-      do {
-        _deliveryRefreshPending.remove(messageId);
-        final current = state;
-        if (isClosed ||
-            current is! ChatConversationReady ||
-            !current.messages.any((message) => message.id == messageId)) {
-          return;
-        }
-        final result = await _repository.loadMessageWindow(
-          conversationId: conversationId,
-          messageId: messageId,
-        );
-        if (isClosed || state is! ChatConversationReady) return;
-        result.fold(
-          (error) {
-            if (error.type == ApiErrorType.unauthorized ||
-                error.type == ApiErrorType.forbidden) {
-              _detach(error.message);
-            }
-          },
-          (window) {
-            final latest = state;
-            final refreshed = window.messages
-                .where((message) => message.id == messageId)
-                .firstOrNull;
-            if (latest is ChatConversationReady && refreshed != null) {
-              _replaceMessage(refreshed);
-            }
-          },
-        );
-      } while (_deliveryRefreshPending.contains(messageId) && !isClosed);
-    } finally {
-      _deliveryRefreshInFlight.remove(messageId);
-      _deliveryRefreshPending.remove(messageId);
-    }
-  }
-
   void _replaceMessage(ChatMessage message) {
     final current = state;
     if (current is! ChatConversationReady || isClosed) return;
     emit(
-      ChatConversationReady(
-        conversation: current.conversation,
-        messages: _mergeMessages(current.messages, [message]),
-        nextCursor: current.nextCursor,
-        isLoadingMore: current.isLoadingMore,
-        realtimeError: current.realtimeError,
+      current.copyWith(
+        messages: ChatConversationMessageMerger.merge(
+          current.messages,
+          [message],
+        ),
       ),
     );
   }
 
-  List<ChatMessage> _mergeMessages(
-    List<ChatMessage> current,
-    List<ChatMessage> incoming,
-  ) {
-    final merged = List<ChatMessage>.of(current);
-    for (final message in incoming) {
-      final index = merged.indexWhere(
-        (item) =>
-            item.id == message.id ||
-            item.clientMessageId == message.clientMessageId,
-      );
-      if (index == -1) {
-        merged.add(message);
-      } else {
-        merged[index] = message;
-      }
-    }
-    return List<ChatMessage>.unmodifiable(merged);
-  }
-
-  void _handleAccessOrLoadError(ApiError error) {
+  void _handleAccessOrLoadError(
+    ApiError error, {
+    bool clearLoadingMore = false,
+  }) {
     if (error.type == ApiErrorType.unauthorized ||
         error.type == ApiErrorType.forbidden) {
       _detach(error.message);
@@ -510,12 +366,9 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     final current = state;
     if (current is ChatConversationReady) {
       emit(
-        ChatConversationReady(
-          conversation: current.conversation,
-          messages: current.messages,
-          nextCursor: current.nextCursor,
-          realtimeError: current.realtimeError,
+        current.copyWith(
           loadError: error.message,
+          isLoadingMore: clearLoadingMore ? false : null,
         ),
       );
     } else {
@@ -524,24 +377,17 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
   }
 
   void _detach(String message) {
+    ++_historyGeneration;
+    ++_loadGeneration;
     _deliveryQueue.clear();
-    unawaited(_stopRealtime());
+    unawaited(_realtimeCoordinator.stop());
     if (!isClosed) emit(ChatConversationDetached(message));
-  }
-
-  Future<void> _stopRealtime() async {
-    await _realtimeSubscription?.cancel();
-    _realtimeSubscription = null;
-    await _realtimeErrorSubscription?.cancel();
-    _realtimeErrorSubscription = null;
-    _realtimeReducer.clear();
-    await realtime?.stop();
   }
 
   @override
   Future<void> close() async {
     await _deliverySubscription.cancel();
-    await _stopRealtime();
+    await _realtimeCoordinator.stop();
     await _deliveryQueue.dispose();
     await disposeRealtime?.call();
     return super.close();

@@ -149,6 +149,7 @@ _StorageFileResponse _$StorageFileResponseFromJson(
   canEdit: json['canEdit'] as bool? ?? false,
   canShare: json['canShare'] as bool? ?? false,
   canDelete: json['canDelete'] as bool? ?? false,
+  canDismissFromShared: json['canDismissFromShared'] as bool? ?? false,
   isFavorite: json['isFavorite'] as bool? ?? false,
   favoritedAtUtc: json['favoritedAtUtc'] == null
       ? null
@@ -212,6 +213,7 @@ Map<String, dynamic> _$StorageFileResponseToJson(
   'canEdit': instance.canEdit,
   'canShare': instance.canShare,
   'canDelete': instance.canDelete,
+  'canDismissFromShared': instance.canDismissFromShared,
   'isFavorite': instance.isFavorite,
   'favoritedAtUtc': instance.favoritedAtUtc?.toIso8601String(),
   'lastAccessedAtUtc': instance.lastAccessedAtUtc?.toIso8601String(),

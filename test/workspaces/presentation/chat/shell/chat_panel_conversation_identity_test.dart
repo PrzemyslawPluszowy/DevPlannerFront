@@ -8,7 +8,7 @@ import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_conversation.dart';
-import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_conversation_parts.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_conversation_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

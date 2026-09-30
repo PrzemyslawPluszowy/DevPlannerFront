@@ -85,6 +85,20 @@ Map<String, dynamic> _$UpdateStorageFileDescriptionPayloadToJson(
   'expectedConcurrencyToken': instance.expectedConcurrencyToken,
 };
 
+_RenameStorageFilePayload _$RenameStorageFilePayloadFromJson(
+  Map<String, dynamic> json,
+) => _RenameStorageFilePayload(
+  fileName: json['fileName'] as String,
+  expectedConcurrencyToken: json['expectedConcurrencyToken'] as String?,
+);
+
+Map<String, dynamic> _$RenameStorageFilePayloadToJson(
+  _RenameStorageFilePayload instance,
+) => <String, dynamic>{
+  'fileName': instance.fileName,
+  'expectedConcurrencyToken': instance.expectedConcurrencyToken,
+};
+
 _UpdateStorageFolderPayload _$UpdateStorageFolderPayloadFromJson(
   Map<String, dynamic> json,
 ) => _UpdateStorageFolderPayload(
@@ -255,6 +269,7 @@ _StorageFileVersionResponse _$StorageFileVersionResponseFromJson(
   changeSummary: json['changeSummary'] as String?,
   isCurrent: json['isCurrent'] as bool? ?? false,
   changedByUserId: json['changedByUserId'] as String?,
+  changedByDisplayName: json['changedByDisplayName'] as String?,
 );
 
 Map<String, dynamic> _$StorageFileVersionResponseToJson(
@@ -269,6 +284,7 @@ Map<String, dynamic> _$StorageFileVersionResponseToJson(
   'changeSummary': instance.changeSummary,
   'isCurrent': instance.isCurrent,
   'changedByUserId': instance.changedByUserId,
+  'changedByDisplayName': instance.changedByDisplayName,
 };
 
 _RestoreStorageFileVersionPayload _$RestoreStorageFileVersionPayloadFromJson(
