@@ -7337,3 +7337,27 @@ W chwili tego wpisu: wdrożenie oraz uwierzytelniony odbiór UI pozostają do po
   znalezionych błędów, następnie czat na trzech kontach w niezależnych sesjach
   (wysyłanie/odczyt/presence/pliki/reconnect). Trzy karty z tym samym cookie
   nie są dowodem testu trzech użytkowników.
+
+
+### Weryfikacja po wdrożeniu — 2026-10-01, pakiet regresji
+
+- Backend `0ec294b05ff9ac6d7f28de65ed39cf1a8a8819b9`: skrypt deploy-local
+  EXIT 0, readiness Healthy, zapytanie na potwierdzonej bazie stagingowej
+  wykazało ZERO projektów bez workflow (przed naprawą dwa).
+- Front Wasm: build EXIT 0, 112.5 s. Publikacja `d272f47` ujawniła w manualnym
+  teście starą wersję aplikacji mimo nowego bootstrapu. Przyczyną był stały
+  version.json używany przez custom bootstrap do wersjonowania Wasm/JS.
+- Poprawiono skrypt deploy_staging_wasm.sh: build_number w publikowanym
+  version.json = SHA wdrożenia. Publikacja `1f8fd3c1d02c974bc94a78ed840fce44eb640daa`
+  EXIT 0; ponowne ładowanie w tej samej sesji przeglądarki pokazało naprawiony
+  profil z danymi API. To dowód runtime, nie wyłącznie testu routera.
+- Manualnie staging, viewport 1280x800: profil załadowany; List projektu Migracja
+  infrastruktury wyrenderowana (34 zadania); suwak poziomy widoczny, przeciągnięcie
+  przesunęło kolumny tabeli. Dowód: /tmp/devplanner-staging-list-scroll-2026-10-01.png.
+  Kanban tego projektu renderuje statusy, bez błędu brakującego workflow.
+- Dwie próby drag w CUA nie zmieniły położenia zadania. Nie stanowią dowodu
+  poprawnego dropa ani stabilności nagłówka podczas mutacji; ta akceptacja jest
+  nadal otwarta. Nie oznaczono Kanbana/presence/OnlyOffice/czatu jako zaliczonych.
+- Testy czatu na trzech niezależnych kontach pozostają do wykonania zgodnie z
+  dyspozycją użytkownika. Pozostały też panel osób z globalną obecnością oraz
+  manualne przejście reszty aplikacji i usuwanie znalezionych regresji.
