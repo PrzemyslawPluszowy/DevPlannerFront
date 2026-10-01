@@ -5,6 +5,7 @@ import 'package:devplanner/auth/data/auth_composition.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/auth/presentation/auth_route_page.dart';
 import 'package:devplanner/bootstrap/host_launch_context.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/presentation/devplanner_workspaces_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,7 +71,7 @@ void main() {
     });
 
     testWidgets(
-      'zapamiętany motyw i belka przełączają tylko jasny oraz ciemny',
+      'zapamiętany motyw i menu pozwalają wybrać jasny motyw',
       (
         tester,
       ) async {
@@ -94,7 +95,12 @@ void main() {
           Brightness.dark,
         );
 
-        await tester.tap(find.byKey(const ValueKey('devplanner-toggle-theme')));
+        await tester.tap(find.byKey(const ValueKey('devplanner-theme-menu')));
+        await tester.pumpAndSettle();
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(DevPlannerShellRoute)),
+        )!;
+        await tester.tap(find.text(l10n.settingsThemeLight));
         await tester.pumpAndSettle();
 
         expect(store.preference, DevPlannerThemePreference.light);
@@ -105,6 +111,48 @@ void main() {
         );
       },
     );
+    testWidgets('powrót do systemowego motywu reaguje na zmianę systemu', (
+      tester,
+    ) async {
+      tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+      addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+      final store = _ThemePreferenceStore(DevPlannerThemePreference.light);
+      await tester.pumpWidget(
+        DevPlannerApp(
+          launchContext: const HostLaunchContext(
+            initialRoute: '/workspaces',
+            userId: 'test-user-id',
+            userDisplayName: 'Test User',
+          ),
+          auth: _authenticatedAuth(),
+          themePreferenceStore: store,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        Theme.of(tester.element(find.byType(DevPlannerShellRoute))).brightness,
+        Brightness.light,
+      );
+      await tester.tap(find.byKey(const ValueKey('devplanner-theme-menu')));
+      await tester.pumpAndSettle();
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(DevPlannerShellRoute)),
+      )!;
+      await tester.tap(find.text(l10n.settingsThemeSystem));
+      await tester.pumpAndSettle();
+      expect(store.preference, DevPlannerThemePreference.system);
+      expect(
+        Theme.of(tester.element(find.byType(DevPlannerShellRoute))).brightness,
+        Brightness.dark,
+      );
+      tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+      await tester.pumpAndSettle();
+      expect(
+        Theme.of(tester.element(find.byType(DevPlannerShellRoute))).brightness,
+        Brightness.light,
+      );
+      expect(tester.takeException(), isNull);
+    });
   });
 }
 

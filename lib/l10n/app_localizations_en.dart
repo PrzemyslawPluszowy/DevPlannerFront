@@ -2181,6 +2181,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Secondary language for international users';
 
   @override
+  String get settingsThemeSaveFailed =>
+      'Could not save the appearance preference. Try again.';
+
+  @override
   String get settingsAppearanceModeTitle => 'Theme mode';
 
   @override

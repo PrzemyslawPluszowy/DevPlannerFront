@@ -255,7 +255,7 @@ final class _DevPlannerTopBar extends StatelessWidget {
                   ),
             ),
           ),
-          _ThemePreferenceToggle(sidebarText: shellTheme.sidebarText),
+          ThemePreferenceMenu(iconColor: shellTheme.sidebarText),
           IconButton(
             key: const ValueKey('devplanner-open-chat-panel'),
             tooltip: l10n.workspacesSectionChat,
@@ -348,39 +348,6 @@ final class _DevPlannerSidebarHeader extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-/// Mała akcja belki: przełącza wyłącznie jasny i ciemny motyw DevPlanner.
-final class _ThemePreferenceToggle extends StatelessWidget {
-  const _ThemePreferenceToggle({required this.sidebarText});
-
-  final Color sidebarText;
-
-  @override
-  Widget build(BuildContext context) {
-    final cubit = context.read<ThemePreferenceCubit?>();
-    if (cubit == null) return const SizedBox.shrink();
-    return BlocBuilder<ThemePreferenceCubit, DevPlannerThemePreference>(
-      bloc: cubit,
-      builder: (context, preference) {
-        final l10n = AppLocalizations.of(context)!;
-        final changesToDark = preference == DevPlannerThemePreference.light;
-        return IconButton(
-          key: const ValueKey('devplanner-toggle-theme'),
-          tooltip: changesToDark
-              ? l10n.settingsThemeDark
-              : l10n.settingsThemeLight,
-          onPressed: () => unawaited(cubit.toggle()),
-          icon: Icon(
-            changesToDark
-                ? Icons.dark_mode_outlined
-                : Icons.light_mode_outlined,
-            color: sidebarText,
-          ),
-        );
-      },
     );
   }
 }

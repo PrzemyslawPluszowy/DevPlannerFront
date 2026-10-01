@@ -680,6 +680,7 @@
   "settingsLanguagePolishSubtitle": "Default language for your organization",
   "settingsLanguageEnglish": "English",
   "settingsLanguageEnglishSubtitle": "Secondary language for international users",
+  "settingsThemeSaveFailed": "Could not save the appearance preference. Try again.",
   "settingsAppearanceModeTitle": "Theme mode",
   "settingsAppearanceModeSubtitle": "Choose how light and dark appearance is selected.",
   "settingsThemeSystem": "System",

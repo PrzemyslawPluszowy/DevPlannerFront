@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:devplanner/app/router/devplanner_router.dart';
-import 'package:devplanner/app/theme/theme_preference.dart';
-import 'package:devplanner/app/theme/theme_preference_cubit.dart';
+import 'package:devplanner/app/theme/theme_preference_menu.dart';
 import 'package:devplanner/foundation/presentation/devplanner_panels.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';

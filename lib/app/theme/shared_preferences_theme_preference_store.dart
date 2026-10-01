@@ -11,13 +11,15 @@ final class SharedPreferencesThemePreferenceStore
     final preferences = await SharedPreferences.getInstance();
     return switch (preferences.getString(_key)) {
       'dark' => DevPlannerThemePreference.dark,
-      _ => DevPlannerThemePreference.light,
+      'light' => DevPlannerThemePreference.light,
+      _ => DevPlannerThemePreference.system,
     };
   }
 
   @override
   Future<void> write(DevPlannerThemePreference preference) async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setString(_key, preference.name);
+    final saved = await preferences.setString(_key, preference.name);
+    if (!saved) throw StateError('Theme preference could not be saved');
   }
 }

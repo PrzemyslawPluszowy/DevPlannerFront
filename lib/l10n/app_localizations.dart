@@ -3950,6 +3950,12 @@ abstract class AppLocalizations {
   /// **'Secondary language for international users'**
   String get settingsLanguageEnglishSubtitle;
 
+  /// No description provided for @settingsThemeSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the appearance preference. Try again.'**
+  String get settingsThemeSaveFailed;
+
   /// No description provided for @settingsAppearanceModeTitle.
   ///
   /// In en, this message translates to:

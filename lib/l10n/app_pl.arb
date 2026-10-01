@@ -680,6 +680,7 @@
   "settingsLanguagePolishSubtitle": "Domyślny język dla organizacji",
   "settingsLanguageEnglish": "Angielski (English)",
   "settingsLanguageEnglishSubtitle": "Drugi język dla użytkowników międzynarodowych",
+  "settingsThemeSaveFailed": "Nie udało się zapisać motywu. Spróbuj ponownie.",
   "settingsAppearanceModeTitle": "Tryb motywu",
   "settingsAppearanceModeSubtitle": "Wybierz sposób przełączania jasnego i ciemnego widoku.",
   "settingsThemeSystem": "Systemowy",

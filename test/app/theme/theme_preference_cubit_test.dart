@@ -1,18 +1,20 @@
+import 'dart:async';
+
 import 'package:devplanner/app/theme/theme_preference.dart';
 import 'package:devplanner/app/theme/theme_preference_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('domyślnie zachowuje jasny motyw, gdy storage zawiedzie', () async {
+  test('domyślnie zachowuje systemowy motyw, gdy storage zawiedzie', () async {
     final cubit = ThemePreferenceCubit(_ThemePreferenceStore(fails: true));
     addTearDown(cubit.close);
 
     await cubit.load();
 
-    expect(cubit.state, DevPlannerThemePreference.light);
+    expect(cubit.state, DevPlannerThemePreference.system);
   });
 
-  test('odczytuje i zapisuje wyłącznie wariant jasny albo ciemny', () async {
+  test('odczytuje i zapisuje jawny wariant jasny albo ciemny', () async {
     final store = _ThemePreferenceStore(
       current: DevPlannerThemePreference.dark,
     );
@@ -34,8 +36,29 @@ void main() {
     final saved = await cubit.select(DevPlannerThemePreference.dark);
 
     expect(saved, isFalse);
+    expect(cubit.state, DevPlannerThemePreference.system);
+  });
+
+  test('późny odczyt nie nadpisuje wyboru użytkownika', () async {
+    final store = _DelayedReadStore();
+    final cubit = ThemePreferenceCubit(store);
+    addTearDown(cubit.close);
+    final loading = cubit.load();
+    expect(await cubit.select(DevPlannerThemePreference.light), isTrue);
+    store.pendingRead.complete(DevPlannerThemePreference.dark);
+    await loading;
     expect(cubit.state, DevPlannerThemePreference.light);
   });
+}
+
+final class _DelayedReadStore implements ThemePreferenceStore {
+  final pendingRead = Completer<DevPlannerThemePreference>();
+
+  @override
+  Future<DevPlannerThemePreference> read() => pendingRead.future;
+
+  @override
+  Future<void> write(DevPlannerThemePreference preference) async {}
 }
 
 final class _ThemePreferenceStore implements ThemePreferenceStore {

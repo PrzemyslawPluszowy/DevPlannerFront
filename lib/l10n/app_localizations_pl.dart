@@ -2189,6 +2189,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Drugi język dla użytkowników międzynarodowych';
 
   @override
+  String get settingsThemeSaveFailed =>
+      'Nie udało się zapisać motywu. Spróbuj ponownie.';
+
+  @override
   String get settingsAppearanceModeTitle => 'Tryb motywu';
 
   @override
