@@ -7037,6 +7037,87 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskDetailsTemplateCreated => 'Utworzono szablon zadania.';
 
   @override
+  String get taskHistoryPosition => 'Kolejność';
+
+  @override
+  String get taskHistoryCompleted => 'Ukończenie';
+
+  @override
+  String get taskHistoryCompletedValue => 'Ukończone';
+
+  @override
+  String get taskHistoryIncompleteValue => 'Do wykonania';
+
+  @override
+  String get taskHistoryUnknownStatus => 'Nieznany status';
+
+  @override
+  String get taskHistoryUnknownPriority => 'Nieznany priorytet';
+
+  @override
+  String get taskHistoryActorsUnavailable =>
+      'Nie udało się odczytać nazw autorów historii.';
+
+  @override
+  String get taskHistoryReadFailed =>
+      'Nie udało się odczytać historii zadania.';
+
+  @override
+  String get taskHistoryEventCreated => 'Utworzono zadanie';
+
+  @override
+  String get taskHistoryEventUpdated => 'Zmieniono zadanie';
+
+  @override
+  String get taskHistoryEventStatusChanged => 'Zmieniono status';
+
+  @override
+  String get taskHistoryEventAssigneesChanged => 'Zmieniono wykonawców';
+
+  @override
+  String get taskHistoryEventChecklistChanged => 'Zmieniono checklistę';
+
+  @override
+  String get taskHistoryEventWatcherChanged => 'Zmieniono obserwatorów';
+
+  @override
+  String get taskHistoryEventLabelsChanged => 'Zmieniono etykiety';
+
+  @override
+  String get taskHistoryEventCustomFieldsChanged =>
+      'Zmieniono pola niestandardowe';
+
+  @override
+  String get taskHistoryEventAcceptanceCriteriaChanged =>
+      'Zmieniono kryteria akceptacji';
+
+  @override
+  String get taskHistoryEventDependencyChanged => 'Zmieniono zależności';
+
+  @override
+  String get taskHistoryEventReordered => 'Zmieniono kolejność';
+
+  @override
+  String get taskHistoryEventKanbanMoved => 'Przesunięto kartę na Kanbanie';
+
+  @override
+  String get taskHistoryEventKanbanRebalanced =>
+      'Wyrównano kolejność kolumny Kanban';
+
+  @override
+  String get taskHistoryEventArchived => 'Zarchiwizowano zadanie';
+
+  @override
+  String get taskHistoryEventRestored => 'Przywrócono zadanie';
+
+  @override
+  String get taskHistoryEventRecurrenceChanged => 'Zmieniono cykliczność';
+
+  @override
+  String get taskHistoryEventRecurrenceOccurrenceCreated =>
+      'Utworzono kolejne wystąpienie cykliczne';
+
+  @override
   String get taskDetailsHistoryEmpty =>
       'Nie zarejestrowano jeszcze żadnych zmian.';
 

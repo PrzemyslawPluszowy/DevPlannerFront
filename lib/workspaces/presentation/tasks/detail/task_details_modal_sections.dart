@@ -137,6 +137,8 @@ class TaskDetailsHistoryTab extends StatelessWidget {
       final detailsCubit = context.read<TaskDetailsCubit>();
       final cubit = TaskHistoryCubit(
         repository: context.read<TaskHistoryRepository>(),
+        memberProfilesRepository: context
+            .read<ProjectMemberProfilesRepository?>(),
         workspaceId: detailsCubit.workspaceId,
         projectId: detailsCubit.projectId,
         taskId: detailsCubit.taskId,

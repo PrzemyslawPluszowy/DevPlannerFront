@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:devplanner/app/router/devplanner_router.dart';
 import 'package:devplanner/auth/data/auth_composition.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
+import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/presentation/devplanner_workspaces_page.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_columns_viewport.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/task_details_modal_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -50,6 +53,70 @@ String _currentUrl(DevPlannerRouter router) =>
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   registerTasksBoardRouteFallbacks();
+
+  testWidgets(
+    'query tab change retains the HTTP task scope and failure state',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1280, 720));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      var taskReads = 0;
+      final dio = Dio();
+      addTearDown(dio.close);
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            if (options.path.endsWith('/tasks/$_taskId')) taskReads++;
+            handler.resolve(
+              Response<dynamic>(
+                requestOptions: options,
+                statusCode: 500,
+                data: {'code': 'qa.read_failed', 'message': 'QA read failed'},
+              ),
+            );
+          },
+        ),
+      );
+      final transport = DevPlannerHttpTransport(
+        dio: dio,
+        baseUrl: 'https://qa.invalid',
+        isWeb: true,
+        enableDiagnosticLogging: false,
+      );
+      final auth = AuthComposition.unavailable();
+      auth.session.setSignedIn(
+        const AuthUser(userId: 'user-1', login: 'user', displayName: 'User'),
+      );
+      final fixture = TasksBoardRouteFixture(
+        workspaceId: _workspaceId,
+        projectId: _projectId,
+        boardResult: kanbanBoardResultWithColumns,
+      );
+      final router = DevPlannerRouter(
+        initialLocation: '$_tasksPath?view=list&task=$_taskId',
+        auth: auth,
+        httpTransport: transport,
+        tasksBoardComposition: fixture.composition,
+        projectSettingsComposition: fixture.settings.composition,
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(_app(router));
+      await tester.pumpAndSettle();
+      expect(taskReads, 1);
+      final failureBefore = tester.element(find.byType(TaskDetailsModalError));
+      router.config.go('$_tasksPath?view=list&task=$_taskId&taskTab=planning');
+      await tester.pumpAndSettle();
+      expect(
+        taskReads,
+        1,
+        reason: 'A query change must not recreate the task Cubit or retry a failed GET',
+      );
+      expect(
+        tester.element(find.byType(TaskDetailsModalError)),
+        same(failureBefore),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('canonical Tasks deep link opens the List, not the board', (
     tester,

@@ -6989,6 +6989,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskDetailsTemplateCreated => 'Task template created.';
 
   @override
+  String get taskHistoryPosition => 'Position';
+
+  @override
+  String get taskHistoryCompleted => 'Completion';
+
+  @override
+  String get taskHistoryCompletedValue => 'Completed';
+
+  @override
+  String get taskHistoryIncompleteValue => 'Incomplete';
+
+  @override
+  String get taskHistoryUnknownStatus => 'Unknown status';
+
+  @override
+  String get taskHistoryUnknownPriority => 'Unknown priority';
+
+  @override
+  String get taskHistoryActorsUnavailable =>
+      'Could not load history author names.';
+
+  @override
+  String get taskHistoryReadFailed => 'Could not load task history.';
+
+  @override
+  String get taskHistoryEventCreated => 'Task created';
+
+  @override
+  String get taskHistoryEventUpdated => 'Task updated';
+
+  @override
+  String get taskHistoryEventStatusChanged => 'Status changed';
+
+  @override
+  String get taskHistoryEventAssigneesChanged => 'Assignees changed';
+
+  @override
+  String get taskHistoryEventChecklistChanged => 'Checklist changed';
+
+  @override
+  String get taskHistoryEventWatcherChanged => 'Watchers changed';
+
+  @override
+  String get taskHistoryEventLabelsChanged => 'Labels changed';
+
+  @override
+  String get taskHistoryEventCustomFieldsChanged => 'Custom fields changed';
+
+  @override
+  String get taskHistoryEventAcceptanceCriteriaChanged =>
+      'Acceptance criteria changed';
+
+  @override
+  String get taskHistoryEventDependencyChanged => 'Dependencies changed';
+
+  @override
+  String get taskHistoryEventReordered => 'Task reordered';
+
+  @override
+  String get taskHistoryEventKanbanMoved => 'Kanban card moved';
+
+  @override
+  String get taskHistoryEventKanbanRebalanced => 'Kanban column reordered';
+
+  @override
+  String get taskHistoryEventArchived => 'Task archived';
+
+  @override
+  String get taskHistoryEventRestored => 'Task restored';
+
+  @override
+  String get taskHistoryEventRecurrenceChanged => 'Recurrence changed';
+
+  @override
+  String get taskHistoryEventRecurrenceOccurrenceCreated =>
+      'Recurring task occurrence created';
+
+  @override
   String get taskDetailsHistoryEmpty => 'There are no recorded changes yet.';
 
   @override

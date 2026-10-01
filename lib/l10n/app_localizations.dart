@@ -12386,6 +12386,156 @@ abstract class AppLocalizations {
   /// **'Task template created.'**
   String get taskDetailsTemplateCreated;
 
+  /// No description provided for @taskHistoryPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get taskHistoryPosition;
+
+  /// No description provided for @taskHistoryCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion'**
+  String get taskHistoryCompleted;
+
+  /// No description provided for @taskHistoryCompletedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get taskHistoryCompletedValue;
+
+  /// No description provided for @taskHistoryIncompleteValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete'**
+  String get taskHistoryIncompleteValue;
+
+  /// No description provided for @taskHistoryUnknownStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown status'**
+  String get taskHistoryUnknownStatus;
+
+  /// No description provided for @taskHistoryUnknownPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown priority'**
+  String get taskHistoryUnknownPriority;
+
+  /// No description provided for @taskHistoryActorsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load history author names.'**
+  String get taskHistoryActorsUnavailable;
+
+  /// No description provided for @taskHistoryReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load task history.'**
+  String get taskHistoryReadFailed;
+
+  /// No description provided for @taskHistoryEventCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Task created'**
+  String get taskHistoryEventCreated;
+
+  /// No description provided for @taskHistoryEventUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Task updated'**
+  String get taskHistoryEventUpdated;
+
+  /// No description provided for @taskHistoryEventStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get taskHistoryEventStatusChanged;
+
+  /// No description provided for @taskHistoryEventAssigneesChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignees changed'**
+  String get taskHistoryEventAssigneesChanged;
+
+  /// No description provided for @taskHistoryEventChecklistChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist changed'**
+  String get taskHistoryEventChecklistChanged;
+
+  /// No description provided for @taskHistoryEventWatcherChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Watchers changed'**
+  String get taskHistoryEventWatcherChanged;
+
+  /// No description provided for @taskHistoryEventLabelsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels changed'**
+  String get taskHistoryEventLabelsChanged;
+
+  /// No description provided for @taskHistoryEventCustomFieldsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom fields changed'**
+  String get taskHistoryEventCustomFieldsChanged;
+
+  /// No description provided for @taskHistoryEventAcceptanceCriteriaChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptance criteria changed'**
+  String get taskHistoryEventAcceptanceCriteriaChanged;
+
+  /// No description provided for @taskHistoryEventDependencyChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Dependencies changed'**
+  String get taskHistoryEventDependencyChanged;
+
+  /// No description provided for @taskHistoryEventReordered.
+  ///
+  /// In en, this message translates to:
+  /// **'Task reordered'**
+  String get taskHistoryEventReordered;
+
+  /// No description provided for @taskHistoryEventKanbanMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Kanban card moved'**
+  String get taskHistoryEventKanbanMoved;
+
+  /// No description provided for @taskHistoryEventKanbanRebalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Kanban column reordered'**
+  String get taskHistoryEventKanbanRebalanced;
+
+  /// No description provided for @taskHistoryEventArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Task archived'**
+  String get taskHistoryEventArchived;
+
+  /// No description provided for @taskHistoryEventRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Task restored'**
+  String get taskHistoryEventRestored;
+
+  /// No description provided for @taskHistoryEventRecurrenceChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence changed'**
+  String get taskHistoryEventRecurrenceChanged;
+
+  /// No description provided for @taskHistoryEventRecurrenceOccurrenceCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring task occurrence created'**
+  String get taskHistoryEventRecurrenceOccurrenceCreated;
+
   /// No description provided for @taskDetailsHistoryEmpty.
   ///
   /// In en, this message translates to:

@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/presentation/tasks/detail/history/task_history_presentation.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 
 /// Otwiera modal historii dla aktualnie złożonego szczegółu zadania.
@@ -11,12 +12,15 @@ final class TaskHistoryDialogLauncher {
   static Future<void> show(BuildContext context) {
     final detailsCubit = context.read<TaskDetailsCubit>();
     final historyRepository = context.read<TaskHistoryRepository>();
+    final memberProfilesRepository = context
+        .read<ProjectMemberProfilesRepository?>();
     return DevPlannerModalHost.showDialog<void>(
       context,
       builder: (_) => BlocProvider(
         create: (_) {
           final cubit = TaskHistoryCubit(
             repository: historyRepository,
+            memberProfilesRepository: memberProfilesRepository,
             workspaceId: detailsCubit.workspaceId,
             projectId: detailsCubit.projectId,
             taskId: detailsCubit.taskId,
@@ -81,36 +85,51 @@ class TaskHistoryBody extends StatelessWidget {
           TaskHistoryInitial() || TaskHistoryLoading() => const Center(
             child: CircularProgressIndicator(),
           ),
-          TaskHistoryFailure(:final message) => TaskHistoryError(
-            message: message,
-          ),
+          TaskHistoryFailure(:final message, :final apiError) =>
+            TaskHistoryError(
+              message: message,
+              apiError: apiError,
+            ),
           TaskHistoryReady() => TaskHistoryList(state: state),
         },
       );
 }
 
 class TaskHistoryError extends StatelessWidget {
-  const TaskHistoryError({required this.message, super.key});
+  const TaskHistoryError({required this.message, this.apiError, super.key});
 
   final String message;
+  final ApiError? apiError;
 
   @override
   Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Symbols.history_toggle_off_rounded, color: context.colors.error),
-          const SizedBox(height: 10),
-          Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () => unawaited(context.read<TaskHistoryCubit>().load()),
-            icon: const Icon(Symbols.refresh_rounded),
-            label: Text(context.l10n.taskDetailsHistoryRetry),
-          ),
-        ],
+    child: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Symbols.history_toggle_off_rounded,
+              color: context.colors.error,
+            ),
+            const SizedBox(height: 10),
+            if (apiError case final error?)
+              TaskDetailsModalError(
+                error: error,
+                fallbackMessage: context.l10n.taskHistoryReadFailed,
+              )
+            else
+              Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () =>
+                  unawaited(context.read<TaskHistoryCubit>().load()),
+              icon: const Icon(Symbols.refresh_rounded),
+              label: Text(context.l10n.taskDetailsHistoryRetry),
+            ),
+          ],
+        ),
       ),
     ),
   );
@@ -141,7 +160,10 @@ class TaskHistoryList extends StatelessWidget {
           if (index == state.events.length) {
             return TaskHistoryFooter(state: state);
           }
-          return TaskHistoryEventTile(event: state.events[index]);
+          return TaskHistoryEventTile(
+            event: state.events[index],
+            actorNames: state.actorNames,
+          );
         },
       ),
     );
@@ -154,45 +176,66 @@ class TaskHistoryFooter extends StatelessWidget {
   final TaskHistoryReady state;
 
   @override
-  Widget build(BuildContext context) {
-    if (state.isLoadingMore) {
-      return const Padding(
-        padding: EdgeInsets.all(14),
-        child: Center(
-          child: SizedBox.square(
-            dimension: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      if (state.actorLookupFailure case final failure?) ...[
+        TaskDetailsModalError(
+          error: failure,
+          fallbackMessage: context.l10n.taskHistoryActorsUnavailable,
         ),
-      );
-    }
-    if (state.loadMoreError != null) {
-      return Padding(
-        padding: const EdgeInsets.all(10),
-        child: TextButton.icon(
+        TextButton.icon(
+          onPressed: () => unawaited(context.read<TaskHistoryCubit>().load()),
+          icon: const Icon(Symbols.refresh_rounded),
+          label: Text(context.l10n.taskDetailsHistoryRetry),
+        ),
+      ],
+      if (state.isLoadingMore)
+        const Padding(
+          padding: EdgeInsets.all(14),
+          child: Center(
+            child: SizedBox.square(
+              dimension: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        )
+      else if (state.loadMoreError != null) ...[
+        if (state.loadMoreFailure case final failure?)
+          TaskDetailsModalError(
+            error: failure,
+            fallbackMessage: context.l10n.taskHistoryReadFailed,
+          ),
+        TextButton.icon(
           onPressed: () =>
               unawaited(context.read<TaskHistoryCubit>().loadMore()),
           icon: const Icon(Symbols.refresh_rounded),
           label: Text(context.l10n.taskDetailsHistoryRetry),
         ),
-      );
-    }
-    return state.hasMore
-        ? const SizedBox(height: 44)
-        : const SizedBox(height: 10);
-  }
+      ] else
+        SizedBox(height: state.hasMore ? 44 : 10),
+    ],
+  );
 }
 
 class TaskHistoryEventTile extends StatelessWidget {
-  const TaskHistoryEventTile({required this.event, super.key});
+  const TaskHistoryEventTile({
+    required this.event,
+    this.actorNames = const {},
+    super.key,
+  });
 
   final TaskHistoryEventResponse event;
+  final Map<String, String> actorNames;
 
   @override
   Widget build(BuildContext context) {
-    final date = DateFormat.yMMMd().add_Hm().format(
-      event.createdAtUtc.toLocal(),
-    );
+    final date =
+        DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag())
+            .add_Hm()
+            .format(
+              event.createdAtUtc.toLocal(),
+            );
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
       leading: CircleAvatar(
@@ -204,7 +247,7 @@ class TaskHistoryEventTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        event.actionLabel,
+        TaskHistoryPresentation.actionLabel(context, event.eventType),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
@@ -213,13 +256,13 @@ class TaskHistoryEventTile extends StatelessWidget {
         children: [
           const SizedBox(height: 3),
           Text(
-            '${TaskHistoryPresentation.actorLabel(context, event.actor)} · $date',
+            '${TaskHistoryPresentation.actorLabel(context, event.actor, actorNames)} · $date',
           ),
           if (event.changes.isNotEmpty) ...[
             const SizedBox(height: 5),
             for (final change in event.changes.take(3))
               Text(
-                '${change.field}: ${TaskHistoryPresentation.value(change.before)} → ${TaskHistoryPresentation.value(change.after)}',
+                '${TaskHistoryPresentation.fieldLabel(context, change.field)}: ${TaskHistoryPresentation.value(context, change.field, change.before)} → ${TaskHistoryPresentation.value(context, change.field, change.after)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.text.bodySmall,
@@ -234,35 +277,5 @@ class TaskHistoryEventTile extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-/// Czyste mapowania i formatowanie dla elementów historii zadania.
-final class TaskHistoryPresentation {
-  const TaskHistoryPresentation._();
-
-  static IconData eventIcon(TaskHistoryEventType type) => switch (type) {
-    TaskHistoryEventType.created => Symbols.add_task_rounded,
-    TaskHistoryEventType.statusChanged ||
-    TaskHistoryEventType.kanbanMoved => Symbols.swap_horiz_rounded,
-    TaskHistoryEventType.archived => Symbols.archive,
-    TaskHistoryEventType.restored => Symbols.unarchive,
-    _ => Symbols.edit_note_rounded,
-  };
-
-  static String actorLabel(
-    BuildContext context,
-    TaskHistoryActorResponse actor,
-  ) => switch (actor.type) {
-    TaskActorType.system => context.l10n.taskDetailsHistoryActorSystem,
-    TaskActorType.automation => context.l10n.taskDetailsHistoryActorAutomation,
-    TaskActorType.user =>
-      actor.userId ?? context.l10n.taskDetailsHistoryActorUser,
-  };
-
-  static String value(Object? value) {
-    if (value == null) return '—';
-    final text = value.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
-    return text.length <= 80 ? text : '${text.substring(0, 77)}…';
   }
 }

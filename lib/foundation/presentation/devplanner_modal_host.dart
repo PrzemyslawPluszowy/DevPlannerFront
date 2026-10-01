@@ -31,7 +31,7 @@ abstract final class DevPlannerModalHost {
       barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .24),
       requestFocus: requestFocus,
       pageBuilder: (context, _, _) {
-        final child = inheritedThemes.wrap(builder(context));
+        final child = inheritedThemes.wrap(Builder(builder: builder));
         if (onDismissAttempt == null) return child;
         return PopScope<T>(
           canPop: false,
@@ -74,7 +74,7 @@ abstract final class DevPlannerModalHost {
         canPop: canClose,
         child: Align(
           alignment: Alignment.centerRight,
-          child: inheritedThemes.wrap(builder(context)),
+          child: inheritedThemes.wrap(Builder(builder: builder)),
         ),
       ),
     );

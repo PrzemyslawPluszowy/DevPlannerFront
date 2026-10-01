@@ -55,9 +55,21 @@ final class DevPlannerRouterDependencies {
        _explicitWorkspaceManagementGateway = workspaceManagementGateway,
        _explicitStorageRepository = storageRepository,
        _explicitTaskViewRepository = taskViewRepository,
-       _explicitTasksBoardComposition = tasksBoardComposition,
-       _explicitTasksDetailsComposition = tasksDetailsComposition,
-       _explicitProjectSettingsComposition = projectSettingsComposition,
+       resolvedTasksBoardComposition =
+           tasksBoardComposition ??
+           (httpTransport == null
+               ? null
+               : TasksBoardComposition.fromTransport(httpTransport)),
+       resolvedTasksDetailsComposition =
+           tasksDetailsComposition ??
+           (httpTransport == null
+               ? null
+               : TasksDetailsComposition.fromTransport(httpTransport)),
+       resolvedProjectSettingsComposition =
+           projectSettingsComposition ??
+           (httpTransport == null
+               ? null
+               : ProjectSettingsComposition.fromTransport(httpTransport)),
        _explicitTasksViewPreferenceStore = tasksViewPreferenceStore,
        _explicitFilesViewPreferenceStore = filesViewPreferenceStore;
 
@@ -68,9 +80,11 @@ final class DevPlannerRouterDependencies {
   final WorkspaceManagementGateway? _explicitWorkspaceManagementGateway;
   final StorageRepository? _explicitStorageRepository;
   final TaskViewRepository? _explicitTaskViewRepository;
-  final TasksBoardComposition? _explicitTasksBoardComposition;
-  final TasksDetailsComposition? _explicitTasksDetailsComposition;
-  final ProjectSettingsComposition? _explicitProjectSettingsComposition;
+
+  /// Query changes keep the same repositories and mounted task modal.
+  final TasksBoardComposition? resolvedTasksBoardComposition;
+  final TasksDetailsComposition? resolvedTasksDetailsComposition;
+  final ProjectSettingsComposition? resolvedProjectSettingsComposition;
   final TasksProjectViewPreferenceStore? _explicitTasksViewPreferenceStore;
   final StorageViewPreferenceStore? _explicitFilesViewPreferenceStore;
   final String? Function() currentUserId;
@@ -154,33 +168,6 @@ final class DevPlannerRouterDependencies {
     return TaskViewRepositoryImpl(
       TaskViewsApi(transport.apiDio, baseUrl: transport.baseUrl),
     );
-  }
-
-  TasksBoardComposition? get resolvedTasksBoardComposition {
-    final explicit = _explicitTasksBoardComposition;
-    if (explicit != null) return explicit;
-    final transport = httpTransport;
-    return transport == null
-        ? null
-        : TasksBoardComposition.fromTransport(transport);
-  }
-
-  TasksDetailsComposition? get resolvedTasksDetailsComposition {
-    final explicit = _explicitTasksDetailsComposition;
-    if (explicit != null) return explicit;
-    final transport = httpTransport;
-    return transport == null
-        ? null
-        : TasksDetailsComposition.fromTransport(transport);
-  }
-
-  ProjectSettingsComposition? get resolvedProjectSettingsComposition {
-    final explicit = _explicitProjectSettingsComposition;
-    if (explicit != null) return explicit;
-    final transport = httpTransport;
-    return transport == null
-        ? null
-        : ProjectSettingsComposition.fromTransport(transport);
   }
 
   StorageUserDirectoryPort? get resolvedStorageUserDirectory {

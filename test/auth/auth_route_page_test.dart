@@ -50,8 +50,14 @@ void main() {
       find.byKey(const ValueKey('auth-desktop-pkce-login-cta-semantics')),
       findsOneWidget,
     );
-    expect(find.text('Zaloguj'), findsOneWidget);
-    await tester.tap(find.text('Zaloguj'));
+    final loginCta = find.byKey(
+      const ValueKey('auth-desktop-pkce-login-cta-semantics'),
+    );
+    expect(
+      find.descendant(of: loginCta, matching: find.text('Zaloguj')),
+      findsOneWidget,
+    );
+    await tester.tap(loginCta);
     await tester.pumpAndSettle();
     expect(transport.interactiveCalls, 1);
     expect(auth.session.snapshot.isAuthenticated, isTrue);
