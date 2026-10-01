@@ -38,3 +38,14 @@ Ręczny deploy uruchomiony poleceniem sudo -n /usr/local/sbin/devplanner-deploy-
 W obu AGENTS.md zapisano staging jako docelowe środowisko testów UI/E2E i odbioru wizualnego, obowiązkowy Wasm i publikację przez skrypty. Użytkownik zezwolił na czyszczenie i seedowanie danych tego stagingu w ramach testów. Nie wykonano resetu bazy ani seedowania w tej publikacji.
 
 Dedykowany skrypt Front/scripts/deploy_staging_wasm.sh ma preflight uprawnień, budowę Wasm, kontrolę sumy SHA-256, wersjonowane katalogi, atomowy symlink i cofnięcie symlinka przy nieudanym sprawdzeniu HTTP. bash -n PASS; preflight na obecnym koncie odmawia publikacji przed buildem/uploadem. Skrypt nie był jeszcze sprawdzony w pełnym przebiegu publikacji.
+
+
+## Końcowy wynik — Front i Backend opublikowane
+
+Po wykonaniu przez administratora zmiany właściciela katalogu Frontu skrypt publikacji przeszedł pełny przebieg (exit 0). Aktywna wersja Frontu: b234a98438ed22e40049d4c38f2ff1c40d6b3f34.
+
+Pierwszy render ujawnił brak MIME dla .mjs w Nginx. Publisher zachowuje treść modułu Wasm, nadaje mu rozszerzenie main.dart.wasm.js i aktualizuje jego ścieżkę w loaderze. Adres bootstrapu w index.html jest wersjonowany SHA wydania, aby uniknąć starej kopii przeglądarkowej. Nie wymaga to zmiany konfiguracji Nginx ani ponownej kompilacji aplikacji.
+
+Potwierdzono HTTP 200 i sumy SHA-256 zgodne z lokalnym buildem dla main.dart.wasm oraz modułu wsparcia. MIME: application/wasm i application/javascript. /workspaces zwraca dokładnie opublikowany index.html (SPA fallback). Backend /health/ready: HTTP 200 Healthy, kontener obrazu 5d84079745a95978fc2047a774ba8b3a27e1401c healthy.
+
+Rzeczywisty render w przeglądarce na stagingu zakończył się ekranem logowania DevPlanner pod /login?returnTo=/workspaces. Nie wykonano w tej publikacji uwierzytelnionych scenariuszy modalu, Chat i Storage; nie jest to ich pełny odbiór. Wcześniejsza blokada publikacji Frontu jest rozwiązana.

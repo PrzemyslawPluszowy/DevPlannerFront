@@ -10205,3 +10205,14 @@ Backend final full po poprzednich fixture corrections: EXIT0,1469PASS/4SKIP/0FAI
 ## 2026-10-01 — zakończenie dodatkowej walidacji fixture dat
 
 TaskHttpOperationMatrixTests + ProjectSetupHttpIntegrationTests: exit 0, 40 PASS, 0 SKIP, 0 FAIL, 1 min 37 s. Log: /tmp/devplanner-task-date-fixture-batch.log. Wynik potwierdzony z terminalnego podsumowania. Zastępuje wcześniejszą informację o oczekiwaniu na ten batch. Źródła nie zmieniły się po teście; pełnego zestawu backendu nie powtarzano po zmianie wyłącznie testowej.
+
+
+## Końcowy wynik — Front i Backend opublikowane
+
+Po wykonaniu przez administratora zmiany właściciela katalogu Frontu skrypt publikacji przeszedł pełny przebieg (exit 0). Aktywna wersja Frontu: b234a98438ed22e40049d4c38f2ff1c40d6b3f34.
+
+Pierwszy render ujawnił brak MIME dla .mjs w Nginx. Publisher zachowuje treść modułu Wasm, nadaje mu rozszerzenie main.dart.wasm.js i aktualizuje jego ścieżkę w loaderze. Adres bootstrapu w index.html jest wersjonowany SHA wydania, aby uniknąć starej kopii przeglądarkowej. Nie wymaga to zmiany konfiguracji Nginx ani ponownej kompilacji aplikacji.
+
+Potwierdzono HTTP 200 i sumy SHA-256 zgodne z lokalnym buildem dla main.dart.wasm oraz modułu wsparcia. MIME: application/wasm i application/javascript. /workspaces zwraca dokładnie opublikowany index.html (SPA fallback). Backend /health/ready: HTTP 200 Healthy, kontener obrazu 5d84079745a95978fc2047a774ba8b3a27e1401c healthy.
+
+Rzeczywisty render w przeglądarce na stagingu zakończył się ekranem logowania DevPlanner pod /login?returnTo=/workspaces. Nie wykonano w tej publikacji uwierzytelnionych scenariuszy modalu, Chat i Storage; nie jest to ich pełny odbiór. Wcześniejsza blokada publikacji Frontu jest rozwiązana.
