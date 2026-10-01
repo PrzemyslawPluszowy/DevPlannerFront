@@ -29,6 +29,18 @@ readonly staging_dir="$(mktemp -d)"
 trap 'rm -rf "$staging_dir"' EXIT
 mkdir "$staging_dir/web"
 cp -R "$project_dir/build/web/." "$staging_dir/web/"
+# Bootstrap wersjonuje Wasm/JS przez version.json. Wersja pubspec sama nie
+# zmienia się przy każdej publikacji, dlatego identyfikatorem builda jest SHA.
+python3 - "$staging_dir/web/version.json" "$revision" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+payload = json.loads(path.read_text())
+payload['build_number'] = sys.argv[2]
+path.write_text(json.dumps(payload) + '\n')
+PY
 # Nginx stagingu rozpoznaje .js, lecz nie ma typu MIME dla .mjs.
 # Moduł ES zachowuje treść; zmieniają się nazwa pliku i wskazanie loadera.
 mv "$staging_dir/web/main.dart.mjs" "$staging_dir/web/main.dart.wasm.js"
