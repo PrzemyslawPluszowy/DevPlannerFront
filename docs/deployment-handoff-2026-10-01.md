@@ -1,0 +1,40 @@
+# Publikacja DevPlanner — 2026-10-01
+
+Zgoda użytkownika obejmuje commit, push oraz wdrożenie Frontu i Backendu.
+
+## Zapisane źródła
+
+- Backend: 5d84079745a95978fc2047a774ba8b3a27e1401c, wypchnięty do main.
+- Front: 3849a0b, wypchnięty do main.
+- Commit message zawiera [skip ci], ponieważ wdrożenie backendu jest wykonywane ręcznie przez SSH, bez równoległego GitHub Actions.
+- Walidacja przed publikacją: Front 2212 PASS i analyzer bez uwag; Backend pełne 1469 PASS/4 SKIP oraz późniejszy batch fixture 40/40 PASS. Web/Wasm/macOS debug build PASS.
+- Przy sprawdzeniu staged diff znaleziono końcowe spacje w nowym dokumencie backendu (poprawione przed push) oraz osiem pustych linii ze spacjami w wygenerowanych plikach Freezed Frontu. Plików wygenerowanych nie zmieniano ręcznie; nie raportować ścisłego committed diff --check jako PASS dla Frontu.
+
+## Front — paczka gotowa na VPS
+
+Build Web Wasm z DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl przesłano jako /home/codex-staging/devplanner-front-3849a0b-web.tar.gz.
+
+SHA-256 lokalnie i na VPS:
+
+dd4a17f4c0c09d83c5b3856b6611a28d333e35120c0a9f0a8471d77643de9003
+
+Nginx ma już root /srv/devplanner/frontend/current i fallback SPA. Obecny użytkownik codex-staging nie ma zapisu do /srv/devplanner/frontend; sudo -l dopuszcza wyłącznie observe, deploy, deploy-local i seed-demo. Logowanie root dostępnym kluczem zostało odrzucone. Nie obchodzono ograniczeń.
+
+Administrator może umożliwić publikację jedną komendą:
+
+```bash
+sudo chown codex-staging:codex-staging /srv/devplanner/frontend
+```
+
+Po jej wykonaniu agent może rozpakować paczkę do katalogu releases/3849a0b, atomowo utworzyć symlink current i sprawdzić index.html, bootstrap, Wasm oraz fallback trasy. Zmiana właściciela dotyczy tylko katalogu publikacji Frontu; nie jest potrzebny dostęp do sekretów, Dockera ani konfiguracji Nginx.
+
+## Backend
+
+Ręczny deploy uruchomiony poleceniem sudo -n /usr/local/sbin/devplanner-deploy-local. Log lokalny: /tmp/devplanner-staging-deploy-2026-10-01.log. Deploy zakończył się exit 0. Obraz API ma dokładnie SHA 5d84079745a95978fc2047a774ba8b3a27e1401c; kontener healthy, Nginx active, observer readiness ready oraz publiczny /health/ready zwraca Healthy. Migracje obu kontekstów wykonane przez skrypt. Front pozostaje nieopublikowany z powodu potwierdzonego braku prawa zapisu.
+
+
+## Reguły agentów i skrypt Frontu
+
+W obu AGENTS.md zapisano staging jako docelowe środowisko testów UI/E2E i odbioru wizualnego, obowiązkowy Wasm i publikację przez skrypty. Użytkownik zezwolił na czyszczenie i seedowanie danych tego stagingu w ramach testów. Nie wykonano resetu bazy ani seedowania w tej publikacji.
+
+Dedykowany skrypt Front/scripts/deploy_staging_wasm.sh ma preflight uprawnień, budowę Wasm, kontrolę sumy SHA-256, wersjonowane katalogi, atomowy symlink i cofnięcie symlinka przy nieudanym sprawdzeniu HTTP. bash -n PASS; preflight na obecnym koncie odmawia publikacji przed buildem/uploadem. Skrypt nie był jeszcze sprawdzony w pełnym przebiegu publikacji.
