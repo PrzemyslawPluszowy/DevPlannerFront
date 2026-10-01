@@ -18,6 +18,8 @@ import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_a
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
 import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/composer/chat_message_composer.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_actions_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/thread/cubit/chat_thread_cubit.dart';
@@ -237,7 +239,14 @@ class _ChatThreadSidePanelState extends State<ChatThreadSidePanel> {
                             .user
                             ?.userId ??
                         '',
-                    conversationId: 'thread:${widget.rootMessage.id}',
+                    conversationId: widget.conversationId,
+                    draftConversationId: 'thread:${widget.rootMessage.id}',
+                    attachmentUploadPort: context
+                        .read<ChatAttachmentUploadPort?>(),
+                    filePickerPort: context.read<FilePickerPort?>(),
+                    deliveryConfirmations: context
+                        .read<ChatThreadCubit>()
+                        .deliveryConfirmations,
                     serverDraftEnabled: false,
                     accessRevocation: _accessRevocation,
                     conversationStates: widget.parentConversationStates,

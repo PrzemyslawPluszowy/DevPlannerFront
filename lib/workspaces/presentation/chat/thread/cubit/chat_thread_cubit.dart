@@ -60,6 +60,8 @@ final class ChatThreadCubit extends Cubit<ChatThreadState> {
   bool _closing = false;
   ChatMessage? _rootMessage;
   ChatMessage? get rootMessage => _rootMessage;
+  Stream<ChatMessageDeliveryConfirmation> get deliveryConfirmations =>
+      _deliveryQueue.confirmations;
 
   void _applyRoot(ChatMessage message) {
     final current = state;

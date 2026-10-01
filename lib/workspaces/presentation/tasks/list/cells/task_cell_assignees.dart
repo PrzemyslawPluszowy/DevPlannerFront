@@ -7,7 +7,7 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:devplanner/workspaces/presentation/projects/people/project_member_presence_dot.dart';
+import 'package:devplanner/workspaces/presentation/projects/people/project_member_presence_label.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_assignee_picker.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
@@ -172,21 +172,19 @@ final class _TaskAssigneePresenceLabel extends StatelessWidget {
     message: displayName,
     child: Padding(
       padding: const EdgeInsets.only(right: 6),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ProjectMemberPresenceDot(isOnline: isOnline),
-          const SizedBox(width: 5),
-          Flexible(
-            child: Text(
-              displayName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.text.labelMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+          Text(
+            displayName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.text.labelMedium?.copyWith(
+              fontWeight: FontWeight.w500,
             ),
           ),
+          ProjectMemberPresenceLabel(isOnline: isOnline),
         ],
       ),
     ),

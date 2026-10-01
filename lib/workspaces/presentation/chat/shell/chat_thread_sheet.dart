@@ -9,14 +9,20 @@ import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conve
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
 import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
+import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_conversation_realtime_event.dart';
+import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/discussion/chat_discussion_side_panel.dart';
+import 'package:devplanner/workspaces/presentation/chat/emoji/cubit/chat_emoji_recent_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/thread/chat_thread_side_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,7 +59,17 @@ abstract final class ChatThreadSheet {
       return;
     }
     final authSession = context.read<AuthSessionPort?>();
-    final initialParentState = context.read<ChatConversationCubit?>()?.state;
+    final parent = context.read<ChatConversationCubit?>();
+    final initialParentState = parent?.state;
+    final parentStates = parentConversationStates ?? parent?.stream;
+    final uploads = context.read<ChatAttachmentUploadPort?>();
+    final picker = context.read<FilePickerPort?>();
+    final access = context.read<ChatAttachmentAccessPort?>();
+    final storage = context.read<StorageRepository?>();
+    final search = context.read<ChatSearchRepository?>();
+    final linkPolicy = context.read<ChatLinkPolicyRepository?>();
+    final snippets = context.read<ChatSnippetRepository?>();
+    final emoji = context.read<ChatEmojiRecentCubit?>();
     await DevPlannerModalHost.showSideSheet<void>(
       context,
       builder: (sheetContext) => MultiRepositoryProvider(
@@ -65,12 +81,30 @@ abstract final class ChatThreadSheet {
             value: deliveryRepository,
           ),
           RepositoryProvider<ChatDraftRepository>.value(value: draftRepository),
+          if (uploads != null)
+            RepositoryProvider<ChatAttachmentUploadPort>.value(value: uploads),
+          if (picker != null)
+            RepositoryProvider<FilePickerPort>.value(value: picker),
+          if (access != null)
+            RepositoryProvider<ChatAttachmentAccessPort>.value(value: access),
+          if (storage != null)
+            RepositoryProvider<StorageRepository>.value(value: storage),
+          if (search != null)
+            RepositoryProvider<ChatSearchRepository>.value(value: search),
+          if (linkPolicy != null)
+            RepositoryProvider<ChatLinkPolicyRepository>.value(
+              value: linkPolicy,
+            ),
+          if (snippets != null)
+            RepositoryProvider<ChatSnippetRepository>.value(value: snippets),
+          if (emoji != null)
+            BlocProvider<ChatEmojiRecentCubit>.value(value: emoji),
         ],
         child: _ChatSheetFrame(
           child: ChatThreadSidePanel(
             conversationId: conversationId,
             rootMessage: rootMessage,
-            parentConversationStates: parentConversationStates,
+            parentConversationStates: parentStates,
             initialParentConversationState: initialParentState,
             conversationEvents: conversationEvents,
             messageActionsRepository: messageActionsRepository,

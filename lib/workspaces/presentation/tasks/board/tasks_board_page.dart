@@ -44,6 +44,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_workflow_reposito
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_cubit.dart';
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_projects_state.dart';
+import 'package:devplanner/workspaces/presentation/projects/people/project_member_presence_label.dart';
 import 'package:devplanner/workspaces/presentation/projects/people/project_people_cubit.dart';
 import 'package:devplanner/workspaces/presentation/projects/people/project_people_panel.dart';
 import 'package:devplanner/workspaces/presentation/projects/settings/custom_fields/widgets/custom_field_option.dart';

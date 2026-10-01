@@ -29,42 +29,33 @@ class _CardPrimaryMeta extends StatelessWidget {
         shows(KanbanCardField.subtasks) &&
         !hasSubtasksSection &&
         task.subtaskTotal > 0;
-    return Row(
+    return Wrap(
+      spacing: 10,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Expanded(
-          child: Wrap(
-            spacing: 10,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              if (showDueDate)
-                _MetaText(
-                  icon: Symbols.event_rounded,
-                  value: MaterialLocalizations.of(
-                    context,
-                  ).formatMediumDate(task.dueAtUtc!.toLocal()),
-                ),
-              if (showChecklist)
-                _MetaText(
-                  icon: Symbols.checklist_rounded,
-                  value: '${task.checklistCompleted}/${task.checklistTotal}',
-                ),
-              if (showSubtasksCounter)
-                _MetaText(
-                  icon: Symbols.account_tree_rounded,
-                  value: '${task.subtaskCompleted}/${task.subtaskTotal}',
-                ),
-            ],
+        if (showDueDate)
+          _MetaText(
+            icon: Symbols.event_rounded,
+            value: MaterialLocalizations.of(context)
+                .formatMediumDate(task.dueAtUtc!.toLocal()),
           ),
-        ),
-        if (showAssignee) ...[
-          const SizedBox(width: 8),
+        if (showChecklist)
+          _MetaText(
+            icon: Symbols.checklist_rounded,
+            value: '${task.checklistCompleted}/${task.checklistTotal}',
+          ),
+        if (showSubtasksCounter)
+          _MetaText(
+            icon: Symbols.account_tree_rounded,
+            value: '${task.subtaskCompleted}/${task.subtaskTotal}',
+          ),
+        if (showAssignee)
           _CardAssigneeAvatar(
             userId: task.primaryAssigneeUserId!,
             profile: memberProfilesByUserId[task.primaryAssigneeUserId!],
             radius: KanbanCardTokens.parentAvatarRadius,
           ),
-        ],
       ],
     );
   }
@@ -217,29 +208,41 @@ class _CardAssigneeAvatar extends StatelessWidget {
         ? displayName!
         : context.l10n.tasksPresenceAnonymousUser;
     final avatarUrl = profile?.avatarUrl?.trim();
-    return Semantics(
-      label: label,
-      child: CircleAvatar(
-        radius: radius,
-        foregroundImage: avatarUrl?.isNotEmpty == true
-            ? NetworkImage(avatarUrl!)
-            : null,
-        backgroundColor: TaskBoardAvatarPalette.colorFor(userId),
-        child: avatarUrl?.isNotEmpty == true
-            ? null
-            : Text(
-                label.characters.first.toUpperCase(),
-                style: context.tasksTheme.metaText.copyWith(
-                  height: 1,
-                  fontWeight: FontWeight.w700,
-                  color: context.tasksTheme.onAccent,
-                ),
-              ),
+    return Tooltip(
+      message: label,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            label: label,
+            child: CircleAvatar(
+              radius: radius,
+              foregroundImage: avatarUrl?.isNotEmpty == true
+                  ? NetworkImage(avatarUrl!)
+                  : null,
+              backgroundColor: TaskBoardAvatarPalette.colorFor(userId),
+              child: avatarUrl?.isNotEmpty == true
+                  ? null
+                  : Text(
+                      label.characters.first.toUpperCase(),
+                      style: context.tasksTheme.metaText.copyWith(
+                        height: 1,
+                        fontWeight: FontWeight.w700,
+                        color: context.tasksTheme.onAccent,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(width: 5),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 105),
+            child: ProjectMemberPresenceLabel(isOnline: profile?.isOnline),
+          ),
+        ],
       ),
     );
   }
 }
-
 
 class _MetaText extends StatelessWidget {
   const _MetaText({required this.icon, required this.value});

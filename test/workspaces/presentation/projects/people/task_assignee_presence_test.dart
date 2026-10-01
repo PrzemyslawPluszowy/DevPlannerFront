@@ -1,10 +1,13 @@
 import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/presentation/projects/people/project_member_presence_dot.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_assignees.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,6 +79,8 @@ void main() {
       );
       expect(find.byTooltip('Online'), findsOneWidget);
       expect(find.byTooltip('Offline'), findsOneWidget);
+      expect(find.text('Online'), findsOneWidget);
+      expect(find.text('Offline'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
       await tester.pumpWidget(
@@ -90,4 +95,70 @@ void main() {
       expect(find.byTooltip('Offline'), findsNothing);
     },
   );
+
+  testWidgets('Kanban visibly follows online, offline and unknown profile', (
+    tester,
+  ) async {
+    const task = KanbanTaskCardResponse(
+      id: 'task',
+      number: 1,
+      taskCode: 'TASK-1',
+      title: 'QA',
+      status: ProjectTaskStatus.todo,
+      priority: TaskPriority.normal,
+      position: 1,
+      primaryAssigneeUserId: 'person',
+      checklistTotal: 0,
+      checklistCompleted: 0,
+      attachmentCount: 0,
+      version: 1,
+    );
+    for (final online in <bool?>[true, false, null]) {
+      for (final brightness in Brightness.values) {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(brightness: brightness),
+            locale: const Locale('pl'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 240,
+                  child: KanbanTaskCard(
+                    task: task,
+                    workspaceId: 'workspace',
+                    projectId: 'project',
+                    visibleCardFields: const [KanbanCardField.assignee],
+                    density: KanbanCardDensity.comfortable,
+                    isSelected: false,
+                    memberProfilesByUserId: {
+                      'person': ProjectMemberProfile(
+                        userId: 'person',
+                        role: ProjectRole.member,
+                        displayName: 'Osoba testowa',
+                        isOnline: online,
+                      ),
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text(switch (online) {
+            true => 'Online',
+            false => 'Offline',
+            null => 'Brak aktualnego statusu',
+          }),
+          findsOneWidget,
+        );
+        if (online == null) expect(find.text('Offline'), findsNothing);
+        expect(find.byTooltip('Osoba testowa'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
+    }
+  });
 }

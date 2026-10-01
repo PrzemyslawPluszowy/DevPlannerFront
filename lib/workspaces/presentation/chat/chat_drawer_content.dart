@@ -362,12 +362,12 @@ class ChatDrawerContent extends StatelessWidget {
       notificationSettings: context.read<ChatNotificationSettingsRepository?>(),
       targetMessageId: selection.targetMessageId,
       canModerateMessages: selection.canModerate,
-      onOpenThread: (message) => unawaited(() async {
+      onOpenThread: (threadContext, message) => unawaited(() async {
         final lease = createRealtime?.call(conversation.id);
         try {
           await ChatThreadSheet.showThread(
-            context,
-            repository: context.read<ChatThreadRepository?>(),
+            threadContext,
+            repository: threadContext.read<ChatThreadRepository?>(),
             deliveryRepository:
                 context.read<ChatConversationRepository?>() ??
                 (repository is ChatConversationRepository

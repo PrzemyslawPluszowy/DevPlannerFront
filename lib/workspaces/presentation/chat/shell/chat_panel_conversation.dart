@@ -57,7 +57,7 @@ final class ChatPanelConversation extends StatefulWidget {
   final ChatConversation conversation;
 
   /// Otwiera wątek wskazanej wiadomości; brak oznacza panel bez wątków.
-  final ValueChanged<ChatMessage>? onOpenThread;
+  final void Function(BuildContext context, ChatMessage message)? onOpenThread;
   final VoidCallback onBack;
   final VoidCallback? onOpenFullView;
   final ResourceChatFileContext? resourceContext;

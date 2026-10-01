@@ -54,7 +54,7 @@ final class ChatPanelConversationContent extends StatefulWidget {
   final ChatConversationRepository conversationRepository;
 
   /// Otwiera wątek wskazanej wiadomości; brak oznacza panel bez wątków.
-  final ValueChanged<ChatMessage>? onOpenThread;
+  final void Function(BuildContext context, ChatMessage message)? onOpenThread;
 
   /// Wiadomość, do której widok ma przewinąć po otwarciu z wyszukiwania.
   final String? targetMessageId;
@@ -300,7 +300,9 @@ final class _ChatPanelConversationContentState
                     onLoadMore: () =>
                         context.read<ChatConversationCubit>().loadMore(),
                     onReply: (message) => _replyTarget.value = message,
-                    onThread: widget.onOpenThread,
+                    onThread: widget.onOpenThread == null
+                        ? null
+                        : (message) => widget.onOpenThread!(context, message),
                     targetMessageId: widget.targetMessageId,
                     canModerate: widget.canModerateMessages,
                     participantLabels: presentation.participantLabels,

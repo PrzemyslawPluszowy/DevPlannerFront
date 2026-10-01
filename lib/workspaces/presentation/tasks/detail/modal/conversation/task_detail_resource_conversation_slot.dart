@@ -187,7 +187,8 @@ final class _TaskConversationPanel extends StatelessWidget {
         messageActions: chat?.messageActionsRepository,
         notificationSettings: chat?.notificationSettingsRepository,
         onResourceAccessRevoked: onAccessRevoked,
-        onOpenThread: (message) => _openThread(context, chat, message),
+        onOpenThread: (threadContext, message) =>
+            _openThread(threadContext, chat, message),
       ),
     );
   }

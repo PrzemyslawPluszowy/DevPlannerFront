@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
@@ -13,6 +14,7 @@ import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conve
 import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
 import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
+import 'package:devplanner/workspaces/domain/storage/models/file_picker_constraints.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
@@ -30,6 +32,95 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  testWidgets(
+    'root thread uploads to parent UUID and keeps its own draft key',
+    (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      final conversations = _ConversationRepository();
+      final uploads = _AttachmentUploadPort();
+      final picker = _FilePickerPort(
+        inputs: [
+          StorageUploadInput(
+            name: 'thread-qa.txt',
+            size: 3,
+            bytes: Uint8List.fromList([65, 66, 67]),
+          ),
+        ],
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: _ChatFixture.conversation(
+            conversation: conversations,
+            uploads: uploads,
+            picker: picker,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final source = tester.element(find.byType(ChatConversationMessageList));
+      unawaited(
+        ChatThreadSheet.showThread(
+          source,
+          repository: _ThreadRepository(),
+          deliveryRepository: conversations,
+          draftRepository: source.read<ChatDraftRepository>(),
+          conversationId: 'parent',
+          rootMessage: _message('root'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final threadComposer = find.descendant(
+        of: find.byType(ChatThreadSidePanel),
+        matching: find.byType(ChatMessageComposer),
+      );
+      final composer = tester.widget<ChatMessageComposer>(threadComposer);
+      expect(composer.conversationId, 'parent');
+      expect(composer.draftConversationId, 'thread:root');
+      expect(composer.attachmentUploadPort, same(uploads));
+      expect(composer.filePickerPort, same(picker));
+      expect(composer.deliveryConfirmations, isNotNull);
+      final labels = AppLocalizations.of(tester.element(threadComposer))!;
+      await tester.tap(
+        find.descendant(
+          of: threadComposer,
+          matching: find.byTooltip(labels.chatComposerMoreActions),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(labels.chatComposerAddFile));
+      await tester.pumpAndSettle();
+      expect(picker.calls, 1);
+      expect(uploads.conversationIds, ['parent']);
+      expect(find.text('thread-qa.txt'), findsOneWidget);
+      await tester.enterText(
+        find.descendant(
+          of: threadComposer,
+          matching: find.byType(TextField),
+        ),
+        'file reply',
+      );
+      await tester.pump();
+      await tester.tap(
+        find.descendant(
+          of: threadComposer,
+          matching: find.byTooltip('Send message'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(conversations.sent.single.conversationId, 'parent');
+      expect(conversations.sent.single.replyToMessageId, 'root');
+      expect(conversations.sent.single.attachmentFileIds, ['file']);
+      expect(find.text('thread-qa.txt'), findsNothing);
+    },
+  );
+
   testWidgets(
     'parent rebuild zachowuje jedną dzierżawę realtime',
     (tester) async {
@@ -129,7 +220,7 @@ void main() {
                   matching: find.byType(ChatMessageComposer),
                 ),
               )
-              .conversationId,
+              .draftConversationId,
           'thread:root-b',
         );
       },
@@ -329,7 +420,6 @@ void main() {
       addTearDown(router.dispose);
       await tester.pumpWidget(_ChatFixture.router(router));
       await tester.pumpAndSettle();
-      final parent = _ChatFixture.parentCubit(tester);
       final panelContext = tester.element(
         find
             .byWidgetPredicate(
@@ -350,7 +440,6 @@ void main() {
           draftRepository: drafts,
           conversationId: 'parent',
           rootMessage: _message('root'),
-          parentConversationStates: parent.stream,
         ),
       );
       await tester.pumpAndSettle();
@@ -417,6 +506,8 @@ abstract final class _ChatFixture {
     WorkspaceChatRealtimeFactory? realtimeFactory,
     String? targetMessageId,
     String conversationId = 'parent',
+    _AttachmentUploadPort? uploads,
+    _FilePickerPort? picker,
   }) => MultiRepositoryProvider(
     providers: [
       ListenableProvider<AuthSessionPort>.value(
@@ -427,9 +518,11 @@ abstract final class _ChatFixture {
         value: _MessageActionsRepository(),
       ),
       RepositoryProvider<ChatAttachmentUploadPort>.value(
-        value: _AttachmentUploadPort(),
+        value: uploads ?? _AttachmentUploadPort(),
       ),
-      RepositoryProvider<FilePickerPort>.value(value: _FilePickerPort()),
+      RepositoryProvider<FilePickerPort>.value(
+        value: picker ?? _FilePickerPort(),
+      ),
       RepositoryProvider<ChatDraftRepository>.value(
         value: drafts ?? _DraftRepository(),
       ),
@@ -559,7 +652,21 @@ final class _ConversationRepository implements ChatConversationRepository {
     ChatSendMessageCommand command,
   ) async {
     sent.add(command);
-    return Right(_message('sent'));
+    return Right(
+      ChatMessage(
+        id: 'sent',
+        conversationId: command.conversationId,
+        authorUserId: 'user-1',
+        clientMessageId: command.clientMessageId,
+        text: command.text,
+        payloadHash: command.payloadHash,
+        replyToMessageId: command.replyToMessageId,
+        version: 1,
+        createdAtUtc: DateTime.utc(2026),
+        isDeleted: false,
+        deliveryState: ChatMessageDeliveryState.sent,
+      ),
+    );
   }
 
   @override
@@ -672,6 +779,7 @@ final class _MessageActionsRepository implements ChatMessageActionsRepository {
 }
 
 final class _AttachmentUploadPort implements ChatAttachmentUploadPort {
+  final conversationIds = <String>[];
   @override
   Future<void> cancelSession(String conversationId, String sessionId) async {}
 
@@ -681,7 +789,10 @@ final class _AttachmentUploadPort implements ChatAttachmentUploadPort {
   @override
   Future<ChatAttachmentUploadSession> createSession(
     String conversationId,
-  ) async => const ChatAttachmentUploadSession('session');
+  ) async {
+    conversationIds.add(conversationId);
+    return const ChatAttachmentUploadSession('session');
+  }
 
   @override
   Future<String> copyPrivateFileToSession({
@@ -707,12 +818,19 @@ final class _AttachmentUploadPort implements ChatAttachmentUploadPort {
   ) async {}
 }
 
-final class _FilePickerPort implements FilePickerPort {
+final class _FilePickerPort implements ConstrainedFilePickerPort {
+  _FilePickerPort({this.inputs = const []});
+  final List<StorageUploadInput> inputs;
+  int calls = 0;
   @override
   Future<List<StorageUploadInput>> pickFiles({
     bool allowMultiple = true,
     List<String>? allowedExtensions,
-  }) async => const <StorageUploadInput>[];
+    FilePickerConstraints? constraints,
+  }) async {
+    calls++;
+    return inputs;
+  }
 }
 
 final class _DraftRepository implements ChatDraftRepository {

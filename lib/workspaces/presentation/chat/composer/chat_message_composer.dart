@@ -37,6 +37,7 @@ class ChatMessageComposer extends StatefulWidget {
     required this.draftRepository,
     required this.userId,
     required this.conversationId,
+    this.draftConversationId,
     this.conversationStates,
     this.serverDraftEnabled = true,
     this.deliveryConfirmations,
@@ -57,6 +58,9 @@ class ChatMessageComposer extends StatefulWidget {
   final ChatDraftRepository draftRepository;
   final String userId;
   final String conversationId;
+
+  /// Separate local draft identity for a thread; API calls use conversationId.
+  final String? draftConversationId;
   final Stream<ChatConversationState>? conversationStates;
 
   /// Szkice wątków mają lokalny klucz, który nie jest UUID endpointu rozmowy.
@@ -115,7 +119,7 @@ class _ChatMessageComposerState extends State<ChatMessageComposer> {
           ? context.read<ChatServerDraftRepository?>()
           : null,
       userId: widget.userId,
-      conversationId: widget.conversationId,
+      conversationId: widget.draftConversationId ?? widget.conversationId,
     );
     final searchRepository = context.read<ChatSearchRepository?>();
     _editor = ChatComposerEditorController(

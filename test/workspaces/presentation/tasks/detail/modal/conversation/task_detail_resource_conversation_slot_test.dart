@@ -5,11 +5,15 @@ import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
+import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message_page.dart';
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/global_chat_composition.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_conversation.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_read_aware_messages.dart';
+import 'package:devplanner/workspaces/presentation/chat/thread/chat_thread_side_panel.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/conversation/task_detail_chat_dependency_scope.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/conversation/task_detail_resource_conversation_slot.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +37,14 @@ void main() {
       (_) async => Right(conversation),
     );
     when(
+      () => repository.listThreadMessages(
+        conversationId: conversation.id,
+        threadRootMessageId: 'root-id',
+        cursor: any(named: 'cursor'),
+        limit: any(named: 'limit'),
+      ),
+    ).thenAnswer((_) async => const Right(ChatMessagePage(items: [])));
+    when(
       () => repository.listConversationMessages(
         conversationId: conversation.id,
         cursor: any(named: 'cursor'),
@@ -49,6 +61,7 @@ void main() {
       repository: repository,
       userId: 'user-id',
       draftRepository: _DraftRepositoryMock(),
+      threadRepository: repository,
     );
     ChatPanelConversation? previousPanel;
 
@@ -106,6 +119,41 @@ void main() {
       expect(taskChatTheme.metadataStyle.color, metadata);
       expect(taskChatTheme.sendButtonSurface, tasksTheme.selectionAccent);
       expect(taskMenuTheme.surface, tasksTheme.canvas);
+      final rootMessage = ChatMessage(
+        id: 'root-id',
+        conversationId: conversation.id,
+        authorUserId: 'user-id',
+        clientMessageId: 'root-client-id',
+        text: 'Root message',
+        payloadHash: 'hash',
+        version: 1,
+        createdAtUtc: DateTime.utc(2026),
+        isDeleted: false,
+        deliveryState: ChatMessageDeliveryState.sent,
+      );
+      tester
+          .widget<ChatPanelReadAwareMessages>(
+            find.byType(ChatPanelReadAwareMessages),
+          )
+          .onThread!(rootMessage);
+      await tester.pumpAndSettle();
+      final threadTheme = Theme.of(
+        tester.element(find.byType(ChatThreadSidePanel)),
+      );
+      expect(
+        threadTheme.extension<DevPlannerChatTheme>()!.outgoingBubble,
+        taskChatTheme.outgoingBubble,
+      );
+      expect(
+        threadTheme.extension<DevPlannerChatTheme>()!.sendButtonSurface,
+        tasksTheme.selectionAccent,
+      );
+      final thread = tester.widget<ChatThreadSidePanel>(
+        find.byType(ChatThreadSidePanel),
+      );
+      expect(thread.parentConversationStates, isNotNull);
+      thread.onClose();
+      await tester.pumpAndSettle();
       expect(
         find.byTooltip(
           AppLocalizations.of(tester.element(find.byType(Scaffold)))!
@@ -202,6 +250,7 @@ final class _ChatRepositoryMock extends Mock
     implements
         ChatRepository,
         ChatConversationRepository,
-        ResourceChatRepository {}
+        ResourceChatRepository,
+        ChatThreadRepository {}
 
 final class _DraftRepositoryMock extends Mock implements ChatDraftRepository {}
