@@ -7483,3 +7483,11 @@ Dowody: /tmp/devplanner-staging-onlyoffice-chrome-ready-2026-10-01.png, /tmp/dev
 - [x] Theme/Cubit/persistence/root + shared context menu: 22 PASS, w tym rzeczywista zmiana platformBrightness w widget teście i powrót do systemu. Log /tmp/devplanner-system-theme-tests-2026-10-01.log.
 - [ ] Publikacja Wasm tego pakietu i wizualny odbiór motywu na stagingu. Mac zablokowany, pytanie o odblokowanie wysłane; nie zastępować testami widgetowymi odbioru przeglądarkowego.
 - [ ] Dalszy manualny QA: kopia OnlyOffice / zapis-reopen / wydruk do PDF, pozostałe funkcje czatu, task modal i awarie. Obecność trzech kont, offline po zamknięciu i czat tekst/odczyty potwierdzone wcześniej na stagingu; całość nadal niezakończona.
+
+
+### Publikacja i odbiór pakietu motywu
+
+- Front main 7eed5681957f4a4aa166609ab87b1f3e97fa6f41 push oraz scripts/deploy_staging_wasm.sh EXIT 0. Opublikowany rzeczywisty Wasm, HTTP zasobów i tras PASS. Analyzer końcowy clean (10.5 s), diff --check clean. Backend main a3f8d64 to testy/dokumentacja, bez zmiany binarki/kontraktu runtime; backend 45cc0eb oraz konfiguracja Nginx 66893a7 pozostają aktualne.
+- IAB staging /me/files: po reload menu Systemowy/Jasny/Ciemny z zaznaczonym Systemowy; wybrano Ciemny, obejrzano prawidłową ciemną powierzchnię i menu. Reload zachował Ciemny i zaznaczenie. Następnie przywrócono Systemowy i widoczny jasny motyw wynikający z bieżącego ustawienia przeglądarki. Zmianę ustawienia platformy w trakcie sesji potwierdza test widgetowy, nie ręczna zmiana macOS.
+- Dowody: /tmp/devplanner-staging-system-theme-menu-2026-10-01.png, /tmp/devplanner-staging-theme-dark-2026-10-01.png, /tmp/devplanner-staging-theme-system-restored-2026-10-01.png. Log publikacji /tmp/devplanner-system-theme-wasm-deploy-2026-10-01.log. Native Chrome/Safari/Firefox wymagają odblokowania Maca; IAB działa i karta 6 zachowana markHandoff.
+- Nadal niezamknięta całość: pozostałe funkcje czatu, pełny task modal, awarie i OnlyOffice zapis/reopen/print. IAB timeout OnlyOffice nadal otwarty oddzielnie od udanego Chrome/Safari.
