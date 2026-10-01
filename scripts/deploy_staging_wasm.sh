@@ -35,6 +35,9 @@ mv "$staging_dir/web/main.dart.mjs" "$staging_dir/web/main.dart.wasm.js"
 sed 's/main\.dart\.mjs/main.dart.wasm.js/g' \
     "$staging_dir/web/flutter_bootstrap.js" > "$staging_dir/bootstrap.js"
 mv "$staging_dir/bootstrap.js" "$staging_dir/web/flutter_bootstrap.js"
+sed "s/flutter_bootstrap\.js/flutter_bootstrap.js?release=$revision/g" \
+    "$staging_dir/web/index.html" > "$staging_dir/index.html"
+mv "$staging_dir/index.html" "$staging_dir/web/index.html"
 COPYFILE_DISABLE=1 tar -czf "$staging_dir/$remote_archive" -C "$staging_dir/web" .
 readonly checksum="$(shasum -a 256 "$staging_dir/$remote_archive" | awk '{print $1}')"
 scp "${ssh_options[@]}" "$staging_dir/$remote_archive" "$destination:$remote_archive"
