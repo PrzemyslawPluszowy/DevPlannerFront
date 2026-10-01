@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/auth/domain/use_cases/auth_use_cases.dart';
+import 'package:devplanner/auth/presentation/auth_page_surface.dart';
 import 'package:devplanner/auth/presentation/cubit/auth_action_cubit.dart';
 import 'package:devplanner/auth/presentation/cubit/auth_login_cubit.dart';
 import 'package:devplanner/core/l10n/l10n_extensions.dart';
@@ -28,43 +29,35 @@ class AuthRoutePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 440),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: switch (kind) {
-              AuthRouteKind.login => _LoginForm(
-                useCases: useCases,
-                returnTo: returnTo,
-              ),
-              AuthRouteKind.activation => _ActionForm(
-                title: context.l10n.authActivationTitle,
-                fields: [
-                  context.l10n.authActivationTokenLabel,
-                  context.l10n.authActivationPasswordLabel,
-                ],
-                obscureFields: const [false, true],
-                action: (values) => useCases.activate(
-                  token: values[0],
-                  password: values[1],
-                ),
-              ),
-              AuthRouteKind.reset => _ActionForm(
-                title: context.l10n.authResetTitle,
-                fields: [context.l10n.authResetLoginLabel],
-                action: (values) => useCases.requestPasswordReset(values[0]),
-              ),
-              AuthRouteKind.mfa => _ActionForm(
-                title: context.l10n.authMfaTitle,
-                fields: [context.l10n.authMfaCodeLabel],
-                action: (values) => useCases.verifyMfa(values[0]),
-              ),
-            },
+    return AuthPageSurface(
+      child: switch (kind) {
+        AuthRouteKind.login => _LoginForm(
+          useCases: useCases,
+          returnTo: returnTo,
+        ),
+        AuthRouteKind.activation => _ActionForm(
+          title: context.l10n.authActivationTitle,
+          fields: [
+            context.l10n.authActivationTokenLabel,
+            context.l10n.authActivationPasswordLabel,
+          ],
+          obscureFields: const [false, true],
+          action: (values) => useCases.activate(
+            token: values[0],
+            password: values[1],
           ),
         ),
-      ),
+        AuthRouteKind.reset => _ActionForm(
+          title: context.l10n.authResetTitle,
+          fields: [context.l10n.authResetLoginLabel],
+          action: (values) => useCases.requestPasswordReset(values[0]),
+        ),
+        AuthRouteKind.mfa => _ActionForm(
+          title: context.l10n.authMfaTitle,
+          fields: [context.l10n.authMfaCodeLabel],
+          action: (values) => useCases.verifyMfa(values[0]),
+        ),
+      },
     );
   }
 }
@@ -103,7 +96,8 @@ class _LoginForm extends StatelessWidget {
               ),
             ),
           };
-          return Card(
+          return Material(
+            color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(28),
               child: Column(
@@ -111,7 +105,7 @@ class _LoginForm extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    context.l10n.appName,
+                    context.l10n.loginSubmit,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
@@ -164,6 +158,12 @@ final class _WebBffLoginAction extends StatelessWidget {
             _ => context.l10n.loginBffSubmit,
           },
           child: FilledButton(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(44),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             onPressed: submitting || redirecting ? null : onPressed,
             child: Text(
               switch ((submitting, redirecting)) {
@@ -246,7 +246,8 @@ class _ActionFormState extends State<_ActionForm> {
       child: BlocBuilder<AuthActionCubit, AuthActionState>(
         builder: (context, state) {
           final submitting = state is AuthActionSubmitting;
-          return Card(
+          return Material(
+            color: Colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(28),
               child: Form(

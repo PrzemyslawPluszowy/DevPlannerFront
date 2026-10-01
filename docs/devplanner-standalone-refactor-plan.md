@@ -7298,3 +7298,14 @@ Backend final full po poprzednich fixture corrections: EXIT0,1469PASS/4SKIP/0FAI
 ## 2026-10-01 — zakończenie dodatkowej walidacji fixture dat
 
 TaskHttpOperationMatrixTests + ProjectSetupHttpIntegrationTests: exit 0, 40 PASS, 0 SKIP, 0 FAIL, 1 min 37 s. Log: /tmp/devplanner-task-date-fixture-batch.log. Wynik potwierdzony z terminalnego podsumowania. Zastępuje wcześniejszą informację o oczekiwaniu na ten batch. Źródła nie zmieniły się po teście; pełnego zestawu backendu nie powtarzano po zmianie wyłącznie testowej.
+
+
+## 2026-10-01 — naprawa logowania i branding
+
+Potwierdzona przyczyna auth.oidc_callback_invalid na stagingu: discovery wskazywało /.well-known/jwks.json, ale Nginx przekazywał do API tylko dokładne discovery i prefiksy api/auth/bff/connect/hubs/health. JWKS zwracało HTTP 200 text/html ze SPA zamiast JSON. Główny endpoint kluczy zmieniony na /connect/jwks; dotychczasowy endpoint pozostaje aliasem backendu. Nie osłabiono walidacji podpisu, issuer, audience ani nonce.
+
+Backend LocalOpenIddictTests + BffSecurityTests + LocalLoginHttpTests: 41 PASS, 0 SKIP, 0 FAIL. Formularz serwera otrzymał logo BANKAI flow z istniejących assetów Frontu, Inter, responsywny dwukolumnowy układ, focus, etykiety i błędy oraz prefers-color-scheme light/dark. Anti-forgery i autocomplete zachowane. Kontrakty enumów niezmienione.
+
+Front otrzymał AuthPageSurface oparty o istniejące shell tokens i assety. Motyw ekranu wejścia reaguje na systemową jasność, niezależnie od zapisanej preferencji aplikacji. Oba ThemeData są przygotowane w initState. Właściciele Cubitów i przebieg logowania bez zmian. UI UX Pro Max: Accessible Authentication, password managers/paste, nazwane kontrolki; Impeccable Operate i craft-floor.
+
+W chwili tego wpisu: wdrożenie oraz uwierzytelniony odbiór UI pozostają do potwierdzenia. Logi testów /tmp/devplanner-login-fix-tests.log; build Wasm /tmp/devplanner-branded-login-wasm-build.log.

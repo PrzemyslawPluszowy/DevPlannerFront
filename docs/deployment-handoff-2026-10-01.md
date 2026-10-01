@@ -49,3 +49,14 @@ Pierwszy render ujawnił brak MIME dla .mjs w Nginx. Publisher zachowuje treść
 Potwierdzono HTTP 200 i sumy SHA-256 zgodne z lokalnym buildem dla main.dart.wasm oraz modułu wsparcia. MIME: application/wasm i application/javascript. /workspaces zwraca dokładnie opublikowany index.html (SPA fallback). Backend /health/ready: HTTP 200 Healthy, kontener obrazu 5d84079745a95978fc2047a774ba8b3a27e1401c healthy.
 
 Rzeczywisty render w przeglądarce na stagingu zakończył się ekranem logowania DevPlanner pod /login?returnTo=/workspaces. Nie wykonano w tej publikacji uwierzytelnionych scenariuszy modalu, Chat i Storage; nie jest to ich pełny odbiór. Wcześniejsza blokada publikacji Frontu jest rozwiązana.
+
+
+## 2026-10-01 — naprawa logowania i branding
+
+Potwierdzona przyczyna auth.oidc_callback_invalid na stagingu: discovery wskazywało /.well-known/jwks.json, ale Nginx przekazywał do API tylko dokładne discovery i prefiksy api/auth/bff/connect/hubs/health. JWKS zwracało HTTP 200 text/html ze SPA zamiast JSON. Główny endpoint kluczy zmieniony na /connect/jwks; dotychczasowy endpoint pozostaje aliasem backendu. Nie osłabiono walidacji podpisu, issuer, audience ani nonce.
+
+Backend LocalOpenIddictTests + BffSecurityTests + LocalLoginHttpTests: 41 PASS, 0 SKIP, 0 FAIL. Formularz serwera otrzymał logo BANKAI flow z istniejących assetów Frontu, Inter, responsywny dwukolumnowy układ, focus, etykiety i błędy oraz prefers-color-scheme light/dark. Anti-forgery i autocomplete zachowane. Kontrakty enumów niezmienione.
+
+Front otrzymał AuthPageSurface oparty o istniejące shell tokens i assety. Motyw ekranu wejścia reaguje na systemową jasność, niezależnie od zapisanej preferencji aplikacji. Oba ThemeData są przygotowane w initState. Właściciele Cubitów i przebieg logowania bez zmian. UI UX Pro Max: Accessible Authentication, password managers/paste, nazwane kontrolki; Impeccable Operate i craft-floor.
+
+W chwili tego wpisu: wdrożenie oraz uwierzytelniony odbiór UI pozostają do potwierdzenia. Logi testów /tmp/devplanner-login-fix-tests.log; build Wasm /tmp/devplanner-branded-login-wasm-build.log.
