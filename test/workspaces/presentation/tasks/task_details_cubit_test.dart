@@ -531,6 +531,37 @@ void main() {
       expect(await cubit.changeSystemStatus(ProjectTaskStatus.todo), isFalse);
     },
   );
+  test(
+    'inline status sends mutation when workflow has no restrictions',
+    () async {
+      final details = _details();
+      final repository = _TasksRepository(Right(details));
+      final updated = details.task.copyWith(
+        status: ProjectTaskStatus.done,
+        version: details.task.version + 1,
+      );
+      repository.updateResult = Right(
+        TaskMutationResponse(
+          taskId: updated.id,
+          taskVersion: updated.version,
+          taskUpdatedAtUtc: updated.updatedAtUtc,
+          data: updated,
+        ),
+      );
+      final cubit = TaskDetailsCubit(
+        repository: repository,
+        acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+        checklistRepository: _TaskChecklistRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+      );
+      await cubit.load();
+      expect(await cubit.changeSystemStatus(ProjectTaskStatus.done), isTrue);
+      expect(repository.updatePayload?.status, ProjectTaskStatus.done);
+      await cubit.close();
+    },
+  );
   test('spóźniony zapis nie przywraca treści po utracie sesji', () async {
     final pending =
         Completer<

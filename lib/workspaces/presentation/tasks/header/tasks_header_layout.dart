@@ -206,19 +206,19 @@ class _TasksHeaderLayout extends StatelessWidget {
             ProjectMemberFacepile(
               memberProfilesByUserId: state.memberProfilesByUserId,
               presence: state.presence,
+              presenceIsFresh: state.memberPresenceIsFresh,
               currentUserId: currentUserId,
               maxVisible: width >= 1350
                   ? 3
                   : width >= 1050
                   ? 2
                   : 1,
-              onTap: () => _TasksHeader._openUserHub(
+              onTap: () => _TasksHeader._openPeople(
                 context,
                 workspaceId: workspaceId,
                 projectId: projectId,
                 projectName: projectName,
-                effectiveRole: effectiveRole,
-                onProjectExited: onProjectExited,
+                state: state,
               ),
             ),
             SizedBox(width: tasksTheme.tightGap),

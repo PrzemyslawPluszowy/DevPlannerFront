@@ -22,6 +22,9 @@ abstract class ProjectMemberProfileResponse
     /// Bezpieczny URL avatara, jeśli katalog go udostępnia.
     String? avatarUrl,
 
+    /// Presence całej aplikacji; null oznacza brak aktualnego kontraktu danych.
+    bool? isOnline,
+
     /// Skuteczna rola użytkownika w projekcie.
     required ProjectRole role,
   }) = _ProjectMemberProfileResponse;

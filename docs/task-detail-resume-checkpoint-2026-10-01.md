@@ -930,3 +930,67 @@ Rzeczywisty render w przeglądarce na stagingu zakończył się ekranem logowani
 - Testy czatu na trzech niezależnych kontach pozostają do wykonania zgodnie z
   dyspozycją użytkownika. Pozostały też panel osób z globalną obecnością oraz
   manualne przejście reszty aplikacji i usuwanie znalezionych regresji.
+
+
+## Następny pakiet zbiorczy — praca robocza, jeszcze niewdrożona
+
+- Odtworzenie OnlyOffice: office-session HTTP 200, api.js i documenteditor 200,
+  ale host iframe ma srcdoc; DOM dziecka pokazuje parentOrigin=null. Deployed
+  DocsAPI 8.2.3 ustawia parentOrigin=window.location.origin przed stworzeniem
+  dziecka. Brak otwarcia dokumentu, po czasie timeout aplikacji. W źródle
+  przygotowano host Blob na Web (origin aplikacji), dokładne sprawdzenie własnego
+  URL w delegate i revoke przy wymianie/dispose. Native zachowuje dotychczasową
+  ścieżkę loadHtmlString. Zgodność semantyki Blob origin potwierdzona w MDN:
+  https://developer.mozilla.org/en-US/docs/Web/API/Location/origin.
+  Efekt w Wasm i rzeczywistym OnlyOffice nadal wymaga weryfikacji po wspólnym deploy.
+- Źródło skoku kontrolek: KanbanBoardGroupingBar wstawiał 24px loader przed
+  segmentami przy isAssigneeBoardLoading. Przygotowano loader w stałym slocie
+  ikony segmentu osoby, bez zmiany szerokości. Regresja mierzy szerokość paska
+  i pozycję następnego filtra w loaded/loading. Test PASS.
+- Konta QA: katalog seedera rozszerzony o qa.chat01/02/03 (wyłącznie zwykła rola
+  User i Member w danych demo). SeedChat dodaje wydzieloną grupę QA — czat
+  trzech kont, tylko QA plus właściciel. Nie uruchomiono seedera tego kodu i
+  konta nie są jeszcze potwierdzone na serwerze. Po wspólnym deploy uruchomić
+  sudo /usr/local/sbin/devplanner-seed-demo (bez zmiany haseł istniejących kont).
+- Native CUA ma dostęp do Chrome, Edge i Firefox jako aplikacji. Tylko IAB jest
+  wystawiony jako kontrolowany browser. Dla izolacji trzech kont można użyć
+  trzech różnych native przeglądarek, nowych kart, nie wspólnego cookie IAB.
+- Manualny czat: globalny panel ładuje historię rozmowy Wydanie i testy;
+  początkowy banner łączenia znika. Panel uczestników pokazuje role i członków,
+  lecz nie pokazuje statusu online (brak claimu o działającym realtime/E2E).
+- Próba Escape w panelu uczestników: capture przestał działać; AX nadal widzi
+  kartę 6, lecz Flutter canvas nie daje stanu panelu. Nie uznawać Escape za
+  zaliczony ani za potwierdzony błąd. Karta nadal ta sama, nie resetowano sesji.
+- Walidacja zmian roboczych: Front analyzer clean (13.1 s); grouping/OnlyOffice
+  lifecycle/host: 15 PASS; Backend build 0 warning/0 error (26.41 s).
+  Wasm build nowej poprawki i runtime akceptacja jeszcze niewykonane.
+- Jeszcze do pakietu: globalna obecność + prawy panel osób, dalszy manualny
+  przegląd task modal i menu, trzy sesje czatu po utworzeniu QA. Nie wdrażać
+  pojedynczo kolejnych drobnych poprawek; przygotować i sprawdzić wspólny pakiet.
+
+
+## Pakiet zbiorczy — obecność aplikacji i blokada statusów (robocze, bez wdrożenia)
+
+- Użytkownik potwierdził: online/offline musi być widoczne już na Liście; awatary mają otwierać prawy panel osób. W obu AGENTS.md dopisano wdrażanie pakietami, bez publikacji każdej drobnej poprawki.
+- Backend: nowy ApplicationPresenceLease + ApplicationPresenceStore, rejestracja całego połączenia ChatEventsHub bez rozmowy, HeartbeatApplicationPresence bez argumentu UserId, cleanup na disconnect, TTL 45 s, wspólna tabela między instancjami. Worker usuwa wygasłe rekordy. Query dostaje wyłącznie wcześniej autoryzowane UserId; profile projektu dodają IsOnline po dotychczasowym ACL i filtracji Identity.
+- Addytywna migracja 20261001190507_AddApplicationPresenceLeases wygenerowana; idempotentny skrypt EF wygenerowany do /tmp/devplanner-presence-migrations.sql. Rollback usuwa wyłącznie nową tabelę efemerycznych lease'ów. Migracja NIE została zastosowana na VPS. Gałąź SQL upsert PostgreSQL nadal wymaga walidacji runtime; testy store w tym pakiecie używają InMemory.
+- Front: sesyjny kanał inbox utrzymuje heartbeat co 15 s także przy zamkniętym czacie; zatrzymuje timer przy disconnect/dispose i odrzuca spóźnione błędy. Profile przenoszą isOnline, a koordynator tablicy odświeża profile co 15 s, bez nakładających się zapytań. Błąd odczytu oznacza nieaktualny stan, nie offline. Facepile korzysta z obecności aplikacji zamiast listy subskrybentów projektu; sortowanie przeniesione z build do lifecycle. Znaczniki i tooltipy rozróżniają online/offline/nieznany; kolory semantyczne aplikacji.
+- Rzeczywisty dodatkowy błąd QA: w projekcie Migracja infrastruktury menu statusu TASK-64 zawiera tylko Backlog. Observer SQL potwierdził 0 wpisów project_task_status_transitions dla tego projektu. Backend EnsureTransitionAsync jawnie dopuszcza wszystkie przejścia, gdy lista jest pusta; frontend traktował pustą listę jako blokadę. Poprawiono canMoveTaskTo, TaskWorkflowStatusOptions, changeSystemStatus i edytor podstawowy. Test ograniczonego workflow otrzymał rzeczywistą niepustą konfigurację, zamiast utrwalać błędną semantykę pustej listy. Screenshot: /tmp/devplanner-staging-workflow-status-menu-2026-10-01.png.
+- Walidacja: presence/profile/header Front 34 PASS; workflow/board/details 82 PASS; Backend presence/hub/role contract 13 PASS po dodaniu testu connect/heartbeat/disconnect bez rozmowy. Szerszy wcześniejszy zestaw Backend directory/access/presence/role: 34 PASS (przed ostatnim dodatkowym testem huba). Front analyzer clean 12.1 s przed ostatnią poprawką workflow; końcowy analyzer uruchomiony osobno. Oba diff --check clean przed końcowym dopisaniem dokumentacji.
+- Enumy dotkniętego profilu: ProjectRole transport response, pełne Owner/Admin/Member/Observer pozostają bez zmian; serialize/deserialize C# i decode/encode Flutter sprawdzone w testach. Dodane bool isOnline nie jest enumem. Weryfikacja wygenerowanego OpenAPI i rzeczywistego JSON po wdrożeniu pozostaje bramką pakietu. W workflow zachowano wartości ProjectTaskStatus; istniejący audyt przewodowy trzeba dołączyć do końcowych bramek, semantyka pustej listy jest poprawką klienta.
+- DO ZROBIENIA: prawy panel osób, obsługa błędów heartbeat w sesyjnym UI, testy odświeżania rosteru i jego zamknięcia, OpenAPI/JSON oraz PostgreSQL runtime, zbiorczy Wasm build i pozostałe bramki, jeden deploy obu komponentów, QA seed, trzy izolowane sesje czatu. Następnie odtworzyć dokładnie zmianę statusu i DnD, loader, OnlyOffice, online poza projektem i po zamknięciu ostatniej sesji. Nie deklarować odbioru wizualnego nowego kodu ani pełnego sukcesu modala.
+- Bieżąca sesja CUA: karta 6 nadal istnieje, screenshot ponownie działa. Staging nie zmieniono; otwarty modal TASK-64 z menu statusu, sesja zachowana markHandoff. Cel pozostaje aktywny.
+- Końcowa walidacja tego kroku: Front analyzer clean (11.7 s) po poprawce workflow; oba git diff --check EXIT 0. Brak aktywnych buildów/testów/deployów. Następny krok: prawy panel osób.
+
+
+## Panel osób i status wykonawców — pakiet zbiorczy 2026-10-01
+
+- [x] Prawy panel osób zastępuje poprzedni modal po kliknięciu avatarów Listy/Kanbana. Wspólny host paneli zachowuje trasę i jej stan, obsługuje Escape/focus/resize oraz zamyka i usuwa dane osób po zmianie sesji.
+- [x] ProjectPeopleCubit pobiera wyłącznie profile autoryzowanego projektu, odświeża co 15 s bez nakładania zapytań, sortuje i filtruje poza build. Błąd odczytu zachowuje dane z nieznanym statusem i daje retry; utrata uprawnień usuwa dane i cache. Zamknięcie zatrzymuje timer i odrzuca późny wynik.
+- [x] Obecność widoczna również przy wykonawcach w komórkach Listy oraz nagłówkach kolumn Kanbana po osobach. Online: pełna zielona kropka; offline: neutralna pusta; nieznany: neutralna z punktem. Tooltip i Semantics podają status. Błąd odczytu rosteru usuwa aktualność statusu również z profili używanych przez komórki.
+- [x] Zastosowano UI UX Pro Max i Impeccable Operate: wspólne tokeny aplikacji, zwarta desktopowa powierzchnia, dostępne etykiety, status niezależny od samego koloru, zachowanie focus/klawiatury. Bez zmiany globalnego motywu.
+- [x] Front: 97 testów widget/state/route/host/wierszy PASS, komenda zakończona EXIT 0. Końcowy flutter analyze clean, 13.1 s. Test wiersza sprawdza osobne online/offline, stan nieznany i brak overflow przy długich nazwach w komórce 160 px.
+- [x] Backend: 14 testów presence/hub/role PASS, w tym nowy ApplicationPresenceStorePostgresTests na izolowanej bazie PostgreSQL. Potwierdzono atomowy upsert, brak duplikowania heartbeat, dwie instancje, ochronę właściciela connectionId i offline dopiero po ostatnim disconnect. dotnet format --verify-no-changes EXIT 0.
+- [ ] Nowy kod nie jest jeszcze potwierdzony wizualnie na stagingu. Front Wasm build PASS (99.2 s, --wasm --no-tree-shake-icons). Pełne testy backendu trwają przed jednym wspólnym wdrożeniem. Pozostają aktualny OpenAPI/JSON, trzy izolowane konta QA, globalna obecność poza projektem i po zamknięciu ostatniej sesji, dokładny retest workflow/DnD/loader/OnlyOffice. Obsługa błędów heartbeat w sesyjnym UI nadal osobnym punktem odbioru.
+
+- Pełny przebieg backendu wykrył w KanbanEndpointTests niezgodną tabelę historii Identity (__EFMigrationsHistory zamiast obowiązującej __IdentityMigrationsHistory), co powodowało próbę ponownego CREATE tabel Permissions. Konfigurację testu ujednolicono z fixture i produkcyjnym DI; ponowiony zestaw Kanban HTTP: 12 PASS (30 s). Błąd nie dotyczy migracji globalnej obecności.

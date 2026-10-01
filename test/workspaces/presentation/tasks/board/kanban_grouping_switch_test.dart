@@ -109,13 +109,19 @@ void main() {
   testWidgets('wskaźnik wczytywania tablicy osób nie łamie kontrolki', (
     tester,
   ) async {
+    final boardState = state(grouping: TasksBoardGrouping.assignee);
+    await pumpInsideCommandRow(tester, boardState: boardState);
+    final size = tester.getSize(find.byType(KanbanBoardGroupingBar));
+    final filterPosition = tester.getTopLeft(find.text('filtr priorytetu'));
     await pumpInsideCommandRow(
       tester,
-      boardState: state(grouping: TasksBoardGrouping.assignee),
+      boardState: boardState,
       loading: true,
     );
 
     expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(KanbanBoardGroupingBar)), size);
+    expect(tester.getTopLeft(find.text('filtr priorytetu')), filterPosition);
     expect(
       find.descendant(
         of: find.byType(KanbanBoardGroupingBar),

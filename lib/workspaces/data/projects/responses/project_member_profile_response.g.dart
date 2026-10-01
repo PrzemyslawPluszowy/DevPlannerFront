@@ -12,6 +12,7 @@ _ProjectMemberProfileResponse _$ProjectMemberProfileResponseFromJson(
   userId: json['userId'] as String,
   displayName: json['displayName'] as String?,
   avatarUrl: json['avatarUrl'] as String?,
+  isOnline: json['isOnline'] as bool?,
   role: $enumDecode(_$ProjectRoleEnumMap, json['role']),
 );
 
@@ -21,6 +22,7 @@ Map<String, dynamic> _$ProjectMemberProfileResponseToJson(
   'userId': instance.userId,
   'displayName': instance.displayName,
   'avatarUrl': instance.avatarUrl,
+  'isOnline': instance.isOnline,
   'role': _$ProjectRoleEnumMap[instance.role]!,
 };
 

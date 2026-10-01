@@ -21659,6 +21659,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not complete the milestone operation.'**
   String get tasksMilestoneOperationFailed;
+
+  /// No description provided for @projectPeopleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'People in this project'**
+  String get projectPeopleTitle;
+
+  /// No description provided for @projectPeopleSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get projectPeopleSearch;
+
+  /// No description provided for @projectPeopleRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh people and presence'**
+  String get projectPeopleRefresh;
+
+  /// No description provided for @projectPeoplePresenceUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Current status unavailable'**
+  String get projectPeoplePresenceUnknown;
+
+  /// No description provided for @projectPeopleLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading people…'**
+  String get projectPeopleLoading;
+
+  /// No description provided for @projectPeopleEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No people to display.'**
+  String get projectPeopleEmpty;
+
+  /// No description provided for @projectPeopleNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching people.'**
+  String get projectPeopleNoMatches;
+
+  /// No description provided for @projectPeopleYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get projectPeopleYou;
 }
 
 class _AppLocalizationsDelegate

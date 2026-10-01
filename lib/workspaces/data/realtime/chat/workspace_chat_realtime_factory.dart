@@ -98,30 +98,39 @@ final class WorkspaceChatRealtimeFactory {
 /// Lekki kanał sesyjny: niesie wyłącznie sygnał, że skrzynka wymaga ponownego
 /// odczytu przez REST. Nie przesyła treści, nazw ani identyfikatorów rozmów.
 final class WorkspaceChatInboxRealtimeService {
-  WorkspaceChatInboxRealtimeService({required this.client});
+  WorkspaceChatInboxRealtimeService({
+    required this.client,
+    this.presenceHeartbeatInterval = const Duration(seconds: 15),
+  });
 
   final WorkspaceSignalRTransport client;
+  final Duration presenceHeartbeatInterval;
   final PublishSubject<void> _invalidations = PublishSubject<void>();
+  final PublishSubject<Object> _errors = PublishSubject<Object>();
   StreamSubscription<WorkspaceSignalRConnectionState>? _states;
+  Timer? _heartbeat;
+  int _generation = 0;
+  int? _heartbeatGeneration;
+  bool _connected = false;
   bool _started = false;
   bool _disposed = false;
 
   Stream<void> get invalidations => _invalidations.stream;
+  Stream<Object> get errors => _errors.stream;
 
   Future<void> start() async {
     if (_started || _disposed) return;
     _started = true;
     client.on('chat.inbox.changed', _handleInvalidation);
-    _states = client.states.listen((state) {
-      if (_started && state == WorkspaceSignalRConnectionState.connected) {
-        // Initial connect and every reconnect reconcile missed outbox events.
-        _invalidations.add(null);
-      }
-    });
+    _states = client.states.listen(_handleConnectionState);
     try {
       await client.connect();
     } catch (_) {
       _started = false;
+      _generation++;
+      _connected = false;
+      _heartbeat?.cancel();
+      _heartbeat = null;
       await _states?.cancel();
       _states = null;
       rethrow;
@@ -132,15 +141,54 @@ final class WorkspaceChatInboxRealtimeService {
     if (_started && !_invalidations.isClosed) _invalidations.add(null);
   }
 
+  void _handleConnectionState(WorkspaceSignalRConnectionState state) {
+    _generation++;
+    _connected = state == WorkspaceSignalRConnectionState.connected;
+    _heartbeat?.cancel();
+    _heartbeat = null;
+    if (!_started || !_connected || _disposed) return;
+    // Initial connect and every reconnect reconcile missed outbox events.
+    _invalidations.add(null);
+    unawaited(_renewApplicationPresence());
+    _heartbeat = Timer.periodic(presenceHeartbeatInterval, (_) {
+      unawaited(_renewApplicationPresence());
+    });
+  }
+
+  Future<void> _renewApplicationPresence() async {
+    final generation = _generation;
+    if (!_started ||
+        !_connected ||
+        _disposed ||
+        _heartbeatGeneration == generation) {
+      return;
+    }
+    _heartbeatGeneration = generation;
+    try {
+      await client.invoke('HeartbeatApplicationPresence');
+    } catch (error) {
+      if (!_disposed && generation == _generation && !_errors.isClosed) {
+        _errors.add(error);
+      }
+    } finally {
+      if (_heartbeatGeneration == generation) _heartbeatGeneration = null;
+    }
+  }
+
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
     _started = false;
+    _generation++;
+    _connected = false;
+    _heartbeat?.cancel();
+    _heartbeat = null;
     await _states?.cancel();
     _states = null;
     await client.disconnect();
     client.dispose();
     await _invalidations.close();
+    await _errors.close();
   }
 }
 

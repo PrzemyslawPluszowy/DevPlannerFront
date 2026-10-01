@@ -91,6 +91,12 @@ ProjectCustomStatusResponse _status(String id, int position) =>
     );
 
 void main() {
+  test('empty transitions expose every system status, matching backend', () {
+    expect(
+      TaskWorkflowStatusOptions.allowedFor(_details()),
+      ProjectTaskStatus.values,
+    );
+  });
   test(
     'ignores an old catalog response after same-project provider changes',
     () async {
@@ -213,7 +219,8 @@ void main() {
   );
 
   test('does not publish a pending catalog result after close', () async {
-    final pending = Completer<Either<ApiError, List<ProjectCustomStatusResponse>>>();
+    final pending =
+        Completer<Either<ApiError, List<ProjectCustomStatusResponse>>>();
     final repository = _CustomWorkflowRepository();
     when(
       () => repository.listStatuses(

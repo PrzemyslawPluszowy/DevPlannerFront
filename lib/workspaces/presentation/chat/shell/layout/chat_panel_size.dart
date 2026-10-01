@@ -15,6 +15,9 @@ import 'package:flutter/foundation.dart';
 /// gest „odciągnij w lewo” zamyka komunikator, a samo dojście do minimum nie
 /// zamyka go przypadkiem.
 final class ChatPanelSizeController extends ChangeNotifier {
+  ChatPanelSizeController({double? initialWidth})
+    : _rememberedWidth = initialWidth;
+
   /// Domyślna szerokość panelu jako część szerokości okna.
   static const double defaultWidthFraction = .75;
 

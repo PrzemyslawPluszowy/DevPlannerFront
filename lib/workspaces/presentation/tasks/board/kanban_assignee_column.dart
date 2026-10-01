@@ -178,7 +178,14 @@ class _KanbanAssigneeColumnState extends State<KanbanAssigneeColumn> {
               height: KanbanCardTokens.columnHeaderHeight,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: KanbanAssigneeColumnHeader(group: group),
+                child: KanbanAssigneeColumnHeader(
+                  group: group,
+                  isOnline: state.memberPresenceIsFresh
+                      ? state
+                            .memberProfilesByUserId[group.assigneeUserId]
+                            ?.isOnline
+                      : null,
+                ),
               ),
             ),
             if (group.tasks.isEmpty)

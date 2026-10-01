@@ -12249,4 +12249,28 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get tasksMilestoneOperationFailed =>
       'Nie udało się wykonać operacji na kamieniu milowym.';
+
+  @override
+  String get projectPeopleTitle => 'Osoby w projekcie';
+
+  @override
+  String get projectPeopleSearch => 'Szukaj osoby';
+
+  @override
+  String get projectPeopleRefresh => 'Odśwież osoby i obecność';
+
+  @override
+  String get projectPeoplePresenceUnknown => 'Brak aktualnego statusu';
+
+  @override
+  String get projectPeopleLoading => 'Wczytywanie osób…';
+
+  @override
+  String get projectPeopleEmpty => 'Brak osób do wyświetlenia.';
+
+  @override
+  String get projectPeopleNoMatches => 'Nie znaleziono pasujących osób.';
+
+  @override
+  String get projectPeopleYou => 'Ty';
 }

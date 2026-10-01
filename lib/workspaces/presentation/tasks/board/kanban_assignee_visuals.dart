@@ -1,6 +1,7 @@
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
+import 'package:devplanner/workspaces/presentation/projects/people/project_member_presence_dot.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cards/kanban_card_tokens.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/task_board_color_parser.dart';
@@ -215,9 +216,14 @@ class KanbanAssigneeCountBadge extends StatelessWidget {
 
 /// Wiersz nagłówka kolumny wykonawcy.
 class KanbanAssigneeColumnHeader extends StatelessWidget {
-  const KanbanAssigneeColumnHeader({required this.group, super.key});
+  const KanbanAssigneeColumnHeader({
+    required this.group,
+    this.isOnline,
+    super.key,
+  });
 
   final AssigneeKanbanGroupResponse group;
+  final bool? isOnline;
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +236,10 @@ class KanbanAssigneeColumnHeader extends StatelessWidget {
           isUnassigned: group.assigneeUserId == null,
         ),
         const SizedBox(width: 8),
+        if (group.assigneeUserId != null) ...[
+          ProjectMemberPresenceDot(isOnline: isOnline),
+          const SizedBox(width: 6),
+        ],
         Expanded(
           child: Tooltip(
             message: group.displayName,

@@ -3850,5 +3850,13 @@
   "tasksAssigneeClearPrimary": "Clear primary assignee",
   "tasksTemplateSaveFailed": "Could not save the task template.",
   "tasksBoardColumnLoadFailed": "Could not load more tasks for this column.",
-  "tasksMilestoneOperationFailed": "Could not complete the milestone operation."
+  "tasksMilestoneOperationFailed": "Could not complete the milestone operation.",
+  "projectPeopleTitle": "People in this project",
+  "projectPeopleSearch": "Search people",
+  "projectPeopleRefresh": "Refresh people and presence",
+  "projectPeoplePresenceUnknown": "Current status unavailable",
+  "projectPeopleLoading": "Loading people…",
+  "projectPeopleEmpty": "No people to display.",
+  "projectPeopleNoMatches": "No matching people.",
+  "projectPeopleYou": "You"
 }

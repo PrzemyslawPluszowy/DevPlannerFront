@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/data/storage/transport/onlyoffice_bridge.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/widgets/onlyoffice_host_document.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_onlyoffice_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -18,6 +19,7 @@ final class WebViewStorageOnlyOfficeController
     implements StorageOnlyOfficeController {
   final WebViewController _controller = WebViewController();
   final Talker _talker = TalkerFlutter.init();
+  final OnlyOfficeHostDocument _hostDocument = OnlyOfficeHostDocument();
   Uri? _server;
   bool _hostPageLoaded = false;
 
@@ -145,7 +147,8 @@ final class WebViewStorageOnlyOfficeController
           final server = _server;
           final isHostNavigation =
               target != null &&
-              (target.scheme == 'about' ||
+              (_hostDocument.owns(target) ||
+                  target.scheme == 'about' ||
                   target.scheme == 'data' ||
                   ((target.scheme == 'https' || target.scheme == 'http') &&
                       server != null &&
@@ -184,8 +187,13 @@ final class WebViewStorageOnlyOfficeController
   Future<void> loadHtml(String html, {required String baseUrl}) {
     _server = Uri.parse(baseUrl);
     _hostPageLoaded = false;
+    final documentUrl = _hostDocument.create(html);
+    if (documentUrl != null) return _controller.loadRequest(documentUrl);
     return _controller.loadHtmlString(html, baseUrl: baseUrl);
   }
+
+  @override
+  void dispose() => _hostDocument.dispose();
 
   @override
   Future<void> runJavaScript(String script) =>

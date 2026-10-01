@@ -99,6 +99,7 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
     _loadTimeout?.cancel();
     widget.hostController?.detach(_activeController);
     developer.log('Inicjalizacja WebView.', name: 'storage.onlyoffice');
+    _activeController?.dispose();
     try {
       final controller = widget.controllerFactory.create();
       _activeController = controller;
@@ -213,6 +214,7 @@ class _StorageOnlyOfficeHostState extends State<StorageOnlyOfficeHost> {
     _generation++;
     _loadTimeout?.cancel();
     widget.hostController?.detach(_activeController);
+    _activeController?.dispose();
     _activeController = null;
     _viewState.dispose();
     super.dispose();

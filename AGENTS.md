@@ -158,6 +158,7 @@ Po zadaniu zapisuj tylko trwałe, zweryfikowane fakty pod właściwym wspólnym 
 
 ## Środowisko testowe i obowiązkowe wdrożenie
 
+- Poprawki zbieraj i wdrażaj pakietami: najpierw przejdź powiązane scenariusze na stagingu, zapisz odtworzenie błędów, przygotuj wspólny zestaw napraw i wykonaj bramki kodu. Nie publikuj każdej drobnej poprawki osobno. Po jednym wdrożeniu pakietu sprawdź ponownie dokładnie zgłoszone błędy oraz powiązane regresje; nowe drobne usterki zbieraj do następnego pakietu.
 - Wspólnym środowiskiem testowym Frontu i Backendu jest staging pod `https://devnote.flutter-dev.pl` (VPS `135.125.200.141`). Testy UI, testy przeglądarkowe/E2E, odbiór wizualny i scenariusze użytkownika wykonuj na tym środowisku po publikacji zmian, nie na localhost. Nie uruchamiaj lokalnego serwera ani lokalnej instancji aplikacji na potrzeby tych testów.
 - Po zmianach w kodzie opublikuj aktualizowane komponenty na stagingu, aby testy dotyczyły faktycznie wdrożonej wersji. Przy zmianie kontraktu lub obu komponentów wdrażaj Backend i Front. Lokalne buildy, analyzer i testy jednostkowe pozostają bramkami kodu; nie zastępują odbioru UI na stagingu.
 - Backend wdrażaj przez SSH jako `codex-staging`, dedykowanym kluczem `~/.ssh/id_ed25519_codex_devplanner_staging`, poleceniem `sudo -n /usr/local/sbin/devplanner-deploy-local`. Skrypt pobiera `main` przez `git pull --ff-only`, buduje obrazy na VPS i wykonuje migracje. Wymaga wcześniejszego commit/push źródeł; nie wdraża niezapisanych lokalnych poprawek. Stosuj istniejące zasady autoryzacji commit/push.

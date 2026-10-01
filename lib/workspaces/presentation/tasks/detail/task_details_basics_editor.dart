@@ -71,6 +71,7 @@ class EditBasicsDialogState extends State<EditBasicsDialog> {
   Widget build(BuildContext context) {
     final workflow = widget.details.workflow;
     final allowedTargets = <ProjectTaskStatus>{
+      if (workflow.transitions.isEmpty) ...ProjectTaskStatus.values,
       widget.details.task.status,
       for (final transition in workflow.transitions)
         if (transition.fromStatus == widget.details.task.status)

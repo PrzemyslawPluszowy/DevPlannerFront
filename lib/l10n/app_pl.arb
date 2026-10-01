@@ -3837,5 +3837,13 @@
   "tasksAssigneeClearPrimary": "Usuń głównego wykonawcę",
   "tasksTemplateSaveFailed": "Nie udało się zapisać szablonu zadania.",
   "tasksBoardColumnLoadFailed": "Nie udało się wczytać kolejnych zadań tej kolumny.",
-  "tasksMilestoneOperationFailed": "Nie udało się wykonać operacji na kamieniu milowym."
+  "tasksMilestoneOperationFailed": "Nie udało się wykonać operacji na kamieniu milowym.",
+  "projectPeopleTitle": "Osoby w projekcie",
+  "projectPeopleSearch": "Szukaj osoby",
+  "projectPeopleRefresh": "Odśwież osoby i obecność",
+  "projectPeoplePresenceUnknown": "Brak aktualnego statusu",
+  "projectPeopleLoading": "Wczytywanie osób…",
+  "projectPeopleEmpty": "Brak osób do wyświetlenia.",
+  "projectPeopleNoMatches": "Nie znaleziono pasujących osób.",
+  "projectPeopleYou": "Ty"
 }

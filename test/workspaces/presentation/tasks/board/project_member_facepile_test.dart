@@ -14,6 +14,7 @@ Widget _buildTestApp({
   required String? currentUserId,
   required VoidCallback onTap,
   int maxVisible = 3,
+  bool presenceIsFresh = true,
 }) => MaterialApp(
   locale: const Locale('pl'),
   localizationsDelegates: const [
@@ -31,12 +32,58 @@ Widget _buildTestApp({
         currentUserId: currentUserId,
         onTap: onTap,
         maxVisible: maxVisible,
+        presenceIsFresh: presenceIsFresh,
       ),
     ),
   ),
 );
 
 void main() {
+  testWidgets(
+    'global presence overrides project subscription and stale data stays unknown',
+    (tester) async {
+      const members = {
+        'user-online': ProjectMemberProfile(
+          userId: 'user-online',
+          displayName: 'Anna',
+          role: ProjectRole.member,
+          isOnline: true,
+        ),
+        'user-offline': ProjectMemberProfile(
+          userId: 'user-offline',
+          displayName: 'Bartek',
+          role: ProjectRole.member,
+          isOnline: false,
+        ),
+      };
+      const projectPresence = [
+        TaskProjectPresenceUser(userId: 'user-offline', connectionCount: 1),
+      ];
+      await tester.pumpWidget(
+        _buildTestApp(
+          memberProfiles: members,
+          presence: projectPresence,
+          currentUserId: null,
+          onTap: () {},
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Anna • Online'), findsOneWidget);
+      expect(find.byTooltip('Bartek • Offline'), findsOneWidget);
+      await tester.pumpWidget(
+        _buildTestApp(
+          memberProfiles: members,
+          presence: projectPresence,
+          presenceIsFresh: false,
+          currentUserId: null,
+          onTap: () {},
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Anna • Online'), findsNothing);
+      expect(find.byTooltip('Bartek • Offline'), findsNothing);
+    },
+  );
   group('ProjectMemberFacepile - Testy stanów, widoczności i interakcji', () {
     testWidgets(
       '0 członków: renderuje kompaktowy przycisk stanu zerowego 32x32',

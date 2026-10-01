@@ -25,6 +25,7 @@ import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_reposit
 import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/snippets/chat_snippet_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
+import 'package:devplanner/workspaces/domain/models/project_people_request.dart';
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
@@ -39,6 +40,8 @@ import 'package:devplanner/workspaces/presentation/chat/links/chat_external_link
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_size.dart';
 import 'package:devplanner/workspaces/presentation/notifications/global_notifications_composition.dart';
 import 'package:devplanner/workspaces/presentation/notifications/global_notifications_page.dart';
+import 'package:devplanner/workspaces/presentation/projects/people/project_people_cubit.dart';
+import 'package:devplanner/workspaces/presentation/projects/people/project_people_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,6 +84,14 @@ final class _DevPlannerGlobalPanelsHostState
       GlobalKey<NavigatorState>();
   final FocusNode _panelFocusNode = FocusNode(debugLabel: 'devplanner-panel');
   final ChatPanelSizeController _panelSize = ChatPanelSizeController();
+  final ChatPanelSizeController _peopleSize = ChatPanelSizeController(
+    initialWidth: 432,
+  );
+  ProjectPeopleCubit? _peopleCubit;
+  ChatPanelSizeController get _activePanelSize =>
+      _controller.activePanel == DevPlannerPanel.people
+      ? _peopleSize
+      : _panelSize;
   final ValueNotifier<bool> _collapsing = ValueNotifier<bool>(false);
   late final OverlayEntry _rootEntry;
   FocusNode? _focusBeforeOpen;
@@ -104,6 +115,7 @@ final class _DevPlannerGlobalPanelsHostState
     _syncUnreadOwner();
     _syncNotificationsSignal();
     _syncChatInboxRealtime();
+    widget.authSession?.addListener(_onAuthSessionChanged);
   }
 
   @override
@@ -113,6 +125,11 @@ final class _DevPlannerGlobalPanelsHostState
     _syncUnreadOwner();
     _syncNotificationsSignal();
     _syncChatInboxRealtime();
+    if (!identical(oldWidget.authSession, widget.authSession)) {
+      oldWidget.authSession?.removeListener(_onAuthSessionChanged);
+      widget.authSession?.addListener(_onAuthSessionChanged);
+    }
+    _onAuthSessionChanged();
   }
 
   /// Utrzymuje sesyjny licznik nieprzeczytanych: powstaje po zalogowaniu,
@@ -196,6 +213,9 @@ final class _DevPlannerGlobalPanelsHostState
 
   @override
   void dispose() {
+    widget.authSession?.removeListener(_onAuthSessionChanged);
+    unawaited(_peopleCubit?.close());
+    _peopleSize.dispose();
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_notificationsSignal?.cancel());
     unawaited(_chatInboxSignal?.cancel());
@@ -269,7 +289,7 @@ final class _DevPlannerGlobalPanelsHostState
         const SingleActivator(LogicalKeyboardKey.escape): _handleEscape,
       },
       child: AnimatedBuilder(
-        animation: Listenable.merge([_controller, _panelSize]),
+        animation: Listenable.merge([_controller, _panelSize, _peopleSize]),
         builder: (context, _) {
           // Rezerwacja jest publikowana przez scope i odejmowana wewnątrz
           // shella, więc ani router, ani tapeta nie zmieniają rozmiaru.
@@ -278,6 +298,7 @@ final class _DevPlannerGlobalPanelsHostState
             controller: _controller,
             openConversation: _openConversation,
             openResourceConversation: _openResourceConversation,
+            openPeople: _openPeople,
             reservedWidth: reserved,
             child: Stack(
               fit: StackFit.expand,
@@ -287,17 +308,19 @@ final class _DevPlannerGlobalPanelsHostState
                   animation: Listenable.merge([
                     _controller,
                     _panelSize,
+                    _peopleSize,
                     _collapsing,
                   ]),
                   builder: (context, _) => _PanelOverlay(
                     activePanel: _controller.activePanel,
                     onClose: _closePanel,
                     focusNode: _panelFocusNode,
-                    size: _panelSize,
-                    onTogglePin: () =>
-                        _panelSize.setPinned(pinned: !_panelSize.pinned),
-                    onResizeStart: _panelSize.beginResize,
-                    onResize: (delta) => _panelSize.resizeBy(
+                    size: _activePanelSize,
+                    onTogglePin: () => _activePanelSize.setPinned(
+                      pinned: !_activePanelSize.pinned,
+                    ),
+                    onResizeStart: _activePanelSize.beginResize,
+                    onResize: (delta) => _activePanelSize.resizeBy(
                       delta,
                       available: MediaQuery.sizeOf(context).width,
                     ),
@@ -366,8 +389,39 @@ final class _DevPlannerGlobalPanelsHostState
     _controller.showChat();
   }
 
+  void _openPeople(ProjectPeopleRequest request) {
+    if (widget.authSession != null &&
+        (widget.authSession!.snapshot.user == null ||
+            request.ownerUserId != widget.authSession!.snapshot.user!.userId)) {
+      return;
+    }
+    final previous = _peopleCubit;
+    _peopleCubit = ProjectPeopleCubit(request);
+    unawaited(previous?.close());
+    _controller.showPeople();
+  }
+
+  void _onAuthSessionChanged() {
+    if (_peopleCubit != null &&
+        _peopleCubit!.request.ownerUserId !=
+            widget.authSession?.snapshot.user?.userId) {
+      if (_controller.activePanel == DevPlannerPanel.people) {
+        _controller.close();
+      }
+      final previous = _peopleCubit;
+      _peopleCubit = null;
+      unawaited(previous?.close());
+    }
+  }
+
   void _restoreFocusAfterClose() {
     final activePanel = _controller.activePanel;
+    if (_lastActivePanel == DevPlannerPanel.people &&
+        activePanel != DevPlannerPanel.people) {
+      final previous = _peopleCubit;
+      _peopleCubit = null;
+      unawaited(previous?.close());
+    }
     if (_lastActivePanel == null && activePanel != null) {
       _focusBeforeOpen = FocusManager.instance.primaryFocus;
       // Panel przejmuje focus jawnie: `autofocus` nie wystarcza, gdy panel
@@ -395,7 +449,7 @@ final class _DevPlannerGlobalPanelsHostState
 
   /// Kończy gest uchwytu: nadwyżka poza minimum zwija panel animacją.
   void _handleResizeEnd(double available) {
-    if (_panelSize.endResize(available: available)) {
+    if (_activePanelSize.endResize(available: available)) {
       _collapsing.value = true;
     }
   }
@@ -422,18 +476,25 @@ final class _DevPlannerGlobalPanelsHostState
   /// użyteczna szerokość treści; inaczej panel wraca do nakładki i nie zgniata
   /// aplikacji. Preferencja przypięcia nie jest przy tym kasowana.
   double _reservedWidth(double available) {
-    if (_controller.activePanel == null || !_panelSize.pinned) return 0;
+    if (_controller.activePanel == null || !_activePanelSize.pinned) return 0;
     if (!_canPin(available)) return 0;
-    return _panelSize.effectiveWidth(available);
+    return _activePanelSize.effectiveWidth(available);
   }
 
   /// Czy w oknie jest miejsce na przypięty panel obok treści aplikacji.
   bool _canPin(double available) =>
-      _controller.activePanel != null && _panelSize.canPinAt(available);
+      _controller.activePanel != null && _activePanelSize.canPinAt(available);
 
   Widget _buildActivePanel() => switch (_controller.activePanel) {
     DevPlannerPanel.chat => _buildChatPanel(),
     DevPlannerPanel.notifications => _buildNotificationsPanel(),
+    DevPlannerPanel.people => switch (_peopleCubit) {
+      final cubit? => ProjectPeoplePanel(
+        cubit: cubit,
+        onClose: _controller.close,
+      ),
+      null => const SizedBox.shrink(),
+    },
     null => const SizedBox.shrink(),
   };
 
@@ -468,7 +529,8 @@ final class _DevPlannerGlobalPanelsHostState
         fillAvailableWidth: true,
         pinned: _panelSize.pinned,
         canPin: _canPin(MediaQuery.sizeOf(context).width),
-        onTogglePin: () => _panelSize.setPinned(pinned: !_panelSize.pinned),
+        onTogglePin: () =>
+            _activePanelSize.setPinned(pinned: !_activePanelSize.pinned),
       ),
     );
     panel = RepositoryProvider<ChatInboxRepository>.value(

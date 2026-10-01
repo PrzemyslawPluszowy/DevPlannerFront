@@ -5,6 +5,7 @@ import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
@@ -33,6 +34,9 @@ final class TasksBoardRuntimeCoordinator {
   StreamSubscription<WorkspaceSignalRConnectionState>? _connections;
   StreamSubscription<WorkspaceScopedRealtimeError>? _realtimeErrors;
   Timer? _resyncDebounce;
+  Timer? _memberPresenceRefresh;
+  bool _memberProfilesInFlight = false;
+  int _memberProfilesGeneration = 0;
   Set<String>? _allowedWorkflowTransitions;
   final Set<String> _seenRealtimeEventIds = <String>{};
   final List<String> _realtimeEventOrder = <String>[];
@@ -128,6 +132,12 @@ final class TasksBoardRuntimeCoordinator {
     unawaited(_loadUserPreference());
     unawaited(refreshWorkflow());
     unawaited(_loadMemberProfiles());
+    _memberPresenceRefresh?.cancel();
+    if (memberProfilesRepository != null) {
+      _memberPresenceRefresh = Timer.periodic(const Duration(seconds: 15), (_) {
+        unawaited(_loadMemberProfiles());
+      });
+    }
   }
 
   Future<void> refreshWorkflow() async {
@@ -158,6 +168,7 @@ final class TasksBoardRuntimeCoordinator {
     }
     final transitions = _allowedWorkflowTransitions;
     if (transitions == null ||
+        transitions.isEmpty ||
         task.customStatusId != null ||
         targetColumn.customStatusId != null ||
         task.status == targetColumn.status) {
@@ -169,6 +180,8 @@ final class TasksBoardRuntimeCoordinator {
   }
 
   Future<void> dispose() async {
+    _memberProfilesGeneration++;
+    _memberPresenceRefresh?.cancel();
     _resyncDebounce?.cancel();
     await _updates?.cancel();
     await _connections?.cancel();
@@ -178,28 +191,56 @@ final class TasksBoardRuntimeCoordinator {
 
   Future<void> _loadMemberProfiles() async {
     final repository = memberProfilesRepository;
-    if (repository == null) return;
-    final result = await repository.listProfiles(
-      workspaceId: _context.workspaceId,
-      projectId: _context.projectId,
-      forceRefresh: true,
-    );
-    final current = _context.currentState;
-    if (_context.isBoardClosed || current is! TasksBoardReady) return;
-    result.fold(
-      (_) {},
-      (profiles) {
-        final latest = _context.currentState;
-        if (_context.isBoardClosed || latest is! TasksBoardReady) return;
-        _context.publish(
-          latest.copyWith(
+    if (repository == null ||
+        _memberProfilesInFlight ||
+        _context.isBoardClosed) {
+      return;
+    }
+    _memberProfilesInFlight = true;
+    final generation = _memberProfilesGeneration;
+    try {
+      final result = await repository.listProfiles(
+        workspaceId: _context.workspaceId,
+        projectId: _context.projectId,
+        forceRefresh: true,
+      );
+      final current = _context.currentState;
+      if (_context.isBoardClosed ||
+          generation != _memberProfilesGeneration ||
+          current is! TasksBoardReady) {
+        return;
+      }
+      result.fold(
+        (_) => _context.publish(
+          current.copyWith(
+            memberPresenceIsFresh: false,
             memberProfilesByUserId: {
-              for (final profile in profiles) profile.userId: profile,
+              for (final profile in current.memberProfilesByUserId.values)
+                profile.userId: ProjectMemberProfile(
+                  userId: profile.userId,
+                  role: profile.role,
+                  displayName: profile.displayName,
+                  avatarUrl: profile.avatarUrl,
+                ),
             },
           ),
-        );
-      },
-    );
+        ),
+        (profiles) {
+          final latest = _context.currentState;
+          if (_context.isBoardClosed || latest is! TasksBoardReady) return;
+          _context.publish(
+            latest.copyWith(
+              memberPresenceIsFresh: true,
+              memberProfilesByUserId: {
+                for (final profile in profiles) profile.userId: profile,
+              },
+            ),
+          );
+        },
+      );
+    } finally {
+      _memberProfilesInFlight = false;
+    }
   }
 
   /// Wczytuje osobiste preferencje widoku.

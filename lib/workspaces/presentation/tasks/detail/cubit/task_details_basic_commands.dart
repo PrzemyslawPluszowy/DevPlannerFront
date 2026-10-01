@@ -29,10 +29,13 @@ final class TaskDetailsBasicCommands {
     }
     final task = current.details.task;
     if (task.status == status) return true;
-    final allowed = current.details.workflow.transitions.any(
-      (transition) =>
-          transition.fromStatus == task.status && transition.toStatus == status,
-    );
+    final allowed =
+        current.details.workflow.transitions.isEmpty ||
+        current.details.workflow.transitions.any(
+          (transition) =>
+              transition.fromStatus == task.status &&
+              transition.toStatus == status,
+        );
     if (!allowed) return false;
     return updateBasics(
       title: task.title,

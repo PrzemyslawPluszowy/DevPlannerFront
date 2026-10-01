@@ -34,6 +34,9 @@ abstract interface class StorageOnlyOfficeController {
   /// Ładuje podpisaną konfigurację edytora w lokalnym dokumencie HTML.
   Future<void> loadHtml(String html, {required String baseUrl});
 
+  /// Zwalnia zasoby dokumentu hosta po zakończeniu sesji lub ponowieniu.
+  void dispose();
+
   /// Wykonuje kod lifecycle w dokumencie hosta.
   Future<void> runJavaScript(String script);
 

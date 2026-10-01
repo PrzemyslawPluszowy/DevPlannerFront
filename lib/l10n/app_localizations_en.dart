@@ -12151,4 +12151,28 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tasksMilestoneOperationFailed =>
       'Could not complete the milestone operation.';
+
+  @override
+  String get projectPeopleTitle => 'People in this project';
+
+  @override
+  String get projectPeopleSearch => 'Search people';
+
+  @override
+  String get projectPeopleRefresh => 'Refresh people and presence';
+
+  @override
+  String get projectPeoplePresenceUnknown => 'Current status unavailable';
+
+  @override
+  String get projectPeopleLoading => 'Loading people…';
+
+  @override
+  String get projectPeopleEmpty => 'No people to display.';
+
+  @override
+  String get projectPeopleNoMatches => 'No matching people.';
+
+  @override
+  String get projectPeopleYou => 'You';
 }

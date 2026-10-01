@@ -145,39 +145,51 @@ class _TasksHeader extends StatelessWidget {
     );
   }
 
-  static void _openUserHub(
+  static void _openPeople(
     BuildContext context, {
     required String workspaceId,
     required String projectId,
     required String projectName,
-    required ProjectRole? effectiveRole,
-    required VoidCallback? onProjectExited,
+    required TasksBoardReady state,
   }) {
-    final projectsCubit = context.read<WorkspaceProjectsCubit?>();
-    final projectFromList = switch (projectsCubit?.state) {
-      WorkspaceProjectsReady(:final items) =>
-        items.where((p) => p.id == projectId).firstOrNull,
-      _ => null,
-    };
-    final project =
-        projectFromList ??
-        ProjectListItem(
-          id: projectId,
-          workspaceId: workspaceId,
-          name: projectName,
-          myRole: effectiveRole,
-          sortPosition: 0,
-        );
-    unawaited(
-      ProjectUserHubDialogs.show(
-        context: context,
-        project: project,
-        userRole: effectiveRole,
-        onProjectLeft: () => onProjectExited?.call(),
-      ).then((_) {
-        unawaited(projectsCubit?.load());
-      }),
+    final request = ProjectPeopleRequest(
+      workspaceId: workspaceId,
+      projectId: projectId,
+      projectName: projectName,
+      ownerUserId: context.read<AuthSessionPort?>()?.snapshot.user?.userId,
+      repository: context.read<ProjectMemberProfilesRepository>(),
+      initialProfiles: List.unmodifiable(state.memberProfilesByUserId.values),
+      presenceIsFresh: state.memberPresenceIsFresh,
     );
+    final open = DevPlannerPanelsScope.openPeopleOf(context);
+    if (open != null) {
+      open(request);
+    } else {
+      unawaited(_showPeopleSideSheet(context, request));
+    }
+  }
+
+  static Future<void> _showPeopleSideSheet(
+    BuildContext context,
+    ProjectPeopleRequest request,
+  ) async {
+    final cubit = ProjectPeopleCubit(request);
+    try {
+      await AppExpandableSideSheet.show<void>(
+        context,
+        collapsedWidth: 420,
+        expandedWidth: 420,
+        padding: EdgeInsets.zero,
+        showCloseButton: false,
+        scrollBody: false,
+        bodyBuilder: (panelContext, _) => ProjectPeoplePanel(
+          cubit: cubit,
+          onClose: () => Navigator.of(panelContext).pop(),
+        ),
+      );
+    } finally {
+      await cubit.close();
+    }
   }
 
   static void _openProjectSettings(

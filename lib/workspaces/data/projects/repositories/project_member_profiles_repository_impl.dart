@@ -81,6 +81,7 @@ final class ProjectMemberProfilesRepositoryImpl extends ApiRepository
 
   ProjectMemberProfile _toDomain(ProjectMemberProfileResponse response) =>
       ProjectMemberProfile(
+        isOnline: response.isOnline,
         userId: response.userId,
         displayName: response.displayName,
         avatarUrl: response.avatarUrl,

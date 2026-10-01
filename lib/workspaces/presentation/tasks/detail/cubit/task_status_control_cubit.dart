@@ -116,6 +116,7 @@ abstract final class TaskWorkflowStatusOptions {
   ) {
     final current = details.task.status;
     final allowed = <ProjectTaskStatus>{
+      if (details.workflow.transitions.isEmpty) ...ProjectTaskStatus.values,
       current,
       for (final transition in details.workflow.transitions)
         if (transition.fromStatus == current) transition.toStatus,

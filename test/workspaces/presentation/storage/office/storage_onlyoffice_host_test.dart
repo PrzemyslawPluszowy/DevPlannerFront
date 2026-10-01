@@ -34,6 +34,7 @@ void main() {
       await tester.pump();
       factory.value = _FakeControllerFactory(next);
       await tester.pump();
+      expect(old.disposeCount, 1);
       next.finishPage();
       await tester.pump();
       pending.completeError(StateError('stale initialization failure'));
@@ -41,6 +42,8 @@ void main() {
       expect(find.textContaining('stale initialization failure'), findsNothing);
       expect(find.text('Ładowanie edytora OnlyOffice…'), findsNothing);
       expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      expect(next.disposeCount, 1);
     },
   );
 
@@ -349,6 +352,9 @@ final class _FakeControllerFactory
 final class _FakeStorageOnlyOfficeController
     implements StorageOnlyOfficeController {
   _FakeStorageOnlyOfficeController({this.initialization, this.loading});
+  @override
+  void dispose() => disposeCount++;
+  int disposeCount = 0;
   final Completer<void>? initialization;
   final Completer<void>? loading;
   static const surfaceKey = Key('fake-onlyoffice-surface');

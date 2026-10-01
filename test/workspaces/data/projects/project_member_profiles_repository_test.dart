@@ -7,6 +7,37 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 void main() {
+  test(
+    'profiles preserve global presence and every ProjectRole wire value',
+    () {
+      const roles = {
+        'Owner': ProjectRole.owner,
+        'Admin': ProjectRole.admin,
+        'Member': ProjectRole.member,
+        'Observer': ProjectRole.observer,
+      };
+      for (final entry in roles.entries) {
+        for (final online in [true, false]) {
+          final profile = ProjectMemberProfileResponse.fromJson({
+            'userId': 'user',
+            'role': entry.key,
+            'isOnline': online,
+          });
+          expect(profile.role, entry.value);
+          expect(profile.isOnline, online);
+          expect(profile.toJson()['role'], entry.key);
+          expect(profile.toJson()['isOnline'], online);
+        }
+      }
+      expect(
+        ProjectMemberProfileResponse.fromJson({
+          'userId': 'user',
+          'role': 'Member',
+        }).isOnline,
+        isNull,
+      );
+    },
+  );
   test('listProfiles zachowuje pełny katalog przez cursorowe strony', () async {
     final api = _ProjectsApi();
     when(

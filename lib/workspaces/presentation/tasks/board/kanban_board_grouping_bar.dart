@@ -55,20 +55,14 @@ class KanbanBoardGroupingBar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (state.isAssigneeBoardLoading)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6),
-              child: SizedBox(
-                width: 12,
-                height: 12,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ),
           for (final (value, label, icon) in options)
             _GroupingSegment(
               label: label,
               icon: icon,
               isSelected: state.grouping == value,
+              isLoading:
+                  state.isAssigneeBoardLoading &&
+                  value == TasksBoardGrouping.assignee,
               // Cubit czytamy w momencie kliknięcia, nie w buildzie: nagłówek
               // montuje się także w testach i podglądach bez dostawcy cubita.
               onTap: () => unawaited(
@@ -89,12 +83,14 @@ class _GroupingSegment extends StatefulWidget {
     required this.label,
     required this.icon,
     required this.isSelected,
+    required this.isLoading,
     required this.onTap,
   });
 
   final String label;
   final IconData icon;
   final bool isSelected;
+  final bool isLoading;
   final VoidCallback onTap;
 
   @override
@@ -172,7 +168,16 @@ class _GroupingSegmentState extends State<_GroupingSegment> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(widget.icon, size: 14, color: foreground),
+                      SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: widget.isLoading
+                            ? CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: foreground,
+                              )
+                            : Icon(widget.icon, size: 14, color: foreground),
+                      ),
                       const SizedBox(width: 5),
                       Text(
                         widget.label,

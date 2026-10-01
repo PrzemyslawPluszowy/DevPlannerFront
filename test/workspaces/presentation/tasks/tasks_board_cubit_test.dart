@@ -1859,6 +1859,44 @@ void main() {
     },
   );
 
+  test(
+    'empty transitions allow Kanban moves, matching backend workflow',
+    () async {
+      final repository = _KanbanRepository(_board());
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workflowRepository: const _WorkflowRepository(
+          ProjectTaskWorkflowResponse(
+            statuses: [],
+            transitions: [],
+            version: 1,
+          ),
+        ),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.start();
+      await Future<void>.delayed(Duration.zero);
+      final board = (cubit.state as TasksBoardReady).board;
+      expect(
+        cubit.canMoveTaskTo(
+          task: board.columns.first.tasks.first,
+          targetColumn: board.columns.last,
+        ),
+        isTrue,
+      );
+      await cubit.moveTask(
+        task: board.columns.first.tasks.first,
+        targetColumn: board.columns.last,
+        targetIndex: 0,
+      );
+      expect(repository.movePayload, isNotNull);
+      await cubit.close();
+    },
+  );
+
   test('nie wysyła DnD niedozwolonego przez workflow', () async {
     final repository = _KanbanRepository(_board());
     final cubit = TasksBoardCubit(
@@ -1866,7 +1904,16 @@ void main() {
       _Realtime(),
       _TasksRepository(),
       workflowRepository: const _WorkflowRepository(
-        ProjectTaskWorkflowResponse(statuses: [], transitions: [], version: 1),
+        ProjectTaskWorkflowResponse(
+          statuses: [],
+          transitions: [
+            ProjectTaskWorkflowTransitionResponse(
+              fromStatus: ProjectTaskStatus.todo,
+              toStatus: ProjectTaskStatus.done,
+            ),
+          ],
+          version: 1,
+        ),
       ),
       workspaceId: 'workspace-1',
       projectId: 'project-1',

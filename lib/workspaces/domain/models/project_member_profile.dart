@@ -7,6 +7,7 @@ final class ProjectMemberProfile {
     required this.role,
     this.displayName,
     this.avatarUrl,
+    this.isOnline,
   });
 
   /// Stabilny identyfikator używany przez zdarzenia realtime.
@@ -17,6 +18,9 @@ final class ProjectMemberProfile {
 
   /// Bezpieczny URL avatara, jeśli katalog Core go udostępnił.
   final String? avatarUrl;
+
+  /// Stan aplikacji z autoryzowanego snapshotu; null oznacza nieznany stan.
+  final bool? isOnline;
 
   /// Skuteczna rola osoby w projekcie.
   final ProjectRole role;

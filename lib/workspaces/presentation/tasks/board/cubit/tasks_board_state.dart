@@ -42,6 +42,7 @@ final class TasksBoardReady extends TasksBoardState {
     this.filter = KanbanBoardFilter.none,
     this.loadingFilter = false,
     this.memberProfilesByUserId = const {},
+    this.memberPresenceIsFresh = false,
     this.loadingColumnKeys = const <String>{},
     this.columnLoadErrors = const <String, String>{},
     this.columnLoadApiErrors = const <String, ApiError>{},
@@ -78,6 +79,7 @@ final class TasksBoardReady extends TasksBoardState {
   final bool loadingFilter;
 
   final Map<String, ProjectMemberProfile> memberProfilesByUserId;
+  final bool memberPresenceIsFresh;
   final Set<String> loadingColumnKeys;
   final Map<String, String> columnLoadErrors;
   final Map<String, ApiError> columnLoadApiErrors;
@@ -152,6 +154,7 @@ final class TasksBoardReady extends TasksBoardState {
     KanbanBoardFilter? filter,
     bool? loadingFilter,
     Map<String, ProjectMemberProfile>? memberProfilesByUserId,
+    bool? memberPresenceIsFresh,
     Set<String>? loadingColumnKeys,
     Map<String, String>? columnLoadErrors,
     Map<String, ApiError>? columnLoadApiErrors,
@@ -183,6 +186,7 @@ final class TasksBoardReady extends TasksBoardState {
     loadingFilter: loadingFilter ?? this.loadingFilter,
     memberProfilesByUserId:
         memberProfilesByUserId ?? this.memberProfilesByUserId,
+    memberPresenceIsFresh: memberPresenceIsFresh ?? this.memberPresenceIsFresh,
     loadingColumnKeys: loadingColumnKeys ?? this.loadingColumnKeys,
     columnLoadErrors: columnLoadErrors ?? this.columnLoadErrors,
     columnLoadApiErrors: columnLoadApiErrors ?? this.columnLoadApiErrors,

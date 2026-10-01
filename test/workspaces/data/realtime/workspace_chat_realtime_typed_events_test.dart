@@ -1,11 +1,44 @@
 import 'package:devplanner/workspaces/data/realtime/chat/chat_realtime_event_mapper.dart';
 import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/domain/chat/realtime/chat_realtime_export.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/chat_realtime_test_support.dart';
 
 void main() {
+  test(
+    'application presence survives closed chat and stops on disconnect',
+    () async {
+      final transport = ChatRealtimeTestTransport();
+      final service = WorkspaceChatInboxRealtimeService(
+        client: transport,
+        presenceHeartbeatInterval: const Duration(milliseconds: 5),
+      );
+      await service.start();
+      await ChatRealtimeTestPayload.flush();
+      expect(transport.invocations.map((entry) => entry.$1), [
+        'HeartbeatApplicationPresence',
+      ]);
+      await Future<void>.delayed(const Duration(milliseconds: 25));
+      expect(transport.invocations.length, greaterThanOrEqualTo(2));
+      expect(transport.invocations.every((entry) => entry.$2 == null), isTrue);
+      transport.emitConnectionState(
+        WorkspaceSignalRConnectionState.disconnected,
+      );
+      await ChatRealtimeTestPayload.flush();
+      final disconnectedCount = transport.invocations.length;
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(transport.invocations, hasLength(disconnectedCount));
+      transport.reconnect();
+      await ChatRealtimeTestPayload.flush();
+      expect(transport.invocations.length, greaterThan(disconnectedCount));
+      await service.dispose();
+      final disposedCount = transport.invocations.length;
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(transport.invocations, hasLength(disposedCount));
+    },
+  );
   test(
     'session inbox channel invalidates after connect, events and reconnect',
     () async {

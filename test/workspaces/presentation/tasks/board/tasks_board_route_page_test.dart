@@ -5,7 +5,7 @@ import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
-import 'package:devplanner/workspaces/presentation/projects/settings/user_hub/project_user_hub_modal.dart';
+import 'package:devplanner/workspaces/presentation/projects/people/project_people_panel.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cards/kanban_card_tokens.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_columns_viewport.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
@@ -152,35 +152,42 @@ void main() {
       }
     });
 
-    testWidgets('header user hub reads the project port from the route scope', (
-      tester,
-    ) async {
-      // Szerokość okna desktopowego: ten test dowodzi kontraktu portów trasy,
-      // nie responsywności modala użytkownika w wąskim oknie.
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(1440, 900);
-      addTearDown(tester.view.reset);
+    testWidgets(
+      'header avatars open a right people panel with the project ACL repository',
+      (
+        tester,
+      ) async {
+        // Szerokość okna desktopowego: ten test dowodzi kontraktu portów trasy,
+        // nie responsywności modala użytkownika w wąskim oknie.
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = const Size(1440, 900);
+        addTearDown(tester.view.reset);
 
-      final fixture = TasksBoardRouteFixture(
-        boardResult: emptyKanbanBoardResult,
-      );
-      await tester.pumpWidget(
-        TasksBoardRouteTestHarness(fixture: fixture, initialView: null),
-      );
-      await tester.pumpAndSettle();
+        final fixture = TasksBoardRouteFixture(
+          boardResult: emptyKanbanBoardResult,
+        );
+        await tester.pumpWidget(
+          TasksBoardRouteTestHarness(fixture: fixture, initialView: null),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(ProjectMemberFacepile));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byType(ProjectMemberFacepile));
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(ProjectUserHubModal), findsOneWidget);
-      verify(
-        () => fixture.projects.getProject(
-          workspaceId: 'workspace-1',
-          projectId: 'project-1',
-        ),
-      ).called(1);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.byType(ProjectPeoplePanel), findsOneWidget);
+        verify(
+          () => fixture.profiles.listProfiles(
+            workspaceId: 'workspace-1',
+            projectId: 'project-1',
+            forceRefresh: true,
+          ),
+        ).called(2);
+        await tester.tap(find.byTooltip('Zamknij'));
+        await tester.pumpAndSettle();
+        expect(find.byType(ProjectPeoplePanel), findsNothing);
+      },
+    );
 
     testWidgets('unknown query falls back to the canonical List', (
       tester,

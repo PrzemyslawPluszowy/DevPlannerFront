@@ -18,7 +18,8 @@ mixin _$ProjectMemberProfileResponse {
 /// Kanoniczny lokalny identyfikator użytkownika DevPlanner.
  String get userId;/// Nazwa do pokazania w presence i selektorach osób.
  String? get displayName;/// Bezpieczny URL avatara, jeśli katalog go udostępnia.
- String? get avatarUrl;/// Skuteczna rola użytkownika w projekcie.
+ String? get avatarUrl;/// Presence całej aplikacji; null oznacza brak aktualnego kontraktu danych.
+ bool? get isOnline;/// Skuteczna rola użytkownika w projekcie.
  ProjectRole get role;
 /// Create a copy of ProjectMemberProfileResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -32,16 +33,16 @@ $ProjectMemberProfileResponseCopyWith<ProjectMemberProfileResponse> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectMemberProfileResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.role, role) || other.role == role));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectMemberProfileResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.role, role) || other.role == role));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,displayName,avatarUrl,role);
+int get hashCode => Object.hash(runtimeType,userId,displayName,avatarUrl,isOnline,role);
 
 @override
 String toString() {
-  return 'ProjectMemberProfileResponse(userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, role: $role)';
+  return 'ProjectMemberProfileResponse(userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, isOnline: $isOnline, role: $role)';
 }
 
 
@@ -52,7 +53,7 @@ abstract mixin class $ProjectMemberProfileResponseCopyWith<$Res>  {
   factory $ProjectMemberProfileResponseCopyWith(ProjectMemberProfileResponse value, $Res Function(ProjectMemberProfileResponse) _then) = _$ProjectMemberProfileResponseCopyWithImpl;
 @useResult
 $Res call({
- String userId, String? displayName, String? avatarUrl, ProjectRole role
+ String userId, String? displayName, String? avatarUrl, bool? isOnline, ProjectRole role
 });
 
 
@@ -69,12 +70,13 @@ class _$ProjectMemberProfileResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectMemberProfileResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? displayName = freezed,Object? avatarUrl = freezed,Object? role = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? displayName = freezed,Object? avatarUrl = freezed,Object? isOnline = freezed,Object? role = null,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
-as String?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String?,isOnline: freezed == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
+as bool?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as ProjectRole,
   ));
 }
@@ -160,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String? displayName,  String? avatarUrl,  ProjectRole role)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String? displayName,  String? avatarUrl,  bool? isOnline,  ProjectRole role)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProjectMemberProfileResponse() when $default != null:
-return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.role);case _:
+return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.isOnline,_that.role);case _:
   return orElse();
 
 }
@@ -181,10 +183,10 @@ return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.role);case 
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String? displayName,  String? avatarUrl,  ProjectRole role)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String? displayName,  String? avatarUrl,  bool? isOnline,  ProjectRole role)  $default,) {final _that = this;
 switch (_that) {
 case _ProjectMemberProfileResponse():
-return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.role);case _:
+return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.isOnline,_that.role);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +203,10 @@ return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.role);case 
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String? displayName,  String? avatarUrl,  ProjectRole role)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String? displayName,  String? avatarUrl,  bool? isOnline,  ProjectRole role)?  $default,) {final _that = this;
 switch (_that) {
 case _ProjectMemberProfileResponse() when $default != null:
-return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.role);case _:
+return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.isOnline,_that.role);case _:
   return null;
 
 }
@@ -216,7 +218,7 @@ return $default(_that.userId,_that.displayName,_that.avatarUrl,_that.role);case 
 @JsonSerializable()
 
 class _ProjectMemberProfileResponse implements ProjectMemberProfileResponse {
-  const _ProjectMemberProfileResponse({required this.userId, this.displayName, this.avatarUrl, required this.role});
+  const _ProjectMemberProfileResponse({required this.userId, this.displayName, this.avatarUrl, this.isOnline, required this.role});
   factory _ProjectMemberProfileResponse.fromJson(Map<String, dynamic> json) => _$ProjectMemberProfileResponseFromJson(json);
 
 /// Kanoniczny lokalny identyfikator użytkownika DevPlanner.
@@ -225,6 +227,8 @@ class _ProjectMemberProfileResponse implements ProjectMemberProfileResponse {
 @override final  String? displayName;
 /// Bezpieczny URL avatara, jeśli katalog go udostępnia.
 @override final  String? avatarUrl;
+/// Presence całej aplikacji; null oznacza brak aktualnego kontraktu danych.
+@override final  bool? isOnline;
 /// Skuteczna rola użytkownika w projekcie.
 @override final  ProjectRole role;
 
@@ -241,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectMemberProfileResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.role, role) || other.role == role));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectMemberProfileResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.role, role) || other.role == role));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,displayName,avatarUrl,role);
+int get hashCode => Object.hash(runtimeType,userId,displayName,avatarUrl,isOnline,role);
 
 @override
 String toString() {
-  return 'ProjectMemberProfileResponse(userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, role: $role)';
+  return 'ProjectMemberProfileResponse(userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, isOnline: $isOnline, role: $role)';
 }
 
 
@@ -261,7 +265,7 @@ abstract mixin class _$ProjectMemberProfileResponseCopyWith<$Res> implements $Pr
   factory _$ProjectMemberProfileResponseCopyWith(_ProjectMemberProfileResponse value, $Res Function(_ProjectMemberProfileResponse) _then) = __$ProjectMemberProfileResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, String? displayName, String? avatarUrl, ProjectRole role
+ String userId, String? displayName, String? avatarUrl, bool? isOnline, ProjectRole role
 });
 
 
@@ -278,12 +282,13 @@ class __$ProjectMemberProfileResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectMemberProfileResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? displayName = freezed,Object? avatarUrl = freezed,Object? role = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? displayName = freezed,Object? avatarUrl = freezed,Object? isOnline = freezed,Object? role = null,}) {
   return _then(_ProjectMemberProfileResponse(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
-as String?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String?,isOnline: freezed == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
+as bool?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as ProjectRole,
   ));
 }

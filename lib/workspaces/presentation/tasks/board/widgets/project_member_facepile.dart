@@ -6,16 +6,18 @@ part of '../tasks_board_page.dart';
 /// - Źródłem są wszyscy członkowie projektu (`memberProfilesByUserId`).
 /// - Prezentuje maksymalnie 3 awatary (24 px) + chip `+N` (24 px).
 /// - Porządek: aktualny użytkownik → osoby online → pozostali alfabetycznie.
-/// - Zielona kropka 6 px z obrysem powierzchni (2 px) dla osób aktualnie obecnych w realtime.
+/// - Obecność całej aplikacji z autoryzowanych profili; subskrypcja projektu nie oznacza online.
+/// - Zielony znacznik online, neutralny offline; nieaktualne dane mają stan nieznany.
 /// - Dostępny hit-target i Semantics z liczbą członków i liczbą online.
-/// - Kliknięcie otwiera modal członków projektu (`ProjectUserHubDialogs.show`).
-class ProjectMemberFacepile extends StatelessWidget {
+/// - Kliknięcie otwiera prawy panel osób i ich obecności.
+class ProjectMemberFacepile extends StatefulWidget {
   const ProjectMemberFacepile({
     required this.memberProfilesByUserId,
     required this.presence,
     required this.currentUserId,
     required this.onTap,
     this.maxVisible = 3,
+    this.presenceIsFresh = false,
     super.key,
   });
 
@@ -24,33 +26,67 @@ class ProjectMemberFacepile extends StatelessWidget {
   final String? currentUserId;
   final VoidCallback onTap;
   final int maxVisible;
+  final bool presenceIsFresh;
+
+  @override
+  State<ProjectMemberFacepile> createState() => _ProjectMemberFacepileState();
+}
+
+class _ProjectMemberFacepileState extends State<ProjectMemberFacepile> {
+  List<ProjectMemberProfile> _members = const [];
+  Set<String> _onlineUserIds = const {};
+  int _onlineCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareMembers();
+  }
+
+  @override
+  void didUpdateWidget(ProjectMemberFacepile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(
+          oldWidget.memberProfilesByUserId,
+          widget.memberProfilesByUserId,
+        ) ||
+        oldWidget.currentUserId != widget.currentUserId ||
+        oldWidget.presenceIsFresh != widget.presenceIsFresh) {
+      _prepareMembers();
+    }
+  }
+
+  void _prepareMembers() {
+    _onlineUserIds = widget.presenceIsFresh
+        ? widget.memberProfilesByUserId.values
+              .where((member) => member.isOnline == true)
+              .map((member) => member.userId)
+              .toSet()
+        : const {};
+    _members = widget.memberProfilesByUserId.values.toList()
+      ..sort(_compareMembers);
+    _onlineCount = _onlineUserIds.length;
+  }
+
+  int _compareMembers(ProjectMemberProfile a, ProjectMemberProfile b) {
+    if (a.userId == b.userId) return 0;
+    if (a.userId == widget.currentUserId) return -1;
+    if (b.userId == widget.currentUserId) return 1;
+    final aOnline = _onlineUserIds.contains(a.userId);
+    final bOnline = _onlineUserIds.contains(b.userId);
+    if (aOnline != bOnline) return aOnline ? -1 : 1;
+    return (a.displayName ?? '').toLowerCase().compareTo(
+      (b.displayName ?? '').toLowerCase(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final l10n = context.l10n;
 
-    final onlineUserIds = presence.map((p) => p.userId).toSet();
-    final allMembers = memberProfilesByUserId.values.toList();
-
-    // Sortowanie: 1) aktualny użytkownik, 2) online, 3) alfabetycznie
-    allMembers.sort((a, b) {
-      if (a.userId == currentUserId) return -1;
-      if (b.userId == currentUserId) return 1;
-
-      final aOnline = onlineUserIds.contains(a.userId);
-      final bOnline = onlineUserIds.contains(b.userId);
-      if (aOnline != bOnline) return aOnline ? -1 : 1;
-
-      final nameA = a.displayName ?? '';
-      final nameB = b.displayName ?? '';
-      return nameA.toLowerCase().compareTo(nameB.toLowerCase());
-    });
-
-    final totalCount = allMembers.length;
-    final onlineCount = allMembers
-        .where((m) => onlineUserIds.contains(m.userId))
-        .length;
+    final totalCount = _members.length;
+    final onlineCount = _onlineCount;
 
     if (totalCount == 0) {
       return Tooltip(
@@ -59,7 +95,7 @@ class ProjectMemberFacepile extends StatelessWidget {
           button: true,
           label: l10n.projectUserHubTitle,
           child: InkWell(
-            onTap: onTap,
+            onTap: widget.onTap,
             borderRadius: .circular(Sizes.p8),
             child: Container(
               width: 32,
@@ -82,11 +118,17 @@ class ProjectMemberFacepile extends StatelessWidget {
       );
     }
 
-    final visibleMembers = allMembers.take(maxVisible).toList();
+    final visibleMembers = _members.take(widget.maxVisible).toList();
     final overflowCount = totalCount - visibleMembers.length;
 
+    final hasKnownPresence =
+        widget.presenceIsFresh &&
+        _members.every((member) => member.isOnline != null);
+    final presenceLabel = hasKnownPresence
+        ? l10n.tasksPresenceCount(onlineCount)
+        : l10n.tasksRealtimeConnecting;
     final semanticsLabel =
-        '${l10n.projectUserHubTitle}: $totalCount (${l10n.tasksPresenceCount(onlineCount)})';
+        '${l10n.projectUserHubTitle}: $totalCount ($presenceLabel)';
 
     return Tooltip(
       message: semanticsLabel,
@@ -95,7 +137,7 @@ class ProjectMemberFacepile extends StatelessWidget {
         label: semanticsLabel,
         child: InkWell(
           key: const ValueKey('project_member_facepile'),
-          onTap: onTap,
+          onTap: widget.onTap,
           borderRadius: .circular(Sizes.p12),
           hoverColor: colors.surfaceContainerHighest.withValues(alpha: .4),
           child: ConstrainedBox(
@@ -110,9 +152,9 @@ class ProjectMemberFacepile extends StatelessWidget {
                       if (i > 0) const SizedBox(width: 4),
                       _FacepileAvatar(
                         member: visibleMembers[i],
-                        isOnline: onlineUserIds.contains(
-                          visibleMembers[i].userId,
-                        ),
+                        isOnline: widget.presenceIsFresh
+                            ? visibleMembers[i].isOnline
+                            : null,
                       ),
                     ],
                     if (overflowCount > 0) ...[
@@ -158,7 +200,7 @@ class _FacepileAvatar extends StatelessWidget {
   });
 
   final ProjectMemberProfile member;
-  final bool isOnline;
+  final bool? isOnline;
 
   @override
   Widget build(BuildContext context) {
@@ -168,9 +210,11 @@ class _FacepileAvatar extends StatelessWidget {
     final name = displayName?.isNotEmpty == true
         ? displayName!
         : l10n.tasksPresenceAnonymousUser;
-    final statusText = isOnline
-        ? l10n.tasksPresenceOnline
-        : l10n.tasksPresenceOffline;
+    final statusText = switch (isOnline) {
+      true => l10n.tasksPresenceOnline,
+      false => l10n.tasksPresenceOffline,
+      null => l10n.tasksRealtimeConnecting,
+    };
     final tooltipText = '$name • $statusText';
     final avatarUrl = member.avatarUrl?.trim();
 
@@ -209,7 +253,7 @@ class _FacepileAvatar extends StatelessWidget {
                     ),
             ),
           ),
-          if (isOnline)
+          if (isOnline != null)
             Positioned(
               right: -1,
               bottom: -1,
@@ -217,7 +261,9 @@ class _FacepileAvatar extends StatelessWidget {
                 width: 7,
                 height: 7,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981),
+                  color: isOnline == true
+                      ? context.feedback.successForeground
+                      : colors.onSurfaceVariant,
                   shape: .circle,
                   border: .all(
                     color: colors.surface,

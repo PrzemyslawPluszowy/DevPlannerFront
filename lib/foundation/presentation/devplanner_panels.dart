@@ -1,7 +1,8 @@
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_open_request.dart';
+import 'package:devplanner/workspaces/domain/models/project_people_request.dart';
 import 'package:flutter/material.dart';
 
-enum DevPlannerPanel { chat, notifications }
+enum DevPlannerPanel { chat, notifications, people }
 
 class DevPlannerPanelsController extends ChangeNotifier {
   DevPlannerPanel? _activePanel;
@@ -14,6 +15,11 @@ class DevPlannerPanelsController extends ChangeNotifier {
 
   void showNotifications() {
     _activePanel = DevPlannerPanel.notifications;
+    notifyListeners();
+  }
+
+  void showPeople() {
+    _activePanel = DevPlannerPanel.people;
     notifyListeners();
   }
 
@@ -41,12 +47,20 @@ class DevPlannerPanelsScope
     required this.openConversation,
     this.reservedWidth = 0,
     this.openResourceConversation,
+    this.openPeople,
     required super.child,
     super.key,
   }) : super(notifier: controller);
 
   final ValueChanged<String> openConversation;
   final ValueChanged<ResourceChatOpenRequest>? openResourceConversation;
+  final ValueChanged<ProjectPeopleRequest>? openPeople;
+
+  static ValueChanged<ProjectPeopleRequest>? openPeopleOf(
+    BuildContext context,
+  ) => context
+      .dependOnInheritedWidgetOfExactType<DevPlannerPanelsScope>()
+      ?.openPeople;
 
   /// Szerokość, którą przypięty panel rezerwuje na treść aplikacji.
   ///
