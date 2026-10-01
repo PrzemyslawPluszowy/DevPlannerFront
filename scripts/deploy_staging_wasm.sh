@@ -27,7 +27,15 @@ test -s "$project_dir/build/web/main.dart.wasm"
 test -s "$project_dir/build/web/index.html"
 readonly staging_dir="$(mktemp -d)"
 trap 'rm -rf "$staging_dir"' EXIT
-tar -czf "$staging_dir/$remote_archive" -C "$project_dir/build/web" .
+mkdir "$staging_dir/web"
+cp -R "$project_dir/build/web/." "$staging_dir/web/"
+# Nginx stagingu rozpoznaje .js, lecz nie ma typu MIME dla .mjs.
+# Moduł ES zachowuje treść; zmieniają się nazwa pliku i wskazanie loadera.
+mv "$staging_dir/web/main.dart.mjs" "$staging_dir/web/main.dart.wasm.js"
+sed 's/main\.dart\.mjs/main.dart.wasm.js/g' \
+    "$staging_dir/web/flutter_bootstrap.js" > "$staging_dir/bootstrap.js"
+mv "$staging_dir/bootstrap.js" "$staging_dir/web/flutter_bootstrap.js"
+COPYFILE_DISABLE=1 tar -czf "$staging_dir/$remote_archive" -C "$staging_dir/web" .
 readonly checksum="$(shasum -a 256 "$staging_dir/$remote_archive" | awk '{print $1}')"
 scp "${ssh_options[@]}" "$staging_dir/$remote_archive" "$destination:$remote_archive"
 
@@ -47,6 +55,7 @@ fi
 mkdir "$release"
 tar -xzf "$archive" -C "$release"
 test -s "$release/main.dart.wasm"
+test -s "$release/main.dart.wasm.js"
 test -s "$release/index.html"
 readonly previous="$(readlink "$root/current" || true)"
 ln -s "releases/$revision" "$root/.current-$revision"
