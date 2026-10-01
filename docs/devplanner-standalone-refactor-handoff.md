@@ -10356,7 +10356,7 @@ W chwili tego wpisu: wdrożenie oraz uwierzytelniony odbiór UI pozostają do po
 
 ## Kolejny pakiet manualnego QA — 2026-10-01
 
-- [x] Staging: TASK-64 zmienił status przez menu na W toku (JSON/SQL InProgress, Version 4), a następnie został przywrócony do Backlogu. DnD Backlog → W toku również zadziałał (liczniki 3/5); po teście DnD przywrócono przez UI Backlog (liczniki 4/4).
+- [x] Staging: TASK-64 zmienił status przez menu na W toku (UI/SQL InProgress, Version 4), a następnie został przywrócony do Backlogu. DnD Backlog → W toku również zadziałał (liczniki 3/5); po teście DnD przywrócono przez UI Backlog (liczniki 4/4).
 - [x] Wykryto podczas DnD odziedziczenie licznika podzadań przez kolejną kartę. Korzeń elementu listy i sekcja podzadań mają teraz klucz workspace/project/task; findChildIndexCallback zachowuje stan właściwej karty podczas zmiany kolejności. Dwa testy regresji sprawdzają usunięcie pierwszej karty i zachowanie rozwinięcia oraz zapytania dla właściwego rodzica po przestawieniu.
 - [x] Obecność: heartbeat publikuje zdrowie połączenia; panel osób pokazuje komunikat i ponowienie przy awarii. Powrót połączenia usuwa komunikat. Profile pozostałych osób zachowują status potwierdzony przez API. Zamknięcie sesji anuluje subskrypcje/notifier.
 - [x] Badge +N nie zawija cyfr (FittedBox scaleDown, jedna linia); testy także dla 124 i 1000 członków.
@@ -10368,3 +10368,15 @@ W chwili tego wpisu: wdrożenie oraz uwierzytelniony odbiór UI pozostają do po
 - [ ] Pozostają pełna akceptacja czatu/plików, obsługa awarii, motyw systemowy oraz końcowy przegląd szerokiego modala. Nie oznaczać całości jako gotowej na podstawie analizatora lub tej porcji testów.
 
 Zastosowane UI UX Pro Max / Impeccable Operate: wspólne neutralne tokeny, kompaktowy panel desktop, jawny stan połączenia i retry, czytelny licznik bez przesunięć. Proof błędu kart: /tmp/devplanner-staging-kanban-card-state-leak-2026-10-01.png. Logi: /tmp/devplanner-final-batch-tests-v3.log, /tmp/devplanner-final-batch-analyze-v2.log, /tmp/devplanner-seed-duplicates-build.log.
+
+## Odbiór stagingu — trzy izolowane konta, 2026-10-01
+
+- [x] Backend `45cc0eb` i Front Wasm `a4828653dc1c5110a05624d4073280cfbdf6d07c` wypchnięte na main z `[skip ci]` i opublikowane skryptami SSH. Oba deploye EXIT 0, backend readiness Healthy, Wasm build PASS (96.6 s). Nie publikowano osobno drobnych zmian.
+- [x] Ponowiony `devplanner-seed-demo` EXIT 0; SQL potwierdził jedną grupę `demo:global:qa-chat`. Istniejące powtarzające się tytuły zadań nie blokują seedera; nie czyszczono bazy.
+- [x] Native Chrome / Safari / Firefox: osobne sesje QA Czat 01 / 02 / 03, rzeczywiste logowanie OIDC. Panel Listy pokazał wszystkie trzy QA online (łącznie 4 z istniejącą sesją). Po zamknięciu wyłącznie testowej karty Firefox panel bez reload pokazał QA 03 Offline, QA 01 i QA 02 Online. Aktualizacja profili co 15 s; wygasanie lease przy urwanym połączeniu 45 s, bez obietnicy natychmiastowego offline.
+- [x] Czat grupowy: każde konto wysłało własną wiadomość; oba pozostałe odebrały ją bez odświeżania. Chrome i Safari pokazały Odczytano: 2 dla własnych wiadomości. To potwierdza wymianę tekstu i odczyty, nie pełną akceptację wszystkich funkcji czatu.
+- [x] Retest rzeczywistego DnD TASK-64 Backlog → W toku: TASK-64 nadal 0 podzadań, TASK-115 zachowuje 1/1; brak przeniesienia stanu między kartami. Przywrócono TASK-64 do Backlogu, końcowy SQL `Backlog|9`. Badge +N pozostaje jednoliniowy.
+- [ ] OnlyOffice na opublikowanym Wasm nadal osiąga timeout. Odczyt DOM iframe po retry wskazał about:blank i puste body/head; przyczyna nie jest jeszcze potwierdzona. Cztery testy JS kolejki kanału nie dowodzą działającego edytora. Wymaga dalszej diagnozy i osobnego retestu po rzeczywistej naprawie.
+- [ ] Nadal otwarte: pełny zestaw funkcji czatu/plików, awarie, motyw systemowy i szeroki modal, OpenAPI/JSON/enumy end-to-end oraz pozostałe bramki planu. Nie oznaczać całości jako zakończonej.
+
+Dowody: `/tmp/devplanner-staging-three-qa-online-2026-10-01.png`, `/tmp/devplanner-staging-qa03-offline-2026-10-01.png`, `/tmp/devplanner-staging-three-qa-chat-2026-10-01.png`, `/tmp/devplanner-staging-kanban-card-state-fixed-2026-10-01.png`, `/tmp/devplanner-staging-onlyoffice-final-batch-timeout-2026-10-01.png`. Logi testów pozostają wskazane w poprzednim pakiecie. Kolejny krok: diagnoza OnlyOffice i dalszy manualny QA w kolejnej zbiorczej paczce. Chrome/Safari QA pozostają otwarte do kontynuacji; testowa karta Firefox została zamknięta, IAB 6 zachowany do kontynuacji.
