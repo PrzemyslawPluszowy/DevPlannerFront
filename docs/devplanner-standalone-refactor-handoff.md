@@ -10227,3 +10227,31 @@ Backend LocalOpenIddictTests + BffSecurityTests + LocalLoginHttpTests: 41 PASS, 
 Front otrzymał AuthPageSurface oparty o istniejące shell tokens i assety. Motyw ekranu wejścia reaguje na systemową jasność, niezależnie od zapisanej preferencji aplikacji. Oba ThemeData są przygotowane w initState. Właściciele Cubitów i przebieg logowania bez zmian. UI UX Pro Max: Accessible Authentication, password managers/paste, nazwane kontrolki; Impeccable Operate i craft-floor.
 
 W chwili tego wpisu: wdrożenie oraz uwierzytelniony odbiór UI pozostają do potwierdzenia. Logi testów /tmp/devplanner-login-fix-tests.log; build Wasm /tmp/devplanner-branded-login-wasm-build.log.
+
+
+## 2026-10-01 — regresje ze stagingu po uruchomieniu aplikacji
+
+- Wcześniejszy pakiet logowania wdrożony: Backend `6f1e38c`, Front `3737c5e`.
+  Discovery wskazuje `/connect/jwks`, JWKS zwraca JSON/200; rzeczywiste logowanie
+  przeszło callback i wyrenderowało workspace. Konta/secrets nie są dokumentowane.
+- Naprawa w bieżącym pakiecie: seeder inicjalizuje sześć statusów, zachowuje
+  istniejące nazwy/kolory/pozycje i status początkowy. Addytywna migracja
+  `BackfillMissingProjectWorkflows` naprawia wyłącznie projekty bez workflow.
+  Rollback aplikacji zachowuje naprawione dane, aby nie odtwarzać awarii odczytu.
+- Front: `/me` korzysta z rozwiązanego adaptera HTTP zamiast pustego argumentu
+  konstruktora routera. Suwak poziomy tabeli Listy jest stale widoczny i interaktywny.
+- Walidacja kodu: Backend batch initializer/ProjectTaskHandler/enum wire: 58 PASS,
+  0 FAIL/0 SKIP; Front router: 15 PASS; pełny analyzer Front: brak problemów.
+  Wyniki nie zastępują manualnej akceptacji na stagingu. Wasm/deploy bieżącego
+  pakietu jeszcze w toku.
+- UI UX Pro Max: zastosowano zalecenie `Content Jumping` (stabilna geometria
+  stanów asynchronicznych). Impeccable Operate/craft floor: zachowanie tokenów,
+  interaktywnych suwaków i dotychczasowej stylistyki Listy/Kanbana.
+- Do dokończenia na stagingu: Kanban drop i stabilność nagłówka, List scroll,
+  profil, wszystkie projekty workflow, sesja konkretnego pliku OnlyOffice,
+  obecność aplikacji i prawy panel osób. Audyt potwierdził, że dotychczas Tasks
+  presence obejmuje wyłącznie otwarty projekt, a nie całą zalogowaną sesję.
+- Nowa jawna dyspozycja użytkownika: manualne przejście aplikacji i poprawianie
+  znalezionych błędów, następnie czat na trzech kontach w niezależnych sesjach
+  (wysyłanie/odczyt/presence/pliki/reconnect). Trzy karty z tym samym cookie
+  nie są dowodem testu trzech użytkowników.

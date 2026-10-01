@@ -13,6 +13,7 @@ import 'package:devplanner/bootstrap/host_launch_context.dart';
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:devplanner/me/data/me_api_adapter.dart';
 import 'package:devplanner/me/data/me_api_transport.dart';
+import 'package:devplanner/me/presentation/user_profile_page.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
@@ -96,6 +97,43 @@ void _stubStorage(_StorageRepositoryMock repository) {
 }
 
 void main() {
+  testWidgets('profile route uses the authenticated HTTP adapter by default', (
+    tester,
+  ) async {
+    final auth = AuthComposition.unavailable();
+    auth.session.setSignedIn(
+      const AuthUser(
+        userId: 'profile-user',
+        login: 'test',
+        displayName: 'Test',
+      ),
+    );
+    final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
+    dio.httpClientAdapter = _JsonAdapter({
+      'userId': 'profile-user',
+      'login': 'test',
+      'email': 'test@example.test',
+      'displayName': 'Profile from API',
+      'roles': <String>[],
+      'permissions': <String>[],
+    });
+    await tester.pumpWidget(
+      DevPlannerApp(
+        launchContext: const HostLaunchContext(
+          initialRoute: '/me',
+          userId: 'profile-user',
+          userDisplayName: 'Test',
+        ),
+        auth: auth,
+        httpTransport: DevPlannerHttpTransport(dio: dio, isWeb: true),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final page = tester.widget<UserProfilePage>(find.byType(UserProfilePage));
+    expect(page.gateway, isA<MeApiAdapter>());
+    expect(find.text('Profile from API'), findsWidgets);
+  });
+
   setUpAll(() {
     registerFallbackValue(const StorageScope.personal());
     registerFallbackValue(const StorageBrowserFilter());

@@ -878,3 +878,31 @@ Pierwszy render ujawnił brak MIME dla .mjs w Nginx. Publisher zachowuje treść
 Potwierdzono HTTP 200 i sumy SHA-256 zgodne z lokalnym buildem dla main.dart.wasm oraz modułu wsparcia. MIME: application/wasm i application/javascript. /workspaces zwraca dokładnie opublikowany index.html (SPA fallback). Backend /health/ready: HTTP 200 Healthy, kontener obrazu 5d84079745a95978fc2047a774ba8b3a27e1401c healthy.
 
 Rzeczywisty render w przeglądarce na stagingu zakończył się ekranem logowania DevPlanner pod /login?returnTo=/workspaces. Nie wykonano w tej publikacji uwierzytelnionych scenariuszy modalu, Chat i Storage; nie jest to ich pełny odbiór. Wcześniejsza blokada publikacji Frontu jest rozwiązana.
+
+
+## 2026-10-01 — regresje ze stagingu po uruchomieniu aplikacji
+
+- Wcześniejszy pakiet logowania wdrożony: Backend `6f1e38c`, Front `3737c5e`.
+  Discovery wskazuje `/connect/jwks`, JWKS zwraca JSON/200; rzeczywiste logowanie
+  przeszło callback i wyrenderowało workspace. Konta/secrets nie są dokumentowane.
+- Naprawa w bieżącym pakiecie: seeder inicjalizuje sześć statusów, zachowuje
+  istniejące nazwy/kolory/pozycje i status początkowy. Addytywna migracja
+  `BackfillMissingProjectWorkflows` naprawia wyłącznie projekty bez workflow.
+  Rollback aplikacji zachowuje naprawione dane, aby nie odtwarzać awarii odczytu.
+- Front: `/me` korzysta z rozwiązanego adaptera HTTP zamiast pustego argumentu
+  konstruktora routera. Suwak poziomy tabeli Listy jest stale widoczny i interaktywny.
+- Walidacja kodu: Backend batch initializer/ProjectTaskHandler/enum wire: 58 PASS,
+  0 FAIL/0 SKIP; Front router: 15 PASS; pełny analyzer Front: brak problemów.
+  Wyniki nie zastępują manualnej akceptacji na stagingu. Wasm/deploy bieżącego
+  pakietu jeszcze w toku.
+- UI UX Pro Max: zastosowano zalecenie `Content Jumping` (stabilna geometria
+  stanów asynchronicznych). Impeccable Operate/craft floor: zachowanie tokenów,
+  interaktywnych suwaków i dotychczasowej stylistyki Listy/Kanbana.
+- Do dokończenia na stagingu: Kanban drop i stabilność nagłówka, List scroll,
+  profil, wszystkie projekty workflow, sesja konkretnego pliku OnlyOffice,
+  obecność aplikacji i prawy panel osób. Audyt potwierdził, że dotychczas Tasks
+  presence obejmuje wyłącznie otwarty projekt, a nie całą zalogowaną sesję.
+- Nowa jawna dyspozycja użytkownika: manualne przejście aplikacji i poprawianie
+  znalezionych błędów, następnie czat na trzech kontach w niezależnych sesjach
+  (wysyłanie/odczyt/presence/pliki/reconnect). Trzy karty z tym samym cookie
+  nie są dowodem testu trzech użytkowników.

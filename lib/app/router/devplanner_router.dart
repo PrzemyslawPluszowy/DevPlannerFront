@@ -213,7 +213,8 @@ class DevPlannerRouter {
             ),
             GoRoute(
               path: '/me',
-              builder: (_, _) => UserProfilePage(gateway: meGateway),
+              builder: (_, _) =>
+                  UserProfilePage(gateway: _routePages.meGateway),
             ),
             GoRoute(
               path: '/admin',

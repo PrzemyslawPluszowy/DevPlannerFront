@@ -187,6 +187,9 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                         color: context.colors.surface,
                         child: Scrollbar(
                           controller: _horizontalController,
+                          thumbVisibility: true,
+                          trackVisibility: true,
+                          interactive: true,
                           child: SingleChildScrollView(
                             controller: _horizontalController,
                             scrollDirection: Axis.horizontal,
