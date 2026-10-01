@@ -3845,5 +3845,6 @@
   "projectPeopleLoading": "Wczytywanie osób…",
   "projectPeopleEmpty": "Brak osób do wyświetlenia.",
   "projectPeopleNoMatches": "Nie znaleziono pasujących osób.",
-  "projectPeopleYou": "Ty"
+  "projectPeopleYou": "Ty",
+  "projectPeopleConnectionUnavailable": "Połączenie obecności jest niedostępne. Status Twojej sesji może być nieaktualny."
 }

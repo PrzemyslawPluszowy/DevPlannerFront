@@ -1,4 +1,5 @@
 import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_panels.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
@@ -89,6 +90,7 @@ final class ProjectPeoplePanel extends StatelessWidget {
               ),
             ),
           ),
+          const _PresenceConnectionWarning(),
           if (state.error case final error?)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -244,6 +246,38 @@ final class _ProjectPersonRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+final class _PresenceConnectionWarning extends StatelessWidget {
+  const _PresenceConnectionWarning();
+
+  @override
+  Widget build(BuildContext context) {
+    final scope = DevPlannerPanelsScope.maybeOf(context);
+    final availability = scope?.presenceAvailability;
+    if (availability == null) return const SizedBox.shrink();
+    return ValueListenableBuilder<bool>(
+      valueListenable: availability,
+      builder: (context, available, _) => available
+          ? const SizedBox.shrink()
+          : Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.projectPeopleConnectionUnavailable,
+                    style: context.text.bodySmall,
+                  ),
+                  TextButton(
+                    onPressed: scope?.retryPresence,
+                    child: Text(context.l10n.retry),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

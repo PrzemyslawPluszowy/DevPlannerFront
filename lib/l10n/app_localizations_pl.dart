@@ -12273,4 +12273,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectPeopleYou => 'Ty';
+
+  @override
+  String get projectPeopleConnectionUnavailable =>
+      'Połączenie obecności jest niedostępne. Status Twojej sesji może być nieaktualny.';
 }

@@ -170,13 +170,18 @@ class _ProjectMemberFacepileState extends State<ProjectMemberFacepile> {
                             width: 1.5,
                           ),
                         ),
-                        child: Center(
-                          child: Text(
-                            '+$overflowCount',
-                            style: context.tasksTheme.metaText.copyWith(
-                              height: 1,
-                              fontWeight: FontWeight.w700,
-                              color: colors.onSurfaceVariant,
+                        child: Padding(
+                          padding: const EdgeInsets.all(2),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '+$overflowCount',
+                              maxLines: 1,
+                              style: context.tasksTheme.metaText.copyWith(
+                                height: 1,
+                                fontWeight: FontWeight.w700,
+                                color: colors.onSurfaceVariant,
+                              ),
                             ),
                           ),
                         ),

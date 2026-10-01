@@ -3858,5 +3858,6 @@
   "projectPeopleLoading": "Loading people…",
   "projectPeopleEmpty": "No people to display.",
   "projectPeopleNoMatches": "No matching people.",
-  "projectPeopleYou": "You"
+  "projectPeopleYou": "You",
+  "projectPeopleConnectionUnavailable": "Presence connection is unavailable. Your session status may be out of date."
 }

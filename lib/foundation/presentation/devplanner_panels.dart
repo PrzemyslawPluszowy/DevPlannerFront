@@ -1,5 +1,6 @@
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_open_request.dart';
 import 'package:devplanner/workspaces/domain/models/project_people_request.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum DevPlannerPanel { chat, notifications, people }
@@ -48,6 +49,8 @@ class DevPlannerPanelsScope
     this.reservedWidth = 0,
     this.openResourceConversation,
     this.openPeople,
+    this.presenceAvailability,
+    this.retryPresence,
     required super.child,
     super.key,
   }) : super(notifier: controller);
@@ -55,6 +58,11 @@ class DevPlannerPanelsScope
   final ValueChanged<String> openConversation;
   final ValueChanged<ResourceChatOpenRequest>? openResourceConversation;
   final ValueChanged<ProjectPeopleRequest>? openPeople;
+  final ValueListenable<bool>? presenceAvailability;
+  final Future<void> Function()? retryPresence;
+
+  static DevPlannerPanelsScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<DevPlannerPanelsScope>();
 
   static ValueChanged<ProjectPeopleRequest>? openPeopleOf(
     BuildContext context,
@@ -96,5 +104,7 @@ class DevPlannerPanelsScope
   @override
   bool updateShouldNotify(covariant DevPlannerPanelsScope oldWidget) =>
       super.updateShouldNotify(oldWidget) ||
-      oldWidget.reservedWidth != reservedWidth;
+      oldWidget.reservedWidth != reservedWidth ||
+      oldWidget.presenceAvailability != presenceAvailability ||
+      oldWidget.retryPresence != retryPresence;
 }

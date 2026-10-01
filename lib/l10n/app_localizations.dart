@@ -21707,6 +21707,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You'**
   String get projectPeopleYou;
+
+  /// No description provided for @projectPeopleConnectionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Presence connection is unavailable. Your session status may be out of date.'**
+  String get projectPeopleConnectionUnavailable;
 }
 
 class _AppLocalizationsDelegate

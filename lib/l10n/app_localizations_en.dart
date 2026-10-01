@@ -12175,4 +12175,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectPeopleYou => 'You';
+
+  @override
+  String get projectPeopleConnectionUnavailable =>
+      'Presence connection is unavailable. Your session status may be out of date.';
 }

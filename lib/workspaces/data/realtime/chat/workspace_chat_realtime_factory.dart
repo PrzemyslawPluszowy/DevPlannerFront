@@ -107,6 +107,9 @@ final class WorkspaceChatInboxRealtimeService {
   final Duration presenceHeartbeatInterval;
   final PublishSubject<void> _invalidations = PublishSubject<void>();
   final PublishSubject<Object> _errors = PublishSubject<Object>();
+  final BehaviorSubject<bool> _presenceAvailable = BehaviorSubject.seeded(
+    false,
+  );
   StreamSubscription<WorkspaceSignalRConnectionState>? _states;
   Timer? _heartbeat;
   int _generation = 0;
@@ -117,6 +120,14 @@ final class WorkspaceChatInboxRealtimeService {
 
   Stream<void> get invalidations => _invalidations.stream;
   Stream<Object> get errors => _errors.stream;
+  Stream<bool> get presenceAvailability => _presenceAvailable.stream.distinct();
+  bool get isPresenceAvailable => _presenceAvailable.value;
+
+  void _setPresenceAvailable(bool available) {
+    if (!_disposed && !_presenceAvailable.isClosed) {
+      _presenceAvailable.add(available);
+    }
+  }
 
   Future<void> start() async {
     if (_started || _disposed) return;
@@ -127,6 +138,7 @@ final class WorkspaceChatInboxRealtimeService {
       await client.connect();
     } catch (_) {
       _started = false;
+      _setPresenceAvailable(false);
       _generation++;
       _connected = false;
       _heartbeat?.cancel();
@@ -144,6 +156,9 @@ final class WorkspaceChatInboxRealtimeService {
   void _handleConnectionState(WorkspaceSignalRConnectionState state) {
     _generation++;
     _connected = state == WorkspaceSignalRConnectionState.connected;
+    if (!_connected && !_presenceAvailable.isClosed) {
+      _setPresenceAvailable(false);
+    }
     _heartbeat?.cancel();
     _heartbeat = null;
     if (!_started || !_connected || _disposed) return;
@@ -166,12 +181,35 @@ final class WorkspaceChatInboxRealtimeService {
     _heartbeatGeneration = generation;
     try {
       await client.invoke('HeartbeatApplicationPresence');
+      if (!_disposed && generation == _generation) {
+        _setPresenceAvailable(true);
+      }
     } catch (error) {
       if (!_disposed && generation == _generation && !_errors.isClosed) {
+        _setPresenceAvailable(false);
         _errors.add(error);
       }
     } finally {
       if (_heartbeatGeneration == generation) _heartbeatGeneration = null;
+    }
+  }
+
+  /// Retry uses the transport's connection guard; failures remain visible in UI.
+  Future<void> retryPresence() async {
+    if (_disposed) return;
+    try {
+      if (!_started) {
+        await start();
+      } else if (!_connected) {
+        await client.connect();
+      } else {
+        await _renewApplicationPresence();
+      }
+    } catch (error) {
+      if (!_disposed) {
+        _setPresenceAvailable(false);
+        _errors.add(error);
+      }
     }
   }
 
@@ -189,6 +227,7 @@ final class WorkspaceChatInboxRealtimeService {
     client.dispose();
     await _invalidations.close();
     await _errors.close();
+    await _presenceAvailable.close();
   }
 }
 

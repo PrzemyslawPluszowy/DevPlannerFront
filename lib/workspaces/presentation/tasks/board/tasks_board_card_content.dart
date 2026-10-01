@@ -157,6 +157,7 @@ class KanbanTaskCard extends StatelessWidget {
             if (_hasSubtasksSection) ...[
               SizedBox(height: spacing),
               KanbanCardSubtasksSection(
+                key: ValueKey((workspaceId, projectId, task.id)),
                 task: task,
                 workspaceId: workspaceId,
                 projectId: projectId,

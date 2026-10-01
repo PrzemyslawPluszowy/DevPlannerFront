@@ -4,6 +4,7 @@ import 'package:devplanner/workspaces/domain/models/project_member_profile.dart'
 import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -39,6 +40,54 @@ Widget _buildTestApp({
 );
 
 void main() {
+  testWidgets(
+    'large avatar counts stay on one line inside their compact badge',
+    (tester) async {
+      for (final count in [24, 124, 1000]) {
+        final members = {
+          for (var i = 0; i < count; i++)
+            'user-$i': ProjectMemberProfile(
+              userId: 'user-$i',
+              displayName: 'QA $i',
+              role: ProjectRole.member,
+              isOnline: false,
+            ),
+        };
+        await tester.pumpWidget(
+          _buildTestApp(
+            memberProfiles: members,
+            presence: const [],
+            currentUserId: null,
+            maxVisible: 1,
+            onTap: () {},
+          ),
+        );
+        final text = find.text('+${count - 1}');
+        final paragraph = tester.renderObject<RenderParagraph>(text);
+        final boxes = paragraph.getBoxesForSelection(
+          TextSelection(
+            baseOffset: 0,
+            extentOffset: count.toString().length + 1,
+          ),
+        );
+        expect(boxes, hasLength(1));
+        final badge = find
+            .ancestor(of: text, matching: find.byType(Container))
+            .first;
+        final badgeBounds = tester.getRect(badge);
+        final textBounds = MatrixUtils.transformRect(
+          paragraph.getTransformTo(null),
+          Offset.zero & paragraph.size,
+        );
+        expect(textBounds.left, greaterThanOrEqualTo(badgeBounds.left));
+        expect(textBounds.right, lessThanOrEqualTo(badgeBounds.right));
+        expect(textBounds.top, greaterThanOrEqualTo(badgeBounds.top));
+        expect(textBounds.bottom, lessThanOrEqualTo(badgeBounds.bottom));
+        expect(tester.takeException(), isNull);
+      }
+    },
+  );
+
   testWidgets(
     'global presence overrides project subscription and stale data stays unknown',
     (tester) async {

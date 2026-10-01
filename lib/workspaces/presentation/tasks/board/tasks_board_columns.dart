@@ -44,12 +44,33 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
   late final ScrollController _controller;
   KanbanAutoScrollCoordinator? _coordinator;
   Key? _registeredKey;
+  Map<Key, int> _cardIndices = const {};
 
   @override
   void initState() {
     super.initState();
     _controller = ScrollController()..addListener(_onScroll);
+    _syncCardIndices();
   }
+
+  @override
+  void didUpdateWidget(covariant KanbanColumnWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncCardIndices();
+  }
+
+  Key _cardKey(String taskId) =>
+      ValueKey((widget.workspaceId, widget.projectId, taskId));
+
+  void _syncCardIndices() {
+    final tasks = widget.column.tasks;
+    _cardIndices = {
+      for (var index = 0; index < tasks.length; index++)
+        _cardKey(tasks[index].id): index * 2 + 1,
+    };
+  }
+
+  int? _findCardIndex(Key key) => _cardIndices[key];
 
   @override
   void didChangeDependencies() {
@@ -193,6 +214,7 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
       controller: _controller,
       padding: const .symmetric(horizontal: 8, vertical: 4),
       itemCount: totalCount,
+      findChildIndexCallback: _findCardIndex,
       itemBuilder: (context, index) {
         final contentLength = tasks.length * 2 + 1;
         if (index == contentLength && widget.isLoadingMore) {
@@ -282,6 +304,7 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
         }
         final task = tasks[index ~/ 2];
         return TaskAfterCardDropTarget(
+          key: _cardKey(task.id),
           column: widget.column,
           targetIndex: index ~/ 2 + 1,
           child: _DraggableTaskCard(

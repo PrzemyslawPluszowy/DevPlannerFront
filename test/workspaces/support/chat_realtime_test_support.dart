@@ -12,6 +12,7 @@ final class ChatRealtimeTestTransport implements WorkspaceSignalRTransport {
       <String, MethodInvocationFunc>{};
   final List<(String, List<Object>?)> invocations = <(String, List<Object>?)>[];
   Object? replayResult;
+  Error? heartbeatFailure;
   bool isDisposed = false;
 
   @override
@@ -30,6 +31,10 @@ final class ChatRealtimeTestTransport implements WorkspaceSignalRTransport {
   @override
   Future<Object?> invoke(String methodName, {List<Object>? args}) async {
     invocations.add((methodName, args));
+    if (methodName == 'HeartbeatApplicationPresence' &&
+        heartbeatFailure != null) {
+      throw heartbeatFailure!;
+    }
     return methodName == 'GetConversationEvents' ? replayResult : null;
   }
 

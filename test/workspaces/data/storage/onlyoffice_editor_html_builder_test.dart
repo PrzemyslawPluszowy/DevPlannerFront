@@ -37,7 +37,7 @@ void main() {
     expect(html, contains('new DocsAPI.DocEditor'));
     expect(html, contains('onDownloadAs'));
     expect(html, isNot(contains('onRequestSaveAs')));
-    expect(html, contains('storageBridge.postMessage'));
+    expect(html, contains('bridge.postMessage'));
     expect(html, contains(session.token));
     expect(html, isNot(contains('"fileId":"file-1"')));
   });

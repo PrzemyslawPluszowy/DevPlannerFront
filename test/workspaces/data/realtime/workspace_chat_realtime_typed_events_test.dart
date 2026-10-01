@@ -8,6 +8,32 @@ import '../../support/chat_realtime_test_support.dart';
 
 void main() {
   test(
+    'presence failure is visible and retry recovers before disconnect',
+    () async {
+      final transport = ChatRealtimeTestTransport()
+        ..heartbeatFailure = StateError('synthetic heartbeat failure');
+      final service = WorkspaceChatInboxRealtimeService(client: transport);
+      final availability = <bool>[];
+      final sub = service.presenceAvailability.listen(availability.add);
+      await service.start();
+      await ChatRealtimeTestPayload.flush();
+      expect(service.isPresenceAvailable, isFalse);
+      transport.heartbeatFailure = null;
+      await service.retryPresence();
+      await ChatRealtimeTestPayload.flush();
+      expect(service.isPresenceAvailable, isTrue);
+      transport.emitConnectionState(
+        WorkspaceSignalRConnectionState.disconnected,
+      );
+      await ChatRealtimeTestPayload.flush();
+      expect(service.isPresenceAvailable, isFalse);
+      expect(availability, [false, true, false]);
+      await service.dispose();
+      await sub.cancel();
+    },
+  );
+
+  test(
     'application presence survives closed chat and stops on disconnect',
     () async {
       final transport = ChatRealtimeTestTransport();

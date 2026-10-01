@@ -78,6 +78,48 @@ Future<void> _flush() async {
 }
 
 void main() {
+  testWidgets(
+    'presence connection failure offers retry and clears after recovery',
+    (tester) async {
+      final repository = _Profiles();
+      final cubit = ProjectPeopleCubit(_request(repository));
+      final controller = DevPlannerPanelsController();
+      final available = ValueNotifier(false);
+      var retries = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('pl'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: DevPlannerPanelsScope(
+            controller: controller,
+            openConversation: (_) {},
+            presenceAvailability: available,
+            retryPresence: () async {
+              retries++;
+              available.value = true;
+            },
+            child: ProjectPeoplePanel(cubit: cubit, onClose: () {}),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final warning = find.text(
+        'Połączenie obecności jest niedostępne. Status Twojej sesji może być nieaktualny.',
+      );
+      expect(warning, findsOneWidget);
+      await tester.tap(find.byType(TextButton));
+      await tester.pump();
+      expect(retries, 1);
+      expect(warning, findsNothing);
+      expect(repository.calls, 1);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await cubit.close();
+      available.dispose();
+      controller.dispose();
+    },
+  );
+
   test('sorts self and online first, filters names and exposes read errors as stale', () async {
     final repository = _Profiles();
     final cubit = ProjectPeopleCubit(_request(repository));

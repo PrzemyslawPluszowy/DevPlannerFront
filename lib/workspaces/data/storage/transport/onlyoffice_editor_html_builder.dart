@@ -51,9 +51,35 @@ final class OnlyOfficeEditorHtmlBuilder {
 </head>
 <body><div id="editor"></div><script>
 const config=$safeConfiguration;
-function send(type,data){
-  if(window.storageBridge){window.storageBridge.postMessage(JSON.stringify({type:type,data:data}));}
+const bridgeMessages=[];
+let bridgeTimer=null;
+let bridgeDeadline=0;
+function stopBridgeTimer(){
+  if(bridgeTimer!==null){clearInterval(bridgeTimer);bridgeTimer=null;}
 }
+function flushBridgeMessages(){
+  const bridge=window.storageBridge;
+  if(!bridge||typeof bridge.postMessage!=='function'){
+    if(Date.now()>=bridgeDeadline){stopBridgeTimer();bridgeMessages.length=0;}
+    return;
+  }
+  stopBridgeTimer();
+  while(bridgeMessages.length){bridge.postMessage(bridgeMessages.shift());}
+}
+function send(type,data){
+  const message=JSON.stringify({type:type,data:data});
+  const bridge=window.storageBridge;
+  if(bridge&&typeof bridge.postMessage==='function'){
+    flushBridgeMessages();bridge.postMessage(message);return;
+  }
+  // WebView installs its channel after iframe load; DocsAPI can emit earlier.
+  if(bridgeMessages.length<64){bridgeMessages.push(message);}
+  if(bridgeTimer===null){
+    bridgeDeadline=Date.now()+30000;
+    bridgeTimer=setInterval(flushBridgeMessages,50);
+  }
+}
+window.addEventListener('pagehide',stopBridgeTimer);
 function download(event){
   if(event&&event.data&&typeof event.data.url==='string'){
     send('download',{url:event.data.url,fileType:event.data.fileType});

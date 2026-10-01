@@ -102,6 +102,8 @@ final class _DevPlannerGlobalPanelsHostState
   ChatEmojiRecentCubit? _emojiRecentCubit;
   StreamSubscription<Object>? _notificationsSignal;
   StreamSubscription<void>? _chatInboxSignal;
+  StreamSubscription<bool>? _chatPresenceSignal;
+  final ValueNotifier<bool> _presenceAvailability = ValueNotifier(false);
   WorkspaceChatInboxRealtimeService? _chatInboxRealtime;
 
   @override
@@ -193,6 +195,13 @@ final class _DevPlannerGlobalPanelsHostState
     final next = widget.chat?.realtimeFactory?.openInboxInvalidations();
     if (identical(next, _chatInboxRealtime)) return;
     unawaited(_chatInboxSignal?.cancel());
+    unawaited(_chatPresenceSignal?.cancel());
+    _presenceAvailability.value = next?.isPresenceAvailable ?? false;
+    _chatPresenceSignal = next?.presenceAvailability.listen((available) {
+      if (mounted && identical(next, _chatInboxRealtime)) {
+        _presenceAvailability.value = available;
+      }
+    });
     _chatInboxRealtime = next;
     _chatInboxSignal = next?.invalidations.listen((_) {
       _unreadCubit?.applySignal();
@@ -219,6 +228,8 @@ final class _DevPlannerGlobalPanelsHostState
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_notificationsSignal?.cancel());
     unawaited(_chatInboxSignal?.cancel());
+    unawaited(_chatPresenceSignal?.cancel());
+    _presenceAvailability.dispose();
     unawaited(_chatInboxCubit?.close());
     unawaited(_unreadCubit?.close());
     unawaited(_emojiRecentCubit?.close());
@@ -299,6 +310,10 @@ final class _DevPlannerGlobalPanelsHostState
             openConversation: _openConversation,
             openResourceConversation: _openResourceConversation,
             openPeople: _openPeople,
+            presenceAvailability: _chatInboxRealtime == null
+                ? null
+                : _presenceAvailability,
+            retryPresence: _chatInboxRealtime?.retryPresence,
             reservedWidth: reserved,
             child: Stack(
               fit: StackFit.expand,
