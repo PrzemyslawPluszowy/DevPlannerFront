@@ -18,6 +18,7 @@ class ChatComposerSurface extends StatelessWidget {
     this.moreActions,
     this.trailingActions,
     this.focused = false,
+    this.desktopWebStyle = false,
     super.key,
   });
 
@@ -35,6 +36,7 @@ class ChatComposerSurface extends StatelessWidget {
 
   /// Czy fokus jest w edytorze; obwódka jest subtelna i tylko dla aktywnej kontrolki.
   final bool focused;
+  final bool desktopWebStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -44,19 +46,44 @@ class ChatComposerSurface extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: chat.composerSurface,
-        borderRadius: BorderRadius.all(Radius.circular(chat.composerRadius)),
+        borderRadius: BorderRadius.all(
+          Radius.circular(
+            desktopWebStyle
+                ? context.tasksTheme.controlRadius
+                : chat.composerRadius,
+          ),
+        ),
         border: Border.all(color: focused ? chat.focusRing : chat.separator),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Sizes.p4,
-          vertical: Sizes.p4,
+        padding: EdgeInsets.symmetric(
+          horizontal: desktopWebStyle ? Sizes.p6 : Sizes.p4,
+          vertical: desktopWebStyle ? Sizes.p6 : Sizes.p4,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (leading != null) ...[leading, const SizedBox(width: Sizes.p4)],
-            Expanded(child: editor),
+            Expanded(
+              child: desktopWebStyle
+                  ? DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: chat.conversationSurface,
+                        border: Border.all(color: chat.separator),
+                        borderRadius: BorderRadius.circular(
+                          context.tasksTheme.controlRadius,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Sizes.p8,
+                          vertical: Sizes.p4,
+                        ),
+                        child: editor,
+                      ),
+                    )
+                  : editor,
+            ),
             if (trailing != null) ...[
               const SizedBox(width: Sizes.p4),
               trailing,

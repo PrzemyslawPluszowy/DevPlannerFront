@@ -4,6 +4,7 @@ import 'package:devplanner/shared/presentation/widgets/app_action_pill.dart';
 import 'package:devplanner/shared/presentation/widgets/app_toggle_switch.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_pick_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -58,7 +59,9 @@ final class TaskRecurrenceEditorOptionsSection extends StatelessWidget {
             child: AppActionPill(
               label: context.l10n.tasksRecurrenceModeScheduled,
               selected: mode == TaskRecurrenceMode.scheduled,
-              onPressed: () => onModeChanged(TaskRecurrenceMode.scheduled),
+              onPressed: isSubmitting
+                  ? null
+                  : () => onModeChanged(TaskRecurrenceMode.scheduled),
             ),
           ),
           Gaps.w6,
@@ -66,65 +69,24 @@ final class TaskRecurrenceEditorOptionsSection extends StatelessWidget {
             child: AppActionPill(
               label: context.l10n.tasksRecurrenceModeAfterCompletion,
               selected: mode == TaskRecurrenceMode.afterCompletion,
-              onPressed: () =>
-                  onModeChanged(TaskRecurrenceMode.afterCompletion),
+              onPressed: isSubmitting
+                  ? null
+                  : () => onModeChanged(TaskRecurrenceMode.afterCompletion),
             ),
           ),
         ],
       ),
       Gaps.h8,
-      Text(
-        context.l10n.taskRecurrenceOccurrenceStatus,
-        style: context.text.labelSmall?.copyWith(
-          fontWeight: .w700,
-          color: context.colors.onSurfaceVariant,
-        ),
-      ),
-      Gaps.h4,
-      DropdownButtonFormField<ProjectTaskStatus>(
-        initialValue: occurrenceStatus,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: context.colors.surfaceContainerHighest.withValues(
-            alpha: .5,
-          ),
-          contentPadding: const .symmetric(
-            horizontal: Sizes.p8,
-            vertical: Sizes.p8,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: const BorderRadius.all(.circular(Sizes.p8)),
-            borderSide: BorderSide(color: context.colors.outlineVariant),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: const BorderRadius.all(.circular(Sizes.p8)),
-            borderSide: BorderSide(color: context.colors.outlineVariant),
-          ),
-        ),
-        items: [
-          DropdownMenuItem(
-            value: ProjectTaskStatus.todo,
-            child: Text(
-              context.l10n.tasksListStatusTodo,
-              style: context.text.bodySmall?.copyWith(fontWeight: .w600),
-            ),
-          ),
-          DropdownMenuItem(
-            value: ProjectTaskStatus.inProgress,
-            child: Text(
-              context.l10n.tasksListStatusInProgress,
-              style: context.text.bodySmall?.copyWith(fontWeight: .w600),
-            ),
-          ),
-        ],
-        onChanged: (val) {
-          if (val != null) onOccurrenceStatusChanged(val);
-        },
+      TaskRecurrenceStatusPicker(
+        status: occurrenceStatus,
+        enabled: !isSubmitting,
+        onChanged: onOccurrenceStatusChanged,
       ),
       Gaps.h8,
       AppToggleSwitch(
         value: skipIfPreviousOpen,
-        onChanged: onSkipIfPreviousOpenChanged,
+        onChanged: isSubmitting ? null : onSkipIfPreviousOpenChanged,
+        enabled: !isSubmitting,
         label: context.l10n.taskRecurrenceSkipIfPreviousOpen,
       ),
       Gaps.h12,

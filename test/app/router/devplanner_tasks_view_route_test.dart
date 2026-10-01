@@ -6,6 +6,7 @@ import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/presentation/devplanner_workspaces_page.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_columns_viewport.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,8 +15,8 @@ import '../../test_support/tasks_board_route_fixture.dart';
 
 const _workspaceId = '550e8400-e29b-41d4-a716-446655440000';
 const _projectId = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
-const _tasksPath =
-    '/workspaces/$_workspaceId/projects/$_projectId/tasks';
+const _taskId = '550e8400-e29b-41d4-a716-446655440002';
+const _tasksPath = '/workspaces/$_workspaceId/projects/$_projectId/tasks';
 
 /// Symuluje powrót do zapisanego adresu: nowy router i ta sama lokalizacja.
 DevPlannerRouter _routerAt(String location) {
@@ -120,6 +121,193 @@ void main() {
       DevPlannerRouteCatalog.projectTasksView(_workspaceId, _projectId, 'list'),
     );
     expect(find.byType(ProjectTasksList), findsOneWidget);
+  });
+
+  testWidgets('legacy task link redirects while preserving view parameters', (
+    tester,
+  ) async {
+    final router = _routerAt('$_tasksPath/$_taskId?view=kanban&filter=mine');
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_app(router));
+    await tester.pumpAndSettle();
+
+    final current = router.config.routerDelegate.currentConfiguration.uri;
+    expect(current.path, _tasksPath);
+    expect(current.queryParameters['task'], _taskId);
+    expect(current.queryParameters['view'], 'kanban');
+    expect(current.queryParameters['filter'], 'mine');
+    expect(find.byType(KanbanColumnsViewport), findsOneWidget);
+  });
+
+  testWidgets(
+    'opening through the legacy route keeps the current board query',
+    (
+      tester,
+    ) async {
+      final router = _routerAt('$_tasksPath?view=kanban&filter=mine');
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(_app(router));
+      await tester.pumpAndSettle();
+
+      router.config.go(
+        DevPlannerRouteCatalog.legacyTask(
+          _workspaceId,
+          _projectId,
+          _taskId,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final current = router.config.routerDelegate.currentConfiguration.uri;
+      expect(current.path, _tasksPath);
+      expect(current.queryParameters['task'], _taskId);
+      expect(current.queryParameters['view'], 'kanban');
+      expect(current.queryParameters['filter'], 'mine');
+      expect(find.byType(KanbanColumnsViewport), findsOneWidget);
+    },
+  );
+
+  testWidgets('task query opens and dismisses the modal over the same board', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1280, 720));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = _routerAt('$_tasksPath?view=kanban&filter=mine');
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_app(router));
+    await tester.pumpAndSettle();
+    final kanbanBefore = tester.element(find.byType(KanbanColumnsViewport));
+
+    router.config.go('$_tasksPath?view=kanban&filter=mine&task=$_taskId');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(KanbanColumnsViewport), findsOneWidget);
+    expect(
+      tester.element(find.byType(KanbanColumnsViewport)),
+      same(kanbanBefore),
+    );
+    expect(find.text('Transport workspace niedostępny'), findsOneWidget);
+    expect(
+      router.config.routerDelegate.currentConfiguration.uri.queryParameters,
+      containsPair('filter', 'mine'),
+    );
+
+    await tester.tapAt(const Offset(8, 8));
+    await tester.pumpAndSettle();
+
+    final current = router.config.routerDelegate.currentConfiguration.uri;
+    expect(current.path, _tasksPath);
+    expect(current.queryParameters['task'], isNull);
+    expect(current.queryParameters['view'], 'kanban');
+    expect(current.queryParameters['filter'], 'mine');
+    expect(
+      tester.element(find.byType(KanbanColumnsViewport)),
+      same(kanbanBefore),
+    );
+  });
+
+  testWidgets(
+    'task query keeps the same List mounted through close and reopen',
+    (
+      tester,
+    ) async {
+      final router = _routerAt('$_tasksPath?view=list&filter=mine');
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(_app(router));
+      await tester.pumpAndSettle();
+      final listBefore = tester.element(find.byType(ProjectTasksList));
+      expect(listBefore, isNotNull);
+
+      const taskLocation = '$_tasksPath?view=list&filter=mine&task=$_taskId';
+      router.config.go(taskLocation);
+      await tester.pumpAndSettle();
+      expect(find.byType(ProjectTasksList), findsOneWidget);
+      expect(tester.element(find.byType(ProjectTasksList)), same(listBefore));
+      expect(find.text('Transport workspace niedostępny'), findsOneWidget);
+
+      // Symuluje Back oraz Forward przeglądarki: ta sama trasa przyjmuje URL
+      // bez task, a potem ponownie z task.
+      router.config.go('$_tasksPath?view=list&filter=mine');
+      await tester.pumpAndSettle();
+      expect(find.byType(ProjectTasksList), findsOneWidget);
+      expect(tester.element(find.byType(ProjectTasksList)), same(listBefore));
+      expect(find.text('Transport workspace niedostępny'), findsNothing);
+
+      router.config.go(taskLocation);
+      await tester.pumpAndSettle();
+      expect(find.byType(ProjectTasksList), findsOneWidget);
+      expect(tester.element(find.byType(ProjectTasksList)), same(listBefore));
+      expect(find.text('Transport workspace niedostępny'), findsOneWidget);
+    },
+  );
+
+  testWidgets('invalid task query is removed without changing the view', (
+    tester,
+  ) async {
+    final router = _routerAt('$_tasksPath?view=kanban&task=not-a-uuid');
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_app(router));
+    await tester.pumpAndSettle();
+
+    final current = router.config.routerDelegate.currentConfiguration.uri;
+    expect(current.path, _tasksPath);
+    expect(current.queryParameters['task'], isNull);
+    expect(current.queryParameters['view'], 'kanban');
+    expect(find.byType(KanbanColumnsViewport), findsOneWidget);
+  });
+
+  testWidgets('task deep link without view defaults to the List', (
+    tester,
+  ) async {
+    final router = _routerAt('$_tasksPath?task=$_taskId');
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_app(router));
+    await tester.pumpAndSettle();
+
+    final current = router.config.routerDelegate.currentConfiguration.uri;
+    expect(current.queryParameters['task'], _taskId);
+    expect(current.queryParameters['view'], 'list');
+    expect(find.byType(ProjectTasksList), findsOneWidget);
+    expect(find.byType(KanbanColumnsViewport), findsNothing);
+  });
+
+  testWidgets('task opened from My Tasks returns there on close', (
+    tester,
+  ) async {
+    final router = _routerAt('/me/tasks');
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(_app(router));
+    await tester.pumpAndSettle();
+    router.config.go(
+      DevPlannerRouteCatalog.task(
+        _workspaceId,
+        _projectId,
+        _taskId,
+        source: TaskDetailOpenSource.myTasks,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      router.config.routerDelegate.currentConfiguration.uri.path,
+      _tasksPath,
+    );
+    expect(find.text('Transport workspace niedostępny'), findsOneWidget);
+
+    await tester.tapAt(const Offset(8, 8));
+    await tester.pumpAndSettle();
+
+    expect(
+      router.config.routerDelegate.currentConfiguration.uri.path,
+      '/me/tasks',
+    );
   });
 
   testWidgets('board stays an accepted input alias for the kanban query', (

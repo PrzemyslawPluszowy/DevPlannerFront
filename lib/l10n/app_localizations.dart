@@ -10640,6 +10640,96 @@ abstract class AppLocalizations {
   /// **'Project tasks'**
   String get tasksBoardTitle;
 
+  /// No description provided for @tasksGlobalSearchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tasks'**
+  String get tasksGlobalSearchTooltip;
+
+  /// No description provided for @tasksGlobalSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tasks'**
+  String get tasksGlobalSearchTitle;
+
+  /// No description provided for @tasksGlobalSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by title, description, or task key'**
+  String get tasksGlobalSearchHint;
+
+  /// No description provided for @tasksGlobalSearchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get tasksGlobalSearchClear;
+
+  /// No description provided for @tasksGlobalSearchClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close task search'**
+  String get tasksGlobalSearchClose;
+
+  /// No description provided for @tasksGlobalSearchTypeMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least two characters to search'**
+  String get tasksGlobalSearchTypeMore;
+
+  /// No description provided for @tasksGlobalSearchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks found'**
+  String get tasksGlobalSearchNoResults;
+
+  /// No description provided for @tasksGlobalSearchFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Task search could not be completed'**
+  String get tasksGlobalSearchFailure;
+
+  /// No description provided for @tasksGlobalSearchRateLimitedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search is temporarily paused'**
+  String get tasksGlobalSearchRateLimitedTitle;
+
+  /// No description provided for @tasksGlobalSearchRetryAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in {seconds} s.'**
+  String tasksGlobalSearchRetryAfter(int seconds);
+
+  /// No description provided for @tasksGlobalSearchShowDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Show error details'**
+  String get tasksGlobalSearchShowDiagnostics;
+
+  /// No description provided for @tasksGlobalSearchHideDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide error details'**
+  String get tasksGlobalSearchHideDiagnostics;
+
+  /// No description provided for @tasksGlobalSearchRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tasksGlobalSearchRetry;
+
+  /// No description provided for @tasksGlobalSearchLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more results'**
+  String get tasksGlobalSearchLoadMore;
+
+  /// No description provided for @tasksGlobalSearchKeyboardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'↑/↓ move · Enter open · Esc close'**
+  String get tasksGlobalSearchKeyboardHint;
+
   /// No description provided for @tasksBoardErrorTitle.
   ///
   /// In en, this message translates to:
@@ -10759,6 +10849,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New task name'**
   String get tasksQuickCreateHint;
+
+  /// No description provided for @tasksQuickCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The task could not be created.'**
+  String get tasksQuickCreateFailed;
+
+  /// No description provided for @tasksBoardRefreshAfterCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The task was created, but the board could not be refreshed.'**
+  String get tasksBoardRefreshAfterCreateFailed;
+
+  /// No description provided for @tasksViewErrorDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Error details'**
+  String get tasksViewErrorDiagnostics;
+
+  /// No description provided for @tasksViewErrorApiCode.
+  ///
+  /// In en, this message translates to:
+  /// **'API code: {code}'**
+  String tasksViewErrorApiCode(String code);
+
+  /// No description provided for @tasksViewErrorContractCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Contract code: {code}'**
+  String tasksViewErrorContractCode(String code);
+
+  /// No description provided for @tasksViewErrorBackendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Server code: {code}'**
+  String tasksViewErrorBackendCode(int code);
+
+  /// No description provided for @tasksViewErrorHttpStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP: {status}'**
+  String tasksViewErrorHttpStatus(int status);
+
+  /// No description provided for @tasksViewErrorRetryAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry after: {time}'**
+  String tasksViewErrorRetryAfter(String time);
+
+  /// No description provided for @tasksViewErrorValidationFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields: {fields}'**
+  String tasksViewErrorValidationFields(String fields);
 
   /// No description provided for @tasksTemplatesUse.
   ///
@@ -11624,6 +11768,12 @@ abstract class AppLocalizations {
   /// **'Sort'**
   String get tasksListSort;
 
+  /// No description provided for @tasksListSortDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort direction'**
+  String get tasksListSortDirection;
+
   /// No description provided for @tasksListGroupBy.
   ///
   /// In en, this message translates to:
@@ -11695,6 +11845,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This card cannot be moved into a column whose contents are hidden by an active filter. Clear the filters and try again.'**
   String get tasksBoardMoveBlockedByFilter;
+
+  /// No description provided for @tasksBoardNoAllowedStatusTransitions.
+  ///
+  /// In en, this message translates to:
+  /// **'No status transitions are available.'**
+  String get tasksBoardNoAllowedStatusTransitions;
 
   /// No description provided for @tasksListTask.
   ///
@@ -12266,6 +12422,12 @@ abstract class AppLocalizations {
   /// **'Recurrence'**
   String get taskDetailsRecurrence;
 
+  /// No description provided for @taskDetailsRecurrenceOperationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The recurrence operation failed. Try again.'**
+  String get taskDetailsRecurrenceOperationFailed;
+
   /// No description provided for @taskDetailsConfigureRecurrence.
   ///
   /// In en, this message translates to:
@@ -12347,8 +12509,38 @@ abstract class AppLocalizations {
   /// No description provided for @taskDetailsRecurrenceTimeZone.
   ///
   /// In en, this message translates to:
-  /// **'IANA time zone'**
+  /// **'Time zone'**
   String get taskDetailsRecurrenceTimeZone;
+
+  /// No description provided for @taskRecurrenceTimeZoneSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search time zones'**
+  String get taskRecurrenceTimeZoneSearch;
+
+  /// No description provided for @taskRecurrenceTimeZoneNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching time zones'**
+  String get taskRecurrenceTimeZoneNoResults;
+
+  /// No description provided for @taskRecurrenceTimeZoneCurrentUnlisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing identifier is outside the current server catalog; it will be kept unless you choose another.'**
+  String get taskRecurrenceTimeZoneCurrentUnlisted;
+
+  /// No description provided for @taskRecurrenceTimeZoneScheduleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected date and time use your device\'s local time. This zone governs later recurrence calculations.'**
+  String get taskRecurrenceTimeZoneScheduleHint;
+
+  /// No description provided for @taskRecurrenceTimeZoneLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the time zone catalog.'**
+  String get taskRecurrenceTimeZoneLoadFailed;
 
   /// No description provided for @taskDetailsRecurrenceOccurrenceStatus.
   ///
@@ -12395,7 +12587,7 @@ abstract class AppLocalizations {
   /// No description provided for @taskDetailsRecurrenceInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Enter a positive interval and a valid IANA time zone, for example Europe/Warsaw.'**
+  /// **'Enter a positive interval and choose a time zone.'**
   String get taskDetailsRecurrenceInvalid;
 
   /// No description provided for @taskDetailsRecurrenceRetry.
@@ -12449,7 +12641,7 @@ abstract class AppLocalizations {
   /// No description provided for @taskDetailsAttachmentsUploaded.
   ///
   /// In en, this message translates to:
-  /// **'Uploaded'**
+  /// **'Upload sent; awaiting confirmation'**
   String get taskDetailsAttachmentsUploaded;
 
   /// No description provided for @taskDetailsAttachmentsFailed.
@@ -12458,11 +12650,65 @@ abstract class AppLocalizations {
   /// **'Upload failed'**
   String get taskDetailsAttachmentsFailed;
 
+  /// No description provided for @taskDetailsAttachmentsCheckState.
+  ///
+  /// In en, this message translates to:
+  /// **'Check status'**
+  String get taskDetailsAttachmentsCheckState;
+
+  /// No description provided for @taskDetailsAttachmentsResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry upload'**
+  String get taskDetailsAttachmentsResend;
+
+  /// No description provided for @taskUploadCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload canceled. Check the server status of the files.'**
+  String get taskUploadCanceled;
+
+  /// No description provided for @taskUploadInvalidInput.
+  ///
+  /// In en, this message translates to:
+  /// **'The file must have a name and cannot be empty.'**
+  String get taskUploadInvalidInput;
+
+  /// No description provided for @taskAttachmentDescriptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'File description'**
+  String get taskAttachmentDescriptionTitle;
+
+  /// No description provided for @taskAttachmentDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a file description'**
+  String get taskAttachmentDescriptionHint;
+
+  /// No description provided for @taskAttachmentDescriptionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save description'**
+  String get taskAttachmentDescriptionSave;
+
+  /// No description provided for @storageConvertToPdfAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to PDF'**
+  String get storageConvertToPdfAction;
+
   /// No description provided for @taskDetailsTimeTracking.
   ///
   /// In en, this message translates to:
   /// **'Time tracking'**
   String get taskDetailsTimeTracking;
+
+  /// No description provided for @taskDetailsTimeOperationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The time tracking operation failed. Try again.'**
+  String get taskDetailsTimeOperationFailed;
 
   /// No description provided for @taskDetailsTimeAdd.
   ///
@@ -12517,6 +12763,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Billable'**
   String get taskDetailsTimeBillable;
+
+  /// No description provided for @taskDetailsTimeStartedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Started at'**
+  String get taskDetailsTimeStartedAt;
+
+  /// No description provided for @taskDetailsTimeChooseStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose start date and time'**
+  String get taskDetailsTimeChooseStart;
+
+  /// No description provided for @taskDetailsTimeDurationInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a duration from 1 to 1,440 minutes.'**
+  String get taskDetailsTimeDurationInvalid;
+
+  /// No description provided for @taskDetailsTimeReviewComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Review comment'**
+  String get taskDetailsTimeReviewComment;
+
+  /// No description provided for @taskDetailsTimeReviewCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an optional comment'**
+  String get taskDetailsTimeReviewCommentHint;
 
   /// No description provided for @taskDetailsTimeDraft.
   ///
@@ -12697,6 +12973,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Custom fields'**
   String get taskDetailsCustomFields;
+
+  /// No description provided for @taskDetailsCustomFieldSelectValues.
+  ///
+  /// In en, this message translates to:
+  /// **'Select values'**
+  String get taskDetailsCustomFieldSelectValues;
+
+  /// No description provided for @taskDetailsCustomFieldAddValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get taskDetailsCustomFieldAddValue;
 
   /// No description provided for @taskDetailsEditCustomFields.
   ///
@@ -13922,6 +14210,12 @@ abstract class AppLocalizations {
   /// **'Pinned tasks only'**
   String get tasksSavedViewsPinnedOnly;
 
+  /// No description provided for @tasksListPinnedByMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned by me'**
+  String get tasksListPinnedByMe;
+
   /// No description provided for @tasksSavedViewsIncludeArchived.
   ///
   /// In en, this message translates to:
@@ -14576,6 +14870,24 @@ abstract class AppLocalizations {
   /// **'Recurrence schedule saved'**
   String get taskRecurrenceSaveSuccess;
 
+  /// No description provided for @taskRecurrencePauseSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence paused'**
+  String get taskRecurrencePauseSuccess;
+
+  /// No description provided for @taskRecurrenceResumeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence resumed'**
+  String get taskRecurrenceResumeSuccess;
+
+  /// No description provided for @taskRecurrenceDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence deleted'**
+  String get taskRecurrenceDeleteSuccess;
+
   /// No description provided for @tasksListEditTitleTooltip.
   ///
   /// In en, this message translates to:
@@ -14797,6 +15109,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In a month'**
   String get tasksListDatePresetNextMonth;
+
+  /// No description provided for @tasksDatePickerManualLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a date'**
+  String get tasksDatePickerManualLabel;
+
+  /// No description provided for @tasksDatePickerManualHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Date format for this language'**
+  String get tasksDatePickerManualHint;
+
+  /// No description provided for @tasksDatePickerManualApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Use date'**
+  String get tasksDatePickerManualApply;
+
+  /// No description provided for @tasksDatePickerInvalidDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid date in the allowed range.'**
+  String get tasksDatePickerInvalidDate;
 
   /// No description provided for @tasksListCustomStatusLabel.
   ///
@@ -15974,6 +16310,12 @@ abstract class AppLocalizations {
   /// **'Customize columns'**
   String get tasksListColumnsTitle;
 
+  /// No description provided for @tasksListColumnsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the custom fields for this list.'**
+  String get tasksListColumnsLoadFailed;
+
   /// No description provided for @tasksListColumnsSubtitle.
   ///
   /// In en, this message translates to:
@@ -17144,6 +17486,36 @@ abstract class AppLocalizations {
   /// **'Something went wrong'**
   String get storageErrorTitle;
 
+  /// No description provided for @storageActionBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Another file operation is already running. Try again when it finishes.'**
+  String get storageActionBusy;
+
+  /// No description provided for @storageBulkItemFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Item errors ({count})'**
+  String storageBulkItemFailures(int count);
+
+  /// No description provided for @storageBulkNotAttempted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not attempted after requests were paused ({count})'**
+  String storageBulkNotAttempted(int count);
+
+  /// No description provided for @storageActionCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'The file operation was canceled. Refresh the file state before trying again.'**
+  String get storageActionCanceled;
+
+  /// No description provided for @storageActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The file operation could not be completed. Refresh the file state before trying again.'**
+  String get storageActionFailed;
+
   /// No description provided for @storageForbiddenTitle.
   ///
   /// In en, this message translates to:
@@ -17155,6 +17527,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preview error: {message}'**
   String storagePreviewError(String message);
+
+  /// No description provided for @storageTextLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The text preview could not be loaded.'**
+  String get storageTextLoadError;
 
   /// No description provided for @storageImageLoadError.
   ///
@@ -20957,6 +21335,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Conversation name updated.'**
   String get chatConversationRenameSuccess;
+
+  /// No description provided for @taskDetailsTabWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get taskDetailsTabWork;
+
+  /// No description provided for @taskDetailsTabConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get taskDetailsTabConversation;
+
+  /// No description provided for @taskDetailsTabFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get taskDetailsTabFiles;
+
+  /// No description provided for @taskDetailsTabPlanAndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan and time'**
+  String get taskDetailsTabPlanAndTime;
+
+  /// No description provided for @taskDetailsTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get taskDetailsTabHistory;
+
+  /// No description provided for @taskDetailsSplitLayoutShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show conversation beside work'**
+  String get taskDetailsSplitLayoutShow;
+
+  /// No description provided for @taskDetailsTabbedLayoutShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show conversation in its tab'**
+  String get taskDetailsTabbedLayoutShow;
+
+  /// No description provided for @taskDetailsConversationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The shared conversation will appear here when task chat is connected.'**
+  String get taskDetailsConversationUnavailable;
+
+  /// No description provided for @taskDetailsErrorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get taskDetailsErrorCode;
+
+  /// No description provided for @taskDetailsErrorHttpStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP status'**
+  String get taskDetailsErrorHttpStatus;
+
+  /// No description provided for @taskDetailsErrorTraceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Trace ID'**
+  String get taskDetailsErrorTraceId;
+
+  /// No description provided for @taskDetailsErrorRetryAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'You can retry after {time}'**
+  String taskDetailsErrorRetryAfter(String time);
+
+  /// No description provided for @taskDetailsConflictBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved before your changes'**
+  String get taskDetailsConflictBase;
+
+  /// No description provided for @taskDetailsConflictCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current on server'**
+  String get taskDetailsConflictCurrent;
+
+  /// No description provided for @taskDetailsConflictDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Your draft'**
+  String get taskDetailsConflictDraft;
+
+  /// No description provided for @taskDetailsProjectLabelsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load project labels.'**
+  String get taskDetailsProjectLabelsLoadFailed;
+
+  /// No description provided for @taskDetailsTaskSearchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not search project tasks.'**
+  String get taskDetailsTaskSearchFailed;
+
+  /// No description provided for @taskDetailsTimeApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve time entry'**
+  String get taskDetailsTimeApprove;
+
+  /// No description provided for @taskDetailsTimeReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject time entry'**
+  String get taskDetailsTimeReject;
+
+  /// No description provided for @taskDetailsUnsavedChangesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard unsaved changes?'**
+  String get taskDetailsUnsavedChangesTitle;
+
+  /// No description provided for @taskDetailsUnsavedChangesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your task changes have not been saved. You can keep editing or discard this draft.'**
+  String get taskDetailsUnsavedChangesMessage;
+
+  /// No description provided for @taskDetailsUnsavedStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get taskDetailsUnsavedStay;
+
+  /// No description provided for @taskDetailsUnsavedDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard draft'**
+  String get taskDetailsUnsavedDiscard;
+
+  /// No description provided for @taskDetailsErrorContractCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Contract code'**
+  String get taskDetailsErrorContractCode;
+
+  /// No description provided for @taskDetailsErrorBackendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Backend code'**
+  String get taskDetailsErrorBackendCode;
+
+  /// No description provided for @taskDetailsErrorFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields'**
+  String get taskDetailsErrorFields;
+
+  /// No description provided for @taskDetailsCustomStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project custom status'**
+  String get taskDetailsCustomStatusTitle;
+
+  /// No description provided for @taskDetailsCustomStatusChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Set custom status'**
+  String get taskDetailsCustomStatusChoose;
+
+  /// No description provided for @taskDetailsCustomStatusEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This project has no active custom statuses.'**
+  String get taskDetailsCustomStatusEmpty;
+
+  /// No description provided for @taskDetailsCustomStatusWipWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Status “{name}” will have {count} tasks against a limit of {limit}.'**
+  String taskDetailsCustomStatusWipWarning(String name, int count, int limit);
+
+  /// No description provided for @taskDetailsStatusCategoryTodo.
+  ///
+  /// In en, this message translates to:
+  /// **'To do'**
+  String get taskDetailsStatusCategoryTodo;
+
+  /// No description provided for @taskDetailsStatusCategoryInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get taskDetailsStatusCategoryInProgress;
+
+  /// No description provided for @taskDetailsStatusCategoryDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get taskDetailsStatusCategoryDone;
+
+  /// No description provided for @taskDetailsStatusCategoryCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get taskDetailsStatusCategoryCancelled;
+
+  /// No description provided for @taskDetailsAttachmentsCompleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming upload'**
+  String get taskDetailsAttachmentsCompleting;
+
+  /// No description provided for @taskDetailsAttachmentsProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning and processing'**
+  String get taskDetailsAttachmentsProcessing;
+
+  /// No description provided for @taskDetailsAttachmentsReady.
+  ///
+  /// In en, this message translates to:
+  /// **'File ready'**
+  String get taskDetailsAttachmentsReady;
+
+  /// No description provided for @taskDetailsAttachmentsUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking file status'**
+  String get taskDetailsAttachmentsUnknown;
+
+  /// No description provided for @taskDetailsAttachmentsPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing files…'**
+  String get taskDetailsAttachmentsPreparing;
+
+  /// No description provided for @taskDetailsAttachmentsPickerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the file picker.'**
+  String get taskDetailsAttachmentsPickerFailed;
+
+  /// No description provided for @taskDetailsAttachmentsReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the selected file.'**
+  String get taskDetailsAttachmentsReadFailed;
+
+  /// No description provided for @taskDetailsAttachmentsShowDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Show deleted'**
+  String get taskDetailsAttachmentsShowDeleted;
+
+  /// No description provided for @taskDetailsAttachmentsHideDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide deleted'**
+  String get taskDetailsAttachmentsHideDeleted;
+
+  /// No description provided for @taskDetailsAttachmentsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get taskDetailsAttachmentsDeleted;
+
+  /// No description provided for @taskDetailsTimeHourCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} hr} other{{count} hrs}}'**
+  String taskDetailsTimeHourCount(int count);
+
+  /// No description provided for @taskDetailsTimeMinuteCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} min} other{{count} mins}}'**
+  String taskDetailsTimeMinuteCount(int count);
+
+  /// No description provided for @taskDetailsMemberProfilesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The member directory is unavailable in this view.'**
+  String get taskDetailsMemberProfilesUnavailable;
+
+  /// No description provided for @tasksAssigneeSearchPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get tasksAssigneeSearchPeople;
+
+  /// No description provided for @tasksAssigneeSetPrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Set primary assignee'**
+  String get tasksAssigneeSetPrimary;
+
+  /// No description provided for @tasksAssigneeRemoveAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove assignment'**
+  String get tasksAssigneeRemoveAssignment;
+
+  /// No description provided for @tasksAssigneeClearPrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear primary assignee'**
+  String get tasksAssigneeClearPrimary;
+
+  /// No description provided for @tasksTemplateSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the task template.'**
+  String get tasksTemplateSaveFailed;
+
+  /// No description provided for @tasksBoardColumnLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load more tasks for this column.'**
+  String get tasksBoardColumnLoadFailed;
+
+  /// No description provided for @tasksMilestoneOperationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not complete the milestone operation.'**
+  String get tasksMilestoneOperationFailed;
 }
 
 class _AppLocalizationsDelegate

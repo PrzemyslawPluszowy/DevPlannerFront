@@ -49,6 +49,7 @@ class ChatMessageComposer extends StatefulWidget {
     this.onCancelReply,
     this.richController,
     this.compact = false,
+    this.desktopWebStyle = false,
     super.key,
   });
 
@@ -75,6 +76,7 @@ class ChatMessageComposer extends StatefulWidget {
   final VoidCallback? onCancelReply;
   final quill.QuillController? richController;
   final bool compact;
+  final bool desktopWebStyle;
 
   @override
   State<ChatMessageComposer> createState() => _ChatMessageComposerState();

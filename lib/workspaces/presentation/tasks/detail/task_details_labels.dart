@@ -1,24 +1,30 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
 /// Etykiety taska z edycją atomową opartą o katalog projektu.
-class _TaskLabelsSection extends StatelessWidget {
-  const _TaskLabelsSection({required this.details, required this.isSaving});
+class TaskLabelsSection extends StatelessWidget {
+  const TaskLabelsSection({
+    required this.details,
+    required this.isSaving,
+    super.key,
+  });
 
   final ProjectTaskDetailsResponse details;
   final bool isSaving;
 
   @override
-  Widget build(BuildContext context) => _Section(
+  Widget build(BuildContext context) => Section(
     title: context.l10n.taskDetailsLabels,
     action: IconButton(
       tooltip: context.l10n.taskDetailsEditLabels,
       onPressed: isSaving
           ? null
-          : () => showDialog<void>(
-              context: context,
+          : () => DevPlannerModalHost.showDialog<void>(
+              context,
               builder: (_) => BlocProvider.value(
                 value: context.read<TaskDetailsCubit>(),
-                child: _EditLabelsDialog(selected: details.labels),
+                child: EditLabelsDialog(selected: details.labels),
               ),
             ),
       icon: const Icon(Symbols.sell, size: 20),
@@ -34,14 +40,14 @@ class _TaskLabelsSection extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final label in details.labels) _TaskLabelChip(label: label),
+              for (final label in details.labels) TaskLabelChip(label: label),
             ],
           ),
   );
 }
 
-class _TaskLabelChip extends StatelessWidget {
-  const _TaskLabelChip({required this.label});
+class TaskLabelChip extends StatelessWidget {
+  const TaskLabelChip({required this.label, super.key});
 
   final TaskLabelResponse label;
 
@@ -61,20 +67,42 @@ class _TaskLabelChip extends StatelessWidget {
   }
 }
 
-class _EditLabelsDialog extends StatefulWidget {
-  const _EditLabelsDialog({required this.selected});
+class EditLabelsDialog extends StatefulWidget {
+  const EditLabelsDialog({required this.selected, super.key});
 
   final List<TaskLabelResponse> selected;
 
   @override
-  State<_EditLabelsDialog> createState() => _EditLabelsDialogState();
+  State<EditLabelsDialog> createState() => EditLabelsDialogState();
 }
 
-class _EditLabelsDialogState extends State<_EditLabelsDialog> {
+class EditLabelsDialogState extends State<EditLabelsDialog> {
+  TaskDetailDraftRegistration? _draft;
   late final ValueNotifier<Set<String>> _selectedIds;
   final ValueNotifier<List<TaskLabelResponse>?> _labels = ValueNotifier(null);
+  final ValueNotifier<ApiError?> _loadError = ValueNotifier(null);
   final ValueNotifier<bool> _loading = ValueNotifier(true);
   final ValueNotifier<bool> _saving = ValueNotifier(false);
+  late final Listenable _formChanges;
+  var _loadToken = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: context.l10n.taskDetailsEditLabels,
+    );
+  }
+
+  void _refreshDraft() {
+    final initial = widget.selected.map((label) => label.id).toSet();
+    final selected = _selectedIds.value;
+    if (initial.length == selected.length && initial.containsAll(selected)) {
+      _draft?.clear();
+    } else {
+      _draft?.markDirty();
+    }
+  }
 
   @override
   void initState() {
@@ -82,20 +110,41 @@ class _EditLabelsDialogState extends State<_EditLabelsDialog> {
     _selectedIds = ValueNotifier(
       Set.unmodifiable(widget.selected.map((label) => label.id)),
     );
+    _formChanges = Listenable.merge([
+      _selectedIds,
+      _labels,
+      _loadError,
+      _loading,
+      _saving,
+    ]);
     unawaited(_load());
   }
 
   Future<void> _load() async {
-    final labels = await context.read<TaskDetailsCubit>().loadProjectLabels();
-    if (!mounted) return;
-    labels.sort((a, b) => a.name.compareTo(b.name));
-    _labels.value = List.unmodifiable(labels);
+    final token = ++_loadToken;
+    final source = context.read<TaskDetailsCubit>();
+    _loading.value = true;
+    _loadError.value = null;
+    final result = await source.loadProjectLabels();
+    if (!mounted || token != _loadToken) return;
+    if (source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _loading.value = false;
+      return;
+    }
+    result.fold(
+      (error) => _loadError.value = error,
+      (labels) {
+        final ordered = [...labels]..sort((a, b) => a.name.compareTo(b.name));
+        _labels.value = List.unmodifiable(ordered);
+      },
+    );
     _loading.value = false;
   }
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: Listenable.merge([_selectedIds, _labels, _loading, _saving]),
+    animation: _formChanges,
     builder: (context, _) => WorkspaceCreationModalWrapper(
       title: context.l10n.taskDetailsEditLabels,
       icon: Symbols.label_rounded,
@@ -104,21 +153,35 @@ class _EditLabelsDialogState extends State<_EditLabelsDialog> {
       submitLabel: context.l10n.save,
       cancelLabel: context.l10n.cancel,
       maxWidth: 420,
-      onSubmit: _loading.value ? null : _save,
-      body: _loading.value
-          ? const SizedBox(
+      onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
+        context,
+        _draft,
+      ),
+      onSubmit: _loading.value || _loadError.value != null ? null : _save,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const TaskDetailsDialogMutationError(),
+          if (_loading.value)
+            const SizedBox(
               height: 120,
               child: Center(child: CircularProgressIndicator()),
             )
-          : (_labels.value?.isEmpty ?? true)
-          ? Padding(
+          else if (_loadError.value case final error?)
+            ProjectLabelsLoadFailure(
+              error: error,
+              onRetry: _load,
+            )
+          else if (_labels.value?.isEmpty ?? true)
+            Padding(
               padding: const .symmetric(vertical: Sizes.p16),
               child: Text(
                 context.l10n.taskDetailsNoProjectLabels,
                 style: TextStyle(color: context.colors.onSurfaceVariant),
               ),
             )
-          : ConstrainedBox(
+          else
+            ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 360),
               child: ListView(
                 shrinkWrap: true,
@@ -138,6 +201,7 @@ class _EditLabelsDialogState extends State<_EditLabelsDialog> {
                               _selectedIds.value = Set.unmodifiable(
                                 selectedIds,
                               );
+                              _refreshDraft();
                             },
                       secondary: CircleAvatar(
                         radius: 8,
@@ -152,27 +216,73 @@ class _EditLabelsDialogState extends State<_EditLabelsDialog> {
                 ],
               ),
             ),
+        ],
+      ),
     ),
   );
 
   Future<void> _save() async {
+    if (_saving.value) return;
     _saving.value = true;
-    final saved = await context.read<TaskDetailsCubit>().replaceLabels(
+    final source = context.read<TaskDetailsCubit>();
+    final saved = await source.replaceLabels(
       _selectedIds.value,
     );
     if (!mounted) return;
-    if (saved) Navigator.of(context).pop();
+    if (source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      return;
+    }
+    if (saved) {
+      _draft?.clear();
+      Navigator.of(context).pop();
+    }
     if (!saved) _saving.value = false;
   }
 
   @override
   void dispose() {
+    _draft?.dispose();
     _selectedIds.dispose();
     _labels.dispose();
+    _loadError.dispose();
     _loading.dispose();
     _saving.dispose();
     super.dispose();
   }
+}
+
+class ProjectLabelsLoadFailure extends StatelessWidget {
+  const ProjectLabelsLoadFailure({
+    required this.error,
+    required this.onRetry,
+    super.key,
+  });
+
+  final ApiError error;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(
+        context.l10n.taskDetailsProjectLabelsLoadFailed,
+        style: context.tasksTheme.dataStrongText,
+      ),
+      const SizedBox(height: 6),
+      TaskDetailsModalError(error: error),
+      Align(
+        alignment: Alignment.centerRight,
+        child: TextButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Symbols.refresh_rounded),
+          label: Text(context.l10n.retry),
+        ),
+      ),
+    ],
+  );
 }
 
 /// Parser koloru etykiety z bezpiecznym fallbackiem motywu.

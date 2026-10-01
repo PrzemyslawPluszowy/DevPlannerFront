@@ -3,6 +3,7 @@ import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
 import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
 import 'package:devplanner/workspaces/domain/ports/tasks_project_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
@@ -19,15 +20,16 @@ import 'package:devplanner/workspaces/domain/repositories/task_view_repository.d
 import 'package:devplanner/workspaces/domain/repositories/task_workflow_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_modal_navigation_host.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-/// Composition boundary for the real Tasks/Kanban page.
+/// Granica kompozycji strony Tasks i tablicy Kanban.
 ///
-/// The widget only exposes typed domain ports to presentation. HTTP clients,
-/// token handling and SignalR construction remain in the data composition.
+/// Warstwa prezentacji otrzymuje tu typowane porty domenowe. Klienty HTTP,
+/// obsługa tokenów i tworzenie SignalR pozostają w kompozycji danych.
 final class TasksBoardRoutePage extends StatelessWidget {
   const TasksBoardRoutePage({
     required this.composition,
@@ -35,6 +37,8 @@ final class TasksBoardRoutePage extends StatelessWidget {
     required this.workspaceId,
     required this.projectId,
     required this.authSession,
+    this.taskId,
+    this.detailsComposition,
     this.initialView,
     this.viewPreferenceStore,
     super.key,
@@ -48,6 +52,8 @@ final class TasksBoardRoutePage extends StatelessWidget {
   final String workspaceId;
   final String projectId;
   final AuthSessionPort authSession;
+  final String? taskId;
+  final TasksDetailsComposition? detailsComposition;
   final String? initialView;
 
   /// Preferencja „ostatnio używany widok” dla adresu `/tasks` bez `?view=`.
@@ -111,21 +117,53 @@ final class TasksBoardRoutePage extends StatelessWidget {
     // modułu Tasks. Trasa zawsze montuje ten sam host, więc wspólny nagłówek,
     // zapisane widoki, ustawienia projektu i realtime nie mogą zależeć od
     // wartości `?view=`.
-    child: TasksBoardPage(
+    child: TaskDetailModalNavigationHost(
       workspaceId: workspaceId,
       projectId: projectId,
-      initialView: initialView,
-      viewPreferenceStore: viewPreferenceStore,
-      // Wyjście z projektu obsługuje trasa, więc nagłówek nie zna routera.
-      onProjectExited: () => context.go(
-        DevPlannerRouteCatalog.workspace(workspaceId),
+      taskId: taskId,
+      detailsComposition: detailsComposition,
+      memberProfilesRepository: composition.memberProfilesRepository,
+      child: Consumer<AuthSessionPort>(
+        builder: (context, session, _) => TasksBoardPage(
+          key: _TasksBoardRouteScopeKey(
+            workspaceId: workspaceId,
+            projectId: projectId,
+            authUserId: session.snapshot.user?.userId,
+            ports: [
+              composition.kanbanRepository,
+              composition.tasksRepository,
+              composition.workflowRepository,
+              composition.collaborationRepository,
+              composition.taskTemplateRepository,
+              composition.memberProfilesRepository,
+              composition.projectsRepository,
+              composition.metadataRepository,
+              composition.viewRepository,
+              composition.listConfigurationRepository,
+              composition.capacityRepository,
+              composition.recurrenceRepository,
+              composition.milestoneRepository,
+              composition.realtimeFactory,
+              session,
+              viewPreferenceStore,
+            ],
+          ),
+          workspaceId: workspaceId,
+          projectId: projectId,
+          initialView: initialView,
+          viewPreferenceStore: viewPreferenceStore,
+          // Wyjście z projektu obsługuje trasa, więc nagłówek nie zna routera.
+          onProjectExited: () => context.go(
+            DevPlannerRouteCatalog.workspace(workspaceId),
+          ),
+        ),
       ),
     ),
   );
 }
 
-/// Fail-closed state used only when a browser BFF cannot supply desktop
-/// SignalR credentials. It is never returned on the normal desktop path.
+/// Stan błędu używany, gdy BFF przeglądarki nie może dostarczyć
+/// uwierzytelnienia SignalR dla desktopu.
 final class TasksBoardTransportUnavailablePage extends StatelessWidget {
   const TasksBoardTransportUnavailablePage({super.key});
 
@@ -158,4 +196,42 @@ final class TasksBoardTransportUnavailablePage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Odtwarza Cubity trasy po zmianie zakresu albo typowanej zależności.
+final class _TasksBoardRouteScopeKey extends LocalKey {
+  _TasksBoardRouteScopeKey({
+    required this.workspaceId,
+    required this.projectId,
+    required this.authUserId,
+    required List<Object?> ports,
+  }) : ports = List<Object?>.unmodifiable(ports);
+
+  final String workspaceId;
+  final String projectId;
+  final String? authUserId;
+  final List<Object?> ports;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! _TasksBoardRouteScopeKey ||
+        workspaceId != other.workspaceId ||
+        projectId != other.projectId ||
+        authUserId != other.authUserId ||
+        ports.length != other.ports.length) {
+      return false;
+    }
+    for (var index = 0; index < ports.length; index++) {
+      if (!identical(ports[index], other.ports[index])) return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    workspaceId,
+    projectId,
+    authUserId,
+    Object.hashAll(ports.map(identityHashCode)),
+  );
 }

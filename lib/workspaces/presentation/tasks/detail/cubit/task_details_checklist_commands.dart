@@ -21,10 +21,12 @@ final class TaskDetailsChecklistCommands {
   final void Function(TaskDetailsReady state) emitReady;
 
   Future<bool> add(String title) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
     final normalized = title.trim();
     if (current is! TaskDetailsReady ||
         current.isSaving ||
+        !current.canEdit ||
         normalized.isEmpty) {
       return false;
     }
@@ -48,10 +50,12 @@ final class TaskDetailsChecklistCommands {
     String? title,
     bool? isCompleted,
   }) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
     final normalizedTitle = (title ?? item.title).trim();
     if (current is! TaskDetailsReady ||
         current.isSaving ||
+        !current.canEdit ||
         normalizedTitle.isEmpty) {
       return false;
     }
@@ -77,8 +81,11 @@ final class TaskDetailsChecklistCommands {
   }
 
   Future<bool> delete(TaskChecklistItemResponse item) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,

@@ -1,4 +1,5 @@
 import 'package:devplanner/app/router/devplanner_router.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,6 +21,44 @@ class DevPlannerNavigation {
   Future<void> go(String path) async {
     router.go(path);
   }
+
+  Future<void> replace(String path) async {
+    await router.replace<void>(path);
+  }
+
+  String taskLocation({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    Uri? currentLocation,
+    TaskDetailOpenSource? source,
+    TaskDetailModalTab? targetTab,
+  }) => DevPlannerRouteCatalog.task(
+    workspaceId,
+    projectId,
+    taskId,
+    currentLocation: currentLocation,
+    source: source,
+    targetTab: targetTab,
+  );
+
+  Future<void> goToTask({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    Uri? currentLocation,
+    TaskDetailOpenSource? source,
+    TaskDetailModalTab? targetTab,
+  }) => go(
+    taskLocation(
+      workspaceId: workspaceId,
+      projectId: projectId,
+      taskId: taskId,
+      currentLocation: currentLocation,
+      source: source,
+      targetTab: targetTab,
+    ),
+  );
 
   /// Navigates only to a relative route owned by the standalone app.
   /// External URLs and malformed paths are ignored at the presentation edge.

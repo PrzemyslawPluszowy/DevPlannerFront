@@ -1,5 +1,64 @@
 part of 'tasks_board_page.dart';
 
+/// Adapts a task from the assignee board to the existing card presentation.
+class KanbanAssigneeTaskCard extends StatelessWidget {
+  const KanbanAssigneeTaskCard({
+    required this.task,
+    required this.workspaceId,
+    required this.projectId,
+    required this.state,
+    required this.statusBadge,
+    required this.canDrag,
+    super.key,
+  });
+
+  final KanbanTaskCardResponse task;
+  final String workspaceId;
+  final String projectId;
+  final TasksBoardReady state;
+  final KanbanCardStatusBadge? statusBadge;
+  final bool canDrag;
+
+  @override
+  Widget build(BuildContext context) {
+    final common = (
+      visibleCardFields: state.board.visibleCardFields,
+      density: state.board.defaultCardDensity,
+      isSelected: state.selectedTaskIds.contains(task.id),
+      isPending: state.pendingTaskIds.contains(task.id),
+      hasError: state.failedTaskIds.contains(task.id),
+      memberProfilesByUserId: state.memberProfilesByUserId,
+    );
+    if (!canDrag) {
+      return KanbanTaskCard(
+        task: task,
+        workspaceId: workspaceId,
+        projectId: projectId,
+        visibleCardFields: common.visibleCardFields,
+        density: common.density,
+        isSelected: common.isSelected,
+        memberProfilesByUserId: common.memberProfilesByUserId,
+        statusBadge: statusBadge,
+        isPending: common.isPending,
+        hasError: common.hasError,
+      );
+    }
+    return _DraggableTaskCard(
+      key: ValueKey('assignee-card-${task.id}'),
+      task: task,
+      workspaceId: workspaceId,
+      projectId: projectId,
+      visibleCardFields: common.visibleCardFields,
+      density: common.density,
+      isSelected: common.isSelected,
+      memberProfilesByUserId: common.memberProfilesByUserId,
+      statusBadge: statusBadge,
+      isPending: common.isPending,
+      hasError: common.hasError,
+    );
+  }
+}
+
 class _DraggableTaskCard extends StatefulWidget {
   const _DraggableTaskCard({
     required this.task,

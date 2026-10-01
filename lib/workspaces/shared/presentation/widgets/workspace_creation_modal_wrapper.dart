@@ -10,7 +10,7 @@ import 'package:material_symbols_icons/symbols.dart';
 ///
 /// Zapewnia spójny wizualnie nagłówek z podglądem ikony i koloru,
 /// przewijalną zawartość oraz stopkę z przyciskami i wskaźnikiem ładowania.
-class WorkspaceCreationModalWrapper extends StatelessWidget {
+class WorkspaceCreationModalWrapper extends StatefulWidget {
   const WorkspaceCreationModalWrapper({
     required this.title,
     required this.body,
@@ -23,6 +23,7 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
     this.additionalActions,
     this.isSubmitting = false,
     this.maxWidth = 480,
+    this.onBeforeClose,
     super.key,
   });
 
@@ -59,31 +60,66 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
   /// Maksymalna szerokość okna dialogowego.
   final double maxWidth;
 
+  /// Optional asynchronous guard used by task-detail editor forms.
+  final Future<bool> Function()? onBeforeClose;
+
+  @override
+  State<WorkspaceCreationModalWrapper> createState() =>
+      _WorkspaceCreationModalWrapperState();
+}
+
+class _WorkspaceCreationModalWrapperState
+    extends State<WorkspaceCreationModalWrapper> {
+  bool _allowPop = false;
+  bool _checkingClose = false;
+
+  Future<void> _requestClose() async {
+    if (widget.isSubmitting || _checkingClose) return;
+    final route = ModalRoute.of(context);
+    if (route?.isCurrent != true) return;
+    final guard = widget.onBeforeClose;
+    if (guard == null) {
+      Navigator.of(context).pop();
+      return;
+    }
+    _checkingClose = true;
+    final canClose = await guard();
+    if (!mounted) return;
+    _checkingClose = false;
+    if (!canClose || route?.isCurrent != true) return;
+    setState(() => _allowPop = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && route?.isCurrent == true) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final widget = this.widget;
     final colors = context.colors;
+    final tasks = context.tasksTheme;
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final primaryColor = accentColor ?? colors.primary;
-    final effectiveSubmitLabel = submitLabel ?? l10n.workspacesCreateButton;
-    final effectiveCancelLabel = cancelLabel ?? l10n.workspacesCancelButton;
+    final primaryColor = widget.accentColor ?? colors.primary;
+    final effectiveSubmitLabel =
+        widget.submitLabel ?? l10n.workspacesCreateButton;
+    final effectiveCancelLabel =
+        widget.cancelLabel ?? l10n.workspacesCancelButton;
 
     final dialog = Dialog(
-      backgroundColor: colors.surfaceContainerLowest,
+      backgroundColor: tasks.canvas,
       elevation: 8,
-      shadowColor: Colors.black.withValues(alpha: isDark ? .4 : .12),
+      shadowColor: tasks.shadow.withValues(alpha: isDark ? .4 : .12),
       shape: RoundedRectangleBorder(
-        borderRadius: const .all(.circular(16)),
-        side: BorderSide(
-          color: isDark
-              ? Colors.white.withValues(alpha: .12)
-              : colors.outlineVariant.withValues(alpha: .4),
-        ),
+        borderRadius: BorderRadius.circular(tasks.panelRadius),
+        side: BorderSide(color: tasks.canvasBorder),
       ),
       insetPadding: const .symmetric(horizontal: 16, vertical: 24),
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
+        constraints: BoxConstraints(maxWidth: widget.maxWidth),
         child: Column(
           mainAxisSize: .min,
           crossAxisAlignment: .stretch,
@@ -99,7 +135,7 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: .start,
                 children: [
-                  if (icon case final iconData?) ...[
+                  if (widget.icon case final iconData?) ...[
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       width: 42,
@@ -125,13 +161,13 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
                       crossAxisAlignment: .start,
                       children: [
                         Text(
-                          title,
+                          widget.title,
                           style: context.text.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             letterSpacing: -0.2,
                           ),
                         ),
-                        if (subtitle case final sub?) ...[
+                        if (widget.subtitle case final sub?) ...[
                           Gaps.h2,
                           Text(
                             sub,
@@ -146,9 +182,7 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
                   ),
                   IconButton(
                     tooltip: l10n.close,
-                    onPressed: isSubmitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed: widget.isSubmitting ? null : _requestClose,
                     icon: const Icon(Symbols.close_rounded, size: 20),
                     visualDensity: VisualDensity.compact,
                   ),
@@ -158,24 +192,20 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
 
             Divider(
               height: 1,
-              color: isDark
-                  ? Colors.white.withValues(alpha: .08)
-                  : colors.outlineVariant.withValues(alpha: .3),
+              color: tasks.divider,
             ),
 
             // 2. Przewijalna treść formularza
             Flexible(
               child: SingleChildScrollView(
                 padding: const .all(Sizes.p20),
-                child: body,
+                child: widget.body,
               ),
             ),
 
             Divider(
               height: 1,
-              color: isDark
-                  ? Colors.white.withValues(alpha: .08)
-                  : colors.outlineVariant.withValues(alpha: .3),
+              color: tasks.divider,
             ),
 
             // 3. Stopka akcji z przyciskami
@@ -186,15 +216,13 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  if (additionalActions case final actions?) ...[
+                  if (widget.additionalActions case final actions?) ...[
                     ...actions,
                     const Spacer(),
                   ] else
                     const Spacer(),
                   TextButton(
-                    onPressed: isSubmitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed: widget.isSubmitting ? null : _requestClose,
                     style: TextButton.styleFrom(
                       padding: const .symmetric(
                         horizontal: Sizes.p16,
@@ -205,9 +233,9 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
                   ),
                   Gaps.w8,
                   FilledButton(
-                    onPressed: isSubmitting || onSubmit == null
+                    onPressed: widget.isSubmitting || widget.onSubmit == null
                         ? null
-                        : () => onSubmit!(),
+                        : () => widget.onSubmit!(),
                     style: FilledButton.styleFrom(
                       backgroundColor: primaryColor,
                       padding: const .symmetric(
@@ -218,17 +246,19 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
                         borderRadius: .all(.circular(8)),
                       ),
                     ),
-                    child: isSubmitting
-                        ? const SizedBox.square(
+                    child: widget.isSubmitting
+                        ? SizedBox.square(
                             dimension: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: tasks.onAccent,
                             ),
                           )
                         : Text(
                             effectiveSubmitLabel,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            style: context.tasksTheme.controlText.copyWith(
+                              color: tasks.onAccent,
+                            ),
                           ),
                   ),
                 ],
@@ -242,12 +272,20 @@ class WorkspaceCreationModalWrapper extends StatelessWidget {
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.escape): () {
-          if (!isSubmitting) Navigator.of(context).pop();
+          if (!widget.isSubmitting) unawaited(_requestClose());
         },
       },
       child: Focus(
         autofocus: true,
-        child: dialog,
+        child: PopScope<void>(
+          canPop: widget.onBeforeClose == null || _allowPop,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop && widget.onBeforeClose != null) {
+              unawaited(_requestClose());
+            }
+          },
+          child: dialog,
+        ),
       ),
     );
   }

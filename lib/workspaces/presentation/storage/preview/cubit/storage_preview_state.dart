@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:devplanner/foundation/error/api_error.dart';
+
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:equatable/equatable.dart';
 
@@ -111,6 +113,8 @@ class StoragePreviewFailure extends StoragePreviewState {
   const StoragePreviewFailure({
     required this.file,
     required this.message,
+    this.error,
+    this.version,
   });
 
   /// Plik, dla którego nie udało się przygotować podglądu.
@@ -119,6 +123,12 @@ class StoragePreviewFailure extends StoragePreviewState {
   /// Komunikat błędu.
   final String message;
 
+  /// Pełny błąd API, bez utraty metadanych diagnostycznych.
+  final ApiError? error;
+
+  /// Wersja, której odczyt można ponowić bez zmiany bieżącego pliku.
+  final int? version;
+
   @override
-  List<Object?> get props => [file, message];
+  List<Object?> get props => [file, message, error, version];
 }

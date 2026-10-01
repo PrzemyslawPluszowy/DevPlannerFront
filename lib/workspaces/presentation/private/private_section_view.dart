@@ -6,6 +6,7 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/presentation/private/cubit/personal_section_cubit.dart';
 import 'package:devplanner/workspaces/presentation/private/cubit/personal_section_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -179,8 +180,11 @@ class _MyTaskTile extends StatelessWidget {
     clipBehavior: Clip.antiAlias,
     child: ListTile(
       onTap: () => unawaited(
-        context.plannerNavigation.go(
-          '/workspaces/${task.workspaceId}/projects/${task.projectId}/tasks/${task.id}',
+        context.plannerNavigation.goToTask(
+          workspaceId: task.workspaceId,
+          projectId: task.projectId,
+          taskId: task.id,
+          source: TaskDetailOpenSource.myTasks,
         ),
       ),
       leading: CircleAvatar(

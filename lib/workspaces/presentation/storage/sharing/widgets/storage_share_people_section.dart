@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/files_theme.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
@@ -7,229 +5,263 @@ import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_share_directory_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_share_directory_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_sharing_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_sharing_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_share_people_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Sekcja udostępniania osobie z lokalnego katalogu użytkowników.
-///
-/// Katalog jest zakresowy: pyta wyłącznie workspace pliku, więc lista nie może
-/// pokazać użytkownika spoza kontekstu, do którego autor nie ma dostępu. Gdy
-/// plik nie ma kontekstu workspace'u (plik prywatny) albo kompozycja nie podała
-/// portu, sekcja mówi o tym wprost zamiast pokazywać pole, które nic nie zwraca.
-final class StorageSharePeopleSection extends StatefulWidget {
-  /// Tworzy sekcję udostępniania osobie.
+final class StorageSharePeopleSection extends StatelessWidget {
   const StorageSharePeopleSection({
     required this.workspaceId,
     required this.userDirectory,
     super.key,
   });
 
-  /// Workspace pliku; `null` dla pliku bez kontekstu workspace'u.
   final String? workspaceId;
-
-  /// Port lokalnego katalogu; `null`, gdy kompozycja go nie dostarczyła.
   final StorageUserDirectoryPort? userDirectory;
 
   @override
-  State<StorageSharePeopleSection> createState() =>
-      _StorageSharePeopleSectionState();
+  Widget build(BuildContext context) {
+    final workspace = workspaceId;
+    final directory = userDirectory;
+    if (workspace == null || directory == null) {
+      return StorageShareDirectoryNote(
+        text: context.l10n.storageUserSearchWorkspaceRequired,
+      );
+    }
+    return BlocProvider(
+      key: ValueKey((workspace, identityHashCode(directory))),
+      create: (_) => StorageShareDirectoryCubit(
+        workspaceId: workspace,
+        directory: directory,
+      ),
+      child: const _StorageSharePeopleForm(),
+    );
+  }
 }
 
-class _StorageSharePeopleSectionState extends State<StorageSharePeopleSection> {
-  final _controller = TextEditingController();
-  List<LocalUserDirectoryResponse> _results = const [];
+final class _StorageSharePeopleForm extends StatefulWidget {
+  const _StorageSharePeopleForm();
+
+  @override
+  State<_StorageSharePeopleForm> createState() =>
+      _StorageSharePeopleFormState();
+}
+
+final class _StorageSharePeopleFormState
+    extends State<_StorageSharePeopleForm> {
+  final _queryController = TextEditingController();
   LocalUserDirectoryResponse? _selected;
   StorageShareAccessLevel _level = StorageShareAccessLevel.reader;
-  bool _isSearching = false;
-  String? _error;
-
-  bool get _isAvailable =>
-      widget.workspaceId != null && widget.userDirectory != null;
 
   @override
   void dispose() {
-    _controller.dispose();
+    _queryController.dispose();
     super.dispose();
   }
 
-  Future<void> _search(String query) async {
-    final workspaceId = widget.workspaceId;
-    final directory = widget.userDirectory;
-    final trimmed = query.trim();
-    if (workspaceId == null || directory == null) return;
-    if (trimmed.length < 2) {
-      setState(() {
-        _results = const [];
-        _isSearching = false;
-      });
-      return;
-    }
-    setState(() {
-      _isSearching = true;
-      _error = null;
-    });
-    final result = await directory.search(
-      workspaceId: workspaceId,
-      query: trimmed,
-    );
-    if (!mounted) return;
-    result.fold(
-      (error) => setState(() {
-        _isSearching = false;
-        _results = const [];
-        _error = error.message;
-      }),
-      (users) => setState(() {
-        _isSearching = false;
-        _results = users;
-      }),
-    );
+  void _onSearchChanged(String query) {
+    setState(() => _selected = null);
+    context.read<StorageShareDirectoryCubit>().search(query);
   }
 
-  Future<void> _share() async {
+  void _selectUser(LocalUserDirectoryResponse user) {
+    setState(() => _selected = user);
+  }
+
+  void _selectAccessLevel(Set<StorageShareAccessLevel> selection) {
+    if (selection.isEmpty) return;
+    setState(() => _level = selection.first);
+  }
+
+  Future<void> _shareSelected() async {
     final selected = _selected;
     if (selected == null) return;
-    final shared = await context.read<StorageSharingCubit>().shareWithUser(
+    final source = context.read<StorageSharingCubit>();
+    if (source.isMutating) return;
+    final succeeded = await source.shareWithUser(
       targetUserId: selected.userId,
       accessLevel: _level,
     );
-    if (!mounted || !shared) return;
-    _controller.clear();
+    if (!mounted || !context.mounted || source.isClosed) return;
+    if (!identical(context.read<StorageSharingCubit>(), source) || !succeeded) {
+      return;
+    }
+    _queryController.clear();
+    context.read<StorageShareDirectoryCubit>().search('');
     setState(() {
-      _results = const [];
       _selected = null;
       _level = StorageShareAccessLevel.reader;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (!_isAvailable) {
-      return _Note(text: context.l10n.storageUserSearchWorkspaceRequired);
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-          key: const ValueKey('storage_share_user_search'),
-          controller: _controller,
-          decoration: InputDecoration(
-            hintText: context.l10n.storageUserInputHint,
-            prefixIcon: const Icon(AppIcons.search, size: 16),
-            isDense: true,
-          ),
-          onChanged: (value) => unawaited(_search(value)),
-        ),
-        if (_isSearching) ...[
-          const SizedBox(height: 8),
-          const LinearProgressIndicator(minHeight: 2),
-        ],
-        if (_error case final error?) ...[
-          const SizedBox(height: 8),
-          Text(
-            error,
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.error,
-            ),
-          ),
-        ],
-        if (!_isSearching &&
-            _results.isEmpty &&
-            _controller.text.trim().length >= 2)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              context.l10n.storageUserSearchNoResults,
-              style: context.text.bodySmall?.copyWith(
-                color: context.colors.onSurfaceVariant,
-              ),
-            ),
-          ),
-        if (_results.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 160),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _results.length,
-              itemBuilder: (context, index) {
-                final user = _results[index];
-                final isSelected = _selected?.userId == user.userId;
-                return ListTile(
-                  key: ValueKey('storage_share_user-${user.userId}'),
-                  dense: true,
-                  selected: isSelected,
-                  title: Text(user.displayName, maxLines: 1),
-                  subtitle: Text(user.login, maxLines: 1),
-                  onTap: () => setState(() => _selected = user),
+  Widget build(BuildContext context) =>
+      BlocBuilder<StorageShareDirectoryCubit, StorageShareDirectoryState>(
+        builder: (context, directoryState) =>
+            BlocBuilder<StorageSharingCubit, StorageSharingState>(
+              builder: (context, sharingState) {
+                final canMutate =
+                    sharingState is StorageSharingReady &&
+                    context.read<StorageSharingCubit>().canMutate;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      key: const ValueKey('storage_share_user_search'),
+                      controller: _queryController,
+                      decoration: InputDecoration(
+                        labelText: context.l10n.tasksAssigneeSearchPeople,
+                        prefixIcon: const Icon(AppIcons.search, size: 16),
+                        isDense: true,
+                        border: const OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: context.colors.outlineVariant,
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            context.filesTheme.common.controlRadius,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: context.colors.primary),
+                          borderRadius: BorderRadius.circular(
+                            context.filesTheme.common.controlRadius,
+                          ),
+                        ),
+                      ),
+                      onChanged: _onSearchChanged,
+                    ),
+                    const SizedBox(height: 6),
+                    _DirectoryResults(
+                      state: directoryState,
+                      selectedUserId: _selected?.userId,
+                      onSelect: _selectUser,
+                    ),
+                    if (_selected != null) ...[
+                      const SizedBox(height: 8),
+                      StorageSharePersonControls(
+                        level: _level,
+                        isMutating: !canMutate,
+                        onLevelChanged: _selectAccessLevel,
+                        onShare: _shareSelected,
+                      ),
+                    ],
+                  ],
                 );
               },
             ),
-          ),
-        ],
-        if (_selected != null) ...[
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: SegmentedButton<StorageShareAccessLevel>(
-                  key: const ValueKey('storage_share_user_level'),
-                  segments: [
-                    ButtonSegment(
-                      value: StorageShareAccessLevel.reader,
-                      label: Text(context.l10n.storageAccessReader),
-                    ),
-                    ButtonSegment(
-                      value: StorageShareAccessLevel.commenter,
-                      label: Text(context.l10n.storageAccessCommenter),
-                    ),
-                    ButtonSegment(
-                      value: StorageShareAccessLevel.editor,
-                      label: Text(context.l10n.storageAccessEditor),
-                    ),
-                  ],
-                  selected: {_level},
-                  onSelectionChanged: (selection) =>
-                      setState(() => _level = selection.first),
-                ),
-              ),
-              const SizedBox(width: 8),
-              FilledButton(
-                key: const ValueKey('storage_share_user_submit'),
-                onPressed: () => unawaited(_share()),
-                child: Text(context.l10n.storageShareAction),
-              ),
-            ],
-          ),
-        ],
-      ],
-    );
-  }
+      );
 }
 
-class _Note extends StatelessWidget {
-  const _Note({required this.text});
+final class _DirectoryResults extends StatelessWidget {
+  const _DirectoryResults({
+    required this.state,
+    required this.selectedUserId,
+    required this.onSelect,
+  });
 
-  final String text;
+  final StorageShareDirectoryState state;
+  final String? selectedUserId;
+  final ValueChanged<LocalUserDirectoryResponse> onSelect;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Icon(
-        Icons.info_outline,
-        size: 16,
-        color: context.colors.onSurfaceVariant,
+  Widget build(BuildContext context) => switch (state) {
+    StorageShareDirectoryIdle() => const SizedBox.shrink(),
+    StorageShareDirectoryLoading() => const LinearProgressIndicator(
+      minHeight: 2,
+    ),
+    StorageShareDirectoryFailure(:final error) => StorageShareDirectoryError(
+      error: error,
+    ),
+    StorageShareDirectoryReady(:final users) =>
+      users.isEmpty
+          ? Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                context.l10n.storageUserSearchNoResults,
+                style: context.filesTheme.common.dataText.copyWith(
+                  color: context.colors.onSurfaceVariant,
+                ),
+              ),
+            )
+          : _DirectoryUserList(
+              users: users,
+              selectedUserId: selectedUserId,
+              onSelect: onSelect,
+            ),
+  };
+}
+
+final class _DirectoryUserList extends StatelessWidget {
+  const _DirectoryUserList({
+    required this.users,
+    required this.selectedUserId,
+    required this.onSelect,
+  });
+
+  final List<LocalUserDirectoryResponse> users;
+  final String? selectedUserId;
+  final ValueChanged<LocalUserDirectoryResponse>? onSelect;
+
+  @override
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: const BoxConstraints(maxHeight: 160),
+    child: ListView.builder(
+      shrinkWrap: true,
+      itemCount: users.length,
+      itemBuilder: (context, index) => _DirectoryUserRow(
+        user: users[index],
+        isSelected: users[index].userId == selectedUserId,
+        onSelect: onSelect,
       ),
-      const SizedBox(width: 8),
-      Expanded(
-        child: Text(
-          text,
-          style: context.filesTheme.common.dataText.copyWith(
-            color: context.colors.onSurfaceVariant,
-          ),
+    ),
+  );
+}
+
+final class _DirectoryUserRow extends StatelessWidget {
+  const _DirectoryUserRow({
+    required this.user,
+    required this.isSelected,
+    required this.onSelect,
+  });
+
+  final LocalUserDirectoryResponse user;
+  final bool isSelected;
+  final ValueChanged<LocalUserDirectoryResponse>? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      key: ValueKey('storage_share_user-${user.userId}'),
+      dense: true,
+      selected: isSelected,
+      selectedTileColor: context.filesTheme.common.rowSelected,
+      hoverColor: context.filesTheme.common.rowHover,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          context.filesTheme.common.controlRadius,
         ),
       ),
-    ],
-  );
+      title: Text(
+        user.displayName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: context.filesTheme.common.dataText,
+      ),
+      subtitle: Text(
+        user.login,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: context.filesTheme.common.metaText.copyWith(
+          color: context.colors.onSurfaceVariant,
+        ),
+      ),
+      onTap: onSelect == null ? null : () => onSelect!(user),
+    );
+  }
 }

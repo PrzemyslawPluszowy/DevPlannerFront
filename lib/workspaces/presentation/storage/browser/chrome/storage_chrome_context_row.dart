@@ -283,17 +283,41 @@ Future<void> runStorageChromeAction(
   final scope = cubit.currentScope;
   switch (action) {
     case StorageChromeAction.newFolder:
+      final folderMutation = context.read<StorageFolderMutationCubit>();
       final name = await StorageCreateFolderDialog.show(context);
-      if (name == null || !context.mounted) return;
-      await context.read<StorageFolderMutationCubit>().createFolder(
+      if (name == null ||
+          !context.mounted ||
+          cubit.isClosed ||
+          !identical(context.read<StorageBrowserCubit>(), cubit) ||
+          cubit.currentScope != scope ||
+          folderMutation.isClosed ||
+          !identical(
+            context.read<StorageFolderMutationCubit>(),
+            folderMutation,
+          )) {
+        return;
+      }
+      await folderMutation.createFolder(
         scope: scope,
         name: name,
         parentFolderId: scope.folderId,
       );
     case StorageChromeAction.newDocument:
+      final documentMutation = context.read<StorageDocumentMutationCubit>();
       final request = await StorageCreateDocumentDialog.show(context);
-      if (request == null || !context.mounted) return;
-      await context.read<StorageDocumentMutationCubit>().createDocument(
+      if (request == null ||
+          !context.mounted ||
+          cubit.isClosed ||
+          !identical(context.read<StorageBrowserCubit>(), cubit) ||
+          cubit.currentScope != scope ||
+          documentMutation.isClosed ||
+          !identical(
+            context.read<StorageDocumentMutationCubit>(),
+            documentMutation,
+          )) {
+        return;
+      }
+      await documentMutation.createDocument(
         scope: scope,
         name: request.name,
         format: request.format,

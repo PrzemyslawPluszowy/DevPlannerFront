@@ -3,53 +3,14 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
-import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_detail_operation_error_normalizer.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_detail_retry_after_gate.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/session/task_detail_section_lifecycle.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/time_tracking/cubit/task_time_tracking_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-sealed class TaskTimeTrackingState {
-  const TaskTimeTrackingState();
-}
-
-final class TaskTimeTrackingLoading extends TaskTimeTrackingState {
-  const TaskTimeTrackingLoading();
-}
-
-final class TaskTimeTrackingFailure extends TaskTimeTrackingState {
-  const TaskTimeTrackingFailure(this.message);
-  final String message;
-}
-
-final class TaskTimeTrackingReady extends TaskTimeTrackingState {
-  const TaskTimeTrackingReady({
-    required this.entries,
-    this.isSaving = false,
-    this.error,
-    this.nowUtc,
-  });
-  final List<TaskTimeEntryResponse> entries;
-  final bool isSaving;
-  final String? error;
-  final DateTime? nowUtc;
-  List<TaskTimeEntryResponse> get activeTimers => entries
-      .where(
-        (entry) =>
-            entry.kind == TaskTimeEntryKind.timer && entry.stoppedAtUtc == null,
-      )
-      .toList(growable: false);
-  TaskTimeTrackingReady copyWith({
-    List<TaskTimeEntryResponse>? entries,
-    bool? isSaving,
-    String? error,
-    bool clearError = false,
-    DateTime? nowUtc,
-  }) => TaskTimeTrackingReady(
-    entries: entries ?? this.entries,
-    isSaving: isSaving ?? this.isSaving,
-    error: clearError ? null : error ?? this.error,
-    nowUtc: nowUtc ?? this.nowUtc,
-  );
-}
+export 'task_time_tracking_state.dart';
 
 /// Stan wpisów czasu i bezpiecznych akcji timer/workflow dla jednego zadania.
 final class TaskTimeTrackingCubit extends Cubit<TaskTimeTrackingState> {
@@ -58,31 +19,78 @@ final class TaskTimeTrackingCubit extends Cubit<TaskTimeTrackingState> {
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
+    this.canEdit,
+    this.onAccessLost,
   }) : super(const TaskTimeTrackingLoading());
   final TaskTimeTrackingRepository repository;
   final String workspaceId;
   final String projectId;
   final String taskId;
   Timer? _ticker;
+  final _retryAfter = TaskDetailRetryAfterGate();
+  final bool Function()? canEdit;
+  final void Function(ApiError)? onAccessLost;
+  late final _lifecycle = TaskDetailSectionLifecycle(
+    isClosed: () => isClosed,
+    canEdit: canEdit,
+    onAccessLost: onAccessLost,
+  );
 
-  Future<void> load() async {
-    emit(const TaskTimeTrackingLoading());
-    final result = await repository.list(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-    );
-    if (isClosed) return;
-    result.fold((error) => emit(TaskTimeTrackingFailure(error.message)), (
-      entries,
-    ) {
-      final ready = TaskTimeTrackingReady(
-        entries: entries,
-        nowUtc: DateTime.now().toUtc(),
+  bool get canSubmit =>
+      _lifecycle.canMutate &&
+      !_retryAfter.isBlocked &&
+      state is TaskTimeTrackingReady &&
+      !(state as TaskTimeTrackingReady).isSaving &&
+      !(state as TaskTimeTrackingReady).isRetryBlocked;
+
+  Future<void> load() => _load();
+
+  Future<void> _load({bool afterMutation = false}) async {
+    if (!afterMutation && _retryAfter.isBlocked) return;
+    if (!afterMutation &&
+        state is TaskTimeTrackingReady &&
+        (state as TaskTimeTrackingReady).isSaving) {
+      return;
+    }
+    final generation = _lifecycle.begin();
+    if (generation == null) return;
+    if (!afterMutation) _retryAfter.clear();
+    _ticker?.cancel();
+    final previousReady = afterMutation && state is TaskTimeTrackingReady
+        ? state as TaskTimeTrackingReady
+        : null;
+    if (!afterMutation) emit(const TaskTimeTrackingLoading());
+    late final Either<ApiError, List<TaskTimeEntryResponse>> result;
+    try {
+      result = await repository.list(
+        workspaceId: workspaceId,
+        projectId: projectId,
+        taskId: taskId,
       );
-      emit(ready);
-      _syncTicker(ready);
-    });
+    } on Object catch (error) {
+      if (!_lifecycle.isCurrent(generation)) return;
+      final apiError = TaskDetailOperationErrorNormalizer.fromThrown(
+        error,
+        fallbackMessage: '',
+      );
+      _emitLoadFailure(apiError, previousReady: previousReady);
+      return;
+    }
+    if (!_lifecycle.isCurrent(generation)) return;
+    result.fold(
+      (error) => _emitLoadFailure(error, previousReady: previousReady),
+      (
+        entries,
+      ) {
+        _retryAfter.clear();
+        final ready = TaskTimeTrackingReady(
+          entries: entries,
+          nowUtc: DateTime.now().toUtc(),
+        );
+        emit(ready);
+        _syncTicker(ready);
+      },
+    );
   }
 
   Future<bool> create(CreateTaskTimeEntryPayload payload) => _mutate(
@@ -100,31 +108,37 @@ final class TaskTimeTrackingCubit extends Cubit<TaskTimeTrackingState> {
       taskId: taskId,
     ),
   );
-  Future<bool> stopTimer({DateTime? stoppedAtUtc}) => _mutate(
-    () => repository.stopTimer(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      payload: StopTaskTimerPayload(stoppedAtUtc: stoppedAtUtc),
-    ),
-  );
+  Future<bool> stopTimer({DateTime? stoppedAtUtc}) async {
+    final current = state;
+    if (current is! TaskTimeTrackingReady || current.ownActiveTimers.isEmpty) {
+      return false;
+    }
+    return _mutate(
+      () => repository.stopTimer(
+        workspaceId: workspaceId,
+        projectId: projectId,
+        taskId: taskId,
+        payload: StopTaskTimerPayload(stoppedAtUtc: stoppedAtUtc),
+      ),
+      allowReadOnly: true,
+    );
+  }
+
   Future<bool> submit(TaskTimeEntryResponse entry) =>
       _workflow(entry, repository.submit);
-  Future<bool> approve(TaskTimeEntryResponse entry) =>
-      _workflow(entry, repository.approve);
+  Future<bool> approve(TaskTimeEntryResponse entry, {String? comment}) =>
+      _workflow(entry, repository.approve, review: true, comment: comment);
   Future<bool> reject(TaskTimeEntryResponse entry, {String? comment}) =>
-      _mutate(
-        () => repository.reject(
-          workspaceId: workspaceId,
-          projectId: projectId,
-          taskId: taskId,
-          entryId: entry.id,
-          payload: TimeEntryWorkflowPayload(
-            expectedVersion: entry.version,
-            comment: comment,
-          ),
-        ),
-      );
+      _workflow(entry, repository.reject, review: true, comment: comment);
+
+  bool _canEntryWorkflow(TaskTimeEntryResponse entry, {required bool review}) {
+    final current = state;
+    if (current is! TaskTimeTrackingReady) return false;
+    return current.entries.any(
+      (item) =>
+          item.id == entry.id && (review ? item.canReview : item.canSubmit),
+    );
+  }
 
   Future<bool> _workflow(
     TaskTimeEntryResponse entry,
@@ -135,35 +149,151 @@ final class TaskTimeTrackingCubit extends Cubit<TaskTimeTrackingState> {
       required String entryId,
       required TimeEntryWorkflowPayload payload,
     })
-    operation,
-  ) => _mutate(
-    () => operation(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-      entryId: entry.id,
-      payload: TimeEntryWorkflowPayload(expectedVersion: entry.version),
-    ),
-  );
+    operation, {
+    bool review = false,
+    String? comment,
+  }) async {
+    if (!_canEntryWorkflow(entry, review: review)) return false;
+    return _mutate(
+      () => operation(
+        workspaceId: workspaceId,
+        projectId: projectId,
+        taskId: taskId,
+        entryId: entry.id,
+        payload: TimeEntryWorkflowPayload(
+          expectedVersion: entry.version,
+          comment: comment,
+        ),
+      ),
+      allowReadOnly: review,
+    );
+  }
 
   Future<bool> _mutate(
-    Future<Either<ApiError, TaskTimeEntryResponse>> Function() operation,
-  ) async {
+    Future<Either<ApiError, TaskTimeEntryResponse>> Function() operation, {
+    bool allowReadOnly = false,
+  }) async {
     final current = state;
-    if (current is! TaskTimeTrackingReady || current.isSaving) return false;
-    emit(current.copyWith(isSaving: true, clearError: true));
-    final result = await operation();
-    if (isClosed) return false;
+    if (isClosed ||
+        (!_lifecycle.canMutate && !allowReadOnly) ||
+        current is! TaskTimeTrackingReady ||
+        current.isSaving ||
+        current.isRetryBlocked ||
+        _retryAfter.isBlocked) {
+      return false;
+    }
+    final generation = _lifecycle.begin()!;
+    _retryAfter.clear();
+    emit(
+      current.copyWith(
+        isSaving: true,
+        isRetryBlocked: false,
+        clearError: true,
+      ),
+    );
+    late final Either<ApiError, TaskTimeEntryResponse> result;
+    try {
+      result = await operation();
+    } on Object catch (error) {
+      if (!_lifecycle.isCurrent(generation)) return false;
+      final apiError = TaskDetailOperationErrorNormalizer.fromThrown(
+        error,
+        fallbackMessage: '',
+      );
+      _emitMutationFailure(current, apiError);
+      return false;
+    }
+    if (!_lifecycle.isCurrent(generation)) return false;
     final succeeded = result.fold(
       (error) {
-        emit(current.copyWith(isSaving: false, error: error.message));
+        _emitMutationFailure(current, error);
         return false;
       },
-      (_) => true,
+      (updatedEntry) {
+        final entries = [...current.entries];
+        final index = entries.indexWhere(
+          (entry) => entry.id == updatedEntry.id,
+        );
+        if (index < 0) {
+          entries.add(updatedEntry);
+        } else {
+          entries[index] = updatedEntry;
+        }
+        emit(
+          current.copyWith(
+            entries: entries,
+            isSaving: true,
+            isRetryBlocked: false,
+            nowUtc: DateTime.now().toUtc(),
+            clearError: true,
+          ),
+        );
+        return true;
+      },
     );
     if (!succeeded) return false;
-    await load();
+    await _load(afterMutation: true);
     return true;
+  }
+
+  void _emitLoadFailure(
+    ApiError error, {
+    required TaskTimeTrackingReady? previousReady,
+  }) {
+    if (previousReady == null) {
+      _retryAfter.schedule(error, onAvailable: _publishRetryAvailable);
+      emit(
+        TaskTimeTrackingFailure(
+          error.message,
+          apiError: error,
+          isRetryBlocked: _retryAfter.isBlocked,
+        ),
+      );
+    } else {
+      _retryAfter.schedule(error, onAvailable: _publishRetryAvailable);
+      emit(
+        previousReady.copyWith(
+          isSaving: false,
+          error: error.message,
+          apiError: error,
+          isRetryBlocked: _retryAfter.isBlocked,
+        ),
+      );
+      if (previousReady.activeTimers.isNotEmpty) {
+        _syncTicker(previousReady);
+      }
+    }
+    _lifecycle.reportError(error);
+  }
+
+  void _emitMutationFailure(TaskTimeTrackingReady current, ApiError error) {
+    _retryAfter.schedule(error, onAvailable: _publishRetryAvailable);
+    emit(
+      current.copyWith(
+        isSaving: false,
+        error: error.message,
+        apiError: error,
+        isRetryBlocked: _retryAfter.isBlocked,
+      ),
+    );
+    _lifecycle.reportError(error);
+  }
+
+  void _publishRetryAvailable() {
+    if (isClosed) return;
+    switch (state) {
+      case TaskTimeTrackingFailure(:final message, :final apiError):
+        emit(
+          TaskTimeTrackingFailure(
+            message,
+            apiError: apiError,
+          ),
+        );
+      case TaskTimeTrackingReady(:final isRetryBlocked) when isRetryBlocked:
+        emit((state as TaskTimeTrackingReady).copyWith(isRetryBlocked: false));
+      default:
+        break;
+    }
   }
 
   void _syncTicker(TaskTimeTrackingReady state) {
@@ -185,6 +315,8 @@ final class TaskTimeTrackingCubit extends Cubit<TaskTimeTrackingState> {
   @override
   Future<void> close() {
     _ticker?.cancel();
+    _retryAfter.dispose();
+    _lifecycle.invalidate();
     return super.close();
   }
 }

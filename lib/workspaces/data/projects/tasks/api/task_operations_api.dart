@@ -151,15 +151,16 @@ abstract class TaskOperationsApi {
     @Body() UpdateTaskUserPreferencePayload body,
   );
 
-  /// Pobiera aktywne pliki przypisane do zadania.
+  /// Pobiera pliki przypisane do zadania; kosz jest opcjonalny.
   @GET(
     '/api/v1/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}/attachments',
   )
   Future<List<StorageFileResponse>> listTaskAttachments(
     @Path('workspaceId') String workspaceId,
     @Path('projectId') String projectId,
-    @Path('taskId') String taskId,
-  );
+    @Path('taskId') String taskId, {
+    @Query('includeDeleted') bool includeDeleted = false,
+  });
 
   /// Generuje zbiorcze bilety uploadu załączników zadania.
   @POST(
@@ -169,6 +170,7 @@ abstract class TaskOperationsApi {
     @Path('workspaceId') String workspaceId,
     @Path('projectId') String projectId,
     @Path('taskId') String taskId,
+    @Header('Idempotency-Key') String idempotencyKey,
     @Body() BulkTaskUploadTicketPayload body,
   );
 

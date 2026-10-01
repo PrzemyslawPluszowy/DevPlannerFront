@@ -1,9 +1,14 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_collaboration.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_milestone.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_properties_planning.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
-class _TaskProperties extends StatelessWidget {
-  const _TaskProperties({required this.details});
+class TaskProperties extends StatelessWidget {
+  const TaskProperties({required this.details, required this.canEdit, super.key});
 
   final ProjectTaskDetailsResponse details;
+  final bool canEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -17,67 +22,71 @@ class _TaskProperties extends StatelessWidget {
     final dateFormat = DateFormat.yMMMd(
       Localizations.localeOf(context).toLanguageTag(),
     );
-    return _Section(
+    return Section(
       title: context.l10n.taskDetailsProperties,
       action: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
             tooltip: context.l10n.taskDetailsEditAssignees,
-            onPressed: () => showDialog<void>(
-              context: context,
-              builder: (_) => BlocProvider.value(
-                value: context.read<TaskDetailsCubit>(),
-                child: _EditAssigneesDialog(task: task),
-              ),
-            ),
+            onPressed: canEdit
+                ? () => DevPlannerModalHost.showDialog<void>(
+                    context,
+                    builder: (_) => BlocProvider.value(
+                      value: context.read<TaskDetailsCubit>(),
+                      child: EditAssigneesDialog(task: task),
+                    ),
+                  )
+                : null,
             icon: const Icon(Symbols.group_add, size: 20),
           ),
           IconButton(
             tooltip: context.l10n.taskDetailsEditPlanning,
-            onPressed: () => showDialog<void>(
-              context: context,
-              builder: (_) => BlocProvider.value(
-                value: context.read<TaskDetailsCubit>(),
-                child: _EditPlanningDialog(task: task),
-              ),
-            ),
+            onPressed: canEdit
+                ? () => DevPlannerModalHost.showDialog<void>(
+                    context,
+                    builder: (_) => BlocProvider.value(
+                      value: context.read<TaskDetailsCubit>(),
+                      child: EditPlanningDialog(task: task),
+                    ),
+                  )
+                : null,
             icon: const Icon(Symbols.event_note, size: 20),
           ),
         ],
       ),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: context.colors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
           border: Border.all(color: context.colors.outlineVariant),
         ),
         child: Column(
           children: [
-            _PropertyRow(
+            PropertyRow(
               icon: Symbols.people_outline_rounded,
               label: context.l10n.taskDetailsAssignees,
               value: assignees.isEmpty
                   ? context.l10n.taskDetailsNobody
                   : assignees,
             ),
-            _PropertyRow(
+            PropertyRow(
               icon: Symbols.play_circle_rounded,
               label: context.l10n.taskDetailsStartDate,
               value: task.startAtUtc == null
                   ? context.l10n.taskDetailsNoDate
                   : dateFormat.format(task.startAtUtc!.toLocal()),
             ),
-            _PropertyRow(
+            PropertyRow(
               icon: Symbols.calendar_today,
               label: context.l10n.taskDetailsDueDate,
               value: task.dueAtUtc == null
                   ? context.l10n.taskDetailsNoDueDate
                   : dateFormat.format(task.dueAtUtc!.toLocal()),
             ),
-            _TaskMilestoneProperty(taskId: task.id),
-            _PropertyRow(
+            TaskMilestoneProperty(taskId: task.id),
+            PropertyRow(
               icon: Symbols.schedule,
               label: context.l10n.taskDetailsEstimate,
               value: task.estimatedMinutes == null
@@ -90,34 +99,4 @@ class _TaskProperties extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.child, this.action});
-
-  final String title;
-  final Widget child;
-  final Widget? action;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: context.text.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          ?action,
-        ],
-      ),
-      const SizedBox(height: 10),
-      child,
-    ],
-  );
 }

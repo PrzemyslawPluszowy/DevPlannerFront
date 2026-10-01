@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
@@ -6,6 +7,17 @@ import 'package:equatable/equatable.dart';
 
 /// Szybkie presety częstotliwości w edytorze.
 enum TaskRecurrencePreset { daily, workdays, weekly, monthly, custom }
+
+enum TaskRecurrenceEditorErrorOperation {
+  load,
+  create,
+  update,
+  pause,
+  resume,
+  delete,
+}
+
+enum TaskRecurrenceEditorSuccessOperation { saved, paused, resumed }
 
 /// Niezależna od Fluttera godzina zapisu harmonogramu recurrence.
 ///
@@ -55,7 +67,10 @@ final class TaskRecurrenceEditorLoaded extends TaskRecurrenceEditorState {
     required this.isSourceTask,
     this.recurrence,
     this.isSaving = false,
+    this.isLoadingRecurrence = false,
     this.errorMessage,
+    this.apiError,
+    this.errorOperation,
   });
 
   final TaskRecurrencePreset preset;
@@ -70,9 +85,22 @@ final class TaskRecurrenceEditorLoaded extends TaskRecurrenceEditorState {
   final bool isSourceTask;
   final TaskRecurrenceResponse? recurrence;
   final bool isSaving;
+  final bool isLoadingRecurrence;
   final String? errorMessage;
+  final ApiError? apiError;
+  final TaskRecurrenceEditorErrorOperation? errorOperation;
 
   bool get isActive => recurrence?.isActive ?? true;
+
+  static TaskRecurrencePreset resolvePreset(
+    TaskRecurrenceFrequency frequency,
+    int interval,
+  ) => switch ((frequency, interval)) {
+    (TaskRecurrenceFrequency.daily, 1) => TaskRecurrencePreset.daily,
+    (TaskRecurrenceFrequency.weekly, 1) => TaskRecurrencePreset.weekly,
+    (TaskRecurrenceFrequency.monthly, 1) => TaskRecurrencePreset.monthly,
+    _ => TaskRecurrencePreset.custom,
+  };
 
   TaskRecurrenceEditorLoaded copyWith({
     TaskRecurrencePreset? preset,
@@ -87,7 +115,10 @@ final class TaskRecurrenceEditorLoaded extends TaskRecurrenceEditorState {
     bool? isSourceTask,
     TaskRecurrenceResponse? recurrence,
     bool? isSaving,
+    bool? isLoadingRecurrence,
     String? errorMessage,
+    ApiError? apiError,
+    TaskRecurrenceEditorErrorOperation? errorOperation,
     bool clearError = false,
   }) => TaskRecurrenceEditorLoaded(
     preset: preset ?? this.preset,
@@ -102,7 +133,10 @@ final class TaskRecurrenceEditorLoaded extends TaskRecurrenceEditorState {
     isSourceTask: isSourceTask ?? this.isSourceTask,
     recurrence: recurrence ?? this.recurrence,
     isSaving: isSaving ?? this.isSaving,
+    isLoadingRecurrence: isLoadingRecurrence ?? this.isLoadingRecurrence,
     errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    apiError: clearError ? null : (apiError ?? this.apiError),
+    errorOperation: clearError ? null : (errorOperation ?? this.errorOperation),
   );
 
   @override
@@ -119,7 +153,10 @@ final class TaskRecurrenceEditorLoaded extends TaskRecurrenceEditorState {
     isSourceTask,
     recurrence,
     isSaving,
+    isLoadingRecurrence,
     errorMessage,
+    apiError,
+    errorOperation,
   ];
 }
 
@@ -127,24 +164,20 @@ final class TaskRecurrenceEditorLoaded extends TaskRecurrenceEditorState {
 final class TaskRecurrenceEditorSuccess extends TaskRecurrenceEditorState {
   const TaskRecurrenceEditorSuccess({
     required this.mutationResult,
-    required this.message,
+    required this.operation,
   });
 
   final TaskMutationResponse<TaskRecurrenceResponse> mutationResult;
-  final String message;
+  final TaskRecurrenceEditorSuccessOperation operation;
 
   @override
-  List<Object?> get props => [mutationResult, message];
+  List<Object?> get props => [mutationResult, operation];
 }
 
 /// Stan sukcesu usunięcia cykliczności zadania.
 final class TaskRecurrenceEditorDeleted extends TaskRecurrenceEditorState {
-  const TaskRecurrenceEditorDeleted({
-    required this.message,
-  });
-
-  final String message;
+  const TaskRecurrenceEditorDeleted();
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [];
 }

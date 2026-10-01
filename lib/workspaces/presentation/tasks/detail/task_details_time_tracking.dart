@@ -1,8 +1,16 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_time_entry_dialog.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_time_entry_review_dialog.dart';
 
-class _TaskTimeTrackingSection extends StatelessWidget {
-  const _TaskTimeTrackingSection({required this.taskId});
+class TaskTimeTrackingSection extends StatelessWidget {
+  const TaskTimeTrackingSection({
+    required this.taskId,
+    required this.isEditable,
+    super.key,
+  });
   final String taskId;
+  final bool isEditable;
   @override
   Widget build(BuildContext context) {
     final details = context.read<TaskDetailsCubit>();
@@ -13,30 +21,40 @@ class _TaskTimeTrackingSection extends StatelessWidget {
           workspaceId: details.workspaceId,
           projectId: details.projectId,
           taskId: taskId,
+          canEdit: () => switch (details.state) {
+            TaskDetailsReady(:final canEdit) => canEdit,
+            _ => false,
+          },
+          onAccessLost: (error) => unawaited(details.reportAccessLost(error)),
         );
         unawaited(cubit.load());
         return cubit;
       },
-      child: const _TaskTimeTrackingBody(),
+      child: TaskTimeTrackingBody(isEditable: isEditable),
     );
   }
 }
 
-class _TaskTimeTrackingBody extends StatelessWidget {
-  const _TaskTimeTrackingBody();
+class TaskTimeTrackingBody extends StatelessWidget {
+  const TaskTimeTrackingBody({required this.isEditable, super.key});
+  final bool isEditable;
   @override
-  Widget build(BuildContext context) => _Section(
+  Widget build(BuildContext context) => Section(
     title: context.l10n.taskDetailsTimeTracking,
-    action: TextButton.icon(
-      onPressed: () => showDialog<void>(
-        context: context,
-        builder: (_) => BlocProvider.value(
-          value: context.read<TaskTimeTrackingCubit>(),
-          child: const _ManualTimeEntryDialog(),
-        ),
+    action: BlocBuilder<TaskTimeTrackingCubit, TaskTimeTrackingState>(
+      builder: (context, state) => TextButton.icon(
+        onPressed: isEditable && !state.isRetryBlocked
+            ? () => DevPlannerModalHost.showDialog<void>(
+                context,
+                builder: (_) => BlocProvider.value(
+                  value: context.read<TaskTimeTrackingCubit>(),
+                  child: const ManualTimeEntryDialog(),
+                ),
+              )
+            : null,
+        icon: const Icon(Symbols.add_rounded, size: 18),
+        label: Text(context.l10n.taskDetailsTimeAdd),
       ),
-      icon: const Icon(Symbols.add_rounded, size: 18),
-      label: Text(context.l10n.taskDetailsTimeAdd),
     ),
     child: BlocBuilder<TaskTimeTrackingCubit, TaskTimeTrackingState>(
       builder: (context, state) => switch (state) {
@@ -45,45 +63,57 @@ class _TaskTimeTrackingBody extends StatelessWidget {
           child: Center(child: CircularProgressIndicator()),
         ),
         TaskTimeTrackingFailure(:final message) => Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              Text(message),
+              if (state.apiError case final error?)
+                TaskDetailsModalError(
+                  error: error,
+                  fallbackMessage:
+                      context.l10n.taskDetailsTimeOperationFailed,
+                )
+              else
+                Text(message),
               TextButton(
-                onPressed: () =>
-                    unawaited(context.read<TaskTimeTrackingCubit>().load()),
+                onPressed: state.isRetryBlocked
+                    ? null
+                    : () => unawaited(
+                        context.read<TaskTimeTrackingCubit>().load(),
+                      ),
                 child: Text(context.l10n.retry),
               ),
             ],
           ),
         ),
-        TaskTimeTrackingReady() => _TimeTrackingReady(state: state),
+        TaskTimeTrackingReady() => TimeTrackingReady(
+          state: state,
+          isEditable: isEditable,
+        ),
       },
     ),
   );
 }
 
-class _TimeTrackingReady extends StatelessWidget {
-  const _TimeTrackingReady({required this.state});
+class TimeTrackingReady extends StatelessWidget {
+  const TimeTrackingReady({
+    required this.state,
+    required this.isEditable,
+    super.key,
+  });
   final TaskTimeTrackingReady state;
+  final bool isEditable;
   @override
   Widget build(BuildContext context) {
-    final minutes = state.entries.fold<int>(
-      0,
-      (sum, entry) =>
-          sum +
-          (entry.durationMinutes ??
-              TaskTimeTrackingPresentation.timerMinutes(entry, state.nowUtc)),
-    );
-    final active = state.activeTimers.isNotEmpty;
+    final minutes = state.totalMinutes;
+    final active = state.ownActiveTimers.isNotEmpty;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: context.colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
         border: Border.all(color: context.colors.outlineVariant),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -94,7 +124,10 @@ class _TimeTrackingReady extends StatelessWidget {
                 Expanded(
                   child: Text(
                     context.l10n.taskDetailsTimeTotal(
-                      TaskTimeTrackingPresentation.durationLabel(minutes),
+                      TaskTimeTrackingPresentation.durationLabel(
+                        context,
+                        minutes,
+                      ),
                     ),
                     style: context.text.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -102,7 +135,10 @@ class _TimeTrackingReady extends StatelessWidget {
                   ),
                 ),
                 FilledButton.tonalIcon(
-                  onPressed: state.isSaving
+                  onPressed:
+                      state.isSaving ||
+                          state.isRetryBlocked ||
+                          (!active && !isEditable)
                       ? null
                       : () => unawaited(
                           active
@@ -124,12 +160,22 @@ class _TimeTrackingReady extends StatelessWidget {
                 ),
               ],
             ),
-            if (state.error != null) ...[
+            if (state.apiError case final error?) ...[
+              const SizedBox(height: 9),
+              TaskDetailsModalError(
+                error: error,
+                fallbackMessage: context.l10n.taskDetailsTimeOperationFailed,
+              ),
+            ] else if (state.error != null) ...[
               const SizedBox(height: 9),
               Text(state.error!, style: TextStyle(color: context.colors.error)),
             ],
             for (final entry in state.entries)
-              _TimeEntryTile(entry: entry, isSaving: state.isSaving),
+              TimeEntryTile(
+                entry: entry,
+                isSaving: state.isSaving || state.isRetryBlocked,
+                nowUtc: state.nowUtc,
+              ),
           ],
         ),
       ),
@@ -137,10 +183,16 @@ class _TimeTrackingReady extends StatelessWidget {
   }
 }
 
-class _TimeEntryTile extends StatelessWidget {
-  const _TimeEntryTile({required this.entry, required this.isSaving});
+class TimeEntryTile extends StatelessWidget {
+  const TimeEntryTile({
+    required this.entry,
+    required this.isSaving,
+    required this.nowUtc,
+    super.key,
+  });
   final TaskTimeEntryResponse entry;
   final bool isSaving;
+  final DateTime? nowUtc;
   @override
   Widget build(BuildContext context) => ListTile(
     dense: true,
@@ -156,185 +208,98 @@ class _TimeEntryTile extends StatelessWidget {
           : context.l10n.taskDetailsTimeNoDescription,
     ),
     subtitle: Text(
-      '${TaskTimeTrackingPresentation.durationLabel(entry.durationMinutes ?? TaskTimeTrackingPresentation.timerMinutes(entry, DateTime.now().toUtc()))} · ${TaskTimeTrackingPresentation.approvalLabel(context, entry.approvalStatus)}',
+      '${TaskTimeTrackingPresentation.durationLabel(context, entry.durationMinutes ?? TaskTimeTrackingPresentation.timerMinutes(entry, nowUtc))} · ${TaskTimeTrackingPresentation.approvalLabel(context, entry.approvalStatus)}',
     ),
-    trailing: switch (entry.approvalStatus) {
-      TaskTimeEntryApprovalStatus.draft => TextButton(
+    trailing: TimeEntryActions(entry: entry, isSaving: isSaving),
+  );
+}
+
+class TimeEntryActions extends StatelessWidget {
+  const TimeEntryActions({
+    required this.entry,
+    required this.isSaving,
+    super.key,
+  });
+  final TaskTimeEntryResponse entry;
+  final bool isSaving;
+
+  @override
+  Widget build(BuildContext context) {
+    if (entry.canSubmit) {
+      return TextButton(
         onPressed: isSaving
             ? null
             : () => unawaited(
                 context.read<TaskTimeTrackingCubit>().submit(entry),
               ),
         child: Text(context.l10n.taskDetailsTimeSubmit),
-      ),
-      TaskTimeEntryApprovalStatus.submitted => Row(
+      );
+    }
+    if (entry.canReview) {
+      return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.check_circle_outline_rounded,
-              color: Colors.green,
+              color: context.colors.tertiary,
               size: 20,
             ),
-            tooltip: 'Zatwierdź czas',
+            tooltip: context.l10n.taskDetailsTimeApprove,
             onPressed: isSaving
                 ? null
-                : () => unawaited(
-                    context.read<TaskTimeTrackingCubit>().approve(entry),
-                  ),
+                : () => _openReview(context, approve: true),
           ),
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.cancel_outlined,
-              color: Colors.red,
+              color: context.colors.error,
               size: 20,
             ),
-            tooltip: 'Odrzuć czas',
+            tooltip: context.l10n.taskDetailsTimeReject,
             onPressed: isSaving
                 ? null
-                : () => unawaited(
-                    context.read<TaskTimeTrackingCubit>().reject(entry),
-                  ),
+                : () => _openReview(context, approve: false),
           ),
         ],
+      );
+    }
+    if (entry.canStopTimer) {
+      return IconButton(
+        tooltip: context.l10n.taskDetailsTimeStop,
+        onPressed: isSaving
+            ? null
+            : () =>
+                  unawaited(context.read<TaskTimeTrackingCubit>().stopTimer()),
+        icon: const Icon(Symbols.stop_rounded),
+      );
+    }
+    return switch (entry.approvalStatus) {
+      TaskTimeEntryApprovalStatus.approved => Icon(
+        Icons.check_circle_rounded,
+        color: context.colors.tertiary,
+        size: 18,
       ),
-      TaskTimeEntryApprovalStatus.approved => const Padding(
-        padding: EdgeInsets.only(right: 8),
-        child: Icon(Icons.check_circle_rounded, color: Colors.green, size: 18),
+      TaskTimeEntryApprovalStatus.rejected => Icon(
+        Icons.cancel_rounded,
+        color: context.colors.error,
+        size: 18,
       ),
-      TaskTimeEntryApprovalStatus.rejected => const Padding(
-        padding: EdgeInsets.only(right: 8),
-        child: Icon(Icons.cancel_rounded, color: Colors.red, size: 18),
-      ),
-    },
-  );
-}
-
-class _ManualTimeEntryDialog extends StatefulWidget {
-  const _ManualTimeEntryDialog();
-  @override
-  State<_ManualTimeEntryDialog> createState() => _ManualTimeEntryDialogState();
-}
-
-class _ManualTimeEntryDialogState extends State<_ManualTimeEntryDialog> {
-  final _minutes = TextEditingController();
-  final _description = TextEditingController();
-  final ValueNotifier<bool> _billable = ValueNotifier(true);
-  final ValueNotifier<bool> _saving = ValueNotifier(false);
-  @override
-  void dispose() {
-    _minutes.dispose();
-    _description.dispose();
-    _billable.dispose();
-    _saving.dispose();
-    super.dispose();
+      TaskTimeEntryApprovalStatus.draft ||
+      TaskTimeEntryApprovalStatus.submitted => const SizedBox.shrink(),
+    };
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final colors = context.colors;
-
-    return AnimatedBuilder(
-      animation: Listenable.merge([_billable, _saving]),
-      builder: (context, _) => WorkspaceCreationModalWrapper(
-        title: l10n.taskDetailsTimeAdd,
-        icon: Symbols.timer_rounded,
-        accentColor: colors.primary,
-        isSubmitting: _saving.value,
-        submitLabel: l10n.save,
-        cancelLabel: l10n.cancel,
-        maxWidth: 440,
-        onSubmit: _save,
-        body: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              l10n.taskDetailsTimeMinutes,
-              style: context.text.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            Gaps.h8,
-            TextField(
-              controller: _minutes,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              enabled: !_saving.value,
-              decoration: InputDecoration(
-                hintText: l10n.taskDetailsTimeMinutes,
-                border: const OutlineInputBorder(
-                  borderRadius: .all(.circular(10)),
-                ),
-                contentPadding: const .symmetric(
-                  horizontal: Sizes.p12,
-                  vertical: Sizes.p12,
-                ),
-              ),
-            ),
-            Gaps.h12,
-            Text(
-              l10n.taskDetailsTimeDescription,
-              style: context.text.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            Gaps.h8,
-            TextField(
-              controller: _description,
-              maxLines: 2,
-              enabled: !_saving.value,
-              decoration: InputDecoration(
-                hintText: l10n.taskDetailsTimeDescription,
-                border: const OutlineInputBorder(
-                  borderRadius: .all(.circular(10)),
-                ),
-                contentPadding: const .symmetric(
-                  horizontal: Sizes.p12,
-                  vertical: Sizes.p12,
-                ),
-              ),
-            ),
-            Gaps.h12,
-            SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.taskDetailsTimeBillable),
-              value: _billable.value,
-              onChanged: _saving.value
-                  ? null
-                  : (value) => _billable.value = value,
-            ),
-          ],
+  void _openReview(BuildContext context, {required bool approve}) {
+    unawaited(
+      DevPlannerModalHost.showDialog<void>(
+        context,
+        builder: (_) => BlocProvider.value(
+          value: context.read<TaskTimeTrackingCubit>(),
+          child: TaskTimeEntryReviewDialog(entry: entry, approve: approve),
         ),
       ),
     );
-  }
-
-  Future<void> _save() async {
-    final duration = int.tryParse(_minutes.text.trim());
-    if (duration == null || duration <= 0) return;
-    _saving.value = true;
-    final saved = await context.read<TaskTimeTrackingCubit>().create(
-      CreateTaskTimeEntryPayload(
-        durationMinutes: duration,
-        description: _description.text.trim().isEmpty
-            ? null
-            : _description.text.trim(),
-        isBillable: _billable.value,
-      ),
-    );
-    if (mounted) {
-      if (saved) {
-        Navigator.of(context).pop();
-      } else {
-        _saving.value = false;
-      }
-    }
   }
 }
 
@@ -353,8 +318,15 @@ final class TaskTimeTrackingPresentation {
             .clamp(0, 1 << 31)
       : entry.stoppedAtUtc!.difference(entry.startedAtUtc).inMinutes;
 
-  static String durationLabel(int minutes) =>
-      '${minutes ~/ 60}h ${minutes % 60}m';
+  static String durationLabel(BuildContext context, int minutes) {
+    final hours = minutes ~/ 60;
+    final remainder = minutes % 60;
+    final l10n = context.l10n;
+    if (hours == 0) return l10n.taskDetailsTimeMinuteCount(remainder);
+    if (remainder == 0) return l10n.taskDetailsTimeHourCount(hours);
+    return '${l10n.taskDetailsTimeHourCount(hours)} '
+        '${l10n.taskDetailsTimeMinuteCount(remainder)}';
+  }
 
   static String approvalLabel(
     BuildContext context,

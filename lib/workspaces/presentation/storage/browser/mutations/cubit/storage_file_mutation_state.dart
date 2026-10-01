@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:equatable/equatable.dart';
 
@@ -109,6 +110,9 @@ class StorageFileMutationPartialSuccess extends StorageFileMutationState {
     required this.failedIds,
     required this.errorMessage,
     this.messageCode,
+    this.apiError,
+    this.apiErrorsById = const {},
+    this.notAttemptedIds = const [],
   });
 
   /// Identyfikatory elementów, dla których operacja się powiodła.
@@ -120,6 +124,11 @@ class StorageFileMutationPartialSuccess extends StorageFileMutationState {
   /// Komunikat błędu dla nieudanych operacji.
   final String errorMessage;
   final StorageFileMutationMessage? messageCode;
+  final ApiError? apiError;
+  final Map<String, ApiError> apiErrorsById;
+
+  /// Elementy pominięte po ograniczeniu żądań; nie są błędami wykonania.
+  final List<String> notAttemptedIds;
 
   @override
   List<Object?> get props => [
@@ -127,6 +136,9 @@ class StorageFileMutationPartialSuccess extends StorageFileMutationState {
     failedIds,
     errorMessage,
     messageCode,
+    apiError,
+    apiErrorsById,
+    notAttemptedIds,
   ];
 }
 
@@ -140,7 +152,23 @@ class StorageFileMutationFailure extends StorageFileMutationState {
     this.apiCode,
     this.traceId,
     this.messageCode,
+    this.apiError,
+    this.apiErrorsById = const {},
+    this.notAttemptedIds = const [],
   });
+
+  factory StorageFileMutationFailure.fromApiError(
+    ApiError error, {
+    StorageFileMutationMessage? messageCode,
+  }) => StorageFileMutationFailure(
+    message: error.message,
+    statusCode: error.statusCode,
+    backendCode: error.backendCode,
+    apiCode: error.apiCode,
+    traceId: error.traceId,
+    messageCode: messageCode,
+    apiError: error,
+  );
 
   /// Komunikat błędu.
   final String message;
@@ -160,6 +188,15 @@ class StorageFileMutationFailure extends StorageFileMutationState {
   /// Typ komunikatu, gdy backend nie podał własnej treści.
   final StorageFileMutationMessage? messageCode;
 
+  /// Full API diagnostics retained for a foreground editor or preview.
+  final ApiError? apiError;
+
+  /// All per-item errors when a bulk action has more than one failure.
+  final Map<String, ApiError> apiErrorsById;
+
+  /// Elementy pominięte po ograniczeniu żądań; nie są błędami wykonania.
+  final List<String> notAttemptedIds;
+
   @override
   List<Object?> get props => [
     message,
@@ -168,5 +205,8 @@ class StorageFileMutationFailure extends StorageFileMutationState {
     apiCode,
     traceId,
     messageCode,
+    apiError,
+    apiErrorsById,
+    notAttemptedIds,
   ];
 }

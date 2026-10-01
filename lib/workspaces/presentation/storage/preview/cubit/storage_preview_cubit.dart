@@ -1,5 +1,6 @@
 import 'package:devplanner/foundation/config/app_api_module.dart';
 import 'package:devplanner/foundation/config/app_env.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_state.dart';
@@ -12,20 +13,55 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
     : super(const StoragePreviewInitial());
 
   final StorageRepository repository;
+  int _generation = 0;
+
+  bool _isCurrent(int generation) => !isClosed && generation == _generation;
+
+  /// Ponawia tylko odczyt dokładnego pliku/wersji po upływie Retry-After.
+  Future<void> retry() async {
+    if (isClosed || state is! StoragePreviewFailure) return;
+    final failure = state as StoragePreviewFailure;
+    final retryAfter = failure.error?.retryAfterUtc;
+    if (retryAfter != null && DateTime.now().toUtc().isBefore(retryAfter)) {
+      return;
+    }
+    if (failure.version case final version?) {
+      await prepareVersionPreview(file: failure.file, version: version);
+    } else {
+      await preparePreview(failure.file);
+    }
+  }
+
+  void _fail(StorageFileResponse file, ApiError error, {int? version}) {
+    emit(
+      StoragePreviewFailure(
+        file: file,
+        message: error.message,
+        error: error,
+        version: version,
+      ),
+    );
+  }
+
+  @override
+  Future<void> close() {
+    _generation++;
+    return super.close();
+  }
 
   /// Pobiera bilet pobrania i przygotowuje podgląd pliku.
   Future<void> preparePreview(StorageFileResponse file) async {
+    if (isClosed) return;
+    final generation = ++_generation;
     emit(StoragePreviewLoading(file: file));
 
     final kind = resolveKind(file);
 
     final ticketResult = await repository.getDownloadTicket(file.id);
-    if (isClosed) return;
+    if (!_isCurrent(generation)) return;
 
     await ticketResult.fold<Future<void>>(
-      (err) async => emit(
-        StoragePreviewFailure(file: file, message: err.message),
-      ),
+      (err) async => _fail(file, err),
       (ticket) async {
         final previewUrl = _absolutePreviewUrl(
           ticket.previewUrl ?? ticket.downloadUrl,
@@ -34,10 +70,9 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
           final bytesResult = await repository.readPreviewImageBytes(
             fileId: file.id,
           );
-          if (isClosed) return;
+          if (!_isCurrent(generation)) return;
           bytesResult.fold(
-            (err) =>
-                emit(StoragePreviewFailure(file: file, message: err.message)),
+            (err) => _fail(file, err),
             (bytes) => emit(
               StoragePreviewReady(
                 file: file,
@@ -72,6 +107,8 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
     required StorageFileResponse file,
     required int version,
   }) async {
+    if (isClosed) return;
+    final generation = ++_generation;
     emit(StoragePreviewLoading(file: file));
 
     final kind = resolveKind(file);
@@ -79,11 +116,10 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
       fileId: file.id,
       version: version,
     );
-    if (isClosed) return;
+    if (!_isCurrent(generation)) return;
 
     await ticketResult.fold<Future<void>>(
-      (err) async =>
-          emit(StoragePreviewFailure(file: file, message: err.message)),
+      (err) async => _fail(file, err, version: version),
       (ticket) async {
         final previewUrl = _absolutePreviewUrl(ticket.downloadUrl);
         if (kind == StoragePreviewKind.image) {
@@ -91,10 +127,9 @@ final class StoragePreviewCubit extends Cubit<StoragePreviewState> {
             fileId: file.id,
             version: version,
           );
-          if (isClosed) return;
+          if (!_isCurrent(generation)) return;
           bytesResult.fold(
-            (err) =>
-                emit(StoragePreviewFailure(file: file, message: err.message)),
+            (err) => _fail(file, err, version: version),
             (bytes) => emit(
               StoragePreviewReady(
                 file: file,

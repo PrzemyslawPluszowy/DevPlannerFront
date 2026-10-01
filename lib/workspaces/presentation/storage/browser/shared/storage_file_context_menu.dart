@@ -5,17 +5,17 @@ import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_move_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_open_document_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_preview_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_dismiss_shared_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_rename_file_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_versions_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
-import 'package:devplanner/workspaces/presentation/storage/versions/storage_versions_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -73,7 +73,7 @@ abstract final class StorageFileContextMenu {
               label: l10n.storageMoveAction,
               icon: AppIcons.folder,
               onTap: (_) =>
-                  runStorageMoveToFolderAction(context, fileIds: [file.id]),
+                  StorageMoveAction.chooseFolder(context, fileIds: [file.id]),
             ),
           if (capabilities.canShare && file.canShare && !isTrash)
             AppContextMenuAction(
@@ -98,28 +98,8 @@ abstract final class StorageFileContextMenu {
             AppContextMenuAction(
               label: l10n.storageDismissFromSharedAction,
               icon: Icons.visibility_off_outlined,
-              onTap: (_) async {
-                final shouldDismiss = await showDialog<bool>(
-                  context: context,
-                  builder: (dialogContext) => AlertDialog(
-                    title: Text(l10n.storageDismissFromSharedTitle),
-                    content: Text(l10n.storageDismissFromSharedConfirm),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(false),
-                        child: Text(l10n.cancel),
-                      ),
-                      FilledButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(true),
-                        child: Text(l10n.storageDismissFromSharedAction),
-                      ),
-                    ],
-                  ),
-                );
-                if (shouldDismiss == true) {
-                  await mutation.dismissSharedFile(file.id);
-                }
-              },
+              onTap: (_) =>
+                  StorageDismissSharedAction.confirm(context, file.id),
             ),
           if (capabilities.canDownload && file.canDownload)
             AppContextMenuAction(
@@ -131,23 +111,8 @@ abstract final class StorageFileContextMenu {
             AppContextMenuAction(
               label: l10n.storageVersionsTitle,
               icon: AppIcons.documentText,
-              onTap: (_) async {
-                final restored = await StorageVersionsDialog.show(
-                  context,
-                  file: file,
-                  repository: context.read<StorageRepository>(),
-                  downloadTransport: context.read<DownloadTransport>(),
-                  canDeleteVersions:
-                      capabilities.canManageVersions && file.canManageVersions,
-                );
-                if (restored == true && context.mounted) {
-                  unawaited(
-                    context.read<StorageBrowserCubit>().load(
-                      showLoading: false,
-                    ),
-                  );
-                }
-              },
+              onTap: (_) =>
+                  StorageVersionsAction.show(context, file, capabilities),
             ),
           if (capabilities.canDelete && isTrash && file.canRestore)
             AppContextMenuAction(

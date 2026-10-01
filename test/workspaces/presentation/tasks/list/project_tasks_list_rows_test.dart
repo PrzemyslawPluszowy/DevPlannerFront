@@ -5,6 +5,7 @@ import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart
 import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list_rows.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_cell.dart';
 import 'package:devplanner/workspaces/presentation/tasks/widgets/tasks_selection_checkbox.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -120,6 +121,65 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(opened, 1);
+  });
+
+  testWidgets('wiersz zachowuje szerokość kolumn i rozpoczyna przeciąganie', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 500);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    var dragStarted = 0;
+    final task = ProjectTaskListItemResponse(
+      id: 'task-drag-row',
+      number: 12,
+      key: 'TASK-12',
+      title: 'Przeciągany wiersz',
+      status: ProjectTaskStatus.todo,
+      priority: TaskPriority.normal,
+      assignees: const [],
+      checklistCompletedCount: 0,
+      checklistTotalCount: 0,
+      updatedAtUtc: DateTime.utc(2026, 8, 27),
+      version: 1,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SizedBox(
+            width: 700,
+            child: TaskListRow(
+              task: task,
+              memberProfilesByUserId: const {},
+              columns: const [
+                TaskSavedViewColumn.key,
+                TaskSavedViewColumn.title,
+              ],
+              columnWidths: const {
+                TaskSavedViewColumn.key: 132,
+                TaskSavedViewColumn.title: 280,
+              },
+              onDragStarted: () => dragStarted++,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.getSize(find.byType(TaskListCell).first).width, 132);
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.text('Przeciągany wiersz')),
+    );
+    await tester.pump(kLongPressTimeout);
+    await gesture.moveBy(const Offset(0, 40));
+    await tester.pump();
+    expect(dragStarted, 1);
+    await gesture.up();
+    await tester.pumpAndSettle();
   });
 
   testWidgets('wiersz pokazuje tooltip aktywnej cykliczności', (tester) async {
@@ -749,10 +809,10 @@ void main() {
       await tester.tap(find.text('Do zrobienia'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Konfiguruj workflow...'), findsOneWidget);
+      expect(find.text('Zarządzaj workflow i statusami...'), findsOneWidget);
       expect(find.byIcon(Symbols.settings_rounded), findsOneWidget);
 
-      await tester.tap(find.text('Konfiguruj workflow...'));
+      await tester.tap(find.text('Zarządzaj workflow i statusami...'));
       await tester.pumpAndSettle();
 
       expect(workflowConfigured, isTrue);

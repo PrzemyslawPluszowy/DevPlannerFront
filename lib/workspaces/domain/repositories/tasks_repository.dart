@@ -169,6 +169,19 @@ abstract interface class TasksRepository {
     required UpdateTaskListItemPayload payload,
   });
 
+  /// Przenosi zadanie do aktywnego statusu własnego workflow projektu.
+  ///
+  /// Wersja jest obowiązkowa, a błędy walidacji i konfliktu wersji pozostają
+  /// typowane w odpowiedzi API.
+  Future<Either<ApiError, TaskMutationResponse<ProjectTaskListItemResponse>>>
+  moveCustomStatus({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String customStatusId,
+    required int expectedVersion,
+  });
+
   Future<Either<ApiError, MovedProjectTaskResponse>> moveTask({
     required String workspaceId,
     required String projectId,

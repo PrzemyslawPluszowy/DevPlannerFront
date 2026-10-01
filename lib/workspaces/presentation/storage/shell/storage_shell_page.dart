@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
-import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/storage/transport/download_transport_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/presigned_upload_transport.dart';
@@ -9,36 +8,28 @@ import 'package:devplanner/workspaces/domain/ports/storage_view_preference_store
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
-import 'package:devplanner/workspaces/domain/storage/models/storage_view_preference.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_realtime_client.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_browser_chrome.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_error_banner.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_error_banner_host.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_file_mutation_listener.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_mutation_error.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_cubit.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_cubit.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/storage_keyboard_shortcuts.dart';
 import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
-import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
-import 'package:devplanner/workspaces/presentation/storage/shell/storage_browser_body.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_realtime_refresh.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_responsive_content.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_scope_route_codec.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
-import 'package:devplanner/workspaces/presentation/storage/shell/storage_sidebar.dart';
+import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_listeners.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_view_preference_scope.dart';
 import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_cubit.dart';
-import 'package:devplanner/workspaces/presentation/storage/upload/cubit/storage_upload_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/upload/widgets/storage_upload_queue_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -291,344 +282,53 @@ class _StorageShellViewState extends State<_StorageShellView> {
     final capabilities = widget.capabilities;
     final filePicker = widget.filePicker;
     final onOpenFileDetails = widget.onOpenFileDetails;
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<StorageBrowserCubit, StorageBrowserState>(
-          listenWhen: (previous, current) =>
-              _StorageStateScope.read(previous) !=
-              _StorageStateScope.read(current),
-          listener: (context, state) {
-            final currentUri = StorageScopeRouteCodec.routeUri(context);
-            if (currentUri == null) return;
-            final location = StorageScopeRouteCodec.contextualLocation(
-              _StorageStateScope.read(state),
-              currentUri,
+    return StorageFileMutationListener(
+      onError: _showMutationError,
+      child: StorageShellListeners(
+        routedScope: widget.routedScope,
+        viewPreferenceStore: widget.viewPreferenceStore,
+        onMutationError: _showMutationError,
+        onScopeChanged: _startRealtime,
+        child: BlocBuilder<StorageBrowserCubit, StorageBrowserState>(
+          buildWhen: (previous, current) =>
+              StorageShellStateScope.read(previous).folderId !=
+              StorageShellStateScope.read(current).folderId,
+          builder: (context, state) {
+            final scope = StorageShellStateScope.read(state);
+            final returnTo = StorageScopeRouteCodec.returnLocation(
+              StorageScopeRouteCodec.routeUri(context),
             );
-            if (location != null && currentUri.toString() != location) {
-              context.go(location);
-            }
-          },
-        ),
-        // Zakres zmienia kanał: inny zakres to inny zbiór zdarzeń, a nie ten
-        // sam kanał z innym filtrem.
-        BlocListener<StorageBrowserCubit, StorageBrowserState>(
-          listenWhen: (previous, current) =>
-              _StorageStateScope.read(previous) !=
-              _StorageStateScope.read(current),
-          listener: (context, state) =>
-              _startRealtime(_StorageStateScope.read(state)),
-        ),
-        BlocListener<StorageFileMutationCubit, StorageFileMutationState>(
-          listener: (context, state) {
-            if (state is StorageFileMutationSuccess ||
-                state is StorageFileMutationPartialSuccess) {
-              context.read<StorageSelectionCubit>().clearSelection();
-              unawaited(
-                context.read<StorageBrowserCubit>().load(showLoading: false),
-              );
-            }
-            if (state is StorageFileMutationSuccess &&
-                state.type == StorageFileMutationType.sharedFileDismissed) {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  SnackBar(
-                    content: Text(context.l10n.storageDismissFromSharedSuccess),
-                  ),
-                );
-            }
-            if (state is StorageFileMutationFailure) {
-              _showMutationError(
-                StorageMutationError(
-                  message: switch (state.messageCode) {
-                    StorageFileMutationMessage.deleteFailed =>
-                      context.l10n.storageDeleteSelectedFailed,
-                    _ => state.message,
-                  },
-                  code: state.apiCode,
-                  traceId: state.traceId,
-                  // Konflikt przeniesienia ma bezpieczne ponowienie: intencja
-                  // i klucz idempotencji są zachowane, więc „Ponów” nie tworzy
-                  // drugiej referencji.
-                  onRetry:
-                      state.messageCode ==
-                          StorageFileMutationMessage.placementConflict
-                      ? () => unawaited(
-                          context
-                              .read<StorageFileMutationCubit>()
-                              .retryPlacementMove(),
-                        )
-                      : null,
-                ),
-              );
-            } else if (state is StorageFileMutationPartialSuccess) {
-              _showMutationError(
-                StorageMutationError(
-                  message: switch (state.messageCode) {
-                    StorageFileMutationMessage.partialDelete =>
-                      context.l10n.storagePartialDeleteFailed,
-                    StorageFileMutationMessage.partialMove =>
-                      context.l10n.storagePartialMoveFailed,
-                    _ => state.errorMessage,
-                  },
-                ),
-              );
-            }
-          },
-        ),
-        BlocListener<StorageFolderMutationCubit, StorageFolderMutationState>(
-          listener: (context, state) {
-            if (state is StorageFolderMutationSuccess) {
-              unawaited(
-                context.read<StorageBrowserCubit>().load(showLoading: false),
-              );
-            } else if (state is StorageFolderMutationFailure) {
-              _showMutationError(
-                StorageMutationError(
-                  message: state.message,
-                  code: state.apiCode,
-                  traceId: state.traceId,
-                ),
-              );
-            }
-          },
-        ),
-        BlocListener<
-          StorageDocumentMutationCubit,
-          StorageDocumentMutationState
-        >(
-          listener: (context, state) {
-            if (state is StorageDocumentMutationSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(context.l10n.storageCreateDocumentSuccess),
-                ),
-              );
-              unawaited(
-                context.read<StorageBrowserCubit>().load(showLoading: false),
-              );
-              unawaited(
-                context.read<StoragePreviewCubit>().preparePreview(state.file),
-              );
-              unawaited(
-                showDialog<void>(
-                  context: context,
-                  builder: (_) => BlocProvider.value(
-                    value: context.read<StoragePreviewCubit>(),
-                    child: StoragePreviewDialog(file: state.file),
+            return PopScope(
+              canPop: scope.folderId == null && returnTo == null,
+              onPopInvokedWithResult: (didPop, _) {
+                if (didPop) return;
+                if (scope.folderId != null) {
+                  unawaited(context.read<StorageBrowserCubit>().navigateUp());
+                } else if (returnTo != null) {
+                  context.go(returnTo);
+                }
+              },
+              child: StorageKeyboardShortcuts(
+                capabilities: capabilities,
+                child: Scaffold(
+                  backgroundColor: context.colors.surface,
+                  body: Stack(
+                    children: [
+                      StorageResponsiveContent(
+                        capabilities: capabilities,
+                        filePicker: filePicker,
+                        onOpenFileDetails: onOpenFileDetails,
+                        mutationError: _mutationError,
+                      ),
+                      const StorageUploadQueueOverlay(),
+                    ],
                   ),
                 ),
-              );
-            } else if (state is StorageDocumentMutationFailure) {
-              _showMutationError(
-                StorageMutationError(
-                  message: state.message,
-                  code: state.apiCode,
-                  traceId: state.traceId,
-                  // Utworzenie dokumentu zachowuje intencję i klucz idempotencji,
-                  // więc ponowienie nie tworzy drugiego pliku.
-                  onRetry: () => unawaited(
-                    context.read<StorageDocumentMutationCubit>().retry(),
-                  ),
-                ),
-              );
-            }
-          },
-        ),
-        // Wejście w zakres ustawia jego własny zapis. Dzięki temu wybór
-        // z poprzedniego zakresu nie przecieka do nowego, a zakres bez zapisu
-        // startuje z wartości domyślnych produktu. Kompozycja bez portu
-        // trwałości zachowuje bieżący widok, bo nie ma czym rządzić.
-        BlocListener<StorageBrowserCubit, StorageBrowserState>(
-          listenWhen: (previous, current) =>
-              _StorageStateScope.read(previous) !=
-              _StorageStateScope.read(current),
-          listener: (context, state) {
-            final store = widget.viewPreferenceStore;
-            if (store == null) return;
-            final stored =
-                store.preferenceFor(
-                  scopeKey: StorageViewPreferenceScope.keyOf(
-                    _StorageStateScope.read(state),
-                  ),
-                ) ??
-                StorageViewPreference.defaults;
-            final cubit = context.read<StorageBrowserCubit>();
-            cubit.setViewMode(stored.viewMode);
-            cubit.setSort(stored.sort);
-            cubit.setDensity(stored.density);
-          },
-        ),
-        // Zapis wyłącznie reakcji użytkownika: stan bez listy nie niesie tych
-        // pól, więc przejście w błąd albo odmowę dostępu nie nadpisuje zapisu.
-        BlocListener<StorageBrowserCubit, StorageBrowserState>(
-          listenWhen: (previous, current) {
-            final next = _StorageViewPreference.read(current);
-            return next != null &&
-                next != _StorageViewPreference.read(previous);
-          },
-          listener: (context, state) {
-            final store = widget.viewPreferenceStore;
-            final preference = _StorageViewPreference.read(state);
-            if (store == null || preference == null) return;
-            unawaited(
-              store.write(
-                scopeKey: StorageViewPreferenceScope.keyOf(widget.routedScope),
-                preference: preference,
               ),
             );
           },
         ),
-        BlocListener<StorageUploadCubit, StorageUploadState>(
-          listenWhen: (previous, current) =>
-              current.completedCount > previous.completedCount,
-          listener: (context, state) => unawaited(
-            context.read<StorageBrowserCubit>().load(showLoading: false),
-          ),
-        ),
-      ],
-      child: BlocBuilder<StorageBrowserCubit, StorageBrowserState>(
-        buildWhen: (previous, current) =>
-            _StorageStateScope.read(previous).folderId !=
-            _StorageStateScope.read(current).folderId,
-        builder: (context, state) {
-          final scope = _StorageStateScope.read(state);
-          final returnTo = StorageScopeRouteCodec.returnLocation(
-            StorageScopeRouteCodec.routeUri(context),
-          );
-          return PopScope(
-            canPop: scope.folderId == null && returnTo == null,
-            onPopInvokedWithResult: (didPop, _) {
-              if (didPop) return;
-              if (scope.folderId != null) {
-                unawaited(context.read<StorageBrowserCubit>().navigateUp());
-              } else if (returnTo != null) {
-                context.go(returnTo);
-              }
-            },
-            child: StorageKeyboardShortcuts(
-              capabilities: capabilities,
-              child: Scaffold(
-                backgroundColor: context.colors.surface,
-                body: Stack(
-                  children: [
-                    _StorageResponsiveContent(
-                      capabilities: capabilities,
-                      filePicker: filePicker,
-                      onOpenFileDetails: onOpenFileDetails,
-                      mutationError: _mutationError,
-                    ),
-                    const StorageUploadQueueOverlay(),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
-}
-
-class _StorageResponsiveContent extends StatelessWidget {
-  const _StorageResponsiveContent({
-    required this.capabilities,
-    required this.filePicker,
-    required this.onOpenFileDetails,
-    required this.mutationError,
-  });
-
-  final StorageShellCapabilities capabilities;
-  final FilePickerPort? filePicker;
-  final ValueChanged<String>? onOpenFileDetails;
-  final ValueNotifier<StorageMutationError?> mutationError;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compactSidebar = constraints.maxWidth < 900;
-        return Row(
-          children: [
-            StorageSidebar(compact: compactSidebar),
-            Expanded(
-              child: Column(
-                children: [
-                  StorageBrowserChrome(
-                    capabilities: capabilities,
-                    filePicker: filePicker,
-                  ),
-                  const StorageErrorBannerHost(),
-                  // Błąd mutacji jest trwały: pokazuje kod i traceId oraz
-                  // pozwala ponowić albo odświeżyć, zamiast znikać jak SnackBar.
-                  ValueListenableBuilder<StorageMutationError?>(
-                    valueListenable: mutationError,
-                    builder: (context, error, _) => error == null
-                        ? const SizedBox.shrink()
-                        : StorageErrorBanner(
-                            message: error.message,
-                            code: error.code,
-                            traceId: error.traceId,
-                            onRetry: error.onRetry,
-                            onRefresh: () {
-                              mutationError.value = null;
-                              unawaited(
-                                context.read<StorageBrowserCubit>().load(
-                                  showLoading: false,
-                                ),
-                              );
-                            },
-                            onDismiss: () => mutationError.value = null,
-                          ),
-                  ),
-                  Expanded(
-                    child: StorageBrowserBody(
-                      capabilities: capabilities,
-                      onOpenFileDetails: onOpenFileDetails,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// Pola widoku niesione przez stan listy.
-///
-/// Stan błędu i odmowy dostępu nie przechowuje tych pól, więc nie może być
-/// źródłem zapisu preferencji — inaczej awaria sieci przestawiłaby użytkownikowi
-/// zapisany widok.
-final class _StorageViewPreference {
-  const _StorageViewPreference._();
-
-  static StorageViewPreference? read(
-    StorageBrowserState state,
-  ) => switch (state) {
-    StorageBrowserInitial(:final viewMode, :final sort, :final density) =>
-      StorageViewPreference(viewMode: viewMode, sort: sort, density: density),
-    StorageBrowserLoading(:final viewMode, :final sort, :final density) =>
-      StorageViewPreference(viewMode: viewMode, sort: sort, density: density),
-    StorageBrowserReady(:final viewMode, :final sort, :final density) =>
-      StorageViewPreference(viewMode: viewMode, sort: sort, density: density),
-    StorageBrowserEmpty(:final viewMode, :final sort, :final density) =>
-      StorageViewPreference(viewMode: viewMode, sort: sort, density: density),
-    StorageBrowserFailure() || StorageBrowserForbidden() => null,
-  };
-}
-
-final class _StorageStateScope {
-  const _StorageStateScope._();
-
-  static StorageScope read(StorageBrowserState state) => switch (state) {
-    StorageBrowserInitial(:final scope) => scope,
-    StorageBrowserLoading(:final scope) => scope,
-    StorageBrowserReady(:final scope) => scope,
-    StorageBrowserEmpty(:final scope) => scope,
-    StorageBrowserFailure(:final scope) => scope,
-    StorageBrowserForbidden(:final scope) => scope,
-  };
 }

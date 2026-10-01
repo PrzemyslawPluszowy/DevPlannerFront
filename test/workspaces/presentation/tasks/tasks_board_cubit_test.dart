@@ -22,6 +22,7 @@ import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_error_messages.dart';
 import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _KanbanRepository implements KanbanRepository {
@@ -43,6 +44,11 @@ final class _KanbanRepository implements KanbanRepository {
   preferenceUpdateResults = [];
   int preferenceGetCalls = 0;
   ApiError? preferenceGetError;
+  Object? preferenceGetException;
+  Object? preferenceUpdateException;
+  Completer<Either<ApiError, UserKanbanPreferenceResponse>>?
+  preferenceUpdateCompleter;
+  int preferenceWriteAttempts = 0;
   Either<ApiError, CursorPageResponse<KanbanTaskCardResponse>>?
   systemColumnResult;
 
@@ -54,8 +60,15 @@ final class _KanbanRepository implements KanbanRepository {
   }) async {
     boardCalls++;
     boardFilters.add(filter);
+    onBoardCall?.call(boardCalls);
+    if (throwBoardErrorOnCall == boardCalls) {
+      throw StateError('board refresh transport failure');
+    }
     return boardResult ?? Right(board);
   }
+
+  int? throwBoardErrorOnCall;
+  void Function(int call)? onBoardCall;
 
   Future<Either<ApiError, CursorPageResponse<KanbanTaskCardResponse>>>
   Function()?
@@ -145,6 +158,9 @@ final class _KanbanRepository implements KanbanRepository {
     required String projectId,
   }) async {
     preferenceGetCalls++;
+    if (preferenceGetException case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
     if (preferenceGetError case final error?) return Left(error);
     return Right(preference);
   }
@@ -155,6 +171,13 @@ final class _KanbanRepository implements KanbanRepository {
     required String projectId,
     required UpdateUserKanbanPreferencePayload payload,
   }) async {
+    preferenceWriteAttempts++;
+    if (preferenceUpdateException case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
+    if (preferenceUpdateCompleter case final completer?) {
+      return completer.future;
+    }
     preferencePayload = payload;
     preferencePayloads.add(payload);
     if (preferenceUpdateResults.isNotEmpty) {
@@ -246,6 +269,15 @@ final class _TaskCollaborationRepository
 
 final class _TasksRepository implements TasksRepository {
   QuickCreateProjectTaskPayload? createPayload;
+  Object? createException;
+  TaskMutationResponse<ProjectTaskResponse>? createResponse;
+  int createCalls = 0;
+  Completer<Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>>?
+  createCompleter;
+  ApiError createError = const ApiError(
+    type: ApiErrorType.validation,
+    message: 'Walidacja',
+  );
 
   @override
   Future<Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>>
@@ -254,10 +286,14 @@ final class _TasksRepository implements TasksRepository {
     required String projectId,
     required QuickCreateProjectTaskPayload payload,
   }) async {
+    createCalls++;
+    if (createException case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
     createPayload = payload;
-    return const Left(
-      ApiError(type: ApiErrorType.validation, message: 'Walidacja'),
-    );
+    if (createCompleter case final completer?) return completer.future;
+    if (createResponse case final response?) return Right(response);
+    return Left(createError);
   }
 
   @override
@@ -518,6 +554,49 @@ void main() {
     },
   );
 
+  test('kolumna zachowuje typed error po wyjątku transportu i respektuje Retry-After', () async {
+    final retryAfter = DateTime.now().toUtc().add(const Duration(hours: 1));
+    var requests = 0;
+    final repository = _KanbanRepository(_board())
+      ..systemColumnLoader = () async {
+        requests++;
+        Error.throwWithStackTrace(
+          ApiError(
+            type: ApiErrorType.server,
+            message: 'Za dużo żądań',
+            statusCode: 429,
+            apiCode: 'kanban.rate_limited',
+            traceId: 'trace-column-429',
+            retryAfterUtc: retryAfter,
+          ),
+          StackTrace.current,
+        );
+      };
+    final cubit = TasksBoardCubit(
+      repository,
+      _Realtime(),
+      _TasksRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+    );
+    await cubit.start();
+
+    final column = (cubit.state as TasksBoardReady).board.columns.first;
+    await cubit.loadMore(column);
+    await cubit.loadMore(column);
+
+    final ready = cubit.state as TasksBoardReady;
+    expect(requests, 1);
+    expect(ready.loadingColumnKeys, isEmpty);
+    expect(ready.columnLoadErrors['todo'], 'Za dużo żądań');
+    expect(ready.columnLoadApiErrors['todo']?.statusCode, 429);
+    expect(ready.columnLoadApiErrors['todo']?.apiCode, 'kanban.rate_limited');
+    expect(ready.columnLoadApiErrors['todo']?.traceId, 'trace-column-429');
+    expect(ready.columnLoadApiErrors['todo']?.retryAfterUtc, retryAfter);
+
+    await cubit.close();
+  });
+
   test(
     'przy aktywnym filtrze nie wysyła ruchu do kolumny o ukrytej zawartości',
     () async {
@@ -633,6 +712,160 @@ void main() {
   );
 
   test(
+    'kolejka zachowuje thrown 429 i nie ponawia zapisu przed Retry-After',
+    () async {
+      final retryAfter = DateTime.now().toUtc().add(const Duration(hours: 1));
+      final repository = _KanbanRepository(_board())
+        ..preferenceUpdateException = ApiError(
+          type: ApiErrorType.server,
+          message: 'Ograniczenie żądań',
+          statusCode: 429,
+          apiCode: 'kanban.rate_limited',
+          contractCode: 'rate_limited',
+          traceId: 'trace-preference-429',
+          retryAfterUtc: retryAfter,
+        );
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.start();
+
+      await cubit.setQuickFilter(KanbanQuickFilter.mine);
+      await cubit.setQuickFilter(KanbanQuickFilter.blocked);
+
+      final ready = cubit.state as TasksBoardReady;
+      expect(repository.preferenceWriteAttempts, 1);
+      expect(ready.savingUserPreference, isFalse);
+      expect(ready.error?.apiError?.statusCode, 429);
+      expect(ready.error?.apiError?.contractCode, 'rate_limited');
+      expect(ready.error?.apiError?.traceId, 'trace-preference-429');
+      expect(ready.error?.apiError?.retryAfterUtc, retryAfter);
+      expect(ready.userPreference?.quickFilter, KanbanQuickFilter.blocked);
+
+      await cubit.close();
+    },
+  );
+
+  test('konflikt zachowuje typed error nieudanego odczytu wersji', () async {
+    const refreshError = ApiError(
+      type: ApiErrorType.server,
+      message: 'Nie udało się pobrać nowej wersji preferencji.',
+      statusCode: 503,
+      apiCode: 'preferences.unavailable',
+      backendCode: 73,
+      contractCode: 'service_unavailable',
+      traceId: 'trace-preference-refresh',
+      fields: {
+        'projectId': ['project is syncing'],
+      },
+    );
+    final repository = _KanbanRepository(_board())
+      ..preferenceUpdateResults.addAll([
+        const Left(
+          ApiError(
+            type: ApiErrorType.conflict,
+            message: 'Konflikt wersji',
+            apiCode: 'kanban.version_conflict',
+          ),
+        ),
+      ]);
+    final cubit = TasksBoardCubit(
+      repository,
+      _Realtime(),
+      _TasksRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+    );
+    await cubit.start();
+    await Future<void>.delayed(Duration.zero);
+    repository.preferenceGetError = refreshError;
+
+    await cubit.setQuickFilter(KanbanQuickFilter.mine);
+
+    final error = (cubit.state as TasksBoardReady).error!;
+    expect(error.apiError, refreshError);
+    expect(error.apiError?.backendCode, 73);
+    expect(error.apiError?.contractCode, 'service_unavailable');
+    expect(error.apiError?.fields['projectId'], ['project is syncing']);
+    expect(error.apiError?.traceId, 'trace-preference-refresh');
+    expect(repository.preferencePayloads, hasLength(1));
+
+    await cubit.close();
+  });
+
+  test(
+    'zamknięta tablica odrzuca spóźniony thrown Retry-After',
+    () async {
+      final repository = _KanbanRepository(_board())
+        ..preferenceUpdateCompleter =
+            Completer<Either<ApiError, UserKanbanPreferenceResponse>>();
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.start();
+
+      final save = cubit.setQuickFilter(KanbanQuickFilter.mine);
+      await Future<void>.delayed(Duration.zero);
+      await cubit.close();
+      repository.preferenceUpdateCompleter!.completeError(
+        ApiError(
+          type: ApiErrorType.server,
+          message: 'late preference failure',
+          statusCode: 429,
+          retryAfterUtc: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ),
+      );
+      await save;
+
+      expect(cubit.isClosed, isTrue);
+      expect(repository.preferenceWriteAttempts, 1);
+    },
+  );
+
+  test(
+    'po zamknięciu w trakcie refresh kolejka nie wyśle następnego PUT',
+    () async {
+      final repository = _KanbanRepository(_board())
+        ..preferenceUpdateCompleter =
+            Completer<Either<ApiError, UserKanbanPreferenceResponse>>();
+      late final TasksBoardCubit cubit;
+      repository.onBoardCall = (call) {
+        if (call == 2) unawaited(cubit.close());
+      };
+      cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.start();
+
+      final firstSave = cubit.setQuickFilter(KanbanQuickFilter.mine);
+      await Future<void>.delayed(Duration.zero);
+      await cubit.setQuickFilter(KanbanQuickFilter.blocked);
+      repository.preferenceUpdateCompleter!.complete(
+        Right(
+          repository.preference.copyWith(quickFilter: KanbanQuickFilter.mine),
+        ),
+      );
+      await firstSave;
+      await cubit.close();
+
+      expect(cubit.isClosed, isTrue);
+      expect(repository.preferenceWriteAttempts, 1);
+    },
+  );
+
+  test(
     'ponowienie po konflikcie nie nadpisuje równoległej zmiany w innym polu',
     () async {
       final repository = _KanbanRepository(_board())
@@ -671,8 +904,7 @@ void main() {
       expect(
         retry.quickFilter,
         KanbanQuickFilter.blocked,
-        reason:
-            'nieaktualny szybki filtr z lokalnego snapshotu nie może nadpisać zmiany z innej sesji',
+        reason: 'nieaktualny szybki filtr z lokalnego snapshotu nie może nadpisać zmiany z innej sesji',
       );
       final ready = cubit.state as TasksBoardReady;
       expect(ready.userPreference?.quickFilter, KanbanQuickFilter.blocked);
@@ -715,96 +947,105 @@ void main() {
     await cubit.close();
   });
 
-  test('resync tablicy nie ukrywa trwałego błędu ani nie cofa rewizji', () async {
-    final repository = _KanbanRepository(_board())
-      ..preferenceUpdateResults.addAll([
-        const Left(
-          ApiError(
-            type: ApiErrorType.conflict,
-            message: 'Konflikt',
-            apiCode: 'kanban.version_conflict',
+  test(
+    'resync tablicy nie ukrywa trwałego błędu ani nie cofa rewizji',
+    () async {
+      final repository = _KanbanRepository(_board())
+        ..preferenceUpdateResults.addAll([
+          const Left(
+            ApiError(
+              type: ApiErrorType.conflict,
+              message: 'Konflikt',
+              apiCode: 'kanban.version_conflict',
+            ),
           ),
-        ),
-        const Left(
-          ApiError(
-            type: ApiErrorType.conflict,
-            message: 'Konflikt',
-            apiCode: 'kanban.version_conflict',
+          const Left(
+            ApiError(
+              type: ApiErrorType.conflict,
+              message: 'Konflikt',
+              apiCode: 'kanban.version_conflict',
+            ),
           ),
-        ),
-      ]);
-    final cubit = TasksBoardCubit(
-      repository,
-      _Realtime(),
-      _TasksRepository(),
-      workspaceId: 'workspace-1',
-      projectId: 'project-1',
-    );
-
-    await cubit.start();
-    await Future<void>.delayed(Duration.zero);
-    repository.preference = repository.preference.copyWith(version: 4);
-    final column = (cubit.state as TasksBoardReady).board.columns.first;
-    await cubit.toggleColumnCollapsed(column);
-
-    final before = cubit.state as TasksBoardReady;
-    expect(before.error?.code, TasksViewErrorCodes.versionConflict);
-    expect(before.savingUserPreference, isFalse);
-    repository.preferenceUpdateResults.clear();
-
-    // Niezwiązany z ustawieniami odczyt tablicy, np. resync po realtime.
-    await cubit.load(force: true);
-
-    final after = cubit.state as TasksBoardReady;
-    expect(
-      after.error?.code,
-      TasksViewErrorCodes.versionConflict,
-      reason: 'odczyt tablicy nie może ukryć błędu niezapisanej preferencji',
-    );
-    expect(after.userPreference?.quickFilter, before.userPreference?.quickFilter);
-    expect(
-      after.taskDataRevision,
-      before.taskDataRevision,
-      reason: 'odczyt nie zeruje licznika zmian danych',
-    );
-
-    await cubit.close();
-  });
-
-  test('nieudany odczyt preferencji pokazuje trwały błąd i da się ponowić', () async {
-    final repository = _KanbanRepository(_board())
-      ..preferenceGetError = const ApiError(
-        type: ApiErrorType.server,
-        message: 'Błąd serwera',
+        ]);
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
       );
-    final cubit = TasksBoardCubit(
-      repository,
-      _Realtime(),
-      _TasksRepository(),
-      workspaceId: 'workspace-1',
-      projectId: 'project-1',
-    );
 
-    await cubit.start();
-    await Future<void>.delayed(Duration.zero);
+      await cubit.start();
+      await Future<void>.delayed(Duration.zero);
+      repository.preference = repository.preference.copyWith(version: 4);
+      final column = (cubit.state as TasksBoardReady).board.columns.first;
+      await cubit.toggleColumnCollapsed(column);
 
-    final ready = cubit.state as TasksBoardReady;
-    expect(ready.userPreference, isNull);
-    expect(
-      ready.error?.code,
-      TasksViewErrorCodes.loadFailed,
-      reason: 'bez preferencji kontrolki są wyłączone, więc użytkownik musi wiedzieć dlaczego',
-    );
+      final before = cubit.state as TasksBoardReady;
+      expect(before.error?.code, TasksViewErrorCodes.versionConflict);
+      expect(before.savingUserPreference, isFalse);
+      repository.preferenceUpdateResults.clear();
 
-    repository.preferenceGetError = null;
-    await cubit.retryFailedOperation();
+      // Niezwiązany z ustawieniami odczyt tablicy, np. resync po realtime.
+      await cubit.load(force: true);
 
-    final afterRetry = cubit.state as TasksBoardReady;
-    expect(afterRetry.userPreference, isNotNull);
-    expect(afterRetry.error, isNull);
+      final after = cubit.state as TasksBoardReady;
+      expect(
+        after.error?.code,
+        TasksViewErrorCodes.versionConflict,
+        reason: 'odczyt tablicy nie może ukryć błędu niezapisanej preferencji',
+      );
+      expect(
+        after.userPreference?.quickFilter,
+        before.userPreference?.quickFilter,
+      );
+      expect(
+        after.taskDataRevision,
+        before.taskDataRevision,
+        reason: 'odczyt nie zeruje licznika zmian danych',
+      );
 
-    await cubit.close();
-  });
+      await cubit.close();
+    },
+  );
+
+  test(
+    'nieudany odczyt preferencji pokazuje trwały błąd i da się ponowić',
+    () async {
+      final repository = _KanbanRepository(_board())
+        ..preferenceGetError = const ApiError(
+          type: ApiErrorType.server,
+          message: 'Błąd serwera',
+        );
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      await cubit.start();
+      await Future<void>.delayed(Duration.zero);
+
+      final ready = cubit.state as TasksBoardReady;
+      expect(ready.userPreference, isNull);
+      expect(
+        ready.error?.code,
+        TasksViewErrorCodes.loadFailed,
+        reason: 'bez preferencji kontrolki są wyłączone, więc użytkownik musi wiedzieć dlaczego',
+      );
+
+      repository.preferenceGetError = null;
+      await cubit.retryFailedOperation();
+
+      final afterRetry = cubit.state as TasksBoardReady;
+      expect(afterRetry.userPreference, isNotNull);
+      expect(afterRetry.error, isNull);
+
+      await cubit.close();
+    },
+  );
 
   test(
     'drugi konflikt przerywa ponawianie i zachowuje intencję użytkownika',
@@ -852,8 +1093,7 @@ void main() {
       expect(
         ready.userPreference?.quickFilter,
         KanbanQuickFilter.blocked,
-        reason:
-            'użytkownik nadal widzi swoją zmianę — nie jest cicho porzucana, tylko niezapisana',
+        reason: 'użytkownik nadal widzi swoją zmianę — nie jest cicho porzucana, tylko niezapisana',
       );
       expect(
         ready.userPreference?.version,
@@ -863,8 +1103,7 @@ void main() {
       expect(
         ready.taskDataRevision,
         0,
-        reason:
-            'błąd ustawień nie zmienia danych zadań, więc Lista nie ma po czym się przeładowywać',
+        reason: 'błąd ustawień nie zmienia danych zadań, więc Lista nie ma po czym się przeładowywać',
       );
 
       final writesBeforeRetry = repository.preferencePayloads.length;
@@ -874,8 +1113,7 @@ void main() {
       expect(
         repository.preferencePayloads.last.quickFilter,
         KanbanQuickFilter.blocked,
-        reason:
-            '„Ponów” ponawia intencję użytkownika, a nie zapisuje odświeżonego stanu serwera',
+        reason: '„Ponów” ponawia intencję użytkownika, a nie zapisuje odświeżonego stanu serwera',
       );
       expect(repository.preferencePayloads.last.expectedVersion, 4);
       final afterRetry = cubit.state as TasksBoardReady;
@@ -1163,8 +1401,7 @@ void main() {
     expect(
       rolledBack.taskDataRevision,
       0,
-      reason:
-          'nieudany ruch nie zmienił danych zadań, więc widoki listowe nie mają po czym się przeładowywać',
+      reason: 'nieudany ruch nie zmienił danych zadań, więc widoki listowe nie mają po czym się przeładowywać',
     );
 
     await cubit.close();
@@ -1225,9 +1462,207 @@ void main() {
     },
   );
 
-  test('quick create używa statusu systemowej kolumny', () async {
+  test(
+    'quick create używa statusu systemowej kolumny i zachowuje ApiError',
+    () async {
+      final repository = _KanbanRepository(_board());
+      final apiError = ApiError(
+        type: ApiErrorType.validation,
+        message: 'Walidacja',
+        statusCode: 422,
+        apiCode: 'tasks.validation',
+        contractCode: 'task.validation',
+        fields: const {
+          'title': ['Za krótki tytuł'],
+        },
+        traceId: 'trace-create-1',
+        retryAfterUtc: DateTime.utc(2026, 10, 1, 12),
+      );
+      final tasksRepository = _TasksRepository()..createError = apiError;
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        tasksRepository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.start();
+
+      await cubit.createQuickTask(
+        column: (cubit.state as TasksBoardReady).board.columns.first,
+        title: '  Nowy task  ',
+      );
+
+      expect(tasksRepository.createPayload?.title, 'Nowy task');
+      expect(
+        tasksRepository.createPayload?.targetStatus,
+        ProjectTaskStatus.todo,
+      );
+      expect(tasksRepository.createPayload?.useDefaultTemplate, isTrue);
+      expect(tasksRepository.createPayload?.taskTemplateId, isNull);
+      final error = (cubit.state as TasksBoardReady).error!;
+      expect(error.code, TasksViewErrorCodes.quickCreateFailed);
+      expect(error.traceId, 'trace-create-1');
+      expect(error.apiError, apiError);
+      expect(error.apiError?.apiCode, 'tasks.validation');
+      expect(error.apiError?.contractCode, 'task.validation');
+      expect(error.apiError?.fields, {
+        'title': ['Za krótki tytuł'],
+      });
+      expect(error.apiError?.statusCode, 422);
+      expect(error.apiError?.retryAfterUtc, DateTime.utc(2026, 10, 1, 12));
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'sukces create nie jest ponawiany, gdy późniejszy refresh rzuci wyjątek',
+    () async {
+      final repository = _KanbanRepository(_board())..throwBoardErrorOnCall = 2;
+      final tasksRepository = _TasksRepository()
+        ..createResponse = TaskMutationResponse<ProjectTaskResponse>(
+          taskId: 'task-created',
+          taskVersion: 1,
+          taskUpdatedAtUtc: DateTime.utc(2026, 10),
+          data: ProjectTaskResponse(
+            id: 'task-created',
+            number: 42,
+            key: 'DEV-42',
+            workspaceId: 'workspace-1',
+            projectId: 'project-1',
+            title: 'Zapisane zadanie',
+            status: ProjectTaskStatus.todo,
+            priority: TaskPriority.normal,
+            taskType: 'Task',
+            position: 1,
+            createdByUserId: 'user-1',
+            assignees: const [],
+            checklistItems: const [],
+            createdAtUtc: DateTime.utc(2026, 10, 2),
+            updatedAtUtc: DateTime.utc(2026, 10, 3),
+            version: 1,
+          ),
+        );
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        tasksRepository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.start();
+
+      final created = await cubit.createQuickTask(
+        column: (cubit.state as TasksBoardReady).board.columns.first,
+        title: 'Zapisane zadanie',
+      );
+
+      final error = (cubit.state as TasksBoardReady).error!;
+      expect(created, isTrue);
+      expect(tasksRepository.createCalls, 1);
+      expect(repository.boardCalls, 2);
+      expect(error.code, TasksViewErrorCodes.boardRefreshFailed);
+      expect(error.canRetry, isFalse);
+      expect(error.apiError?.type, ApiErrorType.unknown);
+      expect(
+        error.apiError?.message,
+        'Task created, but board refresh failed.',
+      );
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'quick create normalizuje Dio i zachowuje Retry-After oraz kontrakt',
+    () async {
+      final repository = _KanbanRepository(_board());
+      final tasksRepository = _TasksRepository()
+        ..createException = DioException(
+          requestOptions: RequestOptions(path: '/tasks'),
+          type: DioExceptionType.badResponse,
+          response: Response<dynamic>(
+            requestOptions: RequestOptions(path: '/tasks'),
+            statusCode: 429,
+            data: {
+              'code': 'tasks.rate_limited',
+              'message': 'Rate limited',
+              'fields': {
+                'title': ['Poczekaj'],
+              },
+              'traceId': 'trace-dio-1',
+            },
+            headers: Headers.fromMap({
+              'retry-after': ['120'],
+            }),
+          ),
+        );
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        tasksRepository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.start();
+
+      final created = await cubit.createQuickTask(
+        column: (cubit.state as TasksBoardReady).board.columns.first,
+        title: 'Ograniczone żądanie',
+      );
+
+      final error = (cubit.state as TasksBoardReady).error!;
+      expect(created, isFalse);
+      expect(error.code, TasksViewErrorCodes.quickCreateFailed);
+      expect(error.apiError?.statusCode, 429);
+      expect(error.apiError?.contractCode, 'tasks.rate_limited');
+      expect(error.apiError?.traceId, 'trace-dio-1');
+      expect(error.apiError?.fields, {
+        'title': ['Poczekaj'],
+      });
+      expect(error.apiError?.retryAfterUtc, isNotNull);
+
+      await cubit.close();
+    },
+  );
+
+  test(
+    'quick create unknown exception publikuje bezpieczny błąd typed',
+    () async {
+      final repository = _KanbanRepository(_board());
+      final tasksRepository = _TasksRepository()
+        ..createException = StateError('never expose this raw exception');
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        tasksRepository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      await cubit.start();
+
+      final created = await cubit.createQuickTask(
+        column: (cubit.state as TasksBoardReady).board.columns.first,
+        title: 'Nieznany błąd',
+      );
+
+      final error = (cubit.state as TasksBoardReady).error!;
+      expect(created, isFalse);
+      expect(error.code, TasksViewErrorCodes.quickCreateFailed);
+      expect(error.apiError?.type, ApiErrorType.unknown);
+      expect(error.apiError?.message, isNot(contains('never expose')));
+      await cubit.close();
+    },
+  );
+
+  test('odrzuca spóźniony błąd create po zmianie filtra boardu', () async {
     final repository = _KanbanRepository(_board());
-    final tasksRepository = _TasksRepository();
+    final tasksRepository = _TasksRepository()
+      ..createCompleter =
+          Completer<
+            Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>
+          >();
     final cubit = TasksBoardCubit(
       repository,
       _Realtime(),
@@ -1237,17 +1672,25 @@ void main() {
     );
     await cubit.start();
 
-    await cubit.createQuickTask(
+    final create = cubit.createQuickTask(
       column: (cubit.state as TasksBoardReady).board.columns.first,
-      title: '  Nowy task  ',
+      title: 'Spóźniona odpowiedź',
+    );
+    await cubit.setFilterPriority(TaskPriority.high);
+    final boardCallsAfterFilter = repository.boardCalls;
+    tasksRepository.createCompleter!.complete(
+      const Left(
+        ApiError(
+          type: ApiErrorType.validation,
+          message: 'Stara odpowiedź',
+          traceId: 'stale-create',
+        ),
+      ),
     );
 
-    expect(tasksRepository.createPayload?.title, 'Nowy task');
-    expect(tasksRepository.createPayload?.targetStatus, ProjectTaskStatus.todo);
-    expect(tasksRepository.createPayload?.useDefaultTemplate, isTrue);
-    expect(tasksRepository.createPayload?.taskTemplateId, isNull);
-    expect((cubit.state as TasksBoardReady).error?.code, 'Walidacja');
-
+    expect(await create, isFalse);
+    expect((cubit.state as TasksBoardReady).error, isNull);
+    expect(repository.boardCalls, boardCallsAfterFilter);
     await cubit.close();
   });
 
@@ -1574,6 +2017,7 @@ void main() {
         current.board.columns.expand((col) => col.tasks).map((t) => t.id),
         isNot(contains('stale-task')),
       );
+      expect(current.loadingColumnKeys, isEmpty);
 
       await cubit.close();
     },

@@ -1,296 +1,370 @@
-part of 'task_details_page.dart';
+import 'dart:typed_data';
 
-class _TaskAttachmentsSection extends StatelessWidget {
-  const _TaskAttachmentsSection({required this.taskId});
-  final String taskId;
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_attachments_ready.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_attachments_feedback.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
+class TaskAttachmentsBody extends StatefulWidget {
+  const TaskAttachmentsBody({
+    required this.isEditable,
+    this.selectFiles,
+    this.readFileBytes,
+    super.key,
+  });
+  final bool isEditable;
+  final Future<List<XFile>?> Function()? selectFiles;
+  final Future<Uint8List> Function(XFile file)? readFileBytes;
   @override
-  Widget build(BuildContext context) {
-    final detail = context.read<TaskDetailsCubit>();
-    return BlocProvider(
-      create: (context) {
-        final cubit = TaskAttachmentsCubit(
-          repository: context.read<TaskAttachmentRepository>(),
-          uploadTransport: context.read<TaskAttachmentUploadTransport>(),
-          workspaceId: detail.workspaceId,
-          projectId: detail.projectId,
-          taskId: taskId,
-        );
-        unawaited(cubit.load());
-        return cubit;
-      },
-      child: const _TaskAttachmentsBody(),
-    );
-  }
+  State<TaskAttachmentsBody> createState() => TaskAttachmentsBodyState();
 }
 
-class _TaskAttachmentsBody extends StatefulWidget {
-  const _TaskAttachmentsBody();
-  @override
-  State<_TaskAttachmentsBody> createState() => _TaskAttachmentsBodyState();
-}
-
-class _TaskAttachmentsBodyState extends State<_TaskAttachmentsBody> {
+class TaskAttachmentsBodyState extends State<TaskAttachmentsBody> {
   final ValueNotifier<bool> _isDragging = ValueNotifier(false);
+  final ValueNotifier<bool> _isPreparing = ValueNotifier(false);
+  TaskAttachmentsCubit? _observedCubit;
+  TaskDetailDraftRegistration? _draftRegistration;
+  StreamSubscription<TaskAttachmentsState>? _stateSubscription;
+  bool _ownsPendingBatch = false;
+  int _scopeGeneration = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final cubit = context.watch<TaskAttachmentsCubit>();
+    final registry = TaskDetailDraftScope.maybeOf(context);
+    if (identical(cubit, _observedCubit) &&
+        identical(registry, _draftRegistry)) {
+      return;
+    }
+    _scopeGeneration++;
+    unawaited(_stateSubscription?.cancel());
+    _draftRegistration?.dispose();
+    _draftRegistry = registry;
+    _observedCubit = cubit;
+    _ownsPendingBatch = false;
+    _isPreparing.value = false;
+    _draftRegistration = registry?.registerDraft(
+      label: context.l10n.taskDetailsAttachments,
+    );
+    final generation = _scopeGeneration;
+    _stateSubscription = cubit.stream.listen(
+      (state) => _onAttachmentState(cubit, generation, state),
+    );
+    _syncDraftWithState(cubit.state);
+  }
+
+  TaskDetailDraftRegistry? _draftRegistry;
 
   @override
   void dispose() {
+    _scopeGeneration++;
+    unawaited(_stateSubscription?.cancel());
+    _draftRegistration?.dispose();
     _isDragging.dispose();
+    _isPreparing.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
-    valueListenable: _isDragging,
-    builder: (context, isDragging, _) => DropTarget(
-      onDragEntered: (_) => _isDragging.value = true,
-      onDragExited: (_) => _isDragging.value = false,
-      onDragDone: (details) async {
-        _isDragging.value = false;
-        await _uploadFiles(details.files);
-      },
-      child: _Section(
-        title: context.l10n.taskDetailsAttachments,
-        action: TextButton.icon(
-          onPressed: _pickFiles,
-          icon: const Icon(Symbols.upload_file_rounded, size: 18),
-          label: Text(context.l10n.taskDetailsAttachmentsAdd),
-        ),
-        child: BlocBuilder<TaskAttachmentsCubit, TaskAttachmentsState>(
-          builder: (context, state) => switch (state) {
-            TaskAttachmentsLoading() => const Padding(
-              padding: EdgeInsets.all(18),
-              child: Center(child: CircularProgressIndicator()),
+  Widget build(
+    BuildContext context,
+  ) => BlocBuilder<TaskAttachmentsCubit, TaskAttachmentsState>(
+    builder: (context, state) => ValueListenableBuilder<bool>(
+      valueListenable: _isPreparing,
+      builder: (context, isPreparing, _) => ValueListenableBuilder<bool>(
+        valueListenable: _isDragging,
+        builder: (context, isDragging, _) {
+          final isUploading =
+              state is TaskAttachmentsReady && state.isUploading;
+          final canPick =
+              widget.isEditable &&
+              state is TaskAttachmentsReady &&
+              !isUploading &&
+              !isPreparing;
+          final canToggleDeleted =
+              state is TaskAttachmentsReady && !isUploading && !isPreparing;
+          return DropTarget(
+            onDragEntered: canPick ? (_) => _isDragging.value = true : null,
+            onDragExited: canPick ? (_) => _isDragging.value = false : null,
+            onDragDone: canPick ? _onFilesDropped : null,
+            child: Section(
+              title: context.l10n.taskDetailsAttachments,
+              action: Wrap(
+                spacing: 4,
+                children: [
+                  if (state is TaskAttachmentsReady)
+                    TextButton.icon(
+                      onPressed: canToggleDeleted
+                          ? () => _toggleDeleted(!state.includeDeleted)
+                          : null,
+                      icon: Icon(
+                        state.includeDeleted
+                            ? Symbols.visibility_off_rounded
+                            : Symbols.visibility_rounded,
+                        size: 18,
+                      ),
+                      label: Text(
+                        state.includeDeleted
+                            ? context.l10n.taskDetailsAttachmentsHideDeleted
+                            : context.l10n.taskDetailsAttachmentsShowDeleted,
+                      ),
+                    ),
+                  if (isUploading)
+                    IconButton(
+                      tooltip: context.l10n.cancel,
+                      onPressed: _cancelUpload,
+                      icon: const Icon(Symbols.cancel_rounded, size: 18),
+                    ),
+                  if (isPreparing)
+                    Tooltip(
+                      message: context.l10n.taskDetailsAttachmentsPreparing,
+                      child: const SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    ),
+                  TextButton.icon(
+                    onPressed: canPick ? _pickFiles : null,
+                    icon: const Icon(Symbols.upload_file_rounded, size: 18),
+                    label: Text(context.l10n.taskDetailsAttachmentsAdd),
+                  ),
+                ],
+              ),
+              child: switch (state) {
+                TaskAttachmentsLoading() => const Padding(
+                  padding: EdgeInsets.all(18),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                TaskAttachmentsFailure(:final message, :final apiError) =>
+                  AttachmentsError(message: message, apiError: apiError),
+                TaskAttachmentsReady() => AttachmentsReady(
+                  state: state,
+                  onPickFiles: canPick ? _pickFiles : null,
+                  isDragging: isDragging,
+                ),
+              },
             ),
-            TaskAttachmentsFailure(:final message) => _AttachmentsError(
-              message: message,
-            ),
-            TaskAttachmentsReady() => _AttachmentsReady(
-              state: state,
-              onPickFiles: _pickFiles,
-              isDragging: isDragging,
-            ),
-          },
-        ),
+          );
+        },
       ),
     ),
   );
 
   Future<void> _pickFiles() async {
-    final files = await openFiles();
-    if (!mounted || files.isEmpty) return;
-    await _uploadFiles(files);
+    final cubit = _observedCubit;
+    final generation = _scopeGeneration;
+    if (!_canStart(cubit)) return;
+    final capturedCubit = cubit!;
+    _beginPreparation();
+    final pickerFailureMessage =
+        context.l10n.taskDetailsAttachmentsPickerFailed;
+    final readFailureMessage = context.l10n.taskDetailsAttachmentsReadFailed;
+    final uploadFailureMessage = context.l10n.taskDetailsAttachmentsFailed;
+    List<XFile>? files;
+    try {
+      files = await (widget.selectFiles?.call() ?? openFiles());
+    } catch (_) {
+      if (_isCurrentScope(capturedCubit, generation)) {
+        capturedCubit.reportSelectionError(
+          ApiError(
+            type: ApiErrorType.unknown,
+            message: pickerFailureMessage,
+            apiCode: 'task_upload_picker_failed',
+          ),
+        );
+        _ownsPendingBatch = false;
+        _finishPreparation();
+      }
+      return;
+    }
+    if (!_isCurrentScope(capturedCubit, generation)) return;
+    if (files == null || files.isEmpty) {
+      _ownsPendingBatch = false;
+      _finishPreparation();
+      return;
+    }
+    await _readAndUpload(
+      files,
+      capturedCubit,
+      generation,
+      readFailureMessage,
+      uploadFailureMessage,
+    );
   }
 
-  Future<void> _uploadFiles(List<XFile> files) async {
-    final inputs = await Future.wait(
-      files.map(
-        (file) async => TaskAttachmentUploadInput(
-          name: file.name,
-          bytes: await file.readAsBytes(),
-        ),
-      ),
-    );
-    if (mounted) await context.read<TaskAttachmentsCubit>().upload(inputs);
+  Future<void> _toggleDeleted(bool includeDeleted) async {
+    final cubit = _observedCubit;
+    final generation = _scopeGeneration;
+    if (cubit == null || !_isCurrentScope(cubit, generation)) return;
+    final current = cubit.state;
+    if (current is! TaskAttachmentsReady || current.isUploading) return;
+    await cubit.setIncludeDeleted(includeDeleted);
+    if (!_isCurrentScope(cubit, generation)) return;
   }
-}
 
-class _AttachmentsReady extends StatelessWidget {
-  const _AttachmentsReady({
-    required this.state,
-    required this.onPickFiles,
-    required this.isDragging,
-  });
-  final TaskAttachmentsReady state;
-  final VoidCallback onPickFiles;
-  final bool isDragging;
-  @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: isDragging
-          ? context.colors.primaryContainer
-          : context.colors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(
-        color: isDragging
-            ? context.colors.primary
-            : context.colors.outlineVariant,
-        width: isDragging ? 2 : 1,
-      ),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (state.error != null) ...[
-            Text(state.error!, style: TextStyle(color: context.colors.error)),
-            const SizedBox(height: 10),
-          ],
-          if (state.files.isEmpty && state.uploads.isEmpty)
-            _EmptyAttachments(onTap: onPickFiles, isDragging: isDragging),
-          for (final file in state.files)
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Symbols.insert_drive_file),
-              title: Text(
-                file.originalFileName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                TaskAttachmentPresentation.fileSize(file.fileSizeBytes),
-              ),
-              trailing: const Icon(Symbols.visibility_rounded, size: 18),
-              onTap: () => _openPreview(context, file),
-            ),
-          for (final upload in state.uploads)
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                TaskAttachmentPresentation.uploadIcon(upload.status),
-              ),
-              title: Text(
-                upload.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: upload.error == null
-                  ? Text(
-                      TaskAttachmentPresentation.uploadLabel(
-                        context,
-                        upload.status,
-                      ),
-                    )
-                  : Text(
-                      upload.error!,
-                      style: TextStyle(color: context.colors.error),
-                    ),
-            ),
-          if (state.isUploading) ...[
-            const SizedBox(height: 10),
-            const LinearProgressIndicator(),
-          ],
-        ],
-      ),
-    ),
-  );
-
-  void _openPreview(BuildContext context, StorageFileResponse file) {
-    final previewCubit = StoragePreviewCubit(
-      repository: context.read<StorageRepository>(),
-    );
-    final mutationCubit = StorageFileMutationCubit(
-      repository: context.read<StorageRepository>(),
-      downloadTransport: const DownloadTransportImpl(),
-    );
-    unawaited(previewCubit.preparePreview(file));
-    unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (_) => MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: previewCubit),
-            BlocProvider.value(value: mutationCubit),
-          ],
-          child: StoragePreviewDialog(file: file),
-        ),
-      ).whenComplete(() {
-        unawaited(previewCubit.close());
-        unawaited(mutationCubit.close());
-      }),
-    );
-  }
-}
-
-class _EmptyAttachments extends StatelessWidget {
-  const _EmptyAttachments({required this.onTap, required this.isDragging});
-  final VoidCallback onTap;
-  final bool isDragging;
-  @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(10),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-      child: Column(
-        children: [
-          Icon(
-            isDragging
-                ? Symbols.file_download_rounded
-                : Symbols.attach_file_rounded,
-            color: context.colors.primary,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            isDragging
-                ? context.l10n.taskDetailsAttachmentsDrop
-                : context.l10n.taskDetailsAttachmentsEmpty,
-          ),
-          const SizedBox(height: 3),
-          Text(
-            context.l10n.taskDetailsAttachmentsSelect,
-            style: context.text.bodySmall?.copyWith(
-              color: context.colors.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-class _AttachmentsError extends StatelessWidget {
-  const _AttachmentsError({required this.message});
-  final String message;
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(14),
-    child: Column(
-      children: [
-        Text(message),
-        TextButton(
-          onPressed: () =>
-              unawaited(context.read<TaskAttachmentsCubit>().load()),
-          child: Text(context.l10n.retry),
-        ),
-      ],
-    ),
-  );
-}
-
-/// Czyste mapowanie statusów i rozmiarów dla sekcji załączników zadania.
-final class TaskAttachmentPresentation {
-  const TaskAttachmentPresentation._();
-
-  static IconData uploadIcon(TaskAttachmentUploadStatus status) =>
-      switch (status) {
-        TaskAttachmentUploadStatus.queued => Symbols.schedule_rounded,
-        TaskAttachmentUploadStatus.uploading => Symbols.upload_rounded,
-        TaskAttachmentUploadStatus.uploaded =>
-          Symbols.check_circle_outline_rounded,
-        TaskAttachmentUploadStatus.failed => Symbols.error_outline_rounded,
-      };
-
-  static String uploadLabel(
-    BuildContext context,
-    TaskAttachmentUploadStatus status,
-  ) => switch (status) {
-    TaskAttachmentUploadStatus.queued =>
-      context.l10n.taskDetailsAttachmentsQueued,
-    TaskAttachmentUploadStatus.uploading =>
-      context.l10n.taskDetailsAttachmentsUploading,
-    TaskAttachmentUploadStatus.uploaded =>
-      context.l10n.taskDetailsAttachmentsUploaded,
-    TaskAttachmentUploadStatus.failed =>
+  Future<void> _onFilesDropped(DropDoneDetails details) async {
+    final cubit = _observedCubit;
+    final generation = _scopeGeneration;
+    if (!_canStart(cubit)) return;
+    final capturedCubit = cubit!;
+    _isDragging.value = false;
+    _beginPreparation();
+    await _readAndUpload(
+      details.files,
+      capturedCubit,
+      generation,
+      context.l10n.taskDetailsAttachmentsReadFailed,
       context.l10n.taskDetailsAttachmentsFailed,
-  };
+    );
+  }
 
-  static String fileSize(int bytes) => bytes < 1024
-      ? '$bytes B'
-      : bytes < 1024 * 1024
-      ? '${(bytes / 1024).toStringAsFixed(1)} KB'
-      : '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  Future<void> _readAndUpload(
+    List<XFile> files,
+    TaskAttachmentsCubit cubit,
+    int generation,
+    String readFailureMessage,
+    String uploadFailureMessage,
+  ) async {
+    if (files.isEmpty) {
+      _ownsPendingBatch = false;
+      _finishPreparation();
+      return;
+    }
+    _ownsPendingBatch = true;
+    try {
+      final readBytes = widget.readFileBytes ?? _readFileBytes;
+      late final List<TaskAttachmentUploadInput> inputs;
+      try {
+        inputs = await Future.wait(
+          files.map(
+            (file) async => TaskAttachmentUploadInput(
+              name: file.name,
+              bytes: await readBytes(file),
+            ),
+          ),
+        );
+      } catch (_) {
+        if (_isCurrentScope(cubit, generation)) {
+          cubit.reportSelectionError(
+            ApiError(
+              type: ApiErrorType.unknown,
+              message: readFailureMessage,
+              apiCode: 'task_upload_read_failed',
+            ),
+          );
+          _ownsPendingBatch = false;
+        }
+        return;
+      }
+      if (!_isCurrentScope(cubit, generation)) return;
+      try {
+        await cubit.upload(inputs);
+      } catch (_) {
+        final current = cubit.state;
+        if (_isCurrentScope(cubit, generation) &&
+            current is TaskAttachmentsReady &&
+            !current.isUploading) {
+          cubit.reportSelectionError(
+            ApiError(
+              type: ApiErrorType.unknown,
+              message: uploadFailureMessage,
+              apiCode: 'task_upload_start_failed',
+            ),
+          );
+          _ownsPendingBatch = false;
+        }
+      }
+    } finally {
+      if (_isCurrentScope(cubit, generation)) _finishPreparation();
+    }
+  }
+
+  Future<Uint8List> _readFileBytes(XFile file) => file.readAsBytes();
+
+  bool _canStart(TaskAttachmentsCubit? cubit) {
+    if (!mounted || !widget.isEditable || cubit == null) return false;
+    final current = cubit.state;
+    return !_isPreparing.value &&
+        current is TaskAttachmentsReady &&
+        !current.isUploading;
+  }
+
+  bool _isCurrentScope(TaskAttachmentsCubit? cubit, int generation) =>
+      mounted &&
+      cubit != null &&
+      identical(cubit, _observedCubit) &&
+      generation == _scopeGeneration &&
+      cubit.workspaceId == _observedCubit?.workspaceId &&
+      cubit.projectId == _observedCubit?.projectId &&
+      cubit.taskId == _observedCubit?.taskId;
+
+  void _beginPreparation() {
+    _ownsPendingBatch = true;
+    _draftRegistration?.markDirty();
+    _isPreparing.value = true;
+  }
+
+  void _finishPreparation() {
+    _isPreparing.value = false;
+    if (!_ownsPendingBatch) _draftRegistration?.clear();
+  }
+
+  void _cancelUpload() {
+    final cubit = _observedCubit;
+    if (cubit == null || !mounted) return;
+    cubit.cancelUpload();
+    _ownsPendingBatch = false;
+    _draftRegistration?.clear();
+  }
+
+  void _onAttachmentState(
+    TaskAttachmentsCubit source,
+    int generation,
+    TaskAttachmentsState state,
+  ) {
+    if (!_isCurrentScope(source, generation)) return;
+    _syncDraftWithState(state);
+  }
+
+  void _syncDraftWithState(TaskAttachmentsState state) {
+    if (state is TaskAttachmentsReady) {
+      if (state.isUploading) {
+        _ownsPendingBatch = true;
+        _draftRegistration?.markDirty();
+        return;
+      }
+      if (state.uploads.isEmpty) {
+        if (_ownsPendingBatch) {
+          _draftRegistration?.markDirty();
+        } else {
+          _draftRegistration?.clear();
+        }
+        return;
+      }
+      final isTerminal = state.uploads.every(
+        (upload) => upload.status == TaskAttachmentUploadStatus.ready,
+      );
+      if (isTerminal) {
+        _ownsPendingBatch = false;
+        if (!_isPreparing.value) _draftRegistration?.clear();
+      } else {
+        if (_ownsPendingBatch) {
+          _draftRegistration?.markDirty();
+        } else {
+          _draftRegistration?.clear();
+        }
+      }
+      return;
+    }
+    if (_ownsPendingBatch) {
+      _draftRegistration?.markDirty();
+    } else {
+      _draftRegistration?.clear();
+    }
+  }
 }

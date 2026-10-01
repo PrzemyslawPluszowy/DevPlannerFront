@@ -1,4 +1,6 @@
 import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 /// Dialog tworzenia folderu w bieżącym zakresie.
@@ -10,10 +12,11 @@ final class StorageCreateFolderDialog extends StatefulWidget {
   const StorageCreateFolderDialog({super.key});
 
   /// Pokazuje dialog i zwraca zatwierdzoną nazwę albo `null`.
-  static Future<String?> show(BuildContext context) => showDialog<String>(
-    context: context,
-    builder: (_) => const StorageCreateFolderDialog(),
-  );
+  static Future<String?> show(BuildContext context) =>
+      DevPlannerModalHost.showDialog<String>(
+        context,
+        builder: (_) => const StorageCreateFolderDialog(),
+      );
 
   @override
   State<StorageCreateFolderDialog> createState() =>
@@ -28,38 +31,108 @@ class _StorageCreateFolderDialogState extends State<StorageCreateFolderDialog> {
   /// drzewa w tym oknie sięgała po zwolniony obiekt.
   final TextEditingController _controller = TextEditingController();
 
+  final ValueNotifier<bool> _required = ValueNotifier(false);
+
   @override
   void dispose() {
     _controller.dispose();
+    _required.dispose();
     super.dispose();
   }
 
+  void _cancel() => Navigator.of(context).pop();
+
+  void _create() => _submit(_controller.text);
+
+  void _nameChanged(String name) {
+    if (_required.value && name.trim().isNotEmpty) _required.value = false;
+  }
+
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(context.l10n.storageCreateFolderDialogTitle),
-    content: TextField(
-      controller: _controller,
-      autofocus: true,
-      decoration: InputDecoration(
-        hintText: context.l10n.storageCreateFolderDialogHint,
+  Widget build(BuildContext context) {
+    final tasks = context.tasksTheme;
+    final colors = context.colors;
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(tasks.controlRadius),
+    );
+    return AlertDialog(
+      backgroundColor: tasks.canvas,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrollable: true,
+      insetPadding: EdgeInsets.all(tasks.sectionGap),
+      constraints: const BoxConstraints(maxWidth: 480),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(tasks.panelRadius),
+        side: BorderSide(color: tasks.canvasBorder),
       ),
-      onSubmitted: _submit,
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: Text(context.l10n.cancel),
+      titleTextStyle: tasks.projectTitleText.copyWith(color: colors.onSurface),
+      title: Text(context.l10n.storageCreateFolderDialogTitle),
+      content: SizedBox(
+        width: 360,
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _required,
+          builder: (context, required, _) => TextField(
+            key: const ValueKey('storage_folder_create_name'),
+            controller: _controller,
+            autofocus: true,
+            style: tasks.dataText.copyWith(color: colors.onSurface),
+            decoration: InputDecoration(
+              labelText: context.l10n.workspacesFolderNameLabel,
+              hintText: context.l10n.storageCreateFolderDialogHint,
+              labelStyle: tasks.controlText.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+              hintStyle: tasks.dataText.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+              filled: true,
+              fillColor: tasks.canvas,
+              errorText: required ? context.l10n.authFieldRequired : null,
+              errorMaxLines: 2,
+              errorStyle: tasks.metaText.copyWith(color: colors.error),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(tasks.controlRadius),
+                borderSide: BorderSide(color: tasks.canvasBorder),
+              ),
+            ),
+            onChanged: _nameChanged,
+            onSubmitted: _submit,
+          ),
+        ),
       ),
-      FilledButton(
-        onPressed: () => _submit(_controller.text),
-        child: Text(context.l10n.storageCreateFolderButton),
-      ),
-    ],
-  );
+      actions: [
+        TextButton(
+          key: const ValueKey('storage_folder_create_cancel'),
+          style: TextButton.styleFrom(
+            foregroundColor: colors.onSurface,
+            textStyle: tasks.controlText,
+            shape: shape,
+          ),
+          onPressed: _cancel,
+          child: Text(context.l10n.cancel),
+        ),
+        FilledButton(
+          key: const ValueKey('storage_folder_create_confirm'),
+          style: FilledButton.styleFrom(
+            backgroundColor: colors.onSurface,
+            foregroundColor: colors.surface,
+            textStyle: tasks.controlText,
+            shape: shape,
+          ),
+          onPressed: _create,
+          child: Text(context.l10n.storageCreateFolderButton),
+        ),
+      ],
+    );
+  }
 
   void _submit(String rawName) {
     final name = rawName.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      _required.value = true;
+      return;
+    }
     Navigator.of(context).pop(name);
   }
 }

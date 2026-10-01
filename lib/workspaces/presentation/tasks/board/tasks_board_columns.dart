@@ -15,6 +15,7 @@ class KanbanColumnWidget extends StatefulWidget {
     required this.onToggleCollapsed,
     required this.isLoadingMore,
     this.loadError,
+    this.loadApiError,
     super.key,
   });
 
@@ -33,6 +34,7 @@ class KanbanColumnWidget extends StatefulWidget {
   final VoidCallback onToggleCollapsed;
   final bool isLoadingMore;
   final String? loadError;
+  final ApiError? loadApiError;
 
   @override
   State<KanbanColumnWidget> createState() => _KanbanColumnWidgetState();
@@ -108,7 +110,10 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
       // wziętym z koloru statusu.
       accent: accent,
       density: widget.density,
-      footer: _QuickCreateTask(column: widget.column),
+      footer: KanbanQuickCreateTask(
+        column: widget.column,
+        onManageTemplates: TaskTemplatePickerOverlay.show,
+      ),
       child: Column(
         children: [
           Container(
@@ -211,33 +216,55 @@ class _KanbanColumnWidgetState extends State<KanbanColumnWidget> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      Symbols.cloud_off,
-                      size: 17,
-                      color: context.colors.onErrorContainer,
-                    ),
-                    const SizedBox(width: 7),
-                    Expanded(
-                      child: Text(
-                        widget.loadError!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.text.bodySmall?.copyWith(
+                    Row(
+                      children: [
+                        Icon(
+                          Symbols.cloud_off,
+                          size: 17,
                           color: context.colors.onErrorContainer,
                         ),
-                      ),
+                        const SizedBox(width: 7),
+                        Expanded(
+                          child: Text(
+                            widget.loadError!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.colors.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: context.l10n.retry,
+                          visualDensity: VisualDensity.compact,
+                          color: context.colors.onErrorContainer,
+                          onPressed: () => unawaited(
+                            context.read<TasksBoardCubit>().loadMore(
+                              widget.column,
+                            ),
+                          ),
+                          icon: const Icon(Symbols.refresh_rounded, size: 18),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      tooltip: context.l10n.retry,
-                      visualDensity: VisualDensity.compact,
-                      color: context.colors.onErrorContainer,
-                      onPressed: () => unawaited(
-                        context.read<TasksBoardCubit>().loadMore(widget.column),
+                    if (widget.loadApiError case final error?)
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 90),
+                        child: SingleChildScrollView(
+                          child: TasksErrorDiagnostics(
+                            error: error,
+                            messageOverride:
+                                error.message ==
+                                    TasksBoardApiErrorNormalizer
+                                        .columnPageFallbackMessage
+                                ? context.l10n.tasksBoardColumnLoadFailed
+                                : null,
+                          ),
+                        ),
                       ),
-                      icon: const Icon(Symbols.refresh_rounded, size: 18),
-                    ),
                   ],
                 ),
               ),

@@ -1,7 +1,4 @@
-import 'dart:convert';
-
-import 'package:devplanner/shared/data/models/bad_response.dart';
-import 'package:devplanner/shared/data/models/devplanner_api_error_response.dart';
+import 'package:devplanner/foundation/error/api_error_response_parser.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
@@ -23,181 +20,148 @@ enum ApiErrorType {
   unknown,
 }
 
-/// Ustandaryzowany blad API zwracany przez repository.
+/// Ustandaryzowany błąd API zwracany przez repository.
 class ApiError extends Equatable {
-  /// Tworzy blad API z kompletem danych diagnostycznych.
+  /// Tworzy błąd API z kompletem danych diagnostycznych.
   const ApiError({
     required this.type,
     required this.message,
     this.statusCode,
     this.backendCode,
     this.apiCode,
+    this.contractCode,
+    this.fields = const {},
     this.traceId,
     this.retryAfterUtc,
   });
 
-  /// Tworzy znormalizowany blad na podstawie `DioException`.
+  /// Normalizuje status, komunikat i bezpieczne metadane z odpowiedzi Dio.
   factory ApiError.fromDioException(
     DioException error, {
     required String fallbackMessage,
   }) {
     final statusCode = error.response?.statusCode;
-    final badResponse = _parseBadResponse(error.response?.data);
-    final contractResponse = _parseContractError(error.response?.data);
-    final backendMessage = _extractBackendMessage(
-      error.response?.data,
-      badResponse,
-      contractResponse,
+    final parsed = ApiErrorResponseParser.parse(error.response?.data);
+    final retryAfter = ApiErrorResponseParser.parseRetryAfter(
+      error.response?.headers.value('retry-after'),
     );
-    final backendCode = badResponse?.error?.code;
-
-    return switch (error.type) {
-      DioExceptionType.connectionTimeout => const ApiError(
-        type: ApiErrorType.connectionTimeout,
-        message: 'Przekroczono czas polaczenia z serwerem.',
-      ),
-      DioExceptionType.sendTimeout => const ApiError(
-        type: ApiErrorType.sendTimeout,
-        message: 'Przekroczono czas wysylania danych do serwera.',
-      ),
-      DioExceptionType.receiveTimeout => const ApiError(
-        type: ApiErrorType.receiveTimeout,
-        message: 'Serwer zbyt dlugo zwracal odpowiedz.',
-      ),
-      DioExceptionType.transformTimeout => const ApiError(
-        type: ApiErrorType.receiveTimeout,
-        message: 'Serwer zbyt dlugo zwracal odpowiedz.',
-      ),
-      DioExceptionType.cancel => const ApiError(
-        type: ApiErrorType.canceled,
-        message: 'Zapytanie zostalo anulowane.',
-      ),
-      DioExceptionType.connectionError => const ApiError(
-        type: ApiErrorType.connection,
-        message: 'Nie mozna polaczyc sie z serwerem.',
-      ),
-      DioExceptionType.badCertificate => const ApiError(
-        type: ApiErrorType.connection,
-        message: 'Certyfikat polaczenia jest nieprawidlowy.',
-      ),
-      DioExceptionType.badResponse => ApiError._fromStatusCode(
-        statusCode: statusCode,
-        backendCode: backendCode,
-        backendMessage: backendMessage,
-        apiCode: contractResponse?.code,
-        traceId: contractResponse?.traceId,
-        retryAfterUtc: _parseRetryAfter(
-          error.response?.headers.value('retry-after'),
-        ),
-      ),
-      DioExceptionType.unknown => ApiError(
-        type: statusCode == null
-            ? ApiErrorType.unknown
-            : statusCode == 400
-            ? ApiErrorType.badResponse
-            : statusCode == 401
-            ? ApiErrorType.unauthorized
-            : statusCode == 403
-            ? ApiErrorType.forbidden
-            : statusCode == 404
-            ? ApiErrorType.notFound
-            : statusCode == 409
-            ? ApiErrorType.conflict
-            : statusCode == 422
-            ? ApiErrorType.validation
-            : statusCode >= 500
-            ? ApiErrorType.server
-            : ApiErrorType.badResponse,
-        statusCode: statusCode,
-        backendCode: backendCode,
-        retryAfterUtc: _parseRetryAfter(
-          error.response?.headers.value('retry-after'),
-        ),
-        message:
-            backendMessage ??
-            error.message ??
-            _fallbackForStatus(statusCode) ??
-            fallbackMessage,
-      ),
+    final contractCode = parsed.contract?.code;
+    final traceId = parsed.contract?.traceId;
+    final backendCode = parsed.legacy?.error?.code;
+    final apiType = switch (error.type) {
+      DioExceptionType.connectionTimeout => ApiErrorType.connectionTimeout,
+      DioExceptionType.sendTimeout => ApiErrorType.sendTimeout,
+      DioExceptionType.receiveTimeout ||
+      DioExceptionType.transformTimeout => ApiErrorType.receiveTimeout,
+      DioExceptionType.cancel => ApiErrorType.canceled,
+      DioExceptionType.connectionError ||
+      DioExceptionType.badCertificate => ApiErrorType.connection,
+      DioExceptionType.badResponse ||
+      DioExceptionType.unknown => _typeForStatus(statusCode),
     };
-  }
 
-  /// Tworzy blad parsowania odpowiedzi API lub modelu transportowego.
-  factory ApiError.parsing({
-    required String fallbackMessage,
-  }) {
+    final message = switch (error.type) {
+      DioExceptionType.badResponse => _statusMessage(
+        statusCode: statusCode,
+        backendCode: backendCode,
+        backendMessage: parsed.message,
+      ),
+      DioExceptionType.unknown =>
+        parsed.message ??
+            error.message ??
+            ApiErrorResponseParser.fallbackForStatus(statusCode) ??
+            fallbackMessage,
+      _ => switch (error.type) {
+        DioExceptionType.connectionTimeout =>
+          'Przekroczono czas polaczenia z serwerem.',
+        DioExceptionType.sendTimeout =>
+          'Przekroczono czas wysylania danych do serwera.',
+        DioExceptionType.receiveTimeout || DioExceptionType.transformTimeout =>
+          'Serwer zbyt dlugo zwracal odpowiedz.',
+        DioExceptionType.cancel => 'Zapytanie zostalo anulowane.',
+        DioExceptionType.connectionError =>
+          'Nie mozna polaczyc sie z serwerem.',
+        DioExceptionType.badCertificate =>
+          'Certyfikat polaczenia jest nieprawidlowy.',
+        DioExceptionType.badResponse ||
+        DioExceptionType.unknown => fallbackMessage,
+      },
+    };
+
     return ApiError(
-      type: ApiErrorType.parsing,
-      message: fallbackMessage,
+      type: apiType,
+      message: message,
+      statusCode: statusCode,
+      backendCode: backendCode,
+      apiCode: contractCode,
+      contractCode: contractCode,
+      fields: parsed.fields,
+      traceId: traceId,
+      retryAfterUtc: retryAfter,
     );
   }
 
-  const ApiError._fromStatusCode({
-    required this.statusCode,
-    required this.backendCode,
-    required String? backendMessage,
-    this.apiCode,
-    this.traceId,
-    this.retryAfterUtc,
-  }) : type = statusCode == 400
-           ? ApiErrorType.badResponse
-           : statusCode == 401
-           ? ApiErrorType.unauthorized
-           : statusCode == 403
-           ? ApiErrorType.forbidden
-           : statusCode == 404
-           ? ApiErrorType.notFound
-           : statusCode == 409
-           ? ApiErrorType.conflict
-           : statusCode == 422
-           ? ApiErrorType.validation
-           : (statusCode ?? 0) >= 500
-           ? ApiErrorType.server
-           : ApiErrorType.badResponse,
-       message =
-           backendMessage ??
-           (backendCode == null ? null : 'Blad API ($backendCode)') ??
-           (statusCode == 400
-               ? 'Nieprawidlowe zapytanie.'
-               : statusCode == 401
-               ? 'Sesja wygasla. Zaloguj sie ponownie.'
-               : statusCode == 403
-               ? 'Brak uprawnien do wykonania akcji.'
-               : statusCode == 404
-               ? 'Nie znaleziono zasobu.'
-               : statusCode == 409
-               ? 'Konflikt danych na serwerze.'
-               : statusCode == 422
-               ? 'Blad walidacji danych.'
-               : (statusCode ?? 0) >= 500
-               ? 'Blad serwera. Sprobuj ponownie.'
-               : null) ??
-           'Wystapil blad odpowiedzi serwera.';
+  /// Tworzy błąd parsowania odpowiedzi API lub modelu transportowego.
+  factory ApiError.parsing({required String fallbackMessage}) => ApiError(
+    type: ApiErrorType.parsing,
+    message: fallbackMessage,
+  );
 
-  /// Kategoria bledu do logiki aplikacyjnej.
+  static ApiErrorType _typeForStatus(int? statusCode) =>
+      switch (ApiErrorResponseParser.statusType(statusCode)) {
+        ApiErrorStatusType.unknown => ApiErrorType.unknown,
+        ApiErrorStatusType.badResponse => ApiErrorType.badResponse,
+        ApiErrorStatusType.unauthorized => ApiErrorType.unauthorized,
+        ApiErrorStatusType.forbidden => ApiErrorType.forbidden,
+        ApiErrorStatusType.notFound => ApiErrorType.notFound,
+        ApiErrorStatusType.conflict => ApiErrorType.conflict,
+        ApiErrorStatusType.validation => ApiErrorType.validation,
+        ApiErrorStatusType.server => ApiErrorType.server,
+      };
+
+  static String _statusMessage({
+    required int? statusCode,
+    required int? backendCode,
+    required String? backendMessage,
+  }) =>
+      backendMessage ??
+      (backendCode == null ? null : 'Blad API ($backendCode)') ??
+      switch (statusCode) {
+        400 => 'Nieprawidlowe zapytanie.',
+        401 => 'Sesja wygasla. Zaloguj sie ponownie.',
+        403 => 'Brak uprawnien do wykonania akcji.',
+        404 => 'Nie znaleziono zasobu.',
+        409 => 'Konflikt danych na serwerze.',
+        422 => 'Blad walidacji danych.',
+        final int code when code >= 500 => 'Blad serwera. Sprobuj ponownie.',
+        _ => 'Wystapil blad odpowiedzi serwera.',
+      };
+
+  /// Kategoria błędu do logiki aplikacyjnej.
   final ApiErrorType type;
 
   /// Czytelny komunikat do UI.
   final String message;
 
-  /// Kod HTTP zwrocony przez backend.
+  /// Kod HTTP zwrócony przez backend.
   final int? statusCode;
 
-  /// Kod biznesowy zwrocony przez backend.
+  /// Numeryczny kod błędu legacy API.
   final int? backendCode;
 
-  /// Stabilny tekstowy kod błędu z kontraktu standalone API.
-  ///
-  /// Starsze endpointy używają numerycznego [backendCode]. Nowe kontrakty
-  /// DevPlanner zwracają `ApiErrorResponse.code`, dlatego nie można go
-  /// bezpiecznie rzutować ani tracić podczas mapowania.
+  /// Stabilny kod błędu używany przez bieżący feature lub kontrakt API.
   final String? apiCode;
 
-  /// Identyfikator korelacyjny zwrócony przez backend, jeżeli go opublikował.
+  /// Niezmieniony kod `code` z kontraktu API, nawet gdy mapper nada lokalny [apiCode].
+  final String? contractCode;
+
+  /// Pola walidacji z kontraktu API, bez spłaszczania do tekstu.
+  final Map<String, List<String>> fields;
+
+  /// Identyfikator korelacyjny zwrócony przez backend.
   final String? traceId;
 
   /// Najwcześniejszy czas ponowienia przekazany przez HTTP `Retry-After`.
-  /// Wartość jest UTC i może być użyta przez UI do blokady zbyt wczesnego retry.
   final DateTime? retryAfterUtc;
 
   @override
@@ -207,184 +171,9 @@ class ApiError extends Equatable {
     statusCode,
     backendCode,
     apiCode,
+    contractCode,
+    fields,
     traceId,
     retryAfterUtc,
   ];
-
-  /// Parsuje sekundy lub standardową datę HTTP z nagłówka `Retry-After`.
-  static DateTime? _parseRetryAfter(String? header) {
-    final value = header?.trim();
-    if (value == null || value.isEmpty) return null;
-    final seconds = int.tryParse(value);
-    if (seconds != null && seconds >= 0) {
-      // Pozostaw zapas względem maksymalnego zakresu DateTime i Duration.
-      if (seconds > 8000000000000) return null;
-      return DateTime.now().toUtc().add(Duration(seconds: seconds));
-    }
-    // IMF-fixdate: Wed, 21 Oct 2015 07:28:00 GMT.
-    final match = RegExp(
-      r'^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d{2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d{2}):(\d{2}):(\d{2}) GMT$',
-    ).firstMatch(value);
-    if (match == null) return null;
-    const months = <String, int>{
-      'Jan': 1,
-      'Feb': 2,
-      'Mar': 3,
-      'Apr': 4,
-      'May': 5,
-      'Jun': 6,
-      'Jul': 7,
-      'Aug': 8,
-      'Sep': 9,
-      'Oct': 10,
-      'Nov': 11,
-      'Dec': 12,
-    };
-    try {
-      final date = DateTime.utc(
-        int.parse(match[3]!),
-        months[match[2]]!,
-        int.parse(match[1]!),
-        int.parse(match[4]!),
-        int.parse(match[5]!),
-        int.parse(match[6]!),
-      );
-      if (date.day != int.parse(match[1]!) || date.month != months[match[2]]) {
-        return null;
-      }
-      return date;
-    } on FormatException {
-      return null;
-    }
-  }
-
-  static String? _fallbackForStatus(int? statusCode) {
-    return switch (statusCode) {
-      400 => 'Zapytanie do API jest niepoprawne.',
-      401 => 'Sesja wygasla lub brak autoryzacji.',
-      403 => 'Brak uprawnien do wykonania tej operacji.',
-      404 => 'Nie znaleziono wskazanego zasobu.',
-      409 => 'Operacja jest w konflikcie z aktualnym stanem danych.',
-      422 => 'Backend odrzucil dane wejsciowe.',
-      final int code when code >= 500 => 'Wystapil blad serwera.',
-      _ => null,
-    };
-  }
-
-  static BadResponse? _parseBadResponse(Object? rawData) {
-    try {
-      if (rawData case final Map<String, dynamic> map) {
-        return BadResponse.fromJson(map);
-      }
-      if (rawData case final String value when value.trim().isNotEmpty) {
-        final decoded = jsonDecode(value);
-        if (decoded case final Map<String, dynamic> map) {
-          return BadResponse.fromJson(map);
-        }
-      }
-    } catch (_) {
-      return null;
-    }
-    return null;
-  }
-
-  /// Czyta kontrakt błędów standalone; starsze endpointy mają inny kształt.
-  static DevPlannerApiErrorResponse? _parseContractError(Object? rawData) {
-    if (rawData is Map<String, dynamic>) {
-      return DevPlannerApiErrorResponse.tryFromJson(rawData);
-    }
-    if (rawData case final String value when value.trim().isNotEmpty) {
-      try {
-        return DevPlannerApiErrorResponse.tryFromJson(jsonDecode(value));
-      } catch (_) {
-        return null;
-      }
-    }
-    return null;
-  }
-
-  static String? _extractBackendMessage(
-    Object? rawData,
-    BadResponse? badResponse,
-    DevPlannerApiErrorResponse? contractResponse,
-  ) {
-    if (contractResponse?.message case final String message
-        when message.isNotEmpty) {
-      return message;
-    }
-    if (badResponse?.error?.message case final String message
-        when message.isNotEmpty) {
-      return message;
-    }
-
-    if (badResponse?.detail case final List<BadResponseValidationError> details
-        when details.isNotEmpty) {
-      return details.map((detail) => detail.msg).join('\n');
-    }
-
-    if (rawData case final Map<String, dynamic> map) {
-      if (map['errors'] case final Map<String, dynamic> errorsMap
-          when errorsMap.isNotEmpty) {
-        final messages = errorsMap.values
-            .expand<String>(_extractErrorMessages)
-            .toList(growable: false);
-
-        if (messages.isNotEmpty) {
-          return messages.join('\n');
-        }
-      }
-      if (map['errors'] case final List<dynamic> errors
-          when errors.isNotEmpty) {
-        final messages = errors
-            .map(_extractErrorListMessage)
-            .whereType<String>()
-            .toList(growable: false);
-
-        if (messages.isNotEmpty) {
-          return messages.join('\n');
-        }
-      }
-      if (map['detail'] case final String detail when detail.isNotEmpty) {
-        return detail;
-      }
-      if (map['message'] case final String message when message.isNotEmpty) {
-        return message;
-      }
-      if (map['error'] case final String error when error.isNotEmpty) {
-        return error;
-      }
-    }
-
-    return null;
-  }
-
-  static Iterable<String> _extractErrorMessages(Object? value) sync* {
-    switch (value) {
-      case final String message when message.trim().isNotEmpty:
-        yield message.trim();
-      case final List<dynamic> items:
-        for (final item in items) {
-          final extracted = _extractErrorListMessage(item);
-          if (extracted case final message?) {
-            yield message;
-          }
-        }
-      case final Map<String, dynamic> map:
-        final extracted = _extractErrorListMessage(map);
-        if (extracted case final message?) {
-          yield message;
-        }
-    }
-  }
-
-  static String? _extractErrorListMessage(Object? error) {
-    return switch (error) {
-      final String message when message.trim().isNotEmpty => message.trim(),
-      final Map<String, dynamic> item => switch (item['message']) {
-        final String message when message.trim().isNotEmpty => message.trim(),
-        _ => null,
-      },
-      _ => null,
-    };
-  }
 }

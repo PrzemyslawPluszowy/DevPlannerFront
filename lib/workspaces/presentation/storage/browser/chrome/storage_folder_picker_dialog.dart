@@ -7,7 +7,10 @@ import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_folder_picker_content.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_folder_picker_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Wybór folderu docelowego w bieżącym zakresie.
 ///
@@ -53,153 +56,155 @@ final class StorageFolderPickerDialog extends StatefulWidget {
       _StorageFolderPickerDialogState();
 }
 
-class _StorageFolderPickerDialogState extends State<StorageFolderPickerDialog> {
-  final List<StorageFolderResponse> _path = [];
-  List<StorageFolderResponse> _folders = const [];
-  bool _isLoading = true;
-  String? _error;
-
-  String? get _parentId =>
-      _path.isEmpty ? widget.scope.folderId : _path.last.id;
+final class _StorageFolderPickerDialogState
+    extends State<StorageFolderPickerDialog> {
+  late StorageFolderPickerCubit _cubit;
 
   @override
   void initState() {
     super.initState();
-    unawaited(_load());
+    _createOwner();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-    final result = await widget.repository.listFolders(
-      scope: widget.scope.copyWithFolder(_parentId),
-      parentFolderId: _parentId,
+  void _createOwner() {
+    _cubit = StorageFolderPickerCubit(
+      repository: widget.repository,
+      scope: widget.scope,
     );
-    if (!mounted) return;
-    result.fold(
-      (error) => setState(() {
-        _isLoading = false;
-        _error = error.message;
-      }),
-      (folders) => setState(() {
-        _isLoading = false;
-        _folders = folders;
-      }),
-    );
-  }
-
-  Future<void> _open(StorageFolderResponse folder) async {
-    setState(() => _path.add(folder));
-    await _load();
-  }
-
-  Future<void> _up() async {
-    if (_path.isEmpty) return;
-    setState(_path.removeLast);
-    await _load();
+    unawaited(_cubit.load());
   }
 
   @override
-  Widget build(BuildContext context) {
-    final common = context.filesTheme.common;
-    final colors = context.colors;
-    final selected = _path.isEmpty ? null : _path.last;
-    final canConfirm =
-        selected != null && !widget.disabledFolderIds.contains(selected.id);
+  void didUpdateWidget(covariant StorageFolderPickerDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.repository, widget.repository) ||
+        oldWidget.scope != widget.scope) {
+      unawaited(_cubit.close());
+      _createOwner();
+    }
+  }
 
-    return AlertDialog(
-      title: Text(context.l10n.storageMoveDialogTitle),
-      content: SizedBox(
-        width: 420,
-        height: 320,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  key: const ValueKey('storage_picker_up'),
-                  icon: const Icon(AppIcons.arrowLeft, size: 18),
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  onPressed: _path.isEmpty ? null : _up,
-                ),
-                Expanded(
-                  child: Text(
-                    selected?.name ?? context.l10n.storageMoveDialogRoot,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: common.controlText.copyWith(
-                      color: colors.onSurface,
+  @override
+  void dispose() {
+    unawaited(_cubit.close());
+    super.dispose();
+  }
+
+  void _cancel() => Navigator.of(context).pop();
+
+  void _confirm() {
+    final state = _cubit.state;
+    final selected = state.selected;
+    if (state.loading ||
+        state.error != null ||
+        selected == null ||
+        widget.disabledFolderIds.contains(selected.id)) {
+      return;
+    }
+    Navigator.of(context).pop(selected);
+  }
+
+  void _up() => unawaited(_cubit.up());
+  void _open(StorageFolderResponse folder) => unawaited(_cubit.open(folder));
+  void _retry() => unawaited(_cubit.load());
+
+  @override
+  Widget build(BuildContext context) =>
+      BlocBuilder<StorageFolderPickerCubit, StorageFolderPickerState>(
+        bloc: _cubit,
+        builder: (context, state) {
+          final tasks = context.filesTheme.common;
+          final colors = context.colors;
+          final selected = state.selected;
+          final canConfirm =
+              !state.loading &&
+              state.error == null &&
+              selected != null &&
+              !widget.disabledFolderIds.contains(selected.id);
+          return AlertDialog(
+            backgroundColor: tasks.canvas,
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
+            insetPadding: EdgeInsets.all(tasks.sectionGap),
+            constraints: const BoxConstraints(maxWidth: 520),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(tasks.panelRadius),
+              side: BorderSide(color: tasks.canvasBorder),
+            ),
+            titleTextStyle: tasks.projectTitleText.copyWith(
+              color: colors.onSurface,
+            ),
+            title: Text(context.l10n.storageMoveDialogTitle),
+            content: SizedBox(
+              width: 420,
+              height: (MediaQuery.sizeOf(context).height * .45).clamp(
+                120.0,
+                320.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        key: const ValueKey('storage_picker_up'),
+                        icon: const Icon(AppIcons.arrowLeft, size: 18),
+                        tooltip: MaterialLocalizations.of(context)
+                            .backButtonTooltip,
+                        onPressed: state.path.isEmpty ? null : _up,
+                      ),
+                      Expanded(
+                        child: Text(
+                          selected?.name ?? context.l10n.storageMoveDialogRoot,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: tasks.controlText.copyWith(
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: tasks.controlGap),
+                  Expanded(
+                    child: StorageFolderPickerContent(
+                      state: state,
+                      disabledFolderIds: widget.disabledFolderIds,
+                      onOpen: _open,
+                      onRetry: _retry,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            SizedBox(height: common.controlGap),
-            Expanded(child: _body(common, colors)),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(context.l10n.cancel),
-        ),
-        FilledButton(
-          key: const ValueKey('storage_picker_confirm'),
-          onPressed: canConfirm
-              ? () => Navigator.of(context).pop(selected)
-              : null,
-          child: Text(context.l10n.storageMoveConfirm),
-        ),
-      ],
-    );
-  }
-
-  Widget _body(DevPlannerTasksTheme common, ColorScheme colors) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator.adaptive());
-    }
-    if (_error case final error?) {
-      return Center(
-        child: Text(
-          error,
-          textAlign: TextAlign.center,
-          style: common.dataText.copyWith(color: colors.error),
-        ),
+            actions: [
+              TextButton(
+                autofocus: true,
+                style: TextButton.styleFrom(
+                  foregroundColor: colors.onSurface,
+                  textStyle: tasks.controlText,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(tasks.controlRadius),
+                  ),
+                ),
+                onPressed: _cancel,
+                child: Text(context.l10n.cancel),
+              ),
+              FilledButton(
+                key: const ValueKey('storage_picker_confirm'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: colors.onSurface,
+                  foregroundColor: colors.surface,
+                  textStyle: tasks.controlText,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(tasks.controlRadius),
+                  ),
+                ),
+                onPressed: canConfirm ? _confirm : null,
+                child: Text(context.l10n.storageMoveConfirm),
+              ),
+            ],
+          );
+        },
       );
-    }
-    if (_folders.isEmpty) {
-      return Center(
-        child: Text(
-          context.l10n.storageMoveDialogNoSubfolders,
-          textAlign: TextAlign.center,
-          style: common.dataText.copyWith(color: colors.onSurfaceVariant),
-        ),
-      );
-    }
-    return ListView.builder(
-      itemCount: _folders.length,
-      itemBuilder: (context, index) {
-        final folder = _folders[index];
-        final disabled = widget.disabledFolderIds.contains(folder.id);
-        return ListTile(
-          key: ValueKey('storage_picker_folder-${folder.id}'),
-          dense: true,
-          enabled: !disabled,
-          leading: const Icon(AppIcons.folder, size: 18),
-          title: Text(folder.name),
-          subtitle: folder.itemCount > 0
-              ? Text(context.l10n.storageItemsCount(folder.itemCount))
-              : null,
-          trailing: disabled
-              ? null
-              : const Icon(AppIcons.chevronRight, size: 16),
-          onTap: disabled ? null : () => unawaited(_open(folder)),
-        );
-      },
-    );
-  }
 }

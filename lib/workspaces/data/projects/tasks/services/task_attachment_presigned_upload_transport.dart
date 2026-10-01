@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
 import 'package:dio/dio.dart';
 
 /// Minimalny klient PUT dla presigned URL, bez tokenów aplikacji i bez logowania URL.
@@ -22,12 +23,24 @@ final class TaskAttachmentPresignedUploadTransport
     required StorageUploadTicketResponse ticket,
     required Uint8List bytes,
     String? mimeType,
+    OnStorageUploadProgress? onProgress,
+    UploadCancellationToken? cancelToken,
   }) async {
-    if (ticket.isAlreadyUploaded) return const Right(unit);
+    if (ticket.isAlreadyUploaded) {
+      onProgress?.call(bytes.length, bytes.length);
+      return const Right(unit);
+    }
+    final dioCancelToken = CancelToken();
+    void cancelDioRequest() => dioCancelToken.cancel();
+    cancelToken?.addListener(cancelDioRequest);
     try {
       final response = await _dio.put<void>(
         ticket.uploadUrl,
         data: Stream.fromIterable([bytes]),
+        cancelToken: dioCancelToken,
+        onSendProgress: (sent, total) {
+          onProgress?.call(sent, total > 0 ? total : bytes.length);
+        },
         options: Options(
           contentType: mimeType ?? 'application/octet-stream',
           headers: {'content-length': bytes.length},
@@ -41,8 +54,17 @@ final class TaskAttachmentPresignedUploadTransport
           ),
         );
       }
+      onProgress?.call(bytes.length, bytes.length);
       return const Right(unit);
     } on DioException catch (error) {
+      if (CancelToken.isCancel(error)) {
+        return const Left(
+          ApiError(
+            type: ApiErrorType.canceled,
+            message: 'Wysyłanie załącznika zostało anulowane.',
+          ),
+        );
+      }
       return Left(
         ApiError.fromDioException(
           error,
@@ -56,6 +78,8 @@ final class TaskAttachmentPresignedUploadTransport
           message: 'Nie udało się wysłać załącznika.',
         ),
       );
+    } finally {
+      cancelToken?.removeListener(cancelDioRequest);
     }
   }
 }

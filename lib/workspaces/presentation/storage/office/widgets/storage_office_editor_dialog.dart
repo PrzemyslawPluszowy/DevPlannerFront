@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Modalny dialog z osadzonym edytorem OnlyOffice lub podglądem konfiguracji sesji.
-final class StorageOfficeEditorDialog extends StatelessWidget {
+final class StorageOfficeEditorDialog extends StatefulWidget {
   /// Tworzy dialog sesji dokumentu OnlyOffice.
   const StorageOfficeEditorDialog({
     required this.file,
@@ -56,15 +56,64 @@ final class StorageOfficeEditorDialog extends StatelessWidget {
   );
 
   @override
+  State<StorageOfficeEditorDialog> createState() =>
+      _StorageOfficeEditorDialogState();
+}
+
+final class _StorageOfficeEditorDialogState
+    extends State<StorageOfficeEditorDialog> {
+  late StorageOnlyOfficeHostController _hostController;
+  late Object _scopeKey;
+  StorageRepository? _repository;
+
+  @override
+  void initState() {
+    super.initState();
+    _resetScope();
+  }
+
+  @override
+  void didUpdateWidget(StorageOfficeEditorDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.file.id != widget.file.id ||
+        !identical(oldWidget.repository, widget.repository) ||
+        !identical(oldWidget.downloadTransport, widget.downloadTransport) ||
+        !identical(oldWidget.uploadTransport, widget.uploadTransport)) {
+      _resetScope();
+    }
+    _resolveRepository();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _resolveRepository();
+  }
+
+  void _resolveRepository() {
+    final repository =
+        widget.repository ??
+        RepositoryProvider.of<StorageRepository>(context, listen: true);
+    if (identical(repository, _repository)) return;
+    if (_repository != null) _resetScope();
+    _repository = repository;
+  }
+
+  void _resetScope() {
+    _scopeKey = Object();
+    _hostController = StorageOnlyOfficeHostController();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final storageRepository = repository ?? context.read<StorageRepository>();
-    final hostController = StorageOnlyOfficeHostController();
+    final storageRepository = _repository!;
     return MultiBlocProvider(
+      key: ValueKey(_scopeKey),
       providers: [
         BlocProvider(
           create: (_) {
             final cubit = StorageOfficeCubit(
-              fileId: file.id,
+              fileId: widget.file.id,
               repository: storageRepository,
             );
             unawaited(cubit.initSession());
@@ -73,17 +122,17 @@ final class StorageOfficeEditorDialog extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => StorageOfficeEditorActionsCubit(
-            file,
+            widget.file,
             storageRepository,
-            downloadTransport ?? const DownloadTransportImpl(),
-            uploadTransport ?? PresignedUploadTransport(),
-            hostController,
+            widget.downloadTransport ?? const DownloadTransportImpl(),
+            widget.uploadTransport ?? PresignedUploadTransport(),
+            _hostController,
           ),
         ),
       ],
       child: StorageOfficeEditorView(
-        file: file,
-        hostController: hostController,
+        file: widget.file,
+        hostController: _hostController,
       ),
     );
   }

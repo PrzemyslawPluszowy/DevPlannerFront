@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   final lightTheme = MaterialTheme.crm().light();
   final darkTheme = MaterialTheme.crm().dark();
 
@@ -99,16 +101,19 @@ void main() {
   });
 
   group('DevPlannerTasksTheme — powierzchnie', () {
-    test('bierze powierzchnie i akcent z palety, a nie z lokalnych kolorów', () {
-      final theme = tasksThemeOf(lightTheme);
-      final colors = lightTheme.colorScheme;
-      expect(theme.canvas, colors.surface);
-      expect(theme.shadow, colors.shadow);
-      expect(theme.scrim, colors.scrim);
-      expect(theme.selectionAccent, colors.primary);
-      expect(theme.onAccent, colors.onPrimary);
-      expect(theme.divider, colors.outlineVariant);
-    });
+    test(
+      'bierze powierzchnie i akcent z palety, a nie z lokalnych kolorów',
+      () {
+        final theme = tasksThemeOf(lightTheme);
+        final colors = lightTheme.colorScheme;
+        expect(theme.canvas, colors.surface);
+        expect(theme.shadow, colors.shadow);
+        expect(theme.scrim, colors.scrim);
+        expect(theme.selectionAccent, colors.primary);
+        expect(theme.onAccent, colors.onPrimary);
+        expect(theme.divider, colors.outlineVariant);
+      },
+    );
 
     test('rozróżnia motyw jasny i ciemny', () {
       final light = tasksThemeOf(lightTheme);

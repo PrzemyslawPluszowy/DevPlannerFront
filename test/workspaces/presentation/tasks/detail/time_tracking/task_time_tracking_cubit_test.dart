@@ -10,7 +10,16 @@ final class _Repository implements TaskTimeTrackingRepository {
   _Repository(this.listResult);
   Either<ApiError, List<TaskTimeEntryResponse>> listResult;
   Either<ApiError, TaskTimeEntryResponse>? startResult;
+  Either<ApiError, TaskTimeEntryResponse>? createResult;
+  Object? listThrown;
+  Object? startThrown;
+  Object? secondListThrown;
   int listCalls = 0;
+  int workflowCalls = 0;
+  int startCalls = 0;
+  int stopCalls = 0;
+  int createCalls = 0;
+  TimeEntryWorkflowPayload? workflowPayload;
   @override
   Future<Either<ApiError, List<TaskTimeEntryResponse>>> list({
     required String workspaceId,
@@ -18,6 +27,12 @@ final class _Repository implements TaskTimeTrackingRepository {
     required String taskId,
   }) async {
     listCalls++;
+    if (listCalls == 1 && listThrown != null) {
+      Error.throwWithStackTrace(listThrown!, StackTrace.current);
+    }
+    if (listCalls > 1 && secondListThrown != null) {
+      Error.throwWithStackTrace(secondListThrown!, StackTrace.current);
+    }
     return listResult;
   }
 
@@ -26,7 +41,75 @@ final class _Repository implements TaskTimeTrackingRepository {
     required String workspaceId,
     required String projectId,
     required String taskId,
-  }) async => startResult!;
+  }) async {
+    startCalls++;
+    if (startThrown case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
+    return startResult!;
+  }
+
+  @override
+  Future<Either<ApiError, TaskTimeEntryResponse>> create({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required CreateTaskTimeEntryPayload payload,
+  }) async {
+    createCalls++;
+    return createResult!;
+  }
+
+  @override
+  Future<Either<ApiError, TaskTimeEntryResponse>> stopTimer({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required StopTaskTimerPayload payload,
+  }) async {
+    stopCalls++;
+    return Right(_entry());
+  }
+
+  @override
+  Future<Either<ApiError, TaskTimeEntryResponse>> submit({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String entryId,
+    required TimeEntryWorkflowPayload payload,
+  }) async {
+    workflowCalls++;
+    workflowPayload = payload;
+    return Right(_entry());
+  }
+
+  @override
+  Future<Either<ApiError, TaskTimeEntryResponse>> approve({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String entryId,
+    required TimeEntryWorkflowPayload payload,
+  }) async {
+    workflowCalls++;
+    workflowPayload = payload;
+    return Right(_entry());
+  }
+
+  @override
+  Future<Either<ApiError, TaskTimeEntryResponse>> reject({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String entryId,
+    required TimeEntryWorkflowPayload payload,
+  }) async {
+    workflowCalls++;
+    workflowPayload = payload;
+    return Right(_entry());
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -43,6 +126,8 @@ TaskTimeEntryResponse _entry({bool active = false}) => TaskTimeEntryResponse(
   createdAtUtc: DateTime.utc(2026, 8, 26),
   approvalStatus: TaskTimeEntryApprovalStatus.draft,
   version: 1,
+  canSubmit: !active,
+  canStopTimer: active,
 );
 TaskTimeTrackingCubit _cubit(_Repository repository) => TaskTimeTrackingCubit(
   repository: repository,
@@ -52,12 +137,43 @@ TaskTimeTrackingCubit _cubit(_Repository repository) => TaskTimeTrackingCubit(
 );
 
 void main() {
+  test('snapshot czasu nie zmienia się po mutacji listy repozytorium', () {
+    final entries = [_entry(), _entry(active: true).copyWith(id: 'timer-2')];
+    final ready = TaskTimeTrackingReady(
+      entries: entries,
+      nowUtc: DateTime.utc(2026, 8, 26, 11, 5),
+    );
+    entries.clear();
+    expect(ready.entries, hasLength(2));
+    expect(ready.totalMinutes, 95);
+    expect(
+      ready.copyWith(nowUtc: DateTime.utc(2026, 8, 26, 11, 6)).totalMinutes,
+      96,
+    );
+    expect(ready.entries.clear, throwsUnsupportedError);
+  });
   test('ładuje wpisy i rozpoznaje aktywny timer', () async {
     final cubit = _cubit(_Repository(Right([_entry(active: true)])));
     await cubit.load();
     final state = cubit.state as TaskTimeTrackingReady;
     expect(state.entries, hasLength(1));
     expect(state.activeTimers, hasLength(1));
+    await cubit.close();
+  });
+  test('odzyskuje się po wyjątku odczytu bez ujawnienia szczegółów', () async {
+    final repository = _Repository(const Right([]))
+      ..listThrown = StateError('private transport detail');
+    final cubit = _cubit(repository);
+
+    await cubit.load();
+
+    final failed = cubit.state as TaskTimeTrackingFailure;
+    expect(failed.apiError?.type, ApiErrorType.unknown);
+    expect(failed.message, isEmpty);
+    repository.listThrown = null;
+    await cubit.load();
+    expect(cubit.state, isA<TaskTimeTrackingReady>());
+    expect(repository.listCalls, 2);
     await cubit.close();
   });
   test('po starcie timera odświeża wpisy z backendu', () async {
@@ -86,4 +202,206 @@ void main() {
     expect(state.error, 'Timer jest już uruchomiony');
     await cubit.close();
   });
+  test('wyjątek mutacji zachowuje Retry-After i kończy stan zapisu', () async {
+    final retryAt = DateTime.now().toUtc().add(const Duration(hours: 1));
+    final apiError = ApiError(
+      type: ApiErrorType.server,
+      message: 'Spróbuj później',
+      statusCode: 429,
+      apiCode: 'rate_limited',
+      contractCode: 'rate_limited',
+      backendCode: 4291,
+      fields: const {
+        'timer': ['cooldown'],
+      },
+      traceId: 'trace-time-429',
+      retryAfterUtc: retryAt,
+    );
+    final repository = _Repository(Right([_entry()]))..startThrown = apiError;
+    final cubit = _cubit(repository);
+    await cubit.load();
+
+    expect(await cubit.startTimer(), isFalse);
+
+    final state = cubit.state as TaskTimeTrackingReady;
+    expect(state.isSaving, isFalse);
+    expect(state.apiError, apiError);
+    expect(state.apiError?.retryAfterUtc, retryAt);
+    expect(state.apiError?.fields, apiError.fields);
+    await cubit.close();
+  });
+  test('Retry-After blokuje zapis do czasu odblokowania', () async {
+    final repository = _Repository(Right([_entry()]))
+      ..startThrown = ApiError(
+        type: ApiErrorType.server,
+        message: 'Rate limited',
+        statusCode: 429,
+        retryAfterUtc: DateTime.now().toUtc().add(
+          const Duration(milliseconds: 80),
+        ),
+      );
+    final cubit = _cubit(repository);
+    await cubit.load();
+
+    expect(await cubit.startTimer(), isFalse);
+    expect((cubit.state as TaskTimeTrackingReady).isRetryBlocked, isTrue);
+    expect(await cubit.startTimer(), isFalse);
+    expect(repository.startCalls, 1);
+
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+    expect((cubit.state as TaskTimeTrackingReady).isRetryBlocked, isFalse);
+    repository.startThrown = null;
+    repository.startResult = Right(_entry(active: true));
+    expect(await cubit.startTimer(), isTrue);
+    expect(repository.startCalls, 2);
+    await cubit.close();
+  });
+  test('potwierdzony start zwraca sukces mimo wyjątku odświeżenia', () async {
+    const apiError = ApiError(
+      type: ApiErrorType.unknown,
+      message: 'Refresh failed',
+      apiCode: 'task_time_entries_load_failed',
+      traceId: 'trace-refresh',
+    );
+    final repository = _Repository(Right([_entry()]))
+      ..startResult = Right(_entry(active: true))
+      ..secondListThrown = apiError;
+    final cubit = _cubit(repository);
+    await cubit.load();
+
+    expect(await cubit.startTimer(), isTrue);
+
+    final state = cubit.state as TaskTimeTrackingReady;
+    expect(state.isSaving, isFalse);
+    expect(state.entries, hasLength(1));
+    expect(state.apiError, apiError);
+    expect(repository.listCalls, 2);
+    await cubit.close();
+  });
+  test(
+    'potwierdzony wpis create zostaje w liście po błędzie refreshu',
+    () async {
+      const apiError = ApiError(
+        type: ApiErrorType.unknown,
+        message: 'Refresh failed',
+        apiCode: 'task_time_entries_load_failed',
+      );
+      final repository = _Repository(const Right([]))
+        ..createResult = Right(_entry())
+        ..secondListThrown = apiError;
+      final cubit = _cubit(repository);
+      await cubit.load();
+
+      final created = await cubit.create(
+        const CreateTaskTimeEntryPayload(
+          durationMinutes: 30,
+          isBillable: true,
+        ),
+      );
+
+      final state = cubit.state as TaskTimeTrackingReady;
+      expect(created, isTrue);
+      expect(repository.createCalls, 1);
+      expect(state.entries, hasLength(1));
+      expect(state.entries.single.id, 'entry-1');
+      expect(state.apiError, apiError);
+      await cubit.close();
+    },
+  );
+  test(
+    'potwierdzone zatrzymanie nie pokazuje aktywnego timera ponownie',
+    () async {
+      final repository = _Repository(Right([_entry(active: true)]))
+        ..secondListThrown = const ApiError(
+          type: ApiErrorType.unknown,
+          message: 'Refresh failed',
+        );
+      final cubit = _cubit(repository);
+      await cubit.load();
+
+      expect(await cubit.stopTimer(), isTrue);
+      final state = cubit.state as TaskTimeTrackingReady;
+      expect(state.activeTimers, isEmpty);
+      expect(state.ownActiveTimers, isEmpty);
+      expect(await cubit.stopTimer(), isFalse);
+      expect(repository.stopCalls, 1);
+      await cubit.close();
+    },
+  );
+  test('cudzy aktywny timer nie daje prawa zatrzymania', () async {
+    final repository = _Repository(
+      Right([_entry(active: true).copyWith(canStopTimer: false)]),
+    );
+    final cubit = _cubit(repository);
+    await cubit.load();
+    final ready = cubit.state as TaskTimeTrackingReady;
+    expect(ready.activeTimers, hasLength(1));
+    expect(ready.ownActiveTimers, isEmpty);
+    expect(await cubit.stopTimer(), isFalse);
+    expect(repository.stopCalls, 0);
+    await cubit.close();
+  });
+  test('własny timer można zatrzymać w zadaniu tylko do odczytu', () async {
+    final repository = _Repository(Right([_entry(active: true)]));
+    final cubit = TaskTimeTrackingCubit(
+      repository: repository,
+      workspaceId: 'w',
+      projectId: 'p',
+      taskId: 't',
+      canEdit: () => false,
+    );
+    await cubit.load();
+    expect(await cubit.startTimer(), isFalse);
+    repository.listResult = Right([_entry()]);
+    expect(await cubit.stopTimer(), isTrue);
+    expect(repository.stopCalls, 1);
+    expect((cubit.state as TaskTimeTrackingReady).ownActiveTimers, isEmpty);
+    await cubit.close();
+    expect(await cubit.stopTimer(), isFalse);
+    expect(repository.stopCalls, 1);
+  });
+  test(
+    'workflow używa capability aktualnego wpisu, nie dowolnego argumentu',
+    () async {
+      final entry = _entry().copyWith(canSubmit: false, canReview: false);
+      final repository = _Repository(Right([entry]));
+      final cubit = _cubit(repository);
+      await cubit.load();
+      final forged = entry.copyWith(canSubmit: true, canReview: true);
+      expect(await cubit.submit(forged), isFalse);
+      expect(await cubit.approve(forged), isFalse);
+      expect(await cubit.reject(forged), isFalse);
+      expect(repository.workflowCalls, 0);
+      await cubit.close();
+    },
+  );
+  test(
+    'review wpisu z archiwum taska zachowuje uprawnienie i komentarz',
+    () async {
+      final entry = _entry().copyWith(
+        approvalStatus: TaskTimeEntryApprovalStatus.submitted,
+        canSubmit: false,
+        canReview: true,
+        version: 7,
+      );
+      final repository = _Repository(Right([entry]));
+      final cubit = TaskTimeTrackingCubit(
+        repository: repository,
+        workspaceId: 'w',
+        projectId: 'p',
+        taskId: 't',
+        canEdit: () => false,
+      );
+      await cubit.load();
+      expect(await cubit.startTimer(), isFalse);
+      expect(await cubit.submit(entry), isFalse);
+      expect(await cubit.approve(entry, comment: 'Zweryfikowano'), isTrue);
+      expect(repository.workflowPayload?.comment, 'Zweryfikowano');
+      expect(repository.workflowPayload?.expectedVersion, 7);
+      expect(repository.workflowCalls, 1);
+      await cubit.close();
+      expect(await cubit.reject(entry, comment: 'Późno'), isFalse);
+      expect(repository.workflowCalls, 1);
+    },
+  );
 }

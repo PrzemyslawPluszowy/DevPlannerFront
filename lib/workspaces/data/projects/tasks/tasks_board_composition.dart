@@ -9,6 +9,7 @@ import 'package:devplanner/workspaces/data/projects/repositories/projects_reposi
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_advanced_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_capacity_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_operations_api.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/api/task_recurrence_time_zone_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_templates_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_views_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/tasks_api.dart';
@@ -22,6 +23,7 @@ import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_view
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_workflow_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/tasks_repository_impl.dart';
 import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
@@ -38,9 +40,9 @@ import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart'
 
 /// Kompozycja runtime dla niezależnego Boardu Tasks/Kanban.
 ///
-/// Każdy adapter korzysta z jednego, uwierzytelnionego Dio. Realtime jest
-/// tworzony dopiero dla transportu desktopowego z dostawcą tokenu; webowy BFF
-/// nie ujawnia tokenu SignalR i pozostaje poza tą kompozycją.
+/// Każdy adapter korzysta z jednego, uwierzytelnionego Dio. Realtime używa
+/// poświadczeń z tego samego transportu: bearer na desktopie albo cookie BFF
+/// z CSRF w browserze.
 final class TasksBoardComposition {
   const TasksBoardComposition({
     required this.kanbanRepository,
@@ -74,15 +76,17 @@ final class TasksBoardComposition {
   final MilestoneRepository milestoneRepository;
   final WorkspaceScopedRealtimeFactory realtimeFactory;
 
-  /// Zwraca `null`, gdy transport nie może bezpiecznie utworzyć realtime.
+  /// Zwraca `null`, gdy transport nie ma bezpiecznej sesji API.
   static TasksBoardComposition? fromTransport(
     DevPlannerHttpTransport transport,
   ) {
-    final accessTokenProvider = transport.realtimeAccessTokenProvider;
-    if (!transport.supportsStandaloneApiClients ||
-        accessTokenProvider == null) {
+    if (!transport.supportsStandaloneApiClients) {
       return null;
     }
+    final realtimeCredentials = WorkspaceRealtimeCredentials.fromTransport(
+      transport,
+    );
+    if (realtimeCredentials == null) return null;
 
     final dio = transport.apiDio;
     final baseUrl = transport.baseUrl;
@@ -114,13 +118,16 @@ final class TasksBoardComposition {
       capacityRepository: TaskCapacityRepositoryImpl(
         TaskCapacityApi(dio, baseUrl: baseUrl),
       ),
-      recurrenceRepository: TaskRecurrenceRepositoryImpl(advancedApi),
+      recurrenceRepository: TaskRecurrenceRepositoryImpl(
+        advancedApi,
+        TaskRecurrenceTimeZoneApi(dio, baseUrl: baseUrl),
+      ),
       milestoneRepository: MilestoneRepositoryImpl(
         MilestonesApi(dio, baseUrl: baseUrl),
       ),
       realtimeFactory: WorkspaceScopedRealtimeFactory(
         baseUrl: baseUrl,
-        accessTokenProvider: accessTokenProvider,
+        credentials: realtimeCredentials,
       ),
     );
   }

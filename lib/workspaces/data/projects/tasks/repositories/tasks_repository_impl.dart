@@ -175,6 +175,28 @@ final class TasksRepositoryImpl extends ApiRepository
   );
 
   @override
+  Future<Either<ApiError, TaskMutationResponse<ProjectTaskListItemResponse>>>
+  moveCustomStatus({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required String customStatusId,
+    required int expectedVersion,
+  }) => guardApiCall(
+    () => _api.updateListItem(
+      workspaceId,
+      projectId,
+      taskId,
+      UpdateTaskListItemPayload(
+        customStatusId: customStatusId,
+        expectedVersion: expectedVersion,
+      ),
+    ),
+    fallbackMessage: 'Nie udało się zmienić statusu zadania.',
+    parsingMessage: 'Backend zwrócił nieprawidłowy status zadania.',
+  );
+
+  @override
   Future<Either<ApiError, MovedProjectTaskResponse>> moveTask({
     required String workspaceId,
     required String projectId,

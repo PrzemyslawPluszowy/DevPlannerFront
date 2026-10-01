@@ -32,16 +32,18 @@ final class DevPlannerModalLayer extends StatelessWidget {
   final Widget content;
 
   @override
-  Widget build(BuildContext context) => _DevPlannerAppContentScope(
-    content: content,
-    child: Navigator(
-      key: navigatorKey,
-      // Trasa-stojak czyta treść z zakresu powyżej `Navigator`a, więc host może
-      // przebudowywać aplikację bez odtwarzania trasy (inaczej trzymałaby
-      // pierwszy, nieaktualny widget).
-      onGenerateRoute: (settings) => PageRouteBuilder<void>(
-        settings: settings,
-        pageBuilder: (context, _, _) => const _DevPlannerAppRoot(),
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: _DevPlannerAppContentScope(
+      content: content,
+      child: Navigator(
+        key: navigatorKey,
+        // Trasa-stojak czyta treść z zakresu powyżej `Navigator`a, więc host może
+        // przebudowywać aplikację bez odtwarzania trasy (inaczej trzymałaby
+        // pierwszy, nieaktualny widget).
+        onGenerateRoute: (settings) => PageRouteBuilder<void>(
+          settings: settings,
+          pageBuilder: (context, _, _) => const _DevPlannerAppRoot(),
+        ),
       ),
     ),
   );

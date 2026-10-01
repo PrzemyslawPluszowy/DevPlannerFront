@@ -42,6 +42,7 @@ final class TaskDetailsLoaderService {
         },
         message: error.message,
         backendCode: error.backendCode,
+        error: error,
       ),
       TaskDetailsReady.new,
     );

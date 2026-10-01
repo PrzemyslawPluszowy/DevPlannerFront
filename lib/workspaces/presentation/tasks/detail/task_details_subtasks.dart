@@ -1,34 +1,58 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
-class _SubtasksSection extends StatelessWidget {
-  const _SubtasksSection({required this.subtasks, required this.isSaving});
+class SubtasksSection extends StatelessWidget {
+  const SubtasksSection({
+    required this.subtasks,
+    required this.isSaving,
+    super.key,
+  });
   final List<ProjectTaskSubtaskSummaryResponse> subtasks;
   final bool isSaving;
+
+  void _openSubtask(BuildContext context, String taskId) {
+    final source = context.read<TaskDetailsCubit>();
+    final navigation = DevPlannerNavigation.of(context);
+    unawaited(
+      navigation.goToTask(
+        workspaceId: source.workspaceId,
+        projectId: source.projectId,
+        taskId: taskId,
+        currentLocation: Uri.parse(navigation.currentPath),
+        source: TaskDetailOpenSource.subtask,
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) => _Section(
+  Widget build(BuildContext context) => Section(
     title: context.l10n.taskDetailsSubtasks,
     action: IconButton(
       tooltip: context.l10n.taskDetailsAddSubtask,
       onPressed: isSaving
           ? null
-          : () => showDialog<void>(
-              context: context,
+          : () => DevPlannerModalHost.showDialog<void>(
+              context,
               builder: (_) => BlocProvider.value(
                 value: context.read<TaskDetailsCubit>(),
-                child: const _CreateSubtaskDialog(),
+                child: const CreateSubtaskDialog(),
               ),
             ),
       icon: const Icon(Symbols.add_task_rounded, size: 20),
     ),
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: context.colors.outlineVariant),
+    child: Material(
+      color: context.colors.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
+        side: BorderSide(color: context.colors.outlineVariant),
       ),
+      clipBehavior: Clip.antiAlias,
       child: subtasks.isEmpty
           ? Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(12),
               child: Text(context.l10n.taskDetailsNoSubtasks),
             )
           : Column(
@@ -40,12 +64,7 @@ class _SubtasksSection extends StatelessWidget {
                     leading: const Icon(Symbols.subdirectory_arrow_right),
                     title: Text(subtask.title),
                     subtitle: Text(subtask.key),
-                    onTap: () {
-                      final cubit = context.read<TaskDetailsCubit>();
-                      context.go(
-                        '/workspaces/${cubit.workspaceId}/projects/${cubit.projectId}/tasks/${subtask.id}',
-                      );
-                    },
+                    onTap: () => _openSubtask(context, subtask.id),
                   ),
               ],
             ),
@@ -53,17 +72,43 @@ class _SubtasksSection extends StatelessWidget {
   );
 }
 
-class _CreateSubtaskDialog extends StatefulWidget {
-  const _CreateSubtaskDialog();
+class CreateSubtaskDialog extends StatefulWidget {
+  const CreateSubtaskDialog({super.key});
   @override
-  State<_CreateSubtaskDialog> createState() => _CreateSubtaskDialogState();
+  State<CreateSubtaskDialog> createState() => CreateSubtaskDialogState();
 }
 
-class _CreateSubtaskDialogState extends State<_CreateSubtaskDialog> {
+class CreateSubtaskDialogState extends State<CreateSubtaskDialog> {
+  TaskDetailDraftRegistration? _draft;
   final _controller = TextEditingController();
   final ValueNotifier<bool> _saving = ValueNotifier(false);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_refreshDraft);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: context.l10n.taskDetailsAddSubtask,
+    );
+  }
+
+  void _refreshDraft() {
+    if (_controller.text.trim().isEmpty) {
+      _draft?.clear();
+    } else {
+      _draft?.markDirty();
+    }
+  }
+
   @override
   void dispose() {
+    _draft?.dispose();
+    _controller.removeListener(_refreshDraft);
     _controller.dispose();
     _saving.dispose();
     super.dispose();
@@ -85,11 +130,16 @@ class _CreateSubtaskDialogState extends State<_CreateSubtaskDialog> {
         submitLabel: l10n.save,
         cancelLabel: l10n.cancel,
         maxWidth: 440,
+        onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
+          context,
+          _draft,
+        ),
         onSubmit: _save,
         body: Column(
           mainAxisSize: .min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const TaskDetailsDialogMutationError(),
             TextField(
               controller: _controller,
               autofocus: true,
@@ -117,13 +167,19 @@ class _CreateSubtaskDialogState extends State<_CreateSubtaskDialog> {
     final text = _controller.text.trim();
     if (_saving.value || text.isEmpty) return;
     _saving.value = true;
-    final saved = await context.read<TaskDetailsCubit>().createSubtask(text);
-    if (mounted) {
-      if (saved) {
-        Navigator.of(context).pop();
-      } else {
-        _saving.value = false;
-      }
+    final source = context.read<TaskDetailsCubit>();
+    final saved = await source.createSubtask(text);
+    if (!mounted) return;
+    if (source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      return;
+    }
+    if (saved) {
+      _draft?.clear();
+      Navigator.of(context).pop();
+    } else {
+      _saving.value = false;
     }
   }
 }

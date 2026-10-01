@@ -48,6 +48,20 @@ final class _ResourceChatRepository implements ResourceChatRepository {
   final ApiError? error;
 
   @override
+  Future<Either<ApiError, ChatConversation>> resolveTaskConversation({
+    required String taskId,
+    required String workspaceId,
+    required String projectId,
+  }) async => Left(
+    error ??
+        const ApiError(
+          type: ApiErrorType.unknown,
+          message: 'Task resolution is not configured in this file-only test.',
+          apiCode: 'test.task_resolution_unconfigured',
+        ),
+  );
+
+  @override
   Future<Either<ApiError, ChatConversation>> resolveFileConversation(
     ResourceChatFileRequest request,
   ) async => error == null

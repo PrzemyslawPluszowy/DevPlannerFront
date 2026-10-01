@@ -1,32 +1,59 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/collaboration/cubit/task_member_profiles_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_custom_field_presentation.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_custom_fields_dialog_body.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
 /// Sekcja wartości pól własnych taska z rozpoznaniem ich typu kontraktowego.
-class _TaskCustomFieldsSection extends StatelessWidget {
-  const _TaskCustomFieldsSection({
+class TaskCustomFieldsSection extends StatefulWidget {
+  const TaskCustomFieldsSection({
     required this.fields,
     required this.isSaving,
+    super.key,
   });
 
   final List<TaskCustomFieldDefinitionValueResponse> fields;
   final bool isSaving;
 
   @override
-  Widget build(BuildContext context) => _Section(
+  State<TaskCustomFieldsSection> createState() =>
+      TaskCustomFieldsSectionState();
+}
+
+class TaskCustomFieldsSectionState extends State<TaskCustomFieldsSection> {
+  late List<TaskCustomFieldDefinitionValueResponse> _sortedFields;
+
+  @override
+  void initState() {
+    super.initState();
+    _sortedFields = TaskCustomFieldPresentation.sorted(widget.fields);
+  }
+
+  @override
+  void didUpdateWidget(TaskCustomFieldsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.fields, widget.fields)) {
+      _sortedFields = TaskCustomFieldPresentation.sorted(widget.fields);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Section(
     title: context.l10n.taskDetailsCustomFields,
     action: IconButton(
       tooltip: context.l10n.taskDetailsEditCustomFields,
-      onPressed: isSaving || fields.isEmpty
+      onPressed: widget.isSaving || widget.fields.isEmpty
           ? null
-          : () => showDialog<void>(
-              context: context,
+          : () => DevPlannerModalHost.showDialog<void>(
+              context,
               builder: (_) => BlocProvider.value(
                 value: context.read<TaskDetailsCubit>(),
-                child: _EditCustomFieldsDialog(fields: fields),
+                child: EditCustomFieldsDialog(fields: widget.fields),
               ),
             ),
       icon: const Icon(Symbols.tune_rounded, size: 20),
     ),
-    child: fields.isEmpty
+    child: widget.fields.isEmpty
         ? Text(
             context.l10n.taskDetailsNoCustomFields,
             style: context.text.bodyMedium?.copyWith(
@@ -36,21 +63,23 @@ class _TaskCustomFieldsSection extends StatelessWidget {
         : Container(
             decoration: BoxDecoration(
               color: context.colors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(
+                context.tasksTheme.controlRadius,
+              ),
               border: Border.all(color: context.colors.outlineVariant),
             ),
             child: Column(
               children: [
-                for (final field in TaskCustomFieldPresentation.sorted(fields))
-                  _CustomFieldReadRow(field: field),
+                for (final field in _sortedFields)
+                  CustomFieldReadRow(field: field),
               ],
             ),
           ),
   );
 }
 
-class _CustomFieldReadRow extends StatelessWidget {
-  const _CustomFieldReadRow({required this.field});
+class CustomFieldReadRow extends StatelessWidget {
+  const CustomFieldReadRow({required this.field, super.key});
 
   final TaskCustomFieldDefinitionValueResponse field;
 
@@ -70,7 +99,7 @@ class _CustomFieldReadRow extends StatelessWidget {
     trailing: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 180),
       child: Text(
-        TaskCustomFieldPresentation.displayValue(field.value),
+        TaskCustomFieldPresentation.displayValue(context, field.value),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.end,
@@ -83,21 +112,25 @@ class _CustomFieldReadRow extends StatelessWidget {
   );
 }
 
-class _EditCustomFieldsDialog extends StatefulWidget {
-  const _EditCustomFieldsDialog({required this.fields});
+class EditCustomFieldsDialog extends StatefulWidget {
+  const EditCustomFieldsDialog({required this.fields, super.key});
 
   final List<TaskCustomFieldDefinitionValueResponse> fields;
 
   @override
-  State<_EditCustomFieldsDialog> createState() =>
-      _EditCustomFieldsDialogState();
+  State<EditCustomFieldsDialog> createState() => EditCustomFieldsDialogState();
 }
 
-class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
+class EditCustomFieldsDialogState extends State<EditCustomFieldsDialog> {
+  TaskDetailDraftRegistration? _draft;
   late final ValueNotifier<Map<String, dynamic>> _values;
-  late final Future<List<ProjectMemberProfile>> _memberProfiles;
+  TaskMemberProfilesCubit? _memberProfilesCubit;
+  late final bool _profilesUnavailable;
+  late final String _initialValuesSignature;
+  late final List<TaskCustomFieldDefinitionValueResponse> _sortedFields;
   final ValueNotifier<bool> _saving = ValueNotifier(false);
   final ValueNotifier<String?> _validationError = ValueNotifier(null);
+  late final Listenable _formChanges;
 
   @override
   void initState() {
@@ -107,19 +140,47 @@ class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
         for (final field in widget.fields) field.id: field.value,
       }),
     );
-    final cubit = context.read<TaskDetailsCubit>();
-    _memberProfiles = context
-        .read<ProjectMemberProfilesRepository>()
-        .listProfiles(
-          workspaceId: cubit.workspaceId,
-          projectId: cubit.projectId,
-        )
-        .then((result) => result.fold((_) => const [], (items) => items));
+    _sortedFields = TaskCustomFieldPresentation.sorted(widget.fields);
+    _formChanges = Listenable.merge([_values, _saving, _validationError]);
+    _initialValuesSignature = jsonEncode(_values.value);
+    final needsMemberProfiles = widget.fields.any(
+      (field) => field.type == TaskCustomFieldType.user,
+    );
+    final profilesRepository = needsMemberProfiles
+        ? context.read<ProjectMemberProfilesRepository?>()
+        : null;
+    _profilesUnavailable = needsMemberProfiles && profilesRepository == null;
+    if (profilesRepository != null) {
+      final cubit = context.read<TaskDetailsCubit>();
+      final profilesCubit = TaskMemberProfilesCubit(
+        repository: profilesRepository,
+        workspaceId: cubit.workspaceId,
+        projectId: cubit.projectId,
+      );
+      _memberProfilesCubit = profilesCubit;
+      unawaited(profilesCubit.load());
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: context.l10n.taskDetailsEditCustomFields,
+    );
+  }
+
+  void _refreshDraft() {
+    if (jsonEncode(_values.value) == _initialValuesSignature) {
+      _draft?.clear();
+    } else {
+      _draft?.markDirty();
+    }
   }
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: Listenable.merge([_values, _saving, _validationError]),
+    animation: _formChanges,
     builder: (context, _) => WorkspaceCreationModalWrapper(
       title: context.l10n.taskDetailsEditCustomFields,
       icon: Symbols.tune_rounded,
@@ -128,49 +189,25 @@ class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
       submitLabel: context.l10n.save,
       cancelLabel: context.l10n.cancel,
       maxWidth: 460,
+      onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
+        context,
+        _draft,
+      ),
       onSubmit: _saving.value ? null : _save,
-      body: FutureBuilder<List<ProjectMemberProfile>>(
-        future: _memberProfiles,
-        builder: (context, snapshot) => SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final field in TaskCustomFieldPresentation.sorted(
-                widget.fields,
-              )) ...[
-                _CustomFieldEditor(
-                  field: field,
-                  value: _values.value[field.id],
-                  enabled:
-                      !_saving.value &&
-                      snapshot.connectionState == ConnectionState.done,
-                  memberProfiles: snapshot.data ?? const [],
-                  onChanged: (value) {
-                    _values.value = Map.unmodifiable({
-                      ..._values.value,
-                      field.id: value,
-                    });
-                    _validationError.value = null;
-                  },
-                ),
-                const SizedBox(height: 14),
-              ],
-              if (_validationError.value case final message?)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    message,
-                    style: TextStyle(color: context.colors.error),
-                  ),
-                ),
-            ],
-          ),
-        ),
+      body: TaskDetailsCustomFieldsDialogBody(
+        fields: _sortedFields,
+        values: _values.value,
+        isSaving: _saving.value,
+        profilesUnavailable: _profilesUnavailable,
+        validationError: _validationError.value,
+        profilesCubit: _memberProfilesCubit,
+        onFieldChanged: _handleFieldChanged,
       ),
     ),
   );
 
   Future<void> _save() async {
+    if (_saving.value) return;
     for (final field in widget.fields.where(
       (field) => field.type == TaskCustomFieldType.number,
     )) {
@@ -189,6 +226,7 @@ class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
       }
     }
     _saving.value = true;
+    final source = context.read<TaskDetailsCubit>();
     final cleanValues = <String, dynamic>{
       for (final entry in _values.value.entries)
         if (entry.value != null &&
@@ -196,19 +234,37 @@ class _EditCustomFieldsDialogState extends State<_EditCustomFieldsDialog> {
                 (entry.value as String).trim().isNotEmpty))
           entry.key: entry.value,
     };
-    final saved = await context
-        .read<TaskDetailsCubit>()
-        .replaceCustomFieldValues(cleanValues);
+    final saved = await source.replaceCustomFieldValues(cleanValues);
     if (!mounted) return;
-    if (saved) Navigator.of(context).pop();
+    if (source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      return;
+    }
+    if (saved) {
+      _draft?.clear();
+      Navigator.of(context).pop();
+    }
     if (!saved) _saving.value = false;
+  }
+
+  void _handleFieldChanged(({String fieldId, dynamic value}) change) {
+    _values.value = Map.unmodifiable({
+      ..._values.value,
+      change.fieldId: change.value,
+    });
+    _refreshDraft();
+    _validationError.value = null;
   }
 
   @override
   void dispose() {
+    _draft?.dispose();
     _values.dispose();
     _saving.dispose();
     _validationError.dispose();
+    final profilesCubit = _memberProfilesCubit;
+    if (profilesCubit != null) unawaited(profilesCubit.close());
     super.dispose();
   }
 }

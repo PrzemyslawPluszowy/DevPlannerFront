@@ -1,12 +1,132 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
+export 'package:devplanner/workspaces/presentation/tasks/detail/task_details_property_row.dart';
 
-class _DateField extends StatelessWidget {
-  const _DateField({
+final class TaskDetailsSelectOption<T> {
+  const TaskDetailsSelectOption({
+    required this.value,
+    required this.label,
+    this.leading,
+    this.icon,
+  });
+
+  final T value;
+  final String label;
+  final Widget? leading;
+  final IconData? icon;
+}
+
+final class TaskDetailsSelectField<T> extends StatefulWidget {
+  const TaskDetailsSelectField({
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+    this.enabled = true,
+    super.key,
+  });
+
+  final String label;
+  final T? value;
+  final List<TaskDetailsSelectOption<T>> options;
+  final ValueChanged<T> onChanged;
+  final bool enabled;
+
+  @override
+  State<TaskDetailsSelectField<T>> createState() =>
+      TaskDetailsSelectFieldState<T>();
+}
+
+final class TaskDetailsSelectFieldState<T>
+    extends State<TaskDetailsSelectField<T>> {
+  bool _focused = false;
+
+  Future<void> _open() async {
+    if (!widget.enabled) return;
+    final selected = await AppContextMenu.select<T>(
+      context,
+      globalPosition: AppContextMenu.positionFor(context),
+      headerTitle: widget.label,
+      options: [
+        for (final option in widget.options)
+          AppContextMenuOption<T>(
+            value: option.value,
+            label: option.label,
+            icon: option.icon,
+            leading: option.leading,
+            selected: option.value == widget.value,
+          ),
+      ],
+    );
+    if (!mounted || selected == null) return;
+    widget.onChanged(selected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tasks = context.tasksTheme;
+    final colors = context.colors;
+    final selectedOption = widget.options
+        .where((option) => option.value == widget.value)
+        .firstOrNull;
+    return Focus(
+      onFocusChange: (focused) {
+        if (_focused != focused) setState(() => _focused = focused);
+      },
+      child: InkWell(
+        onTap: widget.enabled ? _open : null,
+        borderRadius: BorderRadius.circular(tasks.controlRadius),
+        child: InputDecorator(
+          isFocused: _focused,
+          isEmpty: selectedOption == null,
+          decoration: InputDecoration(
+            labelText: widget.label,
+            enabled: widget.enabled,
+            suffixIcon: Icon(
+              Symbols.expand_more_rounded,
+              size: 19,
+              color: widget.enabled
+                  ? colors.onSurfaceVariant
+                  : colors.onSurfaceVariant.withValues(alpha: .5),
+            ),
+          ),
+          child: Row(
+            children: [
+              if (selectedOption?.leading case final leading?) ...[
+                leading,
+                const SizedBox(width: 8),
+              ] else if (selectedOption?.icon case final icon?) ...[
+                Icon(icon, size: 16, color: colors.onSurfaceVariant),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(
+                  selectedOption?.label ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tasks.dataText.copyWith(
+                    color: widget.enabled
+                        ? colors.onSurface
+                        : colors.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DateField extends StatefulWidget {
+  const DateField({
     required this.label,
     required this.value,
     required this.format,
     required this.enabled,
     required this.onChanged,
+    super.key,
   });
 
   final String label;
@@ -16,95 +136,104 @@ class _DateField extends StatelessWidget {
   final ValueChanged<DateTime?> onChanged;
 
   @override
+  State<DateField> createState() => _DateFieldState();
+}
+
+final class _DateFieldState extends State<DateField> {
+  @override
   Widget build(BuildContext context) => InputDecorator(
-    decoration: InputDecoration(labelText: label),
+    decoration: InputDecoration(labelText: widget.label),
     child: Row(
       children: [
         Expanded(
           child: Text(
-            value == null
+            widget.value == null
                 ? context.l10n.taskDetailsNoDate
-                : format.format(value!.toLocal()),
+                : widget.format.format(widget.value!.toLocal()),
           ),
         ),
-        if (value != null)
+        if (widget.value != null)
           IconButton(
             tooltip: context.l10n.taskDetailsClearDate,
-            onPressed: enabled ? () => onChanged(null) : null,
+            onPressed: widget.enabled ? () => widget.onChanged(null) : null,
             icon: const Icon(Symbols.clear_rounded, size: 18),
           ),
-        IconButton(
-          tooltip: label,
-          onPressed: enabled ? () => _pick(context) : null,
-          icon: const Icon(Symbols.calendar_month, size: 19),
+        Builder(
+          builder: (buttonContext) => IconButton(
+            tooltip: widget.label,
+            onPressed: widget.enabled ? () => _pick(buttonContext) : null,
+            icon: const Icon(Symbols.calendar_month, size: 19),
+          ),
         ),
       ],
     ),
   );
 
   Future<void> _pick(BuildContext context) async {
-    final localValue = value?.toLocal();
-    final selected = await DevPlannerModalPickerHost.showDate(
+    final sourceCubit = context.read<TaskDetailsCubit>();
+    final sourceValue = widget.value;
+    final localValue = sourceValue?.toLocal();
+    final selected = await TaskDatePicker.pick(
       context,
-      initialDate: localValue ?? DateTime.now(),
+      initialValue: localValue,
+      globalPosition: AppContextMenu.positionFor(context),
+      allowClear: false,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (selected == null) return;
-    final local = DateTime(
-      selected.year,
-      selected.month,
-      selected.day,
-      localValue?.hour ?? 0,
-      localValue?.minute ?? 0,
+    if (!mounted ||
+        !context.mounted ||
+        selected == null ||
+        selected.value == null ||
+        sourceCubit.isClosed ||
+        !identical(context.read<TaskDetailsCubit>(), sourceCubit) ||
+        widget.value != sourceValue ||
+        !widget.enabled) {
+      return;
+    }
+    widget.onChanged(
+      TaskDatePicker.asUtcTaskInstant(selected.value, sourceValue),
     );
-    onChanged(local.toUtc());
   }
 }
 
-class _PropertyRow extends StatelessWidget {
-  const _PropertyRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.showDivider = true,
-    this.onTap,
+class Section extends StatelessWidget {
+  const Section({
+    required this.title,
+    required this.child,
+    this.action,
+    super.key,
   });
 
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool showDivider;
-  final VoidCallback? onTap;
+  final String title;
+  final Widget child;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 9),
-          child: Row(
-            children: [
-              Icon(icon, size: 18, color: context.colors.onSurfaceVariant),
-              const SizedBox(width: 10),
-              SizedBox(
-                width: 112,
-                child: Text(label, style: context.text.bodySmall),
+      Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: context.tasksTheme.dataStrongText.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-              Expanded(child: Text(value, style: context.text.bodyMedium)),
-            ],
+            ),
           ),
-        ),
+          ?action,
+        ],
       ),
-      if (showDivider) Divider(height: 1, color: context.colors.outlineVariant),
+      const SizedBox(height: 8),
+      child,
     ],
   );
 }
 
-class _Pill extends StatelessWidget {
-  const _Pill({required this.icon, required this.label});
+class Pill extends StatelessWidget {
+  const Pill({required this.icon, required this.label, super.key});
 
   final IconData icon;
   final String label;
@@ -114,18 +243,22 @@ class _Pill extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
       color: context.colors.surface.withValues(alpha: .8),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
       border: Border.all(color: context.colors.outlineVariant),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
-      children: [Icon(icon, size: 15), const SizedBox(width: 6), Text(label)],
+      children: [
+        Icon(icon, size: 14),
+        const SizedBox(width: 5),
+        Text(label, style: context.tasksTheme.controlText),
+      ],
     ),
   );
 }
 
-class _TaskDetailsLoading extends StatelessWidget {
-  const _TaskDetailsLoading();
+class TaskDetailsModalLoadingView extends StatelessWidget {
+  const TaskDetailsModalLoadingView({super.key});
 
   @override
   Widget build(BuildContext context) => const Center(
@@ -136,8 +269,8 @@ class _TaskDetailsLoading extends StatelessWidget {
   );
 }
 
-class _TaskDetailsFailureView extends StatelessWidget {
-  const _TaskDetailsFailureView({required this.failure});
+class TaskDetailsFailureView extends StatelessWidget {
+  const TaskDetailsFailureView({required this.failure, super.key});
 
   final TaskDetailsFailure failure;
 
@@ -155,6 +288,13 @@ class _TaskDetailsFailureView extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(failure.message, textAlign: TextAlign.center),
+          if (failure.error case final error?) ...[
+            const SizedBox(height: 12),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: TaskDetailsModalError(error: error),
+            ),
+          ],
           const SizedBox(height: 18),
           FilledButton.tonalIcon(
             onPressed: () => unawaited(context.read<TaskDetailsCubit>().load()),

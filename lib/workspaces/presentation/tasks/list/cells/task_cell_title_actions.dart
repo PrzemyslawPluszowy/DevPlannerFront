@@ -101,7 +101,7 @@ class TaskCellTitleActions extends StatelessWidget {
         ? null
         : () => unawaited(onPinnedChanged!(!task.isPinned)),
     icon: Icon(
-      task.isPinned ? Symbols.push_pin_rounded : Symbols.push_pin,
+      task.isPinned ? Symbols.star_rounded : Symbols.star,
       size: 15,
       color: task.isPinned
           ? context.colors.primary

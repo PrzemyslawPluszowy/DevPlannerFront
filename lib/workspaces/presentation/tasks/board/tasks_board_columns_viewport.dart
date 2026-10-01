@@ -130,6 +130,10 @@ class _KanbanColumnsViewportState extends State<KanbanColumnsViewport> {
                       loadError:
                           widget.state.columnLoadErrors[column.customStatusId ??
                               column.status.name],
+                      loadApiError:
+                          widget.state.columnLoadApiErrors[column
+                                  .customStatusId ??
+                              column.status.name],
                     ),
                   ),
                 );

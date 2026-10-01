@@ -1,4 +1,6 @@
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
+import 'package:devplanner/workspaces/data/storage/transport/download_transport_impl.dart';
+import 'package:devplanner/workspaces/domain/repositories/custom_workflow_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_acceptance_criteria_repository.dart';
@@ -13,9 +15,14 @@ import 'package:devplanner/workspaces/domain/repositories/task_template_reposito
 import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/task_details_modal_tabs.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 /// Granica kompozycji pełnego ekranu szczegółów zadania.
 ///
@@ -27,6 +34,10 @@ final class TasksDetailsRoutePage extends StatelessWidget {
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
+    this.onClose,
+    this.conversationSlot,
+    this.tabIntent,
+    this.onTabSelected,
     super.key,
   });
 
@@ -34,57 +45,79 @@ final class TasksDetailsRoutePage extends StatelessWidget {
   final String workspaceId;
   final String projectId;
   final String taskId;
+  final VoidCallback? onClose;
+  final Widget? conversationSlot;
+  final ValueListenable<TaskDetailsModalTab?>? tabIntent;
+  final ValueChanged<TaskDetailsModalTab>? onTabSelected;
 
   @override
-  Widget build(BuildContext context) => MultiRepositoryProvider(
-    providers: [
-      RepositoryProvider<TasksRepository>.value(
-        value: composition.tasksRepository,
+  Widget build(BuildContext context) {
+    final userDirectory = context.read<StorageUserDirectoryPort?>();
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<TasksRepository>.value(
+          value: composition.tasksRepository,
+        ),
+        RepositoryProvider<CustomWorkflowRepository>.value(
+          value: composition.customWorkflowRepository,
+        ),
+        RepositoryProvider<TaskAcceptanceCriteriaRepository>.value(
+          value: composition.acceptanceCriteriaRepository,
+        ),
+        RepositoryProvider<TaskAttachmentRepository>.value(
+          value: composition.attachmentRepository,
+        ),
+        RepositoryProvider<TaskChecklistRepository>.value(
+          value: composition.checklistRepository,
+        ),
+        RepositoryProvider<TaskCollaborationRepository>.value(
+          value: composition.collaborationRepository,
+        ),
+        RepositoryProvider<TaskHistoryRepository>.value(
+          value: composition.historyRepository,
+        ),
+        RepositoryProvider<TaskMetadataRepository>.value(
+          value: composition.metadataRepository,
+        ),
+        RepositoryProvider<TaskRecurrenceRepository>.value(
+          value: composition.recurrenceRepository,
+        ),
+        RepositoryProvider<TaskScheduleRepository>.value(
+          value: composition.scheduleRepository,
+        ),
+        RepositoryProvider<TaskTemplateRepository>.value(
+          value: composition.templateRepository,
+        ),
+        RepositoryProvider<TaskTimeTrackingRepository>.value(
+          value: composition.timeTrackingRepository,
+        ),
+        RepositoryProvider<MilestoneRepository>.value(
+          value: composition.milestoneRepository,
+        ),
+        RepositoryProvider<StorageRepository>.value(
+          value: composition.storageRepository,
+        ),
+        RepositoryProvider<TaskAttachmentUploadTransport>.value(
+          value: composition.attachmentUploadTransport,
+        ),
+      ],
+      child: MultiProvider(
+        providers: [
+          Provider<DownloadTransport>.value(
+            value: const DownloadTransportImpl(),
+          ),
+          Provider<StorageUserDirectoryPort?>.value(value: userDirectory),
+        ],
+        child: WorkspaceTaskDetailsPage(
+          workspaceId: workspaceId,
+          projectId: projectId,
+          taskId: taskId,
+          onClose: onClose,
+          conversationSlot: conversationSlot,
+          tabIntent: tabIntent,
+          onTabSelected: onTabSelected,
+        ),
       ),
-      RepositoryProvider<TaskAcceptanceCriteriaRepository>.value(
-        value: composition.acceptanceCriteriaRepository,
-      ),
-      RepositoryProvider<TaskAttachmentRepository>.value(
-        value: composition.attachmentRepository,
-      ),
-      RepositoryProvider<TaskChecklistRepository>.value(
-        value: composition.checklistRepository,
-      ),
-      RepositoryProvider<TaskCollaborationRepository>.value(
-        value: composition.collaborationRepository,
-      ),
-      RepositoryProvider<TaskHistoryRepository>.value(
-        value: composition.historyRepository,
-      ),
-      RepositoryProvider<TaskMetadataRepository>.value(
-        value: composition.metadataRepository,
-      ),
-      RepositoryProvider<TaskRecurrenceRepository>.value(
-        value: composition.recurrenceRepository,
-      ),
-      RepositoryProvider<TaskScheduleRepository>.value(
-        value: composition.scheduleRepository,
-      ),
-      RepositoryProvider<TaskTemplateRepository>.value(
-        value: composition.templateRepository,
-      ),
-      RepositoryProvider<TaskTimeTrackingRepository>.value(
-        value: composition.timeTrackingRepository,
-      ),
-      RepositoryProvider<MilestoneRepository>.value(
-        value: composition.milestoneRepository,
-      ),
-      RepositoryProvider<StorageRepository>.value(
-        value: composition.storageRepository,
-      ),
-      RepositoryProvider<TaskAttachmentUploadTransport>.value(
-        value: composition.attachmentUploadTransport,
-      ),
-    ],
-    child: WorkspaceTaskDetailsPage(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: taskId,
-    ),
-  );
+    );
+  }
 }

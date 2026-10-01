@@ -8,12 +8,14 @@ abstract interface class TaskAttachmentRepository {
     required String workspaceId,
     required String projectId,
     required String taskId,
+    bool includeDeleted = false,
   });
 
   Future<Either<ApiError, BulkStorageUploadTicketResponse>> requestTickets({
     required String workspaceId,
     required String projectId,
     required String taskId,
+    required String idempotencyKey,
     required BulkTaskUploadTicketPayload payload,
   });
 

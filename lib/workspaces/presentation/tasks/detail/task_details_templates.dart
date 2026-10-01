@@ -1,4 +1,4 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 
 /// Składa modal utworzenia template z aktualnym zadaniem i jego Cubitem.
 ///
@@ -12,119 +12,186 @@ final class TaskTemplateDialogLauncher {
   }) {
     final detailsCubit = context.read<TaskDetailsCubit>();
     final repository = context.read<TaskTemplateRepository>();
-    return showDialog<void>(
-      context: context,
+    return DevPlannerModalHost.showDialog<void>(
+      context,
       builder: (_) => BlocProvider(
         create: (_) => TaskTemplateCubit(
           repository: repository,
           workspaceId: detailsCubit.workspaceId,
           taskId: detailsCubit.taskId,
+          canEdit: () =>
+              !detailsCubit.isClosed &&
+              switch (detailsCubit.state) {
+                TaskDetailsReady(:final canEdit) => canEdit,
+                _ => false,
+              },
+          onAccessLost: (error) =>
+              unawaited(detailsCubit.reportAccessLost(error)),
         ),
-        child: _CreateTaskTemplateDialog(initialName: initialName),
+        child: CreateTaskTemplateDialog(initialName: initialName),
       ),
     );
   }
 }
 
-class _CreateTaskTemplateDialog extends StatefulWidget {
-  const _CreateTaskTemplateDialog({required this.initialName});
+class CreateTaskTemplateDialog extends StatefulWidget {
+  const CreateTaskTemplateDialog({required this.initialName, super.key});
 
   final String initialName;
 
   @override
-  State<_CreateTaskTemplateDialog> createState() =>
-      _CreateTaskTemplateDialogState();
+  State<CreateTaskTemplateDialog> createState() =>
+      CreateTaskTemplateDialogState();
 }
 
-class _CreateTaskTemplateDialogState extends State<_CreateTaskTemplateDialog> {
+class CreateTaskTemplateDialogState extends State<CreateTaskTemplateDialog> {
+  TaskDetailDraftRegistration? _draft;
   late final TextEditingController _nameController;
+  final ValueNotifier<bool> _nameRequired = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialName);
+    _nameController.addListener(_refreshDraft);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: context.l10n.taskDetailsCreateTemplateTitle,
+    );
+  }
+
+  void _refreshDraft() {
+    if (_nameRequired.value && _nameController.text.trim().isNotEmpty) {
+      _nameRequired.value = false;
+    }
+    if (_nameController.text == widget.initialName) {
+      _draft?.clear();
+    } else {
+      _draft?.markDirty();
+    }
   }
 
   @override
   void dispose() {
+    _draft?.dispose();
+    _nameController.removeListener(_refreshDraft);
     _nameController.dispose();
+    _nameRequired.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) =>
-      BlocConsumer<TaskTemplateCubit, TaskTemplateState>(
-        listener: (context, state) {
-          if (state is TaskTemplateSaved) {
-            final messenger = ScaffoldMessenger.of(context);
-            Navigator.of(context).pop();
-            messenger.showSnackBar(
-              SnackBar(content: Text(context.l10n.taskDetailsTemplateCreated)),
-            );
-          }
-        },
-        builder: (context, state) {
-          final saving = state is TaskTemplateSaving;
-          final l10n = context.l10n;
-          final colors = context.colors;
+  void _submit() {
+    if (_nameController.text.trim().isEmpty) {
+      _nameRequired.value = true;
+      return;
+    }
+    unawaited(
+      context.read<TaskTemplateCubit>().createFromTask(_nameController.text),
+    );
+  }
 
-          return WorkspaceCreationModalWrapper(
-            title: l10n.taskDetailsCreateTemplateTitle,
-            subtitle: l10n.taskDetailsCreateTemplateDescription,
-            icon: Symbols.auto_awesome_mosaic,
-            accentColor: colors.primary,
-            isSubmitting: saving,
-            submitLabel: l10n.create,
-            cancelLabel: l10n.cancel,
-            maxWidth: 460,
-            onSubmit: () => unawaited(
-              context.read<TaskTemplateCubit>().createFromTask(
-                _nameController.text.trim(),
+  void _submitted(String _) => _submit();
+
+  void _onTemplateState(BuildContext context, TaskTemplateState state) {
+    if (state is! TaskTemplateSaved ||
+        ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
+    _draft?.clear();
+    final messenger = ScaffoldMessenger.of(context);
+    final message = context.l10n.taskDetailsTemplateCreated;
+    Navigator.of(context).pop();
+    messenger.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) => BlocConsumer<TaskTemplateCubit, TaskTemplateState>(
+    listener: _onTemplateState,
+    builder: (context, state) {
+      final saving = state is TaskTemplateSaving;
+      final l10n = context.l10n;
+      final colors = context.colors;
+      final tasks = context.tasksTheme;
+
+      return WorkspaceCreationModalWrapper(
+        title: l10n.taskDetailsCreateTemplateTitle,
+        subtitle: l10n.taskDetailsCreateTemplateDescription,
+        icon: Symbols.auto_awesome_mosaic,
+        accentColor: tasks.selectionAccent,
+        isSubmitting: saving,
+        submitLabel: l10n.create,
+        cancelLabel: l10n.cancel,
+        maxWidth: 460,
+        onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
+          context,
+          _draft,
+        ),
+        onSubmit: context.read<TaskTemplateCubit>().canSubmit ? _submit : null,
+        body: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (state case TaskTemplateFailure(apiError: final error?))
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 150),
+                child: SingleChildScrollView(
+                  child: TaskDetailsModalError(
+                    error: error,
+                    fallbackMessage: l10n.tasksTemplateSaveFailed,
+                  ),
+                ),
+              ),
+            Text(
+              l10n.taskDetailsTemplateName,
+              style: tasks.controlText.copyWith(
+                color: colors.onSurfaceVariant,
               ),
             ),
-            body: Column(
-              mainAxisSize: .min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  l10n.taskDetailsTemplateName,
-                  style: context.text.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                    color: colors.onSurfaceVariant,
+            Gaps.h8,
+            ValueListenableBuilder<bool>(
+              valueListenable: _nameRequired,
+              builder: (context, required, _) => TextField(
+                key: const ValueKey('task_template_name'),
+                controller: _nameController,
+                autofocus: true,
+                maxLength: 120,
+                enabled: !saving,
+                style: tasks.dataText.copyWith(color: colors.onSurface),
+                decoration: InputDecoration(
+                  hintText: l10n.taskDetailsTemplateName,
+                  filled: true,
+                  fillColor: tasks.canvas,
+                  errorMaxLines: 3,
+                  errorText: required
+                      ? l10n.authFieldRequired
+                      : switch (state) {
+                          TaskTemplateFailure(:final apiError) =>
+                            apiError?.fields['name']?.join(' · '),
+                          _ => null,
+                        },
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(tasks.controlRadius),
+                    borderSide: BorderSide(color: tasks.canvasBorder),
+                  ),
+                  contentPadding: const .symmetric(
+                    horizontal: Sizes.p12,
+                    vertical: Sizes.p12,
                   ),
                 ),
-                Gaps.h8,
-                TextField(
-                  controller: _nameController,
-                  autofocus: true,
-                  maxLength: 120,
-                  enabled: !saving,
-                  decoration: InputDecoration(
-                    hintText: l10n.taskDetailsTemplateName,
-                    errorText: switch (state) {
-                      TaskTemplateFailure(:final message) => message,
-                      _ => null,
-                    },
-                    border: const OutlineInputBorder(
-                      borderRadius: .all(.circular(10)),
-                    ),
-                    contentPadding: const .symmetric(
-                      horizontal: Sizes.p12,
-                      vertical: Sizes.p12,
-                    ),
-                  ),
-                  onSubmitted: saving
-                      ? null
-                      : (value) => unawaited(
-                          context.read<TaskTemplateCubit>().createFromTask(
-                            value.trim(),
-                          ),
-                        ),
-                ),
-              ],
+                onSubmitted: context.read<TaskTemplateCubit>().canSubmit
+                    ? _submitted
+                    : null,
+              ),
             ),
-          );
-        },
+          ],
+        ),
       );
+    },
+  );
 }

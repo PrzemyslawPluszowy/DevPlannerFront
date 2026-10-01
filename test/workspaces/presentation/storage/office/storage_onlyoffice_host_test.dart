@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:devplanner/l10n/app_localizations.dart';
@@ -9,6 +10,139 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets(
+    'late old initialization failure cannot overwrite the active host',
+    (tester) async {
+      final pending = Completer<void>();
+      final old = _FakeStorageOnlyOfficeController(initialization: pending);
+      final next = _FakeStorageOnlyOfficeController();
+      final factory = ValueNotifier<StorageOnlyOfficeControllerFactory>(
+        _FakeControllerFactory(old),
+      );
+      addTearDown(factory.dispose);
+      await tester.pumpWidget(
+        _Harness(
+          child: ValueListenableBuilder<StorageOnlyOfficeControllerFactory>(
+            valueListenable: factory,
+            builder: (_, value, _) => StorageOnlyOfficeHost(
+              session: _Fixtures.session,
+              controllerFactory: value,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      factory.value = _FakeControllerFactory(next);
+      await tester.pump();
+      next.finishPage();
+      await tester.pump();
+      pending.completeError(StateError('stale initialization failure'));
+      await tester.pump();
+      expect(find.textContaining('stale initialization failure'), findsNothing);
+      expect(find.text('Ładowanie edytora OnlyOffice…'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('late old load failure cannot cancel the new host timeout', (
+    tester,
+  ) async {
+    final pending = Completer<void>();
+    final old = _FakeStorageOnlyOfficeController(loading: pending);
+    final next = _FakeStorageOnlyOfficeController();
+    final factory = ValueNotifier<StorageOnlyOfficeControllerFactory>(
+      _FakeControllerFactory(old),
+    );
+    addTearDown(factory.dispose);
+    await tester.pumpWidget(
+      _Harness(
+        child: ValueListenableBuilder<StorageOnlyOfficeControllerFactory>(
+          valueListenable: factory,
+          builder: (_, value, _) => StorageOnlyOfficeHost(
+            session: _Fixtures.session,
+            controllerFactory: value,
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    factory.value = _FakeControllerFactory(next);
+    await tester.pump();
+    await tester.pump();
+    pending.completeError(StateError('stale load failure'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 30));
+    expect(find.textContaining('30 sekund'), findsOneWidget);
+    expect(find.textContaining('stale load failure'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'replaced Office host ignores every callback from the previous controller',
+    (tester) async {
+      final old = _FakeStorageOnlyOfficeController();
+      final next = _FakeStorageOnlyOfficeController();
+      var events = 0;
+      final value = ValueNotifier<StorageOnlyOfficeControllerFactory>(
+        _FakeControllerFactory(old),
+      );
+      addTearDown(value.dispose);
+      await tester.pumpWidget(
+        _Harness(
+          child: ValueListenableBuilder<StorageOnlyOfficeControllerFactory>(
+            valueListenable: value,
+            builder: (_, factory, _) => StorageOnlyOfficeHost(
+              session: _Fixtures.session,
+              controllerFactory: factory,
+              onDocumentReady: () => events++,
+              onDocumentStateChanged: (_) => events++,
+              onPrintRequested: () => events++,
+              onDownloadRequested: (_) => events++,
+              onSaveAsRequested: (_) => events++,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      value.value = _FakeControllerFactory(next);
+      await tester.pump();
+      await tester.pump();
+      old.emitDocumentReady();
+      old.emitDocumentStateChanged(isModified: true);
+      old.emitPrint();
+      old.emitDownload((
+        url: 'https://office.example/stale.pdf',
+        fileType: 'pdf',
+      ));
+      old.emitSaveAs((
+        url: 'https://office.example/stale.docx',
+        fileType: 'docx',
+        title: 'stale',
+      ));
+      expect(events, 0);
+      next.emitDocumentReady();
+      expect(events, 1);
+    },
+  );
+
+  testWidgets('disposed Office host ignores editor callback', (tester) async {
+    final controller = _FakeStorageOnlyOfficeController();
+    var ready = 0;
+    await tester.pumpWidget(
+      _Harness(
+        child: StorageOnlyOfficeHost(
+          session: _Fixtures.session,
+          controllerFactory: _FakeControllerFactory(controller),
+          onDocumentReady: () => ready++,
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pumpWidget(const SizedBox());
+    controller.emitDocumentReady();
+    expect(ready, 0);
+  });
+
   testWidgets('pokazuje loading, błąd głównej ramki i ponawia ładowanie', (
     tester,
   ) async {
@@ -214,6 +348,9 @@ final class _FakeControllerFactory
 
 final class _FakeStorageOnlyOfficeController
     implements StorageOnlyOfficeController {
+  _FakeStorageOnlyOfficeController({this.initialization, this.loading});
+  final Completer<void>? initialization;
+  final Completer<void>? loading;
   static const surfaceKey = Key('fake-onlyoffice-surface');
 
   VoidCallback? _onPageFinished;
@@ -248,6 +385,7 @@ final class _FakeStorageOnlyOfficeController
     _onMainFrameError = onMainFrameError;
     _onDocumentReady = onDocumentReady;
     _onDocumentStateChanged = onDocumentStateChanged;
+    if (initialization != null) await initialization!.future;
   }
 
   /// Zgłasza gotowość dokumentu tak, jak robi to osadzony edytor.
@@ -262,6 +400,7 @@ final class _FakeStorageOnlyOfficeController
     loadCount += 1;
     lastHtml = html;
     lastBaseUrl = baseUrl;
+    if (loading != null) await loading!.future;
   }
 
   @override

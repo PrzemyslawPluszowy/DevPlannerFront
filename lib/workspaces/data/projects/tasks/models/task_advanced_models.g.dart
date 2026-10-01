@@ -519,6 +519,9 @@ _TaskTimeEntryResponse _$TaskTimeEntryResponseFromJson(
       : DateTime.parse(json['reviewedAtUtc'] as String),
   reviewComment: json['reviewComment'] as String?,
   version: (json['version'] as num).toInt(),
+  canSubmit: json['canSubmit'] as bool? ?? false,
+  canReview: json['canReview'] as bool? ?? false,
+  canStopTimer: json['canStopTimer'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$TaskTimeEntryResponseToJson(
@@ -540,6 +543,9 @@ Map<String, dynamic> _$TaskTimeEntryResponseToJson(
   'reviewedAtUtc': instance.reviewedAtUtc?.toIso8601String(),
   'reviewComment': instance.reviewComment,
   'version': instance.version,
+  'canSubmit': instance.canSubmit,
+  'canReview': instance.canReview,
+  'canStopTimer': instance.canStopTimer,
 };
 
 const _$TaskTimeEntryKindEnumMap = {

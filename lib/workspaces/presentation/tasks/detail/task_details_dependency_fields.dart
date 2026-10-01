@@ -1,40 +1,39 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
 /// Pola typu zależności i przesunięcia harmonogramu, współdzielone przez dialogi.
-class _DependencyScheduleFields extends StatelessWidget {
-  const _DependencyScheduleFields({
+class DependencyScheduleFields extends StatelessWidget {
+  const DependencyScheduleFields({
     required this.kind,
     required this.lagController,
     required this.enabled,
     required this.onKindChanged,
+    this.lagError,
+    super.key,
   });
 
   final TaskDependencyKind kind;
   final TextEditingController lagController;
   final bool enabled;
   final ValueChanged<TaskDependencyKind> onKindChanged;
+  final String? lagError;
 
   @override
   Widget build(BuildContext context) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      DropdownButtonFormField<TaskDependencyKind>(
-        initialValue: kind,
-        decoration: InputDecoration(
-          labelText: context.l10n.taskDetailsDependencyKind,
-        ),
-        items: [
+      TaskDetailsSelectField<TaskDependencyKind>(
+        label: context.l10n.taskDetailsDependencyKind,
+        value: kind,
+        enabled: enabled,
+        options: [
           for (final value in TaskDependencyKind.values)
-            DropdownMenuItem(
+            TaskDetailsSelectOption(
               value: value,
-              child: Text(TaskDependencyLabeler.kind(context, value)),
+              label: TaskDependencyLabeler.kind(context, value),
             ),
         ],
-        onChanged: enabled
-            ? (value) {
-                if (value != null) onKindChanged(value);
-              }
-            : null,
+        onChanged: onKindChanged,
       ),
       const SizedBox(height: 12),
       TextField(
@@ -43,6 +42,7 @@ class _DependencyScheduleFields extends StatelessWidget {
         keyboardType: const TextInputType.numberWithOptions(signed: true),
         decoration: InputDecoration(
           labelText: context.l10n.taskDetailsDependencyLagDays,
+          errorText: lagError,
         ),
       ),
     ],

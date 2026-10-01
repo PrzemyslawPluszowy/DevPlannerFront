@@ -177,13 +177,16 @@ extension _TemplateEditorMutations on _TaskTemplateEditorState {
     if (box == null) return;
     final selection = await TaskDatePicker.pick(
       anchorContext,
-      initialValue: current,
+      initialValue: current?.toLocal(),
       globalPosition: box.localToGlobal(Offset(0, box.size.height)),
     );
     if (selection == null || !mounted) return;
     _markDirty();
     _updateEditorState(() {
-      final utcDate = TaskDatePicker.asUtcCalendarDate(selection.value);
+      final utcDate = TaskDatePicker.asUtcTaskInstant(
+        selection.value,
+        current,
+      );
       if (startDate) {
         _startAtUtc = utcDate;
       } else {

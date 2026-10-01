@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
@@ -32,9 +33,9 @@ abstract final class TaskStatusPicker {
             selected: status == selected,
           ),
         if (canManage && onConfigureWorkflow != null)
-          const AppContextMenuOption(
+          AppContextMenuOption(
             value: _configureWorkflowSentinel,
-            label: 'Konfiguruj workflow...',
+            label: context.l10n.tasksListManageWorkflowButton,
             icon: Symbols.settings_rounded,
             separatorBefore: true,
           ),

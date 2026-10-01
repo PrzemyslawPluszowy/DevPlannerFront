@@ -340,7 +340,7 @@ void main() {
             builder: (context) => Scaffold(
               body: TextButton(
                 onPressed: () async => onResult(
-                  await confirmStorageOfficeClose(
+                  await StorageOfficeCloseConfirmation.confirm(
                     context,
                     hasUnsavedChanges: hasUnsavedChanges,
                   ),
@@ -428,7 +428,7 @@ void main() {
               body: Center(
                 child: FilledButton(
                   onPressed: () async {
-                    result = await confirmStorageOfficeClose(
+                    result = await StorageOfficeCloseConfirmation.confirm(
                       context,
                       hasUnsavedChanges: hasUnsavedChanges,
                       isAwaitingSaveConfirmation: isAwaitingSaveConfirmation,

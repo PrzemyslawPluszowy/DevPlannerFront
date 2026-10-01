@@ -181,12 +181,14 @@ final class ChatComposerSubmitButton extends StatelessWidget {
     required this.coordinator,
     required this.canSubmit,
     required this.onSubmit,
+    this.desktopWebStyle = false,
     super.key,
   });
 
   final ChatAttachmentComposerCoordinatorCubit? coordinator;
   final bool Function(ChatAttachmentComposerCoordinatorState? state) canSubmit;
   final VoidCallback onSubmit;
+  final bool desktopWebStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -202,35 +204,60 @@ final class ChatComposerSubmitButton extends StatelessWidget {
             builder: (_, state) => _sendButton(
               context,
               isEnabled: canSubmit(state),
+              desktopWebStyle: desktopWebStyle,
             ),
           ),
-        null => _sendButton(context, isEnabled: canSubmit(null)),
+        null => _sendButton(
+          context,
+          isEnabled: canSubmit(null),
+          desktopWebStyle: desktopWebStyle,
+        ),
       },
     );
   }
 
-  Widget _sendButton(BuildContext context, {required bool isEnabled}) {
+  Widget _sendButton(
+    BuildContext context, {
+    required bool isEnabled,
+    required bool desktopWebStyle,
+  }) {
     final chat = context.chatTheme;
+    final radius = context.tasksTheme.controlRadius;
+    final tooltipMessage = desktopWebStyle
+        ? '${context.l10n.globalChatSendMessage} · '
+              '${context.l10n.chatComposerSendShortcut}'
+        : context.l10n.globalChatSendMessage;
     return Tooltip(
-      message: context.l10n.globalChatSendMessage,
+      message: tooltipMessage,
       child: Material(
         color: isEnabled
             ? chat.sendButtonSurface
             : chat.sendButtonSurface.withValues(alpha: .45),
-        shape: const CircleBorder(),
+        shape: desktopWebStyle
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(radius),
+              )
+            : const CircleBorder(),
         child: InkWell(
           onTap: isEnabled ? onSubmit : null,
-          customBorder: const CircleBorder(),
+          customBorder: desktopWebStyle
+              ? RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(radius),
+                )
+              : const CircleBorder(),
           child: Semantics(
             button: true,
             enabled: isEnabled,
             label: context.l10n.globalChatSendMessage,
-            child: SizedBox.square(
-              dimension: chat.composerActionSize,
-              child: Icon(
-                Symbols.send_rounded,
-                size: chat.composerIconSize,
-                color: chat.sendButtonForeground,
+            child: SizedBox(
+              width: desktopWebStyle ? 88 : chat.composerActionSize,
+              height: desktopWebStyle ? 34 : chat.composerActionSize,
+              child: Center(
+                child: Icon(
+                  Symbols.send_rounded,
+                  size: desktopWebStyle ? 17 : chat.composerIconSize,
+                  color: chat.sendButtonForeground,
+                ),
               ),
             ),
           ),

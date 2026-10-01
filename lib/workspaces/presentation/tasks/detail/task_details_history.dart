@@ -1,4 +1,4 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 
 /// Otwiera modal historii dla aktualnie złożonego szczegółu zadania.
 ///
@@ -11,8 +11,8 @@ final class TaskHistoryDialogLauncher {
   static Future<void> show(BuildContext context) {
     final detailsCubit = context.read<TaskDetailsCubit>();
     final historyRepository = context.read<TaskHistoryRepository>();
-    return showDialog<void>(
-      context: context,
+    return DevPlannerModalHost.showDialog<void>(
+      context,
       builder: (_) => BlocProvider(
         create: (_) {
           final cubit = TaskHistoryCubit(
@@ -20,18 +20,20 @@ final class TaskHistoryDialogLauncher {
             workspaceId: detailsCubit.workspaceId,
             projectId: detailsCubit.projectId,
             taskId: detailsCubit.taskId,
+            onAccessLost: (error) =>
+                unawaited(detailsCubit.reportAccessLost(error)),
           );
           unawaited(cubit.load());
           return cubit;
         },
-        child: const _TaskHistoryDialog(),
+        child: const TaskHistoryDialog(),
       ),
     );
   }
 }
 
-class _TaskHistoryDialog extends StatelessWidget {
-  const _TaskHistoryDialog();
+class TaskHistoryDialog extends StatelessWidget {
+  const TaskHistoryDialog({super.key});
 
   @override
   Widget build(BuildContext context) => Dialog(
@@ -61,7 +63,7 @@ class _TaskHistoryDialog extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            const Expanded(child: _TaskHistoryBody()),
+            const Expanded(child: TaskHistoryBody()),
           ],
         ),
       ),
@@ -69,8 +71,8 @@ class _TaskHistoryDialog extends StatelessWidget {
   );
 }
 
-class _TaskHistoryBody extends StatelessWidget {
-  const _TaskHistoryBody();
+class TaskHistoryBody extends StatelessWidget {
+  const TaskHistoryBody({super.key});
 
   @override
   Widget build(BuildContext context) =>
@@ -79,16 +81,16 @@ class _TaskHistoryBody extends StatelessWidget {
           TaskHistoryInitial() || TaskHistoryLoading() => const Center(
             child: CircularProgressIndicator(),
           ),
-          TaskHistoryFailure(:final message) => _TaskHistoryError(
+          TaskHistoryFailure(:final message) => TaskHistoryError(
             message: message,
           ),
-          TaskHistoryReady() => _TaskHistoryList(state: state),
+          TaskHistoryReady() => TaskHistoryList(state: state),
         },
       );
 }
 
-class _TaskHistoryError extends StatelessWidget {
-  const _TaskHistoryError({required this.message});
+class TaskHistoryError extends StatelessWidget {
+  const TaskHistoryError({required this.message, super.key});
 
   final String message;
 
@@ -114,8 +116,8 @@ class _TaskHistoryError extends StatelessWidget {
   );
 }
 
-class _TaskHistoryList extends StatelessWidget {
-  const _TaskHistoryList({required this.state});
+class TaskHistoryList extends StatelessWidget {
+  const TaskHistoryList({required this.state, super.key});
 
   final TaskHistoryReady state;
 
@@ -137,17 +139,17 @@ class _TaskHistoryList extends StatelessWidget {
             Divider(color: context.colors.outlineVariant),
         itemBuilder: (context, index) {
           if (index == state.events.length) {
-            return _TaskHistoryFooter(state: state);
+            return TaskHistoryFooter(state: state);
           }
-          return _TaskHistoryEventTile(event: state.events[index]);
+          return TaskHistoryEventTile(event: state.events[index]);
         },
       ),
     );
   }
 }
 
-class _TaskHistoryFooter extends StatelessWidget {
-  const _TaskHistoryFooter({required this.state});
+class TaskHistoryFooter extends StatelessWidget {
+  const TaskHistoryFooter({required this.state, super.key});
 
   final TaskHistoryReady state;
 
@@ -181,8 +183,8 @@ class _TaskHistoryFooter extends StatelessWidget {
   }
 }
 
-class _TaskHistoryEventTile extends StatelessWidget {
-  const _TaskHistoryEventTile({required this.event});
+class TaskHistoryEventTile extends StatelessWidget {
+  const TaskHistoryEventTile({required this.event, super.key});
 
   final TaskHistoryEventResponse event;
 
@@ -194,8 +196,8 @@ class _TaskHistoryEventTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
       leading: CircleAvatar(
-        backgroundColor: context.colors.primaryContainer,
-        foregroundColor: context.colors.onPrimaryContainer,
+        backgroundColor: context.tasksTheme.commandBarSurface,
+        foregroundColor: context.colors.onSurfaceVariant,
         child: Icon(
           TaskHistoryPresentation.eventIcon(event.eventType),
           size: 19,

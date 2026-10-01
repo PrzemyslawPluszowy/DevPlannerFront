@@ -19,6 +19,7 @@ class _TasksHeaderLayout extends StatelessWidget {
     this.onProjectExited,
     this.commandBar,
     this.bulkBar,
+    this.taskSearchAction,
     this.showBulkBar = false,
   });
 
@@ -37,6 +38,7 @@ class _TasksHeaderLayout extends StatelessWidget {
   final VoidCallback? onProjectExited;
   final Widget? commandBar;
   final Widget? bulkBar;
+  final Widget? taskSearchAction;
   final bool showBulkBar;
 
   @override
@@ -190,9 +192,16 @@ class _TasksHeaderLayout extends StatelessWidget {
           Expanded(
             child: Align(
               alignment: Alignment.centerLeft,
-              child: _TaskViewSwitcher(view: view, onChanged: onViewChanged),
+              child: TasksBoardViewSwitcher(
+                view: view,
+                onChanged: onViewChanged,
+              ),
             ),
           ),
+          if (taskSearchAction case final taskSearchAction?) ...[
+            taskSearchAction,
+            SizedBox(width: tasksTheme.controlGap),
+          ],
           if (showUtilities) ...[
             ProjectMemberFacepile(
               memberProfilesByUserId: state.memberProfilesByUserId,

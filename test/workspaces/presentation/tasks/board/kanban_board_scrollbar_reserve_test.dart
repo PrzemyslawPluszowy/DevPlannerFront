@@ -12,7 +12,13 @@ import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_columns_viewport.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart'
-    show KanbanAssigneeColumn, KanbanAssigneeColumnsViewport, KanbanColumnSurface;
+    show
+        KanbanAssigneeColumn,
+        KanbanAssigneeColumnsViewport,
+        KanbanAssigneeTaskCard,
+        KanbanColumnSurface,
+        TaskTemplatePickerOverlay;
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_quick_create.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -117,6 +123,7 @@ void main() {
       defaultCardDensity: KanbanCardDensity.comfortable,
       groups: [group()],
     );
+    final readyState = state(assigneeBoard: board);
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -131,8 +138,21 @@ void main() {
               child: KanbanAssigneeColumnsViewport(
                 workspaceId: 'workspace-1',
                 projectId: 'project-1',
-                state: state(assigneeBoard: board),
+                state: readyState,
                 board: board,
+                cardBuilder: (task, statusBadge, canDrag) =>
+                    KanbanAssigneeTaskCard(
+                      task: task,
+                      workspaceId: 'workspace-1',
+                      projectId: 'project-1',
+                      state: readyState,
+                      statusBadge: statusBadge,
+                      canDrag: canDrag,
+                    ),
+                quickCreateBuilder: (column) => KanbanQuickCreateTask(
+                  column: column,
+                  onManageTemplates: TaskTemplatePickerOverlay.show,
+                ),
               ),
             ),
           ),

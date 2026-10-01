@@ -1,8 +1,16 @@
-part of 'tasks_board_page.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/tasks/tasks_project_view_contract.dart';
+import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
-/// Nawigacja widoków w jednej linii, w formie zakładek znanej z narzędzi PM.
-class _TaskViewSwitcher extends StatelessWidget {
-  const _TaskViewSwitcher({required this.view, required this.onChanged});
+/// Desktopowy pasek kart do przełączania widoków zadań.
+class TasksBoardViewSwitcher extends StatelessWidget {
+  const TasksBoardViewSwitcher({
+    required this.view,
+    required this.onChanged,
+    super.key,
+  });
 
   final TasksProjectView view;
   final ValueChanged<TasksProjectView> onChanged;
@@ -29,24 +37,44 @@ class _TaskViewSwitcher extends StatelessWidget {
       ),
       onTap: (index) => onChanged(TasksProjectView.values[index]),
       tabs: [
-        _tab(context, Symbols.view_kanban, context.l10n.tasksViewBoard),
-        _tab(context, Symbols.view_list, context.l10n.tasksViewList),
-        _tab(context, Symbols.timeline, context.l10n.tasksViewTimeline),
-        _tab(
-          context,
-          Symbols.people_alt,
-          context.l10n.tasksViewWorkload,
+        TaskProjectViewTab(
+          icon: Symbols.view_kanban,
+          label: context.l10n.tasksViewBoard,
         ),
-        _tab(
-          context,
-          Symbols.repeat_rounded,
-          context.l10n.tasksViewRecurrence,
+        TaskProjectViewTab(
+          icon: Symbols.view_list,
+          label: context.l10n.tasksViewList,
+        ),
+        TaskProjectViewTab(
+          icon: Symbols.timeline,
+          label: context.l10n.tasksViewTimeline,
+        ),
+        TaskProjectViewTab(
+          icon: Symbols.people_alt,
+          label: context.l10n.tasksViewWorkload,
+        ),
+        TaskProjectViewTab(
+          icon: Symbols.repeat_rounded,
+          label: context.l10n.tasksViewRecurrence,
         ),
       ],
     ),
   );
+}
 
-  Tab _tab(BuildContext context, IconData icon, String label) => Tab(
+/// Pojedyncza zwarta karta w pasku widoków zadań.
+class TaskProjectViewTab extends StatelessWidget {
+  const TaskProjectViewTab({
+    required this.icon,
+    required this.label,
+    super.key,
+  });
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Tab(
     iconMargin: const .only(right: 6),
     height: 32,
     child: Row(

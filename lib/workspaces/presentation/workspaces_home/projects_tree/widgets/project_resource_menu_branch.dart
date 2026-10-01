@@ -1,6 +1,7 @@
 import 'package:devplanner/app/router/devplanner_navigation.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/models/project_resource_list_item.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -23,10 +24,15 @@ class ProjectResourceMenuBranch extends StatelessWidget {
   /// Identyfikator projektu.
   final String projectId;
 
-  String _getResourcePath() {
+  String _getResourcePath(BuildContext context) {
     return switch (resource.kind) {
-      ProjectResourceKind.tasks =>
-        '/workspaces/$workspaceId/projects/$projectId/tasks/${resource.id}',
+      ProjectResourceKind.tasks => context.plannerNavigation.taskLocation(
+        workspaceId: workspaceId,
+        projectId: projectId,
+        taskId: resource.id,
+        currentLocation: GoRouterState.of(context).uri,
+        source: TaskDetailOpenSource.search,
+      ),
       ProjectResourceKind.whiteboards =>
         '/workspaces/$workspaceId/projects/$projectId/whiteboards/${resource.id}',
       ProjectResourceKind.wiki =>
@@ -55,7 +61,7 @@ class ProjectResourceMenuBranch extends StatelessWidget {
       builder: (context, _) {
         final colors = context.colors;
         final navigationTheme = context.devPlannerNavigationTheme;
-        final path = _getResourcePath();
+        final path = _getResourcePath(context);
         final currentPath = context.plannerNavigation.currentPath;
         final isSelected =
             currentPath == path || currentPath.startsWith('$path/');

@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:equatable/equatable.dart';
 
@@ -41,11 +42,13 @@ final class StorageOfficeFailure extends StorageOfficeState {
   const StorageOfficeFailure({
     required this.message,
     this.code,
+    this.error,
   });
 
   final String message;
   final String? code;
+  final ApiError? error;
 
   @override
-  List<Object?> get props => [message, code];
+  List<Object?> get props => [message, code, error];
 }

@@ -8,9 +8,18 @@ import 'package:dio/dio.dart';
 /// Streamed text loader shared by Web/Wasm and desktop targets.
 final class TextPreviewLoaderImpl implements TextPreviewLoader {
   /// Creates a loader; [dio] is injectable for deterministic tests.
-  TextPreviewLoaderImpl({Dio? dio, this.headers}) : _dio = dio ?? Dio();
+  TextPreviewLoaderImpl({Dio? dio, this.headers})
+    : _dio = dio ?? Dio(),
+      _ownsDio = dio == null;
 
   final Dio _dio;
+  final bool _ownsDio;
+
+  /// Właściciel podglądu anuluje własny transport; wstrzyknięty klient należy do wywołującego.
+  void close() {
+    if (_ownsDio) _dio.close(force: true);
+  }
+
   final Map<String, String>? headers;
 
   @override

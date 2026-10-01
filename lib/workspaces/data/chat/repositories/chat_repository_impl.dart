@@ -175,6 +175,29 @@ final class ChatRepositoryImpl
     code: ChatApiErrorCode.loadConversations,
   );
 
+  @override
+  Future<Either<ApiError, ChatConversation>> resolveTaskConversation({
+    required String taskId,
+    required String workspaceId,
+    required String projectId,
+  }) => _guard(
+    () async => ChatConversationMapper.toDomain(
+      await _api.resolve(
+        ResolveChatConversationPayload(
+          type: ChatConversationType.channel,
+          scopeKind: ChatScopeKind.resource,
+          scopeKey: 'task:${taskId.replaceAll('-', '').toLowerCase()}',
+          workspaceId: workspaceId,
+          projectId: projectId,
+          scopeProvider: 'tasks',
+          scopeResourceType: 'task',
+          scopeResourceId: taskId,
+        ),
+      ),
+    ),
+    code: ChatApiErrorCode.loadConversations,
+  );
+
   ChatMessage _toMessage(ChatMessageResponse response) =>
       ChatMessageResponseMapper.toDomain(response);
 

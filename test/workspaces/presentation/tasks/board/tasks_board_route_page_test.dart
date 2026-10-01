@@ -1,11 +1,8 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
-import 'package:devplanner/auth/domain/models/auth_models.dart';
-import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
-import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/presentation/projects/settings/user_hub/project_user_hub_modal.dart';
@@ -22,86 +19,55 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../test_support/tasks_board_route_fixture.dart';
-
-final class _RouteHarness extends StatelessWidget {
-  const _RouteHarness({required this.fixture, this.initialView = 'kanban'});
-
-  final TasksBoardRouteFixture fixture;
-  final String? initialView;
-
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    locale: const Locale('pl'),
-    home: Scaffold(
-      body: TasksBoardRoutePage(
-        composition: fixture.composition,
-        projectSettings: fixture.settings.composition,
-        workspaceId: 'workspace-1',
-        projectId: 'project-1',
-        authSession: AuthSessionController(
-          initial: const AuthSessionSnapshot(
-            status: AuthSessionStatus.signedIn,
-            user: AuthUser(
-              userId: 'user-1',
-              login: 'tester',
-              displayName: 'Tester',
-            ),
-          ),
-        ),
-        initialView: initialView,
-      ),
-    ),
-  );
-}
+import '../../../../test_support/tasks_board_route_test_harness.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   registerTasksBoardRouteFallbacks();
 
   group('TasksBoardRoutePage', () {
-    testWidgets('mounts one Tasks module and the List for the canonical route', (
-      tester,
-    ) async {
-      final fixture = TasksBoardRouteFixture(
-        boardResult: emptyKanbanBoardResult,
-      );
-      await tester.pumpWidget(
-        _RouteHarness(fixture: fixture, initialView: null),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'mounts one Tasks module and the List for the canonical route',
+      (
+        tester,
+      ) async {
+        final fixture = TasksBoardRouteFixture(
+          boardResult: emptyKanbanBoardResult,
+        );
+        await tester.pumpWidget(
+          TasksBoardRouteTestHarness(fixture: fixture, initialView: null),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.byType(TasksProjectViewHost), findsOneWidget);
-      expect(find.byType(TasksBoardReadyView), findsOneWidget);
-      expect(find.byType(ProjectTasksList), findsOneWidget);
-      // Nagłówek nie zna routera: wyjście z projektu dostarcza trasa.
-      expect(
-        tester
-            .widget<TasksHeader>(find.byType(TasksHeader))
-            .onProjectExited,
-        isNotNull,
-      );
-      // Lista oddaje swój wiersz poleceń nagłówkowi, więc kontrolki widoku są
-      // w drugim wierszu chrome, a nie w przewijanej treści.
-      expect(
-        find.descendant(
-          of: find.byType(TasksHeader),
-          matching: find.byType(TaskListCommandBar),
-        ),
-        findsOneWidget,
-      );
-      // Bez zaznaczenia nie ma paska akcji masowych; nie ma też drugiego,
-      // pływającego paska nad tabelą.
-      expect(find.byType(TaskListBulkBar), findsNothing);
-      verify(
-        () => fixture.tasks.listProjectTaskGroups(
-          workspaceId: 'workspace-1',
-          projectId: 'project-1',
-          query: any(named: 'query'),
-        ),
-      ).called(1);
-    });
+        expect(find.byType(TasksProjectViewHost), findsOneWidget);
+        expect(find.byType(TasksBoardReadyView), findsOneWidget);
+        expect(find.byType(ProjectTasksList), findsOneWidget);
+        // Nagłówek nie zna routera: wyjście z projektu dostarcza trasa.
+        expect(
+          tester.widget<TasksHeader>(find.byType(TasksHeader)).onProjectExited,
+          isNotNull,
+        );
+        // Lista oddaje swój wiersz poleceń nagłówkowi, więc kontrolki widoku są
+        // w drugim wierszu chrome, a nie w przewijanej treści.
+        expect(
+          find.descendant(
+            of: find.byType(TasksHeader),
+            matching: find.byType(TaskListCommandBar),
+          ),
+          findsOneWidget,
+        );
+        // Bez zaznaczenia nie ma paska akcji masowych; nie ma też drugiego,
+        // pływającego paska nad tabelą.
+        expect(find.byType(TaskListBulkBar), findsNothing);
+        verify(
+          () => fixture.tasks.listProjectTaskGroups(
+            workspaceId: 'workspace-1',
+            projectId: 'project-1',
+            query: any(named: 'query'),
+          ),
+        ).called(1);
+      },
+    );
 
     testWidgets('canonical route does not mount the unopened Kanban board', (
       tester,
@@ -110,7 +76,7 @@ void main() {
         boardResult: kanbanBoardResultWithColumns,
       );
       await tester.pumpWidget(
-        _RouteHarness(fixture: fixture, initialView: null),
+        TasksBoardRouteTestHarness(fixture: fixture, initialView: null),
       );
       await tester.pumpAndSettle();
 
@@ -121,7 +87,7 @@ void main() {
       final fixture = TasksBoardRouteFixture(
         boardResult: emptyKanbanBoardResult,
       );
-      await tester.pumpWidget(_RouteHarness(fixture: fixture));
+      await tester.pumpWidget(TasksBoardRouteTestHarness(fixture: fixture));
       await tester.pumpAndSettle();
 
       expect(find.byType(TasksBoardReadyView), findsOneWidget);
@@ -135,7 +101,9 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('every Tasks view is served by the same module', (tester) async {
+    testWidgets('every Tasks view is served by the same module', (
+      tester,
+    ) async {
       for (final view in const [
         'board',
         'list',
@@ -147,7 +115,7 @@ void main() {
           boardResult: emptyKanbanBoardResult,
         );
         await tester.pumpWidget(
-          _RouteHarness(fixture: fixture, initialView: view),
+          TasksBoardRouteTestHarness(fixture: fixture, initialView: view),
         );
         await tester.pumpAndSettle();
 
@@ -197,7 +165,7 @@ void main() {
         boardResult: emptyKanbanBoardResult,
       );
       await tester.pumpWidget(
-        _RouteHarness(fixture: fixture, initialView: null),
+        TasksBoardRouteTestHarness(fixture: fixture, initialView: null),
       );
       await tester.pumpAndSettle();
 
@@ -221,7 +189,7 @@ void main() {
         boardResult: emptyKanbanBoardResult,
       );
       await tester.pumpWidget(
-        _RouteHarness(fixture: fixture, initialView: 'nieznany'),
+        TasksBoardRouteTestHarness(fixture: fixture, initialView: 'nieznany'),
       );
       await tester.pumpAndSettle();
 
@@ -236,7 +204,7 @@ void main() {
         boardResult: emptyKanbanBoardResult,
         pendingBoard: completer.future,
       );
-      await tester.pumpWidget(_RouteHarness(fixture: fixture));
+      await tester.pumpWidget(TasksBoardRouteTestHarness(fixture: fixture));
 
       expect(find.byType(TasksBoardRoutePage), findsOneWidget);
       expect(find.byType(Container), findsWidgets);
@@ -251,7 +219,7 @@ void main() {
       final fixture = TasksBoardRouteFixture(
         boardResult: emptyKanbanBoardResult,
       );
-      await tester.pumpWidget(_RouteHarness(fixture: fixture));
+      await tester.pumpWidget(TasksBoardRouteTestHarness(fixture: fixture));
       await tester.pumpAndSettle();
 
       expect(
@@ -279,7 +247,7 @@ void main() {
           ),
         ),
       );
-      await tester.pumpWidget(_RouteHarness(fixture: fixture));
+      await tester.pumpWidget(TasksBoardRouteTestHarness(fixture: fixture));
       await tester.pumpAndSettle();
 
       expect(find.text('Nie masz dostępu do tej tablicy'), findsOneWidget);
@@ -300,7 +268,7 @@ void main() {
         boardResult: kanbanBoardResultWithColumns,
       );
       await tester.pumpWidget(
-        _RouteHarness(fixture: fixture, initialView: null),
+        TasksBoardRouteTestHarness(fixture: fixture, initialView: null),
       );
       await tester.pumpAndSettle();
 
@@ -317,7 +285,7 @@ void main() {
         boardResult: kanbanBoardResultWithColumns,
       );
       // Domyślny widok harnessu to tablica, więc kolumny są zamontowane.
-      await tester.pumpWidget(_RouteHarness(fixture: fixture));
+      await tester.pumpWidget(TasksBoardRouteTestHarness(fixture: fixture));
       await tester.pumpAndSettle();
 
       expect(

@@ -11,6 +11,11 @@ abstract interface class TaskRecurrenceRepository {
     required String taskId,
   });
 
+  Future<Either<ApiError, List<String>>> listSupportedTimeZones({
+    required String workspaceId,
+    required String projectId,
+  });
+
   Future<Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>>
   create({
     required String workspaceId,

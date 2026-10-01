@@ -7,8 +7,14 @@ import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_re
 ///
 /// Backend jest źródłem prawdy dostępu. Lokalny widok pliku może wyłącznie
 /// zdecydować, czy pokazać kandydacką akcję; nie może sam nadać dostępu.
-// ignore: one_member_abstracts
 abstract interface class ResourceChatRepository {
+  /// Idempotentnie rozwiązuje rozmowę dla zadania z bieżącego zakresu projektu.
+  Future<Either<ApiError, ChatConversation>> resolveTaskConversation({
+    required String taskId,
+    required String workspaceId,
+    required String projectId,
+  });
+
   /// Idempotentnie rozwiązuje rozmowę dla świeżego kontekstu pliku Storage.
   Future<Either<ApiError, ChatConversation>> resolveFileConversation(
     ResourceChatFileRequest request,

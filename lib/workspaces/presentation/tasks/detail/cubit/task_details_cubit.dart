@@ -1,7 +1,11 @@
+import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/repositories/custom_workflow_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_acceptance_criteria_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_checklist_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
@@ -9,14 +13,17 @@ import 'package:devplanner/workspaces/domain/repositories/task_metadata_reposito
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_acceptance_criteria_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_acceptance_commands.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_basic_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_basic_mutation_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_checklist_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_checklist_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_collaboration_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_collaboration_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_custom_workflow_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_dependencies_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_dependency_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_loader_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_lookup_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_metadata_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_metadata_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_mutation_coordinator.dart';
@@ -31,6 +38,7 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     required this.checklistRepository,
     this.collaborationRepository,
     this.metadataRepository,
+    this.customWorkflowRepository,
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
@@ -92,6 +100,7 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
 
   /// Opcjonalne dla izolowanych preview; produkcja dostarcza je przez DI.
   final TaskMetadataRepository? metadataRepository;
+  final CustomWorkflowRepository? customWorkflowRepository;
   final String workspaceId;
   final String projectId;
   final String taskId;
@@ -103,6 +112,7 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
   final TaskDetailsLoaderService _loaderService;
   final TaskDetailsMetadataService? _metadataService;
   final TaskDetailsResponseAssembler _assembler;
+  int _loadGeneration = 0;
 
   TaskDetailsMutationCoordinator get _coordinator =>
       TaskDetailsMutationCoordinator(
@@ -110,9 +120,27 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
         workspaceId: workspaceId,
         projectId: projectId,
         taskId: taskId,
-        emitReady: emit,
+        emitState: _emitSessionState,
         isClosed: () => isClosed,
+        readState: () => state,
       );
+
+  void _emitSessionState(TaskDetailsState next) {
+    if (isClosed) return;
+    if (next is TaskDetailsFailure) _loadGeneration++;
+    emit(next);
+  }
+
+  Future<void> reportAccessLost(ApiError error) =>
+      _coordinator.checkAccess(error);
+
+  TaskDetailsBasicCommands get _basicCommands => TaskDetailsBasicCommands(
+    service: _basicMutationService,
+    coordinator: _coordinator,
+    assembler: _assembler,
+    readState: () => state,
+    emitReady: emit,
+  );
 
   TaskDetailsChecklistCommands get _checklistCommands =>
       TaskDetailsChecklistCommands(
@@ -166,117 +194,53 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
   }
 
   Future<void> load() async {
+    if (isClosed ||
+        (state is TaskDetailsReady && (state as TaskDetailsReady).isSaving)) {
+      return;
+    }
+    final generation = ++_loadGeneration;
     emit(const TaskDetailsLoading());
     final result = await _loaderService.loadState();
-    if (isClosed) return;
+    if (isClosed || generation != _loadGeneration) return;
     emit(result);
   }
 
-  /// Zapisuje pola podstawowe z wersją agregatu zwróconą przez backend.
   Future<bool> updateBasics({
     required String title,
     required ProjectTaskStatus status,
     required TaskPriority priority,
-  }) async {
-    final current = state;
-    if (current is! TaskDetailsReady || current.isSaving) return false;
-    final normalizedTitle = title.trim();
-    if (normalizedTitle.isEmpty) return false;
-    final task = current.details.task;
-    return _coordinator.executeProjectTask(
-      current,
-      _basicMutationService.updateBasics(
-        task: task,
-        title: normalizedTitle,
-        status: status,
-        priority: priority,
-      ),
-      _assembler,
-    );
-  }
-
-  /// Aktualizuje harmonogram i estymację, zachowując pozostałe pola agregatu.
+  }) => _basicCommands.updateBasics(
+    title: title,
+    status: status,
+    priority: priority,
+  );
+  Future<bool> changeSystemStatus(ProjectTaskStatus status) =>
+      _basicCommands.changeSystemStatus(status);
+  Future<bool> changePriority(TaskPriority priority) =>
+      _basicCommands.changePriority(priority);
   Future<bool> updatePlanning({
     required DateTime? startAtUtc,
     required DateTime? dueAtUtc,
     required int? estimatedMinutes,
-  }) async {
-    final current = state;
-    if (current is! TaskDetailsReady || current.isSaving) return false;
-    if (estimatedMinutes != null && estimatedMinutes <= 0) return false;
-    if (startAtUtc != null &&
-        dueAtUtc != null &&
-        dueAtUtc.isBefore(startAtUtc)) {
-      return false;
-    }
-    final task = current.details.task;
-    return _coordinator.executeProjectTask(
-      current,
-      _basicMutationService.updatePlanning(
-        task: task,
-        startAtUtc: startAtUtc,
-        dueAtUtc: dueAtUtc,
-        estimatedMinutes: estimatedMinutes,
-      ),
-      _assembler,
-    );
-  }
-
-  /// Zapisuje opis plain-text oraz jego kanoniczny Quill Delta JSON.
+  }) => _basicCommands.updatePlanning(
+    startAtUtc: startAtUtc,
+    dueAtUtc: dueAtUtc,
+    estimatedMinutes: estimatedMinutes,
+  );
   Future<bool> updateDescription({
     required String description,
     required String descriptionDeltaJson,
-  }) async {
-    final current = state;
-    if (current is! TaskDetailsReady || current.isSaving) return false;
-    final task = current.details.task;
-    return _coordinator.executeProjectTask(
-      current,
-      _basicMutationService.updateDescription(
-        task: task,
-        description: description,
-        descriptionDeltaJson: descriptionDeltaJson,
-      ),
-      _assembler,
-    );
-  }
+  }) => _basicCommands.updateDescription(
+    description: description,
+    descriptionDeltaJson: descriptionDeltaJson,
+  );
+  Future<bool> toggleArchive() => _basicCommands.toggleArchive();
+  Future<bool> createSubtask(String title) =>
+      _basicCommands.createSubtask(title);
 
   /// Zastępuje wykonawców i zachowuje wersję agregatu zwróconą przez backend.
   Future<bool> replaceAssignees(List<String> userIds) async {
     return _collaborationCommands?.replaceAssignees(userIds) ?? false;
-  }
-
-  /// Archiwizuje albo przywraca zadanie z kontrolą wersji agregatu.
-  Future<bool> toggleArchive() async {
-    final current = state;
-    if (current is! TaskDetailsReady || current.isSaving) return false;
-    final task = current.details.task;
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    return _coordinator.execute(
-      current: current,
-      operation: _basicMutationService.toggleArchive(task),
-      onSuccess: _assembler.withProjectTaskMutation,
-    );
-  }
-
-  /// Tworzy jednopoziomowe podzadanie i odświeża agregat rodzica.
-  Future<bool> createSubtask(String title) async {
-    final current = state;
-    final normalized = title.trim();
-    if (current is! TaskDetailsReady ||
-        current.isSaving ||
-        normalized.isEmpty) {
-      return false;
-    }
-    emit(current.copyWith(isSaving: true, clearMutationError: true));
-    final task = current.details.task;
-    return _coordinator.executeAndRefresh(
-      current: current,
-      operation: _basicMutationService.createSubtask(
-        task: task,
-        title: normalized,
-      ),
-    );
   }
 
   Future<bool> addChecklistItem(String title) => _checklistCommands.add(title);
@@ -313,13 +277,11 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
   }
 
   /// Pobiera projektowe etykiety do selektora, bez utrwalania ich w stanie.
-  Future<List<TaskLabelResponse>> loadProjectLabels() async {
-    final commands = _metadataCommands;
-    if (commands == null) return const [];
-    final result = await commands.listLabels();
-    if (isClosed) return const [];
-    return result;
-  }
+  Future<Either<ApiError, List<TaskLabelResponse>>> loadProjectLabels() =>
+      _lookup.run(
+        _metadataCommands?.listLabels,
+        unavailableCode: 'task_labels_unavailable',
+      );
 
   /// Zapisuje wartości pól własnych i scala odpowiedź z pełnym detailem.
   Future<bool> replaceCustomFieldValues(Map<String, dynamic> values) async {
@@ -327,13 +289,38 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
   }
 
   /// Wyszukuje zadania projektu do bezpiecznego wyboru relacji w UI.
-  Future<List<ProjectTaskListItemResponse>> searchProjectTasks(
-    String phrase,
-  ) async {
-    final result = await _dependencyCommands.search(phrase);
-    if (isClosed) return const [];
-    return result;
+  Future<Either<ApiError, List<ProjectTaskListItemResponse>>>
+  searchProjectTasks(String phrase) => _lookup.run(
+    () => _dependencyCommands.search(phrase),
+    unavailableCode: 'task_search_unavailable',
+  );
+
+  TaskDetailsLookupService get _lookup =>
+      TaskDetailsLookupService(isClosed: () => isClosed);
+
+  TaskDetailsCustomWorkflowCommands? get _customWorkflowCommands {
+    final workflow = customWorkflowRepository;
+    if (workflow == null) return null;
+    return TaskDetailsCustomWorkflowCommands(
+      repository: workflow,
+      tasks: repository,
+      workspaceId: workspaceId,
+      projectId: projectId,
+      taskId: taskId,
+      coordinator: _coordinator,
+      readState: () => state,
+      emitReady: emit,
+    );
   }
+
+  Future<Either<ApiError, List<ProjectCustomStatusResponse>>>
+  loadCustomStatuses() => _lookup.run(
+    _customWorkflowCommands?.listStatuses,
+    unavailableCode: 'task_workflow_unavailable',
+  );
+
+  Future<bool> moveCustomStatus(String statusId) async =>
+      _customWorkflowCommands?.move(statusId) ?? false;
 
   Future<bool> createDependency({
     required String targetTaskId,

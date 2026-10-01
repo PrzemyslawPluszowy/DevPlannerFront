@@ -23,6 +23,12 @@ final class StorageSelectionCubit extends Cubit<StorageSelectionState> {
       ? _selectedFolders.values.single
       : null;
 
+  /// Widoczne nazwy elementów bieżącego zaznaczenia dla wyników masowych.
+  Map<String, String> get selectedItemLabels => Map.unmodifiable({
+    for (final file in _selectedFiles.values) file.id: file.originalFileName,
+    for (final folder in _selectedFolders.values) folder.id: folder.name,
+  });
+
   /// Przełącza zaznaczenie pojedynczego pliku z opcjonalną obsługą zaznaczenia zakresu z Shift.
   void toggleFile(
     StorageFileResponse file, {
@@ -119,6 +125,19 @@ final class StorageSelectionCubit extends Cubit<StorageSelectionState> {
     _selectedFiles.clear();
     _selectedFolders.clear();
     emit(const StorageSelectionState());
+  }
+
+  /// Usuwa wskazane elementy bez kasowania nowszego, niezależnego wyboru.
+  void removeSelectedIds(Set<String> ids) {
+    if (ids.isEmpty) return;
+    final files = Set<String>.from(state.selectedFileIds)..removeAll(ids);
+    final folders = Set<String>.from(state.selectedFolderIds)..removeAll(ids);
+    final anchorId = state.anchorId;
+    _emitWithPermissions(
+      selectedFiles: files,
+      selectedFolders: folders,
+      anchorId: anchorId != null && !ids.contains(anchorId) ? anchorId : null,
+    );
   }
 
   /// Zawęża zaznaczenie do elementów, które nadal są na liście.

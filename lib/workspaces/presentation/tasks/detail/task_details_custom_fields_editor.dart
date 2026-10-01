@@ -1,12 +1,15 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
 
-class _CustomFieldEditor extends StatelessWidget {
-  const _CustomFieldEditor({
+class CustomFieldEditor extends StatelessWidget {
+  const CustomFieldEditor({
     required this.field,
     required this.value,
     required this.enabled,
     required this.onChanged,
     required this.memberProfiles,
+    super.key,
   });
 
   final TaskCustomFieldDefinitionValueResponse field;
@@ -22,65 +25,53 @@ class _CustomFieldEditor extends StatelessWidget {
       onChanged: enabled ? onChanged : null,
       title: Text(field.name),
     ),
-    TaskCustomFieldType.singleSelect => DropdownButtonFormField<String>(
-      initialValue: field.options?.contains(value) == true
-          ? value as String
-          : null,
-      decoration: InputDecoration(labelText: field.name),
-      items: [
+    TaskCustomFieldType.singleSelect => TaskDetailsSelectField<String>(
+      label: field.name,
+      value: value is String ? value as String : null,
+      enabled: enabled,
+      options: [
         for (final option in field.options ?? const <String>[])
-          DropdownMenuItem(
+          TaskDetailsSelectOption(
             value: option,
-            child: CustomFieldOptionChip(
+            label: CustomFieldOption.fromRaw(option).label,
+            leading: CustomFieldOptionChip(
               option: CustomFieldOption.fromRaw(option),
               compact: true,
             ),
           ),
       ],
-      selectedItemBuilder: (context) => [
-        for (final option in field.options ?? const <String>[])
-          Align(
-            alignment: Alignment.centerLeft,
-            child: CustomFieldOptionChip(
-              option: CustomFieldOption.fromRaw(option),
-              compact: true,
-            ),
-          ),
-      ],
-      onChanged: enabled ? onChanged : null,
+      onChanged: onChanged,
     ),
-    TaskCustomFieldType.date => _DateCustomFieldEditor(
+    TaskCustomFieldType.date => DateCustomFieldEditor(
       field: field,
       value: value,
       enabled: enabled,
       onChanged: onChanged,
     ),
-    TaskCustomFieldType.multiSelect => _MultiSelectCustomFieldEditor(
+    TaskCustomFieldType.multiSelect => MultiSelectCustomFieldEditor(
       field: field,
       value: value,
       enabled: enabled,
       onChanged: onChanged,
     ),
-    TaskCustomFieldType.user => DropdownButtonFormField<String>(
-      initialValue: memberProfiles.any((profile) => profile.userId == value)
-          ? value as String
-          : null,
-      decoration: InputDecoration(labelText: field.name),
-      items: [
-        DropdownMenuItem(
-          child: Text(context.l10n.taskDetailsNobody),
+    TaskCustomFieldType.user => TaskDetailsSelectField<String>(
+      label: field.name,
+      value: value is String ? value as String : '',
+      enabled: enabled && memberProfiles.isNotEmpty,
+      options: [
+        TaskDetailsSelectOption(
+          value: '',
+          label: context.l10n.taskDetailsNobody,
         ),
         for (final profile in memberProfiles)
-          DropdownMenuItem(
+          TaskDetailsSelectOption(
             value: profile.userId,
-            child: Text(
-              profile.displayName?.trim().isNotEmpty == true
-                  ? profile.displayName!.trim()
-                  : context.l10n.taskDetailsProjectMember,
-            ),
+            label: profile.displayName?.trim().isNotEmpty == true
+                ? profile.displayName!.trim()
+                : context.l10n.taskDetailsProjectMember,
           ),
       ],
-      onChanged: enabled && memberProfiles.isNotEmpty ? onChanged : null,
+      onChanged: (selected) => onChanged(selected.isEmpty ? null : selected),
     ),
     _ => TextFormField(
       initialValue: value?.toString() ?? '',
@@ -100,12 +91,13 @@ class _CustomFieldEditor extends StatelessWidget {
   };
 }
 
-class _DateCustomFieldEditor extends StatelessWidget {
-  const _DateCustomFieldEditor({
+class DateCustomFieldEditor extends StatefulWidget {
+  const DateCustomFieldEditor({
     required this.field,
     required this.value,
     required this.enabled,
     required this.onChanged,
+    super.key,
   });
 
   final TaskCustomFieldDefinitionValueResponse field;
@@ -114,76 +106,77 @@ class _DateCustomFieldEditor extends StatelessWidget {
   final ValueChanged<dynamic> onChanged;
 
   @override
+  State<DateCustomFieldEditor> createState() => _DateCustomFieldEditorState();
+}
+
+final class _DateCustomFieldEditorState extends State<DateCustomFieldEditor> {
+  Future<void> _selectDate(
+    BuildContext buttonContext,
+    DateTime? current,
+  ) async {
+    final sourceCubit = buttonContext.read<TaskDetailsCubit>();
+    final fieldId = widget.field.id;
+    final originalValue = widget.value;
+    final picked = await TaskDatePicker.pick(
+      buttonContext,
+      initialValue: current,
+      globalPosition: AppContextMenu.positionFor(buttonContext),
+      allowClear: false,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (!mounted ||
+        !buttonContext.mounted ||
+        picked == null ||
+        picked.value == null) {
+      return;
+    }
+    if (!widget.enabled ||
+        !identical(buttonContext.read<TaskDetailsCubit>(), sourceCubit) ||
+        widget.field.id != fieldId ||
+        widget.value != originalValue) {
+      return;
+    }
+    widget.onChanged(
+      TaskDatePicker.asUtcCalendarDate(picked.value)!.toIso8601String(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final date = switch (value) {
+    final date = switch (widget.value) {
       final String dateValue => DateTime.tryParse(dateValue),
       final DateTime dateValue => dateValue,
       _ => null,
     };
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text(field.name),
+      title: Text(widget.field.name),
       subtitle: Text(
         date == null
             ? context.l10n.taskDetailsNoDate
             : DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag())
                   .format(date.toLocal()),
       ),
-      trailing: IconButton(
-        onPressed: !enabled
-            ? null
-            : () async {
-                final picked = await DevPlannerModalPickerHost.showDate(
-                  context,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                  initialDate: date ?? DateTime.now(),
-                );
-                if (picked != null) onChanged(picked.toUtc().toIso8601String());
-              },
-        icon: const Icon(Symbols.calendar_today),
+      trailing: Builder(
+        builder: (buttonContext) => IconButton(
+          onPressed: !widget.enabled
+              ? null
+              : () => _selectDate(buttonContext, date),
+          icon: const Icon(Symbols.calendar_today),
+        ),
       ),
     );
   }
 }
 
-/// Czyste mapowanie wartości pól własnych na elementy prezentacji.
-final class TaskCustomFieldPresentation {
-  const TaskCustomFieldPresentation._();
-
-  static IconData icon(TaskCustomFieldType type) => switch (type) {
-    TaskCustomFieldType.text => Symbols.text_fields_rounded,
-    TaskCustomFieldType.number => Symbols.numbers_rounded,
-    TaskCustomFieldType.date => Symbols.event,
-    TaskCustomFieldType.boolean => Symbols.toggle_on,
-    TaskCustomFieldType.singleSelect ||
-    TaskCustomFieldType.multiSelect => Symbols.list_alt_rounded,
-    TaskCustomFieldType.user => Symbols.person_outline_rounded,
-  };
-
-  static String displayValue(dynamic value) => switch (value) {
-    null => '—',
-    final List<Object?> values when values.isEmpty => '—',
-    final List<Object?> values =>
-      values
-          .map((item) => CustomFieldOption.fromRaw(item.toString()).label)
-          .join(', '),
-    true => 'Tak',
-    false => 'Nie',
-    _ => CustomFieldOption.fromRaw(value.toString()).label,
-  };
-
-  static List<TaskCustomFieldDefinitionValueResponse> sorted(
-    List<TaskCustomFieldDefinitionValueResponse> fields,
-  ) => [...fields]..sort((a, b) => a.position.compareTo(b.position));
-}
-
-class _MultiSelectCustomFieldEditor extends StatelessWidget {
-  const _MultiSelectCustomFieldEditor({
+class MultiSelectCustomFieldEditor extends StatefulWidget {
+  const MultiSelectCustomFieldEditor({
     required this.field,
     required this.value,
     required this.enabled,
     required this.onChanged,
+    super.key,
   });
 
   final TaskCustomFieldDefinitionValueResponse field;
@@ -192,21 +185,118 @@ class _MultiSelectCustomFieldEditor extends StatelessWidget {
   final ValueChanged<dynamic> onChanged;
 
   @override
+  State<MultiSelectCustomFieldEditor> createState() =>
+      _MultiSelectCustomFieldEditorState();
+}
+
+final class _MultiSelectCustomFieldEditorState
+    extends State<MultiSelectCustomFieldEditor> {
+  late List<CustomFieldOption> _allOptions;
+  late Set<String> _selectedValues;
+  late List<CustomFieldOption> _visibleOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareViewModel();
+  }
+
+  @override
+  void didUpdateWidget(MultiSelectCustomFieldEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.field != widget.field ||
+        !_sameValues(
+          _selectedFor(oldWidget.value),
+          _selectedFor(widget.value),
+        )) {
+      _prepareViewModel();
+    }
+  }
+
+  void _prepareViewModel() {
+    _allOptions = List.unmodifiable(
+      (widget.field.options ?? const <String>[]).map(CustomFieldOption.fromRaw),
+    );
+    _selectedValues = Set.unmodifiable(_selectedFor(widget.value));
+    _visibleOptions = List.unmodifiable(
+      _allOptions.where(
+        (option) =>
+            _selectedValues.contains(option.raw) ||
+            _selectedValues.contains(option.label),
+      ),
+    );
+  }
+
+  Set<String> _selectedFor(dynamic value) =>
+      (value is List ? value : const <dynamic>[])
+          .map((item) => item.toString())
+          .toSet();
+
+  bool _sameValues(Set<String> left, Set<String> right) =>
+      left.length == right.length && left.containsAll(right);
+
+  Future<void> _openOptions(
+    BuildContext buttonContext,
+    Set<String> selectedSnapshot,
+    List<CustomFieldOption> optionsSnapshot,
+  ) async {
+    final sourceCubit = buttonContext.read<TaskDetailsCubit>();
+    final fieldId = widget.field.id;
+    final optionValues = optionsSnapshot.map((option) => option.raw).toList();
+    final rawValue = await AppContextMenu.select<String>(
+      buttonContext,
+      globalPosition: AppContextMenu.positionFor(buttonContext),
+      headerTitle: buttonContext.l10n.taskDetailsCustomFieldSelectValues,
+      options: [
+        for (final option in optionsSnapshot)
+          AppContextMenuOption<String>(
+            value: option.raw,
+            label: option.label,
+            selected:
+                selectedSnapshot.contains(option.raw) ||
+                selectedSnapshot.contains(option.label),
+          ),
+      ],
+    );
+    if (!mounted || !buttonContext.mounted || rawValue == null) return;
+    final currentSelection = _selectedFor(widget.value);
+    final currentOptions = widget.field.options ?? const <String>[];
+    if (!widget.enabled ||
+        !identical(buttonContext.read<TaskDetailsCubit>(), sourceCubit) ||
+        widget.field.id != fieldId ||
+        !_sameValues(currentSelection, selectedSnapshot) ||
+        currentOptions.length != optionValues.length ||
+        !currentOptions.every(optionValues.contains)) {
+      return;
+    }
+    final next = Set<String>.of(currentSelection);
+    final option = optionsSnapshot.firstWhere((item) => item.raw == rawValue);
+    if (next.contains(option.raw) || next.contains(option.label)) {
+      next.remove(option.raw);
+      next.remove(option.label);
+    } else {
+      next.add(option.raw);
+    }
+    widget.onChanged(next.toList(growable: false));
+  }
+
+  void _removeOption(CustomFieldOption option) {
+    if (!widget.enabled) return;
+    final next = Set<String>.of(_selectedValues)
+      ..remove(option.raw)
+      ..remove(option.label);
+    widget.onChanged(next.toList(growable: false));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final selectedValues = (value is List ? value as List : const <dynamic>[])
-        .map((e) => e.toString())
-        .toSet();
-
-    final allOptions = (field.options ?? const <String>[])
-        .map(CustomFieldOption.fromRaw)
-        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          field.name,
+          widget.field.name,
           style: context.text.labelSmall?.copyWith(
             fontWeight: FontWeight.w700,
             fontSize: 12,
@@ -229,60 +319,22 @@ class _MultiSelectCustomFieldEditor extends StatelessWidget {
             runSpacing: 6,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              for (final opt in allOptions.where(
-                (o) =>
-                    selectedValues.contains(o.raw) ||
-                    selectedValues.contains(o.label),
-              ))
+              for (final opt in _visibleOptions)
                 CustomFieldOptionChip(
                   option: opt,
-                  onDelete: enabled
-                      ? () {
-                          final next = Set<String>.from(selectedValues)
-                            ..remove(opt.raw)
-                            ..remove(opt.label);
-                          onChanged(next.toList(growable: false));
-                        }
-                      : null,
+                  onDelete: widget.enabled ? () => _removeOption(opt) : null,
                 ),
-              if (enabled)
+              if (widget.enabled)
                 Builder(
                   builder: (buttonContext) => Tooltip(
-                    message: 'Wybierz wartości',
+                    message: context.l10n.taskDetailsCustomFieldSelectValues,
                     child: InkWell(
                       key: const ValueKey('custom_field_values_menu'),
-                      onTap: () async {
-                        final rawVal = await AppContextMenu.select<String>(
-                          buttonContext,
-                          globalPosition: AppContextMenu.positionFor(
-                            buttonContext,
-                          ),
-                          headerTitle: 'Wybierz wartości',
-                          options: [
-                            for (final opt in allOptions)
-                              AppContextMenuOption<String>(
-                                value: opt.raw,
-                                label: opt.label,
-                                selected:
-                                    selectedValues.contains(opt.raw) ||
-                                    selectedValues.contains(opt.label),
-                              ),
-                          ],
-                        );
-                        if (rawVal == null) return;
-                        final next = Set<String>.from(selectedValues);
-                        final opt = allOptions.firstWhere(
-                          (o) => o.raw == rawVal,
-                        );
-                        if (next.contains(opt.raw) ||
-                            next.contains(opt.label)) {
-                          next.remove(opt.raw);
-                          next.remove(opt.label);
-                        } else {
-                          next.add(opt.raw);
-                        }
-                        onChanged(next.toList(growable: false));
-                      },
+                      onTap: () => _openOptions(
+                        buttonContext,
+                        Set.unmodifiable(_selectedValues),
+                        _allOptions,
+                      ),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -305,7 +357,7 @@ class _MultiSelectCustomFieldEditor extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Wybierz',
+                              context.l10n.taskDetailsCustomFieldAddValue,
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,

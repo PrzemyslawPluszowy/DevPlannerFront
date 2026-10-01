@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_metadata_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_mutation_coordinator.dart';
@@ -20,14 +22,15 @@ final class TaskDetailsMetadataCommands {
   final TaskDetailsState Function() readState;
   final void Function(TaskDetailsReady state) emitReady;
 
-  Future<List<TaskLabelResponse>> listLabels() async {
-    final result = await service.listLabels();
-    return result.fold((_) => const [], (labels) => labels);
-  }
+  Future<Either<ApiError, List<TaskLabelResponse>>> listLabels() =>
+      service.listLabels();
 
   Future<bool> replaceLabels(Iterable<String> labelIds) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,
@@ -40,8 +43,11 @@ final class TaskDetailsMetadataCommands {
   }
 
   Future<bool> replaceCustomFieldValues(Map<String, dynamic> values) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,

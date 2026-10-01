@@ -354,6 +354,32 @@ void main() {
       expect(payload.scopeProvider, 'files');
       expect(payload.scopeResourceId, '61d9c4bf-2b18-4d8c-a1b4-996628d6c113');
     });
+
+    test('rozwiązuje Resource Chat zadania przez provider tasks', () async {
+      final api = _MockChatApi();
+      when(() => api.resolve(any())).thenAnswer(
+        (_) async => _ChatRepositoryFixture.conversation(),
+      );
+
+      final result = await ChatRepositoryImpl(api).resolveTaskConversation(
+        taskId: '61d9c4bf-2b18-4d8c-a1b4-996628d6c113',
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+
+      expect(result.isRight(), isTrue);
+      final payload =
+          verify(() => api.resolve(captureAny())).captured.single
+              as ResolveChatConversationPayload;
+      expect(payload.type, ChatConversationType.channel);
+      expect(payload.scopeKind, ChatScopeKind.resource);
+      expect(payload.scopeKey, 'task:61d9c4bf2b184d8ca1b4996628d6c113');
+      expect(payload.workspaceId, 'workspace-1');
+      expect(payload.projectId, 'project-1');
+      expect(payload.scopeProvider, 'tasks');
+      expect(payload.scopeResourceType, 'task');
+      expect(payload.scopeResourceId, '61d9c4bf-2b18-4d8c-a1b4-996628d6c113');
+    });
   });
 }
 

@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/data/api_repository.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_advanced_api.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/api/task_recurrence_time_zone_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
@@ -9,9 +10,22 @@ import 'package:devplanner/workspaces/domain/repositories/task_recurrence_reposi
 /// Adapter endpointów cykliczności do niezależnego kontraktu domenowego.
 final class TaskRecurrenceRepositoryImpl extends ApiRepository
     implements TaskRecurrenceRepository {
-  TaskRecurrenceRepositoryImpl(this._api);
+  TaskRecurrenceRepositoryImpl(this._api, this._timeZoneApi);
 
   final TaskAdvancedApi _api;
+  final TaskRecurrenceTimeZoneApi _timeZoneApi;
+
+  @override
+  Future<Either<ApiError, List<String>>> listSupportedTimeZones({
+    required String workspaceId,
+    required String projectId,
+  }) => guardApiCall(
+    () => _timeZoneApi.listSupported(
+      workspaceId: workspaceId,
+      projectId: projectId,
+    ),
+    fallbackMessage: 'Nie udało się pobrać stref czasowych serii.',
+  );
 
   @override
   Future<Either<ApiError, TaskRecurrenceResponse>> get({

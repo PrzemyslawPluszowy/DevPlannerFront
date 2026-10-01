@@ -76,7 +76,7 @@ final class StorageBulkBar extends StatelessWidget {
                   label: context.l10n.storageMoveAction,
                   tooltip: context.l10n.storageMoveAction,
                   onTap: () => unawaited(
-                    runStorageMoveToFolderAction(
+                    StorageMoveAction.chooseFolder(
                       context,
                       fileIds: state.selectedFileIds.toList(),
                     ),
@@ -105,7 +105,7 @@ final class StorageBulkBar extends StatelessWidget {
                   label: context.l10n.storageDeleteSelected,
                   tooltip: context.l10n.storageDeleteSelected,
                   onTap: () =>
-                      unawaited(showStorageDeleteConfirm(context, state)),
+                      unawaited(StorageDeleteConfirmation.show(context, state)),
                 ),
             ],
           ),

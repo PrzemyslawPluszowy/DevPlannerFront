@@ -1,20 +1,47 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_acceptance.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
-class _ChecklistSection extends StatefulWidget {
-  const _ChecklistSection({required this.task, required this.isSaving});
+class ChecklistSection extends StatefulWidget {
+  const ChecklistSection({required this.task, required this.isSaving, super.key});
 
   final ProjectTaskResponse task;
   final bool isSaving;
 
   @override
-  State<_ChecklistSection> createState() => _ChecklistSectionState();
+  State<ChecklistSection> createState() => ChecklistSectionState();
 }
 
-class _ChecklistSectionState extends State<_ChecklistSection> {
+class ChecklistSectionState extends State<ChecklistSection> {
+  TaskDetailDraftRegistration? _draft;
   final _controller = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_refreshDraft);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: context.l10n.taskDetailsAddChecklistItem,
+    );
+  }
+
+  void _refreshDraft() {
+    if (_controller.text.trim().isEmpty) {
+      _draft?.clear();
+    } else {
+      _draft?.markDirty();
+    }
+  }
+
+  @override
   void dispose() {
+    _draft?.dispose();
+    _controller.removeListener(_refreshDraft);
     _controller.dispose();
     super.dispose();
   }
@@ -23,16 +50,16 @@ class _ChecklistSectionState extends State<_ChecklistSection> {
   Widget build(BuildContext context) {
     final items = widget.task.checklistItems;
     final completed = items.where((item) => item.isCompleted).length;
-    return _Section(
+    return Section(
       title: context.l10n.taskDetailsChecklist,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: context.colors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
           border: Border.all(color: context.colors.outlineVariant),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(12),
           child: Column(
             children: [
               if (items.isNotEmpty) ...[
@@ -146,6 +173,9 @@ class _ChecklistSectionState extends State<_ChecklistSection> {
     final added = await context.read<TaskDetailsCubit>().addChecklistItem(
       title,
     );
-    if (mounted && added) _controller.clear();
+    if (mounted && added) {
+      _controller.clear();
+      _draft?.clear();
+    }
   }
 }

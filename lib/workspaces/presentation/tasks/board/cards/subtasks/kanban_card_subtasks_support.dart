@@ -167,8 +167,12 @@ class _SubtaskRowState extends State<_SubtaskRow> {
               final router = GoRouter.maybeOf(context);
               if (router == null) return;
               unawaited(
-                DevPlannerNavigation(router).go(
-                  '/workspaces/${widget.workspaceId}/projects/${widget.projectId}/tasks/${widget.task.id}',
+                DevPlannerNavigation(router).goToTask(
+                  workspaceId: widget.workspaceId,
+                  projectId: widget.projectId,
+                  taskId: widget.task.id,
+                  currentLocation: GoRouterState.of(context).uri,
+                  source: TaskDetailOpenSource.subtask,
                 ),
               );
             },

@@ -94,12 +94,13 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
   late final TasksBoardFilterCommands _filters;
   late final TasksBoardBulkCommands _bulk;
   late final TasksBoardAssigneeCommands _assignee;
+  bool _isClosing = false;
 
   @override
   TasksBoardState get currentState => state;
 
   @override
-  bool get isBoardClosed => isClosed;
+  bool get isBoardClosed => _isClosing || isClosed;
 
   @override
   void publish(TasksBoardState state) {
@@ -316,6 +317,7 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
 
   @override
   Future<void> close() async {
+    _isClosing = true;
     _assignee.reset();
     await _runtime.dispose();
     return super.close();

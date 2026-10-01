@@ -8,6 +8,8 @@ import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
+import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/custom_workflow_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/milestone_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_acceptance_criteria_repository.dart';
@@ -22,6 +24,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_template_reposito
 import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_page.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/tasks_details_route_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -55,10 +58,15 @@ final class _TimeTrackingMock extends Mock
 
 final class _MilestoneMock extends Mock implements MilestoneRepository {}
 
+final class _CustomWorkflowMock extends Mock
+    implements CustomWorkflowRepository {}
+
 final class _StorageMock extends Mock implements StorageRepository {}
 
 final class _AttachmentUploadMock extends Mock
     implements TaskAttachmentUploadTransport {}
+
+final class _ResourceChatMock extends Mock implements ResourceChatRepository {}
 
 const _workspaceId = '550e8400-e29b-41d4-a716-446655440000';
 const _projectId = '550e8400-e29b-41d4-a716-446655440001';
@@ -78,8 +86,10 @@ TasksDetailsComposition _composition(TasksRepository tasks) =>
       templateRepository: _TemplateMock(),
       timeTrackingRepository: _TimeTrackingMock(),
       milestoneRepository: _MilestoneMock(),
+      customWorkflowRepository: _CustomWorkflowMock(),
       storageRepository: _StorageMock(),
       attachmentUploadTransport: _AttachmentUploadMock(),
+      resourceChatRepository: _ResourceChatMock(),
     );
 
 Widget _localized(Widget child) => MaterialApp(
@@ -154,13 +164,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Icons.cloud_off_outlined), findsNWidgets(2));
+    expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
+    expect(find.byType(WorkspaceTaskDetailsPage), findsNothing);
   });
 
-  test('BFF transport cannot compose task details', () {
+  test('BFF transport composes REST task details without realtime token', () {
     final composition = TasksDetailsComposition.fromTransport(
       DevPlannerHttpTransport(dio: Dio(), isWeb: true),
     );
-    expect(composition, isNull);
+    expect(composition, isNotNull);
   });
 }

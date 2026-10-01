@@ -112,8 +112,11 @@ void main() {
   Widget harness({
     required StorageFileResponse target,
     StorageUserDirectoryPort? userDirectory,
+    ThemeData? theme,
+    TextScaler textScaler = TextScaler.noScaling,
+    Size viewportSize = const Size(1280, 800),
   }) => MaterialApp(
-    theme: MaterialTheme.crm().light(),
+    theme: theme ?? MaterialTheme.crm().light(),
     locale: const Locale('pl'),
     localizationsDelegates: const [
       AppLocalizations.delegate,
@@ -123,10 +126,13 @@ void main() {
     ],
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(
-      body: StorageDesktopSharingDialog(
-        file: target,
-        repository: repository,
-        userDirectory: userDirectory,
+      body: MediaQuery(
+        data: MediaQueryData(size: viewportSize, textScaler: textScaler),
+        child: StorageDesktopSharingDialog(
+          file: target,
+          repository: repository,
+          userDirectory: userDirectory,
+        ),
       ),
     ),
   );
@@ -234,4 +240,58 @@ void main() {
     }
     expect(find.byKey(const ValueKey('share-workspace')), findsOneWidget);
   });
+
+  testWidgets(
+    'kontrolki dostępu mieszczą się przy 200% w jasnym i ciemnym motywie',
+    (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(420, 600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      for (final theme in [
+        MaterialTheme.crm().light(),
+        MaterialTheme.crm().dark(),
+      ]) {
+        await tester.pumpWidget(
+          harness(
+            target: file(workspaceId: 'ws-1'),
+            userDirectory: _FakeUserDirectory([member]),
+            theme: theme,
+            textScaler: const TextScaler.linear(2),
+            viewportSize: const Size(420, 600),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('storage_share_user_search')),
+          'anna',
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.byKey(const ValueKey('storage_share_user-user-2')),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(ChoiceChip), findsNWidgets(3));
+        expect(
+          find.byKey(const ValueKey('storage_share_user_submit')),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+
+        await tester.tap(find.text('Komentarz').last);
+        await tester.pumpAndSettle();
+        final selected = tester.widget<ChoiceChip>(
+          find.ancestor(
+            of: find.text('Komentarz').last,
+            matching: find.byType(ChoiceChip),
+          ),
+        );
+        expect(selected.selected, isTrue);
+      }
+    },
+  );
 }

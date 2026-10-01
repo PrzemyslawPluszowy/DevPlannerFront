@@ -508,10 +508,13 @@ class _TaskOperationsApi implements TaskOperationsApi {
   Future<List<StorageFileResponse>> listTaskAttachments(
     String workspaceId,
     String projectId,
-    String taskId,
-  ) async {
+    String taskId, {
+    bool includeDeleted = false,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'includeDeleted': includeDeleted,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<StorageFileResponse>>(
@@ -545,11 +548,13 @@ class _TaskOperationsApi implements TaskOperationsApi {
     String workspaceId,
     String projectId,
     String taskId,
+    String idempotencyKey,
     BulkTaskUploadTicketPayload body,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Idempotency-Key': idempotencyKey};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(body.toJson());
     final _options = _setStreamType<BulkStorageUploadTicketResponse>(

@@ -1,6 +1,10 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_error_panel.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,16 +12,26 @@ import 'package:flutter/services.dart';
 ///
 /// Widget nie zna repozytorium ani endpointu. Otrzymuje callback, który
 /// wykonuje Cubit i zwraca już zbudowany bezpieczny link.
-typedef StoragePublicShareCreation = ({String? url, String? error});
+typedef StoragePublicShareCreation = ({
+  String? url,
+  String? error,
+  ApiError? apiError,
+});
 
 final class StoragePublicShareForm extends StatefulWidget {
   /// Tworzy formularz hasła, expiry oraz kopiowania linku.
-  const StoragePublicShareForm({required this.onCreate, super.key})
-    : onCreateDetailed = null;
+  const StoragePublicShareForm({
+    required this.onCreate,
+    this.enabled = true,
+    super.key,
+  }) : onCreateDetailed = null,
+       onRefresh = null;
 
   /// Tworzy formularz z błędem inline, zachowując starą sygnaturę callbacku.
   const StoragePublicShareForm.detailed({
     required this.onCreateDetailed,
+    this.onRefresh,
+    this.enabled = true,
     super.key,
   }) : onCreate = null;
 
@@ -34,6 +48,12 @@ final class StoragePublicShareForm extends StatefulWidget {
     DateTime? expiresAtUtc,
   )?
   onCreateDetailed;
+
+  /// Bezpieczne odświeżenie GET po błędzie; nie ponawia tworzenia linku.
+  final VoidCallback? onRefresh;
+
+  /// Blokuje nowe żądanie przed pierwszym odczytem ACL lub podczas mutacji.
+  final bool enabled;
 
   @override
   State<StoragePublicShareForm> createState() => _StoragePublicShareFormState();
@@ -104,10 +124,14 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
                 ),
               ),
               const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: _pickExpiry,
-                icon: const Icon(Icons.event_outlined, size: 18),
-                label: Text(_expiryLabel(context, state.expiresAtUtc)),
+              Builder(
+                builder: (buttonContext) => OutlinedButton.icon(
+                  onPressed: state.isCreating || !widget.enabled
+                      ? null
+                      : () => _pickExpiry(buttonContext),
+                  icon: const Icon(Icons.event_outlined, size: 18),
+                  label: Text(_expiryLabel(context, state.expiresAtUtc)),
+                ),
               ),
               const SizedBox(height: 8),
               if (state.createdUrl case final url?)
@@ -123,7 +147,9 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
                 )
               else
                 FilledButton.icon(
-                  onPressed: state.isCreating ? null : _create,
+                  onPressed: state.isCreating || !widget.enabled
+                      ? null
+                      : _create,
                   icon: state.isCreating
                       ? const SizedBox.square(
                           dimension: 16,
@@ -139,6 +165,13 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
                   style: context.text.bodySmall?.copyWith(
                     color: context.colors.error,
                   ),
+                ),
+              ],
+              if (state.apiError case final apiError?) ...[
+                const SizedBox(height: 8),
+                StorageSharingErrorPanel(
+                  error: apiError,
+                  onRefresh: widget.onRefresh,
                 ),
               ],
               if (state.copied) ...[
@@ -164,17 +197,24 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
           ).formatMediumDate(expiresAtUtc.toLocal()),
         );
 
-  Future<void> _pickExpiry() async {
+  Future<void> _pickExpiry(BuildContext buttonContext) async {
+    if (_viewState.value.isCreating || !widget.enabled) return;
     final now = DateTime.now();
-    final date = await showDatePicker(
-      context: context,
-      firstDate: now,
+    final selection = await TaskDatePicker.pick(
+      buttonContext,
+      globalPosition: AppContextMenu.positionFor(buttonContext),
+      firstDate: DateTime(now.year, now.month, now.day),
       lastDate: now.add(const Duration(days: 3650)),
-      initialDate:
+      initialValue:
           _viewState.value.expiresAtUtc?.toLocal() ??
           now.add(const Duration(days: 7)),
+      allowClear: false,
     );
-    if (date == null || !mounted) return;
+    if (!mounted || !buttonContext.mounted || _viewState.value.isCreating) {
+      return;
+    }
+    final date = selection?.value;
+    if (date == null) return;
     _viewState.value = _viewState.value.copyWith(
       expiresAtUtc: DateTime(
         date.year,
@@ -189,27 +229,45 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
   }
 
   Future<void> _create() async {
-    if (_viewState.value.isCreating) return;
+    if (_viewState.value.isCreating || !widget.enabled) return;
     _viewState.value = _viewState.value.copyWith(isCreating: true);
     final password = _passwordController.text.trim();
-    final result = widget.onCreateDetailed != null
-        ? await widget.onCreateDetailed!(
-            password.isEmpty ? null : password,
-            _viewState.value.expiresAtUtc,
-          )
-        : (
-            url: await widget.onCreate!(
+    late final StoragePublicShareCreation result;
+    try {
+      result = widget.onCreateDetailed != null
+          ? await widget.onCreateDetailed!(
               password.isEmpty ? null : password,
               _viewState.value.expiresAtUtc,
-            ),
-            error: null,
-          );
+            )
+          : (
+              url: await widget.onCreate!(
+                password.isEmpty ? null : password,
+                _viewState.value.expiresAtUtc,
+              ),
+              error: null,
+              apiError: null,
+            );
+    } on Object {
+      if (!mounted) return;
+      _viewState.value = _viewState.value.copyWith(
+        isCreating: false,
+        apiError: const ApiError(
+          type: ApiErrorType.unknown,
+          message: '',
+          apiCode: 'storage.unexpected_error',
+        ),
+        clearError: true,
+      );
+      return;
+    }
     if (!mounted) return;
     _viewState.value = _viewState.value.copyWith(
       isCreating: false,
       createdUrl: result.url,
       errorMessage: result.error,
+      apiError: result.apiError,
       clearError: result.error == null,
+      clearApiError: result.apiError == null,
     );
     if (result.url != null) await _copy(result.url!);
   }
@@ -227,6 +285,7 @@ final class _StoragePublicShareFormViewState {
     this.createdUrl,
     this.isCreating = false,
     this.errorMessage,
+    this.apiError,
     this.copied = false,
   });
 
@@ -234,6 +293,7 @@ final class _StoragePublicShareFormViewState {
   final String? createdUrl;
   final bool isCreating;
   final String? errorMessage;
+  final ApiError? apiError;
   final bool copied;
 
   _StoragePublicShareFormViewState copyWith({
@@ -241,7 +301,9 @@ final class _StoragePublicShareFormViewState {
     String? createdUrl,
     bool? isCreating,
     String? errorMessage,
+    ApiError? apiError,
     bool clearError = false,
+    bool clearApiError = false,
     bool? copied,
     bool clearCreatedUrl = false,
   }) => _StoragePublicShareFormViewState(
@@ -249,6 +311,7 @@ final class _StoragePublicShareFormViewState {
     createdUrl: clearCreatedUrl ? null : createdUrl ?? this.createdUrl,
     isCreating: isCreating ?? this.isCreating,
     errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
+    apiError: clearApiError ? null : apiError ?? this.apiError,
     copied: copied ?? this.copied,
   );
 }

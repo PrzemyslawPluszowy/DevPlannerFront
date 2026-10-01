@@ -70,7 +70,16 @@ final class TasksBoardRuntimeCoordinator {
         (!force && _context.currentState is TasksBoardLoading)) {
       return;
     }
-    if (_context.currentState is! TasksBoardReady) {
+    final previousState = _context.currentState;
+    if (previousState is TasksBoardReady) {
+      _context.publish(
+        previousState.copyWith(
+          loadingColumnKeys: const <String>{},
+          columnLoadErrors: const <String, String>{},
+          columnLoadApiErrors: const <String, ApiError>{},
+        ),
+      );
+    } else {
       _context.publish(const TasksBoardLoading());
     }
     final result = await _repository.getBoard(

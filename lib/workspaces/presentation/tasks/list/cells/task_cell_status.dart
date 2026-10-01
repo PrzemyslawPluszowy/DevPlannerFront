@@ -170,7 +170,7 @@ class TaskCellCustomStatus extends StatelessWidget {
         ),
         if (canManage && onConfigureWorkflow != null)
           AppContextMenuAction(
-            label: 'Zarządzaj workflow projektu...',
+            label: context.l10n.tasksListManageWorkflowButton,
             icon: Symbols.settings_rounded,
             onTap: (_) => onConfigureWorkflow!(),
           ),

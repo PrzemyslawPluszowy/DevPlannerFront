@@ -1,12 +1,19 @@
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu_models.dart';
+import 'package:devplanner/shared/presentation/widgets/app_context_menu_panel.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Widget _harness(Widget child, {ThemeData? theme}) => MaterialApp(
+Widget _harness(
+  Widget child, {
+  ThemeData? theme,
+  Alignment alignment = Alignment.topLeft,
+  double textScale = 1,
+}) => MaterialApp(
   theme: theme ?? MaterialTheme.crm().light(),
   localizationsDelegates: const [
     GlobalMaterialLocalizations.delegate,
@@ -14,7 +21,16 @@ Widget _harness(Widget child, {ThemeData? theme}) => MaterialApp(
     GlobalCupertinoLocalizations.delegate,
   ],
   supportedLocales: const [Locale('pl')],
-  home: Scaffold(body: Align(alignment: Alignment.topLeft, child: child)),
+  home: Builder(
+    builder: (context) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: TextScaler.linear(textScale),
+      ),
+      child: Scaffold(
+        body: Align(alignment: alignment, child: child),
+      ),
+    ),
+  ),
 );
 
 /// Kotwica menu: przycisk otwierający menu i własny węzeł focusu.
@@ -29,7 +45,8 @@ class _MenuAnchor extends StatefulWidget {
   final List<AppContextMenuAction> Function(BuildContext context) actions;
   final List<AppContextMenuOption<String>> Function(BuildContext context)
   options;
-  final List<AppContextMenuAction> Function(BuildContext context)? regionActions;
+  final List<AppContextMenuAction> Function(BuildContext context)?
+  regionActions;
   final ValueChanged<String?>? onSelected;
 
   @override
@@ -111,7 +128,9 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      _harness(_MenuAnchor(actions: (_) => const [], options: (_) => _options())),
+      _harness(
+        _MenuAnchor(actions: (_) => const [], options: (_) => _options()),
+      ),
     );
 
     await tester.tap(find.text('Otwórz menu'));
@@ -172,7 +191,9 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      _harness(_MenuAnchor(actions: (_) => const [], options: (_) => _options())),
+      _harness(
+        _MenuAnchor(actions: (_) => const [], options: (_) => _options()),
+      ),
     );
 
     await tester.tap(find.text('Otwórz menu'));
@@ -270,6 +291,70 @@ void main() {
     expect(selected, isNull);
     expect(find.text('Przypnij'), findsNothing);
     expect(anchorNode.hasFocus, isTrue);
+  });
+
+  testWidgets('menu kotwiczone przy krawędzi mieści się w małym widoku 200%', (
+    tester,
+  ) async {
+    const viewport = Size(420, 320);
+    const margin = AppContextMenu.viewportMargin;
+    await tester.binding.setSurfaceSize(viewport);
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      _harness(
+        _MenuAnchor(actions: (_) => const [], options: (_) => _options()),
+        alignment: Alignment.bottomRight,
+        textScale: 2,
+      ),
+    );
+
+    await tester.tap(find.text('Otwórz menu'));
+    await tester.pumpAndSettle();
+
+    final panel = tester.getRect(
+      find
+          .ancestor(
+            of: find.text('Zadanie'),
+            matching: find.byType(DecoratedBox),
+          )
+          .first,
+    );
+    expect(panel.left, greaterThanOrEqualTo(margin));
+    expect(panel.top, greaterThanOrEqualTo(margin));
+    expect(panel.right, lessThanOrEqualTo(viewport.width - margin));
+    expect(panel.bottom, lessThanOrEqualTo(viewport.height - margin));
+    expect(find.text('Usuń').hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('replacement entries discard stale focus and scroll callback', (
+    tester,
+  ) async {
+    final entries = ValueNotifier<List<AppContextMenuEntry<String>>>(const [
+      AppContextMenuEntry(value: 'first', label: 'Pierwszy'),
+      AppContextMenuEntry(value: 'stale', label: 'Nieaktualny'),
+    ]);
+    addTearDown(entries.dispose);
+    String? selected;
+
+    Widget panel() => ValueListenableBuilder(
+      valueListenable: entries,
+      builder: (context, value, _) => AppContextMenuPanel<String>(
+        entries: value,
+        onSelected: (value) => selected = value,
+      ),
+    );
+
+    await tester.pumpWidget(_harness(SizedBox(width: 260, child: panel())));
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    entries.value = const [
+      AppContextMenuEntry(value: 'replacement', label: 'Zastąpiony'),
+    ];
+    await tester.pump();
+
+    expect(find.text('Zastąpiony'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    expect(selected, 'replacement');
   });
 
   testWidgets('prawy klik otwiera ten sam katalog akcji', (tester) async {
@@ -371,7 +456,11 @@ void main() {
             actionsBuilder: (context) => [
               AppContextMenuAction(label: 'Ostatnia akcja', onTap: (_) {}),
             ],
-            child: const SizedBox(width: 120, height: 32, child: Text('Krawędź')),
+            child: const SizedBox(
+              width: 120,
+              height: 32,
+              child: Text('Krawędź'),
+            ),
           ),
         ),
       ),

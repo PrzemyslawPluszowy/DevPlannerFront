@@ -77,7 +77,7 @@ final class StorageKeyboardShortcuts extends StatelessWidget {
       if (!capabilities.canDelete) return;
       final state = context.read<StorageSelectionCubit>().state;
       if (state.hasSelection && state.canDelete) {
-        unawaited(showStorageDeleteConfirm(context, state));
+        unawaited(StorageDeleteConfirmation.show(context, state));
       }
     });
   }

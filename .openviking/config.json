@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "peer": {
+    "id": "devnote-system"
+  },
+  "recall": {
+    "peer_scope": "actor"
+  }
+}

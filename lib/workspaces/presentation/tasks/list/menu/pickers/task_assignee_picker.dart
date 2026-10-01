@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
@@ -31,7 +32,7 @@ final class TaskAssigneePicker {
           context: context,
           globalPosition: menuPosition,
         );
-    if (action == null) return;
+    if (!context.mounted || action == null) return;
     if (action == AssigneeMenuAction.clear) {
       await onSave(const []);
       return;
@@ -42,8 +43,9 @@ final class TaskAssigneePicker {
           growable: false,
         )..sort(
           (left, right) => TaskAssigneeSearchMenu.profileLabel(
+            context,
             left,
-          ).compareTo(TaskAssigneeSearchMenu.profileLabel(right)),
+          ).compareTo(TaskAssigneeSearchMenu.profileLabel(context, right)),
         );
     if (candidates.isEmpty && searchEligibleProfiles == null) return;
     final currentIds = assignees
@@ -61,7 +63,7 @@ final class TaskAssigneePicker {
       selectionMode: action,
       searchEligibleProfiles: searchEligibleProfiles,
     );
-    if (selectedId == null) return;
+    if (!context.mounted || selectedId == null) return;
     if (selectedId == '__clear_owner__') {
       await onSave(currentIds.where((id) => id != primaryId).toList());
       return;
@@ -82,21 +84,21 @@ final class TaskAssigneePicker {
   }) => AppContextMenu.select<AssigneeMenuAction>(
     context,
     globalPosition: globalPosition,
-    headerTitle: 'Przypisanie',
-    options: const [
+    headerTitle: context.l10n.taskDetailsAssignees,
+    options: [
       AppContextMenuOption(
         value: AssigneeMenuAction.setOwner,
-        label: 'Ustaw właściciela',
+        label: context.l10n.tasksAssigneeSetPrimary,
         icon: Symbols.person_rounded,
       ),
       AppContextMenuOption(
         value: AssigneeMenuAction.toggleCollaborator,
-        label: 'Współpracownicy',
+        label: context.l10n.tasksListCollaborators,
         icon: Symbols.group_add,
       ),
       AppContextMenuOption(
         value: AssigneeMenuAction.clear,
-        label: 'Usuń przypisanie',
+        label: context.l10n.tasksAssigneeRemoveAssignment,
         icon: Symbols.person_remove,
         separatorBefore: true,
       ),

@@ -83,7 +83,7 @@ class KanbanCardContextMenuHelper {
 
           value: _KanbanCardMenuAction.pin,
           label: task.isPinned ? l10n.tasksUnpinTask : l10n.tasksPinTask,
-          icon: task.isPinned ? Symbols.push_pin_rounded : Symbols.push_pin,
+          icon: task.isPinned ? Symbols.star_rounded : Symbols.star,
           iconColor: task.isPinned ? colors.primary : null,
         ),
         AppContextMenuOption(
@@ -108,8 +108,12 @@ class KanbanCardContextMenuHelper {
         final router = GoRouter.maybeOf(context);
         if (router == null) break;
         unawaited(
-          DevPlannerNavigation(router).go(
-            '/workspaces/$workspaceId/projects/$projectId/tasks/${task.id}',
+          DevPlannerNavigation(router).goToTask(
+            workspaceId: workspaceId,
+            projectId: projectId,
+            taskId: task.id,
+            currentLocation: GoRouterState.of(context).uri,
+            source: TaskDetailOpenSource.kanban,
           ),
         );
 
@@ -123,8 +127,14 @@ class KanbanCardContextMenuHelper {
         );
 
       case _KanbanCardMenuAction.copyLink:
-        final link =
-            '${Uri.base.origin}/workspaces/$workspaceId/projects/$projectId/tasks/${task.id}';
+        final taskLocation = DevPlannerNavigation.of(context).taskLocation(
+          workspaceId: workspaceId,
+          projectId: projectId,
+          taskId: task.id,
+          currentLocation: GoRouterState.of(context).uri,
+          source: TaskDetailOpenSource.kanban,
+        );
+        final link = '${Uri.base.origin}$taskLocation';
         await Clipboard.setData(ClipboardData(text: link));
         scaffoldMessenger.showSnackBar(
           const SnackBar(
@@ -154,7 +164,9 @@ class KanbanCardContextMenuHelper {
         ];
         if (availableColumns.isEmpty) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text('Brak dostępnych przejść statusu.')),
+            SnackBar(
+              content: Text(l10n.tasksBoardNoAllowedStatusTransitions),
+            ),
           );
           break;
         }
@@ -211,7 +223,7 @@ class KanbanCardContextMenuHelper {
       case _KanbanCardMenuAction.moveToPerson:
         final ready = cubit.state;
         if (ready is! TasksBoardReady || ready.assigneeBoard == null) break;
-        final selection = await showKanbanMoveToPersonDialog(
+        final selection = await KanbanMoveToPersonDialog.show(
           context,
           state: ready,
           taskId: task.id,
@@ -231,7 +243,13 @@ class KanbanCardContextMenuHelper {
           globalPosition: globalPosition ?? Offset.zero,
         );
         if (pickResult != null) {
-          await cubit.updateTaskDueDate(task.id, pickResult.value?.toUtc());
+          await cubit.updateTaskDueDate(
+            task.id,
+            TaskDatePicker.asUtcTaskInstant(
+              pickResult.value,
+              task.dueAtUtc,
+            ),
+          );
         }
 
       case _KanbanCardMenuAction.pin:

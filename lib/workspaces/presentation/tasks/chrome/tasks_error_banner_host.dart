@@ -45,6 +45,7 @@ class TasksErrorBannerHost extends StatelessWidget {
     return TasksErrorBanner(
       message: tasksViewErrorMessage(context, error),
       traceId: error.traceId,
+      apiError: error.apiError,
       onRetry: error.canRetry
           ? () => unawaited(cubit.retryFailedOperation())
           : null,

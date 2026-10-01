@@ -318,6 +318,83 @@ void main() {
   });
 
   group('ChatPendingSendStoreImpl', () {
+    test('isolates pending drafts by owner and conversation', () async {
+      final storage = _MockSecureStorage();
+      final records = <String, String>{};
+      when(() => storage.read(key: any(named: 'key'))).thenAnswer(
+        (invocation) async =>
+            records[invocation.namedArguments[#key] as String],
+      );
+      when(
+        () => storage.write(
+          key: any(named: 'key'),
+          value: any(named: 'value'),
+          iOptions: any(named: 'iOptions'),
+          aOptions: any(named: 'aOptions'),
+          lOptions: any(named: 'lOptions'),
+          wOptions: any(named: 'wOptions'),
+          webOptions: any(named: 'webOptions'),
+          mOptions: any(named: 'mOptions'),
+        ),
+      ).thenAnswer((invocation) async {
+        records[invocation.namedArguments[#key] as String] =
+            invocation.namedArguments[#value] as String;
+      });
+      final store = ChatPendingSendStoreImpl(storage: storage, isWeb: false);
+
+      await store.save(
+        userId: userId,
+        pending: const PendingChatSend(
+          clientMessageId: 'user-1-conversation-1',
+          conversationId: 'conversation-1',
+          draft: _draft,
+          attempts: 1,
+        ),
+      );
+      await store.save(
+        userId: userId,
+        pending: const PendingChatSend(
+          clientMessageId: 'user-1-conversation-2',
+          conversationId: 'conversation-2',
+          draft: _draft,
+          attempts: 1,
+        ),
+      );
+      await store.save(
+        userId: 'user-2',
+        pending: const PendingChatSend(
+          clientMessageId: 'user-2-conversation-1',
+          conversationId: 'conversation-1',
+          draft: _draft,
+          attempts: 1,
+        ),
+      );
+
+      expect(
+        (await store.read(
+          userId: userId,
+          conversationId: 'conversation-1',
+        )).map((entry) => entry.clientMessageId),
+        ['user-1-conversation-1'],
+      );
+      expect(
+        (await store.read(
+          userId: userId,
+          conversationId: 'conversation-2',
+        )).map((entry) => entry.clientMessageId),
+        ['user-1-conversation-2'],
+      );
+      expect(
+        (await store.read(
+          userId: 'user-2',
+          conversationId: 'conversation-1',
+        )).map((entry) => entry.clientMessageId),
+        ['user-2-conversation-1'],
+      );
+      expect(records.keys, contains('devplanner.chat_pending_send.v1.user-1'));
+      expect(records.keys, contains('devplanner.chat_pending_send.v1.user-2'));
+    });
+
     test(
       'serializuje zapis i usunięcie bez odtworzenia potwierdzonej wysyłki',
       () async {

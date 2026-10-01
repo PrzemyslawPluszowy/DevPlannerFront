@@ -44,6 +44,8 @@ final class ChatPanelConversation extends StatefulWidget {
     this.targetMessageId,
     this.notificationSettings,
     this.canModerateMessages = false,
+    this.showBackButton = true,
+    this.desktopWebComposer = false,
     super.key,
   });
 
@@ -74,6 +76,13 @@ final class ChatPanelConversation extends StatefulWidget {
 
   /// Czy rola bieżącego użytkownika pozwala moderować cudzą treść.
   final bool canModerateMessages;
+
+  /// False for a task-scoped surface where leaving the conversation would
+  /// leave the task modal rather than return to an inbox.
+  final bool showBackButton;
+
+  /// Uses the workbench composer shape and action density inside task details.
+  final bool desktopWebComposer;
 
   @override
   State<ChatPanelConversation> createState() => _ChatPanelConversationState();
@@ -123,6 +132,7 @@ final class _ChatPanelConversationState extends State<ChatPanelConversation> {
         onBack: widget.onBack,
         onOpenFullView: widget.onOpenFullView,
         resourceContext: widget.resourceContext,
+        showBackButton: widget.showBackButton,
       );
     }
     final realtime = _realtime;
@@ -217,10 +227,12 @@ final class _ChatPanelConversationState extends State<ChatPanelConversation> {
         targetMessageId: widget.targetMessageId,
         messageActions: widget.messageActions,
         canModerateMessages: widget.canModerateMessages,
+        showBackButton: widget.showBackButton,
         onBack: widget.onBack,
         onOpenFullView: widget.onOpenFullView,
         resourceContext: widget.resourceContext,
         onResourceAccessRevoked: widget.onResourceAccessRevoked,
+        desktopWebComposer: widget.desktopWebComposer,
       ),
     );
   }
@@ -236,12 +248,14 @@ final class _ChatPanelConversationUnavailable extends StatelessWidget {
     required this.onBack,
     this.onOpenFullView,
     this.resourceContext,
+    required this.showBackButton,
   });
 
   final ChatConversation conversation;
   final VoidCallback onBack;
   final VoidCallback? onOpenFullView;
   final ResourceChatFileContext? resourceContext;
+  final bool showBackButton;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -251,6 +265,7 @@ final class _ChatPanelConversationUnavailable extends StatelessWidget {
         onBack: onBack,
         onOpenFullView: onOpenFullView,
         resourceContext: resourceContext,
+        showBackButton: showBackButton,
       ),
       const Expanded(child: SizedBox.shrink()),
     ],

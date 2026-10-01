@@ -13,9 +13,11 @@ import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_drag_and_drop.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_folder_picker_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -237,6 +239,47 @@ void main() {
     // Wersja pochodzi z odczytanego placementu, nie z UI.
     expect(captured[2], 5);
   });
+
+  testWidgets(
+    'zmiana zakresu przy otwartym pickerze nie przenosi starych plików',
+    (
+      tester,
+    ) async {
+      await pumpShell(tester);
+      final browser = tester
+          .element(
+            find.byKey(
+              const ValueKey('move-file-file-1'),
+            ),
+          )
+          .read<StorageBrowserCubit>();
+      await tester.tap(find.byKey(const ValueKey('move-file-file-1')));
+      await tester.pumpAndSettle();
+      await browser.setScope(const StorageScope.workspace('new-workspace'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('storage_picker_folder-folder-1')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('storage_picker_confirm')));
+      await tester.pumpAndSettle();
+      verifyNever(
+        () => repository.createFilePlacement(
+          fileId: any(named: 'fileId'),
+          folderId: any(named: 'folderId'),
+        ),
+      );
+      verifyNever(
+        () => repository.moveFilePlacement(
+          placementId: any(named: 'placementId'),
+          targetFolderId: any(named: 'targetFolderId'),
+          expectedVersion: any(named: 'expectedVersion'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets(
     'upuszczenie pliku na folder używa tego samego przypadku użycia',

@@ -1,4 +1,4 @@
-import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 
@@ -14,6 +14,12 @@ abstract final class TasksViewErrorCodes {
 
   /// Nie udało się wczytać osobistych ustawień widoku.
   static const String loadFailed = 'tasks.view.preferences_load_failed';
+
+  /// Nie udało się utworzyć zadania z szybkiego formularza lub szablonu.
+  static const String quickCreateFailed = 'tasks.view.quick_create_failed';
+
+  /// Zadanie zostało zapisane, ale świeżego widoku nie udało się odczytać.
+  static const String boardRefreshFailed = 'tasks.view.board_refresh_failed';
 }
 
 /// Błąd operacji widoku Tasks gotowy do pokazania w trwałym bannerze.
@@ -27,6 +33,7 @@ final class TasksViewError {
     required this.code,
     this.traceId,
     this.canRetry = true,
+    this.apiError,
   });
 
   /// Kod ze [TasksViewErrorCodes], kod widoku albo gotowy komunikat z Backendu.
@@ -41,15 +48,19 @@ final class TasksViewError {
   /// banner zostawia wtedy samo „Odśwież” zamiast zapraszać do pętli.
   final bool canRetry;
 
+  /// Pełna odpowiedź diagnostyczna API, zachowana bez spłaszczania pól.
+  final ApiError? apiError;
+
   @override
   bool operator ==(Object other) =>
       other is TasksViewError &&
       other.code == code &&
       other.traceId == traceId &&
-      other.canRetry == canRetry;
+      other.canRetry == canRetry &&
+      other.apiError == apiError;
 
   @override
-  int get hashCode => Object.hash(code, traceId, canRetry);
+  int get hashCode => Object.hash(code, traceId, canRetry, apiError);
 
   @override
   String toString() => 'TasksViewError($code, traceId: $traceId)';
@@ -63,12 +74,23 @@ String? tasksViewErrorText(AppLocalizations l10n, String code) =>
     switch (code) {
       TasksViewErrorCodes.versionConflict => l10n.tasksListPreferencesConflict,
       TasksViewErrorCodes.loadFailed => l10n.tasksViewPreferencesLoadFailed,
+      TasksViewErrorCodes.quickCreateFailed => l10n.tasksQuickCreateFailed,
+      TasksViewErrorCodes.boardRefreshFailed =>
+        l10n.tasksBoardRefreshAfterCreateFailed,
       _ => null,
     };
 
 /// Buduje błąd widoku z odpowiedzi API, zachowując identyfikator korelacji.
-TasksViewError tasksViewErrorFrom(ApiError error) =>
-    TasksViewError(code: error.message, traceId: error.traceId);
+TasksViewError tasksViewErrorFrom(
+  ApiError error, {
+  String? displayCode,
+  bool canRetry = true,
+}) => TasksViewError(
+  code: displayCode ?? error.message,
+  traceId: error.traceId,
+  canRetry: canRetry,
+  apiError: error,
+);
 
 /// Czy błąd oznacza konflikt wersji ustawień widoku.
 ///

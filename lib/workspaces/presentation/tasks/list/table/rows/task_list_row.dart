@@ -1,56 +1,25 @@
 import 'dart:async';
 
-import 'package:devplanner/foundation/l10n/l10n.dart';
-import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/projects/milestones/models/milestone_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_column_reference.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
-import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
-import 'package:devplanner/workspaces/presentation/projects/settings/project_settings_modal.dart';
-import 'package:devplanner/workspaces/presentation/tasks/helpers/task_permission_helper.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/custom_fields/task_cell_custom_field.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_business_value.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_complexity.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_duration.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_risk.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/metrics/task_cell_size.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_assignees.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_checklist.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_dates.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_key.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_labels.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_milestone.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_priority.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_status.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_task_type.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_title.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_watchers.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_column_helper.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_row_actions.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_row_body.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
-import 'package:devplanner/workspaces/presentation/tasks/widgets/tasks_selection_checkbox.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_symbols_icons/symbols.dart';
-
-part 'task_list_cell.part.dart';
-part 'task_list_row_cells.part.dart';
-part 'task_list_row_selection_cell.part.dart';
 
 /// Pojedynczy wiersz zadania w tabeli listy zadań.
 ///
 /// Obsługuje interakcje wiersza: zaznaczanie, drag & drop podzadań, menu
 /// kontekstowe, skróty klawiaturowe oraz renderowanie poszczególnych komórek.
-class TaskListRow extends StatelessWidget {
+class TaskListRow extends StatefulWidget {
   const TaskListRow({
     required this.task,
     this.columns = defaultTaskListColumns,
@@ -139,251 +108,49 @@ class TaskListRow extends StatelessWidget {
   final FocusNode? focusNode;
 
   @override
-  Widget build(BuildContext context) {
-    Future<ProjectMemberProfilePage> loadEligibleProfilesPage({
-      String? query,
-      String? cursor,
-    }) async {
-      final pathParameters = GoRouterState.of(context).pathParameters;
-      final workspaceId = pathParameters['workspaceId'] ?? '';
-      final projectId = pathParameters['projectId'] ?? '';
-      final result = await context
-          .read<ProjectMemberProfilesRepository>()
-          .listProfilesPage(
-            workspaceId: workspaceId,
-            projectId: projectId,
-            search: query,
-            cursor: cursor,
-          );
-      return result.fold(
-        (_) => const ProjectMemberProfilePage(items: []),
-        (page) => page,
-      );
-    }
+  State<TaskListRow> createState() => _TaskListRowState();
+}
 
-    void openTask() {
-      if (onOpen case final callback?) {
-        callback();
-        return;
-      }
-      final pathParameters = GoRouterState.of(context).pathParameters;
-      final workspaceId = pathParameters['workspaceId'] ?? '';
-      final projectId = pathParameters['projectId'] ?? '';
-      context.go(
-        '/workspaces/$workspaceId/projects/$projectId/tasks/${task.id}',
-      );
-    }
+final class _TaskListRowState extends State<TaskListRow> {
+  EligibleProfilesPageLoader? _profilesPageLoader;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onSecondaryTapDown: (details) => unawaited(
-        TaskRowContextMenu.show(
-          context,
-          task: task,
-          position: details.globalPosition,
-          onOpen: openTask,
-          onDuplicate: onDuplicate,
-          onCreateSubtask: onCreateSubtask,
-          onStatusChanged: onStatusChanged,
-          onPriorityChanged: onPriorityChanged,
-          onAssigneesChanged: onAssigneesChanged,
-          onDueDateChanged: onDueDateChanged,
-          onArchive: onArchive,
-          onPinnedChanged: onPinnedChanged,
-          onWatchingToggled: onWatchingToggled,
-          onRecurrenceToggled: onRecurrenceToggled,
-          onRecurrenceConfigured: onRecurrenceConfigured,
-          profiles: memberProfilesByUserId,
-          customFields: customFields,
-          onCustomFieldChanged: onCustomFieldChanged,
-          searchEligibleProfiles: loadEligibleProfilesPage,
-        ),
-      ),
-      child: LongPressDraggable<ProjectTaskListItemResponse>(
-        data: task,
-        onDragStarted: onDragStarted,
-        feedback: Material(
-          color: Colors.transparent,
-          child: SizedBox(
-            width: 300,
-            child: Opacity(opacity: .88, child: Text(task.title)),
-          ),
-        ),
-        childWhenDragging: Opacity(
-          opacity: .35,
-          child: _buildRow(context, openTask, loadEligibleProfilesPage),
-        ),
-        child: _buildRow(context, openTask, loadEligibleProfilesPage),
-      ),
-    );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncProfilesPageLoader();
   }
 
-  Widget _buildRow(
-    BuildContext context,
-    VoidCallback openTask,
-    EligibleProfilesPageLoader loadEligibleProfilesPage,
-  ) => FocusableActionDetector(
-    focusNode: focusNode,
-    shortcuts: const <ShortcutActivator, Intent>{
-      SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
-      SingleActivator(LogicalKeyboardKey.space): _ToggleTaskSelectionIntent(),
-      SingleActivator(LogicalKeyboardKey.space, shift: true):
-          _ToggleTaskSelectionRangeIntent(),
-      SingleActivator(LogicalKeyboardKey.contextMenu): _OpenTaskMenuIntent(),
-      SingleActivator(LogicalKeyboardKey.f10, shift: true):
-          _OpenTaskMenuIntent(),
-    },
-    actions: <Type, Action<Intent>>{
-      ActivateIntent: CallbackAction<ActivateIntent>(
-        onInvoke: (_) {
-          openTask();
-          return null;
-        },
-      ),
-      _ToggleTaskSelectionIntent: CallbackAction<_ToggleTaskSelectionIntent>(
-        onInvoke: (_) {
-          onSelectionChanged?.call(false);
-          return null;
-        },
-      ),
-      _ToggleTaskSelectionRangeIntent:
-          CallbackAction<_ToggleTaskSelectionRangeIntent>(
-            onInvoke: (_) {
-              onSelectionChanged?.call(true);
-              return null;
-            },
-          ),
-      _OpenTaskMenuIntent: CallbackAction<_OpenTaskMenuIntent>(
-        onInvoke: (_) {
-          final box = context.findRenderObject() as RenderBox?;
-          if (box != null) {
-            unawaited(
-              TaskRowContextMenu.show(
-                context,
-                task: task,
-                position: box.localToGlobal(Offset(0, box.size.height)),
-                onOpen: openTask,
-                onDuplicate: onDuplicate,
-                onCreateSubtask: onCreateSubtask,
-                onStatusChanged: onStatusChanged,
-                onPriorityChanged: onPriorityChanged,
-                onAssigneesChanged: onAssigneesChanged,
-                onDueDateChanged: onDueDateChanged,
-                onArchive: onArchive,
-                onPinnedChanged: onPinnedChanged,
-                onWatchingToggled: onWatchingToggled,
-                onRecurrenceToggled: onRecurrenceToggled,
-                onRecurrenceConfigured: onRecurrenceConfigured,
-                profiles: memberProfilesByUserId,
-                customFields: customFields,
-                onCustomFieldChanged: onCustomFieldChanged,
-                searchEligibleProfiles: loadEligibleProfilesPage,
-              ),
-            );
-          }
-          return null;
-        },
-      ),
-    },
-    child: Semantics(
-      container: true,
-      button: true,
-      label:
-          '${task.key}, ${task.title}, ${TaskStatusVisualHelper.label(context, task.status)}, ${TaskPriorityVisualHelper.label(context, task.priority)}',
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: context.colors.outlineVariant),
-          ),
-        ),
-        child: InkWell(
-          onTap: openTask,
-          onSecondaryTapDown: (details) {
-            unawaited(
-              TaskRowContextMenu.show(
-                context,
-                task: task,
-                position: details.globalPosition,
-                onOpen: openTask,
-                onDuplicate: onDuplicate,
-                onCreateSubtask: onCreateSubtask,
-                onStatusChanged: onStatusChanged,
-                onPriorityChanged: onPriorityChanged,
-                onAssigneesChanged: onAssigneesChanged,
-                onDueDateChanged: onDueDateChanged,
-                onArchive: onArchive,
-                onPinnedChanged: onPinnedChanged,
-                onWatchingToggled: onWatchingToggled,
-                onRecurrenceToggled: onRecurrenceToggled,
-                onRecurrenceConfigured: onRecurrenceConfigured,
-                profiles: memberProfilesByUserId,
-                customFields: customFields,
-                onCustomFieldChanged: onCustomFieldChanged,
-                searchEligibleProfiles: loadEligibleProfilesPage,
-              ),
-            );
-          },
-          child: SizedBox(
-            height: height,
-            child: Row(
-              children: [
-                _TaskListRowSelectionCell(
-                  task: task,
-                  isSelected: isSelected,
-                  onSelectionChanged: onSelectionChanged,
-                  isExpanded: isExpanded,
-                  isSubtasksLoading: isSubtasksLoading,
-                  onToggleSubtasks: onToggleSubtasks,
-                  onTaskDroppedAsSubtask: onTaskDroppedAsSubtask,
-                ),
-                ..._buildRowCells(
-                  context,
-                  openTask: openTask,
-                  loadEligibleProfilesPage: loadEligibleProfilesPage,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-}
+  void _syncProfilesPageLoader() {
+    final repository = context.watch<ProjectMemberProfilesRepository?>();
+    final router = GoRouter.maybeOf(context);
+    if (repository == null || router == null) {
+      _profilesPageLoader = null;
+      return;
+    }
 
-class _ToggleTaskSelectionIntent extends Intent {
-  const _ToggleTaskSelectionIntent();
-}
+    final route = ModalRoute.of(context);
+    final pathParameters = route is PageRoute
+        ? GoRouterState.of(context).pathParameters
+        : router.routerDelegate.currentConfiguration.pathParameters;
+    final workspaceId = pathParameters['workspaceId'];
+    final projectId = pathParameters['projectId'];
+    if (workspaceId == null || projectId == null) {
+      _profilesPageLoader = null;
+      return;
+    }
 
-class _ToggleTaskSelectionRangeIntent extends Intent {
-  const _ToggleTaskSelectionRangeIntent();
-}
-
-class _OpenTaskMenuIntent extends Intent {
-  const _OpenTaskMenuIntent();
-}
-
-/// Otwiera ustawienia projektu z identyfikatorami wyłącznie z aktywnej trasy.
-final class TaskListProjectSettingsLauncher {
-  const TaskListProjectSettingsLauncher._();
-
-  static void show(BuildContext context, ProjectSettingsTab tab) {
-    final pathParameters = GoRouterState.of(context).pathParameters;
-    final workspaceId = pathParameters['workspaceId'] ?? '';
-    final projectId = pathParameters['projectId'] ?? '';
-    if (workspaceId.isEmpty || projectId.isEmpty) return;
-
-    final project = ProjectListItem(
-      id: projectId,
+    final nextLoader = EligibleProfilesPageLoader(
+      repository: repository,
       workspaceId: workspaceId,
-      name: '',
-      sortPosition: 0,
+      projectId: projectId,
     );
-    unawaited(
-      ProjectSettingsDialogs.show(
-        context: context,
-        project: project,
-        initialTab: tab,
-      ),
-    );
+    if (_profilesPageLoader?.hasSameScopeAs(nextLoader) ?? false) return;
+    _profilesPageLoader = nextLoader;
   }
+
+  @override
+  Widget build(BuildContext context) => TaskListRowBody(
+    row: widget,
+    searchEligibleProfiles: _profilesPageLoader,
+  );
 }

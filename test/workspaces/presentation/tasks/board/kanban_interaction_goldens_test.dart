@@ -16,7 +16,13 @@ import 'package:devplanner/workspaces/presentation/tasks/board/cards/kanban_card
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart'
-    show KanbanAssigneeColumn, KanbanColumnWidget, KanbanTaskCard;
+    show
+        KanbanAssigneeColumn,
+        KanbanAssigneeTaskCard,
+        KanbanColumnWidget,
+        KanbanTaskCard,
+        TaskTemplatePickerOverlay;
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_quick_create.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -446,6 +452,19 @@ void main() {
                       state: state,
                       group:
                           state.assigneeBoard!.groups[column.value.groupIndex],
+                      cardBuilder: (task, statusBadge, canDrag) =>
+                          KanbanAssigneeTaskCard(
+                            task: task,
+                            workspaceId: 'w',
+                            projectId: 'p',
+                            state: state,
+                            statusBadge: statusBadge,
+                            canDrag: canDrag,
+                          ),
+                      quickCreateBuilder: (column) => KanbanQuickCreateTask(
+                        column: column,
+                        onManageTemplates: TaskTemplatePickerOverlay.show,
+                      ),
                     ),
             ),
           ),

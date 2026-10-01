@@ -308,6 +308,9 @@ abstract class TaskTimeEntryResponse with _$TaskTimeEntryResponse {
     DateTime? reviewedAtUtc,
     String? reviewComment,
     required int version,
+    @Default(false) bool canSubmit,
+    @Default(false) bool canReview,
+    @Default(false) bool canStopTimer,
   }) = _TaskTimeEntryResponse;
 
   /// Odtwarza wpis czasu z JSON.

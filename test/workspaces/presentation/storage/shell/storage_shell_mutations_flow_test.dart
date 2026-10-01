@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:dartz/dartz.dart';
+import 'package:dartz/dartz.dart' hide State;
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
@@ -13,7 +14,11 @@ import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_delete_confirmation.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_mutation_feedback_host.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_browser_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +30,8 @@ import '../../../../test_support/storage_shell_harness.dart';
 class _MockStorageRepository extends Mock implements StorageRepository {}
 
 class _MockUploadTransport extends Mock implements UploadTransport {}
+
+class _MockDownloadTransport extends Mock implements DownloadTransport {}
 
 /// Liczba odczytów listy folderów.
 ///
@@ -115,7 +122,9 @@ void main() {
     );
   });
 
-  testWidgets('utworzenie folderu odświeża listę dokładnie raz', (tester) async {
+  testWidgets('utworzenie folderu odświeża listę dokładnie raz', (
+    tester,
+  ) async {
     when(
       () => repository.createFolder(
         scope: any(named: 'scope'),
@@ -145,7 +154,9 @@ void main() {
     expect(folderReadCount, 2);
   });
 
-  testWidgets('zmiana nazwy folderu odświeża listę dokładnie raz', (tester) async {
+  testWidgets('zmiana nazwy folderu odświeża listę dokładnie raz', (
+    tester,
+  ) async {
     when(
       () => repository.updateFolder(
         folderId: any(named: 'folderId'),
@@ -162,6 +173,7 @@ void main() {
     await tester.tap(find.text(l10n.storageRenameFolderDialogTitle));
     await tester.pumpAndSettle();
     await tester.enterText(_dialogField(), 'Nowa nazwa');
+    await tester.pump();
     await tester.tap(find.text(l10n.save));
     await tester.pumpAndSettle();
 
@@ -219,6 +231,154 @@ void main() {
 
     verifyNever(() => repository.deleteFile(any()));
     expect(folderReadCount, readsBefore);
+  });
+
+  testWidgets('spóźniony wynik bulk nie kasuje nowego zaznaczenia', (
+    tester,
+  ) async {
+    final first = storageTestFile();
+    final next = storageTestFile(id: 'file-2', name: 'nowe-zaznaczenie.pdf');
+    final deletion = Completer<Either<ApiError, Unit>>();
+    when(
+      () => repository.listFiles(
+        scope: any(named: 'scope'),
+        folderId: any(named: 'folderId'),
+        cursor: any(named: 'cursor'),
+        limit: any(named: 'limit'),
+        query: any(named: 'query'),
+        filter: any(named: 'filter'),
+      ),
+    ).thenAnswer(
+      (_) async => right(
+        CursorPageResponse<StorageFileResponse>(items: [first, next]),
+      ),
+    );
+    when(() => repository.deleteFile('file-1')).thenAnswer(
+      (_) => deletion.future,
+    );
+    await pumpStorageShell(tester, repository: repository);
+
+    final context = tester.element(find.byType(StorageBrowserBody));
+    final selection = context.read<StorageSelectionCubit>();
+    final mutation = context.read<StorageFileMutationCubit>();
+    selection.selectAll(files: [first], folders: const []);
+    final result = mutation.bulkDelete(
+      fileIds: ['file-1'],
+    );
+    await tester.pump();
+
+    selection.selectAll(files: [next], folders: const []);
+    deletion.complete(right(unit));
+    await result;
+    await tester.pumpAndSettle();
+
+    expect(selection.state.selectedFileIds, {'file-2'});
+  });
+
+  testWidgets(
+    'błędy bulk pokazują nazwy, pełną diagnostykę i pominięte pliki',
+    (
+      tester,
+    ) async {
+      final first = storageTestFile();
+      final next = storageTestFile(id: 'file-2', name: 'umowa.docx');
+      const error = ApiError(
+        type: ApiErrorType.badResponse,
+        message: 'Limit żądań.',
+        statusCode: 429,
+        apiCode: 'storage.rate_limited',
+        contractCode: 'storage.too_many_requests',
+        traceId: 'bulk-rate-limit-trace',
+        fields: {
+          'fileId': ['Spróbuj później.'],
+        },
+      );
+      when(() => repository.deleteFile('file-1')).thenAnswer(
+        (_) async => left(error),
+      );
+      await pumpStorageShell(tester, repository: repository);
+
+      final context = tester.element(find.byType(StorageBrowserBody));
+      final selection = context.read<StorageSelectionCubit>();
+      final mutation = context.read<StorageFileMutationCubit>();
+      selection.selectAll(files: [first, next], folders: const []);
+      await mutation.bulkDelete(
+        fileIds: ['file-1', 'file-2'],
+      );
+      await tester.pumpAndSettle();
+
+      verifyNever(() => repository.deleteFile('file-2'));
+      expect(selection.state.selectedFileIds, {'file-1', 'file-2'});
+      final storageBulkItemFailures = find.text(
+        l10n.storageBulkItemFailures(1),
+      );
+      await tester.ensureVisible(storageBulkItemFailures);
+      expect(storageBulkItemFailures.hitTestable(), findsOneWidget);
+      await tester.tap(storageBulkItemFailures);
+      await tester.pumpAndSettle();
+      final storageBulkNotAttempted = find.text(
+        l10n.storageBulkNotAttempted(1),
+      );
+      await tester.ensureVisible(storageBulkNotAttempted);
+      expect(storageBulkNotAttempted.hitTestable(), findsOneWidget);
+      await tester.tap(storageBulkNotAttempted);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byType(StorageMutationFeedbackHost),
+          matching: find.text('dokument.pdf'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('umowa.docx — file-2'), findsOneWidget);
+      expect(find.text('file-1'), findsOneWidget);
+      expect(find.textContaining('storage.rate_limited'), findsWidgets);
+      expect(find.textContaining('storage.too_many_requests'), findsWidgets);
+      expect(find.textContaining('bulk-rate-limit-trace'), findsWidgets);
+      expect(find.textContaining('fileId: Spróbuj później.'), findsWidgets);
+    },
+  );
+
+  testWidgets('wymiana providerów w trakcie potwierdzenia nie usuwa pliku', (
+    tester,
+  ) async {
+    final replacementRepository = _MockStorageRepository();
+    when(() => repository.deleteFile('file-1')).thenAnswer(
+      (_) async => right(unit),
+    );
+    when(() => replacementRepository.deleteFile('file-1')).thenAnswer(
+      (_) async => right(unit),
+    );
+    final key = GlobalKey<_DeleteConfirmationHarnessState>();
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: const [AppLocalizations.delegate],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: _DeleteConfirmationHarness(
+          key: key,
+          initialRepository: repository,
+          replacementRepository: replacementRepository,
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('launch-delete-confirmation')));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    key.currentState!.replaceProviders();
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    verifyNever(() => repository.deleteFile('file-1'));
+    verifyNever(() => replacementRepository.deleteFile('file-1'));
   });
 
   testWidgets('usunięcie folderu z menu wymaga potwierdzenia i odświeża raz', (
@@ -328,12 +488,14 @@ void main() {
 
     // Dialog nadaje dostęp przez ten sam kontrakt co reszta modułu: workspace
     // dostaje udział typu workspace, a nie prywatny link.
-    final payload = verify(
-      () => repository.createFileShare(
-        fileId: 'file-1',
-        payload: captureAny(named: 'payload'),
-      ),
-    ).captured.single as CreateStorageFileSharePayload;
+    final payload =
+        verify(
+              () => repository.createFileShare(
+                fileId: 'file-1',
+                payload: captureAny(named: 'payload'),
+              ),
+            ).captured.single
+            as CreateStorageFileSharePayload;
     expect(payload.shareType, StorageShareType.workspace);
     expect(payload.sharedWithWorkspaceId, 'workspace-1');
   });
@@ -381,6 +543,98 @@ void main() {
     // Lista pokazuje nowy plik dopiero po potwierdzonym zakończeniu wysyłki.
     expect(folderReadCount, readsBefore + 1);
   });
+}
+
+final class _DeleteConfirmationHarness extends StatefulWidget {
+  const _DeleteConfirmationHarness({
+    required this.initialRepository,
+    required this.replacementRepository,
+    super.key,
+  });
+
+  final StorageRepository initialRepository;
+  final StorageRepository replacementRepository;
+
+  @override
+  State<_DeleteConfirmationHarness> createState() =>
+      _DeleteConfirmationHarnessState();
+}
+
+final class _DeleteConfirmationHarnessState
+    extends State<_DeleteConfirmationHarness> {
+  final _owners = <_DeleteOwnerSet>[];
+  late _DeleteOwnerSet _current;
+
+  @override
+  void initState() {
+    super.initState();
+    _install(widget.initialRepository);
+  }
+
+  void _install(StorageRepository repository) {
+    final selection = StorageSelectionCubit()
+      ..selectAll(files: [storageTestFile()], folders: const []);
+    _current = _DeleteOwnerSet(
+      selection: selection,
+      browser: StorageBrowserCubit(repository: repository),
+      mutation: StorageFileMutationCubit(
+        repository: repository,
+        downloadTransport: _MockDownloadTransport(),
+      ),
+    );
+    _owners.add(_current);
+  }
+
+  void replaceProviders() {
+    setState(() => _install(widget.replacementRepository));
+  }
+
+  @override
+  void dispose() {
+    for (final owner in _owners) {
+      unawaited(owner.selection.close());
+      unawaited(owner.browser.close());
+      unawaited(owner.mutation.close());
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider<StorageSelectionCubit>.value(value: _current.selection),
+      BlocProvider<StorageBrowserCubit>.value(value: _current.browser),
+      BlocProvider<StorageFileMutationCubit>.value(value: _current.mutation),
+    ],
+    child: Builder(
+      builder: (context) => Scaffold(
+        body: Center(
+          child: TextButton(
+            key: const ValueKey('launch-delete-confirmation'),
+            onPressed: () => unawaited(
+              StorageDeleteConfirmation.show(
+                context,
+                _current.selection.state,
+              ),
+            ),
+            child: const Text('Delete selected'),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+final class _DeleteOwnerSet {
+  const _DeleteOwnerSet({
+    required this.selection,
+    required this.browser,
+    required this.mutation,
+  });
+
+  final StorageSelectionCubit selection;
+  final StorageBrowserCubit browser;
+  final StorageFileMutationCubit mutation;
 }
 
 /// Picker zwracający jeden plik, żeby kolejka uploadu miała co wysłać.

@@ -3,20 +3,19 @@ import 'dart:async';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
-import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
-import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/chrome/tasks_command_menu.dart';
-import 'package:devplanner/workspaces/presentation/tasks/helpers/task_permission_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/chrome/task_list_command_bar_columns_button.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/chrome/task_list_command_bar_labels.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/chrome/task_list_member_avatar.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_cubit.dart';
-import 'package:devplanner/workspaces/presentation/tasks/list/preferences/widgets/task_list_columns_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -128,24 +127,29 @@ class TaskListCommandBar extends StatelessWidget {
           TasksCommandMenu(
             key: const ValueKey('command_filter_assignee'),
             icon: Symbols.people_alt,
-            label: _assigneeLabel(ready),
+            label: TaskListCommandBarLabels.assignee(
+              context,
+              unassignedOnly: ready.unassignedOnly,
+              userId: ready.assigneeUserId,
+              memberProfiles: memberProfiles,
+            ),
             leading: _avatarFor(ready.assigneeUserId),
             options: [
               AppContextMenuOption<String>(
                 value: _all,
-                label: 'Wszystkie osoby',
+                label: context.l10n.tasksBoardFilterAllPeople,
                 selected: ready.assigneeUserId == null && !ready.unassignedOnly,
               ),
               AppContextMenuOption<String>(
                 value: _unassigned,
-                label: 'Nieprzypisane',
+                label: context.l10n.tasksSavedViewsUnassigned,
                 selected: ready.unassignedOnly,
               ),
-              for (final profile in _sortedProfiles)
+              for (final profile in _sortedProfiles(context))
                 AppContextMenuOption<String>(
                   value: profile.userId,
-                  label: _profileName(profile),
-                  leading: _ProfileAvatar(profile: profile),
+                  label: TaskListCommandBarLabels.profileName(context, profile),
+                  leading: TaskListMemberAvatar(profile: profile),
                   selected: ready.assigneeUserId == profile.userId,
                 ),
             ],
@@ -155,10 +159,13 @@ class TaskListCommandBar extends StatelessWidget {
           TasksCommandMenu(
             key: const ValueKey('command_filter_involvement'),
             icon: Symbols.person_pin,
-            label: 'Mój udział',
+            label: context.l10n.myTasksInvolvement,
             activeLabel: ready.myInvolvement == null
                 ? null
-                : _involvementLabel(ready.myInvolvement!),
+                : TaskListCommandBarLabels.involvement(
+                    context,
+                    ready.myInvolvement!,
+                  ),
             options: [
               AppContextMenuOption<String>(
                 value: _all,
@@ -172,7 +179,10 @@ class TaskListCommandBar extends StatelessWidget {
               ])
                 AppContextMenuOption<String>(
                   value: involvement.name,
-                  label: _involvementLabel(involvement),
+                  label: TaskListCommandBarLabels.involvement(
+                    context,
+                    involvement,
+                  ),
                   selected: ready.myInvolvement == involvement,
                 ),
             ],
@@ -181,8 +191,8 @@ class TaskListCommandBar extends StatelessWidget {
           SizedBox(width: tasksTheme.controlGap),
           TasksCommandButton(
             key: const ValueKey('command_filter_pinned'),
-            icon: Symbols.push_pin,
-            label: 'Przypięte',
+            icon: Symbols.star,
+            label: context.l10n.tasksListPinnedByMe,
             isActive: ready.pinnedOnly,
             onTap: () => unawaited(
               context.read<ProjectTasksListCubit>().load(
@@ -195,12 +205,15 @@ class TaskListCommandBar extends StatelessWidget {
             key: const ValueKey('command_sort'),
             icon: Symbols.swap_vert_rounded,
             label: context.l10n.tasksListSort,
-            activeLabel: _sortLabel,
+            activeLabel: TaskListCommandBarLabels.sortField(
+              context,
+              _preferences?.sortField,
+            ),
             options: [
               for (final field in TaskSavedViewSortField.values)
                 AppContextMenuOption<String>(
                   value: field.name,
-                  label: _sortFieldLabel(field),
+                  label: TaskListCommandBarLabels.sortField(context, field)!,
                   selected: _preferences?.sortField == field,
                 ),
             ],
@@ -210,15 +223,18 @@ class TaskListCommandBar extends StatelessWidget {
           TasksCommandMenu(
             key: const ValueKey('command_sort_direction'),
             icon: Symbols.swap_horiz_rounded,
-            label: 'Kierunek',
-            activeLabel: _directionLabel,
+            label: context.l10n.tasksListSortDirection,
+            activeLabel: TaskListCommandBarLabels.sortDirection(
+              context,
+              _preferences?.sortDirection,
+            ),
             options: [
               for (final direction in TaskSavedViewSortDirection.values)
                 AppContextMenuOption<String>(
                   value: direction.name,
                   label: direction == TaskSavedViewSortDirection.ascending
-                      ? 'Rosnąco'
-                      : 'Malejąco',
+                      ? context.l10n.tasksSavedViewsAscending
+                      : context.l10n.tasksSavedViewsDescending,
                   selected: _preferences?.sortDirection == direction,
                 ),
             ],
@@ -230,25 +246,27 @@ class TaskListCommandBar extends StatelessWidget {
             icon: Symbols.account_tree,
             label: context.l10n.tasksListGroupBy,
             activeLabel: switch (_preferences?.groupBy) {
-              final TaskSavedViewGroupBy groupBy => _groupByLabel(groupBy),
+              final TaskSavedViewGroupBy groupBy =>
+                TaskListCommandBarLabels.groupBy(
+                  context,
+                  groupBy,
+                ),
               _ => null,
             },
             options: [
               for (final groupBy in _availableGroupBy)
                 AppContextMenuOption<String>(
                   value: groupBy.name,
-                  label: _groupByLabel(groupBy),
+                  label: TaskListCommandBarLabels.groupBy(context, groupBy),
                   selected: _preferences?.groupBy == groupBy,
                 ),
             ],
             onSelected: (value) => unawaited(_applyGroupBy(context, value)),
           ),
           SizedBox(width: tasksTheme.controlGap),
-          TasksCommandButton(
+          TaskListCommandBarColumnsButton(
             key: const ValueKey('command_columns'),
-            icon: Symbols.view_column_rounded,
-            label: context.l10n.tasksListColumnsTitle,
-            onTap: () => unawaited(_openColumns(context)),
+            memberProfiles: memberProfiles,
           ),
           if (_hasActiveFilter) ...[
             SizedBox(width: tasksTheme.controlGap),
@@ -272,20 +290,20 @@ class TaskListCommandBar extends StatelessWidget {
     TaskSavedViewGroupBy.assignee,
   ];
 
-  List<ProjectMemberProfile> get _sortedProfiles =>
+  List<ProjectMemberProfile> _sortedProfiles(BuildContext context) =>
       memberProfiles.values.toList(growable: false)..sort(
-        (left, right) => _profileName(left).compareTo(_profileName(right)),
+        (left, right) =>
+            TaskListCommandBarLabels.profileName(
+              context,
+              left,
+            ).compareTo(
+              TaskListCommandBarLabels.profileName(context, right),
+            ),
       );
 
-  String _assigneeLabel(ProjectTasksListReady ready) {
-    if (ready.unassignedOnly) return 'Nieprzypisane';
-    final userId = ready.assigneeUserId;
-    if (userId == null) return 'Osoba';
-    return _profileName(memberProfiles[userId]);
-  }
-
-  Widget? _avatarFor(String? userId) =>
-      userId == null ? null : _ProfileAvatar(profile: memberProfiles[userId]);
+  Widget? _avatarFor(String? userId) => userId == null
+      ? null
+      : TaskListMemberAvatar(profile: memberProfiles[userId]);
 
   Future<void> _applyStatus(BuildContext context, String value) async {
     final cubit = context.read<ProjectTasksListCubit>();
@@ -369,114 +387,6 @@ class TaskListCommandBar extends StatelessWidget {
       clearMyInvolvement: true,
       unassignedOnly: false,
       pinnedOnly: false,
-    );
-  }
-
-  Future<void> _openColumns(BuildContext context) async {
-    final cubit = context.read<TaskListPreferencesCubit>();
-    final canManage = TaskPermissionHelper.canManageProject(
-      context,
-      memberProfiles: memberProfiles,
-    );
-    // Definicje pól pobieramy dopiero przy otwarciu arkusza, żeby nie dublować
-    // zapytania, które tabela wykonuje dla komórek.
-    final fields = await context
-        .read<TaskMetadataRepository>()
-        .listCustomFields(
-          workspaceId: cubit.workspaceId,
-          projectId: cubit.projectId,
-        )
-        .then(
-          (result) => result.fold(
-            (_) => const <TaskCustomFieldResponse>[],
-            (fields) => fields,
-          ),
-        );
-    if (!context.mounted) return;
-    await TaskListColumnsSheet.show(
-      context,
-      cubit: cubit,
-      customFields: fields,
-      canManage: canManage,
-    );
-  }
-
-  String? get _sortLabel {
-    final sortField = _preferences?.sortField;
-    return sortField == null ? null : _sortFieldLabel(sortField);
-  }
-
-  String? get _directionLabel => switch (_preferences?.sortDirection) {
-    TaskSavedViewSortDirection.ascending => 'Rosnąco',
-    TaskSavedViewSortDirection.descending => 'Malejąco',
-    _ => null,
-  };
-
-  static String _sortFieldLabel(TaskSavedViewSortField field) =>
-      switch (field) {
-        TaskSavedViewSortField.position => 'Kolejność ręczna',
-        TaskSavedViewSortField.updatedAtUtc => 'Ostatnia zmiana',
-        TaskSavedViewSortField.dueAtUtc => 'Termin',
-        TaskSavedViewSortField.priority => 'Priorytet',
-        TaskSavedViewSortField.title => 'Tytuł',
-      };
-
-  static String _groupByLabel(TaskSavedViewGroupBy groupBy) =>
-      switch (groupBy) {
-        TaskSavedViewGroupBy.none => 'Bez grupowania',
-        TaskSavedViewGroupBy.status => 'Status',
-        TaskSavedViewGroupBy.customStatus => 'Status workflow',
-        TaskSavedViewGroupBy.priority => 'Priorytet',
-        TaskSavedViewGroupBy.assignee => 'Osoba',
-      };
-
-  static String _involvementLabel(TaskInvolvementFilter involvement) =>
-      switch (involvement) {
-        TaskInvolvementFilter.primaryAssignee => 'Właściciel',
-        TaskInvolvementFilter.collaborator => 'Współpracownik',
-        TaskInvolvementFilter.watcher => 'Obserwator',
-        TaskInvolvementFilter.assignee => 'Wykonawca',
-        TaskInvolvementFilter.any => 'Dowolny udział',
-      };
-
-  static String _profileName(ProjectMemberProfile? profile) {
-    final displayName = profile?.displayName?.trim();
-    return displayName?.isNotEmpty == true
-        ? displayName!
-        : 'Nieznany użytkownik';
-  }
-}
-
-class _ProfileAvatar extends StatelessWidget {
-  const _ProfileAvatar({required this.profile});
-
-  final ProjectMemberProfile? profile;
-
-  @override
-  Widget build(BuildContext context) {
-    final profile = this.profile;
-    if (profile == null) {
-      return Icon(
-        Symbols.account_circle,
-        size: 16,
-        color: context.colors.onSurfaceVariant,
-      );
-    }
-    final avatarUrl = profile.avatarUrl?.trim();
-    final label = profile.displayName?.trim().isNotEmpty == true
-        ? profile.displayName!.trim()
-        : 'U';
-    return CircleAvatar(
-      radius: 9,
-      foregroundImage: avatarUrl?.isNotEmpty == true
-          ? NetworkImage(avatarUrl!)
-          : null,
-      child: avatarUrl?.isNotEmpty == true
-          ? null
-          : Text(
-              label.characters.first.toUpperCase(),
-              style: context.tasksTheme.metaText.copyWith(height: 1),
-            ),
     );
   }
 }

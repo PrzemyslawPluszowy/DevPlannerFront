@@ -1,24 +1,12 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:equatable/equatable.dart';
 
 /// Typ wykonanej mutacji na folderze.
-enum StorageFolderMutationType {
-  /// Utworzenie folderu.
-  created,
-
-  /// Zmiana nazwy/metadanych folderu.
-  updated,
-
-  /// Przeniesienie folderu do innego katalogu.
-  moved,
-
-  /// Usunięcie folderu.
-  deleted,
-}
+enum StorageFolderMutationType { created, updated, moved, deleted }
 
 /// Bazowy stan mutacji folderów.
 sealed class StorageFolderMutationState extends Equatable {
-  /// Tworzy stan mutacji.
   const StorageFolderMutationState();
 
   @override
@@ -26,71 +14,54 @@ sealed class StorageFolderMutationState extends Equatable {
 }
 
 /// Stan początkowy.
-class StorageFolderMutationInitial extends StorageFolderMutationState {
-  /// Tworzy stan początkowy.
+final class StorageFolderMutationInitial extends StorageFolderMutationState {
   const StorageFolderMutationInitial();
 }
 
 /// Stan trwającej operacji sieciowej.
-class StorageFolderMutationLoading extends StorageFolderMutationState {
-  /// Tworzy stan ładowania.
+final class StorageFolderMutationLoading extends StorageFolderMutationState {
   const StorageFolderMutationLoading();
 }
 
 /// Stan powodzenia mutacji folderu.
-class StorageFolderMutationSuccess extends StorageFolderMutationState {
-  /// Tworzy stan sukcesu.
+final class StorageFolderMutationSuccess extends StorageFolderMutationState {
   const StorageFolderMutationSuccess({
     required this.type,
     this.folder,
     this.folderId,
   });
 
-  /// Rodzaj zakończonej operacji.
   final StorageFolderMutationType type;
-
-  /// Zwrócony folder (null przy usunięciu).
   final StorageFolderResponse? folder;
-
-  /// Identyfikator usuniętego lub zmodyfikowanego folderu.
   final String? folderId;
 
   @override
   List<Object?> get props => [type, folder, folderId];
 }
 
-/// Stan błędu operacji na folderze.
-class StorageFolderMutationFailure extends StorageFolderMutationState {
-  /// Tworzy stan błędu.
+/// Stan błędu operacji na folderze z kompletnymi danymi API.
+final class StorageFolderMutationFailure extends StorageFolderMutationState {
   const StorageFolderMutationFailure({
-    required this.message,
-    this.statusCode,
-    this.apiCode,
-    this.traceId,
-    this.backendCode,
+    required this.error,
+    this.retryEnabledRevision = 0,
   });
 
-  /// Komunikat błędu.
-  final String message;
+  final ApiError error;
+  final int retryEnabledRevision;
 
-  /// Opcjonalny kod HTTP.
-  final int? statusCode;
+  /// Pola zachowane dla dotychczasowych listenerów powłoki.
+  String get message => error.message;
+  int? get statusCode => error.statusCode;
+  String? get apiCode => error.contractCode ?? error.apiCode;
+  String? get traceId => error.traceId;
+  int? get backendCode => error.backendCode;
 
-  /// Opcjonalny stabilny kod kontraktu.
-  final String? apiCode;
-
-  /// Opcjonalny identyfikator śledzenia żądania.
-  final String? traceId;
-
-  /// Opcjonalny kod błędu backendu.
-  final int? backendCode;
+  StorageFolderMutationFailure copyWith({int? retryEnabledRevision}) =>
+      StorageFolderMutationFailure(
+        error: error,
+        retryEnabledRevision: retryEnabledRevision ?? this.retryEnabledRevision,
+      );
 
   @override
-  List<Object?> get props => [
-    message,
-    statusCode,
-    backendCode,
-    apiCode,
-    traceId,
-  ];
+  List<Object?> get props => [error, retryEnabledRevision];
 }

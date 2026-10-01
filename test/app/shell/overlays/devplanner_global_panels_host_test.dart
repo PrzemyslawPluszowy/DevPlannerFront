@@ -206,6 +206,15 @@ void main() {
 final class _ChatResourceRepository
     implements ChatRepository, ResourceChatRepository {
   @override
+  Future<Either<ApiError, ChatConversation>> resolveTaskConversation({
+    required String taskId,
+    required String workspaceId,
+    required String projectId,
+  }) => throw UnimplementedError(
+    'Ten testowy skład nie konfiguruje rozmów zadań.',
+  );
+
+  @override
   Future<Either<ApiError, List<ChatConversationResponse>>>
   listConversations() => throw UnimplementedError();
 

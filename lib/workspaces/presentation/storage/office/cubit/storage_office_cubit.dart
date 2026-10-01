@@ -21,18 +21,30 @@ class StorageOfficeCubit extends Cubit<StorageOfficeState> {
   /// Repozytorium storage.
   final StorageRepository repository;
 
+  int _generation = 0;
+
   /// Pobiera sesję dokumentu OnlyOffice z backendu.
   Future<void> initSession() async {
+    if (isClosed || state is StorageOfficeLoading) return;
+    final retryAfter = switch (state) {
+      StorageOfficeFailure(:final error) => error?.retryAfterUtc,
+      _ => null,
+    };
+    if (retryAfter != null && DateTime.now().toUtc().isBefore(retryAfter)) {
+      return;
+    }
+    final generation = ++_generation;
     emit(const StorageOfficeLoading());
 
     final result = await repository.getOfficeSession(fileId);
-    if (isClosed) return;
+    if (isClosed || generation != _generation) return;
 
     result.fold(
       (error) => emit(
         StorageOfficeFailure(
           message: error.message,
           code: error.backendCode?.toString(),
+          error: error,
         ),
       ),
       (session) => emit(StorageOfficeReady(session: session)),
@@ -41,6 +53,14 @@ class StorageOfficeCubit extends Cubit<StorageOfficeState> {
 
   /// Zamyka aktywną sesję dokumentu.
   void closeSession() {
+    if (isClosed) return;
+    _generation++;
     emit(const StorageOfficeInitial());
+  }
+
+  @override
+  Future<void> close() {
+    _generation++;
+    return super.close();
   }
 }

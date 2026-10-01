@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
@@ -43,6 +44,7 @@ final class TasksBoardReady extends TasksBoardState {
     this.memberProfilesByUserId = const {},
     this.loadingColumnKeys = const <String>{},
     this.columnLoadErrors = const <String, String>{},
+    this.columnLoadApiErrors = const <String, ApiError>{},
     this.selectedTaskIds = const <String>{},
     this.pendingTaskIds = const <String>{},
     this.isBulkSaving = false,
@@ -78,6 +80,7 @@ final class TasksBoardReady extends TasksBoardState {
   final Map<String, ProjectMemberProfile> memberProfilesByUserId;
   final Set<String> loadingColumnKeys;
   final Map<String, String> columnLoadErrors;
+  final Map<String, ApiError> columnLoadApiErrors;
   final Set<String> selectedTaskIds;
   final Set<String> pendingTaskIds;
   final bool isBulkSaving;
@@ -151,6 +154,7 @@ final class TasksBoardReady extends TasksBoardState {
     Map<String, ProjectMemberProfile>? memberProfilesByUserId,
     Set<String>? loadingColumnKeys,
     Map<String, String>? columnLoadErrors,
+    Map<String, ApiError>? columnLoadApiErrors,
     Set<String>? selectedTaskIds,
     Set<String>? pendingTaskIds,
     bool? isBulkSaving,
@@ -181,6 +185,7 @@ final class TasksBoardReady extends TasksBoardState {
         memberProfilesByUserId ?? this.memberProfilesByUserId,
     loadingColumnKeys: loadingColumnKeys ?? this.loadingColumnKeys,
     columnLoadErrors: columnLoadErrors ?? this.columnLoadErrors,
+    columnLoadApiErrors: columnLoadApiErrors ?? this.columnLoadApiErrors,
     selectedTaskIds: selectedTaskIds ?? this.selectedTaskIds,
     pendingTaskIds: pendingTaskIds ?? this.pendingTaskIds,
     isBulkSaving: isBulkSaving ?? this.isBulkSaving,

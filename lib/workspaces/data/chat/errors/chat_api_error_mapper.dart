@@ -50,6 +50,8 @@ final class ChatApiErrorMapper {
       statusCode: mapped.statusCode,
       backendCode: mapped.backendCode,
       apiCode: _codeValue(code),
+      contractCode: mapped.contractCode,
+      fields: mapped.fields,
       traceId: mapped.traceId,
       retryAfterUtc: mapped.retryAfterUtc,
     );

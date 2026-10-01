@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
@@ -103,4 +104,119 @@ void main() {
 
     await cubit.close();
   });
+
+  test(
+    'błąd mutacji zachowuje dane API i blokuje powtórzenie w cooldownie',
+    () async {
+      final retryAfter = DateTime.now().toUtc().add(
+        const Duration(milliseconds: 120),
+      );
+      final error = ApiError(
+        type: ApiErrorType.validation,
+        message: 'Nieprawidłowa relacja.',
+        statusCode: 429,
+        backendCode: 91,
+        apiCode: 'share.denied',
+        contractCode: 'share.denied',
+        fields: const {
+          'accessLevel': ['Niedozwolony poziom.'],
+        },
+        traceId: 'trace-share-1',
+        retryAfterUtc: retryAfter,
+      );
+      when(() => repository.listFileShares('file-1')).thenAnswer(
+        (_) async => Right([sampleShare]),
+      );
+      when(
+        () => repository.createFileShare(
+          fileId: 'file-1',
+          payload: any(named: 'payload'),
+        ),
+      ).thenAnswer((_) async => Left(error));
+
+      final cubit = StorageSharingCubit(
+        fileId: 'file-1',
+        repository: repository,
+      );
+      await cubit.loadShares();
+      final first = await cubit.shareWithUser(
+        targetUserId: 'user-2',
+        accessLevel: StorageShareAccessLevel.editor,
+      );
+      final second = await cubit.shareWithUser(
+        targetUserId: 'user-2',
+        accessLevel: StorageShareAccessLevel.editor,
+      );
+
+      expect(first, isFalse);
+      expect(second, isFalse);
+      final state = cubit.state as StorageSharingReady;
+      expect(state.shares.single.id, 'share-1');
+      expect(state.mutationError, error);
+      expect(state.mutationError?.fields['accessLevel'], [
+        'Niedozwolony poziom.',
+      ]);
+      expect(state.mutationError?.traceId, 'trace-share-1');
+      verify(
+        () => repository.createFileShare(
+          fileId: 'file-1',
+          payload: any(named: 'payload'),
+        ),
+      ).called(1);
+
+      await Future<void>.delayed(const Duration(milliseconds: 140));
+      when(
+        () => repository.createFileShare(
+          fileId: 'file-1',
+          payload: any(named: 'payload'),
+        ),
+      ).thenAnswer((_) async => Right(sampleShare));
+      expect(
+        await cubit.shareWithUser(
+          targetUserId: 'user-2',
+          accessLevel: StorageShareAccessLevel.editor,
+        ),
+        isTrue,
+      );
+      await cubit.close();
+    },
+  );
+
+  test(
+    'loadShares respektuje Retry-After również przy bezpośrednim wywołaniu',
+    () async {
+      var loads = 0;
+      final retryAfter = DateTime.now().toUtc().add(
+        const Duration(milliseconds: 100),
+      );
+      when(() => repository.listFileShares('file-1')).thenAnswer((_) async {
+        loads++;
+        if (loads == 1) {
+          return Left(
+            ApiError(
+              type: ApiErrorType.server,
+              message: 'Poczekaj przed kolejnym odczytem.',
+              statusCode: 503,
+              retryAfterUtc: retryAfter,
+            ),
+          );
+        }
+        return const Right(<StorageFileShareResponse>[]);
+      });
+
+      final cubit = StorageSharingCubit(
+        fileId: 'file-1',
+        repository: repository,
+      );
+      await cubit.loadShares();
+      await cubit.loadShares();
+      expect(loads, 1);
+
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      await cubit.loadShares();
+      expect(loads, 2);
+      expect(cubit.state, isA<StorageSharingReady>());
+      await cubit.close();
+    },
+  );
 }

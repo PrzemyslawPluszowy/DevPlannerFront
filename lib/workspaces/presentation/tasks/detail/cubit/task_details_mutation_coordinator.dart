@@ -15,16 +15,18 @@ final class TaskDetailsMutationCoordinator {
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
-    required this.emitReady,
+    required this.emitState,
     required this.isClosed,
+    required this.readState,
   });
 
   final TasksRepository repository;
   final String workspaceId;
   final String projectId;
   final String taskId;
-  final void Function(TaskDetailsReady state) emitReady;
+  final void Function(TaskDetailsState state) emitState;
   final bool Function() isClosed;
+  final TaskDetailsState Function() readState;
 
   Future<bool> execute<T>({
     required TaskDetailsReady current,
@@ -33,12 +35,39 @@ final class TaskDetailsMutationCoordinator {
     onSuccess,
   }) async {
     final result = await operation;
-    if (isClosed()) return false;
+    if (isClosed() || readState() is! TaskDetailsReady) return false;
+    final latest = readState();
+    if (latest is! TaskDetailsReady) return false;
     return result.fold(
       (error) => _handleError(current, error),
       (value) {
-        emitReady(onSuccess(current, value));
+        emitState(onSuccess(latest, value));
         return true;
+      },
+    );
+  }
+
+  /// Błąd gałęzi odświeża ACL; brak odczytu usuwa cały chroniony agregat.
+  Future<void> checkAccess(ApiError error) async {
+    if (isClosed()) return;
+    if (error.type != ApiErrorType.forbidden) {
+      _emitAccessFailure(error);
+      return;
+    }
+    final refreshed = await _load();
+    if (isClosed()) return;
+    refreshed.fold(
+      _emitAccessFailure,
+      (details) {
+        final latest = readState();
+        if (latest is! TaskDetailsReady) return;
+        emitState(
+          latest.copyWith(
+            details: details.task.version >= latest.details.task.version
+                ? details
+                : latest.details.copyWith(capabilities: details.capabilities),
+          ),
+        );
       },
     );
   }
@@ -49,7 +78,7 @@ final class TaskDetailsMutationCoordinator {
     operation,
     TaskDetailsResponseAssembler assembler,
   ) {
-    emitReady(current.copyWith(isSaving: true, clearMutationError: true));
+    emitState(current.copyWith(isSaving: true, clearMutationError: true));
     return execute<TaskMutationResponse<ProjectTaskResponse>>(
       current: current,
       operation: operation,
@@ -59,20 +88,22 @@ final class TaskDetailsMutationCoordinator {
 
   Future<bool> refresh(TaskDetailsReady previous) async {
     final refreshed = await _load();
-    if (isClosed()) return false;
+    if (isClosed() || readState() is! TaskDetailsReady) return false;
     return refreshed.fold(
       (error) {
-        emitReady(
+        if (_emitAccessFailure(error)) return false;
+        emitState(
           previous.copyWith(
             isSaving: false,
             mutationError: error.message,
+            mutationFailure: error,
             mutationSerial: previous.mutationSerial + 1,
           ),
         );
         return false;
       },
       (details) {
-        emitReady(
+        emitState(
           previous.copyWith(
             details: details,
             isSaving: false,
@@ -89,7 +120,7 @@ final class TaskDetailsMutationCoordinator {
     required Future<Either<ApiError, T>> operation,
   }) async {
     final result = await operation;
-    if (isClosed()) return false;
+    if (isClosed() || readState() is! TaskDetailsReady) return false;
     return result.fold(
       (error) => _handleError(current, error),
       (_) => refresh(current),
@@ -100,26 +131,37 @@ final class TaskDetailsMutationCoordinator {
     TaskDetailsReady current,
     ApiError error,
   ) async {
-    if (error.type == ApiErrorType.conflict) {
+    // Odmowa konkretnej akcji nie dowodzi utraty prawa odczytu zasobu.
+    if (error.type != ApiErrorType.forbidden && _emitAccessFailure(error)) {
+      return false;
+    }
+    if (error.type == ApiErrorType.conflict ||
+        error.type == ApiErrorType.forbidden) {
       final refreshed = await _load();
-      if (isClosed()) return false;
+      if (isClosed() || readState() is! TaskDetailsReady) return false;
       return refreshed.fold(
-        (_) {
-          emitReady(
+        (refreshError) {
+          if (_emitAccessFailure(refreshError)) return false;
+          emitState(
             current.copyWith(
               isSaving: false,
               mutationError: error.message,
+              mutationFailure: error,
               mutationSerial: current.mutationSerial + 1,
             ),
           );
           return false;
         },
         (details) {
-          emitReady(
+          emitState(
             current.copyWith(
               details: details,
+              conflictBase: error.type == ApiErrorType.conflict
+                  ? current.conflictBase ?? current.details
+                  : current.conflictBase,
               isSaving: false,
               mutationError: error.message,
+              mutationFailure: error,
               mutationSerial: current.mutationSerial + 1,
             ),
           );
@@ -127,14 +169,34 @@ final class TaskDetailsMutationCoordinator {
         },
       );
     }
-    emitReady(
+    emitState(
       current.copyWith(
         isSaving: false,
         mutationError: error.message,
+        mutationFailure: error,
         mutationSerial: current.mutationSerial + 1,
       ),
     );
     return false;
+  }
+
+  bool _emitAccessFailure(ApiError error) {
+    final kind = switch (error.type) {
+      ApiErrorType.unauthorized ||
+      ApiErrorType.forbidden => TaskDetailsFailureKind.forbidden,
+      ApiErrorType.notFound => TaskDetailsFailureKind.notFound,
+      _ => null,
+    };
+    if (kind == null) return false;
+    emitState(
+      TaskDetailsFailure(
+        kind: kind,
+        message: error.message,
+        backendCode: error.backendCode,
+        error: error,
+      ),
+    );
+    return true;
   }
 
   Future<Either<ApiError, ProjectTaskDetailsResponse>> _load() =>

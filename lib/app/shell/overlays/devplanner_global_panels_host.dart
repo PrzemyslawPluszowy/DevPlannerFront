@@ -243,6 +243,27 @@ final class _DevPlannerGlobalPanelsHostState
         child: routedChild,
       );
     }
+    final chatComposition = widget.chat;
+    if (chatComposition != null) {
+      routedChild = RepositoryProvider<DevPlannerGlobalChatComposition>.value(
+        value: chatComposition,
+        child: routedChild,
+      );
+    }
+    final authSession = widget.authSession;
+    if (authSession != null) {
+      routedChild = ListenableProvider<AuthSessionPort>.value(
+        value: authSession,
+        child: routedChild,
+      );
+    }
+    final storageRepository = widget.storageRepository;
+    if (storageRepository != null) {
+      routedChild = RepositoryProvider<StorageRepository>.value(
+        value: storageRepository,
+        child: routedChild,
+      );
+    }
     Widget panelHost = CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.escape): _handleEscape,

@@ -22,6 +22,7 @@ import 'package:devplanner/workspaces/domain/repositories/storage_repository.dar
 import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 import 'package:devplanner/workspaces/presentation/storage/public_share/storage_public_share_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -167,8 +168,40 @@ void main() {
     test('builds canonical nested Workspaces paths', () {
       expect(
         DevPlannerRouteCatalog.task('workspace 1', 'project-2', 'task-3'),
+        '/workspaces/workspace%201/projects/project-2/tasks?task=task-3&view=list',
+      );
+      expect(
+        DevPlannerRouteCatalog.legacyTask(
+          'workspace 1',
+          'project-2',
+          'task-3',
+        ),
         '/workspaces/workspace%201/projects/project-2/tasks/task-3',
       );
+      expect(
+        DevPlannerRouteCatalog.task(
+          'workspace-1',
+          'project-2',
+          'task-3',
+          currentLocation: Uri.parse(
+            '/workspaces/workspace-1/projects/project-2/tasks?view=kanban&filter=mine',
+          ),
+          targetTab: TaskDetailModalTab.conversation,
+        ),
+        '/workspaces/workspace-1/projects/project-2/tasks'
+        '?view=kanban&filter=mine&task=task-3&taskTab=conversation',
+      );
+      final myTaskLink = Uri.parse(
+        DevPlannerRouteCatalog.task(
+          'workspace-1',
+          'project-2',
+          'task-3',
+          source: TaskDetailOpenSource.myTasks,
+        ),
+      );
+      expect(myTaskLink.queryParameters['task'], 'task-3');
+      expect(myTaskLink.queryParameters['view'], 'list');
+      expect(myTaskLink.queryParameters['taskReturn'], '/me/tasks');
       expect(
         DevPlannerRouteCatalog.projectResourceItem(
           'workspace-1',
@@ -491,13 +524,22 @@ final class _JsonAdapter implements HttpClientAdapter {
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
-  ) async => ResponseBody.fromString(
-    jsonEncode(body),
-    200,
-    headers: {
-      Headers.contentTypeHeader: [Headers.jsonContentType],
-    },
-  );
+  ) async {
+    final response = options.path.endsWith('/api/v1/chat/inbox/unread-count')
+        ? <String, Object>{
+            'totalUnreadCount': 0,
+            'unreadConversationCount': 0,
+            'generatedAtUtc': DateTime.utc(2026, 9, 30).toIso8601String(),
+          }
+        : body;
+    return ResponseBody.fromString(
+      jsonEncode(response),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
 
   @override
   void close({bool force = false}) {}

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
@@ -9,6 +11,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_checklist_reposit
 import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_basic_mutation_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +21,8 @@ final class _TasksRepository implements TasksRepository {
 
   Either<ApiError, ProjectTaskDetailsResponse> result;
   Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>? updateResult;
+  Future<Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>>?
+  pendingUpdate;
   Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>? createResult;
   QuickCreateProjectTaskPayload? createPayload;
   UpdateProjectTaskPayload? updatePayload;
@@ -31,6 +36,7 @@ final class _TasksRepository implements TasksRepository {
   UpdateTaskDependencyPayload? updateDependencyPayload;
   int? deleteDependencyExpectedVersion;
   int getCalls = 0;
+  final getReplies = <Future<Either<ApiError, ProjectTaskDetailsResponse>>>[];
 
   @override
   Future<Either<ApiError, ProjectTaskDetailsResponse>> getTask({
@@ -39,6 +45,7 @@ final class _TasksRepository implements TasksRepository {
     required String taskId,
   }) async {
     getCalls++;
+    if (getReplies.isNotEmpty) return getReplies.removeAt(0);
     return result;
   }
 
@@ -64,7 +71,7 @@ final class _TasksRepository implements TasksRepository {
     required UpdateProjectTaskPayload payload,
   }) async {
     updatePayload = payload;
-    return updateResult!;
+    return pendingUpdate ?? updateResult!;
   }
 
   @override
@@ -294,6 +301,7 @@ final class _TaskCollaborationRepository
 }
 
 final class _TaskMetadataRepository implements TaskMetadataRepository {
+  int labelReads = 0;
   Either<ApiError, List<TaskLabelResponse>> labelsResult = const Right([]);
   Either<ApiError, TaskMutationResponse<List<TaskLabelResponse>>>?
   replaceLabelsResult;
@@ -306,7 +314,10 @@ final class _TaskMetadataRepository implements TaskMetadataRepository {
   Future<Either<ApiError, List<TaskLabelResponse>>> listLabels({
     required String workspaceId,
     required String projectId,
-  }) async => labelsResult;
+  }) async {
+    labelReads++;
+    return labelsResult;
+  }
 
   @override
   Future<Either<ApiError, TaskLabelResponse>> createLabel({
@@ -421,6 +432,407 @@ ProjectTaskDetailsResponse _details() => ProjectTaskDetailsResponse(
 );
 
 void main() {
+  test('inline priority uses the latest title, status and version', () async {
+    final latest = _details().copyWith(
+      task: _details().task.copyWith(
+        title: 'Latest title',
+        status: ProjectTaskStatus.blocked,
+        priority: TaskPriority.normal,
+        version: 9,
+      ),
+    );
+    final repository = _TasksRepository(Right(latest));
+    final cubit = TaskDetailsCubit(
+      repository: repository,
+      acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+      checklistRepository: _TaskChecklistRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    await cubit.load();
+    final updated = latest.task.copyWith(
+      priority: TaskPriority.critical,
+      version: 10,
+    );
+    repository.updateResult = Right(
+      TaskMutationResponse(
+        taskId: updated.id,
+        taskVersion: updated.version,
+        taskUpdatedAtUtc: updated.updatedAtUtc,
+        data: updated,
+      ),
+    );
+    expect(await cubit.changePriority(TaskPriority.critical), isTrue);
+    expect(repository.updatePayload?.title, 'Latest title');
+    expect(repository.updatePayload?.status, ProjectTaskStatus.blocked);
+    expect(repository.updatePayload?.priority, TaskPriority.critical);
+    expect(repository.updatePayload?.expectedVersion, 9);
+    await cubit.close();
+    expect(await cubit.changePriority(TaskPriority.high), isFalse);
+  });
+
+  test(
+    'inline status zachowuje najnowsze pola i odrzuca zabronione przejście',
+    () async {
+      final original = _details().copyWith(
+        workflow: const ProjectTaskWorkflowResponse(
+          statuses: [],
+          transitions: [
+            ProjectTaskWorkflowTransitionResponse(
+              fromStatus: ProjectTaskStatus.todo,
+              toStatus: ProjectTaskStatus.inProgress,
+            ),
+          ],
+          version: 1,
+        ),
+      );
+      final repository = _TasksRepository(Right(original));
+      final cubit = TaskDetailsCubit(
+        repository: repository,
+        acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+        checklistRepository: _TaskChecklistRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+      );
+      await cubit.load();
+      final latest = original.copyWith(
+        task: original.task.copyWith(
+          title: 'Aktualny tytuł',
+          priority: TaskPriority.high,
+          version: 9,
+        ),
+      );
+      repository.result = Right(latest);
+      await cubit.load();
+      expect(await cubit.changeSystemStatus(ProjectTaskStatus.done), isFalse);
+      expect(repository.updatePayload, isNull);
+      final updated = latest.task.copyWith(
+        status: ProjectTaskStatus.inProgress,
+        version: 10,
+      );
+      repository.updateResult = Right(
+        TaskMutationResponse(
+          taskId: updated.id,
+          taskVersion: updated.version,
+          taskUpdatedAtUtc: updated.updatedAtUtc,
+          data: updated,
+        ),
+      );
+      expect(
+        await cubit.changeSystemStatus(ProjectTaskStatus.inProgress),
+        isTrue,
+      );
+      expect(repository.updatePayload?.title, 'Aktualny tytuł');
+      expect(repository.updatePayload?.priority, TaskPriority.high);
+      expect(repository.updatePayload?.expectedVersion, 9);
+      await cubit.close();
+      expect(await cubit.changeSystemStatus(ProjectTaskStatus.todo), isFalse);
+    },
+  );
+  test('spóźniony zapis nie przywraca treści po utracie sesji', () async {
+    final pending =
+        Completer<
+          Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>
+        >();
+    final original = _details();
+    final repository = _TasksRepository(Right(original))
+      ..pendingUpdate = pending.future;
+    final cubit = TaskDetailsCubit(
+      repository: repository,
+      acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+      checklistRepository: _TaskChecklistRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    await cubit.load();
+    final saving = cubit.updateDescription(
+      description: 'Szkic',
+      descriptionDeltaJson: '[]',
+    );
+    const error = ApiError(
+      type: ApiErrorType.unauthorized,
+      message: 'Sesja wygasła',
+    );
+    await cubit.reportAccessLost(error);
+    pending.complete(
+      Right(
+        TaskMutationResponse(
+          taskId: original.task.id,
+          taskVersion: 2,
+          taskUpdatedAtUtc: original.task.updatedAtUtc,
+          data: original.task.copyWith(version: 2),
+        ),
+      ),
+    );
+    expect(await saving, isFalse);
+    expect((cubit.state as TaskDetailsFailure).error, error);
+    await cubit.close();
+  });
+
+  test('spóźniony odczyt nie przywraca treści po utracie sesji', () async {
+    final pending = Completer<Either<ApiError, ProjectTaskDetailsResponse>>();
+    final repository = _TasksRepository(Right(_details()))
+      ..getReplies.add(pending.future);
+    final cubit = TaskDetailsCubit(
+      repository: repository,
+      acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+      checklistRepository: _TaskChecklistRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    final loading = cubit.load();
+    const error = ApiError(
+      type: ApiErrorType.unauthorized,
+      message: 'Sesja wygasła',
+    );
+    await cubit.reportAccessLost(error);
+    pending.complete(Right(_details()));
+    await loading;
+    expect((cubit.state as TaskDetailsFailure).error, error);
+    await cubit.close();
+  });
+
+  test('403 akcji zachowuje detal gdy odczyt nadal jest dozwolony', () async {
+    const error = ApiError(
+      type: ApiErrorType.forbidden,
+      message: 'Brak uprawnień do edycji',
+      apiCode: 'role_denied',
+    );
+    final repository = _TasksRepository(Right(_details()))
+      ..updateResult = const Left(error);
+    final cubit = TaskDetailsCubit(
+      repository: repository,
+      acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+      checklistRepository: _TaskChecklistRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    await cubit.load();
+    repository.result = Right(
+      _details().copyWith(
+        capabilities: const TaskCapabilitiesResponse(
+          canEdit: false,
+          canArchive: false,
+          canRestore: false,
+        ),
+      ),
+    );
+    expect(
+      await cubit.updateDescription(
+        description: 'Szkic',
+        descriptionDeltaJson: '[]',
+      ),
+      isFalse,
+    );
+    final ready = cubit.state as TaskDetailsReady;
+    expect(ready.mutationFailure, error);
+    expect(ready.canEdit, isFalse);
+    expect(ready.conflictBase, isNull);
+    expect(repository.getCalls, 2);
+    await cubit.close();
+  });
+
+  test('opis i planowanie można jawnie wyczyścić niezależnie', () async {
+    final task = _details().task.copyWith(
+      description: 'Stary opis',
+      startAtUtc: DateTime.utc(2026, 9),
+      dueAtUtc: DateTime.utc(2026, 9, 3),
+      estimatedMinutes: 60,
+    );
+    final repository = _TasksRepository(Right(_details()))
+      ..updateResult = Right(
+        TaskMutationResponse(
+          taskId: task.id,
+          taskVersion: 2,
+          taskUpdatedAtUtc: task.updatedAtUtc,
+          data: task,
+        ),
+      );
+    final service = TaskDetailsBasicMutationService(
+      repository: repository,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: task.id,
+    );
+    await service.updateDescription(
+      task: task,
+      description: '  ',
+      descriptionDeltaJson: '[{"insert":"\\n"}]',
+    );
+    expect(repository.updatePayload?.description, isNull);
+    expect(repository.updatePayload?.startAtUtc, task.startAtUtc);
+    expect(repository.updatePayload?.dueAtUtc, task.dueAtUtc);
+    expect(repository.updatePayload?.estimatedMinutes, 60);
+    await service.updatePlanning(
+      task: task,
+      startAtUtc: null,
+      dueAtUtc: null,
+      estimatedMinutes: null,
+    );
+    expect(repository.updatePayload?.description, 'Stary opis');
+    expect(repository.updatePayload?.startAtUtc, isNull);
+    expect(repository.updatePayload?.dueAtUtc, isNull);
+    expect(repository.updatePayload?.estimatedMinutes, isNull);
+  });
+
+  test('selektor etykiet zachowuje błąd zamiast pustego sukcesu', () async {
+    const error = ApiError(
+      type: ApiErrorType.connection,
+      message: 'Brak połączenia',
+      apiCode: 'offline',
+    );
+    final metadata = _TaskMetadataRepository()
+      ..labelsResult = const Left(error);
+    final cubit = TaskDetailsCubit(
+      repository: _TasksRepository(Right(_details())),
+      acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+      checklistRepository: _TaskChecklistRepository(),
+      metadataRepository: metadata,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    final result = await cubit.loadProjectLabels();
+    expect(result, const Left<ApiError, List<TaskLabelResponse>>(error));
+    await cubit.close();
+    expect(
+      (await cubit.loadProjectLabels()).fold((e) => e.type, (_) => null),
+      ApiErrorType.canceled,
+    );
+    expect(metadata.labelReads, 1);
+  });
+
+  for (final type in [
+    ApiErrorType.unauthorized,
+    ApiErrorType.forbidden,
+    ApiErrorType.notFound,
+  ]) {
+    test('utrata dostępu $type podczas zapisu usuwa agregat', () async {
+      final error = ApiError(
+        type: type,
+        message: 'Brak dostępu',
+        apiCode: 'access_lost',
+        traceId: 'trace-1',
+      );
+      final repository = _TasksRepository(Right(_details()))
+        ..updateResult = Left(error);
+      final cubit = TaskDetailsCubit(
+        repository: repository,
+        acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+        checklistRepository: _TaskChecklistRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+      );
+      await cubit.load();
+      repository.result = Left(error);
+      expect(
+        await cubit.updateDescription(
+          description: 'Szkic',
+          descriptionDeltaJson: '[{"insert":"Szkic\\n"}]',
+        ),
+        isFalse,
+      );
+      final failure = cubit.state as TaskDetailsFailure;
+      expect(failure.error, error);
+      expect(
+        failure.kind,
+        type == ApiErrorType.notFound
+            ? TaskDetailsFailureKind.notFound
+            : TaskDetailsFailureKind.forbidden,
+      );
+      await cubit.close();
+    });
+  }
+
+  test('capabilities read-only blokują edycję przed REST', () async {
+    final original = _details().copyWith(
+      capabilities: const TaskCapabilitiesResponse(
+        canEdit: false,
+        canArchive: false,
+        canRestore: false,
+      ),
+    );
+    final repository = _TasksRepository(Right(original));
+    final cubit = TaskDetailsCubit(
+      repository: repository,
+      acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+      checklistRepository: _TaskChecklistRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    await cubit.load();
+    expect(
+      await cubit.updateDescription(
+        description: 'Szkic',
+        descriptionDeltaJson: '[]',
+      ),
+      isFalse,
+    );
+    expect(
+      await cubit.updatePlanning(
+        startAtUtc: null,
+        dueAtUtc: null,
+        estimatedMinutes: null,
+      ),
+      isFalse,
+    );
+    expect(await cubit.toggleArchive(), isFalse);
+    expect(repository.updatePayload, isNull);
+    expect(cubit.state, isA<TaskDetailsReady>());
+    await cubit.close();
+  });
+
+  test('odrzuca spóźniony odczyt po nowszym odświeżeniu', () async {
+    final first = Completer<Either<ApiError, ProjectTaskDetailsResponse>>();
+    final second = Completer<Either<ApiError, ProjectTaskDetailsResponse>>();
+    final repository = _TasksRepository(Right(_details()))
+      ..getReplies.addAll([first.future, second.future]);
+    final cubit = TaskDetailsCubit(
+      repository: repository,
+      acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+      checklistRepository: _TaskChecklistRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    final oldLoad = cubit.load();
+    final newLoad = cubit.load();
+    final original = _details();
+    final latest = original.copyWith(task: original.task.copyWith(version: 3));
+    second.complete(Right(latest));
+    await newLoad;
+    first.complete(Right(original));
+    await oldLoad;
+    expect((cubit.state as TaskDetailsReady).details.task.version, 3);
+    await cubit.close();
+  });
+
+  test('odczyt zakończony po zamknięciu nie emituje stanu', () async {
+    final pending = Completer<Either<ApiError, ProjectTaskDetailsResponse>>();
+    final repository = _TasksRepository(Right(_details()))
+      ..getReplies.add(pending.future);
+    final cubit = TaskDetailsCubit(
+      repository: repository,
+      acceptanceCriteriaRepository: _TaskAcceptanceCriteriaRepository(),
+      checklistRepository: _TaskChecklistRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    final loading = cubit.load();
+    await cubit.close();
+    pending.complete(Right(_details()));
+    await loading;
+    expect(cubit.state, isA<TaskDetailsLoading>());
+  });
+
   test('ładuje pełny agregat szczegółów zadania', () async {
     final cubit = TaskDetailsCubit(
       repository: _TasksRepository(Right(_details())),
@@ -581,6 +993,8 @@ void main() {
       expect(ready.details.task.title, 'Zmiana innej osoby');
       expect(ready.details.task.version, 4);
       expect(ready.mutationError, 'Zadanie zostało zmienione');
+      expect(ready.mutationFailure?.type, ApiErrorType.conflict);
+      expect(ready.conflictBase?.task.version, 1);
       expect(ready.mutationSerial, 1);
       await cubit.close();
     },
@@ -632,7 +1046,16 @@ void main() {
   });
 
   test('zapisuje opis Delta z aktualną wersją zadania', () async {
-    final original = _details();
+    final base = _details();
+    final start = DateTime.utc(2026, 9);
+    final due = DateTime.utc(2026, 9, 4);
+    final original = base.copyWith(
+      task: base.task.copyWith(
+        startAtUtc: start,
+        dueAtUtc: due,
+        estimatedMinutes: 480,
+      ),
+    );
     final updatedTask = original.task.copyWith(
       description: 'Opis z formatowaniem',
       descriptionDeltaJson: '[{"insert":"Opis z formatowaniem\\n"}]',
@@ -664,6 +1087,9 @@ void main() {
 
     expect(saved, isTrue);
     expect(repository.updatePayload?.description, 'Opis z formatowaniem');
+    expect(repository.updatePayload?.startAtUtc, start);
+    expect(repository.updatePayload?.dueAtUtc, due);
+    expect(repository.updatePayload?.estimatedMinutes, 480);
     expect(
       repository.updatePayload?.descriptionDeltaJson,
       '[{"insert":"Opis z formatowaniem\\n"}]',

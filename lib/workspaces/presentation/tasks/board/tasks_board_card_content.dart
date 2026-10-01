@@ -74,9 +74,16 @@ class KanbanTaskCard extends StatelessWidget {
     void openDetails() {
       final router = GoRouter.maybeOf(context);
       if (router == null) return;
+      final currentLocation = GoRouterState.of(context).uri;
       unawaited(
-        DevPlannerNavigation(router).go(
-          '/workspaces/$workspaceId/projects/$projectId/tasks/${task.id}',
+        DevPlannerNavigation(router).goToTask(
+          workspaceId: workspaceId,
+          projectId: projectId,
+          taskId: task.id,
+          currentLocation: currentLocation,
+          source: currentLocation.queryParameters['view'] == 'kanban'
+              ? TaskDetailOpenSource.kanban
+              : TaskDetailOpenSource.taskList,
         ),
       );
     }
@@ -130,7 +137,7 @@ class KanbanTaskCard extends StatelessWidget {
             ),
             if (statusBadge != null) ...[
               SizedBox(height: spacing),
-              _CardStatusBadge(badge: statusBadge!),
+              KanbanCardStatusBadgeView(badge: statusBadge!),
             ],
             if (shows(KanbanCardField.labels) &&
                 (task.labels ?? const []).isNotEmpty) ...[

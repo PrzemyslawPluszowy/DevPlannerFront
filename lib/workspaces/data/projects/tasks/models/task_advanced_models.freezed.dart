@@ -3751,7 +3751,7 @@ as String?,
 /// @nodoc
 mixin _$TaskTimeEntryResponse {
 
- String get id; String get taskId; String get userId; TaskTimeEntryKind get kind; DateTime get startedAtUtc; DateTime? get stoppedAtUtc; int? get durationMinutes; String? get description; bool get isBillable; DateTime get createdAtUtc; TaskTimeEntryApprovalStatus get approvalStatus; String? get reviewedByUserId; DateTime? get reviewedAtUtc; String? get reviewComment; int get version;
+ String get id; String get taskId; String get userId; TaskTimeEntryKind get kind; DateTime get startedAtUtc; DateTime? get stoppedAtUtc; int? get durationMinutes; String? get description; bool get isBillable; DateTime get createdAtUtc; TaskTimeEntryApprovalStatus get approvalStatus; String? get reviewedByUserId; DateTime? get reviewedAtUtc; String? get reviewComment; int get version; bool get canSubmit; bool get canReview; bool get canStopTimer;
 /// Create a copy of TaskTimeEntryResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3764,16 +3764,16 @@ $TaskTimeEntryResponseCopyWith<TaskTimeEntryResponse> get copyWith => _$TaskTime
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskTimeEntryResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.startedAtUtc, startedAtUtc) || other.startedAtUtc == startedAtUtc)&&(identical(other.stoppedAtUtc, stoppedAtUtc) || other.stoppedAtUtc == stoppedAtUtc)&&(identical(other.durationMinutes, durationMinutes) || other.durationMinutes == durationMinutes)&&(identical(other.description, description) || other.description == description)&&(identical(other.isBillable, isBillable) || other.isBillable == isBillable)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.approvalStatus, approvalStatus) || other.approvalStatus == approvalStatus)&&(identical(other.reviewedByUserId, reviewedByUserId) || other.reviewedByUserId == reviewedByUserId)&&(identical(other.reviewedAtUtc, reviewedAtUtc) || other.reviewedAtUtc == reviewedAtUtc)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.version, version) || other.version == version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskTimeEntryResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.startedAtUtc, startedAtUtc) || other.startedAtUtc == startedAtUtc)&&(identical(other.stoppedAtUtc, stoppedAtUtc) || other.stoppedAtUtc == stoppedAtUtc)&&(identical(other.durationMinutes, durationMinutes) || other.durationMinutes == durationMinutes)&&(identical(other.description, description) || other.description == description)&&(identical(other.isBillable, isBillable) || other.isBillable == isBillable)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.approvalStatus, approvalStatus) || other.approvalStatus == approvalStatus)&&(identical(other.reviewedByUserId, reviewedByUserId) || other.reviewedByUserId == reviewedByUserId)&&(identical(other.reviewedAtUtc, reviewedAtUtc) || other.reviewedAtUtc == reviewedAtUtc)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.version, version) || other.version == version)&&(identical(other.canSubmit, canSubmit) || other.canSubmit == canSubmit)&&(identical(other.canReview, canReview) || other.canReview == canReview)&&(identical(other.canStopTimer, canStopTimer) || other.canStopTimer == canStopTimer));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,taskId,userId,kind,startedAtUtc,stoppedAtUtc,durationMinutes,description,isBillable,createdAtUtc,approvalStatus,reviewedByUserId,reviewedAtUtc,reviewComment,version);
+int get hashCode => Object.hash(runtimeType,id,taskId,userId,kind,startedAtUtc,stoppedAtUtc,durationMinutes,description,isBillable,createdAtUtc,approvalStatus,reviewedByUserId,reviewedAtUtc,reviewComment,version,canSubmit,canReview,canStopTimer);
 
 @override
 String toString() {
-  return 'TaskTimeEntryResponse(id: $id, taskId: $taskId, userId: $userId, kind: $kind, startedAtUtc: $startedAtUtc, stoppedAtUtc: $stoppedAtUtc, durationMinutes: $durationMinutes, description: $description, isBillable: $isBillable, createdAtUtc: $createdAtUtc, approvalStatus: $approvalStatus, reviewedByUserId: $reviewedByUserId, reviewedAtUtc: $reviewedAtUtc, reviewComment: $reviewComment, version: $version)';
+  return 'TaskTimeEntryResponse(id: $id, taskId: $taskId, userId: $userId, kind: $kind, startedAtUtc: $startedAtUtc, stoppedAtUtc: $stoppedAtUtc, durationMinutes: $durationMinutes, description: $description, isBillable: $isBillable, createdAtUtc: $createdAtUtc, approvalStatus: $approvalStatus, reviewedByUserId: $reviewedByUserId, reviewedAtUtc: $reviewedAtUtc, reviewComment: $reviewComment, version: $version, canSubmit: $canSubmit, canReview: $canReview, canStopTimer: $canStopTimer)';
 }
 
 
@@ -3784,7 +3784,7 @@ abstract mixin class $TaskTimeEntryResponseCopyWith<$Res>  {
   factory $TaskTimeEntryResponseCopyWith(TaskTimeEntryResponse value, $Res Function(TaskTimeEntryResponse) _then) = _$TaskTimeEntryResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String taskId, String userId, TaskTimeEntryKind kind, DateTime startedAtUtc, DateTime? stoppedAtUtc, int? durationMinutes, String? description, bool isBillable, DateTime createdAtUtc, TaskTimeEntryApprovalStatus approvalStatus, String? reviewedByUserId, DateTime? reviewedAtUtc, String? reviewComment, int version
+ String id, String taskId, String userId, TaskTimeEntryKind kind, DateTime startedAtUtc, DateTime? stoppedAtUtc, int? durationMinutes, String? description, bool isBillable, DateTime createdAtUtc, TaskTimeEntryApprovalStatus approvalStatus, String? reviewedByUserId, DateTime? reviewedAtUtc, String? reviewComment, int version, bool canSubmit, bool canReview, bool canStopTimer
 });
 
 
@@ -3801,7 +3801,7 @@ class _$TaskTimeEntryResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskTimeEntryResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? taskId = null,Object? userId = null,Object? kind = null,Object? startedAtUtc = null,Object? stoppedAtUtc = freezed,Object? durationMinutes = freezed,Object? description = freezed,Object? isBillable = null,Object? createdAtUtc = null,Object? approvalStatus = null,Object? reviewedByUserId = freezed,Object? reviewedAtUtc = freezed,Object? reviewComment = freezed,Object? version = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? taskId = null,Object? userId = null,Object? kind = null,Object? startedAtUtc = null,Object? stoppedAtUtc = freezed,Object? durationMinutes = freezed,Object? description = freezed,Object? isBillable = null,Object? createdAtUtc = null,Object? approvalStatus = null,Object? reviewedByUserId = freezed,Object? reviewedAtUtc = freezed,Object? reviewComment = freezed,Object? version = null,Object? canSubmit = null,Object? canReview = null,Object? canStopTimer = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
@@ -3818,7 +3818,10 @@ as TaskTimeEntryApprovalStatus,reviewedByUserId: freezed == reviewedByUserId ? _
 as String?,reviewedAtUtc: freezed == reviewedAtUtc ? _self.reviewedAtUtc : reviewedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,reviewComment: freezed == reviewComment ? _self.reviewComment : reviewComment // ignore: cast_nullable_to_non_nullable
 as String?,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
-as int,
+as int,canSubmit: null == canSubmit ? _self.canSubmit : canSubmit // ignore: cast_nullable_to_non_nullable
+as bool,canReview: null == canReview ? _self.canReview : canReview // ignore: cast_nullable_to_non_nullable
+as bool,canStopTimer: null == canStopTimer ? _self.canStopTimer : canStopTimer // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -3903,10 +3906,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String taskId,  String userId,  TaskTimeEntryKind kind,  DateTime startedAtUtc,  DateTime? stoppedAtUtc,  int? durationMinutes,  String? description,  bool isBillable,  DateTime createdAtUtc,  TaskTimeEntryApprovalStatus approvalStatus,  String? reviewedByUserId,  DateTime? reviewedAtUtc,  String? reviewComment,  int version)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String taskId,  String userId,  TaskTimeEntryKind kind,  DateTime startedAtUtc,  DateTime? stoppedAtUtc,  int? durationMinutes,  String? description,  bool isBillable,  DateTime createdAtUtc,  TaskTimeEntryApprovalStatus approvalStatus,  String? reviewedByUserId,  DateTime? reviewedAtUtc,  String? reviewComment,  int version,  bool canSubmit,  bool canReview,  bool canStopTimer)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskTimeEntryResponse() when $default != null:
-return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc,_that.stoppedAtUtc,_that.durationMinutes,_that.description,_that.isBillable,_that.createdAtUtc,_that.approvalStatus,_that.reviewedByUserId,_that.reviewedAtUtc,_that.reviewComment,_that.version);case _:
+return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc,_that.stoppedAtUtc,_that.durationMinutes,_that.description,_that.isBillable,_that.createdAtUtc,_that.approvalStatus,_that.reviewedByUserId,_that.reviewedAtUtc,_that.reviewComment,_that.version,_that.canSubmit,_that.canReview,_that.canStopTimer);case _:
   return orElse();
 
 }
@@ -3924,10 +3927,10 @@ return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String taskId,  String userId,  TaskTimeEntryKind kind,  DateTime startedAtUtc,  DateTime? stoppedAtUtc,  int? durationMinutes,  String? description,  bool isBillable,  DateTime createdAtUtc,  TaskTimeEntryApprovalStatus approvalStatus,  String? reviewedByUserId,  DateTime? reviewedAtUtc,  String? reviewComment,  int version)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String taskId,  String userId,  TaskTimeEntryKind kind,  DateTime startedAtUtc,  DateTime? stoppedAtUtc,  int? durationMinutes,  String? description,  bool isBillable,  DateTime createdAtUtc,  TaskTimeEntryApprovalStatus approvalStatus,  String? reviewedByUserId,  DateTime? reviewedAtUtc,  String? reviewComment,  int version,  bool canSubmit,  bool canReview,  bool canStopTimer)  $default,) {final _that = this;
 switch (_that) {
 case _TaskTimeEntryResponse():
-return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc,_that.stoppedAtUtc,_that.durationMinutes,_that.description,_that.isBillable,_that.createdAtUtc,_that.approvalStatus,_that.reviewedByUserId,_that.reviewedAtUtc,_that.reviewComment,_that.version);case _:
+return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc,_that.stoppedAtUtc,_that.durationMinutes,_that.description,_that.isBillable,_that.createdAtUtc,_that.approvalStatus,_that.reviewedByUserId,_that.reviewedAtUtc,_that.reviewComment,_that.version,_that.canSubmit,_that.canReview,_that.canStopTimer);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3944,10 +3947,10 @@ return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String taskId,  String userId,  TaskTimeEntryKind kind,  DateTime startedAtUtc,  DateTime? stoppedAtUtc,  int? durationMinutes,  String? description,  bool isBillable,  DateTime createdAtUtc,  TaskTimeEntryApprovalStatus approvalStatus,  String? reviewedByUserId,  DateTime? reviewedAtUtc,  String? reviewComment,  int version)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String taskId,  String userId,  TaskTimeEntryKind kind,  DateTime startedAtUtc,  DateTime? stoppedAtUtc,  int? durationMinutes,  String? description,  bool isBillable,  DateTime createdAtUtc,  TaskTimeEntryApprovalStatus approvalStatus,  String? reviewedByUserId,  DateTime? reviewedAtUtc,  String? reviewComment,  int version,  bool canSubmit,  bool canReview,  bool canStopTimer)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskTimeEntryResponse() when $default != null:
-return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc,_that.stoppedAtUtc,_that.durationMinutes,_that.description,_that.isBillable,_that.createdAtUtc,_that.approvalStatus,_that.reviewedByUserId,_that.reviewedAtUtc,_that.reviewComment,_that.version);case _:
+return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc,_that.stoppedAtUtc,_that.durationMinutes,_that.description,_that.isBillable,_that.createdAtUtc,_that.approvalStatus,_that.reviewedByUserId,_that.reviewedAtUtc,_that.reviewComment,_that.version,_that.canSubmit,_that.canReview,_that.canStopTimer);case _:
   return null;
 
 }
@@ -3959,7 +3962,7 @@ return $default(_that.id,_that.taskId,_that.userId,_that.kind,_that.startedAtUtc
 @JsonSerializable()
 
 class _TaskTimeEntryResponse implements TaskTimeEntryResponse {
-  const _TaskTimeEntryResponse({required this.id, required this.taskId, required this.userId, required this.kind, required this.startedAtUtc, this.stoppedAtUtc, this.durationMinutes, this.description, required this.isBillable, required this.createdAtUtc, required this.approvalStatus, this.reviewedByUserId, this.reviewedAtUtc, this.reviewComment, required this.version});
+  const _TaskTimeEntryResponse({required this.id, required this.taskId, required this.userId, required this.kind, required this.startedAtUtc, this.stoppedAtUtc, this.durationMinutes, this.description, required this.isBillable, required this.createdAtUtc, required this.approvalStatus, this.reviewedByUserId, this.reviewedAtUtc, this.reviewComment, required this.version, this.canSubmit = false, this.canReview = false, this.canStopTimer = false});
   factory _TaskTimeEntryResponse.fromJson(Map<String, dynamic> json) => _$TaskTimeEntryResponseFromJson(json);
 
 @override final  String id;
@@ -3977,6 +3980,9 @@ class _TaskTimeEntryResponse implements TaskTimeEntryResponse {
 @override final  DateTime? reviewedAtUtc;
 @override final  String? reviewComment;
 @override final  int version;
+@override@JsonKey() final  bool canSubmit;
+@override@JsonKey() final  bool canReview;
+@override@JsonKey() final  bool canStopTimer;
 
 /// Create a copy of TaskTimeEntryResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -3991,16 +3997,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskTimeEntryResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.startedAtUtc, startedAtUtc) || other.startedAtUtc == startedAtUtc)&&(identical(other.stoppedAtUtc, stoppedAtUtc) || other.stoppedAtUtc == stoppedAtUtc)&&(identical(other.durationMinutes, durationMinutes) || other.durationMinutes == durationMinutes)&&(identical(other.description, description) || other.description == description)&&(identical(other.isBillable, isBillable) || other.isBillable == isBillable)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.approvalStatus, approvalStatus) || other.approvalStatus == approvalStatus)&&(identical(other.reviewedByUserId, reviewedByUserId) || other.reviewedByUserId == reviewedByUserId)&&(identical(other.reviewedAtUtc, reviewedAtUtc) || other.reviewedAtUtc == reviewedAtUtc)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.version, version) || other.version == version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskTimeEntryResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.startedAtUtc, startedAtUtc) || other.startedAtUtc == startedAtUtc)&&(identical(other.stoppedAtUtc, stoppedAtUtc) || other.stoppedAtUtc == stoppedAtUtc)&&(identical(other.durationMinutes, durationMinutes) || other.durationMinutes == durationMinutes)&&(identical(other.description, description) || other.description == description)&&(identical(other.isBillable, isBillable) || other.isBillable == isBillable)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.approvalStatus, approvalStatus) || other.approvalStatus == approvalStatus)&&(identical(other.reviewedByUserId, reviewedByUserId) || other.reviewedByUserId == reviewedByUserId)&&(identical(other.reviewedAtUtc, reviewedAtUtc) || other.reviewedAtUtc == reviewedAtUtc)&&(identical(other.reviewComment, reviewComment) || other.reviewComment == reviewComment)&&(identical(other.version, version) || other.version == version)&&(identical(other.canSubmit, canSubmit) || other.canSubmit == canSubmit)&&(identical(other.canReview, canReview) || other.canReview == canReview)&&(identical(other.canStopTimer, canStopTimer) || other.canStopTimer == canStopTimer));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,taskId,userId,kind,startedAtUtc,stoppedAtUtc,durationMinutes,description,isBillable,createdAtUtc,approvalStatus,reviewedByUserId,reviewedAtUtc,reviewComment,version);
+int get hashCode => Object.hash(runtimeType,id,taskId,userId,kind,startedAtUtc,stoppedAtUtc,durationMinutes,description,isBillable,createdAtUtc,approvalStatus,reviewedByUserId,reviewedAtUtc,reviewComment,version,canSubmit,canReview,canStopTimer);
 
 @override
 String toString() {
-  return 'TaskTimeEntryResponse(id: $id, taskId: $taskId, userId: $userId, kind: $kind, startedAtUtc: $startedAtUtc, stoppedAtUtc: $stoppedAtUtc, durationMinutes: $durationMinutes, description: $description, isBillable: $isBillable, createdAtUtc: $createdAtUtc, approvalStatus: $approvalStatus, reviewedByUserId: $reviewedByUserId, reviewedAtUtc: $reviewedAtUtc, reviewComment: $reviewComment, version: $version)';
+  return 'TaskTimeEntryResponse(id: $id, taskId: $taskId, userId: $userId, kind: $kind, startedAtUtc: $startedAtUtc, stoppedAtUtc: $stoppedAtUtc, durationMinutes: $durationMinutes, description: $description, isBillable: $isBillable, createdAtUtc: $createdAtUtc, approvalStatus: $approvalStatus, reviewedByUserId: $reviewedByUserId, reviewedAtUtc: $reviewedAtUtc, reviewComment: $reviewComment, version: $version, canSubmit: $canSubmit, canReview: $canReview, canStopTimer: $canStopTimer)';
 }
 
 
@@ -4011,7 +4017,7 @@ abstract mixin class _$TaskTimeEntryResponseCopyWith<$Res> implements $TaskTimeE
   factory _$TaskTimeEntryResponseCopyWith(_TaskTimeEntryResponse value, $Res Function(_TaskTimeEntryResponse) _then) = __$TaskTimeEntryResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String taskId, String userId, TaskTimeEntryKind kind, DateTime startedAtUtc, DateTime? stoppedAtUtc, int? durationMinutes, String? description, bool isBillable, DateTime createdAtUtc, TaskTimeEntryApprovalStatus approvalStatus, String? reviewedByUserId, DateTime? reviewedAtUtc, String? reviewComment, int version
+ String id, String taskId, String userId, TaskTimeEntryKind kind, DateTime startedAtUtc, DateTime? stoppedAtUtc, int? durationMinutes, String? description, bool isBillable, DateTime createdAtUtc, TaskTimeEntryApprovalStatus approvalStatus, String? reviewedByUserId, DateTime? reviewedAtUtc, String? reviewComment, int version, bool canSubmit, bool canReview, bool canStopTimer
 });
 
 
@@ -4028,7 +4034,7 @@ class __$TaskTimeEntryResponseCopyWithImpl<$Res>
 
 /// Create a copy of TaskTimeEntryResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? taskId = null,Object? userId = null,Object? kind = null,Object? startedAtUtc = null,Object? stoppedAtUtc = freezed,Object? durationMinutes = freezed,Object? description = freezed,Object? isBillable = null,Object? createdAtUtc = null,Object? approvalStatus = null,Object? reviewedByUserId = freezed,Object? reviewedAtUtc = freezed,Object? reviewComment = freezed,Object? version = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? taskId = null,Object? userId = null,Object? kind = null,Object? startedAtUtc = null,Object? stoppedAtUtc = freezed,Object? durationMinutes = freezed,Object? description = freezed,Object? isBillable = null,Object? createdAtUtc = null,Object? approvalStatus = null,Object? reviewedByUserId = freezed,Object? reviewedAtUtc = freezed,Object? reviewComment = freezed,Object? version = null,Object? canSubmit = null,Object? canReview = null,Object? canStopTimer = null,}) {
   return _then(_TaskTimeEntryResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
@@ -4045,7 +4051,10 @@ as TaskTimeEntryApprovalStatus,reviewedByUserId: freezed == reviewedByUserId ? _
 as String?,reviewedAtUtc: freezed == reviewedAtUtc ? _self.reviewedAtUtc : reviewedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,reviewComment: freezed == reviewComment ? _self.reviewComment : reviewComment // ignore: cast_nullable_to_non_nullable
 as String?,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
-as int,
+as int,canSubmit: null == canSubmit ? _self.canSubmit : canSubmit // ignore: cast_nullable_to_non_nullable
+as bool,canReview: null == canReview ? _self.canReview : canReview // ignore: cast_nullable_to_non_nullable
+as bool,canStopTimer: null == canStopTimer ? _self.canStopTimer : canStopTimer // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

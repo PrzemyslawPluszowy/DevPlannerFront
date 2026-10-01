@@ -1,30 +1,37 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_basics_editor.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_custom_status_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_history.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_templates.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_priority_header_control.dart';
 
-class _DetailHeader extends StatelessWidget {
-  const _DetailHeader({required this.details, required this.isSaving});
+class DetailHeader extends StatelessWidget {
+  const DetailHeader({
+    required this.details,
+    required this.isSaving,
+    required this.canEdit,
+    required this.canToggleArchive,
+    this.onClose,
+    super.key,
+  });
 
   final ProjectTaskDetailsResponse details;
   final bool isSaving;
+  final bool canEdit;
+  final bool canToggleArchive;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
     final task = details.task;
     return DecoratedBox(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            context.colors.primaryContainer.withValues(alpha: .55),
-            context.colors.surface,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border(
-          bottom: BorderSide(color: context.colors.outlineVariant),
-        ),
+        color: context.tasksTheme.commandBarSurface,
+        border: Border(bottom: BorderSide(color: context.tasksTheme.divider)),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 18, 14, 22),
+        padding: const EdgeInsets.fromLTRB(20, 10, 12, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -38,59 +45,59 @@ class _DetailHeader extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                IconButton(
+                TaskDetailsHeaderAction(
                   tooltip: details.isPinnedByMe
                       ? context.l10n.taskDetailsUnpin
                       : context.l10n.taskDetailsPin,
+                  icon: Icon(
+                    details.isPinnedByMe ? Symbols.star_rounded : Symbols.star,
+                    fill: details.isPinnedByMe ? 1 : 0,
+                  ),
                   onPressed: isSaving
                       ? null
                       : () => context.read<TaskDetailsCubit>().togglePinned(),
-                  icon: Icon(
-                    details.isPinnedByMe
-                        ? Symbols.push_pin_rounded
-                        : Symbols.push_pin,
-                  ),
                 ),
-                IconButton(
+                TaskDetailsHeaderAction(
                   tooltip: details.isWatchedByMe
                       ? context.l10n.taskDetailsStopWatching
                       : context.l10n.taskDetailsWatch,
-                  onPressed: isSaving
-                      ? null
-                      : () => context.read<TaskDetailsCubit>().toggleWatching(),
                   icon: Icon(
                     details.isWatchedByMe
                         ? Symbols.notifications_active
                         : Symbols.notifications_none_rounded,
                   ),
-                ),
-                IconButton(
-                  tooltip: context.l10n.edit,
                   onPressed: isSaving
                       ? null
-                      : () => showDialog<void>(
-                          context: context,
-                          builder: (_) => BlocProvider.value(
-                            value: context.read<TaskDetailsCubit>(),
-                            child: _EditBasicsDialog(details: details),
-                          ),
-                        ),
+                      : () => context.read<TaskDetailsCubit>().toggleWatching(),
+                ),
+                TaskDetailsHeaderAction(
+                  tooltip: context.l10n.edit,
                   icon: isSaving
                       ? const SizedBox.square(
-                          dimension: 18,
+                          dimension: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Symbols.edit),
+                  onPressed: isSaving || !canEdit
+                      ? null
+                      : () => DevPlannerModalHost.showDialog<void>(
+                          context,
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<TaskDetailsCubit>(),
+                            child: EditBasicsDialog(details: details),
+                          ),
+                        ),
                 ),
-                IconButton(
+                TaskDetailsHeaderAction(
                   tooltip: context.l10n.taskDetailsHistory,
+                  icon: const Icon(Symbols.history_rounded),
                   onPressed: () =>
                       unawaited(TaskHistoryDialogLauncher.show(context)),
-                  icon: const Icon(Symbols.history_rounded),
                 ),
-                IconButton(
+                TaskDetailsHeaderAction(
                   tooltip: context.l10n.taskDetailsCreateTemplate,
-                  onPressed: isSaving
+                  icon: const Icon(Symbols.bookmark_add),
+                  onPressed: isSaving || !canEdit
                       ? null
                       : () => unawaited(
                           TaskTemplateDialogLauncher.show(
@@ -98,54 +105,57 @@ class _DetailHeader extends StatelessWidget {
                             initialName: task.title,
                           ),
                         ),
-                  icon: const Icon(Symbols.bookmark_add),
                 ),
-                IconButton(
+                TaskDetailsHeaderAction(
                   tooltip: task.archivedAtUtc == null
                       ? context.l10n.taskDetailsArchive
                       : context.l10n.taskDetailsRestore,
-                  onPressed: isSaving
-                      ? null
-                      : () => TaskArchiveConfirmation.show(
-                          context,
-                          task.archivedAtUtc == null,
-                        ),
                   icon: Icon(
                     task.archivedAtUtc == null
                         ? Symbols.archive
                         : Symbols.unarchive,
                   ),
+                  onPressed: isSaving || !canToggleArchive
+                      ? null
+                      : () => TaskArchiveConfirmation.show(
+                          context,
+                          task.archivedAtUtc == null,
+                        ),
                 ),
-                IconButton(
+                TaskDetailsHeaderAction(
                   tooltip: context.l10n.taskDetailsClose,
-                  onPressed: () => Navigator.of(context).maybePop(),
                   icon: const Icon(Symbols.close_rounded),
+                  onPressed: onClose ?? () => Navigator.of(context).maybePop(),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 4),
             Text(
               task.title,
-              style: context.text.headlineSmall?.copyWith(
+              style: context.text.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
-                height: 1.2,
+                height: 1.15,
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                _Pill(
-                  icon: Symbols.radio_button_checked_rounded,
-                  label: TaskDetailsLabeler.status(context, task.status),
+                TaskCustomStatusHeaderControl(
+                  details: details,
+                  fallbackLabel: TaskDetailsLabeler.status(
+                    context,
+                    task.status,
+                  ),
+                  enabled: canEdit && !isSaving,
                 ),
-                _Pill(
-                  icon: Symbols.flag,
-                  label: TaskDetailsLabeler.priority(context, task.priority),
+                TaskPriorityHeaderControl(
+                  priority: task.priority,
+                  enabled: canEdit && !isSaving,
                 ),
                 if (task.archivedAtUtc != null)
-                  _Pill(
+                  Pill(
                     icon: Symbols.archive,
                     label: context.l10n.taskDetailsArchived,
                   ),
@@ -156,6 +166,33 @@ class _DetailHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+final class TaskDetailsHeaderAction extends StatelessWidget {
+  const TaskDetailsHeaderAction({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+    super.key,
+  });
+
+  final String tooltip;
+  final Widget icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: tooltip,
+    child: IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      padding: const EdgeInsets.all(8),
+      icon: icon,
+    ),
+  );
 }
 
 /// Potwierdza archiwizację, a mutację deleguje do lokalnego Cubita szczegółów.
@@ -176,189 +213,5 @@ final class TaskArchiveConfirmation {
     if (!confirmed) return;
     if (!context.mounted) return;
     await context.read<TaskDetailsCubit>().toggleArchive();
-  }
-}
-
-class _EditBasicsDialog extends StatefulWidget {
-  const _EditBasicsDialog({required this.details});
-
-  final ProjectTaskDetailsResponse details;
-
-  @override
-  State<_EditBasicsDialog> createState() => _EditBasicsDialogState();
-}
-
-class _EditBasicsDialogState extends State<_EditBasicsDialog> {
-  late final TextEditingController _titleController;
-  late final ValueNotifier<ProjectTaskStatus> _status;
-  late final ValueNotifier<TaskPriority> _priority;
-  final ValueNotifier<bool> _saving = ValueNotifier(false);
-
-  @override
-  void initState() {
-    super.initState();
-    final task = widget.details.task;
-    _titleController = TextEditingController(text: task.title);
-    _status = ValueNotifier(task.status);
-    _priority = ValueNotifier(task.priority);
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _status.dispose();
-    _priority.dispose();
-    _saving.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final workflow = widget.details.workflow;
-    final allowedTargets = <ProjectTaskStatus>{
-      widget.details.task.status,
-      for (final transition in workflow.transitions)
-        if (transition.fromStatus == widget.details.task.status)
-          transition.toStatus,
-    };
-    final configuredStatuses = workflow.statuses
-        .where((item) => allowedTargets.contains(item.status))
-        .map((item) => item.status)
-        .toSet()
-        .toList(growable: false);
-    final statuses = workflow.statuses.isEmpty
-        ? ProjectTaskStatus.values
-        : configuredStatuses;
-    final l10n = context.l10n;
-    final colors = context.colors;
-
-    return AnimatedBuilder(
-      animation: Listenable.merge([_status, _priority, _saving]),
-      builder: (context, _) => WorkspaceCreationModalWrapper(
-        title: l10n.taskDetailsEditBasics,
-        icon: Symbols.edit_note_rounded,
-        accentColor: colors.primary,
-        isSubmitting: _saving.value,
-        submitLabel: l10n.save,
-        cancelLabel: l10n.cancel,
-        maxWidth: 460,
-        onSubmit: _save,
-        body: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              l10n.taskDetailsTitleField,
-              style: context.text.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            Gaps.h8,
-            TextField(
-              controller: _titleController,
-              autofocus: true,
-              maxLength: 300,
-              decoration: InputDecoration(
-                hintText: l10n.taskDetailsTitleField,
-                border: const OutlineInputBorder(
-                  borderRadius: .all(.circular(10)),
-                ),
-                contentPadding: const .symmetric(
-                  horizontal: Sizes.p12,
-                  vertical: Sizes.p12,
-                ),
-              ),
-              onSubmitted: (_) => _save(),
-            ),
-            Gaps.h12,
-            Text(
-              l10n.taskDetailsStatusField,
-              style: context.text.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            Gaps.h8,
-            DropdownButtonFormField<ProjectTaskStatus>(
-              initialValue: _status.value,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: .all(.circular(10)),
-                ),
-                contentPadding: .symmetric(
-                  horizontal: Sizes.p12,
-                  vertical: Sizes.p8,
-                ),
-              ),
-              items: [
-                for (final status in statuses)
-                  DropdownMenuItem(
-                    value: status,
-                    child: Text(TaskDetailsLabeler.status(context, status)),
-                  ),
-              ],
-              onChanged: _saving.value
-                  ? null
-                  : (value) {
-                      if (value != null) _status.value = value;
-                    },
-            ),
-            Gaps.h12,
-            Text(
-              l10n.taskDetailsPriorityField,
-              style: context.text.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            Gaps.h8,
-            DropdownButtonFormField<TaskPriority>(
-              initialValue: _priority.value,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: .all(.circular(10)),
-                ),
-                contentPadding: .symmetric(
-                  horizontal: Sizes.p12,
-                  vertical: Sizes.p8,
-                ),
-              ),
-              items: [
-                for (final priority in TaskPriority.values)
-                  DropdownMenuItem(
-                    value: priority,
-                    child: Text(TaskDetailsLabeler.priority(context, priority)),
-                  ),
-              ],
-              onChanged: _saving.value
-                  ? null
-                  : (value) {
-                      if (value != null) _priority.value = value;
-                    },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _save() async {
-    if (_titleController.text.trim().isEmpty) return;
-    _saving.value = true;
-    final saved = await context.read<TaskDetailsCubit>().updateBasics(
-      title: _titleController.text,
-      status: _status.value,
-      priority: _priority.value,
-    );
-    if (!mounted) return;
-    if (saved) {
-      Navigator.of(context).pop();
-    } else {
-      _saving.value = false;
-    }
   }
 }

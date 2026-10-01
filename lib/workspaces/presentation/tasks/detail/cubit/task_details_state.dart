@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 
 enum TaskDetailsFailureKind { forbidden, notFound, conflict, offline, other }
@@ -19,11 +20,13 @@ final class TaskDetailsFailure extends TaskDetailsState {
     required this.kind,
     required this.message,
     this.backendCode,
+    this.error,
   });
 
   final TaskDetailsFailureKind kind;
   final String message;
   final int? backendCode;
+  final ApiError? error;
 }
 
 final class TaskDetailsReady extends TaskDetailsState {
@@ -32,12 +35,24 @@ final class TaskDetailsReady extends TaskDetailsState {
     this.isSaving = false,
     this.mutationError,
     this.mutationSerial = 0,
+    this.mutationFailure,
+    this.conflictBase,
   });
 
   final ProjectTaskDetailsResponse details;
   final bool isSaving;
   final String? mutationError;
   final int mutationSerial;
+  final ApiError? mutationFailure;
+
+  /// Agregat sprzed konfliktu do porównania ze szkicem i aktualnym serwerem.
+  final ProjectTaskDetailsResponse? conflictBase;
+
+  bool get canEdit =>
+      details.capabilities?.canEdit ?? details.task.archivedAtUtc == null;
+  bool get canToggleArchive => details.task.archivedAtUtc == null
+      ? details.capabilities?.canArchive ?? true
+      : details.capabilities?.canRestore ?? true;
 
   TaskDetailsReady copyWith({
     ProjectTaskDetailsResponse? details,
@@ -45,6 +60,8 @@ final class TaskDetailsReady extends TaskDetailsState {
     String? mutationError,
     bool clearMutationError = false,
     int? mutationSerial,
+    ApiError? mutationFailure,
+    ProjectTaskDetailsResponse? conflictBase,
   }) => TaskDetailsReady(
     details ?? this.details,
     isSaving: isSaving ?? this.isSaving,
@@ -52,5 +69,9 @@ final class TaskDetailsReady extends TaskDetailsState {
         ? null
         : mutationError ?? this.mutationError,
     mutationSerial: mutationSerial ?? this.mutationSerial,
+    mutationFailure: clearMutationError
+        ? null
+        : mutationFailure ?? this.mutationFailure,
+    conflictBase: clearMutationError ? null : conflictBase ?? this.conflictBase,
   );
 }

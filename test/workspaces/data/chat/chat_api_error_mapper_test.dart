@@ -39,6 +39,14 @@ void main() {
         response: Response(
           requestOptions: RequestOptions(path: '/api/v1/chat/search'),
           statusCode: 429,
+          data: {
+            'code': 'chat.rate_limited',
+            'message': 'Poczekaj.',
+            'fields': {
+              'query': ['Za dużo zapytań.'],
+            },
+            'traceId': 'chat-trace',
+          },
           headers: Headers.fromMap({
             'retry-after': ['60'],
           }),
@@ -49,6 +57,11 @@ void main() {
 
     expect(error.statusCode, 429);
     expect(error.apiCode, 'chat.search.failed');
+    expect(error.contractCode, 'chat.rate_limited');
+    expect(error.fields, {
+      'query': ['Za dużo zapytań.'],
+    });
+    expect(error.traceId, 'chat-trace');
     expect(error.retryAfterUtc, isNotNull);
     expect(error.retryAfterUtc!.isAfter(before), isTrue);
   });

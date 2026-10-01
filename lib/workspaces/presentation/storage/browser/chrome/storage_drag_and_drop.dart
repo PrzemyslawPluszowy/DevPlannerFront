@@ -94,7 +94,7 @@ class _StorageFolderDropTargetState extends State<StorageFolderDropTarget> {
       onAcceptWithDetails: (details) {
         setState(() => _isHovered = false);
         unawaited(
-          runStorageMoveToFolder(
+          StorageMoveAction.moveToFolder(
             context,
             fileIds: [details.data],
             target: widget.folder,

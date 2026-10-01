@@ -26,7 +26,13 @@ final class TaskDetailsResponseAssembler {
     TaskDetailsReady current,
     TaskMutationResponse<ProjectTaskResponse> response,
   ) => current.copyWith(
-    details: current.details.copyWith(task: response.data),
+    details: current.details.copyWith(
+      task: response.data,
+      customStatus:
+          response.data.customStatusId == current.details.customStatus?.id
+          ? current.details.customStatus
+          : null,
+    ),
     isSaving: false,
     clearMutationError: true,
   );

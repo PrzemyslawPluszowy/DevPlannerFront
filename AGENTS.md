@@ -81,6 +81,23 @@ status`; zachowaj cudze i niezwiązane zmiany.
 - Routing/deep link/back/refresh działa na Web, a desktop zachowuje ten sam model
   tras. Widoki są responsywne i działają po zmianie rozmiaru okna.
 
+## Obowiązkowe UI UX Pro Max (Backend + Front)
+
+- Przy każdym projektowaniu, budowaniu, zmienianiu i review UI **bezwzględnie
+  korzystaj z wtyczki UI UX Pro Max i jej skillu `ui-ux-pro-max`**. Przed pracą
+  przeczytaj `SKILL.md`, zastosuj właściwy dla zadania workflow i wskazówki dla
+  Fluttera; samo wspomnienie nazwy wtyczki nie spełnia tego obowiązku.
+- Wymóg obejmuje całe UI i wszystkie stany kontrolek: modale, dropdowny, menu
+  kontekstowe, pickery, formularze, czat, pliki, loading, błędy i puste widoki.
+  Sprawdzaj także klawiaturę, focus, dostępność i zachowanie po zmianie rozmiaru
+  okna. W handoffie odnotuj zastosowane wskazówki i faktycznie wykonaną walidację.
+- DevPlanner ma stylistykę aplikacji webowej/desktopowej spójną z Listą i
+  Kanbanem: wspólne tokeny kolorów, typografia, odstępy, obramowania, hover i
+  focus, również we wszystkich otwartych powierzchniach. Material jest
+  dozwoloną bazą techniczną, ale domyślna mobilna kolorystyka i wygląd kontrolek
+  nie spełniają wymagań. Rekomendacje skillu dostosowuj do tych zasad i decyzji
+  użytkownika; nie zastępuj nimi istniejącego systemu wizualnego.
+
 ## Shell i UI
 
 - Docelowy router zawiera tylko auth/activation/reset/MFA, Workspaces i zasoby,
@@ -130,3 +147,11 @@ aplikacji/testowego `flutter run`: użyj istniejącej sesji, jeśli działa, a p
 kontroli zamknij ją i potwierdź, że proces zakończył działanie. Nie uruchamiaj
 równoległych kopii ani nie zostawiaj instancji testowych otwartych po zakończeniu
 pracy.
+
+## Wspólna pamięć DevNote / DevPlanner
+
+Repozytoria `Backend` (C#) i `Front` (Flutter) są jednym projektem pamięci: `devnote-system`, `recall.peer_scope=actor`. Jawny `.openviking/config.json` ma pierwszeństwo przed osobnym Git origin. Nie dołączaj tych repo do Ready Next/Databus ani WMS. Zasady technologiczne i lokalne AGENTS obowiązują w odpowiednim komponencie.
+
+Wyszukuj w projectUri „baza wiedzy / wiki projektu DevNote DevPlanner”, limit=3 i około 800 tokenów. Aktualny indeks: viking://user/codex/peers/devnote-system/resources/docs/index.md. Dokumentacja źródłowa znajduje się w `Backend/docs/openviking/index.md`; frontend ma wskaźnik `Front/docs/openviking/index.md`. Kod i zweryfikowany OpenAPI mają pierwszeństwo; datowana mapa nie dowodzi wdrożenia ani zaliczenia bramek planu refaktoryzacji.
+
+Po zadaniu zapisuj tylko trwałe, zweryfikowane fakty pod właściwym wspólnym peer z pełnym URI, po sprawdzeniu duplikatów. Bez sekretów, danych osobowych, klientów i pełnych rozmów; Compile tylko przy jawnie zleconej aktualizacji. Ogólny MCP write opisuje peers jako managed/read-only; publikację stron można wykonać oficjalnym uwierzytelnionym content API.

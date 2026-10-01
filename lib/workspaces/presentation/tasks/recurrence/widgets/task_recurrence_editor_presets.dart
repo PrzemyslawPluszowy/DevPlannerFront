@@ -3,12 +3,14 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_action_pill.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_pick_fields.dart';
 import 'package:flutter/material.dart';
 
 /// Zwarte presety częstotliwości w edytorze kontekstowym.
 final class TaskRecurrenceEditorPresets extends StatelessWidget {
   const TaskRecurrenceEditorPresets({
     required this.selectedPreset,
+    required this.enabled,
     required this.interval,
     required this.frequency,
     required this.onPresetSelected,
@@ -18,6 +20,7 @@ final class TaskRecurrenceEditorPresets extends StatelessWidget {
   });
 
   final TaskRecurrencePreset selectedPreset;
+  final bool enabled;
   final int interval;
   final TaskRecurrenceFrequency frequency;
   final ValueChanged<TaskRecurrencePreset> onPresetSelected;
@@ -43,27 +46,37 @@ final class TaskRecurrenceEditorPresets extends StatelessWidget {
           AppActionPill(
             label: context.l10n.taskRecurrenceIntervalDaily,
             selected: selectedPreset == TaskRecurrencePreset.daily,
-            onPressed: () => onPresetSelected(TaskRecurrencePreset.daily),
+            onPressed: enabled
+                ? () => onPresetSelected(TaskRecurrencePreset.daily)
+                : null,
           ),
           AppActionPill(
             label: context.l10n.taskRecurrencePresetWorkdays,
             selected: selectedPreset == TaskRecurrencePreset.workdays,
-            onPressed: () => onPresetSelected(TaskRecurrencePreset.workdays),
+            onPressed: enabled
+                ? () => onPresetSelected(TaskRecurrencePreset.workdays)
+                : null,
           ),
           AppActionPill(
             label: context.l10n.taskRecurrenceIntervalWeekly,
             selected: selectedPreset == TaskRecurrencePreset.weekly,
-            onPressed: () => onPresetSelected(TaskRecurrencePreset.weekly),
+            onPressed: enabled
+                ? () => onPresetSelected(TaskRecurrencePreset.weekly)
+                : null,
           ),
           AppActionPill(
             label: context.l10n.taskRecurrenceIntervalMonthly,
             selected: selectedPreset == TaskRecurrencePreset.monthly,
-            onPressed: () => onPresetSelected(TaskRecurrencePreset.monthly),
+            onPressed: enabled
+                ? () => onPresetSelected(TaskRecurrencePreset.monthly)
+                : null,
           ),
           AppActionPill(
             label: context.l10n.taskRecurrencePresetCustom,
             selected: selectedPreset == TaskRecurrencePreset.custom,
-            onPressed: () => onPresetSelected(TaskRecurrencePreset.custom),
+            onPressed: enabled
+                ? () => onPresetSelected(TaskRecurrencePreset.custom)
+                : null,
           ),
         ],
       ),
@@ -83,6 +96,7 @@ final class TaskRecurrenceEditorPresets extends StatelessWidget {
                   ),
                 ),
                 keyboardType: TextInputType.number,
+                enabled: enabled,
                 onChanged: (val) {
                   final num = int.tryParse(val);
                   if (num != null && num > 0) onIntervalChanged(num);
@@ -92,78 +106,10 @@ final class TaskRecurrenceEditorPresets extends StatelessWidget {
             Gaps.w8,
             Expanded(
               flex: 4,
-              child: Column(
-                crossAxisAlignment: .start,
-                children: [
-                  Text(
-                    'Jednostka',
-                    style: context.text.labelSmall?.copyWith(
-                      fontWeight: .w600,
-                      color: context.colors.onSurfaceVariant,
-                    ),
-                  ),
-                  Gaps.h4,
-                  DropdownButtonFormField<TaskRecurrenceFrequency>(
-                    initialValue: frequency,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: context.colors.surfaceContainerHighest
-                          .withValues(alpha: .5),
-                      contentPadding: const .symmetric(
-                        horizontal: Sizes.p8,
-                        vertical: Sizes.p8,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: const BorderRadius.all(
-                          .circular(Sizes.p8),
-                        ),
-                        borderSide: BorderSide(
-                          color: context.colors.outlineVariant,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: const BorderRadius.all(
-                          .circular(Sizes.p8),
-                        ),
-                        borderSide: BorderSide(
-                          color: context.colors.outlineVariant,
-                        ),
-                      ),
-                    ),
-                    items: [
-                      DropdownMenuItem(
-                        value: TaskRecurrenceFrequency.daily,
-                        child: Text(
-                          context.l10n.taskRecurrenceUnitDays,
-                          style: context.text.bodySmall?.copyWith(
-                            fontWeight: .w600,
-                          ),
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: TaskRecurrenceFrequency.weekly,
-                        child: Text(
-                          context.l10n.taskRecurrenceUnitWeeks,
-                          style: context.text.bodySmall?.copyWith(
-                            fontWeight: .w600,
-                          ),
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: TaskRecurrenceFrequency.monthly,
-                        child: Text(
-                          context.l10n.taskRecurrenceUnitMonths,
-                          style: context.text.bodySmall?.copyWith(
-                            fontWeight: .w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) onFrequencyChanged(val);
-                    },
-                  ),
-                ],
+              child: TaskRecurrenceFrequencyPicker(
+                frequency: frequency,
+                enabled: enabled,
+                onChanged: onFrequencyChanged,
               ),
             ),
           ],

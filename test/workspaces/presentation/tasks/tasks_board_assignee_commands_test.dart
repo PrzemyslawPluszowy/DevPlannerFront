@@ -23,11 +23,16 @@ import 'package:devplanner/workspaces/domain/repositories/task_project_realtime.
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/kanban_move_to_person_dialog.dart'
+    show KanbanMoveToPersonDialogPanel;
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart'
     show
         KanbanAssigneeColumn,
         KanbanAssigneeColumnsViewport,
-        showKanbanMoveToPersonDialog;
+        KanbanAssigneeTaskCard,
+        KanbanMoveToPersonDialog;
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_quick_create.dart'
+    show KanbanQuickCreateTask;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -238,6 +243,16 @@ void main() {
                   projectId: 'project-1',
                   state: state,
                   group: group,
+                  cardBuilder: (task, statusBadge, canDrag) =>
+                      KanbanAssigneeTaskCard(
+                        task: task,
+                        workspaceId: 'workspace-1',
+                        projectId: 'project-1',
+                        state: state,
+                        statusBadge: statusBadge,
+                        canDrag: canDrag,
+                      ),
+                  quickCreateBuilder: (_) => const SizedBox.shrink(),
                 ),
               ),
             ),
@@ -290,6 +305,16 @@ void main() {
                 projectId: 'project-1',
                 state: state,
                 group: empty,
+                cardBuilder: (task, statusBadge, canDrag) =>
+                    KanbanAssigneeTaskCard(
+                      task: task,
+                      workspaceId: 'workspace-1',
+                      projectId: 'project-1',
+                      state: state,
+                      statusBadge: statusBadge,
+                      canDrag: canDrag,
+                    ),
+                quickCreateBuilder: (_) => const SizedBox.shrink(),
               ),
             ),
           ),
@@ -330,6 +355,19 @@ void main() {
                     projectId: 'project-1',
                     state: state,
                     group: group,
+                    cardBuilder: (task, statusBadge, canDrag) =>
+                        KanbanAssigneeTaskCard(
+                          task: task,
+                          workspaceId: 'workspace-1',
+                          projectId: 'project-1',
+                          state: state,
+                          statusBadge: statusBadge,
+                          canDrag: canDrag,
+                        ),
+                    quickCreateBuilder: (column) => KanbanQuickCreateTask(
+                      column: column,
+                      onManageTemplates: (_) async {},
+                    ),
                   ),
                 ),
               ),
@@ -370,7 +408,7 @@ void main() {
             builder: (context) => Scaffold(
               body: TextButton(
                 onPressed: () async {
-                  selected = await showKanbanMoveToPersonDialog(
+                  selected = await KanbanMoveToPersonDialog.show(
                     context,
                     state: state,
                     taskId: task.id,
@@ -423,7 +461,7 @@ void main() {
               body: TextButton(
                 onPressed: () async {
                   opened = true;
-                  selected = await showKanbanMoveToPersonDialog(
+                  selected = await KanbanMoveToPersonDialog.show(
                     context,
                     state: state,
                     taskId: task.id,
@@ -440,7 +478,7 @@ void main() {
       expect(opened, isTrue);
 
       final dialogRow = find.descendant(
-        of: find.byType(AlertDialog),
+        of: find.byType(KanbanMoveToPersonDialogPanel),
         matching: find.text('Nieprzypisane'),
       );
       expect(dialogRow, findsOneWidget);
@@ -557,6 +595,16 @@ void main() {
                     projectId: 'project-1',
                     state: state,
                     group: state.assigneeBoard!.groups[2],
+                    cardBuilder: (task, statusBadge, canDrag) =>
+                        KanbanAssigneeTaskCard(
+                          task: task,
+                          workspaceId: 'workspace-1',
+                          projectId: 'project-1',
+                          state: state,
+                          statusBadge: statusBadge,
+                          canDrag: canDrag,
+                        ),
+                    quickCreateBuilder: (_) => const SizedBox.shrink(),
                   ),
                 ),
               ),
@@ -619,6 +667,16 @@ void main() {
                 projectId: 'project-1',
                 state: state,
                 board: many,
+                cardBuilder: (task, statusBadge, canDrag) =>
+                    KanbanAssigneeTaskCard(
+                      task: task,
+                      workspaceId: 'workspace-1',
+                      projectId: 'project-1',
+                      state: state,
+                      statusBadge: statusBadge,
+                      canDrag: canDrag,
+                    ),
+                quickCreateBuilder: (_) => const SizedBox.shrink(),
               ),
             ),
           ),
@@ -849,6 +907,16 @@ void main() {
                   projectId: 'project-1',
                   state: state,
                   board: board,
+                  cardBuilder: (task, statusBadge, canDrag) =>
+                      KanbanAssigneeTaskCard(
+                        task: task,
+                        workspaceId: 'workspace-1',
+                        projectId: 'project-1',
+                        state: state,
+                        statusBadge: statusBadge,
+                        canDrag: canDrag,
+                      ),
+                  quickCreateBuilder: (_) => const SizedBox.shrink(),
                 ),
               ),
             ),

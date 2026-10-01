@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_dependencies_service.dart';
@@ -21,8 +23,9 @@ final class TaskDetailsDependencyCommands {
   final TaskDetailsState Function() readState;
   final void Function(TaskDetailsReady state) emitReady;
 
-  Future<List<ProjectTaskListItemResponse>> search(String phrase) =>
-      service.search(phrase);
+  Future<Either<ApiError, List<ProjectTaskListItemResponse>>> search(
+    String phrase,
+  ) => service.search(phrase);
 
   Future<bool> create({
     required String targetTaskId,
@@ -30,8 +33,11 @@ final class TaskDetailsDependencyCommands {
     required TaskDependencyKind dependencyKind,
     required int lagDays,
   }) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.executeAndRefresh(
       current: current,
@@ -50,8 +56,11 @@ final class TaskDetailsDependencyCommands {
     required TaskDependencyKind dependencyKind,
     required int lagDays,
   }) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,
@@ -70,8 +79,11 @@ final class TaskDetailsDependencyCommands {
   }
 
   Future<bool> delete(TaskDependencyDetailsResponse dependency) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,

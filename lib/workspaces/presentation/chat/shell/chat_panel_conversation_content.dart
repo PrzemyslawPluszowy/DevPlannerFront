@@ -45,6 +45,8 @@ final class ChatPanelConversationContent extends StatefulWidget {
     this.onOpenFullView,
     this.resourceContext,
     this.onResourceAccessRevoked,
+    this.showBackButton = true,
+    this.desktopWebComposer = false,
     super.key,
   });
 
@@ -67,6 +69,8 @@ final class ChatPanelConversationContent extends StatefulWidget {
   final VoidCallback? onOpenFullView;
   final ResourceChatFileContext? resourceContext;
   final VoidCallback? onResourceAccessRevoked;
+  final bool showBackButton;
+  final bool desktopWebComposer;
 
   @override
   State<ChatPanelConversationContent> createState() =>
@@ -184,6 +188,7 @@ final class _ChatPanelConversationContentState
             onOpenFullView: widget.onOpenFullView,
             resourceContext: widget.resourceContext,
             canManageConversation: widget.canModerateMessages,
+            showBackButton: widget.showBackButton,
           ),
           const ChatPanelConnectionBanner(),
           // Skok do starej wiadomości ma jawny stan: ładowanie albo komunikat
@@ -308,7 +313,8 @@ final class _ChatPanelConversationContentState
           ValueListenableBuilder<ChatMessage?>(
             valueListenable: _replyTarget,
             builder: (context, replyTarget, _) => ChatMessageComposer(
-              compact: true,
+              compact: !widget.desktopWebComposer,
+              desktopWebStyle: widget.desktopWebComposer,
               onSubmit: _send,
               draftRepository: context.read<ChatDraftRepository>(),
               userId:

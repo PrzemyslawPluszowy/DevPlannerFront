@@ -58,6 +58,7 @@ final class TaskDetailsBasicMutationService {
   }) => update(
     payload: _payloadFrom(
       task,
+      replacePlanning: true,
       startAtUtc: startAtUtc,
       dueAtUtc: dueAtUtc,
       estimatedMinutes: estimatedMinutes,
@@ -72,6 +73,7 @@ final class TaskDetailsBasicMutationService {
   }) => update(
     payload: _payloadFrom(
       task,
+      replaceDescription: true,
       description: description.trim().isEmpty ? null : description.trim(),
       descriptionDeltaJson: descriptionDeltaJson,
     ),
@@ -114,13 +116,15 @@ final class TaskDetailsBasicMutationService {
     int? estimatedMinutes,
     String? description,
     String? descriptionDeltaJson,
+    bool replacePlanning = false,
+    bool replaceDescription = false,
   }) => UpdateProjectTaskPayload(
     title: title ?? task.title,
-    description: description ?? task.description,
+    description: replaceDescription ? description : task.description,
     status: status ?? task.status,
     priority: priority ?? task.priority,
-    startAtUtc: startAtUtc,
-    dueAtUtc: dueAtUtc,
+    startAtUtc: replacePlanning ? startAtUtc : task.startAtUtc,
+    dueAtUtc: replacePlanning ? dueAtUtc : task.dueAtUtc,
     position: task.position,
     expectedVersion: task.version,
     taskType: task.taskType,
@@ -128,7 +132,9 @@ final class TaskDetailsBasicMutationService {
     complexity: task.complexity,
     risk: task.risk,
     businessValue: task.businessValue,
-    estimatedMinutes: estimatedMinutes,
+    estimatedMinutes: replacePlanning
+        ? estimatedMinutes
+        : task.estimatedMinutes,
     actualMinutes: task.actualMinutes,
     descriptionDeltaJson: descriptionDeltaJson ?? task.descriptionDeltaJson,
   );

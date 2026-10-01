@@ -1,16 +1,27 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/task_details_modal_error.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/task_details_modal_theme.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_loaded_content.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _FakeTaskRecurrenceRepository implements TaskRecurrenceRepository {
   Either<ApiError, TaskRecurrenceResponse>? getResult;
+  Future<Either<ApiError, TaskRecurrenceResponse>>? pendingGet;
+  UpdateTaskRecurrencePayload? latestUpdatePayload;
   Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>? createResult;
   Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>? updateResult;
   Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>? pauseResult;
@@ -23,11 +34,17 @@ final class _FakeTaskRecurrenceRepository implements TaskRecurrenceRepository {
   CreateTaskRecurrencePayload? latestCreatePayload;
 
   @override
+  Future<Either<ApiError, List<String>>> listSupportedTimeZones({
+    required String workspaceId,
+    required String projectId,
+  }) async => const Right([]);
+
+  @override
   Future<Either<ApiError, TaskRecurrenceResponse>> get({
     required String workspaceId,
     required String projectId,
     required String taskId,
-  }) async => getResult!;
+  }) => pendingGet ?? Future.value(getResult!);
 
   @override
   Future<Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>>
@@ -51,6 +68,7 @@ final class _FakeTaskRecurrenceRepository implements TaskRecurrenceRepository {
     required UpdateTaskRecurrencePayload payload,
   }) async {
     updateCalls++;
+    latestUpdatePayload = payload;
     return updateResult!;
   }
 
@@ -165,6 +183,58 @@ void main() {
     repository = _FakeTaskRecurrenceRepository();
   });
 
+  test('existing recurrence never creates a new rule while GET is pending or failed', () async {
+    final pending = Completer<Either<ApiError, TaskRecurrenceResponse>>();
+    repository.pendingGet = pending.future;
+    repository.createResult = const Left(
+      ApiError(type: ApiErrorType.conflict, message: 'unexpected create'),
+    );
+    final cubit = TaskRecurrenceEditorCubit(
+      repository: repository,
+      workspaceId: 'ws-1',
+      projectId: 'proj-1',
+      taskId: 'task-1',
+      taskVersion: 1,
+      hasRecurrence: true,
+    );
+    await cubit.save();
+    expect(repository.createCalls, 0);
+    pending.complete(
+      const Left(ApiError(type: ApiErrorType.server, message: 'load failed')),
+    );
+    await Future<void>.delayed(Duration.zero);
+    await cubit.save();
+    expect(repository.createCalls, 0);
+    await cubit.close();
+  });
+
+  test('saving retains existing rule timezone and converts selected local time to UTC', () async {
+    repository.getResult = Right(
+      _createDummyRecurrence().copyWith(timeZoneId: 'UTC'),
+    );
+    repository.updateResult = Right(_createDummyMutation());
+    final cubit = TaskRecurrenceEditorCubit(
+      repository: repository,
+      workspaceId: 'ws-1',
+      projectId: 'proj-1',
+      taskId: 'task-1',
+      taskVersion: 1,
+      hasRecurrence: true,
+    );
+    await Future<void>.delayed(Duration.zero);
+    cubit.setScheduledDate(DateTime(2026, 9, 8));
+    cubit.setScheduledTime(
+      const TaskRecurrenceScheduledTime(hour: 11, minute: 30),
+    );
+    await cubit.save();
+    expect(repository.latestUpdatePayload?.timeZoneId, 'UTC');
+    expect(
+      repository.latestUpdatePayload?.nextOccurrenceAtUtc,
+      DateTime(2026, 9, 8, 11, 30).toUtc(),
+    );
+    await cubit.close();
+  });
+
   test(
     'Inicjalizacja dla zadania bez istniejącej serii ustawia stan domyślny',
     () {
@@ -230,7 +300,53 @@ void main() {
   });
 
   test(
-    'zapis UTC używa niezależnego od Fluttera value object godziny',
+    '409 zachowuje szkic i szczegóły błędu, ponowienie zapisuje raz',
+    () async {
+      final conflict = ApiError(
+        type: ApiErrorType.conflict,
+        message: 'Reguła została zmieniona.',
+        statusCode: 409,
+        contractCode: 'task_recurrence_version_conflict',
+        fields: const {
+          'interval': ['Wartość jest nieaktualna.'],
+        },
+        traceId: 'trace-recurrence-409',
+        retryAfterUtc: DateTime.utc(2026, 10, 1, 12),
+      );
+      repository.createResult = Left(conflict);
+      final cubit = TaskRecurrenceEditorCubit(
+        repository: repository,
+        workspaceId: 'ws-1',
+        projectId: 'proj-1',
+        taskId: 'task-1',
+        taskVersion: 1,
+        hasRecurrence: false,
+      );
+      final chosenDate = DateTime(2026, 10, 4);
+      cubit.setScheduledDate(chosenDate);
+      cubit.setInterval(3);
+
+      final first = cubit.save();
+      final duplicate = cubit.save();
+      await Future.wait([first, duplicate]);
+
+      final loaded = cubit.state as TaskRecurrenceEditorLoaded;
+      expect(repository.createCalls, 1);
+      expect(loaded.apiError, conflict);
+      expect(loaded.errorOperation, TaskRecurrenceEditorErrorOperation.create);
+      expect(loaded.interval, 3);
+      expect(loaded.scheduledDate, chosenDate);
+
+      repository.createResult = Right(_createDummyMutation());
+      await cubit.save();
+      expect(repository.createCalls, 2);
+      expect(cubit.state, isA<TaskRecurrenceEditorSuccess>());
+      await cubit.close();
+    },
+  );
+
+  test(
+    'wybrana lokalna godzina jest wysyłana jako ten sam moment UTC',
     () async {
       repository.createResult = Right(_createDummyMutation());
       final cubit = TaskRecurrenceEditorCubit(
@@ -250,7 +366,10 @@ void main() {
 
       final payload = repository.latestCreatePayload;
       expect(payload, isNotNull);
-      expect(payload!.firstOccurrenceAtUtc, DateTime.utc(2026, 9, 18, 14, 35));
+      expect(
+        payload!.firstOccurrenceAtUtc,
+        DateTime(2026, 9, 18, 14, 35).toUtc(),
+      );
       await cubit.close();
     },
   );
@@ -276,5 +395,74 @@ void main() {
 
     expect(repository.pauseCalls, 1);
     expect(cubit.state, isA<TaskRecurrenceEditorSuccess>());
+  });
+
+  testWidgets('409 jest widoczny w recurrence editorze wraz ze szkicem', (
+    tester,
+  ) async {
+    final conflict = ApiError(
+      type: ApiErrorType.conflict,
+      message: 'Rule changed on the server.',
+      statusCode: 409,
+      contractCode: 'task_recurrence_conflict',
+      fields: const {
+        'interval': ['The rule was updated.'],
+      },
+      traceId: 'recurrence-trace-409',
+      retryAfterUtc: DateTime.utc(2026, 10, 1, 12),
+    );
+    repository.createResult = Left(conflict);
+    final cubit = TaskRecurrenceEditorCubit(
+      repository: repository,
+      workspaceId: 'ws-1',
+      projectId: 'proj-1',
+      taskId: 'task-1',
+      taskVersion: 1,
+      hasRecurrence: false,
+    );
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: MaterialTheme.crm().light(),
+        home: TaskDetailsModalTheme(
+          child: BlocProvider.value(
+            value: cubit,
+            child: Scaffold(
+              body:
+                  BlocBuilder<
+                    TaskRecurrenceEditorCubit,
+                    TaskRecurrenceEditorState
+                  >(
+                    builder: (context, state) =>
+                        state is TaskRecurrenceEditorLoaded
+                        ? TaskRecurrenceEditorLoadedContent(
+                            state: state,
+                            cubit: cubit,
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final l10n = AppLocalizations.of(tester.element(find.byType(Scaffold)))!;
+    await tester.tap(find.text(l10n.taskRecurrencePresetCustom));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), '3');
+    await tester.tap(find.text(l10n.taskRecurrenceSave));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TaskDetailsModalError), findsOneWidget);
+    final loaded = cubit.state as TaskRecurrenceEditorLoaded;
+    expect(loaded.apiError, conflict);
+    expect(loaded.interval, 3);
+    expect(find.textContaining('task_recurrence_conflict'), findsOneWidget);
+    expect(find.textContaining('recurrence-trace-409'), findsOneWidget);
+    expect(find.textContaining('The rule was updated.'), findsOneWidget);
   });
 }

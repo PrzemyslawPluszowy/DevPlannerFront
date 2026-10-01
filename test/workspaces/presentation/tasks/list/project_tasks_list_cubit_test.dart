@@ -381,6 +381,12 @@ final class _TaskRecurrenceRepository implements TaskRecurrenceRepository {
   int? resumeVersion;
 
   @override
+  Future<Either<ApiError, List<String>>> listSupportedTimeZones({
+    required String workspaceId,
+    required String projectId,
+  }) async => const Right([]);
+
+  @override
   Future<Either<ApiError, TaskRecurrenceResponse>> get({
     required String workspaceId,
     required String projectId,

@@ -6081,6 +6081,56 @@ class AppLocalizationsPl extends AppLocalizations {
   String get tasksBoardTitle => 'Zadania projektu';
 
   @override
+  String get tasksGlobalSearchTooltip => 'Szukaj zadań';
+
+  @override
+  String get tasksGlobalSearchTitle => 'Wyszukaj zadania';
+
+  @override
+  String get tasksGlobalSearchHint =>
+      'Szukaj po tytule, opisie lub kluczu zadania';
+
+  @override
+  String get tasksGlobalSearchClear => 'Wyczyść wyszukiwanie';
+
+  @override
+  String get tasksGlobalSearchClose => 'Zamknij wyszukiwanie zadań';
+
+  @override
+  String get tasksGlobalSearchTypeMore => 'Wpisz co najmniej dwa znaki';
+
+  @override
+  String get tasksGlobalSearchNoResults => 'Nie znaleziono zadań';
+
+  @override
+  String get tasksGlobalSearchFailure => 'Nie udało się wyszukać zadań';
+
+  @override
+  String get tasksGlobalSearchRateLimitedTitle =>
+      'Wyszukiwanie jest tymczasowo wstrzymane';
+
+  @override
+  String tasksGlobalSearchRetryAfter(int seconds) {
+    return 'Spróbuj ponownie za $seconds s.';
+  }
+
+  @override
+  String get tasksGlobalSearchShowDiagnostics => 'Pokaż szczegóły błędu';
+
+  @override
+  String get tasksGlobalSearchHideDiagnostics => 'Ukryj szczegóły błędu';
+
+  @override
+  String get tasksGlobalSearchRetry => 'Spróbuj ponownie';
+
+  @override
+  String get tasksGlobalSearchLoadMore => 'Pokaż kolejne wyniki';
+
+  @override
+  String get tasksGlobalSearchKeyboardHint =>
+      '↑/↓ wybierz · Enter otwórz · Esc zamknij';
+
+  @override
   String get tasksBoardErrorTitle => 'Nie udało się otworzyć tablicy';
 
   @override
@@ -6143,6 +6193,46 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tasksQuickCreateHint => 'Nazwa nowego zadania';
+
+  @override
+  String get tasksQuickCreateFailed => 'Nie udało się utworzyć zadania.';
+
+  @override
+  String get tasksBoardRefreshAfterCreateFailed =>
+      'Zadanie utworzono, ale nie udało się odświeżyć tablicy.';
+
+  @override
+  String get tasksViewErrorDiagnostics => 'Szczegóły błędu';
+
+  @override
+  String tasksViewErrorApiCode(String code) {
+    return 'Kod API: $code';
+  }
+
+  @override
+  String tasksViewErrorContractCode(String code) {
+    return 'Kod kontraktu: $code';
+  }
+
+  @override
+  String tasksViewErrorBackendCode(int code) {
+    return 'Kod serwera: $code';
+  }
+
+  @override
+  String tasksViewErrorHttpStatus(int status) {
+    return 'HTTP: $status';
+  }
+
+  @override
+  String tasksViewErrorRetryAfter(String time) {
+    return 'Ponów po: $time';
+  }
+
+  @override
+  String tasksViewErrorValidationFields(String fields) {
+    return 'Pola: $fields';
+  }
 
   @override
   String get tasksTemplatesUse => 'Użyj szablonu';
@@ -6610,6 +6700,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get tasksListSort => 'Sortowanie';
 
   @override
+  String get tasksListSortDirection => 'Kierunek sortowania';
+
+  @override
   String get tasksListGroupBy => 'Grupowanie';
 
   @override
@@ -6646,6 +6739,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get tasksBoardMoveBlockedByFilter =>
       'Nie można przenieść karty do kolumny, której zawartość ukrywa aktywny filtr. Wyczyść filtry i spróbuj ponownie.';
+
+  @override
+  String get tasksBoardNoAllowedStatusTransitions =>
+      'Brak dostępnych przejść statusu.';
 
   @override
   String get tasksListTask => 'Zadanie';
@@ -6960,6 +7057,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskDetailsRecurrence => 'Cykliczność';
 
   @override
+  String get taskDetailsRecurrenceOperationFailed =>
+      'Nie udało się wykonać operacji na cykliczności. Spróbuj ponownie.';
+
+  @override
   String get taskDetailsConfigureRecurrence => 'Skonfiguruj';
 
   @override
@@ -7002,7 +7103,26 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskDetailsRecurrenceInterval => 'Co ile okresów';
 
   @override
-  String get taskDetailsRecurrenceTimeZone => 'Strefa czasowa IANA';
+  String get taskDetailsRecurrenceTimeZone => 'Strefa czasowa';
+
+  @override
+  String get taskRecurrenceTimeZoneSearch => 'Szukaj stref czasowych';
+
+  @override
+  String get taskRecurrenceTimeZoneNoResults =>
+      'Brak pasujących stref czasowych';
+
+  @override
+  String get taskRecurrenceTimeZoneCurrentUnlisted =>
+      'Obecny identyfikator nie ma go w bieżącym katalogu serwera; pozostanie bez zmian, dopóki nie wybierzesz innego.';
+
+  @override
+  String get taskRecurrenceTimeZoneScheduleHint =>
+      'Wybrana data i godzina używają czasu lokalnego urządzenia. Ta strefa wyznacza dalsze obliczenia cykliczności.';
+
+  @override
+  String get taskRecurrenceTimeZoneLoadFailed =>
+      'Nie udało się pobrać katalogu stref czasowych.';
 
   @override
   String get taskDetailsRecurrenceOccurrenceStatus =>
@@ -7029,7 +7149,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get taskDetailsRecurrenceInvalid =>
-      'Wpisz dodatni interwał i poprawną strefę IANA, np. Europe/Warsaw.';
+      'Wpisz dodatni interwał i wybierz strefę czasową.';
 
   @override
   String get taskDetailsRecurrenceRetry => 'Spróbuj ponownie';
@@ -7057,13 +7177,44 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskDetailsAttachmentsUploading => 'Wysyłanie';
 
   @override
-  String get taskDetailsAttachmentsUploaded => 'Wysłano';
+  String get taskDetailsAttachmentsUploaded =>
+      'Wysłano dane; oczekiwanie na zatwierdzenie';
 
   @override
   String get taskDetailsAttachmentsFailed => 'Wysyłanie nie powiodło się';
 
   @override
+  String get taskDetailsAttachmentsCheckState => 'Sprawdź stan';
+
+  @override
+  String get taskDetailsAttachmentsResend => 'Ponów wysyłanie';
+
+  @override
+  String get taskUploadCanceled =>
+      'Wysyłanie przerwano. Sprawdź stan plików na serwerze.';
+
+  @override
+  String get taskUploadInvalidInput =>
+      'Plik musi mieć nazwę i nie może być pusty.';
+
+  @override
+  String get taskAttachmentDescriptionTitle => 'Opis pliku';
+
+  @override
+  String get taskAttachmentDescriptionHint => 'Dodaj opis pliku';
+
+  @override
+  String get taskAttachmentDescriptionSave => 'Zapisz opis';
+
+  @override
+  String get storageConvertToPdfAction => 'Konwertuj do PDF';
+
+  @override
   String get taskDetailsTimeTracking => 'Rejestracja czasu';
+
+  @override
+  String get taskDetailsTimeOperationFailed =>
+      'Nie udało się wykonać operacji na rejestrze czasu. Spróbuj ponownie.';
 
   @override
   String get taskDetailsTimeAdd => 'Dodaj czas';
@@ -7093,6 +7244,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get taskDetailsTimeBillable => 'Rozliczalne';
+
+  @override
+  String get taskDetailsTimeStartedAt => 'Rozpoczęto';
+
+  @override
+  String get taskDetailsTimeChooseStart => 'Wybierz datę i godzinę rozpoczęcia';
+
+  @override
+  String get taskDetailsTimeDurationInvalid => 'Wpisz czas od 1 do 1440 minut.';
+
+  @override
+  String get taskDetailsTimeReviewComment => 'Komentarz do decyzji';
+
+  @override
+  String get taskDetailsTimeReviewCommentHint => 'Dodaj opcjonalny komentarz';
 
   @override
   String get taskDetailsTimeDraft => 'Szkic';
@@ -7189,6 +7355,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get taskDetailsCustomFields => 'Pola własne';
+
+  @override
+  String get taskDetailsCustomFieldSelectValues => 'Wybierz wartości';
+
+  @override
+  String get taskDetailsCustomFieldAddValue => 'Wybierz';
 
   @override
   String get taskDetailsEditCustomFields => 'Edytuj pola własne';
@@ -7842,6 +8014,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get tasksSavedViewsPinnedOnly => 'Tylko przypięte zadania';
 
   @override
+  String get tasksListPinnedByMe => 'Przypięte przeze mnie';
+
+  @override
   String get tasksSavedViewsIncludeArchived => 'Uwzględnij zarchiwizowane';
 
   @override
@@ -8192,6 +8367,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskRecurrenceSaveSuccess => 'Zapisano harmonogram powtarzania';
 
   @override
+  String get taskRecurrencePauseSuccess => 'Wstrzymano serię cykliczną';
+
+  @override
+  String get taskRecurrenceResumeSuccess => 'Wznowiono serię cykliczną';
+
+  @override
+  String get taskRecurrenceDeleteSuccess => 'Usunięto serię cykliczną';
+
+  @override
   String get tasksListEditTitleTooltip => 'Edytuj tytuł zadania';
 
   @override
@@ -8307,6 +8491,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tasksListDatePresetNextMonth => 'Za miesiąc';
+
+  @override
+  String get tasksDatePickerManualLabel => 'Wpisz datę';
+
+  @override
+  String get tasksDatePickerManualHint => 'Format daty dla tego języka';
+
+  @override
+  String get tasksDatePickerManualApply => 'Użyj daty';
+
+  @override
+  String get tasksDatePickerInvalidDate =>
+      'Wpisz poprawną datę z dozwolonego zakresu.';
 
   @override
   String get tasksListCustomStatusLabel => 'Status własny';
@@ -8975,6 +9172,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get tasksListColumnsTitle => 'Dostosuj kolumny';
 
   @override
+  String get tasksListColumnsLoadFailed =>
+      'Nie udało się wczytać pól niestandardowych tej listy.';
+
+  @override
   String get tasksListColumnsSubtitle =>
       'Zarządzaj widocznością i kolejnością kolumn na liście';
 
@@ -9633,12 +9834,37 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageErrorTitle => 'Wystąpił błąd';
 
   @override
+  String get storageActionBusy =>
+      'Trwa już inna operacja na pliku. Spróbuj ponownie po jej zakończeniu.';
+
+  @override
+  String storageBulkItemFailures(int count) {
+    return 'Błędy elementów ($count)';
+  }
+
+  @override
+  String storageBulkNotAttempted(int count) {
+    return 'Nieprzetworzone po wstrzymaniu żądań ($count)';
+  }
+
+  @override
+  String get storageActionCanceled =>
+      'Operacja na pliku została przerwana. Odśwież stan pliku przed kolejną próbą.';
+
+  @override
+  String get storageActionFailed =>
+      'Nie udało się wykonać operacji na pliku. Odśwież jego stan przed kolejną próbą.';
+
+  @override
   String get storageForbiddenTitle => 'Brak uprawnień';
 
   @override
   String storagePreviewError(String message) {
     return 'Błąd podglądu: $message';
   }
+
+  @override
+  String get storageTextLoadError => 'Nie udało się wczytać podglądu tekstu.';
 
   @override
   String get storageImageLoadError => 'Nie udało się załadować obrazu.';
@@ -11826,4 +12052,201 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatConversationRenameSuccess => 'Zmieniono nazwę rozmowy.';
+
+  @override
+  String get taskDetailsTabWork => 'Praca';
+
+  @override
+  String get taskDetailsTabConversation => 'Rozmowa';
+
+  @override
+  String get taskDetailsTabFiles => 'Pliki';
+
+  @override
+  String get taskDetailsTabPlanAndTime => 'Plan i czas';
+
+  @override
+  String get taskDetailsTabHistory => 'Historia';
+
+  @override
+  String get taskDetailsSplitLayoutShow => 'Pokaż rozmowę obok pracy';
+
+  @override
+  String get taskDetailsTabbedLayoutShow => 'Pokaż rozmowę w osobnej zakładce';
+
+  @override
+  String get taskDetailsConversationUnavailable =>
+      'Wspólna rozmowa pojawi się tutaj po podłączeniu czatu zadania.';
+
+  @override
+  String get taskDetailsErrorCode => 'Kod';
+
+  @override
+  String get taskDetailsErrorHttpStatus => 'Status HTTP';
+
+  @override
+  String get taskDetailsErrorTraceId => 'Identyfikator śledzenia';
+
+  @override
+  String taskDetailsErrorRetryAfter(String time) {
+    return 'Możesz ponowić próbę po $time';
+  }
+
+  @override
+  String get taskDetailsConflictBase => 'Zapisane przed Twoimi zmianami';
+
+  @override
+  String get taskDetailsConflictCurrent => 'Aktualne na serwerze';
+
+  @override
+  String get taskDetailsConflictDraft => 'Twój szkic';
+
+  @override
+  String get taskDetailsProjectLabelsLoadFailed =>
+      'Nie udało się pobrać etykiet projektu.';
+
+  @override
+  String get taskDetailsTaskSearchFailed =>
+      'Nie udało się wyszukać zadań projektu.';
+
+  @override
+  String get taskDetailsTimeApprove => 'Zatwierdź wpis czasu';
+
+  @override
+  String get taskDetailsTimeReject => 'Odrzuć wpis czasu';
+
+  @override
+  String get taskDetailsUnsavedChangesTitle => 'Odrzucić niezapisane zmiany?';
+
+  @override
+  String get taskDetailsUnsavedChangesMessage =>
+      'Zmiany w zadaniu nie zostały zapisane. Możesz kontynuować edycję albo odrzucić szkic.';
+
+  @override
+  String get taskDetailsUnsavedStay => 'Kontynuuj edycję';
+
+  @override
+  String get taskDetailsUnsavedDiscard => 'Odrzuć szkic';
+
+  @override
+  String get taskDetailsErrorContractCode => 'Kod kontraktu';
+
+  @override
+  String get taskDetailsErrorBackendCode => 'Kod backendu';
+
+  @override
+  String get taskDetailsErrorFields => 'Pola';
+
+  @override
+  String get taskDetailsCustomStatusTitle => 'Status własny projektu';
+
+  @override
+  String get taskDetailsCustomStatusChoose => 'Ustaw status własny';
+
+  @override
+  String get taskDetailsCustomStatusEmpty =>
+      'Projekt nie ma aktywnych statusów własnych.';
+
+  @override
+  String taskDetailsCustomStatusWipWarning(String name, int count, int limit) {
+    return 'Status „$name” będzie miał $count zadań przy limicie $limit.';
+  }
+
+  @override
+  String get taskDetailsStatusCategoryTodo => 'Do zrobienia';
+
+  @override
+  String get taskDetailsStatusCategoryInProgress => 'W toku';
+
+  @override
+  String get taskDetailsStatusCategoryDone => 'Zakończone';
+
+  @override
+  String get taskDetailsStatusCategoryCancelled => 'Anulowane';
+
+  @override
+  String get taskDetailsAttachmentsCompleting => 'Zatwierdzanie pliku';
+
+  @override
+  String get taskDetailsAttachmentsProcessing => 'Skanowanie i przetwarzanie';
+
+  @override
+  String get taskDetailsAttachmentsReady => 'Plik gotowy';
+
+  @override
+  String get taskDetailsAttachmentsUnknown => 'Sprawdzanie stanu pliku';
+
+  @override
+  String get taskDetailsAttachmentsPreparing => 'Przygotowywanie plików…';
+
+  @override
+  String get taskDetailsAttachmentsPickerFailed =>
+      'Nie udało się otworzyć okna wyboru plików.';
+
+  @override
+  String get taskDetailsAttachmentsReadFailed =>
+      'Nie udało się odczytać wybranego pliku.';
+
+  @override
+  String get taskDetailsAttachmentsShowDeleted => 'Pokaż usunięte';
+
+  @override
+  String get taskDetailsAttachmentsHideDeleted => 'Ukryj usunięte';
+
+  @override
+  String get taskDetailsAttachmentsDeleted => 'Usunięty';
+
+  @override
+  String taskDetailsTimeHourCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count godz.',
+      many: '$count godz.',
+      few: '$count godz.',
+      one: '$count godz.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskDetailsTimeMinuteCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min',
+      many: '$count min',
+      few: '$count min',
+      one: '$count min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskDetailsMemberProfilesUnavailable =>
+      'Katalog użytkowników jest niedostępny w tym widoku.';
+
+  @override
+  String get tasksAssigneeSearchPeople => 'Szukaj osób';
+
+  @override
+  String get tasksAssigneeSetPrimary => 'Ustaw głównego wykonawcę';
+
+  @override
+  String get tasksAssigneeRemoveAssignment => 'Usuń przypisanie';
+
+  @override
+  String get tasksAssigneeClearPrimary => 'Usuń głównego wykonawcę';
+
+  @override
+  String get tasksTemplateSaveFailed =>
+      'Nie udało się zapisać szablonu zadania.';
+
+  @override
+  String get tasksBoardColumnLoadFailed =>
+      'Nie udało się wczytać kolejnych zadań tej kolumny.';
+
+  @override
+  String get tasksMilestoneOperationFailed =>
+      'Nie udało się wykonać operacji na kamieniu milowym.';
 }

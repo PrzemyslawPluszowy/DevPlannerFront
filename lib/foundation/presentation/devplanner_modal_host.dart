@@ -12,17 +12,37 @@ abstract final class DevPlannerModalHost {
     bool barrierDismissible = true,
     String? barrierLabel,
     bool requestFocus = true,
-  }) => showGeneralDialog<T>(
-    context: context,
-    useRootNavigator: navigatorScope == DevPlannerModalNavigatorScope.root,
-    barrierDismissible: barrierDismissible,
-    barrierLabel:
-        barrierLabel ??
-        MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .24),
-    requestFocus: requestFocus,
-    pageBuilder: (context, _, _) => builder(context),
-  );
+    VoidCallback? onDismissAttempt,
+  }) {
+    final useRootNavigator =
+        navigatorScope == DevPlannerModalNavigatorScope.root;
+    final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+    final inheritedThemes = InheritedTheme.capture(
+      from: context,
+      to: navigator.context,
+    );
+    return showGeneralDialog<T>(
+      context: context,
+      useRootNavigator: useRootNavigator,
+      barrierDismissible: barrierDismissible,
+      barrierLabel:
+          barrierLabel ??
+          MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .24),
+      requestFocus: requestFocus,
+      pageBuilder: (context, _, _) {
+        final child = inheritedThemes.wrap(builder(context));
+        if (onDismissAttempt == null) return child;
+        return PopScope<T>(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) onDismissAttempt();
+          },
+          child: child,
+        );
+      },
+    );
+  }
 
   static Future<T?> showSideSheet<T>(
     BuildContext context, {
@@ -33,20 +53,32 @@ abstract final class DevPlannerModalHost {
     bool canClose = true,
     String? barrierLabel,
     bool requestFocus = true,
-  }) => showGeneralDialog<T>(
-    context: context,
-    useRootNavigator: navigatorScope == DevPlannerModalNavigatorScope.root,
-    barrierDismissible: barrierDismissible,
-    barrierLabel:
-        barrierLabel ??
-        MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .24),
-    requestFocus: requestFocus,
-    pageBuilder: (context, _, _) => PopScope(
-      canPop: canClose,
-      child: Align(alignment: Alignment.centerRight, child: builder(context)),
-    ),
-  );
+  }) {
+    final useRootNavigator =
+        navigatorScope == DevPlannerModalNavigatorScope.root;
+    final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+    final inheritedThemes = InheritedTheme.capture(
+      from: context,
+      to: navigator.context,
+    );
+    return showGeneralDialog<T>(
+      context: context,
+      useRootNavigator: useRootNavigator,
+      barrierDismissible: barrierDismissible,
+      barrierLabel:
+          barrierLabel ??
+          MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .24),
+      requestFocus: requestFocus,
+      pageBuilder: (context, _, _) => PopScope(
+        canPop: canClose,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: inheritedThemes.wrap(builder(context)),
+        ),
+      ),
+    );
+  }
 
   static Future<T?> showBottomSheet<T>(
     BuildContext context, {

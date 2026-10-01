@@ -21,8 +21,11 @@ final class TaskDetailsAcceptanceCommands {
   final void Function(TaskDetailsReady state) emitReady;
 
   Future<bool> add(String text) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,
@@ -43,8 +46,11 @@ final class TaskDetailsAcceptanceCommands {
     String? text,
     bool? isAccepted,
   }) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,
@@ -67,8 +73,11 @@ final class TaskDetailsAcceptanceCommands {
   }
 
   Future<bool> delete(TaskAcceptanceCriterionResponse criterion) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,

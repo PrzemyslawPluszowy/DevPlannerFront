@@ -21,15 +21,17 @@ final class TaskDetailsDependenciesService {
   final String projectId;
   final String taskId;
 
-  Future<List<ProjectTaskListItemResponse>> search(String phrase) async {
+  Future<Either<ApiError, List<ProjectTaskListItemResponse>>> search(
+    String phrase,
+  ) async {
     final query = phrase.trim();
-    if (query.length < 2) return const [];
+    if (query.length < 2) return const Right([]);
     final result = await repository.listProjectTasks(
       workspaceId: workspaceId,
       projectId: projectId,
       query: ProjectTasksQuery(search: query, limit: 20),
     );
-    return result.fold((_) => const [], (page) => page.items);
+    return result.map((page) => page.items);
   }
 
   Future<Either<ApiError, TaskMutationResponse<TaskDependencyResponse>>>

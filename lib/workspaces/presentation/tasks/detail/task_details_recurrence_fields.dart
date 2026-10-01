@@ -1,11 +1,18 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/recurrence/task_recurrence_time_zone_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_labelers.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
-class _TaskRecurrenceFields extends StatelessWidget {
-  const _TaskRecurrenceFields({
+class TaskRecurrenceFields extends StatelessWidget {
+  const TaskRecurrenceFields({
     required this.mode,
     required this.frequency,
     required this.intervalController,
     required this.timeZoneController,
+    required this.timeZoneRepository,
+    required this.timeZoneSelectionScope,
+    required this.workspaceId,
+    required this.projectId,
     required this.occurrenceStatus,
     required this.skipIfPreviousOpen,
     required this.occurrenceAtUtc,
@@ -16,11 +23,17 @@ class _TaskRecurrenceFields extends StatelessWidget {
     required this.onStatusChanged,
     required this.onSkipChanged,
     required this.onDateChanged,
+    required this.onTimeZoneChanged,
+    super.key,
   });
   final TaskRecurrenceMode mode;
   final TaskRecurrenceFrequency frequency;
   final TextEditingController intervalController;
   final TextEditingController timeZoneController;
+  final TaskRecurrenceRepository timeZoneRepository;
+  final Object timeZoneSelectionScope;
+  final String workspaceId;
+  final String projectId;
   final ProjectTaskStatus occurrenceStatus;
   final bool skipIfPreviousOpen;
   final DateTime? occurrenceAtUtc;
@@ -31,46 +44,37 @@ class _TaskRecurrenceFields extends StatelessWidget {
   final ValueChanged<ProjectTaskStatus> onStatusChanged;
   final ValueChanged<bool> onSkipChanged;
   final ValueChanged<DateTime?> onDateChanged;
+  final ValueChanged<String> onTimeZoneChanged;
 
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      DropdownButtonFormField<TaskRecurrenceMode>(
-        initialValue: mode,
-        decoration: InputDecoration(
-          labelText: context.l10n.taskDetailsRecurrenceMode,
-        ),
-        items: [
+      TaskDetailsSelectField<TaskRecurrenceMode>(
+        label: context.l10n.taskDetailsRecurrenceMode,
+        value: mode,
+        enabled: enabled,
+        options: [
           for (final item in TaskRecurrenceMode.values)
-            DropdownMenuItem(
+            TaskDetailsSelectOption(
               value: item,
-              child: Text(TaskRecurrenceModeLabeler.label(context, item)),
+              label: TaskRecurrenceModeLabeler.label(context, item),
             ),
         ],
-        onChanged: enabled
-            ? (value) {
-                if (value != null) onModeChanged(value);
-              }
-            : null,
+        onChanged: onModeChanged,
       ),
       const SizedBox(height: 12),
-      DropdownButtonFormField<TaskRecurrenceFrequency>(
-        initialValue: frequency,
-        decoration: InputDecoration(
-          labelText: context.l10n.taskDetailsRecurrenceFrequency,
-        ),
-        items: [
+      TaskDetailsSelectField<TaskRecurrenceFrequency>(
+        label: context.l10n.taskDetailsRecurrenceFrequency,
+        value: frequency,
+        enabled: enabled,
+        options: [
           for (final item in TaskRecurrenceFrequency.values)
-            DropdownMenuItem(
+            TaskDetailsSelectOption(
               value: item,
-              child: Text(TaskRecurrenceFrequencyLabeler.label(context, item)),
+              label: TaskRecurrenceFrequencyLabeler.label(context, item),
             ),
         ],
-        onChanged: enabled
-            ? (value) {
-                if (value != null) onFrequencyChanged(value);
-              }
-            : null,
+        onChanged: onFrequencyChanged,
       ),
       const SizedBox(height: 12),
       TextField(
@@ -82,31 +86,41 @@ class _TaskRecurrenceFields extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 12),
-      TextField(
-        controller: timeZoneController,
-        enabled: enabled,
-        decoration: InputDecoration(
-          labelText: context.l10n.taskDetailsRecurrenceTimeZone,
-        ),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.l10n.taskDetailsRecurrenceTimeZone,
+            style: context.tasksTheme.controlText,
+          ),
+          const SizedBox(height: 4),
+          SizedBox(
+            width: double.infinity,
+            child: TaskRecurrenceTimeZonePicker(
+              repository: timeZoneRepository,
+              selectionScope: timeZoneSelectionScope,
+              workspaceId: workspaceId,
+              projectId: projectId,
+              value: timeZoneController.text,
+              enabled: enabled,
+              onSelected: onTimeZoneChanged,
+            ),
+          ),
+        ],
       ),
       const SizedBox(height: 12),
-      DropdownButtonFormField<ProjectTaskStatus>(
-        initialValue: occurrenceStatus,
-        decoration: InputDecoration(
-          labelText: context.l10n.taskDetailsRecurrenceOccurrenceStatus,
-        ),
-        items: [
+      TaskDetailsSelectField<ProjectTaskStatus>(
+        label: context.l10n.taskDetailsRecurrenceOccurrenceStatus,
+        value: occurrenceStatus,
+        enabled: enabled,
+        options: [
           for (final item in ProjectTaskStatus.values)
-            DropdownMenuItem(
+            TaskDetailsSelectOption(
               value: item,
-              child: Text(TaskDetailsLabeler.status(context, item)),
+              label: TaskDetailsLabeler.status(context, item),
             ),
         ],
-        onChanged: enabled
-            ? (value) {
-                if (value != null) onStatusChanged(value);
-              }
-            : null,
+        onChanged: onStatusChanged,
       ),
       SwitchListTile.adaptive(
         contentPadding: EdgeInsets.zero,
@@ -114,7 +128,7 @@ class _TaskRecurrenceFields extends StatelessWidget {
         value: skipIfPreviousOpen,
         onChanged: enabled ? onSkipChanged : null,
       ),
-      _DateField(
+      DateField(
         label: recurrence == null
             ? context.l10n.taskDetailsRecurrenceFirstOccurrence
             : context.l10n.taskDetailsRecurrenceNextOccurrence,
@@ -122,6 +136,14 @@ class _TaskRecurrenceFields extends StatelessWidget {
         format: DateFormat.yMMMd(),
         enabled: enabled,
         onChanged: onDateChanged,
+      ),
+      const SizedBox(height: 4),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          context.l10n.taskRecurrenceTimeZoneScheduleHint,
+          style: context.tasksTheme.metaText,
+        ),
       ),
     ],
   );

@@ -1,5 +1,7 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_schedule_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_schedule_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/session/task_detail_section_lifecycle.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Stan kaskady harmonogramu w oknie planowania jednego zadania.
@@ -12,12 +14,14 @@ final class TaskScheduleCascadeState {
     this.isPreviewing = false,
     this.isApplying = false,
     this.error,
+    this.apiError,
   });
 
   final ScheduleCascadeResponse? preview;
   final bool isPreviewing;
   final bool isApplying;
   final String? error;
+  final ApiError? apiError;
 
   bool get isBusy => isPreviewing || isApplying;
 
@@ -26,6 +30,7 @@ final class TaskScheduleCascadeState {
     bool? isPreviewing,
     bool? isApplying,
     String? error,
+    ApiError? apiError,
     bool clearPreview = false,
     bool clearError = false,
   }) => TaskScheduleCascadeState(
@@ -33,6 +38,7 @@ final class TaskScheduleCascadeState {
     isPreviewing: isPreviewing ?? this.isPreviewing,
     isApplying: isApplying ?? this.isApplying,
     error: clearError ? null : error ?? this.error,
+    apiError: clearError ? null : apiError ?? this.apiError,
   );
 }
 
@@ -45,11 +51,21 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
     required this.repository,
     required this.workspaceId,
     required this.projectId,
+    this.canEdit,
+    this.onAccessLost,
   }) : super(const TaskScheduleCascadeState());
 
   final TaskScheduleRepository repository;
   final String workspaceId;
   final String projectId;
+  final bool Function()? canEdit;
+  final void Function(ApiError)? onAccessLost;
+  ({String taskId, DateTime start, DateTime due})? _previewInput;
+  late final _lifecycle = TaskDetailSectionLifecycle(
+    isClosed: () => isClosed,
+    canEdit: canEdit,
+    onAccessLost: onAccessLost,
+  );
 
   /// Liczy kaskadę dla nowych terminów i pokazuje wynik bez zapisu.
   ///
@@ -60,7 +76,9 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
     required DateTime newStartAtUtc,
     required DateTime newDueAtUtc,
   }) async {
-    if (state.isBusy) return false;
+    if (!_lifecycle.canMutate || state.isBusy) return false;
+    final generation = _lifecycle.begin()!;
+    _previewInput = null;
     emit(
       state.copyWith(
         isPreviewing: true,
@@ -77,15 +95,25 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
         newDueAtUtc: newDueAtUtc,
       ),
     );
-    if (isClosed) return false;
+    if (!_lifecycle.isCurrent(generation)) return false;
     return result.fold(
       (error) {
         emit(
-          state.copyWith(isPreviewing: false, error: error.message),
+          state.copyWith(
+            isPreviewing: false,
+            error: error.message,
+            apiError: error,
+          ),
         );
+        _lifecycle.reportError(error);
         return false;
       },
       (preview) {
+        _previewInput = (
+          taskId: taskId,
+          start: newStartAtUtc,
+          due: newDueAtUtc,
+        );
         emit(state.copyWith(isPreviewing: false, preview: preview));
         return true;
       },
@@ -102,7 +130,25 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
     required DateTime newDueAtUtc,
   }) async {
     final preview = state.preview;
-    if (preview == null || state.isBusy) return false;
+    if (!_lifecycle.canMutate || preview == null || state.isBusy) return false;
+    if (_previewInput !=
+        (taskId: taskId, start: newStartAtUtc, due: newDueAtUtc)) {
+      const error = ApiError(
+        type: ApiErrorType.validation,
+        message: 'Oblicz podgląd dla aktualnych terminów przed zapisem.',
+        apiCode: 'task_cascade_preview_stale',
+      );
+      _previewInput = null;
+      emit(
+        state.copyWith(
+          clearPreview: true,
+          error: error.message,
+          apiError: error,
+        ),
+      );
+      return false;
+    }
+    final generation = _lifecycle.begin()!;
     emit(state.copyWith(isApplying: true, clearError: true));
     final result = await repository.applyCascade(
       workspaceId: workspaceId,
@@ -117,13 +163,21 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
         },
       ),
     );
-    if (isClosed) return false;
+    if (!_lifecycle.isCurrent(generation)) return false;
     return result.fold(
       (error) {
-        emit(state.copyWith(isApplying: false, error: error.message));
+        emit(
+          state.copyWith(
+            isApplying: false,
+            error: error.message,
+            apiError: error,
+          ),
+        );
+        _lifecycle.reportError(error);
         return false;
       },
       (_) {
+        _previewInput = null;
         emit(const TaskScheduleCascadeState());
         return true;
       },
@@ -131,5 +185,10 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
   }
 
   /// Zdejmuje podgląd, gdy użytkownik zmienia daty albo zamyka formularz.
-  void clearPreview() => emit(const TaskScheduleCascadeState());
+  void clearPreview() {
+    if (isClosed || state.isApplying) return;
+    _lifecycle.invalidate();
+    _previewInput = null;
+    emit(const TaskScheduleCascadeState());
+  }
 }

@@ -72,3 +72,7 @@ sentry.properties
 **/failures/
 # Private visual references supplied by the owner; never publish originals.
 /docs/design/reference-local/
+
+/.playwright-cli/
+
+/output/playwright/

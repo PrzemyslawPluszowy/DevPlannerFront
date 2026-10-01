@@ -261,11 +261,81 @@ void main() {
       );
 
       expect(result.apiCode, 'kanban.invalid_move');
+      expect(result.contractCode, 'kanban.invalid_move');
+      expect(result.fields, {
+        'previousTaskId': [
+          'Karta poprzedzająca musi znajdować się przed kartą następującą.',
+        ],
+      });
       expect(result.traceId, 'trace-400');
       expect(
         result.message,
         'Nie można umieścić karty pomiędzy wskazanymi sąsiadami.',
       );
+    });
+
+    test('zachowuje fields, code i traceId w nieznanej gałęzi Dio', () {
+      final error = DioException(
+        requestOptions: RequestOptions(path: '/api/test'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/api/test'),
+          statusCode: 422,
+          data: '''{"code":"task.validation","message":"Nieprawidłowe pola.","fields":{"title":["Wymagane"]},"traceId":"trace-unknown"}''',
+          headers: Headers.fromMap({
+            'retry-after': ['15'],
+          }),
+        ),
+      );
+
+      final result = ApiError.fromDioException(
+        error,
+        fallbackMessage: 'Fallback',
+      );
+
+      expect(result.type, ApiErrorType.validation);
+      expect(result.apiCode, 'task.validation');
+      expect(result.contractCode, 'task.validation');
+      expect(result.fields, {
+        'title': ['Wymagane'],
+      });
+      expect(result.traceId, 'trace-unknown');
+      expect(result.retryAfterUtc, isNotNull);
+    });
+
+    test('równość uwzględnia strukturalne fields i contract code', () {
+      const first = ApiError(
+        type: ApiErrorType.validation,
+        message: 'Nieprawidłowe pola.',
+        apiCode: 'task.validation',
+        contractCode: 'task.validation',
+        fields: {
+          'title': ['Wymagane'],
+        },
+        traceId: 'trace-equal',
+      );
+      const same = ApiError(
+        type: ApiErrorType.validation,
+        message: 'Nieprawidłowe pola.',
+        apiCode: 'task.validation',
+        contractCode: 'task.validation',
+        fields: {
+          'title': ['Wymagane'],
+        },
+        traceId: 'trace-equal',
+      );
+      const different = ApiError(
+        type: ApiErrorType.validation,
+        message: 'Nieprawidłowe pola.',
+        apiCode: 'task.validation',
+        contractCode: 'task.validation',
+        fields: {
+          'title': ['Brak'],
+        },
+        traceId: 'trace-equal',
+      );
+
+      expect(first, same);
+      expect(first, isNot(different));
     });
 
     test('nie gubi starego kontraktu z numerycznym kodem', () {

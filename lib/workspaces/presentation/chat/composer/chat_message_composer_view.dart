@@ -128,6 +128,7 @@ final class ChatMessageComposerView extends StatelessWidget {
               onFocusChange: onFocusChanged,
               child: ChatComposerSurface(
                 focused: editorFocused,
+                desktopWebStyle: composer.desktopWebStyle,
                 moreActions: ChatComposerMoreMenu(
                   expandedEditor: state.mode == ChatComposerMode.richText,
                   onToggleExpandedEditor: editor.toggleExpandedEditor,
@@ -217,6 +218,7 @@ final class ChatMessageComposerView extends StatelessWidget {
                     paste.isPreparing,
                   ),
                   onSubmit: onSubmit,
+                  desktopWebStyle: composer.desktopWebStyle,
                 ),
               ),
             ),

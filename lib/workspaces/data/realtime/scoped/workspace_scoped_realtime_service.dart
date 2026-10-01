@@ -328,11 +328,11 @@ final class WorkspaceScopedRealtimeService {
 class WorkspaceScopedRealtimeFactory {
   const WorkspaceScopedRealtimeFactory({
     required this.baseUrl,
-    required this.accessTokenProvider,
+    required this.credentials,
   });
 
   final String baseUrl;
-  final Future<String?> Function() accessTokenProvider;
+  final WorkspaceRealtimeCredentials credentials;
 
   WorkspaceScopedRealtimeService create(WorkspaceScopedRealtimeKind kind) {
     final hub = switch (kind) {
@@ -343,7 +343,7 @@ class WorkspaceScopedRealtimeFactory {
     return WorkspaceScopedRealtimeService(
       client: WorkspaceSignalRClient(
         '$baseUrl/api/v1/realtime/$hub',
-        WorkspaceRealtimeCredentials.bearer(accessTokenProvider),
+        credentials,
       ),
     );
   }

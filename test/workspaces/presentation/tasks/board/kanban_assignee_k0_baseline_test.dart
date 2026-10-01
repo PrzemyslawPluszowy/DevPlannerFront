@@ -24,6 +24,7 @@ import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.
     show
         KanbanAssigneeColumn,
         KanbanAssigneeColumnsViewport,
+        KanbanAssigneeTaskCard,
         KanbanBoardGroupingBar,
         KanbanColumnWidget,
         KanbanTaskCard;
@@ -265,6 +266,17 @@ Widget _app({
                               projectId: 'project-1',
                               state: state,
                               board: state.assigneeBoard!,
+                              cardBuilder: (task, statusBadge, canDrag) =>
+                                  KanbanAssigneeTaskCard(
+                                    task: task,
+                                    workspaceId: 'workspace-1',
+                                    projectId: 'project-1',
+                                    state: state,
+                                    statusBadge: statusBadge,
+                                    canDrag: canDrag,
+                                  ),
+                              quickCreateBuilder: (_) =>
+                                  const SizedBox.shrink(),
                             )
                           : KanbanColumnsViewport(
                               workspaceId: 'workspace-1',

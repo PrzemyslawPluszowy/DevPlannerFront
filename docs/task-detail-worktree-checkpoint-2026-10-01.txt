@@ -1,0 +1,263 @@
+Checkpoint 2026-10-01T08:53:37+02:00
+Repository: /Users/przemyslawnowak/Desktop/dev/DevNote/Front
+main
+
+ab7a4dcfc680311a7e642cdd6cb6718c09e8fb49
+
+ M docs/devplanner-standalone-refactor-handoff.md
+ M docs/devplanner-standalone-refactor-plan.md
+ M lib/app/router/devplanner_navigation.dart
+ M lib/app/router/devplanner_router.dart
+ D lib/app/router/devplanner_router_pages.part.dart
+ M lib/app/shell/overlays/devplanner_global_panels_host.dart
+ M lib/app/shell/overlays/devplanner_modal_layer.dart
+ M lib/foundation/error/api_error.dart
+ M lib/foundation/error/error.dart
+ M lib/foundation/presentation/devplanner_modal_host.dart
+ M lib/l10n/app_en.arb
+ M lib/l10n/app_localizations.dart
+ M lib/l10n/app_localizations_en.dart
+ M lib/l10n/app_localizations_pl.dart
+ M lib/l10n/app_pl.arb
+ M lib/workspaces/data/chat/errors/chat_api_error_mapper.dart
+ M lib/workspaces/data/chat/repositories/chat_repository_impl.dart
+ M lib/workspaces/data/projects/tasks/api/task_operations_api.dart
+ M lib/workspaces/data/projects/tasks/api/task_operations_api.g.dart
+ M lib/workspaces/data/projects/tasks/models/task_advanced_models.dart
+ M lib/workspaces/data/projects/tasks/models/task_advanced_models.freezed.dart
+ M lib/workspaces/data/projects/tasks/models/task_advanced_models.g.dart
+ M lib/workspaces/data/projects/tasks/models/task_models.dart
+ D lib/workspaces/data/projects/tasks/models/task_models.freezed.dart
+ D lib/workspaces/data/projects/tasks/models/task_models.g.dart
+ M lib/workspaces/data/projects/tasks/repositories/task_attachment_repository_impl.dart
+ M lib/workspaces/data/projects/tasks/repositories/tasks_repository_impl.dart
+ M lib/workspaces/data/projects/tasks/services/task_attachment_presigned_upload_transport.dart
+ M lib/workspaces/data/projects/tasks/tasks_board_composition.dart
+ M lib/workspaces/data/projects/tasks/tasks_details_composition.dart
+ M lib/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart
+ M lib/workspaces/data/storage/transport/text_preview_loader_impl.dart
+ M lib/workspaces/domain/chat/resource/resource_chat_repository.dart
+ M lib/workspaces/domain/repositories/task_attachment_repository.dart
+ M lib/workspaces/domain/repositories/tasks_repository.dart
+ M lib/workspaces/domain/services/task_attachment_upload_transport.dart
+ M lib/workspaces/presentation/chat/composer/chat_composer_surface.dart
+ M lib/workspaces/presentation/chat/composer/chat_message_composer.dart
+ M lib/workspaces/presentation/chat/composer/chat_message_composer_fields.dart
+ M lib/workspaces/presentation/chat/composer/chat_message_composer_view.dart
+ M lib/workspaces/presentation/chat/shell/chat_panel_conversation.dart
+ M lib/workspaces/presentation/chat/shell/chat_panel_conversation_content.dart
+ M lib/workspaces/presentation/chat/shell/chat_panel_conversation_header.dart
+ M lib/workspaces/presentation/private/private_section_view.dart
+ M lib/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart
+ M lib/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_state.dart
+ M lib/workspaces/presentation/storage/browser/shared/storage_rename_file_dialog.dart
+ M lib/workspaces/presentation/storage/office/widgets/storage_office_editor_dialog.dart
+ M lib/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart
+ M lib/workspaces/presentation/storage/preview/cubit/storage_preview_state.dart
+ M lib/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart
+ M lib/workspaces/presentation/storage/preview/widgets/storage_text_preview.dart
+ M lib/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart
+ M lib/workspaces/presentation/storage/versions/cubit/storage_versions_cubit.dart
+ M lib/workspaces/presentation/storage/versions/cubit/storage_versions_state.dart
+ M lib/workspaces/presentation/storage/versions/storage_versions_dialog.dart
+ M lib/workspaces/presentation/tasks/board/cards/subtasks/kanban_card_subtasks_support.dart
+ M lib/workspaces/presentation/tasks/board/tasks_board_card_content.dart
+ M lib/workspaces/presentation/tasks/board/tasks_board_card_menu.dart
+ M lib/workspaces/presentation/tasks/board/tasks_board_card_subtasks.dart
+ M lib/workspaces/presentation/tasks/board/tasks_board_page.dart
+ M lib/workspaces/presentation/tasks/board/tasks_board_route_page.dart
+ M lib/workspaces/presentation/tasks/detail/attachments/cubit/task_attachments_cubit.dart
+ M lib/workspaces/presentation/tasks/detail/cascade/cubit/task_schedule_cascade_cubit.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_acceptance_commands.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_basic_mutation_service.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_checklist_commands.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_collaboration_commands.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_cubit.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_dependencies_service.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_dependency_commands.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_loader_service.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_metadata_commands.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_mutation_coordinator.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_response_assembler.dart
+ M lib/workspaces/presentation/tasks/detail/cubit/task_details_state.dart
+ M lib/workspaces/presentation/tasks/detail/history/cubit/task_history_cubit.dart
+ M lib/workspaces/presentation/tasks/detail/milestone/cubit/task_milestone_cubit.dart
+ M lib/workspaces/presentation/tasks/detail/recurrence/cubit/task_recurrence_cubit.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_acceptance.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_attachments.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_checklist.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_collaboration.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_custom_fields.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_custom_fields_editor.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_dependencies.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_dependency_fields.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_description.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_header.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_history.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_labels.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_milestone.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_page.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_properties.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_properties_planning.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_recurrence.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_recurrence_fields.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_recurrence_form.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_shared.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_subtasks.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_templates.dart
+ M lib/workspaces/presentation/tasks/detail/task_details_time_tracking.dart
+ M lib/workspaces/presentation/tasks/detail/tasks_details_route_page.dart
+ M lib/workspaces/presentation/tasks/detail/templates/cubit/task_template_cubit.dart
+ M lib/workspaces/presentation/tasks/detail/time_tracking/cubit/task_time_tracking_cubit.dart
+ M lib/workspaces/presentation/tasks/list/cells/task_cell_assignees.dart
+ M lib/workspaces/presentation/tasks/list/cells/task_cell_title_actions.dart
+ M lib/workspaces/presentation/tasks/list/chrome/task_list_command_bar.dart
+ M lib/workspaces/presentation/tasks/list/menu/pickers/task_assignee_picker.dart
+ M lib/workspaces/presentation/tasks/list/menu/pickers/task_assignee_search_menu.dart
+ M lib/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart
+ D lib/workspaces/presentation/tasks/list/table/rows/task_list_cell.part.dart
+ M lib/workspaces/presentation/tasks/list/table/rows/task_list_row.dart
+ M lib/workspaces/presentation/tasks/list/table/rows/task_list_row_actions.dart
+ D lib/workspaces/presentation/tasks/list/table/rows/task_list_row_cells.part.dart
+ D lib/workspaces/presentation/tasks/list/table/rows/task_list_row_selection_cell.part.dart
+ M lib/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_cubit.dart
+ M lib/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_editor_state.dart
+ M lib/workspaces/presentation/tasks/recurrence/task_recurrence_context_editor.dart
+ M lib/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_options_section.dart
+ M lib/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_presets.dart
+ M lib/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_schedule_section.dart
+ M lib/workspaces/presentation/workspaces_home/projects_tree/widgets/project_resource_menu_branch.dart
+ M lib/workspaces/shared/presentation/widgets/workspace_creation_modal_wrapper.dart
+ M test/app/router/devplanner_router_test.dart
+ M test/app/router/devplanner_tasks_view_route_test.dart
+ M test/core/error/api_error_test.dart
+ M test/test_support/tasks_board_route_fixture.dart
+ M test/workspaces/data/chat/chat_api_error_mapper_test.dart
+ M test/workspaces/data/chat/chat_repository_impl_test.dart
+ M test/workspaces/data/projects/tasks/task_models_contract_test.dart
+ M test/workspaces/data/projects/tasks/tasks_board_composition_test.dart
+ M test/workspaces/data/realtime/chat_storage_enum_wire_test.dart
+ M test/workspaces/presentation/chat/conversation_delivery/chat_message_delivery_persistence_test.dart
+ M test/workspaces/presentation/storage/office/storage_office_editor_dialog_test.dart
+ M test/workspaces/presentation/storage/storage_file_details_cubit_test.dart
+ M test/workspaces/presentation/storage/versions/storage_version_preview_test.dart
+ M test/workspaces/presentation/tasks/detail/attachments/task_attachments_cubit_test.dart
+ M test/workspaces/presentation/tasks/detail/cascade/task_schedule_cascade_cubit_test.dart
+ M test/workspaces/presentation/tasks/detail/task_milestone_cubit_test.dart
+ M test/workspaces/presentation/tasks/detail/tasks_details_route_page_test.dart
+ M test/workspaces/presentation/tasks/detail/time_tracking/task_time_tracking_cubit_test.dart
+ M test/workspaces/presentation/tasks/list/project_tasks_list_rows_test.dart
+ M test/workspaces/presentation/tasks/recurrence/task_recurrence_editor_cubit_test.dart
+ M test/workspaces/presentation/tasks/task_details_cubit_test.dart
+?? docs/recovery/visual-captures/task-detail-2026-09-30/
+?? docs/task-detail-resume-checkpoint-2026-10-01.md
+?? docs/task-detail-worktree-checkpoint-2026-10-01.txt
+?? lib/app/router/devplanner_auth_guard.dart
+?? lib/app/router/devplanner_route_catalog.dart
+?? lib/app/router/devplanner_router_dependencies.dart
+?? lib/app/router/devplanner_router_pages.dart
+?? lib/foundation/error/api_error_response_parser.dart
+?? lib/workspaces/data/projects/tasks/models/task_detail_models.dart
+?? lib/workspaces/data/projects/tasks/models/task_detail_models.freezed.dart
+?? lib/workspaces/data/projects/tasks/models/task_detail_models.g.dart
+?? lib/workspaces/data/projects/tasks/models/task_list_models.dart
+?? lib/workspaces/data/projects/tasks/models/task_list_models.freezed.dart
+?? lib/workspaces/data/projects/tasks/models/task_list_models.g.dart
+?? lib/workspaces/data/projects/tasks/models/task_mutation_models.dart
+?? lib/workspaces/data/projects/tasks/models/task_mutation_models.freezed.dart
+?? lib/workspaces/data/projects/tasks/models/task_mutation_models.g.dart
+?? lib/workspaces/data/projects/tasks/models/task_workflow_models.dart
+?? lib/workspaces/data/projects/tasks/models/task_workflow_models.freezed.dart
+?? lib/workspaces/data/projects/tasks/models/task_workflow_models.g.dart
+?? lib/workspaces/presentation/storage/browser/mutations/cubit/storage_file_download_commands.dart
+?? lib/workspaces/presentation/storage/browser/mutations/cubit/storage_file_placement_mutations.dart
+?? lib/workspaces/presentation/storage/preview/cubit/storage_preview_action_cubit.dart
+?? lib/workspaces/presentation/storage/preview/cubit/storage_preview_action_state.dart
+?? lib/workspaces/presentation/storage/preview/widgets/storage_preview_action_error_banner.dart
+?? lib/workspaces/presentation/storage/preview/widgets/storage_preview_body.dart
+?? lib/workspaces/presentation/storage/preview/widgets/storage_preview_failure_view.dart
+?? lib/workspaces/presentation/tasks/detail/attachments/cubit/task_attachment_batch_upload_runner.dart
+?? lib/workspaces/presentation/tasks/detail/attachments/cubit/task_attachment_completion_mapper.dart
+?? lib/workspaces/presentation/tasks/detail/attachments/cubit/task_attachment_recovery_scheduler.dart
+?? lib/workspaces/presentation/tasks/detail/attachments/cubit/task_attachment_upload_batch.dart
+?? lib/workspaces/presentation/tasks/detail/attachments/cubit/task_attachments_state.dart
+?? lib/workspaces/presentation/tasks/detail/collaboration/
+?? lib/workspaces/presentation/tasks/detail/cubit/task_details_basic_commands.dart
+?? lib/workspaces/presentation/tasks/detail/cubit/task_details_custom_workflow_commands.dart
+?? lib/workspaces/presentation/tasks/detail/cubit/task_details_lookup_service.dart
+?? lib/workspaces/presentation/tasks/detail/cubit/task_status_control_cubit.dart
+?? lib/workspaces/presentation/tasks/detail/modal/
+?? lib/workspaces/presentation/tasks/detail/session/
+?? lib/workspaces/presentation/tasks/detail/task_attachment_description_dialog.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachment_file_actions.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachment_file_capabilities.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachment_file_menu.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachment_file_mutations.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachment_menu_button.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachment_presentation.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachment_preview_launcher.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachments_ready.dart
+?? lib/workspaces/presentation/tasks/detail/task_attachments_section.dart
+?? lib/workspaces/presentation/tasks/detail/task_custom_field_presentation.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_attachments_feedback.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_basics_editor.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_custom_fields_dialog_body.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_custom_status_dialog.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_custom_status_picker.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_dependency_dialogs.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_imports.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_labelers.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_modal_content.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_modal_sections.dart
+?? lib/workspaces/presentation/tasks/detail/task_details_time_entry_dialog.dart
+?? lib/workspaces/presentation/tasks/detail/task_priority_header_control.dart
+?? lib/workspaces/presentation/tasks/detail/task_time_entry_review_dialog.dart
+?? lib/workspaces/presentation/tasks/detail/time_tracking/task_time_entry_error_banner.dart
+?? lib/workspaces/presentation/tasks/list/cells/task_assignee_profile_presentation.dart
+?? lib/workspaces/presentation/tasks/list/menu/pickers/task_assignee_search_failure.dart
+?? lib/workspaces/presentation/tasks/list/menu/pickers/task_assignee_search_rows.dart
+?? lib/workspaces/presentation/tasks/list/menu/pickers/task_assignee_search_ui_state.dart
+?? lib/workspaces/presentation/tasks/list/menu/pickers/task_date_picker_calendar.dart
+?? lib/workspaces/presentation/tasks/list/menu/pickers/task_date_picker_content.dart
+?? lib/workspaces/presentation/tasks/list/menu/pickers/task_date_picker_manual_entry.dart
+?? lib/workspaces/presentation/tasks/list/menu/pickers/task_date_picker_presets.dart
+?? lib/workspaces/presentation/tasks/list/table/rows/task_list_cell.dart
+?? lib/workspaces/presentation/tasks/list/table/rows/task_list_project_settings_launcher.dart
+?? lib/workspaces/presentation/tasks/list/table/rows/task_list_row_body.dart
+?? lib/workspaces/presentation/tasks/list/table/rows/task_list_row_cells.dart
+?? lib/workspaces/presentation/tasks/list/table/rows/task_list_row_selection_cell.dart
+?? lib/workspaces/presentation/tasks/recurrence/cubit/task_recurrence_payload_composer.dart
+?? lib/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_loaded_content.dart
+?? lib/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_pick_fields.dart
+?? test/task_detail_visual_harness_main.dart
+?? test/test_support/task_detail_visual_fixture.dart
+?? test/workspaces/data/projects/tasks/task_attachment_presigned_upload_transport_test.dart
+?? test/workspaces/data/projects/tasks/task_attachment_ticket_idempotency_api_test.dart
+?? test/workspaces/data/projects/tasks/task_enum_wire_contract_test.dart
+?? test/workspaces/data/projects/tasks/tasks_repository_custom_status_test.dart
+?? test/workspaces/presentation/storage/preview/
+?? test/workspaces/presentation/tasks/detail/attachments/task_attachment_completion_mapper_test.dart
+?? test/workspaces/presentation/tasks/detail/attachments/task_attachments_body_lifecycle_test.dart
+?? test/workspaces/presentation/tasks/detail/attachments/task_attachments_recovery_test.dart
+?? test/workspaces/presentation/tasks/detail/collaboration/
+?? test/workspaces/presentation/tasks/detail/modal/
+?? test/workspaces/presentation/tasks/detail/task_assignee_profiles_dialog_test.dart
+?? test/workspaces/presentation/tasks/detail/task_attachment_file_actions_test.dart
+?? test/workspaces/presentation/tasks/detail/task_attachment_file_menu_theme_test.dart
+?? test/workspaces/presentation/tasks/detail/task_attachment_file_row_actions_test.dart
+?? test/workspaces/presentation/tasks/detail/task_attachment_preview_lifecycle_test.dart
+?? test/workspaces/presentation/tasks/detail/task_custom_fields_dialog_error_test.dart
+?? test/workspaces/presentation/tasks/detail/task_custom_fields_editor_lifecycle_test.dart
+?? test/workspaces/presentation/tasks/detail/task_custom_fields_profiles_optional_test.dart
+?? test/workspaces/presentation/tasks/detail/task_custom_status_picker_scope_test.dart
+?? test/workspaces/presentation/tasks/detail/task_dependency_dialog_error_test.dart
+?? test/workspaces/presentation/tasks/detail/task_details_modal_theme_test.dart
+?? test/workspaces/presentation/tasks/detail/task_details_visited_tab_stack_test.dart
+?? test/workspaces/presentation/tasks/detail/task_priority_header_control_test.dart
+?? test/workspaces/presentation/tasks/detail/task_status_control_cubit_test.dart
+?? test/workspaces/presentation/tasks/detail/task_status_menu_scope_test.dart
+?? test/workspaces/presentation/tasks/detail/task_watchers_responsive_test.dart
+?? test/workspaces/presentation/tasks/detail/time_tracking/task_time_entry_dialog_test.dart
+?? test/workspaces/presentation/tasks/list/task_assignee_search_menu_test.dart
+?? test/workspaces/presentation/tasks/list/task_date_picker_test.dart

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
@@ -12,6 +13,7 @@ import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_cubit.dart';
@@ -216,7 +218,9 @@ void main() {
           name: 'nowy dokument',
           format: StorageDocumentFormat.docx,
         );
-        await cubit.retry();
+        final operationId =
+            (cubit.state as StorageDocumentMutationFailure).operationId;
+        await cubit.retry(operationId: operationId);
         await cubit.createDocument(
           scope: scope,
           name: 'nowy dokument',
@@ -269,6 +273,329 @@ void main() {
 
       await cubit.close();
     });
+
+    test('bulk delete partial keeps complete API diagnostics', () async {
+      final error = ApiError(
+        type: ApiErrorType.badResponse,
+        message: 'Poczekaj przed kolejną próbą.',
+        statusCode: 429,
+        backendCode: 28,
+        apiCode: 'storage.rate_limited',
+        contractCode: 'storage.rate_limited',
+        fields: const {
+          'fileId': ['file-2 is temporarily locked.'],
+        },
+        traceId: 'bulk-delete-trace',
+        retryAfterUtc: DateTime.utc(2026, 10, 1, 12),
+      );
+      when(() => repository.deleteFile('file-1')).thenAnswer(
+        (_) async => right(unit),
+      );
+      when(() => repository.deleteFile('file-2')).thenAnswer(
+        (_) async => left(error),
+      );
+      final cubit = StorageFileMutationCubit(
+        repository: repository,
+        downloadTransport: downloadTransport,
+      );
+
+      await cubit.bulkDelete(fileIds: const ['file-1', 'file-2']);
+
+      final partial = cubit.state as StorageFileMutationPartialSuccess;
+      expect(partial.succeededIds, ['file-1']);
+      expect(partial.failedIds, ['file-2']);
+      expect(partial.apiError, error);
+      expect(partial.apiError?.fields, error.fields);
+      expect(partial.apiError?.contractCode, error.contractCode);
+      expect(partial.apiError?.traceId, error.traceId);
+      expect(partial.apiError?.retryAfterUtc, error.retryAfterUtc);
+      expect(partial.apiErrorsById, {'file-2': error});
+      verify(() => repository.deleteFile('file-1')).called(1);
+      verify(() => repository.deleteFile('file-2')).called(1);
+      await cubit.close();
+    });
+
+    for (final partialSuccess in [false, true]) {
+      test(
+        'bulk stops before later requests (partial=$partialSuccess)',
+        () async {
+          final limited = ApiError(
+            type: ApiErrorType.badResponse,
+            message: 'Wait',
+            statusCode: 429,
+            apiCode: 'storage.rate_limited',
+            retryAfterUtc: DateTime.now().toUtc().add(
+              const Duration(minutes: 5),
+            ),
+          );
+          const conflict = ApiError(
+            type: ApiErrorType.badResponse,
+            message: 'Conflict',
+            statusCode: 409,
+            apiCode: 'storage.conflict',
+          );
+          when(() => repository.deleteFile('limited'))
+              .thenAnswer((_) async => left(limited));
+          when(() => repository.deleteFile('conflict'))
+              .thenAnswer((_) async => left(conflict));
+          when(() => repository.deleteFile('success'))
+              .thenAnswer((_) async => right(unit));
+          final cubit = StorageFileMutationCubit(
+            repository: repository,
+            downloadTransport: downloadTransport,
+          );
+          addTearDown(cubit.close);
+          await cubit.bulkDelete(
+            fileIds: [if (partialSuccess) 'success', 'limited', 'conflict'],
+          );
+          final previous = cubit.state;
+          if (previous case StorageFileMutationPartialSuccess()) {
+            expect(previous.succeededIds, ['success']);
+            expect(previous.failedIds, ['limited']);
+            expect(previous.notAttemptedIds, ['conflict']);
+            expect(previous.apiErrorsById, {'limited': limited});
+          } else {
+            final failure = previous as StorageFileMutationFailure;
+            expect(failure.notAttemptedIds, ['conflict']);
+            expect(failure.apiErrorsById, {'limited': limited});
+          }
+          verifyNever(() => repository.deleteFile('conflict'));
+          await cubit.deleteFile('success');
+          expect(cubit.state, same(previous));
+          final feedback = await cubit.downloadFileWithFeedback(sampleFile);
+          expect(feedback, same(limited));
+          verifyNever(() => repository.getDownloadTicket(any()));
+          if (partialSuccess) {
+            verify(() => repository.deleteFile('success')).called(1);
+          } else {
+            verifyNever(() => repository.deleteFile('success'));
+          }
+        },
+      );
+    }
+
+    for (final status in [429, 503]) {
+      test('folder backpressure stops folders and files ($status)', () async {
+        final error = ApiError(
+          type: ApiErrorType.badResponse,
+          message: 'Wait',
+          statusCode: status,
+          retryAfterUtc: status == 503
+              ? DateTime.now().toUtc().add(const Duration(minutes: 5))
+              : null,
+        );
+        when(() => repository.deleteFolder('first'))
+            .thenAnswer((_) async => left(error));
+        final cubit = StorageFileMutationCubit(
+          repository: repository,
+          downloadTransport: downloadTransport,
+        );
+        addTearDown(cubit.close);
+        await cubit.bulkDelete(
+          folderIds: const ['first', 'second'],
+          fileIds: const ['file'],
+        );
+        final failure = cubit.state as StorageFileMutationFailure;
+        expect(failure.apiErrorsById, {'first': error});
+        expect(failure.notAttemptedIds, ['second', 'file']);
+        verifyNever(() => repository.deleteFolder('second'));
+        verifyNever(() => repository.deleteFile(any()));
+      });
+    }
+
+    test('ordinary per-file conflict allows remaining deletes', () async {
+      const error = ApiError(
+        type: ApiErrorType.badResponse,
+        message: 'Conflict',
+        statusCode: 409,
+      );
+      when(() => repository.deleteFile('conflict'))
+          .thenAnswer((_) async => left(error));
+      when(() => repository.deleteFile('success'))
+          .thenAnswer((_) async => right(unit));
+      final cubit = StorageFileMutationCubit(
+        repository: repository,
+        downloadTransport: downloadTransport,
+      );
+      addTearDown(cubit.close);
+      await cubit.bulkDelete(fileIds: const ['conflict', 'success']);
+      final partial = cubit.state as StorageFileMutationPartialSuccess;
+      expect(partial.succeededIds, ['success']);
+      expect(partial.failedIds, ['conflict']);
+      expect(partial.notAttemptedIds, isEmpty);
+      verify(() => repository.deleteFile('success')).called(1);
+    });
+
+    test(
+      'unexpected mutation failure leaves a recoverable typed state',
+      () async {
+        when(
+          () => repository.setFileFavorite(
+            fileId: 'file-1',
+            isFavorite: true,
+          ),
+        ).thenThrow(StateError('transport adapter failed'));
+        final cubit = StorageFileMutationCubit(
+          repository: repository,
+          downloadTransport: downloadTransport,
+        );
+
+        await cubit.toggleFavorite(sampleFile);
+
+        final failure = cubit.state as StorageFileMutationFailure;
+        expect(failure.apiCode, 'storage.action_failed');
+        expect(failure.message, 'storage.action_failed');
+        expect(cubit.isClosed, isFalse);
+        await cubit.close();
+      },
+    );
+
+    test('download feedback reports busy and reset as typed errors', () async {
+      final response =
+          Completer<Either<ApiError, StorageFileUserStateResponse>>();
+      final ticket =
+          Completer<Either<ApiError, StorageDownloadTicketResponse>>();
+      when(
+        () => repository.setFileFavorite(
+          fileId: 'file-1',
+          isFavorite: true,
+        ),
+      ).thenAnswer((_) => response.future);
+      when(() => repository.getDownloadTicket('file-1'))
+          .thenAnswer((_) => ticket.future);
+      final cubit = StorageFileMutationCubit(
+        repository: repository,
+        downloadTransport: downloadTransport,
+      );
+
+      final pending = cubit.toggleFavorite(sampleFile);
+      await Future<void>.delayed(Duration.zero);
+      final busyError = await cubit.downloadFileWithFeedback(sampleFile);
+      expect(busyError?.apiCode, 'storage.action_busy');
+      cubit.reset();
+      response.complete(
+        const Right(
+          StorageFileUserStateResponse(fileId: 'file-1', isFavorite: true),
+        ),
+      );
+      await pending;
+      final download = cubit.downloadFileWithFeedback(sampleFile);
+      await Future<void>.delayed(Duration.zero);
+      cubit.reset();
+      ticket.complete(
+        Right(
+          StorageDownloadTicketResponse(
+            fileId: 'file-1',
+            originalFileName: 'report.pdf',
+            mimeType: 'application/pdf',
+            fileSizeBytes: 1024,
+            downloadUrl: 'https://download.invalid/ticket',
+            expiresAtUtc: now.add(const Duration(hours: 1)),
+          ),
+        ),
+      );
+      final canceledError = await download;
+      expect(canceledError?.apiCode, 'storage.action_canceled');
+      await cubit.close();
+    });
+
+    test('closed mutation cubit does not start a request or emit', () async {
+      final cubit = StorageFileMutationCubit(
+        repository: repository,
+        downloadTransport: downloadTransport,
+      );
+      await cubit.close();
+
+      await cubit.toggleFavorite(sampleFile);
+
+      verifyNever(
+        () => repository.setFileFavorite(
+          fileId: any(named: 'fileId'),
+          isFavorite: any(named: 'isFavorite'),
+        ),
+      );
+    });
+
+    test(
+      'close while waiting for ticket prevents the download transport',
+      () async {
+        final ticket =
+            Completer<Either<ApiError, StorageDownloadTicketResponse>>();
+        when(() => repository.getDownloadTicket('file-1'))
+            .thenAnswer((_) => ticket.future);
+        final cubit = StorageFileMutationCubit(
+          repository: repository,
+          downloadTransport: downloadTransport,
+        );
+
+        final download = cubit.downloadFile(sampleFile);
+        await Future<void>.delayed(Duration.zero);
+        await cubit.close();
+        ticket.complete(
+          Right<ApiError, StorageDownloadTicketResponse>(
+            StorageDownloadTicketResponse(
+              fileId: 'file-1',
+              originalFileName: 'raport.pdf',
+              mimeType: 'application/pdf',
+              fileSizeBytes: 1024,
+              downloadUrl: 'https://download.invalid/ticket',
+              expiresAtUtc: now.add(const Duration(hours: 1)),
+            ),
+          ),
+        );
+        await download;
+
+        verifyNever(
+          () => downloadTransport.downloadUrl(
+            downloadUrl: any(named: 'downloadUrl'),
+            fileName: any(named: 'fileName'),
+            headers: any(named: 'headers'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'busy mutation rejects duplicates and reset ignores late response',
+      () async {
+        final response =
+            Completer<Either<ApiError, StorageFileUserStateResponse>>();
+        when(
+          () => repository.setFileFavorite(
+            fileId: 'file-1',
+            isFavorite: true,
+          ),
+        ).thenAnswer((_) => response.future);
+        final cubit = StorageFileMutationCubit(
+          repository: repository,
+          downloadTransport: downloadTransport,
+        );
+
+        final first = cubit.toggleFavorite(sampleFile);
+        await cubit.toggleFavorite(sampleFile);
+        expect(cubit.state, isA<StorageFileMutationLoading>());
+        verify(
+          () => repository.setFileFavorite(
+            fileId: 'file-1',
+            isFavorite: true,
+          ),
+        ).called(1);
+
+        cubit.reset();
+        response.complete(
+          Right<ApiError, StorageFileUserStateResponse>(
+            StorageFileUserStateResponse(
+              fileId: 'file-1',
+              isFavorite: true,
+              favoritedAtUtc: now,
+            ),
+          ),
+        );
+        await first;
+        expect(cubit.state, isA<StorageFileMutationInitial>());
+        await cubit.close();
+      },
+    );
   });
 
   group('StorageUploadCubit', () {

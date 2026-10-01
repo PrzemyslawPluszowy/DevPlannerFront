@@ -17,8 +17,14 @@ final class TaskAttachmentRepositoryImpl extends ApiRepository
     required String workspaceId,
     required String projectId,
     required String taskId,
+    bool includeDeleted = false,
   }) => guardApiCall(
-    () => _api.listTaskAttachments(workspaceId, projectId, taskId),
+    () => _api.listTaskAttachments(
+      workspaceId,
+      projectId,
+      taskId,
+      includeDeleted: includeDeleted,
+    ),
     fallbackMessage: 'Nie udało się pobrać załączników zadania.',
   );
 
@@ -27,12 +33,14 @@ final class TaskAttachmentRepositoryImpl extends ApiRepository
     required String workspaceId,
     required String projectId,
     required String taskId,
+    required String idempotencyKey,
     required BulkTaskUploadTicketPayload payload,
   }) => guardApiCall(
     () => _api.requestBulkAttachmentTickets(
       workspaceId,
       projectId,
       taskId,
+      idempotencyKey,
       payload,
     ),
     fallbackMessage: 'Nie udało się przygotować uploadu załączników.',

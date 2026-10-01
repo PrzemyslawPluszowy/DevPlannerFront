@@ -31,6 +31,7 @@ final class ChatPanelConversationHeader extends StatelessWidget {
     this.messageActions,
     this.conversationRepository,
     this.canManageConversation = false,
+    this.showBackButton = true,
     super.key,
   });
 
@@ -70,6 +71,7 @@ final class ChatPanelConversationHeader extends StatelessWidget {
 
   /// Uprawnienie z roli zwróconej przez inbox; serwer ponownie sprawdza ACL.
   final bool canManageConversation;
+  final bool showBackButton;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -80,11 +82,12 @@ final class ChatPanelConversationHeader extends StatelessWidget {
           _ResourceChatHeader(context: current),
         Row(
           children: [
-            IconButton(
-              tooltip: context.l10n.globalChatBackToConversations,
-              onPressed: onBack,
-              icon: const Icon(Symbols.arrow_back_rounded, size: 19),
-            ),
+            if (showBackButton)
+              IconButton(
+                tooltip: context.l10n.globalChatBackToConversations,
+                onPressed: onBack,
+                icon: const Icon(Symbols.arrow_back_rounded, size: 19),
+              ),
             AppUserAvatar(
               userId: avatarUserId,
               displayName: avatarLabel ?? _headerTitle(context),

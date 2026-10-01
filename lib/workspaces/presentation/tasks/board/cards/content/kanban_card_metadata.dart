@@ -240,19 +240,6 @@ class _CardAssigneeAvatar extends StatelessWidget {
   }
 }
 
-final class TaskBoardAvatarPalette {
-  const TaskBoardAvatarPalette._();
-
-  static Color colorFor(String id) {
-    const palette = <Color>[
-      Color(0xFF6C5CE7),
-      Color(0xFF0984E3),
-      Color(0xFF00A884),
-      Color(0xFFE17055),
-    ];
-    return palette[id.hashCode.abs() % palette.length];
-  }
-}
 
 class _MetaText extends StatelessWidget {
   const _MetaText({required this.icon, required this.value});

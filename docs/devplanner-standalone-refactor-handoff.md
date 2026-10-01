@@ -1,4 +1,315 @@
+## 2026-10-01 — root review po naturalnym podziale Listy
+
+- Navigation źródła mają filelimit: TaskListCommandBar392, ColumnsButton59, MemberAvatar38, Labels78. Root review ColumnsButton ujawnił mounted bez owner/repository/scope identity po metadataGET. Navigation dodaje capture przed await, guard current/closed i typed unexpectedfailure oraz deferredGET replacement/disposal regression; l10n tasksListColumnsLoadFailed PL/EN dodany, generator/test jeszcze oczekują slotu. Kanban extraction wstrzymana do stabilizacji bieżących packetów i freshFrontbuild.
+- Surface poprawiła listener callback widget.onError i subscribedprovider lifecycle. Root źródłowo potwierdził capture exact owners/browserScope przed confirmation oraz snapshot selection przy Loading; meaningful final tests still pending. PublicShare expiry nadal używa default Material showDatePicker — jawna otwarta luka stylistyczna z wcześniejszego audytu, do osobnego atomic packetu po stabilizacji aktualnego builda.
+- Transport własny write_stdin5301 i ps/lsof potwierdziły LIVE hold+backend (rootsessionunknown nie oznaczało terminalu). Trustedlocalhost devcert mode scopedharnessbuild0warnings/errors; restart starego self-signed hold do nowego trustedlocalhost autorizowany, agent ma zweryfikować gracefulcleanup/terminal i nowy handle. Root source securityreview wymaga private0700 parenttempdirectory PRZED --no-password export, zamiast chmod pliku po eksporcie; poprawka w toku. SecureArtifact ma być osobnym normalnym plikiem poza wielkim Program, bez bypassTLS ani truststorechanges.
+- Root/Navigation obecnie bez liveFluttercmd; Surface ma następny serial selectiveanalyze/testslot. FreshFrontbuild po stablecompile, authenticated UI niepotwierdzone. Wszystkie P0–P7 pozostają otwarte; brak commit/push/deploy oraz brak broadperformanceclaim bez profilemode.
+
+## 2026-10-01 — root review Storage selection i przygotowanie UI runtime
+
+- Root odczytał nowy Storage feedback/listener/delete-confirm packet i znalazł dwa rzeczywiste lifecycle problemy: owners pobierani dopiero po await confirmation oraz completion usuwające bieżące nowe zaznaczenie. Surface przeniosła capture owners+browserScope przed confirmation, dodała exact identity/closed/selection guards i normalną StorageDeleteConfirmation zamiast globalnej funkcji. Listener ma snapshot przy Loading i usuwa tylko faktycznie zakończone IDs. Testy nowych regresji jeszcze do wykonania; final source review wykrył też `onError` zamiast `widget.onError` i brak subskrybowanej provider dependency, przekazane do naprawy przed analyze. Nie deklarować pakietu gotowego.
+- Root wymaga nazw plików/folderów w feedback z utrwalonego selection snapshot, UUID tylko jako diagnostyka, failed vs notAttempted oddzielne i bez automatycznego retry uncertain mutation. Surface podzieliła shell/listeners/responsive widget na zwykłe klasy; compile/import stabilizacja w toku. Globalny limit400 dotyczy całego pliku.
+- Navigation labels test1/1 PASS99029 PL/EN i scoped analyzer5paths No issues. Root pomiar task_list_command_bar.dart458 +labelhelper78 ujawnił nadal przekroczony filelimit, mimo class396. Navigation wydziela naturalny avatar i przycisk kolumn; dalszy Kanban refactor po zamknięciu tego packetu. Szeroki row test NIE PASS po in-flight StorageKeyboardShortcuts missingimport; Surface import poprawiła, rerun nadal wymagany.
+- Root CUA próba https://127.0.0.1:54791 zatrzymana ERR_CERT_AUTHORITY_INVALID. Nie omijano TLS warning. Transport potwierdził już system-trusted localhost devcert i przygotowuje opt-in użycie go w chronionym disposable harness (localhost SAN, secureBFF retained, no secrets output). Root poll5301 zwrócił Unknown process id; agent ma zweryfikować własny handle i actualprocess, nie restartować wyłącznie po root observationfailure. FreshFrontbuild czeka stablecompile/serialslot; obecne build/web stale30.09, nie używać jako dowodu obecnego UI.
+- Całość P0–P7 otwarta. Brak commit/push/deploy; visual runtime i wszystkie końcowe bramki nadal wymagane. Source review nie jest profile-mode pomiarem wydajności.
+
+## 2026-10-01 — root: search 200% i aktualny protokół Storage
+
+- Root nowy test420x600/dark/PL/200% odtworzył horizontal RenderFlex overflow134px (FAIL5614). Podpowiedź klawiaturowa teraz zawija się w Expanded. Wspólna TasksGlobalSearchGeometry22 wylicza wysokość wyniku z Tasks typography i TextScaler; ListView i skok klawiatury używają identycznej wartości. Tytuł ma dwie linie i tooltip pełnej treści. Dialog314/result113, bez parts/helperów budujących fragmenty.
+- Root review według flutter-state-management znalazł _load bez catch, pozostawiający Loading po thrown adapter error. Cubit136 zachowuje ApiError/Dio typed metadata, mapuje unknown na bezpieczny tasks.search_failed, kontroluje generation/closed po await i publikuje unmodifiable items. Regresja cursor throw zachowuje poprzednie wyniki i cursor, a retry odzyskuje dane. Nie zmieniono publicznego API ani enumów transportowych.
+- Search final3files11/11 PASS65760: throw/retry cursor recovery i unmodifiable items, scale200%420x600,20skoków klawiaturą z selected item hitTestable, search launcher replacement/disposal/current. Scoped analyzer6paths53475 No issues. Poprzedni78576 miał8PASS i compilefailure launcher przez in-flight Storage imports i label/l10n; agenci poprawili brakujące imports/args/const i wygenerowali l10n przed rerunem. Analyzer77153 prefer_final_locals poprawione. Brak authenticated Search visual runtime; te dowody są widget/Cubit.
+- Transport raportuje rzeczywisty lokalny authenticated Storage harness53390 EXIT0: DOCX/PNG ticket+PUT+Complete Ready/Clean, pending taskmetadata dostępne/content403, download/stream hash+size, Word/editable Office config, PNG inline hash/type, activeMember dostęp, foreign/revokedMember403 wszystkich content/Office paths, owner retained. Cleanup DB/browser/proxy/ownedobjects wykonany, brak liveprocess. Root nie uznaje tego za Flutter modal ani działający Office editor UI. Wcześniejsze PNG mismatch było błędną asercją undefined image.hash, foreign404 sprzeczne z obecnym Storage403 kontraktem; poprawiono testy, nie osłabiono ACL.
+- Nowe AGENTS wymagają flutter-state-management; root przeczytał skill i lifecycle/async references oraz skille microsoft-docs/code-reference, przekazał wymagania Lunom. Obecny ALL_TOOLS nie udostępniał Sereny/Microsoft Learn; backend agent sprawdza właściwy fallback. CUA inventory działa, DevPlanner native nie jest uruchomiony; brak aktualnego authenticated UI capture. Następny Transport packet przygotowuje disposable hold/runtime dla Front review.
+- Navigation nowa menu lifecycle regresja1/1 PASS +scoped analyzer No issues; PL/EN gen-l10n zakończony, etykiety w dalszym selektywnym review. Surface placement/per-file feedback w toku. Całość P0–P7 otwarta, pełne bramki na końcu, bez commit/push/deploy.
+
+## 2026-10-01 — root: przerwanie bulk delete po ograniczeniu API
+
+- Usuwanie zbiorcze nie wysyła dalszych żądań po HTTP429 (również bez deadline) ani po błędzie z przyszłym Retry-After. Zwykły per-item409 nie blokuje pozostałych elementów. Snapshot kolejki powstaje przed await; generation/closed kontrolowane przed i po każdym wywołaniu.
+- Normalna klasa StorageBulkDeleteCommands78 linii wydziela sekwencję z Cubita316. Lokalne stany UI partial/failure212 mają notAttemptedIds (domyślnie puste), oddzielne od failedIds/apiErrorsById. Nie dodano API/DTO/transportowego enuma ani zmiany jego wartości przewodowych. Listy wyników i mapa errors są unmodifiable.
+- Root storage_mutations_and_upload_test18/18 PASS73990: partial i failure zatrzymują się przed następnym plikiem, folder429 bez deadline oraz503 z deadline pomijają dalsze foldery/pliki, ordinary409 kontynuuje, późniejsze akcje respektują cooldown. Scoped analyze4paths No issues5348 po poprawce import-order; diff-check rootpaths clean. To kod/Cubit, nie odbiór UI.
+- Następny pakiet Surface: ta sama reguła dla placement moveMany i UI per-item diagnostics. Zarówno Shell listener, jak i delete-confirm helper dotąd czyściły selection przy partial/unconditionally; muszą zachować failed+notAttempted. Nie oznaczać untouched jako faktycznie failed ani automatycznie powtarzać niepewnej mutacji.
+- Surface raportuje timezone selective75/75 +picker2/2 i scoped analyzer14 No issues; Backend catalogue project-read/host-list1/1 PASS. Root odczytał immutable factory snapshot i guards przed selection/search/retry; authenticated runtime/visual acceptance nadal otwarte. Navigation wykonuje kolejną menu lifecycle regresję; Transport rzeczywisty DOCX/PNG/Office protokół. Całość P0–P7 otwarta, bez full suite/commit/push/deploy.
+
+## 2026-10-01 — review task scope i aktualne dowody selektywne
+
+- Root zakończył rerun nowoczesnych asercji semantic tree: task_error_announcement_test 3/3 PASS45485, wcześniej scoped analyzer No issues53036. To dowód widgetowy; native screen reader i authenticated visual runtime nadal otwarte.
+- Root odczytał BulkCompleteTaskAttachmentsHandler: jedno zapytanie przed jakąkolwiek mutacją sprawdza wszystkie UUID, moduł Workspaces, resourceType Task, kanoniczny taskId D, workspace/project oraz undeleted. Niezgodność daje neutralne404. Test HTTP/PostgreSQL mixed valid+otherTask+otherProject+Private sprawdza brak CompletionClaimId/PendingStorageObjectKey/Ready we wszystkich czterech plikach. Transport raportuje selektywne6/6 PASS; root źródłowo potwierdził zakres testu. CompleteStorageUploadHandler187, verifier98, bulk60, scoped facade55 — normalne klasy Application. Unexpected infra błędy propagują do wspólnego500, oczekiwane błędy per-file zachowują kod i bezpieczny powód. Pełne suite nieuruchamiane.
+- Navigation raportuje świeży isolated root popup capture1/1 PASS (6s): message menu i reakcje namalowane nad modalem, route current/animation1. PNG fixture zaktualizowane; emoji tofu pozostaje luką. To nie authenticated runtime ani końcowy benchmark. Menu/layout14/14 PASS i scoped analyzer No issues dotyczą stanu przed kolejnym root review.
+- Root review AppContextMenuPanel wymaga jeszcze didUpdateWidget dla row keys/highlight oraz exact mounted/source identity w deferred ensureVisible. Przekazano Navigation; wynik poprzednich testów nie zamyka tej luki.
+- Root serial gen-l10n64366 EXIT0 dla taskRecurrenceTimeZoneLoadFailed PL/EN. Surface dopina guards parent/source/selectionScope i typed thrown failure + finally loadera. Root znalazł lazy factory odczytujące mutable widget scope oraz stale retry/search; wymagane immutable snapshot i source guards przed zapytaniem. Nowe testy/analyzer nadal oczekują finalnych poprawek.
+- Wszystkie P0–P7 pozostają otwarte. Następne: domknąć powyższe lifecycle regresje, UI pełnych per-file błędów bulk, rzeczywisty DOCX/PNG/Office protokół i authenticated visual acceptance. Brak commit/push/deploy; końcowe pełne bramki dopiero po realizacji planu.
+
+## 2026-10-01 — Impeccable Operate i semantyka komunikatów błędów
+
+- Nowe instrukcje użytkownika wymagają UI UX Pro Max oraz Impeccable dla Web/desktop. Root przeczytał `impeccable/SKILL.md`, wybrany playbook Harden, kierunek Operate i craft-floor. `scripts/impeccable context --target lib/workspaces/presentation/tasks/detail/modal/task_details_modal_shell.dart` z cwd Front nie uruchomił się (permission denied, exit126); użytkownik został poinformowany przed następnym toolcall. Nie zmieniano uprawnień/installacji. Brak PRODUCT.md/DESIGN.md w repo; fallback to istniejący plan, Tasks tokens i aktualne źródła/captures. Nie zastępować dużego modalu inną architekturą z powodu domyślnych estetycznych preferencji skillu.
+- Root dodał live-region do głównego błędu detalu i Preview/Office, oddzielając go od diagnostyki i przycisku Retry. MergeSemantics zachowuje read-only SelectableText oraz longPress. W Office ogłaszany jest jeden konkretny komunikat, nie osobno tytuł i treść. Źródła: TaskDetailsModalError240 linii, StoragePreviewFailureView175.
+- Nowy `task_error_announcement_test.dart`: Preview, Office, zmiana błędu detalu, flaga isLiveRegion, rzeczywista treść value i osobny przycisk Retry — 3/3 PASS47800. Pierwsze próby miały błędny teardown semantics handle, następnie błędną asercję pustego label zamiast value. Root odczytał prawdziwe drzewo: SelectableText przechowuje komunikat w value, z isReadOnly/isFocusable/longPress. To NIE było potwierdzenie pustej treści w UI; wcześniejsze sformułowanie w commentary skorygowano. Po mechanicznym zastąpieniu deprecated hasFlag przez flagsCollection analiza3pathsNoissues53036; ponowny run nowych asercji jeszcze do wykonania. Native screen-reader ogłaszanie i visual runtime niepotwierdzone, test semantic tree nie zastępuje tego dowodu.
+- Root serial `flutter gen-l10n` po sygnale Surface keysready EXIT0. Cztery klucze search/no-results/unlisted-current/schedule-hint wygenerowane. Surface zastąpiła niedostępny Symbols.info_outline_rounded przez Symbols.info_rounded. Jej picker nadal WIP: root wymaga source identity guards, Retry-After/busy, usunięcia kopii businessstate w setState, responsive/scrollable error view i plików<400. Nie deklarować stable compile przed jej sygnałem.
+- Navigation raportuje AppContextMenu14/14 PASS29720 z painted panel margin12 przy420x320/200%. Popup capture62000 zatrzymał się na in-flight Surface l10n/icon compile, więc nie wykonany. Root zaakceptował final tworzenie animacji w route.install i dispose, zamiast lazy creation w buildTransitions. Naturalny podział wspólnego menu na normalne pliki235/151/191/376 w toku finalnej analizy/testów; bez partów/mixinów. Re-export nie powinien przypadkowo ujawniać wcześniejszego private entry model.
+- Transport bulk packet: Application CompleteStorageUploadHandler283 +BulkCompleteStorageUploadsHandler60, endpointbusinesslogic przeniesiona do warstwy Application. Unexpected infrastructurefaults mają propagować do wspólnego500, expectedper-file błędy zachowują bezpieczny kontrakt; taskattachmentsroute injectujehandler i zachowuje TaskAccess.RequireWrite. Compile/fault-injection/recovery jeszcze w toku; root wymaga realnego sprawdzenia DB po durable steps i przydatnych bezpiecznych powodów walidacji zamiast generictext.
+- Wszystkie P0–P7 nadal otwarte. Pełne suite i platform gates na końcu. Brak commit/push/deploy, brak twierdzenia o przewadze nad Asana/ClickUp/Jira bez benchmarku.
+
+## 2026-10-01 — root bulk cooldown i dalszy review
+
+- Root znalazł i odtworzył błąd: stan bulk przechowywał per-item429 z Retry-After, ale późniejszy409 jako apiError omijał cooldown. Dwie regresje dla failure i partial success FAIL29547. Guard wybiera teraz najpóźniejszy deadline ze wszystkich per-item API errors; download feedback zwraca właściwy blocking error, zachowując pełne dane. Mutations/upload + placement25/25 PASS91909, analyze2pathsNoissues6754, diff-check clean. StorageFileMutationCubit374 linii. To nie dowodzi jeszcze zatrzymania dalszych elementów wewnątrz rozpoczętej operacji zbiorczej po globalnym429.
+- Root source review ujawnił, że Shell partial-error listener nadal pokazuje tylko ostatni tekst i ignoruje apiErrorsById oraz część diagnostics. Kolejny backlog Surface po timezone: osobny mały typed listener/panel z per-item diagnostics, zachowaniem failed selection i bezpiecznym retry; naturalny podział obecnego Shell>400. Stan per-item nie oznacza pełnej obsługi UI.
+- Root drugi review backend testów potwierdził pełny named BrowserHandoff wire shape i pozytywny unread/count baseline dla wiadomości peer. Transport raportuje wspólny focusedrun TaskChatArchiveAclPostgresTests + BrowserHarnessContractTests2/2 PASS. Te testy nie są pełnym runtime/front E2E.
+- Navigation popup suite46174 przerwano kontrolowanie po ograniczonej diagnostyce: runner/tester żyły, spały CPU0, ostatni event dark1440. Run NIEPASS/INCOMPLETE; edge finder błędnie mierzył cały host overlay, a dark1440 await/teardown jeszcze niezdiagnozowany. Isolated namalowane menu/reaction captures nadal są dowodem timing0→1, nie całej suite. Root review wymaga przeniesienia tworzenia CurvedAnimation z buildTransitions do install/lifecycle; lazy `??=` w build także narusza pure-builder rule.
+- Aktywne Luny: Transport — Application completion/bulk handlers, expected exceptions i post-durable recovery; Surface — typed server timezone catalogue+searchable web picker; Navigation — pure animation lifecycle, poprawny panel geometry test i bounded fixture diagnostic. Root ma czekać na serialgen-l10n po sygnale Surface keysready. Nie współbiegać Flutter testów na tym samym build cache.
+- UI UX Pro Max nadal wymagane i stosowane; root dodatkowo targeted UX error-summary/validation query. Końcowy visual/runtime/benchmark odbiór i P0–P7 pozostają otwarte. Daty: pytanie o semantykę nadal oczekuje odpowiedzi; nie zgadywać zgody na zmianę API.
+
+## 2026-10-01 — root search review i potwierdzone piksele popupu
+
+- Root odtworzył dwie regresje: callback starego Search dialogu nawigował po wymianie repozytorium i po dispose właściciela (39503, 2 FAIL). Launcher teraz porównuje captured Cubit z aktualnym właścicielem i mounted; śledzi oddzielnie Cubit dialogu, aby zamykać pośrednie repozytoria przy wielokrotnej wymianie. Stary wybór zamyka dialog bez nawigacji. Trzy testy launcher: replacement/disposal/current; aktualny zakres nadal otwiera poprawny canonical task query. Razem launcher/dialog/cubit8/8 PASS21878, analyze2pathsNoissues41620, diff-check clean. Pierwsza próba24395 miała błąd brakującego NativeAssetsManifest przy współbieżnych komendach Flutter; po terminalnym zakończeniu innych testów powtórzono zakres bez czyszczenia build. Koordynować Flutter testy w jednym wspólnym cache.
+- Root obejrzał oba nowe RenderView PNG message-menu/reactions. Popup jest namalowany. Navigation potwierdziła animation.value0 po pierwszym pump450, potem1 po dodatkowych150ms. Nie był to dowód błędu produkcyjnego z-order. Reaction emoji fixture nadal tofu; menu przy dolnym edge i light/dark/200% acceptance pozostają otwarte. Losowe legacy tło shellu nie jest stabilnym finalnym benchmarkiem UI.
+- Transport raportuje batch archive ACL test PostgreSQL1/1 PASS. Root source review potwierdził poprawny predykat archived task, ale znalazł niepełną listę JSON pól w BrowserHarnessContractTests fixture oraz brak positive unread/count baseline w nowym teście. Przekazano Lunie do korekty i selektywnego rerunu obu klas. Bulk complete catch-all jest jej następnym pakietem.
+- Surface doprecyzowuje recurrence zone catalogue zgodny z TimeZoneInfo serwera (typed API), zamiast przedstawiać lokalny hardcoded/IANA katalog jako pełne host support. Front picker i error/retry muszą być neutralne web Tasks i zgodne z UI UX Pro Max.
+- Root zadał tekstowe pytanie o semantykę start/due: UTC instant data+godzina czy dzień kalendarzowy. Brak odpowiedzi nie jest zgodą na zmianę kontraktu; niezależne poprawki trwają. Całość P0–P7 pozostaje otwarta.
+
+## 2026-10-01 — NAJNOWSZY STAN: Office scope, audyty i kolejne pakiety Lun
+
+Ten wpis zastępuje starsze opisy otwartych luk ownership oraz stan poprzednich pakietów.
+
+- Root: kontroler OnlyOffice anuluje oczekujący export/close po detach; stary close nie niszczy nowego delegata. Scope/generation, Future.any i anulowalny timeout mają jawnego właściciela. Port JS nie pozwala fizycznie anulować już wysłanego skryptu; wynik starego zakresu jest odrzucany. `storage_onlyoffice_controller.dart` 201 linii. Trzy regresje baseline FAIL, kontroler+Host 13/13 PASS (96228), scoped analyze bez problemów (15803).
+- Root: wymiana odziedziczonego StorageRepository w OfficeDialog wcześniej pozostawiała stary Cubit otwarty. Nowa regresja FAIL65126 potwierdziła problem. Repozytorium jest teraz rozwiązywane i obserwowane w lifecycle, nie w build; zmiana zakresu zamyka stare Cubity, wymienia host i odrzuca opóźniony wynik. Dialog 139 linii. EditorDialog + controller lifecycle 11/11 PASS (81535); `flutter analyze` dwóch dotkniętych plików bez problemów (4020), diff-check clean. To test widgetowy, nie rzeczywista sesja OnlyOffice.
+- Surface zakończyła lokalny pakiet typed busy/canceled/failure, Retry-After i per-item bulk errors. Raportowane selektywne wyniki: mutations/upload13/13, placement10/10, versions5/5, preview9/9; analyze i diff-check clean. Root będzie sprawdzał finalny diff; pełny odbiór pozostaje otwarty.
+- Navigation zakończyła atomic search: raportowane5/5 i scoped analyze clean, normalne małe klasy. Root review i pełne back/refresh/E2E nadal potrzebne.
+- Trzy raporty read-only: backend, cross-stack i front-ui w `docs/task-modal-*-audit-2026-10-01.md` (front-ui może być jeszcze w przygotowaniu). Root potwierdził batch TaskChatScopeProvider pomijający archived task; Luna Transport naprawia ACL i dodaje inbox/search regresje. Navigation poprawia lifecycle animacji AppContextMenu oraz capture otwartych popupów. Surface przygotowuje searchable timezone picker, bez edycji globalnej semantyki dat.
+- Korekta Pending: GET storage file details jest content gated; metadane statusu Pending należy odzyskać przez GET task attachments. W DOCX/PNG run83925 upload osiągnął Ready/Clean, lecz asercja Pending file-details403 zatrzymała weryfikację dalszych wyników. Nie oznacza to potwierdzonej regresji ACL. Download/stream/Office/preview wymagają poprawnego kolejnego protokołu.
+- Obowiązkowe UI UX Pro Max zapisano w AGENTS obu repo. Skill przeczytany i używany: root Flutter state/lifecycle query; Surface UX focus/overlay + Flutter. Wyniki muszą respektować webowe tokeny List/Kanban. Brak kompletnego wizualnego odbioru light/dark/200%, authenticated Front E2E i benchmarku konkurencji.
+- Due/start semantyka nadal niespójna: List UTC midnight, Kanban local midnight→UTC, detail zachowuje local time. Root nie zmienia kontraktu na date-only bez rozstrzygnięcia domenowej semantyki. Całość P0–P7 otwarta. Pełne bramki dopiero na końcu; bez commit/push/deploy.
+
+## 2026-10-01 — NAJNOWSZY STAN: host lifecycle, daty i korekta dowodów DOCX
+
+Ten wpis ma pierwszeństwo przed poprzednimi checkpointami i twierdzeniami o DOCX.
+
+- Root Host: dwie realne regresje old callbacks po replacement/dispose FAIL43881
+  (5 oraz1 nieuprawnionych callbacków). Po source/generation guard Host8/8 PASS40689.
+  Dodano także delayed initialization/load-error i ochronę nowego timeoutu:2/2 PASS91051.
+  Host279 linii +pureSurface142, żadnych partów ani global functions. Scope/session/
+  factory/hostController change tworzy nową generację; callbacks i async catch ignorują
+  stare źródło przed zmianą timerów/stanu. UI surface wydzielony normalnie.
+- Root calendarUTCdate: test TZ=America/Los_Angeles baselineFAIL59709 (UTC1.10 pokazało
+  30.9). Picker zachowuje komponenty dnia kalendarzowego; timestamp musi zostać
+  przeliczony przez caller PRZED przekazaniem, co opisano w API widgetu. Cały picker
+  w tej strefie7/7 PASS56258, scoped pickers+Office+tests analyze38151Noissues;
+  diff-check rootpaths clean. Nie zmieniono transportenum/DTO.
+- OTWARTE: audyt semantyki due/start dat end-to-end List/Kanban/modal (część callers
+  zachowujeUTCcalendarDate, część .toLocal i godziny). Nie usuwać konwersji instantów
+  globalnie bez contract audit. Pending close/export HostController ownership przy
+  detach nadal wymaga dopracowania; callback guards nie zastępują anulowania zasobów.
+- KOREKTA TRANSPORT: dawniej opisane DOCX/PNG CompleteCleanReady/download/stream oraz
+  Office404 NIE SĄ POTWIERDZONE. Harness używał stage=complete dla sukcesu i porażki;
+  docx.fileId było undefined i stąd bodyless404 na błędnej ścieżce. Nie jest to dowód
+  backendowego braku route ani ACL. Właściwe source routes istnieją. Nowy storage-only
+  run81748: DOCX ticket+PUT PASS, CompleteHTTP400, zatrzymanie przed dalszymi requestami.
+  PNG/Office config/download/foreign/revoke tego pakietu nie wykonane; przyczyna400
+  jest kolejnym zadaniem Transport. Reserved MinIO DOCX object cleanup PASS. Brak
+  aktywnego harness procesu. Wcześniejszy realTXT Chat run75634 EXIT0 pozostaje ważny.
+- Surface raportuje versions/placement/preview29/29, mutation/upload8/8 PASS, scope
+  analyzer16pathsNoissues przed dalszym review. Root znalazł historypreview fallback
+  na currentfile — poprawione przezSurface, regression9/9previewPASS. Root potem
+  wykrył missinginitialclosed/busy/generationguard w Mutation i Versions.load;
+  Surface teraz domyka lease/RetryAfter/resetlateanswer, więc pakiet NIEZAKOŃCZONY.
+- Navigation roundtrip draft po Conversation→Work→Split potwierdzony focused1/1;
+  rootPopup capture dalej niepotwierdzone pomimo routecurrent i hitTest. Nowy search
+  UI consumer w toku normalnymi klasami, opened controls muszą być Tasks desktop.
+- Root procesy terminal: wszystkie wskazane powyżej. Trzy Luny nadal pracują;
+  ich aktywne handles sprawdzać w ich checkpointach/statusach. Pełne P0–P7 nadal
+  otwarte, full gates na końcu, bez commitu/pusha/deployu.
+
+## 2026-10-01 — root review kalendarza i sesji Office (po zapisie restartowym)
+
+- Calendar: manual field sync po selectedDate (wcześniej FAIL1.10 zamiast15.10),
+  właściwa kolumna tygodnia (PL/EN dwie regresje FAIL→PASS), strict month bounds,
+  global date/month helpery zastąpione normalnymi klasami. Focused picker+custom
+  lifecycle8/8 PASS session66517. Scoped analyzer calendar/recurrence/Office test
+  siedem plików No issues found32508. Recapture kontrolki Navigation w toku.
+- OfficeCubit: closed guard, busy guard, generation po closeSession/close i po await;
+  pełny ApiError +RetryAfter respektowany. Trzy regresje lifecycle baselineFAIL13407,
+  po poprawcePASS. Nowy fullApiError/earlyRetry test i widoczna diagnostyka w real
+  EditorDialog2/2 PASS85758. Nie zmieniono publicznego DTO ani transportowego enuma;
+  statefailure to lokalny UI, wcześniejszy pełny wire audit pozostaje wymagany.
+- Duży OfficeEditorView podzielony na normalne biblioteki view196/body72/banners162/
+  toolbar215. Neutralna Tasks paleta toolbar/canvas/badges/close dialogs, wysokość44.
+  Close confirmation to normalna klasa+widget, bez globalnej funkcji; po await exact
+  mounted i aktualność actions Cubita, nie maskuje stale scope. Wspólny FailureView
+  dostał opcjonalny title dla pełnej Office diagnostyki.
+- Office host/controller dotychczasowy part usunięty: normalne controller137 i
+  WebView adapter213, kompatybilne exports hosta. Usunięto logowanie pełnych signed
+  export/saveAs URL i raw export payload. Nie ma nowych logów sekretów.
+- Focused Office+preview35/35 PASS95926 przed nowymi2testami; nowe2PASS85758;
+  po usunięciu part Host+EditorDialog13/13 PASS94362. Scoped Office/host analyze
+  No issues found86258; wcześniejszy szerszy Office+3testy+FailureView70347Noissues.
+  Nie uruchomiono pełnych suites/buildów ani deploymentu.
+- NADAL OTWARTE: Host initialize/load/bridgecallbacks potrzebuje generation/source
+  guards i jawnego ownership pending close/export po replacement/dispose (root
+  review odkrył brakguard przed callbackami docReady/state/download/saveAs/print).
+  Nie uważać part extraction za rozwiązanie tych wyścigów. W OfficeDialog fallback
+  inheritedrepository replacement wymaga review; testpokrywa explicitrepository.
+  Pełne action error/draft audit i real Office runtime także niepotwierdzone.
+- Luny aktywne: Surface recovery/bulk/placement typederrors i testy; Navigation root
+  popup capture/identity/search; Transport actual404 route shape diagnostics, nie
+  osłabiaACL. Obecny backendOffice404 pozostaje niewyjaśniony. P0–P7 nadal otwarte.
+
+## 2026-10-01 — aktualny zapis przed restartem (Office / recurrence / data / Storage)
+
+Pełny aktualny punkt wznowienia: `docs/task-detail-resume-checkpoint-2026-10-01.md`,
+wpis AKTUALNY CHECKPOINT ma pierwszeństwo przed dawnymi statusami.
+Root Office lifecycle 5+1 PASS, recurrence+enum 12/12 PASS, Backend Chat/Comment12/12 PASS.
+Nowy calendar/manual date regression FAIL: 15.10 wybrane, ręczne pole nadal1.10;
+produkcja jeszcze nie poprawiona. Shared preview18/18 i historical download10/10 PASS;
+Surface obecnie rozwija async error callback i dzieli MutationCubit. Navigation
+capture pełnego root popup layer w toku (test1/1 PASS nie dowodzi obrazu menu).
+Transport real DOCX/PNG upload+download/stream PASS do momentu Office session404;
+przyczyna nieustalona, dalsza diagnostyka i cleanup do kontynuacji. Żadne P0–P7 nie zamknięte; bez commitu/pusha/deployu.
+Dokument zapisuje ownership, terminal handles, następne kroki i granice dowodów.
+
+## 2026-10-01 — root review wspólnego podglądu i historycznego pobierania
+
+- Root odtworzył trzy rzeczywiste FAIL: spóźniony ticket nadpisuje nowszy plik, image bytes nadpisują wynik historycznej wersji, load po close emituje stan. StoragePreviewCubit ma generation+closed guards po obu etapach GET, retry właściwej wersji z Retry-After. StoragePreviewFailure zachowuje ApiError/code/contract/status/fields/trace i version. UI ma trwałą diagnostykę, retry z lifecycle-owned timerem, Tasks tokens, normalny StoragePreviewBody zamiast helpera. Produkcyjne preview pliki 123–213 linii, bez parts/mixins.
+- StorageTextPreview tworzy transport w lifecycle, zwalnia własny Dio, reaguje na zmianę URL/loader/headers i odrzuca stary Future; pełny ApiError widoczny i ponowienie bieżącego odczytu. Root gen-l10n exit0 dla storageTextLoadError PL/EN i kolejnych trzech recurrence success keys Surface.
+- Root selektywne preview generation/error/version/task launcher/text loader 18/18 PASS (session10053). Następny rzeczywisty FAIL history-download wywołał getDownloadTicket bieżącego pliku. Naprawiono callback historycznego pobierania przekazany przez StorageVersionsCubit oraz source guard launchera wersji; późniejsze versions+preview error UI10/10 PASS (session20305). Historyczny Office nie pokazuje edytora bieżącej wersji. Podgląd pozostaje zamontowany pod edytorem i odświeża się po powrocie.
+- Root source review inbox ACL obejmuje Task/Workspace/Project oraz propagację infra błędu. Upload session ticket wykryty przez HTTP test: wcześniej400, poprawka pomija message-based walidację wyłącznie po kanonicznym ACL aktywnej prywatnej sesji, context pochodzi z conversation; UUID ResourceId normalizowany do D dla consume/cancel/dedup. Niezależny selektywny root backend run jest w toku, wynik uzupełnić po terminal status.
+- Transport raportuje nowy harness session69699 EXIT0: private TXT ticket201, MinIO PUT200, complete200 actual Clean/Ready, copy do temp session200, message200, owner/member metadata200/available; revoke privacy także PASS. Root nie oznacza tego jako Flutter UI ani Office E2E. Aktualny zakres enum audit w checkpoint Transport.
+- Navigation split-chat-light-1440.png obejrzany przez root: realny Work+Chat+rail, ale dalsze szerokości/theming/200% oraz desktop composer polish i pozostałe otwarte menu nieodebrane. Benchmark wyższości nad konkurencją nadal bez pełnych danych; żadna P0–P7 nie jest zamknięta.
+- Pozostałe konkretne root luki do kolejnego pakietu: błędy pobierania/versions muszą być widoczne w aktywnym preview (obecny callback raportuje pod spodem); lifecycle controller w StorageOfficeEditorDialog nadal tworzony w build; naturalny podział legacy StorageFileMutationCubit632 linii i OnlyOffice part; realny Office/UI/scan denied oraz końcowe bramki. Bez commit/push/deploy.
+
+## 2026-10-01 — kolejny zapis przed restartem: podgląd załączników i aktualny punkt wznowienia
+
+- Źródło wznowienia: `docs/task-detail-resume-checkpoint-2026-10-01.md` w obu repo. Zaktualizowano ukończone fragmenty, otwarte P0–P7, odrzucone rendery, ownership i kolejność. Szczegółowe bieżące wyniki procesów są w trzech Backend/docs/task-modal-*-checkpoint-2026-10-01.md.
+- Root odtworzył spóźnione otwarcie podglądu po podmianie StorageRepository albo zamknięciu TaskAttachmentsCubit przy nadal zamontowanym kontekście (2 regresje FAIL), następnie wprowadził jeden `TaskAttachmentPreviewLauncher` dla wiersza i menu z kontrolą mounted/closed/identity oraz zamykaniem lokalnych preview/mutation Cubitów w finally. Ostateczny lifecycle run 3/3 PASS: oba stale scopes ignorowane, aktualny scope pokazuje błąd i zwalnia zasoby. Poprzedni łączny run stale+row-actions 3/3 PASS; scoped analyzer bez uwag przed końcowymi asercjami testu. Bez pełnego suite.
+- Kolejna konkretna luka: wspólny StoragePreviewCubit generation przy nakładających się GET, zachowanie pełnego ApiError i failed version, retry oraz normalny StoragePreviewBody zamiast helpera. Zidentyfikowane, niezaimplementowane. Najpierw uzgodnić ownership z Surface.
+- Calendar oraz Work+Chat są w bieżących pakietach agentów; inbox ACL po poszerzeniu do wszystkich scopes ma aktualny rozszerzony harness session84947 EXIT0: edit/reaction/read/thread/delete/reconnect/session create-cancel i brak nowych eventów revoked peer po quiet-drain. Rzeczywisty upload+attach nadal niewykonany. Wszystkie P0–P7 pozostają otwarte; brak commit/push/deploy. Material techniczny dopuszczony, telefonowy wygląd jakiejkolwiek otwartej kontrolki niedopuszczony.
+
+## 2026-10-01 — wznowienie: root review RowBody i kotwiczenia menu pliku
+
+- Root uruchomił dodany przed checkpointem test szerokości kolumn/long-press drag: 1/1 PASS. Niezależny review wykrył pozostawione `_rowContents` budujące fragment widoku. Root wydzielił `TaskListRowInteraction`; kopia podczas drag nie współdzieli FocusNode. Selektywne rows+profile picker 30/30 PASS po poprawce, analyzer trzech row plików No issues found. RowBody 246 linii, bez helperów budujących drzewo.
+- Root obejrzał `open-file-dark-1920.png`: menu widoczne, ale było zakotwiczone daleko na lewym dole modala zamiast do przycisku pliku. Geometry regression odtworzyła FAIL (action-right 380, wymagane >584). `TaskAttachmentMenuButton` (25 linii) dostarcza lokalny kontekst przycisku; `AttachmentsReady` 218 linii. Root row-actions + file-menu-theme 2/2 PASS po naprawie. Obraz wymaga recapture, stary PNG nie jest akceptacją UX. Import-order info usunięte.
+- Serialny root `flutter gen-l10n` exit0 dla czterech manual-date kluczy Surface. Surface realizuje wspólny kompaktowy kalendarz; Navigation tworzy stabilny jeden conversation slot dla Work+Chat/full Conversation, bez duplikowania Cubita. Transport poprawia live inbox invalidation po revoke. Żadna zbiorcza P0–P7 nie zamknięta, brak pełnego suite/commitu/pusha/deployu.
+
+## Checkpoint przed restartem — 2026-10-01
+
+Punkt wznowienia: `docs/task-detail-resume-checkpoint-2026-10-01.md`. Zawiera stan implementacji, odrzucone elementy, najnowszą lukę live inbox invalidation po revoke, dowody testów i kolejność dalszych prac. Trzy szczegółowe checkpointy agentów są w Backend/docs. Cel i P0–P7 pozostają otwarte; brak commitu/pusha/deployu.
+
+## 2026-10-01 — root review priorytetu, portów dialogów i revoke Chat
+
+- Dalszy root review: kalendarz `open-date-light-1920.png` został ODRZUCONY wizualnie — boczny wielki dzień i dodatkowy scrim to telefonowy DatePickerDialog. Surface ma ujednolicić task dates z kompaktowym TaskDatePicker Listy/Kanbana oraz naprawić jego build helpers/Listenable.merge/IIFE. Test montowania kalendarza nie jest akceptacją stylu. Root odrzucił również pozostawiony `_buildRow` po split ListRow; trwa wydzielenie prawdziwego row-body widgetu i nazwanych handlerów menu. Agentowe 29/29 PASS nie zamyka tych dwóch wymagań.
+- Priorytet zadania ma bezpośrednią kontrolkę nagłówka `TaskPriorityHeaderControl` z istniejącym desktopowym `AppContextMenu` i helperem Listy. Guard po wyborze sprawdza dokładny kontekst, closed oraz tożsamość Cubita; zapis zachowuje aktualny tytuł/status/version. Selektywne testy priority 3/3 PASS; ponowienie dwóch przypadków UI po dodaniu ikon także PASS. To nie jest końcowy odbiór renderu ani pełnego workflow.
+- Root dodał `task_detail_modal_schedule_scope_test.dart`: rzeczywisty launcher `EditPlanningDialog` otrzymuje port harmonogramu z task scope, a ponowne otwarcie po podmianie portu dostaje nowe repozytorium. Wraz z regresjami profili osób 4/4 PASS. Stare asercje nazwy zadania/pustej listy w fixture zaktualizowano do rzeczywistego providera i nowych danych, bez wyciszania wyjątków. Scoped analyzer sześciu plików No issues found; produkcyjne ModalContent/ScheduleScope/PriorityControl/Cubit mają 73/31/73/381 linii.
+- Poprzedni pakiet root zabezpieczeń BFF Extended CONNECT: 34/34 PASS przy jawnej konfiguracji allowed origin oraz negatywnych wariantach null/whitespace/same-origin malformed. Nie dowodzi to całego realtime. Aktualny harness ma działające sesje dwóch użytkowników i wysyłanie przed revoke, ale wysłanie Ownera po revoke Membera zwraca workspace.not_found przy Owner GET task 200.
+- Root source review wskazał `ChatNotificationService` oraz `ChatResourceMembershipReconciler`: Task provider może rzucić Workspace/Project not-found/authorization dla cofniętego odbiorcy, a obecny catch obejmuje tylko Chat/Storage/validation. Transport weryfikuje diagnozę i dodaje naprawę oraz testy rzeczywistego ACL, bez maskowania awarii infrastruktury. P6 pozostaje otwarte.
+- Surface potwierdził typed picker osób i jego selektywne testy; naturalny podział TaskListRow trwa. Navigation potwierdził status/priority/assignees/date captures light/dark, ale menu plików jest obecnie nieklikalne przez overlay i wymaga naprawy. Drugi rzeczywisty wariant Work+Chat oraz search task entrypoint nadal otwarte. Wymóg neutralnych desktopowych menu zgodnych z Listą/Kanbanem nie jest złagodzony.
+- Root odczytał ui-ux-pro-max i użył trafnego wyniku keyboard focus modal: widoczny focus oraz brak zasłonięcia przez overlay/sticky. Dotychczasowe tokeny projektu zachowują pierwszeństwo. OpenViking MCP find działa, lecz brak trafnych decyzji DevPlanner w zwróconych wynikach; nie użyto ich jako dowodu projektu i nic nie zapisano. Brak commitu/pusha/deployu; pełne końcowe suite nadal na końcu.
+
+## 2026-09-30 — root entry audit, podzadania i ink surfaces
+
+- Root zmienił otwieranie podzadania na `DevPlannerNavigation.goToTask` z `TaskDetailOpenSource.subtask`: nowy task startuje w Pracy, filtry/view pozostają, a poprawny powrót `/me/tasks` jest zachowany w tym samym projekcie. Nie dziedziczy `taskTab` rodzica.
+- Rzeczywista regresja routera reprodukowała odtworzenie usuniętego `taskReturn` z historii. `TaskDetailRoutePolicy` teraz respektuje brak incoming `taskReturn` analogicznie do `taskTab`. Root zestaw tab intent + klik podzadania + invalid-return **9/9 PASS** po naprawie (przed naprawą test powrotu FAIL).
+- Pełniejsze fixture odsłoniło Flutter ListTile ink hidden assertion w SubtasksSection i AttachmentsReady. Powierzchnie są teraz Material z neutralnym kolorem/shape/clip Tasks; żadnego wyciszenia asercji. Osobny root tab/file-row run **5/5 PASS**.
+- Root niezależnie potwierdził custom-field 409/preserved draft, optional profile ports i watchers scaled rail: cztery nowe przypadki PASS w mieszanym zestawie. Zestaw początkowo miał 1 FAIL z ink plików, następnie naprawa i testy nawigacji PASS. Nie stanowi to pełnego suite.
+- Nowy capture otwartego status menu jest widoczny i hit-testowany; pierwotny brak menu w PNG był błędem granicy capture, nie runtime warstwy. RepaintBoundary nad ModalLayer jest bez efektów ubocznych. Root oglądał nowy obraz light 1920; MaterialIcons tofu oraz pozostałe popupy są dalej w walidacji.
+- P0 source audit: globalny `TaskViewRepository.searchTasks` istnieje w port/API/adapterze, ale ma zero presentation consumerów. P2 wyszukiwanie nie jest ukończone; jest w kolejce nawigacji po wariantach. Lista ma jeszcze legacy parts i local build functions oraz masking error→empty members; Surface prowadzi typed picker i naturalny podział.
+- BFF handshake HTTP/2 CONNECT ujawnił runtime gap ochrony CSRF/Origin. Naprawa i exact-origin negative tests są w pracy transportu; żadnego sukcesu realtime jeszcze nie deklarujemy.
+
+## 2026-09-30 — root review public origin OIDC
+
+- Potwierdzona poprawka: YARP BrowserProxy przekazuje publiczny Host/Proto dla pięciu ścieżek; backend `TrustedForwardedHeadersOptions` obsługuje `X-Forwarded-Host` z istniejącą listą zaufanych proxy. Root przejrzał dokładny diff.
+- Root dodał rzeczywisty test middleware: zaufany loopback przyjmuje publiczny origin, nieznany klient zachowuje wewnętrzny Host/Scheme. `dotnet test ... --filter FullyQualifiedName~TrustedForwardedHeadersOptionsTests --no-restore`: **5/5 PASS**.
+- Agent transportu potwierdził lokalnie metadata/JWKS HTTP 200, zgodny publiczny origin i utworzenie sesji BFF PKCE. Poprzednia blokada discovery jest rozwiązana w harnessie; nie stanowi to jeszcze dowodu Chatu/Storage ani aktualnego UI. Stary bundle Web zatrzymał scenariusz przy CTA; dalsze testy protokołu i świeży build/UI pozostają otwarte.
+
+## 2026-09-30 — root review lifecycle edytorów i otwartych menu
+
+- Root niezależnie uruchomił `flutter test` dla `task_custom_fields_editor_lifecycle_test.dart` oraz `task_assignee_profiles_dialog_test.dart`: **3/3 PASS**. Data i multi-select nie nadpisują nowszej wartości; prawdziwy dialog osób pokazuje typowany błąd i retry. Nie jest to pełny odbiór wszystkich dialogów.
+- `TaskStatusControlCubit` zachowuje publiczny nazwany konstruktor przez factory i prywatny konstruktor z initializing formals. Root testy status catalog **4/4 PASS**, analiza tego pliku **No issues found**.
+- PL/EN `taskDetailsMemberProfilesUnavailable` dodane; serialny `flutter gen-l10n` **exit0**. Bezwarunkowy lookup repozytorium osób w edytorze pól własnych potwierdzony jako problem i jest naprawiany; brak portu ma być jawny, a pola bez typu User nie powinny go wymagać.
+- Capture otwartego status menu wykrył możliwy problem warstwy lub granicy screenshotu. Agent nawigacji sprawdza rzeczywisty root overlay/hit testing, zanim zmieni host. Odbiór otwartych kontrolek pozostaje otwarty.
+- BFF w izolowanym harnessie: token exchange **HTTP 200**, access/id token obecne, prywatny nonce zachowany, lecz pobranie discovery/JWKS w walidatorze kończy się `InvalidOperationException`/`IOException`. Nie osłabiamy walidacji. To nie jest udane E2E Chat/Storage; trwa diagnoza lokalnego proxy/trust.
+- CUA po wiadomości o odblokowaniu nadal odpowiada `Mac is locked`; brak nowego dowodu GUI. Następny krok: naprawa opcjonalnego portu, widoczność menu, lokalny discovery i dwa trwałe połączenia realtime, następnie drugi wariant rzeczywistego układu.
+
 # DevPlanner standalone — handoff zaakceptowanego stanu
+
+## 2026-09-30 — root review route tab intent, picker lifecycle i lokalnego BFF
+
+Root niezależnie uruchomił task_detail_modal_tab_intent_test.dart: 4/4 PASS. Deep link Conversation/Files wybiera faktyczną zakładkę; zmiana taskTab dla tego samego taska zachowuje State/Cubit/dirty draft, klik Work usuwa parametr bez usunięcia view/filter/task. Route policy nie dziedziczy starego taskTab przy jego usunięciu. Host po wydzieleniu route references i tab URL mapping ma 389 linii. Root review wykrył w custom-field pickerach callback po dispose i możliwe nadpisanie nowszego wyboru; Surface przeniósł handlery do metod State z exact-context mounted, identity/value/options guard. Dwa nowe klucze custom-field PL/EN dodane przez root, serialny gen-l10n exit0. Analiza/testy tego pakietu i wizualny odbiór pozostają osobnymi bramkami.
+
+Root dodał §13 benchmarku do task-detail-desktop-modal-plan: źródła oficjalne Asana/ClickUp/Jira zweryfikowane przez Firecrawl, siedem scenariuszy porównawczych i format rzeczywistego pomiaru bez fikcyjnych klików. Osobny wariant z równocześnie widoczną rozmową wymaga porównania, żeby sama zakładka nie pogarszała dostępności composera. Surowe publiczne dane .firecrawl ignorowane w Git.
+
+Izolowane lokalne usługi Storage są zdrowe według Transport; BrowserHarness z disposable DB/aktorami dociera do callback po PKCE/login, lecz zwraca auth.oidc_callback_invalid przed utworzeniem sesji. Nie przeszedł jeszcze testów task/files/Chat. Diagnostyka zawiera wyłącznie bezpieczne kody/ścieżki i liczby, bez wartości kodów/tokenów/cookies. Review wymaga rzeczywistych eventów na nadal otwartych połączeniach dwóch użytkowników oraz selektywnego revoke Member przy zachowaniu Owner, zamiast uznawać jednorazowe Subscribe i zamknięcie socketu za pełny realtime. Presentation edits chwilowo stabilne na czas renderów. P0–P7 pozostają otwarte; brak commitu/pusha/deployu.
+
+## 2026-09-30 — root review: canonical Storage i błędy w edytorach
+
+Root rozszerzył selektywną walidację po zmianie centralnego ACL: Storage capability policy, task-vs-Storage HTTP, ShareMatrix/revoke, Chat leave download oraz powiadomienia Storage/wersji — 32/32 PASS (dotnet test --no-restore, filter na te klasy/metody). Przejrzano rzeczywiste przypadki mixed Shared roles, folder ancestor grant, workspace share do innego scope, plik bez WorkspaceId oraz archived inherited vs explicit membership; task list filtruje CanRead przed DTO, żeby nie ujawniać metadanych. Zgodność Comment scan Clean uwzględniona w content capabilities. Nie jest to Storage runtime ani pełny E2E.
+
+Root naprawił ukryte błędy w create/edit dependency: TaskDetailsDialogMutationError renderuje typed błąd wewnątrz edytora, lag validation przy polu zamiast snackbar za dialogiem, źródło odpowiedzi search/save kontrolowane po await. Produkcyjny plik dialogs 391 linii, fields i osobny banner <400. Rzeczywisty zapis zwracający błąd code/trace/fields zachowuje draft, niewłaściwy lag nie wywołuje REST; selektywne widget tests 2/2 PASS, scoped analyze bez uwag. Surface obsługuje analogiczną lukę manual time entry i audyt pozostałych edytorów. TaskAttachmentsBody/Section po refactor 370/49 linii; wcześniejsza bramka 416 linii usunięta.
+
+Root obejrzał aktualny PNG editable light 1440: glyphs modala i końcowy milestone są już poprawne; tło Kanbanu nadal pokazuje błąd, część glyphów Shell pozostaje niezaładowana. To nie jest akceptacja wizualna. Navigation dopina taskTab route intent (wcześniej query nie wybierało zakładki), stabilne fixtures oraz otwarte menu. Transport przygotowuje izolowany lokalny BFF/Task+Chat harness i Storage services; lokalna gotowość nie zastępuje stagingu. P0–P7 nadal otwarte. Brak commitu/pusha/deployu.
+
+## 2026-09-30 — root review P5: rzeczywiste capabilities i zamykanie uploadu
+
+Root ponowny selektywny run po poprawce cancel: dialog osób + attachment lifecycle 6/6 PASS (cancel zwalnia draft guard, pending read po podmianie providera nie uruchamia starego uploadu). Poprzedni FAIL został odtworzony i naprawiony. Review długości wykrył 416 linii task_details_attachments.dart; Surface wydziela composition section do oddzielnego widgetu — bramka długości nadal otwarta. Canonical resolver ma już poprawiony prefetch workspace share targets i CommentClean content caps, dowody HTTP nadal trwają.
+
+Root review po odblokowaniu: CUA getApp oraz inventory nadal zwracają Mac locked; brak nowego odbioru runtime. Poprawiono kompilację `FilledButtonThemeData` (konstruktor zamiast nieistniejącego copyWith). Selektywna analiza motywu, scope osób i hosta bez uwag. Faktyczne root-dialog regression osób + podmiana repozytorium 2/2 PASS; testy UI odczytu pliku i trybu usuniętych 2 PASS, test explicit cancel zwolnienia draft guard FAIL (expected false, actual true) — Surface naprawia ownership. Root wykrył w nowym canonical batch ACL regresję workspace share do innego workspace albo pliku bez scope; Transport poprawia membership prefetch i testuje te przypadki. Root zgłosił też zgodność content capabilities Comment ze ścisłym Clean scan oraz dostępnością Office. P5 i odbiór wizualny nadal otwarte, diff-check obu repo PASS.
+
+Root kolejny pakiet P5: `includeDeleted` w API ma poprawny opcjonalny parametr nazwany; root poprawił błąd składni i serialny Retrofit codegen zakończył exit0. Ready zachowuje żądany tryb po błędzie oraz isRefreshing podczas GET; ręczny retry używa tego samego zakresu. Recovery scheduler wydzielony jako osobny właściciel Timera. Cubit + recovery 10/10 PASS, analyze katalogu Cubit bez uwag. Gen-l10n dla show/hide/deleted zakończony exit0.
+
+Root nie zaakceptował pierwszego batch resolvera ACL: duplikował reguły kanonicznego StorageAccessService i mógł różnić się dla Shared z mieszanymi rolami, archiwum oraz grantów folderów nadrzędnych. Transport poprawia jeden współdzielony mechanizm permissions i dodaje porównania HTTP w tych przypadkach; samo odwzorowanie CanPreview/Download oraz prosty owner/member test nie zamyka P5. Navigation wykrył też brak typed ProjectMemberProfilesRepository pod root dialogiem osób; wire snapshot/provider i regresja są w implementacji. Żadna z tych bramek nie została oznaczona jako zakończona.
+
+
+Root odtworzył regresję dialogu statusu testem rzeczywistego launchera do root route: scope + katalog 4/4 PASS. Nowy `reportSelectionError` w TaskAttachmentsCubit zachowuje Ready, nie uruchamia REST i ignoruje closed/aktywny upload; celowany plik testów attachments 7/7 PASS, selective analyze bez uwag. Surface wiąże fazę wyboru/odczytu/uploadu z draft registry, dodaje busy guards i lokalizowane błędy; root serialny gen-l10n dla trzech kluczy zakończył exit0, testy UI po zmianie nadal trwają.
+
+Istotne luki wykryte przez root (nie uznawać P5 za odebrane): `ListTaskAttachmentsAsync` mapował ręcznie wyłącznie CanPreview/CanDownload, pozostawiając CanRead/Edit/Share/Delete/Versions/Office/Convert/Favorite z domyślnymi false. Ponadto filtr !IsDeleted uniemożliwiał odnalezienie pliku do restore, a UI pokazywało menu tylko dla trzech flag. Transport przenosi query do Application i korzysta z pełnej kanonicznej polityki Storage, z batchowym ACL oraz opcjonalnym `includeDeleted=false` zachowującym dotychczasowy odczyt. Root owns zmianę Cubita/state po ustabilizowaniu portu; surface pełne visibility oraz czytelny widok usuniętych plików. Wymagane HTTP dowody owner/member/observer/foreign i scan/deleted, oraz testy faktycznych akcji z UI.
+
+Root obejrzał fixture PNG editable light 1440/dark 1280. Pokazują gęstszy układ i neutralne powierzchnie, ale ikony są tofu z powodu niezaładowanych fontów testowych, status/milestone pozostają na klatce loading, a tło fixture ma błąd. Nie jest to odbiór wizualny ani authenticated E2E. Navigation poprawia ładowanie rzeczywistych fontów, stable-ready capture i dane tła oraz przygotowuje runtime target. P1/P7 i cały cel pozostają aktywne. Brak commitu/pusha/deployu.
+
+
+## 2026-09-30 — root review czasu i pierwszy render runtime (bramki nadal otwarte)
+
+Root końcowa weryfikacja tego pakietu: po splicie modeli serialny build_runner exit0, stare osierocone generated outputs usunięte przez agenta; model/transport testy 11/11 PASS. Review wykrył pozorną współbieżność ticket testu (await dwóch żądań kolejno); poprawiono na Task.WhenAll. Start/revoke test synchronizuje odczyty timerów testowym DbCommandInterceptor, bez hooków produkcyjnych. Dwa celowane PostgreSQL HTTP testy 2/2 PASS; nie stanowią pełnej suite. Router extraction do zwykłych bibliotek ma raportowane regresje 36/36 PASS. Root przygotował immutable snapshot czasu i totalMinutes poza build, regresja mutacji listy repozytorium/aktualizacji zegara wraz z czasem: 8/8 PASS. Surface przełącza UI na prepared state i przenosi katalog statusów do osobnego Cubita z kontrolą zastąpienia źródła; test scope dialogu i odbiór wizualny nadal trwają.
+
+
+Root dodał też `changeSystemStatus` w `TaskDetailsBasicCommands` z delegacją Cubita (379 linii): status-only handler bierze aktualny tytuł, priorytet i wersję, sprawdza capabilities i dozwolone przejście bieżącego workflow. Regresja odświeżonego agregatu oraz zabronionego przejścia przeszła wraz z `flutter test --no-pub test/workspaces/presentation/tasks/task_details_cubit_test.dart`: 30/30 PASS. UI wykorzystuje ten port w przygotowywanym wspólnym selektorze; odbiór launchera i poprawka ProviderNotFound nadal wymagają osobnej walidacji.
+
+Root zweryfikował guardy capability w `TaskTimeTrackingCubit` i dodał regresję zatrzymania własnego timera przy `canEdit:false`: backendowe `canStopTimer` pozwala zakończyć własny timer w archiwum, bez prawa uruchomienia nowego. Test obejmuje ponowny GET po stop i brak I/O po close. Komenda `flutter test --no-pub test/workspaces/presentation/tasks/detail/time_tracking/task_time_tracking_cubit_test.dart`: 7/7 PASS. Poprzednia selektywna analiza dwóch plików czasu: bez uwag. Nie jest to pełna walidacja kontraktu ani E2E.
+
+CUA odczytało rzeczywisty modal TASK-100 nad Kanbanem w macOS Debug. Runtime korzysta ze stagingu, na którym nowe kontrakty backendu nie są wdrożone; render read-only nie dowodzi poprawności nowych capabilities ani mutacji. Pierwsza obserwacja po kliknięciu statusu nie wykazała zmiany, lecz kolejny odczyt runtime ujawnił `ProviderNotFound<TaskDetailsCubit>` w `TaskCustomStatusDialog`. Nie potwierdzono więc hipotezy read-only dla tej akcji; rzeczywisty błąd scope blokuje odbiór i jest naprawiany wraz z testem launchera. Odbiór otwartych kontrolek, light/dark i rozmiarów pozostaje niezakończony. Review wskazał potrzebę dopracowania gęstości kart, nazw semantycznych toolbaru i pojedynczego selektora statusu; Luna surface realizuje pakiet. Navigation przygotowuje router extraction oraz rzeczywisty Flutter fixture do odbioru stanów editable bez osłabiania staging auth.
+
+Root review backendowego auto-stop przy odebraniu członkostwa wykrył wyścig StartTimer/revoke: samo atomowe SaveChanges nie wyklucza nowego timera po odczycie listy. Luna transport przygotowuje ochronę współbieżności i test na PostgreSQL; nie uznano tego pakietu za gotowy. Prace nadal lokalne, bez commitu/pusha/deployu; fazy P0–P7 pozostają otwarte.
+
+
+## 2026-09-30 — P5: rzeczywiste anulowanie, postęp i ograniczony recovery GET
+
+Root dodał typed domain cancellation/progress do orkiestracji task attachments: `TaskAttachmentBatchUploadRunner` wysyła pliki, raportuje bajty i odrzuca callbacki poprzedniej operacji. Cubit `cancelUpload` przerywa PUT, invaliduje generation i pozostawia unknown wymagające GET; close anuluje transport i timer. Nigdy nie zakłada rollbacku rezerwacji. Recovery wykonuje tylko GET dla znanego fileId w processing/unknown, w odstępach 2/3/5/8/13/21 s, kończy na Ready albo po sześciu odczytach; ręczny GET pozostaje dostępny. Cubit 352 linii, runner 87. Testy attachments + route page 15/15 PASS: cancel/close po późnym sukcesie nie wywołują complete; progress nie zmienia stanu po cancel; GET osiąga Ready/kończy bounded polling, bez ponawiania POST. Route invalid ID test sprawdza też brak zamontowanego WorkspaceTaskDetailsPage. Serialny gen-l10n dla recovery/cancel/validation exit0.
+
+Dowody Luna: końcowy wybiórczy zestaw router/host/Chat/theme 37/37 PASS i scoped analyzer clean; backend ticket/migration/OpenAPI 11/11 PASS, idempotent i reverse EF SQL PASS, Front presigned transport+enum 4/4 PASS oraz avatar 3/3 PASS. Nie są to E2E ani pełne suite. Backend endpoint nadal zawierał nową transakcyjną logikę ticket usecase — review wymaga przeniesienia do Application bez zależności Application→Endpoints; agent realizuje ten następny pakiet. Surface domyka pełny zestaw capability Storage (nie tylko preview/download/versions/Office), navigation przechodzi focus/keyboard/session i przygotowanie runtime wizualnego.
+
+Następne bramki: architecture review backend i ponowne selektywne testy po ekstrakcji; review pełnych akcji Storage; zalogowany odbiór wszystkich otwartych kontrolek light/dark oraz E2E. Żadna faza P0–P7 nie została uznana za w pełni odebraną.
+
+## 2026-09-30 — modal: lifecycle, szkice i wynik uploadu (kolejny pakiet, w toku)
+
+Wymóg użytkownika z §3.3 pozostaje twardą bramką: Material jest bazą techniczną, a wszystkie widoczne i OTWARTE kontrolki mają webowe tokeny Listy/Kanbana w light/dark. W Chat wykryto odrębną paletę; trwa zadaniowy scope tokenów. Odbiór wizualny nie jest jeszcze potwierdzony.
+
+Root: wspólny `TaskDetailSectionLifecycle`, guards close/generation/capabilities w history/milestone/recurrence/time/templates/cascade. Milestone bierze przypisanie z DTO bez N+1, opcje tylko Active. 403 mutacji odróżniono od utraty dostępu przez chroniony GET; spóźnione GET/mutacje nie odtwarzają agregatu po utracie sesji. Cascade odrzuca apply dla innych dat niż zatwierdzony preview. Celowane testy głównego Cubita, cascade i milestone: 39/39 PASS; wcześniejsza szersza seria tych sekcji: 47/47 PASS (przed dopisaniem dodatkowych race tests).
+
+Pliki: `detail/attachments/cubit/**` rozlicza complete per fileId, partial failure, brak/duplikat wyników, unknown→GET recovery i scan policy; `TaskAttachmentUploadBatch` zamraża bajty i UUID idempotencji, `retryUpload` jawnie ponawia ten sam batch. Puste pliki zwracają validation. Celowane testy attachments 8/8 PASS. Serialny build_runner dla `task_operations_api.g.dart` exit0 (ostrzeżenie analyzer 3.12 vs SDK 3.13). Backend trwała rezerwacja biletów/migracja jest nadal w implementacji i review; nie deklarować gotowości samego seam klienta.
+
+Luna surface: usunięte `part` w detail, page 54 wiersze, raportowane pliki <400; lazy visited tabs zachowują mounted edytory. Test opis→Pliki→Praca PASS. Luna navigation: pełny silnik `ChatPanelConversation` w Resource Chat, typed ports pod root modalem; własne testy Cubita i slotu PASS, integracja router/host jest ponawiana po naprawie scope dla pustych portów. Poprawiono mock unread-count w router testach; nie był dowodem regresji parsera produkcyjnego.
+
+Następne kroki: dokończyć/backend zweryfikować idempotencję i race scan/retry; P5 progress/cancel oraz pełne akcje Storage; review Chat theme/session i celowane testy nawigacji; uruchomić rzeczywisty odbiór light/dark wszystkich otwartych kontrolek. Pełne suites na końcu. P0–P7 nadal otwarte, brak commitu/pusha/deployu.
+
+## 2026-09-30 — plan modalu szczegółów zadania
+
+Dodatkowa walidacja bieżącego pakietu: `task_details_cubit_test.dart` 26/26 PASS, selective `dart analyze lib/workspaces/presentation/tasks/detail/cubit` bez uwag oraz `git diff --check` w obu repo PASS. Etykiety i wyszukiwanie relacji zwracają teraz typed Either zamiast ukrywać błąd jako pustą listę; UI adaptuje lokalny error/retry. Conflict zachowuje bazę i ApiError. Archive/restore odświeża pełny agregat, aby przeliczyć capabilities; assembler czyści nieaktualną prezentację custom statusu. Luna raportuje ApiError/Chat mapper 16/16 PASS i selective analyze PASS. Po `docker compose up -d postgres` i `pg_isready` PASS blokowany `TaskDartClientContractTests` przeszedł 2/2 (HTTP/OpenAPI). Usługa lokalna działa na 5440; nie zmieniano stagingu.
+
+Nawigacja została skorygowana po review: zachowanie query, scope/composition dialogu, wydzielona policy, kanoniczne wejścia i powrót do My Tasks. Bramka ochrony niezapisanych szkiców jest jeszcze w implementacji. Trzy Luna nadal mają pakiety: guard/draft registry następnie Resource Chat, pełny surface/errors/drafts następnie pliki, oraz P4 workflow/data/backend. CUA potwierdziło zablokowany macOS — runtime macOS nie jest zweryfikowany; to nie blokuje prac kodowych. Nie oznaczono P0–P7 jako DONE ani celu jako zakończonego.
+
+Realizacja w toku, bez commitu/pusha/deployu. Backend dodał `task.milestoneId`, `detail.capabilities`, `detail.customStatus`, chroniony odczyt archiwum oraz stan archiwizacji projektu w capabilities; Front dodał port Resource Chat i odblokował REST Web/BFF. `docs/task-detail-contract-audit-2026-09-30.md` w Backend zawiera audyt enumów. Raport Luna: celowane handler/enum testy 55/55 PASS, model/Resource Chat 17/17 PASS; HTTP/OpenAPI fixture wymaga lokalnego PostgreSQL na 5440 i jeszcze nie przeszedł.
+
+Review root: poprawiono kasowanie planowania przy zapisie opisu, umożliwiono wyczyszczenie opisu, odrzucanie spóźnionego odczytu i emisji po close, ochronę edycji capabilities oraz usuwanie agregatu po utracie ACL w mutacji/refetchu. Wydzielono `TaskDetailsBasicCommands`; Cubit ma 335 linii. `flutter test --no-pub test/workspaces/presentation/tasks/task_details_cubit_test.dart`: 24/24 PASS przed dopisaniem asercji conflictBase. Serialnie wykonano build_runner z dwoma build-filter dla `task_models.freezed.dart`/`.g.dart` (exit0, ostrzeżenia wersji analyzer/json_annotation), następnie `flutter gen-l10n` (exit0). Następny krok: review/integracja modalnych kontrolek i nawigacji, pełna rozmowa/pliki, strukturalne błędy, celowane testy oraz runtime light/dark; pełne suites dopiero przed zakończeniem.
+
+Nadrzędne kryterium wizualne: Material jako baza techniczna; webowa kolorystyka i desktopowa geometria wspólna z Listą/Kanbanem dla całego modalu oraz wszystkich otwartych menu, dropdownów, pickerów i dialogów. §3.3 planu oraz bramki P1/P7 blokują odbiór przy jakimkolwiek rozjeździe, także w stanach hover/focus/selected/error i obu motywach.
+
+Plan: `../../Backend/docs/task-detail-desktop-modal-plan-2026-09-30.md` (P0–P7). Audyt aktywnego Frontu i Backend Tasks/Chat/Storage potwierdził panel 600 px, snackbar mutacji, wykluczenie Web/BFF w kompozycji detalu i Resource Chat `tasks/task`. Zmieniono dokumentację. Następny krok: P0 — macierz akcji/portów/OpenAPI i odbiór runtime Web/macOS, potem wizualne P1.
 
 ## 2026-09-24 — CHAT-R140: Retry-After wyszukiwarki
 
@@ -9815,3 +10126,82 @@ signedmacOS zablokowane provisioning profile. Front pełny diffcheck pokazuje
 Następny krok przed release: dostarczyć provisioning profile i wykonać
 uwierzytelnione E2E na stagingu; nie jest to częścią wykonanej lokalnej walidacji.
 Nie uruchamiać deployment/commit/push bez polecenia użytkownika.
+
+
+## 2026-10-01 — obowiązkowe UI UX Pro Max w regułach agentów
+
+- Na jawne polecenie użytkownika dodano do `AGENTS.md` obu repozytoriów obowiązek korzystania z UI UX Pro Max (`ui-ux-pro-max`) przy projektowaniu, budowie, zmianie i review UI. Wymagane jest przeczytanie skillu i zastosowanie jego workflow; sama deklaracja użycia nie wystarcza.
+- Reguła obejmuje również otwarte dropdowny, menu kontekstowe, pickery, modale oraz loading/błędy/puste stany. Wszystkie powierzchnie zachowują webową/desktopową stylistykę i wspólne tokeny Listy i Kanbanu. Material pozostaje bazą techniczną, bez domyślnego mobilnego wyglądu.
+- Weryfikacja tego pakietu dokumentacyjnego: `git diff --check -- AGENTS.md` w Backend i Front — exit 0. Bez zmian kodu aplikacji w tym pakiecie. Regułę przekazano trzem agentom analizującym projekt.
+- Następny krok: uwzględnić regułę w trwających audytach i zweryfikować ich ustalenia. Całość P0–P7 nadal nie jest zakończona.
+
+## 2026-10-01 — OPENVIKING-DEVNOTE: wspólna pamięć projektu
+
+- [x] Front Flutter i Backend C# mają jawny peer `devnote-system`, scope actor; odrębny od WMS i Ready Next/Databus.
+- [x] Podstawowa mapa w Backend/docs/openviking/index.md, wskaźnik we Front, manifest źródeł i raport validation.md; wybrane kopie opublikowane w OpenViking.
+- [x] Cztery testy świeżych proxy Codex/ZCode (find/read/context), tożsamość rootów i podkatalogów oraz oddzielenie trzech systemów PASS.
+- Zakres wyłącznie dokumentacja i konfiguracja pamięci; brak zmian aplikacji/API/DTO/enumów/migracji i brak commitu/pusha/deployu. Otwarte bramki refaktoryzacji pozostają otwarte. Komendy: helper project-context.mjs --cwd <repo> --identity, check-clients.mjs w lokalnym katalogu walidacji DevNote, git diff --check.
+- Następny krok: rozpocząć nową rozmowę w Front lub Backend, używać właściwej wspólnej pamięci i aktualizować tylko zweryfikowane zmiany.
+
+## 2026-10-01 — końcowe domknięcie kodu modala
+
+Na polecenie użytkownika zakończono próby SSH/deploymentu i skupiono się na kodzie. Root wrapper/template route guards: Flutter3/3 PASS, scoped analyze clean. Navigation Kanban/time/recurrence:73/73 PASS, scoped analyze clean. Surface folder/Rename:14/14 PASS, scoped analyze clean; produkcyjne pliki395/249/169/6 LOC, brak ręcznie utrzymywanych plików>=400 w tym pakiecie.
+
+Końcowy pełny analyze ujawnił brakujące testowe implementacje resolveTaskConversation oraz dwa nieaktualne callsites Kanban cardBuilder/quickCreateBuilder; poprawiono je zgodnie z rzeczywistymi portami/widgetami. Usunięto wskazane linty w zmienionych plikach; capture harness zachowuje root layer/tło/overlay przez aktualne publiczne API FlutterSDK. Wszystkie zakresy źródłowe zamrożone, Navigation wykonuje pełny analyze/test i jeden Web build. Wyniki terminalne całych bramek jeszcze wymagane. Backend build0warnings0errors, pełne testy w toku. Brak deklaracji runtime/wizualnej/staging gotowości.
+
+
+## 2026-10-01 — końcowe bramki: stan przed ostatnim rerunem Front
+
+Obowiązuje polecenie użytkownika: dokończyć kod, bez dalszego SSH, logowania i deploymentu. Nie commitowano ani nie pushowano.
+
+Backend: restore i build zakończone sukcesem (0 warnings/0 errors); oba idempotentne skrypty migracji oraz dotnet format --verify-no-changes PASS. Pełny test zakończył się wynikiem 1467 PASS / 4 SKIP / 2 FAIL (1473 łącznie). Dwa błędy dotyczyły fixture: kompletny zestaw StorageShareAccessLevel ma sześć wartości, a request OKR musi serializować tekstowy enum skonfigurowanymi JsonOptions. Po korektach dokładne dwa testy PASS 2/2. Pełnego backendowego suite po tych testowych korektach nie powtarzano.
+
+Front: pełny analyze PASS. Pierwszy pełny flutter test przerwano po 2158 sukcesach i 27 błędach, po dwóch rzeczywistych dziesięciominutowych timeoutach harnessów; exit 130, brak pełnego sukcesu suite. Naprawiono route lookup hosta (focused 12/12), scenariusze nawigacji (9/9), realne ładowanie fontów harnessów poza fake async oraz kontekst loadera TaskListRow poza build. Domknięcie popup route i remaining visual/storage cases prowadzi Surface.
+
+Root naprawił realną animację ukrytego panelu Chat: Offstage zachowuje stan i draft, ale teraz TickerMode wyłącza ticker niewidocznej kolumny. Test task_details_workspace_layout_test.dart: 1/1 PASS; sprawdza brak zaplanowanych klatek po ukryciu, wznowienie animacji po odsłonięciu i zachowanie tej samej instancji State. Scoped analyze PASS.
+
+Następny krok: ostatnie regresje Surface, następnie serialnie pełny analyze, flutter test i jeden Web build z DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl. Lokalny golden review nie jest zalogowanym runtime ani staging E2E. Odbiór P0–P7, wieloklientowy Chat, prawdziwy Office, platformy desktop i benchmark Asana pozostają osobnymi niepotwierdzonymi bramkami.
+
+
+### Końcowy Web build
+
+Jedyny końcowy build: flutter build web --no-tree-shake-icons --dart-define=DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl — EXIT 0, 88.3s, Built build/web. Navigation sprawdził obecność docelowego URL w main.dart.js. Log /tmp/devplanner-final-flutter-web-build.log. Wasm dry run przeszedł; nie jest to osobny build ani test runtime Wasm. Full analyze EXIT0 (13.4s), log /tmp/devplanner-final-flutter-analyze.log. Brak deploymentu i runtime claim. Pozostaje terminalny pełny test Front po stabilizacji visual fixtures.
+
+
+### Visual harnessy — terminalny wynik po naprawie deterministyczności
+
+Potwierdzone przyczyny driftu: capture przed załadowaniem AssetImage bg.jpeg/logo-small.png oraz przed zakończeniem ModalRoute.animation w fallback przy 200%. Oba harnessy mają jawny preload (deadline30s), fallback bounded wait na animation.completed (20×50ms). Root obejrzał actuale, w tym nowy nieprzezroczysty fallback, i zaakceptował konkretne baseline. Bez-update pełny visual harness PASS17/17, split-layout PASS6/6; scoped analyzer i diff-check PASS. Baselines: Front/docs/recovery/visual-captures/task-detail-2026-09-30/. Kod produkcji nie zmieniał się po udanym final Web build. Navigation uruchamia jeden końcowy pełny flutter test. To lokalny widget/render dowód, nie uwierzytelniony staging ani rzeczywisty wieloklientowy odbiór.
+
+
+## 2026-10-01 — końcowe domknięcie bieżącego kodu modala
+
+- [x] Końcowy pełny flutter test: EXIT0, 2207 PASS, All tests passed (3:09); log /tmp/devplanner-final-flutter-test-final.log. Root zweryfikował terminalną linię.
+- [x] Pełny flutter analyze: No issues found, EXIT0; po ostatnich zmianach testowych dodatkowy scoped analyzer obu harnessów PASS.
+- [x] Jeden build Web: EXIT0, 88.3s, build/web; docelowy DEVPLANNER_API_BASE_URL=https://devnote.flutter-dev.pl potwierdzony w main.dart.js.
+- [x] Pełne harnessy bez update: visual17/17 i split-layout6/6 PASS; root review wszystkich actuali, neutralne menu/pickery oraz light/dark i fallback200. To widget render, nie runtime staging.
+- [x] Backend restore/build (0 warnings/errors), format oraz oba idempotentne migration scripts PASS. Pełny backend suite 1467 PASS/4 SKIP/2 FAIL; dwa testowe błędy fixture naprawione, exact rerun2/2 PASS. Nie deklarować powtórnego zielonego pełnego backend suite po tych korektach.
+- [x] git diff --check obu repozytoriów PASS. Bez commitu, pusha, deploymentu i dalszych prób SSH/login.
+
+Pozostały odbiór poza bieżącym domknięciem kodu: uwierzytelniony browser/staging aktualnego builda, realny dwuklientowy Chat/revoke/reconnect, rzeczywiste upload/scan/Office oraz platformy desktop. Benchmark przewagi nad Asaną nie został wykonany. P0–P7 pozostają niezamknięte jako pełny odbiór end-to-end; checklisty sukcesów powyżej opisują dokładnie wykonane bramki kodu. Bieżący stan i wszystkie agent checkpoints zachowano do wznowienia. Nie uruchamiać ponownie pełnych bramek bez nowej zmiany/failure ani nie wracać do SSH bez nowego polecenia użytkownika.
+
+
+## 2026-10-01 — root: daty UTC i poprawka reflow200
+
+Potwierdzono źródłowo: task StartAtUtc/DueAtUtc są UTC instants (request/response DTO, ProjectTask.ValidateScheduleDates KindUTC i pełne porównanie, handlery bez transformacji). Poprzedni Front stosował trzy różne mapowania kalendarza w List/Kanban/modal. Przyjęto wspólne zgodne z API zachowanie: zmiana dnia zachowuje existing local hour/minute/second/millisecond/microsecond, nowa data to lokalna północ przeliczona na UTC, clear pozostaje null. Nowy osobny TaskDatePicker.asUtcTaskInstant nie zmienia custom Date/asUtcCalendarDate ani recurrence. Task picker seeding używa lokalnej daty, także menu wiersza i template task dates. Navigation domyka realDTOJSON, pełne enumvalues i testy stref LA/Warsaw/DST; root poprawił portabletest guardy, aby inne strefy nie były błędnie rozpoznawane jako LA/Warsaw. Transport dodaje non-null UTC HTTP fixture (test-only).
+
+PropertyRow wydzielony do zwykłego widgetu81LOC; shared331LOC. Tani LayoutBuilder przełącza label/value na pionowy układ przy ciasnym panelu/dużym TextScaler, bez clamp tekstu i efektów w build. Root freshfallback200 renderreview PASS: wszystkie etykiety czytelne, wartości poniżej, naturalne łamanie długiej wartości. Exact100%test1/1PASS, exact200%no-update1/1PASS, scopedanalyzer/diffPASS. UIUXProMax zastosowane Text Reflow and Spacing + Impeccable Operate, istniejące TasksTheme.
+
+Backend final full po poprzednich fixture corrections: EXIT0,1469PASS/4SKIP/0FAIL,1473total,10m28s, log /tmp/devplanner-final-backend-tests.log (root terminalverify). To zastępuje poprzednie full2FAIL; bez nowego backendproduction. Navigation finalfullanalyze PASS, finalfullFronttest trwa. Surface po terminalnym finalWebbuild ma wykonać tylko realWasm i macOSdebugcompile; brak runtime/deploy/login. Wszystkie release/E2E/benchmark bramki zachowują jawne granice.
+
+
+## 2026-10-01 — finalne dowody po pakiecie UTC/reflow200
+
+- Front final full: 2212 PASS/0FAIL, EXIT0, 3:21, log /tmp/devplanner-final-flutter-test.log (rootterminalverify). Fullanalyze Noissues. Same-frozenfile selectiveTZ: LA9/9, Warsaw9/9, UTC9/9 PASS; test sprawdza realny offset/PST→PDT i CET→CEST tylko dla jawnie zadanych stref, dla innych nie narzuca ich nazw/offsetów.
+- Final zwykły Webbuild EXIT0,87.6s, docelowy https://devnote.flutter-dev.pl potwierdzony w main.dart.js. Real WebWasm EXIT0,103.5s, main.dart.wasm istnieje; log /tmp/devplanner-p7-web-wasm-build.log. macOSdebug EXIT0, DevPlanner.app istnieje; log /tmp/devplanner-p7-macos-debug-build.log. Root zweryfikował końcówki logów i artefakty. macOS ostrzeżenia staleDerivedData/SPM, bez faila. To compileonly, nie signed/runtime/release.
+- Backend full: 1469PASS/4SKIP/0FAIL,1473total,10m28s; sourceproduction zamrożony. Nowy test-only rawUTC HTTP create→GETdetail→PATCH→GETdetail zachowuje Start/Due ISO z6cyframimikrosekund:1/1PASS. PierwszeGETdetail500 było Npgsql.PostgresException: sharedTaskPostgresFixture migrowała tylko WorkspaceDbContext; LocalUserProfileQuery wGetProjectTaskHandler czytaLocalIdentityDbContext.Users. Dodano identitymigrations w osobnym devplanner_identity/__IdentityMigrationsHistory zgodnie zproductionfactory; nie usunięto/maskowano profili wproduction. Zmiany wyłącznie test+fixture. Proporcjonalny batch TaskHttpOperationMatrixTests+ProjectSetupHttpIntegrationTests po fixturechange jeszcze wymaga terminalu; fullsuite nie jest powtarzana.
+- Wciąż brak authenticatedstaging/E2E, Windows/Linuxbuildów na właściwychhostach, signedMacruntime, realOffice i dwuklientowegoChat oraz benchmarku przewagi nadAsaną. Nie uznawać całegoP0–P7 zaDONE przez powyższe zielone codegates. Bez SSH/login/deploy/commit/push.
+
+
+## 2026-10-01 — zakończenie dodatkowej walidacji fixture dat
+
+TaskHttpOperationMatrixTests + ProjectSetupHttpIntegrationTests: exit 0, 40 PASS, 0 SKIP, 0 FAIL, 1 min 37 s. Log: /tmp/devplanner-task-date-fixture-batch.log. Wynik potwierdzony z terminalnego podsumowania. Zastępuje wcześniejszą informację o oczekiwaniu na ten batch. Źródła nie zmieniły się po teście; pełnego zestawu backendu nie powtarzano po zmianie wyłącznie testowej.

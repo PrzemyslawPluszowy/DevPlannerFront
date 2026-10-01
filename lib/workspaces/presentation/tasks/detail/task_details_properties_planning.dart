@@ -1,20 +1,24 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
-class _EditPlanningDialog extends StatefulWidget {
-  const _EditPlanningDialog({required this.task});
+class EditPlanningDialog extends StatefulWidget {
+  const EditPlanningDialog({required this.task, super.key});
 
   final ProjectTaskResponse task;
 
   @override
-  State<_EditPlanningDialog> createState() => _EditPlanningDialogState();
+  State<EditPlanningDialog> createState() => EditPlanningDialogState();
 }
 
-class _EditPlanningDialogState extends State<_EditPlanningDialog> {
+class EditPlanningDialogState extends State<EditPlanningDialog> {
+  TaskDetailDraftRegistration? _draft;
   late final TextEditingController _estimateController;
   late final ValueNotifier<DateTime?> _startAtUtc;
   late final ValueNotifier<DateTime?> _dueAtUtc;
   final ValueNotifier<String?> _validationMessage = ValueNotifier(null);
   final ValueNotifier<bool> _saving = ValueNotifier(false);
+  late final Listenable _formChanges;
 
   /// Podgląd i zapis kaskady mają własny stan: widget tylko przekazuje daty.
   late final TaskScheduleCascadeCubit _cascadeCubit;
@@ -27,15 +31,53 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
     _estimateController = TextEditingController(
       text: widget.task.estimatedMinutes?.toString() ?? '',
     );
+    final detailsCubit = context.read<TaskDetailsCubit>();
     _cascadeCubit = TaskScheduleCascadeCubit(
       repository: context.read<TaskScheduleRepository>(),
-      workspaceId: context.read<TaskDetailsCubit>().workspaceId,
-      projectId: context.read<TaskDetailsCubit>().projectId,
+      workspaceId: detailsCubit.workspaceId,
+      projectId: detailsCubit.projectId,
+      canEdit: () => switch (detailsCubit.state) {
+        TaskDetailsReady(:final canEdit) => canEdit,
+        _ => false,
+      },
+      onAccessLost: (error) => unawaited(detailsCubit.reportAccessLost(error)),
     );
+    _estimateController.addListener(_refreshDraft);
+    _formChanges = Listenable.merge([
+      _startAtUtc,
+      _dueAtUtc,
+      _validationMessage,
+      _saving,
+    ]);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: context.l10n.taskDetailsEditPlanning,
+    );
+  }
+
+  void _refreshDraft() {
+    final task = widget.task;
+    final estimateText = _estimateController.text.trim();
+    final originalEstimate = task.estimatedMinutes?.toString() ?? '';
+    final isDirty =
+        _startAtUtc.value != task.startAtUtc ||
+        _dueAtUtc.value != task.dueAtUtc ||
+        estimateText != originalEstimate;
+    if (isDirty) {
+      _draft?.markDirty();
+    } else {
+      _draft?.clear();
+    }
   }
 
   @override
   void dispose() {
+    _draft?.dispose();
+    _estimateController.removeListener(_refreshDraft);
     _estimateController.dispose();
     _startAtUtc.dispose();
     _dueAtUtc.dispose();
@@ -54,15 +96,12 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
       bloc: _cascadeCubit,
       listener: (context, cascade) {
         final error = cascade.error;
-        if (error != null) _validationMessage.value = error;
+        if (error != null && cascade.apiError == null) {
+          _validationMessage.value = error;
+        }
       },
       builder: (context, cascade) => AnimatedBuilder(
-        animation: Listenable.merge([
-          _startAtUtc,
-          _dueAtUtc,
-          _validationMessage,
-          _saving,
-        ]),
+        animation: _formChanges,
         builder: (context, _) => WorkspaceCreationModalWrapper(
           title: context.l10n.taskDetailsEditPlanning,
           icon: Symbols.calendar_month_rounded,
@@ -70,6 +109,10 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
           isSubmitting: _saving.value || cascade.isApplying,
           submitLabel: context.l10n.save,
           cancelLabel: context.l10n.cancel,
+          onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
+            context,
+            _draft,
+          ),
           onSubmit: cascade.isPreviewing ? () {} : _save,
           additionalActions: [
             OutlinedButton.icon(
@@ -102,25 +145,28 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _DateField(
+                const TaskDetailsDialogMutationError(),
+                DateField(
                   label: context.l10n.taskDetailsStartDate,
                   value: _startAtUtc.value,
                   format: format,
                   enabled: !_saving.value,
                   onChanged: (value) {
                     _startAtUtc.value = value;
+                    _refreshDraft();
                     _cascadeCubit.clearPreview();
                     _validationMessage.value = null;
                   },
                 ),
                 const SizedBox(height: 12),
-                _DateField(
+                DateField(
                   label: context.l10n.taskDetailsDueDate,
                   value: _dueAtUtc.value,
                   format: format,
                   enabled: !_saving.value,
                   onChanged: (value) {
                     _dueAtUtc.value = value;
+                    _refreshDraft();
                     _cascadeCubit.clearPreview();
                     _validationMessage.value = null;
                   },
@@ -135,7 +181,10 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
                     suffixText: 'min',
                   ),
                 ),
-                if (_validationMessage.value case final message?) ...[
+                if (cascade.apiError case final error?) ...[
+                  TaskDetailsModalError(error: error),
+                  const SizedBox(height: 12),
+                ] else if (_validationMessage.value case final message?) ...[
                   const SizedBox(height: 12),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -149,7 +198,7 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
                 ],
                 if (cascade.preview case final preview?) ...[
                   const SizedBox(height: 18),
-                  _CascadePreview(preview: preview, format: format),
+                  CascadePreview(preview: preview, format: format),
                 ],
               ],
             ),
@@ -160,6 +209,7 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
   }
 
   Future<void> _save() async {
+    if (_saving.value || _cascadeCubit.state.isBusy) return;
     final estimateText = _estimateController.text.trim();
     final estimate = estimateText.isEmpty ? null : int.tryParse(estimateText);
     if ((estimateText.isNotEmpty && estimate == null) ||
@@ -174,13 +224,20 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
       return;
     }
     _saving.value = true;
-    final saved = await context.read<TaskDetailsCubit>().updatePlanning(
+    final source = context.read<TaskDetailsCubit>();
+    final saved = await source.updatePlanning(
       startAtUtc: _startAtUtc.value,
       dueAtUtc: _dueAtUtc.value,
       estimatedMinutes: estimate,
     );
     if (!mounted) return;
+    if (source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      return;
+    }
     if (saved) {
+      _draft?.clear();
       Navigator.of(context).pop();
     } else {
       _saving.value = false;
@@ -210,6 +267,7 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
       newDueAtUtc: _dueAtUtc.value!,
     );
     if (!mounted || !applied) return;
+    _draft?.clear();
     await _reloadAfterCascade();
   }
 
@@ -229,8 +287,12 @@ class _EditPlanningDialogState extends State<_EditPlanningDialog> {
   }
 }
 
-class _CascadePreview extends StatelessWidget {
-  const _CascadePreview({required this.preview, required this.format});
+class CascadePreview extends StatelessWidget {
+  const CascadePreview({
+    required this.preview,
+    required this.format,
+    super.key,
+  });
 
   final ScheduleCascadeResponse preview;
   final DateFormat format;

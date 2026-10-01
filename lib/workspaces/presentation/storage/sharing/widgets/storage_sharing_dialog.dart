@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
@@ -34,8 +35,8 @@ final class StorageSharingDialog extends StatelessWidget {
     required StorageFileResponse file,
     required StorageRepository repository,
     StorageUserDirectoryPort? userDirectory,
-  }) => showDialog<void>(
-    context: context,
+  }) => DevPlannerModalHost.showDialog<void>(
+    context,
     builder: (_) => StorageSharingDialog(
       file: file,
       repository: repository,

@@ -36,7 +36,6 @@ import 'package:devplanner/workspaces/domain/repositories/task_capacity_reposito
 import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_list_configuration_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
-import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_template_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_workflow_repository.dart';
@@ -47,28 +46,35 @@ import 'package:devplanner/workspaces/presentation/projects/settings/custom_fiel
 import 'package:devplanner/workspaces/presentation/projects/settings/project_settings_modal.dart';
 import 'package:devplanner/workspaces/presentation/projects/settings/user_hub/project_user_hub_modal.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cards/kanban_card_tokens.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_api_error_normalizer.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_assignee_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/kanban_assignee_visuals.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/kanban_board_grouping_bar.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/kanban_column_surface.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/kanban_move_to_person_dialog.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/task_board_color_parser.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/task_board_date_formatter.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_card_subtasks.dart';
-import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_columns_viewport.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_drop_targets.dart';
-import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_list_content.dart';
-import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_template_choice_button.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_quick_create.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_ready_content.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_view_switcher.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_project_view.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/templates/cubit/task_template_picker_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/viewport/kanban_auto_scroll_coordinator.dart';
 import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_contextual_bulk_bar.dart';
 import 'package:devplanner/workspaces/presentation/tasks/chrome/tasks_command_menu.dart';
 import 'package:devplanner/workspaces/presentation/tasks/chrome/tasks_error_banner_host.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_error_banner.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/chrome/task_list_chrome_host.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/chrome/task_saved_view_selection.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list_rows.dart';
-import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_cubit.dart';
-import 'package:devplanner/workspaces/presentation/tasks/recurrence/project_recurrences_sheet.dart';
+import 'package:devplanner/workspaces/presentation/tasks/search/tasks_global_search_launcher.dart';
 import 'package:devplanner/workspaces/presentation/tasks/tasks_project_view_contract.dart';
 import 'package:devplanner/workspaces/presentation/tasks/timeline/cubit/task_timeline_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/views/task_saved_views_export.dart';
@@ -82,6 +88,19 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 export '../tasks_project_view_contract.dart' show TasksProjectView;
+export 'kanban_assignee_board_content.dart'
+    show KanbanAssigneeBoardContent, KanbanAssigneeColumnsViewport;
+export 'kanban_assignee_column.dart' show KanbanAssigneeColumn;
+export 'kanban_assignee_visuals.dart'
+    show
+        KanbanAssigneeAvatar,
+        KanbanAssigneeStatusBadge,
+        KanbanCardStatusBadge,
+        KanbanCardStatusBadgeView;
+export 'kanban_board_grouping_bar.dart' show KanbanBoardGroupingBar;
+export 'kanban_column_surface.dart' show KanbanColumnSurface;
+export 'kanban_move_to_person_dialog.dart' show KanbanMoveToPersonDialog;
+export 'task_board_color_parser.dart' show TaskBoardColorParser;
 export 'tasks_board_card_subtasks.dart';
 export 'tasks_project_view.dart';
 
@@ -96,21 +115,17 @@ part '../header/tasks_header_quick_create_dialog.dart';
 part 'cards/content/kanban_card_frame.dart';
 part 'cards/content/kanban_card_identity.dart';
 part 'cards/content/kanban_card_metadata.dart';
-part 'tasks_board_assignee_view.dart';
 part 'tasks_board_card_content.dart';
 part 'tasks_board_card_menu.dart';
 part 'tasks_board_cards.dart';
 part 'tasks_board_collapsed_column.dart';
-part 'tasks_board_column_surface.dart';
 part 'tasks_board_columns.dart';
-part 'tasks_board_quick_create.dart';
 part 'tasks_board_saved_views.dart';
 part 'tasks_board_states.dart';
 part 'tasks_board_template_picker.dart';
 part 'tasks_board_template_picker_actions.dart';
 part 'tasks_board_template_picker_content.dart';
 part 'tasks_board_timeline.dart';
-part 'tasks_board_view_switcher.dart';
 part 'tasks_board_workload.dart';
 part 'template_actions/template_editor_basic.dart';
 part 'template_actions/template_editor_classification.dart';
@@ -156,6 +171,7 @@ class TasksBoardPage extends StatelessWidget {
     providers: [
       BlocProvider(
         create: (context) {
+          final authSession = context.read<AuthSessionPort>();
           final cubit = TasksBoardCubit(
             context.read<KanbanRepository>(),
             TaskProjectRealtimeAdapter.fromFactory(
@@ -173,8 +189,7 @@ class TasksBoardPage extends StatelessWidget {
                 SharedPreferencesTasksBoardViewStore(
                   // Preferencja jest osobista, więc tożsamość czytamy w momencie
                   // operacji, a nie raz na starcie klienta.
-                  currentUserId: () =>
-                      context.read<AuthSessionPort>().snapshot.user?.userId,
+                  currentUserId: () => authSession.snapshot.user?.userId,
                 ),
             workspaceId: workspaceId,
             projectId: projectId,
@@ -228,6 +243,7 @@ class TasksBoardPage extends StatelessWidget {
   );
 }
 
+/// Rozdziela widok listy i tablicy od ich chrome oraz właścicieli stanu.
 class TasksBoardReadyView extends StatelessWidget {
   const TasksBoardReadyView({
     required this.workspaceId,
@@ -250,25 +266,16 @@ class TasksBoardReadyView extends StatelessWidget {
   final TasksBoardReady state;
   final TasksProjectView view;
   final bool hasOpenedList;
-
-  /// Kanban nie jest montowany, dopóki użytkownik go nie otworzy.
-  ///
-  /// Kolumny dociągają kolejne strony dopiero po zamontowaniu widoku, więc
-  /// domyślna Lista nie może płacić za niewidoczny board.
   final bool hasOpenedBoard;
   final int settingsRevision;
   final TaskListViewSnapshot? currentSnapshot;
   final ValueChanged<TaskListViewSnapshot>? onSnapshotChanged;
   final VoidCallback? onSettingsClosed;
-
-  /// Nawigację po wyjściu z projektu dostarcza właściciel trasy.
   final VoidCallback? onProjectExited;
   final ValueChanged<TasksProjectView> onViewChanged;
 
   @override
   Widget build(BuildContext context) {
-    // Aktywny zapisany widok czytamy raz i przekazujemy wierszowi poleceń oraz
-    // treści Listy, żeby oba opisywały ten sam widok.
     final savedView = TaskSavedViewSelection.of(
       context,
       hasCustomWorkflow: state.board.columns.any(
@@ -282,24 +289,8 @@ class TasksBoardReadyView extends StatelessWidget {
       savedViewId: savedView.savedViewId,
       groupBy: savedView.groupBy,
       memberProfilesByUserId: state.memberProfilesByUserId,
-      builder: (context, chrome) => _readyContent(context, chrome, savedView),
-    );
-  }
-
-  Widget _readyContent(
-    BuildContext context,
-    TaskListChrome chrome,
-    TaskSavedViewSelection savedView,
-  ) {
-    // Sloty Listy i Kanbanu są stabilne, żeby powrót między widokami nie
-    // remontował drugiego z nich razem z jego scrollem i stanem inline.
-    final showBoard = hasOpenedBoard || view == TasksProjectView.board;
-    final showList = hasOpenedList || view == TasksProjectView.list;
-    final content = Column(
-      children: [
-        // Moduł montuje publiczny nagłówek, więc Lista i Kanban używają
-        // dokładnie tego samego chrome, a testy mają jeden typ do sprawdzenia.
-        TasksHeader(
+      builder: (context, chrome) => TasksBoardReadyContent(
+        header: TasksHeader(
           state: state,
           workspaceId: workspaceId,
           projectId: projectId,
@@ -311,184 +302,46 @@ class TasksBoardReadyView extends StatelessWidget {
           commandBar: chrome.commandBar,
           bulkBar: chrome.bulkBar,
           showBulkBar: chrome.showBulkBar,
+          taskSearchAction: TasksGlobalSearchLauncher(
+            repository: context.read<TaskViewRepository>(),
+          ),
         ),
-        // Trwały komunikat błędu widzi cały moduł Tasks: Lista, Kanban i widoki
-        // pochodne, także po przebudowie drzewa albo zamknięciu menu.
-        TasksErrorBannerHost(
+        errorBanner: TasksErrorBannerHost(
           boardActive: view == TasksProjectView.board,
         ),
-        Expanded(
-          child: view == TasksProjectView.timeline
-              ? TaskTimelineView(
-                  workspaceId: workspaceId,
-                  projectId: projectId,
-                )
-              : view == TasksProjectView.workload
-              ? TaskWorkloadView(
-                  workspaceId: workspaceId,
-                  projectId: projectId,
-                )
-              : view == TasksProjectView.recurrence
-              ? BlocProvider(
-                  create: (context) {
-                    final realtimeFactory = context
-                        .read<WorkspaceScopedRealtimeFactory?>();
-                    final cubit = ProjectRecurrencesCubit(
-                      repository: context.read<TaskRecurrenceRepository>(),
-                      workspaceId: workspaceId,
-                      projectId: projectId,
-                      realtime: realtimeFactory != null
-                          ? TaskProjectRealtimeAdapter.fromFactory(
-                              realtimeFactory,
-                            )
-                          : null,
-                    );
-                    unawaited(cubit.load());
-                    return cubit;
-                  },
-                  child: ProjectRecurrencesSheet(
-                    workspaceId: workspaceId,
-                    projectId: projectId,
-                  ),
-                )
-              : IndexedStack(
-                  index: view == TasksProjectView.board ? 0 : 1,
-                  children: [
-                    if (showBoard)
-                      _BoardContent(
-                        workspaceId: workspaceId,
-                        projectId: projectId,
-                        state: state,
-                      )
-                    else
-                      const SizedBox.shrink(),
-                    if (showList)
-                      TasksBoardListContent(
-                        workspaceId: workspaceId,
-                        projectId: projectId,
-                        settingsRevision: settingsRevision,
-                        hasCustomWorkflow: state.board.columns.any(
-                          (column) => column.customStatusId != null,
-                        ),
-                        savedViewId: savedView.savedViewId,
-                        groupBy: savedView.groupBy,
-                        columns: savedView.columns,
-                        customFieldIds: savedView.customFieldIds,
-                        columnOrder: savedView.columnOrder,
-                        onViewSnapshotChanged: onSnapshotChanged,
-                        listCubit: chrome.listCubit,
-                        preferencesCubit: chrome.preferencesCubit,
-                      )
-                    else
-                      const SizedBox.shrink(),
-                  ],
-                ),
+        workspaceId: workspaceId,
+        projectId: projectId,
+        state: state,
+        view: view,
+        hasOpenedList: hasOpenedList,
+        hasOpenedBoard: hasOpenedBoard,
+        savedView: savedView,
+        settingsRevision: settingsRevision,
+        onSnapshotChanged: onSnapshotChanged,
+        emptyStateBuilder: (_) => const _BoardEmpty(),
+        cardBuilder: (task, statusBadge, canDrag) => KanbanAssigneeTaskCard(
+          task: task,
+          workspaceId: workspaceId,
+          projectId: projectId,
+          state: state,
+          statusBadge: statusBadge,
+          canDrag: canDrag,
         ),
-      ],
-    );
-    // Cała zakładka Tasks odstaje o włos od krawędzi canvasu shella, żeby obrys
-    // kontenera nie stykał się z tabelą Listy ani z kolumnami tablicy.
-    final tab = Padding(
-      padding: const .only(left: Sizes.p2),
-      child: content,
-    );
-    return view == TasksProjectView.board
-        ? _BoardKeyboardShortcuts(child: tab)
-        : tab;
-  }
-}
-
-class _BoardContent extends StatefulWidget {
-  const _BoardContent({
-    required this.workspaceId,
-    required this.projectId,
-    required this.state,
-  });
-
-  final String workspaceId;
-  final String projectId;
-  final TasksBoardReady state;
-
-  @override
-  State<_BoardContent> createState() => _BoardContentState();
-}
-
-class _BoardContentState extends State<_BoardContent> {
-  final KanbanAutoScrollCoordinator _coordinator =
-      KanbanAutoScrollCoordinator();
-
-  @override
-  void dispose() {
-    _coordinator.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Expanded(
-        child: widget.state.grouping == TasksBoardGrouping.assignee
-            ? KanbanAssigneeBoardContent(
-                workspaceId: widget.workspaceId,
-                projectId: widget.projectId,
-                state: widget.state,
-                coordinator: _coordinator,
-              )
-            : widget.state.board.columns.isEmpty
-            ? const _BoardEmpty()
-            : KanbanAutoScrollScope(
-                coordinator: _coordinator,
-                child: KanbanColumnsViewport(
-                  workspaceId: widget.workspaceId,
-                  projectId: widget.projectId,
-                  state: widget.state,
-                ),
-              ),
+        quickCreateBuilder: (backlogColumn) => KanbanQuickCreateTask(
+          column: backlogColumn,
+          onManageTemplates: TaskTemplatePickerOverlay.show,
+        ),
+        timelineView: TaskTimelineView(
+          workspaceId: workspaceId,
+          projectId: projectId,
+        ),
+        workloadView: TaskWorkloadView(
+          workspaceId: workspaceId,
+          projectId: projectId,
+        ),
+        listCubit: chrome.listCubit,
+        preferencesCubit: chrome.preferencesCubit,
       ),
-    ],
-  );
-}
-
-class _BoardKeyboardShortcuts extends StatelessWidget {
-  const _BoardKeyboardShortcuts({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => Shortcuts(
-    shortcuts: const {
-      SingleActivator(LogicalKeyboardKey.keyA, control: true):
-          _SelectAllLoadedTasksIntent(),
-      SingleActivator(LogicalKeyboardKey.keyA, meta: true):
-          _SelectAllLoadedTasksIntent(),
-      SingleActivator(LogicalKeyboardKey.escape): _ClearTaskSelectionIntent(),
-    },
-    child: Actions(
-      actions: {
-        _SelectAllLoadedTasksIntent:
-            CallbackAction<_SelectAllLoadedTasksIntent>(
-              onInvoke: (_) {
-                context.read<TasksBoardCubit>().selectAllLoadedTasks();
-                return null;
-              },
-            ),
-        _ClearTaskSelectionIntent: CallbackAction<_ClearTaskSelectionIntent>(
-          onInvoke: (_) {
-            context.read<TasksBoardCubit>().clearTaskSelection();
-            return null;
-          },
-        ),
-      },
-      child: Focus(autofocus: true, child: child),
-    ),
-  );
-}
-
-class _SelectAllLoadedTasksIntent extends Intent {
-  const _SelectAllLoadedTasksIntent();
-}
-
-class _ClearTaskSelectionIntent extends Intent {
-  const _ClearTaskSelectionIntent();
+    );
+  }
 }

@@ -10,6 +10,7 @@ import 'package:devplanner/workspaces/data/projects/tasks/models/task_templates_
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
 import 'package:devplanner/workspaces/data/realtime/scoped/workspace_scoped_realtime_service.dart';
+import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_credentials.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
@@ -47,6 +48,8 @@ final class TasksBoardRouteFixture {
     this.pendingBoard,
     this.groupedListResult,
     this.assigneeBoardResult,
+    this.effectiveListConfiguration,
+    this.userKanbanPreference,
     ProjectSettingsFixture? projectSettings,
   }) : settings =
            projectSettings ??
@@ -71,6 +74,8 @@ final class TasksBoardRouteFixture {
 
   /// Odpowiedź tablicy grupowanej po osobach; `null` oznacza brak grup.
   final Either<ApiError, AssigneeKanbanBoardResponse>? assigneeBoardResult;
+  final EffectiveTaskListConfigurationResponse? effectiveListConfiguration;
+  final UserKanbanPreferenceResponse? userKanbanPreference;
 
   /// Porty centrum ustawień projektu, które nagłówek Tasks otwiera jawnie.
   final ProjectSettingsFixture settings;
@@ -88,6 +93,8 @@ final class TasksBoardRouteFixture {
   final _MockTaskViewRepository views = _MockTaskViewRepository();
   final _MockTaskListConfigurationRepository listConfiguration =
       _MockTaskListConfigurationRepository();
+  TaskListConfigurationRepository get taskListConfigurationRepository =>
+      listConfiguration;
   final _MockTaskCapacityRepository capacity = _MockTaskCapacityRepository();
   final _MockTaskRecurrenceRepository recurrence =
       _MockTaskRecurrenceRepository();
@@ -162,11 +169,15 @@ final class TasksBoardRouteFixture {
         workspaceId: workspaceId,
         projectId: projectId,
       ),
-    ).thenAnswer(
-      (_) async => const Left<ApiError, UserKanbanPreferenceResponse>(
+    ).thenAnswer((_) async {
+      final configured = userKanbanPreference;
+      if (configured != null) {
+        return Right<ApiError, UserKanbanPreferenceResponse>(configured);
+      }
+      return const Left<ApiError, UserKanbanPreferenceResponse>(
         ApiError(type: ApiErrorType.notFound, message: 'No preference'),
-      ),
-    );
+      );
+    });
     when(
       () => workflow.getWorkflow(
         workspaceId: workspaceId,
@@ -244,11 +255,17 @@ final class TasksBoardRouteFixture {
         workspaceId: workspaceId,
         projectId: projectId,
       ),
-    ).thenAnswer(
-      (_) async => const Left<ApiError, EffectiveTaskListConfigurationResponse>(
+    ).thenAnswer((_) async {
+      final configured = effectiveListConfiguration;
+      if (configured != null) {
+        return Right<ApiError, EffectiveTaskListConfigurationResponse>(
+          configured,
+        );
+      }
+      return const Left<ApiError, EffectiveTaskListConfigurationResponse>(
         ApiError(type: ApiErrorType.notFound, message: 'No list config'),
-      ),
-    );
+      );
+    });
     when(() => templates.list(workspaceId)).thenAnswer(
       (_) async => const Right<ApiError, List<TaskTemplateResponse>>(
         <TaskTemplateResponse>[],
@@ -450,7 +467,10 @@ final class _FakeSignalRTransport implements WorkspaceSignalRTransport {
 
 final class _FakeRealtimeFactory extends WorkspaceScopedRealtimeFactory {
   _FakeRealtimeFactory()
-    : super(baseUrl: 'https://test.invalid', accessTokenProvider: _token);
+    : super(
+        baseUrl: 'https://test.invalid',
+        credentials: WorkspaceRealtimeCredentials.bearer(_token),
+      );
 
   static Future<String?> _token() async => 'test-token';
 

@@ -15,6 +15,7 @@ import 'package:devplanner/workspaces/presentation/tasks/board/cards/subtasks/cu
 import 'package:devplanner/workspaces/presentation/tasks/board/cards/subtasks/cubit/kanban_subtasks_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/project_tasks_list_rows.dart';
 import 'package:flutter/material.dart';

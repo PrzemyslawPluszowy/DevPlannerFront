@@ -126,7 +126,7 @@ class StorageFileRows extends StatelessWidget {
                       icon: const Icon(AppIcons.folder, size: 18),
                       tooltip: context.l10n.storageMoveAction,
                       onPressed: () => unawaited(
-                        runStorageMoveToFolderAction(
+                        StorageMoveAction.chooseFolder(
                           context,
                           fileIds: [file.id],
                         ),

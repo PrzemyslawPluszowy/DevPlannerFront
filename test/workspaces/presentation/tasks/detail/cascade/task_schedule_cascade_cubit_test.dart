@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_schedule_models.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// Repozytorium harmonogramu z jawnie sterowanymi wynikami kaskady.
 final class _FakeScheduleRepository implements TaskScheduleRepository {
   Either<ApiError, ScheduleCascadeResponse>? previewResult;
+  Future<Either<ApiError, ScheduleCascadeResponse>>? pendingPreview;
   Either<ApiError, ScheduleCascadeResponse>? applyResult;
   final previews = <PreviewScheduleCascadePayload>[];
   final applies = <ApplyScheduleCascadePayload>[];
@@ -19,7 +22,7 @@ final class _FakeScheduleRepository implements TaskScheduleRepository {
     required PreviewScheduleCascadePayload payload,
   }) async {
     previews.add(payload);
-    return previewResult!;
+    return pendingPreview ?? previewResult!;
   }
 
   @override
@@ -71,6 +74,45 @@ void main() {
 
   tearDown(() => cubit.close());
 
+  test('zmiana dat podczas odczytu odrzuca spóźniony podgląd', () async {
+    final pending = Completer<Either<ApiError, ScheduleCascadeResponse>>();
+    repository.pendingPreview = pending.future;
+    final request = cubit.preview(
+      taskId: 'task-1',
+      newStartAtUtc: DateTime.utc(2026, 9, 21),
+      newDueAtUtc: DateTime.utc(2026, 9, 25),
+    );
+    cubit.clearPreview();
+    pending.complete(Right(_previewWith(taskId: 'task-1', expectedVersion: 7)));
+    expect(await request, isFalse);
+    expect(cubit.state.preview, isNull);
+    expect(cubit.state.isBusy, isFalse);
+  });
+
+  test(
+    'nie zapisuje kaskady dla dat innych niż zaakceptowany podgląd',
+    () async {
+      repository.previewResult = Right(
+        _previewWith(taskId: 'task-1', expectedVersion: 7),
+      );
+      await cubit.preview(
+        taskId: 'task-1',
+        newStartAtUtc: DateTime.utc(2026, 9, 21),
+        newDueAtUtc: DateTime.utc(2026, 9, 25),
+      );
+      expect(
+        await cubit.apply(
+          taskId: 'task-1',
+          newStartAtUtc: DateTime.utc(2026, 10),
+          newDueAtUtc: DateTime.utc(2026, 10, 5),
+        ),
+        isFalse,
+      );
+      expect(repository.applies, isEmpty);
+      expect(cubit.state.apiError?.apiCode, 'task_cascade_preview_stale');
+    },
+  );
+
   test('podgląd kaskady pokazuje wynik i niczego nie zapisuje', () async {
     repository.previewResult = Right(
       _previewWith(taskId: 'task-1', expectedVersion: 7),
@@ -90,34 +132,37 @@ void main() {
     expect(repository.applies, isEmpty);
   });
 
-  test('błąd podglądu zostaje w stanie i nie udaje aktualnego podglądu', () async {
-    repository.previewResult = Right(
-      _previewWith(taskId: 'task-1', expectedVersion: 7),
-    );
-    await cubit.preview(
-      taskId: 'task-1',
-      newStartAtUtc: DateTime.utc(2026, 9, 21),
-      newDueAtUtc: DateTime.utc(2026, 9, 25),
-    );
-    expect(cubit.state.preview, isNotNull);
+  test(
+    'błąd podglądu zostaje w stanie i nie udaje aktualnego podglądu',
+    () async {
+      repository.previewResult = Right(
+        _previewWith(taskId: 'task-1', expectedVersion: 7),
+      );
+      await cubit.preview(
+        taskId: 'task-1',
+        newStartAtUtc: DateTime.utc(2026, 9, 21),
+        newDueAtUtc: DateTime.utc(2026, 9, 25),
+      );
+      expect(cubit.state.preview, isNotNull);
 
-    repository.previewResult = const Left(
-      ApiError(
-        type: ApiErrorType.forbidden,
-        message: 'Brak dostępu do harmonogramu',
-        statusCode: 403,
-      ),
-    );
-    final ok = await cubit.preview(
-      taskId: 'task-1',
-      newStartAtUtc: DateTime.utc(2026, 10),
-      newDueAtUtc: DateTime.utc(2026, 10, 5),
-    );
+      repository.previewResult = const Left(
+        ApiError(
+          type: ApiErrorType.forbidden,
+          message: 'Brak dostępu do harmonogramu',
+          statusCode: 403,
+        ),
+      );
+      final ok = await cubit.preview(
+        taskId: 'task-1',
+        newStartAtUtc: DateTime.utc(2026, 10),
+        newDueAtUtc: DateTime.utc(2026, 10, 5),
+      );
 
-    expect(ok, isFalse);
-    expect(cubit.state.preview, isNull);
-    expect(cubit.state.error, 'Brak dostępu do harmonogramu');
-  });
+      expect(ok, isFalse);
+      expect(cubit.state.preview, isNull);
+      expect(cubit.state.error, 'Brak dostępu do harmonogramu');
+    },
+  );
 
   test('zapis bez podglądu jest odrzucany, bo brakuje wersji zadań', () async {
     final ok = await cubit.apply(
@@ -185,19 +230,22 @@ void main() {
     expect(cubit.state.preview, isNotNull);
   });
 
-  test('zmiana dat zdejmuje podgląd, żeby nie opisywał innych terminów', () async {
-    repository.previewResult = Right(
-      _previewWith(taskId: 'task-1', expectedVersion: 7),
-    );
-    await cubit.preview(
-      taskId: 'task-1',
-      newStartAtUtc: DateTime.utc(2026, 9, 21),
-      newDueAtUtc: DateTime.utc(2026, 9, 25),
-    );
+  test(
+    'zmiana dat zdejmuje podgląd, żeby nie opisywał innych terminów',
+    () async {
+      repository.previewResult = Right(
+        _previewWith(taskId: 'task-1', expectedVersion: 7),
+      );
+      await cubit.preview(
+        taskId: 'task-1',
+        newStartAtUtc: DateTime.utc(2026, 9, 21),
+        newDueAtUtc: DateTime.utc(2026, 9, 25),
+      );
 
-    cubit.clearPreview();
+      cubit.clearPreview();
 
-    expect(cubit.state.preview, isNull);
-    expect(cubit.state.isBusy, isFalse);
-  });
+      expect(cubit.state.preview, isNull);
+      expect(cubit.state.isBusy, isFalse);
+    },
+  );
 }

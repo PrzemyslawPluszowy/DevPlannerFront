@@ -1,44 +1,51 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
+
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 /// Renderuje i edytuje opis zadania jako Quill Delta — nie redukuje go do
 /// zwykłego tekstu, dzięki czemu istniejące formatowanie nie jest tracone.
-class _TaskDescriptionSection extends StatelessWidget {
-  const _TaskDescriptionSection({required this.task, required this.isSaving});
+class TaskDescriptionSection extends StatelessWidget {
+  const TaskDescriptionSection({
+    required this.task,
+    required this.isSaving,
+    super.key,
+  });
 
   final ProjectTaskResponse task;
   final bool isSaving;
 
   @override
-  Widget build(BuildContext context) => _Section(
+  Widget build(BuildContext context) => Section(
     title: context.l10n.taskDetailsDescription,
     action: IconButton(
       tooltip: context.l10n.taskDetailsEditDescription,
       onPressed: isSaving
           ? null
-          : () => showDialog<void>(
-              context: context,
+          : () => DevPlannerModalHost.showDialog<void>(
+              context,
               builder: (_) => BlocProvider.value(
                 value: context.read<TaskDetailsCubit>(),
-                child: _EditTaskDescriptionDialog(task: task),
+                child: EditTaskDescriptionDialog(task: task),
               ),
             ),
       icon: const Icon(Symbols.edit_note_rounded, size: 21),
     ),
-    child: _TaskDescriptionPreview(task: task),
+    child: TaskDescriptionPreview(task: task),
   );
 }
 
-class _TaskDescriptionPreview extends StatefulWidget {
-  const _TaskDescriptionPreview({required this.task});
+class TaskDescriptionPreview extends StatefulWidget {
+  const TaskDescriptionPreview({required this.task, super.key});
 
   final ProjectTaskResponse task;
 
   @override
-  State<_TaskDescriptionPreview> createState() =>
-      _TaskDescriptionPreviewState();
+  State<TaskDescriptionPreview> createState() => TaskDescriptionPreviewState();
 }
 
-class _TaskDescriptionPreviewState extends State<_TaskDescriptionPreview> {
+class TaskDescriptionPreviewState extends State<TaskDescriptionPreview> {
   late final quill.QuillController _controller;
 
   @override
@@ -59,7 +66,7 @@ class _TaskDescriptionPreviewState extends State<_TaskDescriptionPreview> {
     if (TaskDetailsDescriptionControllerFactory.isEmpty(_controller.document)) {
       return Text(
         context.l10n.taskDetailsNoDescription,
-        style: context.text.bodyMedium?.copyWith(
+        style: context.tasksTheme.dataText.copyWith(
           color: context.colors.onSurfaceVariant,
         ),
       );
@@ -68,13 +75,26 @@ class _TaskDescriptionPreviewState extends State<_TaskDescriptionPreview> {
       decoration: BoxDecoration(
         color: context.colors.surfaceContainerLow,
         border: Border.all(color: context.colors.outlineVariant),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: IgnorePointer(
           child: quill.QuillEditor.basic(
             controller: _controller,
+            config: quill.QuillEditorConfig(
+              customStyles: quill.DefaultStyles(
+                paragraph: quill.DefaultTextBlockStyle(
+                  context.tasksTheme.dataText.copyWith(
+                    color: context.colors.onSurface,
+                  ),
+                  quill.HorizontalSpacing.zero,
+                  quill.VerticalSpacing.zero,
+                  quill.VerticalSpacing.zero,
+                  null,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -82,19 +102,20 @@ class _TaskDescriptionPreviewState extends State<_TaskDescriptionPreview> {
   }
 }
 
-class _EditTaskDescriptionDialog extends StatefulWidget {
-  const _EditTaskDescriptionDialog({required this.task});
+class EditTaskDescriptionDialog extends StatefulWidget {
+  const EditTaskDescriptionDialog({required this.task, super.key});
 
   final ProjectTaskResponse task;
 
   @override
-  State<_EditTaskDescriptionDialog> createState() =>
-      _EditTaskDescriptionDialogState();
+  State<EditTaskDescriptionDialog> createState() =>
+      EditTaskDescriptionDialogState();
 }
 
-class _EditTaskDescriptionDialogState
-    extends State<_EditTaskDescriptionDialog> {
+class EditTaskDescriptionDialogState extends State<EditTaskDescriptionDialog> {
+  TaskDetailDraftRegistration? _draft;
   late final quill.QuillController _controller;
+  late final String _initialDocument;
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final ValueNotifier<bool> _saving = ValueNotifier(false);
@@ -103,12 +124,33 @@ class _EditTaskDescriptionDialogState
   void initState() {
     super.initState();
     _controller = TaskDetailsDescriptionControllerFactory.create(widget.task);
+    _initialDocument = jsonEncode(_controller.document.toDelta().toJson());
+    _controller.addListener(_markDraftDirty);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: context.l10n.taskDetailsEditDescription,
+    );
+  }
+
+  void _markDraftDirty() {
+    final current = jsonEncode(_controller.document.toDelta().toJson());
+    if (current == _initialDocument) {
+      _draft?.clear();
+    } else {
+      _draft?.markDirty();
+    }
   }
 
   @override
   void dispose() {
+    _draft?.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
+    _controller.removeListener(_markDraftDirty);
     _controller.dispose();
     _saving.dispose();
     super.dispose();
@@ -125,11 +167,16 @@ class _EditTaskDescriptionDialogState
       submitLabel: context.l10n.save,
       cancelLabel: context.l10n.cancel,
       maxWidth: 780,
+      onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
+        context,
+        _draft,
+      ),
       onSubmit: isSaving ? null : _save,
       body: SizedBox(
         height: 480,
         child: Column(
           children: [
+            const TaskDetailsDialogMutationError(),
             DecoratedBox(
               decoration: BoxDecoration(
                 border: Border(
@@ -174,14 +221,22 @@ class _EditTaskDescriptionDialogState
   );
 
   Future<void> _save() async {
+    if (_saving.value) return;
     _saving.value = true;
     final document = _controller.document;
-    final saved = await context.read<TaskDetailsCubit>().updateDescription(
+    final source = context.read<TaskDetailsCubit>();
+    final saved = await source.updateDescription(
       description: document.toPlainText(),
       descriptionDeltaJson: jsonEncode(document.toDelta().toJson()),
     );
     if (!mounted) return;
+    if (source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      return;
+    }
     if (saved) {
+      _draft?.clear();
       Navigator.of(context).pop();
     } else {
       _saving.value = false;

@@ -1,40 +1,66 @@
-part of 'task_details_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
-class _AcceptanceCriteriaSection extends StatefulWidget {
-  const _AcceptanceCriteriaSection({
+class AcceptanceCriteriaSection extends StatefulWidget {
+  const AcceptanceCriteriaSection({
     required this.criteria,
     required this.isSaving,
+    super.key,
   });
 
   final List<TaskAcceptanceCriterionResponse> criteria;
   final bool isSaving;
 
   @override
-  State<_AcceptanceCriteriaSection> createState() =>
-      _AcceptanceCriteriaSectionState();
+  State<AcceptanceCriteriaSection> createState() =>
+      AcceptanceCriteriaSectionState();
 }
 
-class _AcceptanceCriteriaSectionState
-    extends State<_AcceptanceCriteriaSection> {
+class AcceptanceCriteriaSectionState extends State<AcceptanceCriteriaSection> {
+  TaskDetailDraftRegistration? _draft;
   final _controller = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_refreshDraft);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: context.l10n.taskDetailsAddAcceptanceCriterion,
+    );
+  }
+
+  void _refreshDraft() {
+    if (_controller.text.trim().isEmpty) {
+      _draft?.clear();
+    } else {
+      _draft?.markDirty();
+    }
+  }
+
+  @override
   void dispose() {
+    _draft?.dispose();
+    _controller.removeListener(_refreshDraft);
     _controller.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => _Section(
+  Widget build(BuildContext context) => Section(
     title: context.l10n.taskDetailsAcceptanceCriteria,
     child: DecoratedBox(
       decoration: BoxDecoration(
         color: context.colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
         border: Border.all(color: context.colors.outlineVariant),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         child: Column(
           children: [
             for (final criterion in widget.criteria)
@@ -132,7 +158,10 @@ class _AcceptanceCriteriaSectionState
     final added = await context.read<TaskDetailsCubit>().addAcceptanceCriterion(
       text,
     );
-    if (mounted && added) _controller.clear();
+    if (mounted && added) {
+      _controller.clear();
+      _draft?.clear();
+    }
   }
 }
 
@@ -146,66 +175,138 @@ final class TaskDetailsTextEditor {
   static Future<void> editChecklistItem(
     BuildContext context,
     TaskChecklistItemResponse item,
-  ) async {
-    final value = await _show(
+  ) {
+    final cubit = context.read<TaskDetailsCubit>();
+    return _show(
       context,
       title: context.l10n.taskDetailsEditChecklistItem,
       initialValue: item.title,
-    );
-    if (value == null || !context.mounted) return;
-    await context.read<TaskDetailsCubit>().updateChecklistItem(
-      item,
-      title: value,
+      onSave: (value) => cubit.updateChecklistItem(item, title: value),
     );
   }
 
   static Future<void> editAcceptanceCriterion(
     BuildContext context,
     TaskAcceptanceCriterionResponse criterion,
-  ) async {
-    final value = await _show(
+  ) {
+    final cubit = context.read<TaskDetailsCubit>();
+    return _show(
       context,
       title: context.l10n.taskDetailsEditAcceptanceCriterion,
       initialValue: criterion.text,
-    );
-    if (value == null || !context.mounted) return;
-    await context.read<TaskDetailsCubit>().updateAcceptanceCriterion(
-      criterion,
-      text: value,
+      onSave: (value) => cubit.updateAcceptanceCriterion(
+        criterion,
+        text: value,
+      ),
     );
   }
 
-  static Future<String?> _show(
+  static Future<void> _show(
     BuildContext context, {
     required String title,
     required String initialValue,
-  }) async {
-    final controller = TextEditingController(text: initialValue);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => WorkspaceCreationModalWrapper(
-        title: title,
-        icon: Symbols.check_circle_outline_rounded,
-        accentColor: dialogContext.colors.primary,
-        submitLabel: dialogContext.l10n.save,
-        cancelLabel: dialogContext.l10n.cancel,
-        maxWidth: 460,
-        onSubmit: () {
-          final normalized = controller.text.trim();
-          if (normalized.isNotEmpty) {
-            Navigator.of(dialogContext).pop(normalized);
-          }
-        },
-        body: Column(
-          mainAxisSize: .min,
+    required Future<bool> Function(String value) onSave,
+  }) {
+    return DevPlannerModalHost.showDialog<void>(
+      context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<TaskDetailsCubit>(),
+        child: TaskDetailsTextEditDialog(
+          title: title,
+          initialValue: initialValue,
+          onSave: onSave,
+        ),
+      ),
+    );
+  }
+}
+
+class TaskDetailsTextEditDialog extends StatefulWidget {
+  const TaskDetailsTextEditDialog({
+    required this.title,
+    required this.initialValue,
+    required this.onSave,
+    super.key,
+  });
+
+  final String title;
+  final String initialValue;
+  final Future<bool> Function(String value) onSave;
+
+  @override
+  State<TaskDetailsTextEditDialog> createState() =>
+      TaskDetailsTextEditDialogState();
+}
+
+class TaskDetailsTextEditDialogState extends State<TaskDetailsTextEditDialog> {
+  TaskDetailDraftRegistration? _draft;
+  late final TextEditingController _controller;
+  final ValueNotifier<bool> _saving = ValueNotifier(false);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+    _controller.addListener(_refreshDraft);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
+      label: widget.title,
+    );
+  }
+
+  void _refreshDraft() {
+    if (_controller.text == widget.initialValue) {
+      _draft?.clear();
+    } else {
+      _draft?.markDirty();
+    }
+  }
+
+  @override
+  void dispose() {
+    _draft?.dispose();
+    _controller.removeListener(_refreshDraft);
+    _controller.dispose();
+    _saving.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: _saving,
+    builder: (context, saving, _) => WorkspaceCreationModalWrapper(
+      title: widget.title,
+      icon: Symbols.check_circle_outline_rounded,
+      accentColor: context.colors.primary,
+      isSubmitting: saving,
+      submitLabel: context.l10n.save,
+      cancelLabel: context.l10n.cancel,
+      maxWidth: 460,
+      onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
+        context,
+        _draft,
+      ),
+      onSubmit: saving ? null : _save,
+      body: BlocBuilder<TaskDetailsCubit, TaskDetailsState>(
+        builder: (context, state) => Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (state case TaskDetailsReady(mutationFailure: final error?)) ...[
+              TaskDetailsModalError(error: error),
+              const SizedBox(height: 12),
+            ],
             TextField(
-              controller: controller,
+              controller: _controller,
               autofocus: true,
               maxLength: 500,
               minLines: 1,
               maxLines: 4,
+              enabled: !saving,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: .all(.circular(10)),
@@ -215,30 +316,31 @@ final class TaskDetailsTextEditor {
                   vertical: Sizes.p12,
                 ),
               ),
-              onSubmitted: (value) {
-                final normalized = value.trim();
-                if (normalized.isNotEmpty) {
-                  Navigator.of(dialogContext).pop(normalized);
-                }
-              },
+              onSubmitted: saving ? null : (_) => _save(),
             ),
           ],
         ),
       ),
-    );
-    controller.dispose();
-    return result;
+    ),
+  );
+
+  Future<void> _save() async {
+    final value = _controller.text.trim();
+    if (_saving.value || value.isEmpty) return;
+    _saving.value = true;
+    final source = context.read<TaskDetailsCubit>();
+    final saved = await widget.onSave(value);
+    if (!mounted) return;
+    if (source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      return;
+    }
+    if (saved) {
+      _draft?.clear();
+      Navigator.of(context).pop();
+    } else {
+      _saving.value = false;
+    }
   }
-}
-
-/// Tłumaczy typ relacji zadania tylko dla widoku zależności.
-final class TaskDependencyTypeLabeler {
-  const TaskDependencyTypeLabeler._();
-
-  static String label(BuildContext context, TaskDependencyType type) =>
-      switch (type) {
-        TaskDependencyType.blocks => context.l10n.taskDependencyBlocks,
-        TaskDependencyType.relatedTo => context.l10n.taskDependencyRelated,
-        TaskDependencyType.duplicate => context.l10n.taskDependencyDuplicate,
-      };
 }

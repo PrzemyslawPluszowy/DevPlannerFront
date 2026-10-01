@@ -191,6 +191,42 @@ void main() {
     expect(failure.statusCode, 409);
   });
 
+  test('Retry-After blocks explicit placement retry before deadline', () async {
+    final limited = ApiError(
+      type: ApiErrorType.badResponse,
+      message: 'Poczekaj przed ponowieniem.',
+      statusCode: 429,
+      apiCode: 'storage.rate_limited',
+      retryAfterUtc: DateTime.now().toUtc().add(const Duration(minutes: 2)),
+    );
+    stubPlacements(Right([placement(version: 7)]));
+    when(
+      () => repository.moveFilePlacement(
+        placementId: any(named: 'placementId'),
+        targetFolderId: any(named: 'targetFolderId'),
+        expectedVersion: any(named: 'expectedVersion'),
+        idempotencyKey: any(named: 'idempotencyKey'),
+      ),
+    ).thenAnswer((_) async => Left(limited));
+
+    await cubit.moveFileToFolder(
+      fileId: fileId,
+      targetFolderId: targetFolderId,
+      sourceFolderId: sourceFolderId,
+    );
+    await cubit.retryPlacementMove();
+
+    expect((cubit.state as StorageFileMutationFailure).apiError, limited);
+    verify(
+      () => repository.moveFilePlacement(
+        placementId: any(named: 'placementId'),
+        targetFolderId: any(named: 'targetFolderId'),
+        expectedVersion: any(named: 'expectedVersion'),
+        idempotencyKey: any(named: 'idempotencyKey'),
+      ),
+    ).called(1);
+  });
+
   test('ponowienie używa tego samego klucza idempotencji', () async {
     stubPlacements(Right([placement(version: 7)]));
     when(
@@ -313,11 +349,149 @@ void main() {
     );
   });
 
+  test('przeniesienie częściowe zachowuje pełny błąd API', () async {
+    final error = ApiError(
+      type: ApiErrorType.conflict,
+      message: 'Konflikt wersji placementu.',
+      statusCode: 409,
+      backendCode: 54,
+      apiCode: 'storage.placement_conflict',
+      contractCode: 'storage.placement_conflict',
+      fields: const {
+        'version': ['Odśwież folder.'],
+      },
+      traceId: 'placement-partial-trace',
+      retryAfterUtc: DateTime.utc(2026, 10, 1, 12),
+    );
+    when(() => repository.listFolderPlacements(any())).thenAnswer(
+      (_) async => Right([
+        placement(version: 7),
+        StorageFilePlacementResponse(
+          id: 'placement-2',
+          fileId: 'file-2',
+          folderId: sourceFolderId,
+          createdAtUtc: DateTime.utc(2026, 9, 20),
+          version: 9,
+        ),
+      ]),
+    );
+    when(
+      () => repository.moveFilePlacement(
+        placementId: any(named: 'placementId'),
+        targetFolderId: any(named: 'targetFolderId'),
+        expectedVersion: any(named: 'expectedVersion'),
+        idempotencyKey: any(named: 'idempotencyKey'),
+      ),
+    ).thenAnswer((invocation) async {
+      final id = invocation.namedArguments[#placementId] as String;
+      return id == 'placement-1' ? Right(placement(version: 8)) : Left(error);
+    });
+
+    await cubit.moveFilesToFolder(
+      fileIds: [fileId, 'file-2'],
+      targetFolderId: targetFolderId,
+      sourceFolderId: sourceFolderId,
+    );
+
+    final state = cubit.state;
+    expect(state, isA<StorageFileMutationPartialSuccess>());
+    final partial = state as StorageFileMutationPartialSuccess;
+    expect(partial.succeededIds, [fileId]);
+    expect(partial.failedIds, ['file-2']);
+    expect(partial.apiError, error);
+    expect(partial.apiError?.contractCode, error.contractCode);
+    expect(partial.apiError?.fields, error.fields);
+    expect(partial.apiError?.traceId, error.traceId);
+    expect(partial.apiError?.retryAfterUtc, error.retryAfterUtc);
+  });
+
   test(
-    'przeniesienie zbiorcze nazywa elementy, które się nie powiodły',
+    '429 bez Retry-After zatrzymuje batch i oznacza pominięte pliki',
     () async {
+      const error = ApiError(
+        type: ApiErrorType.badResponse,
+        message: 'Limit żądań.',
+        statusCode: 429,
+        apiCode: 'storage.rate_limited',
+        traceId: 'rate-limit-trace',
+      );
       when(() => repository.listFolderPlacements(any())).thenAnswer(
-        (_) async => Right([placement(version: 7)]),
+        (_) async => Right([
+          placement(version: 1),
+          StorageFilePlacementResponse(
+            id: 'placement-2',
+            fileId: 'file-2',
+            folderId: sourceFolderId,
+            createdAtUtc: DateTime.utc(2026, 9, 20),
+            version: 1,
+          ),
+          StorageFilePlacementResponse(
+            id: 'placement-3',
+            fileId: 'file-3',
+            folderId: sourceFolderId,
+            createdAtUtc: DateTime.utc(2026, 9, 20),
+            version: 1,
+          ),
+        ]),
+      );
+      when(
+        () => repository.moveFilePlacement(
+          placementId: any(named: 'placementId'),
+          targetFolderId: any(named: 'targetFolderId'),
+          expectedVersion: any(named: 'expectedVersion'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      ).thenAnswer((_) async => const Left(error));
+
+      await cubit.moveFilesToFolder(
+        fileIds: [fileId, 'file-2', 'file-3'],
+        targetFolderId: targetFolderId,
+        sourceFolderId: sourceFolderId,
+      );
+
+      final failure = cubit.state as StorageFileMutationFailure;
+      expect(failure.apiErrorsById, {fileId: error});
+      expect(failure.notAttemptedIds, ['file-2', 'file-3']);
+      verify(
+        () => repository.moveFilePlacement(
+          placementId: any(named: 'placementId'),
+          targetFolderId: any(named: 'targetFolderId'),
+          expectedVersion: any(named: 'expectedVersion'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
+    'future Retry-After preserves prior success and remaining IDs',
+    () async {
+      final error = ApiError(
+        type: ApiErrorType.badResponse,
+        message: 'Poczekaj przed kolejnym żądaniem.',
+        statusCode: 503,
+        apiCode: 'storage.temporarily_unavailable',
+        traceId: 'retry-after-trace',
+        retryAfterUtc: DateTime.now().toUtc().add(const Duration(minutes: 2)),
+      );
+      when(() => repository.listFolderPlacements(any())).thenAnswer(
+        (_) async => Right([
+          placement(version: 1),
+          StorageFilePlacementResponse(
+            id: 'placement-2',
+            fileId: 'file-2',
+            folderId: sourceFolderId,
+            createdAtUtc: DateTime.utc(2026, 9, 20),
+            version: 1,
+          ),
+          StorageFilePlacementResponse(
+            id: 'placement-3',
+            fileId: 'file-3',
+            folderId: sourceFolderId,
+            createdAtUtc: DateTime.utc(2026, 9, 20),
+            version: 1,
+          ),
+        ]),
       );
       when(
         () => repository.moveFilePlacement(
@@ -327,31 +501,61 @@ void main() {
           idempotencyKey: any(named: 'idempotencyKey'),
         ),
       ).thenAnswer((invocation) async {
-        final target = invocation.namedArguments[#targetFolderId];
-        return target == 'folder-zly' ? Left(conflict()) : Right(placement());
+        final id = invocation.namedArguments[#placementId] as String;
+        return id == 'placement-1' ? Right(placement(version: 2)) : Left(error);
       });
-      when(
-        () => repository.moveFilePlacement(
-          placementId: any(named: 'placementId'),
-          targetFolderId: 'folder-zly',
-          expectedVersion: any(named: 'expectedVersion'),
-          idempotencyKey: any(named: 'idempotencyKey'),
-        ),
-      ).thenAnswer((_) async => Left(conflict()));
 
-      // Dwa pliki, jeden wskaże folder, który odrzuci przeniesienie.
       await cubit.moveFilesToFolder(
-        fileIds: [fileId, fileId],
-        targetFolderId: 'folder-zly',
+        fileIds: [fileId, 'file-2', 'file-3'],
+        targetFolderId: targetFolderId,
         sourceFolderId: sourceFolderId,
       );
 
-      final state = cubit.state;
-      expect(state, isA<StorageFileMutationFailure>());
-      expect(
-        (state as StorageFileMutationFailure).apiCode,
-        'storage.placement_conflict',
-      );
+      final partial = cubit.state as StorageFileMutationPartialSuccess;
+      expect(partial.succeededIds, [fileId]);
+      expect(partial.failedIds, ['file-2']);
+      expect(partial.notAttemptedIds, ['file-3']);
+      expect(partial.apiErrorsById, {'file-2': error});
     },
   );
+  test('thrown API error preserves completed move and remaining IDs', () async {
+    final error = ApiError(
+      type: ApiErrorType.badResponse,
+      message: 'Serwer wymaga odczekania.',
+      statusCode: 503,
+      contractCode: 'storage.temporarily_unavailable',
+      traceId: 'thrown-move-trace',
+      fields: const {
+        'targetFolderId': ['Spróbuj później'],
+      },
+      retryAfterUtc: DateTime.now().toUtc().add(const Duration(minutes: 2)),
+    );
+    when(
+      () => repository.createFilePlacement(
+        fileId: any(named: 'fileId'),
+        folderId: any(named: 'folderId'),
+      ),
+    ).thenAnswer((invocation) async {
+      if (invocation.namedArguments[#fileId] == fileId) {
+        return Right(placement(version: 2));
+      }
+      return Future.error(error);
+    });
+    await cubit.moveFilesToFolder(
+      fileIds: [fileId, 'file-2', 'file-3'],
+      targetFolderId: targetFolderId,
+    );
+    expect(cubit.state, isA<StorageFileMutationPartialSuccess>());
+    final partial = cubit.state as StorageFileMutationPartialSuccess;
+    expect(partial.succeededIds, [fileId]);
+    expect(partial.failedIds, ['file-2']);
+    expect(partial.notAttemptedIds, ['file-3']);
+    expect(partial.apiErrorsById, {'file-2': error});
+    verifyNever(
+      () => repository.createFilePlacement(
+        fileId: 'file-3',
+        folderId: any(named: 'folderId'),
+      ),
+    );
+  });
 }

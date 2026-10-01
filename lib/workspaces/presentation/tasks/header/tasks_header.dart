@@ -13,6 +13,7 @@ class TasksHeader extends StatelessWidget {
     this.onProjectExited,
     this.commandBar,
     this.bulkBar,
+    this.taskSearchAction,
     this.showBulkBar = false,
     super.key,
   });
@@ -36,6 +37,9 @@ class TasksHeader extends StatelessWidget {
   /// Kontekstowy pasek akcji masowych aktywnego widoku.
   final Widget? bulkBar;
 
+  /// Entry point to the typed workspace-wide task search.
+  final Widget? taskSearchAction;
+
   /// Czy wiersz poleceń ma ustąpić miejsca paskowi akcji masowych.
   final bool showBulkBar;
 
@@ -51,6 +55,7 @@ class TasksHeader extends StatelessWidget {
     onProjectExited: onProjectExited,
     commandBar: commandBar,
     bulkBar: bulkBar,
+    taskSearchAction: taskSearchAction,
     showBulkBar: showBulkBar,
   );
 }
@@ -74,6 +79,7 @@ class _TasksHeader extends StatelessWidget {
     this.onProjectExited,
     this.commandBar,
     this.bulkBar,
+    this.taskSearchAction,
     this.showBulkBar = false,
   });
 
@@ -87,6 +93,7 @@ class _TasksHeader extends StatelessWidget {
   final VoidCallback? onProjectExited;
   final Widget? commandBar;
   final Widget? bulkBar;
+  final Widget? taskSearchAction;
   final bool showBulkBar;
 
   @override
@@ -133,6 +140,7 @@ class _TasksHeader extends StatelessWidget {
       onProjectExited: onProjectExited,
       commandBar: commandBar,
       bulkBar: bulkBar,
+      taskSearchAction: taskSearchAction,
       showBulkBar: showBulkBar,
     );
   }

@@ -1,8 +1,12 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/empty/task_cell_empty_placeholder.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_assignee_picker.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
@@ -16,10 +20,33 @@ export 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_
 enum AssigneeMenuAction { setOwner, toggleCollaborator, clear }
 
 /// Typ ładowania stron profili członków projektu.
-typedef EligibleProfilesPageLoader = Future<ProjectMemberProfilePage> Function({
-  String? query,
-  String? cursor,
-});
+/// Bezstanowy loader projektu, który zachowuje pełny wynik Either katalogu.
+final class EligibleProfilesPageLoader {
+  const EligibleProfilesPageLoader({
+    required this.repository,
+    required this.workspaceId,
+    required this.projectId,
+  });
+
+  final ProjectMemberProfilesRepository repository;
+  final String workspaceId;
+  final String projectId;
+
+  bool hasSameScopeAs(EligibleProfilesPageLoader other) =>
+      identical(repository, other.repository) &&
+      workspaceId == other.workspaceId &&
+      projectId == other.projectId;
+
+  Future<Either<ApiError, ProjectMemberProfilePage>> call({
+    String? query,
+    String? cursor,
+  }) => repository.listProfilesPage(
+    workspaceId: workspaceId,
+    projectId: projectId,
+    search: query,
+    cursor: cursor,
+  );
+}
 
 /// Tryb wyświetlania osób w kolumnie przypisania.
 enum TaskAssigneeColumnMode { all, owner, collaborators }
@@ -59,9 +86,10 @@ class TaskCellAssignees extends StatelessWidget {
     };
 
     final tooltip = switch (mode) {
-      TaskAssigneeColumnMode.owner => 'Ustaw właściciela',
-      TaskAssigneeColumnMode.collaborators => 'Dodaj współpracownika',
-      TaskAssigneeColumnMode.all => 'Przypisz osoby',
+      TaskAssigneeColumnMode.owner => context.l10n.tasksAssigneeSetPrimary,
+      TaskAssigneeColumnMode.collaborators =>
+        context.l10n.tasksListCollaborators,
+      TaskAssigneeColumnMode.all => context.l10n.taskDetailsAssignees,
     };
 
     return Builder(
@@ -102,7 +130,7 @@ class TaskCellAssignees extends StatelessWidget {
                         Flexible(
                           child: Text(
                             filtered
-                                .map((a) => _resolveName(a.userId))
+                                .map((a) => _resolveName(context, a.userId))
                                 .join(', '),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -120,10 +148,10 @@ class TaskCellAssignees extends StatelessWidget {
     );
   }
 
-  String _resolveName(String userId) {
+  String _resolveName(BuildContext context, String userId) {
     final profile = profiles[userId];
     return profile?.displayName?.trim().isNotEmpty == true
         ? profile!.displayName!.trim()
-        : 'Nieznany użytkownik';
+        : context.l10n.tasksAutomationsUnknownMember;
   }
 }

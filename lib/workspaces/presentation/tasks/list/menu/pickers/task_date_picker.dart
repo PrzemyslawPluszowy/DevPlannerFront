@@ -1,11 +1,8 @@
 import 'dart:async';
 
-import 'package:devplanner/foundation/l10n/l10n.dart';
-import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker_content.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 /// Wynik wyboru zakotwiczonej daty.
 class AnchoredDateSelection {
@@ -14,29 +11,48 @@ class AnchoredDateSelection {
   final DateTime? value;
 }
 
-/// Otwiera zakotwiczony kalendarz i normalizuje daty do początku dnia UTC.
-///
-/// Klasa obsługuje wyłącznie lokalne UI; zapis wybranej daty należy do
-/// callbacku właściciela widoku/Cubita.
+/// Otwiera wspólny, kompaktowy kalendarz używany przez Listę i Kanban.
 final class TaskDatePicker {
   const TaskDatePicker._();
 
   static DateTime? asUtcCalendarDate(DateTime? value) =>
       value == null ? null : DateTime.utc(value.year, value.month, value.day);
 
+  /// Maps a selected local calendar day onto an existing UTC task instant.
+  /// New values use local midnight; changing a date preserves its local clock.
+  static DateTime? asUtcTaskInstant(DateTime? selectedDay, DateTime? current) {
+    if (selectedDay == null) return null;
+    final localCurrent = current?.toLocal();
+    return DateTime(
+      selectedDay.year,
+      selectedDay.month,
+      selectedDay.day,
+      localCurrent?.hour ?? 0,
+      localCurrent?.minute ?? 0,
+      localCurrent?.second ?? 0,
+      localCurrent?.millisecond ?? 0,
+      localCurrent?.microsecond ?? 0,
+    ).toUtc();
+  }
+
   static Future<AnchoredDateSelection?> pick(
     BuildContext context, {
     required DateTime? initialValue,
     required Offset globalPosition,
     bool allowClear = true,
+    DateTime? firstDate,
+    DateTime? lastDate,
   }) async {
     final result = Completer<AnchoredDateSelection?>();
     await AppContextMenu.showCustom(
       context,
       globalPosition: globalPosition,
-      maxWidth: 350,
+      maxWidth: 348,
+      maxHeight: 560,
       contentBuilder: (_, dismiss) => CompactWebDatePickerPanel(
         initialValue: initialValue,
+        firstDate: firstDate ?? DateTime(1900),
+        lastDate: lastDate ?? DateTime(2100),
         onSelected: (value) {
           if (!result.isCompleted) {
             result.complete(AnchoredDateSelection(value));
@@ -58,17 +74,23 @@ final class TaskDatePicker {
   }
 }
 
-/// Kompaktowy panel wyboru daty zakotwiczony w menu kontekstowym wiersza.
+/// Stan i zasoby jednej instancji kalendarza w menu.
 class CompactWebDatePickerPanel extends StatefulWidget {
   const CompactWebDatePickerPanel({
     required this.initialValue,
+    required this.firstDate,
+    required this.lastDate,
     required this.onSelected,
-    this.onCleared,
     required this.onCancelled,
+    this.onCleared,
     super.key,
   });
 
+  /// Dzień kalendarzowy; wywołujący przelicza timestamp na lokalny czas przed
+  /// przekazaniem, jeśli jego pole reprezentuje moment zamiast samej daty.
   final DateTime? initialValue;
+  final DateTime firstDate;
+  final DateTime lastDate;
   final ValueChanged<DateTime> onSelected;
   final VoidCallback? onCleared;
   final VoidCallback onCancelled;
@@ -79,12 +101,49 @@ class CompactWebDatePickerPanel extends StatefulWidget {
 }
 
 class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
-  late final ValueNotifier<DateTime> _selectedDay = ValueNotifier(
-    widget.initialValue?.toLocal() ?? DateTime.now(),
-  );
-  late final ValueNotifier<DateTime> _displayedMonth = ValueNotifier(
-    DateTime(_selectedDay.value.year, _selectedDay.value.month),
-  );
+  late final ValueNotifier<DateTime> _selectedDay;
+  late final ValueNotifier<DateTime> _displayedMonth;
+  late final Listenable _calendarChanges;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = _clampDate(
+      widget.initialValue ?? DateTime.now(),
+    );
+    _selectedDay = ValueNotifier(initial);
+    _displayedMonth = ValueNotifier(DateTime(initial.year, initial.month));
+    _calendarChanges = Listenable.merge([_selectedDay, _displayedMonth]);
+  }
+
+  DateTime _clampDate(DateTime value) {
+    final day = DateTime(value.year, value.month, value.day);
+    final first = DateTime(
+      widget.firstDate.year,
+      widget.firstDate.month,
+      widget.firstDate.day,
+    );
+    final last = DateTime(
+      widget.lastDate.year,
+      widget.lastDate.month,
+      widget.lastDate.day,
+    );
+    if (day.isBefore(first)) return first;
+    if (day.isAfter(last)) return last;
+    return day;
+  }
+
+  @override
+  void didUpdateWidget(CompactWebDatePickerPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialValue != widget.initialValue ||
+        oldWidget.firstDate != widget.firstDate ||
+        oldWidget.lastDate != widget.lastDate) {
+      final next = _clampDate(widget.initialValue ?? DateTime.now());
+      _selectedDay.value = next;
+      _displayedMonth.value = DateTime(next.year, next.month);
+    }
+  }
 
   @override
   void dispose() {
@@ -93,298 +152,41 @@ class _CompactWebDatePickerPanelState extends State<CompactWebDatePickerPanel> {
     super.dispose();
   }
 
-  void _selectPreset(DateTime date) {
-    _selectedDay.value = date;
-    _displayedMonth.value = DateTime(date.year, date.month);
+  void _selectDate(DateTime value) {
+    _selectedDay.value = _clampDate(value);
   }
 
-  void _previousMonth() {
+  void _selectPreset(DateTime value) {
+    final selected = _clampDate(value);
+    _selectedDay.value = selected;
+    _displayedMonth.value = DateTime(selected.year, selected.month);
+  }
+
+  void _showPreviousMonth() {
     final month = _displayedMonth.value;
     _displayedMonth.value = DateTime(month.year, month.month - 1);
   }
 
-  void _nextMonth() {
+  void _showNextMonth() {
     final month = _displayedMonth.value;
     _displayedMonth.value = DateTime(month.year, month.month + 1);
   }
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: Listenable.merge([_selectedDay, _displayedMonth]),
-    builder: (context, _) {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final locale = Localizations.localeOf(context).toLanguageTag();
-      final monthName = DateFormat.yMMMM(locale).format(_displayedMonth.value);
-
-      return SizedBox(
-        width: 310,
-        child: Padding(
-          padding: const .all(Sizes.p8),
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildPresets(context, today),
-              const SizedBox(height: Sizes.p8),
-              _buildMonthHeader(context, monthName),
-              const SizedBox(height: Sizes.p4),
-              _buildWeekDaysHeader(context, locale),
-              const SizedBox(height: Sizes.p2),
-              _buildDaysGrid(context, today),
-              const SizedBox(height: Sizes.p8),
-              _buildActionFooter(context),
-            ],
-          ),
-        ),
-      );
-    },
+    animation: _calendarChanges,
+    builder: (context, _) => TaskDatePickerContent(
+      selectedDate: _selectedDay.value,
+      displayedMonth: _displayedMonth.value,
+      firstDate: widget.firstDate,
+      lastDate: widget.lastDate,
+      onSelected: _selectDate,
+      onPresetSelected: _selectPreset,
+      onShowPreviousMonth: _showPreviousMonth,
+      onShowNextMonth: _showNextMonth,
+      onCleared: widget.onCleared,
+      onCancelled: widget.onCancelled,
+      onConfirmed: () => widget.onSelected(_selectedDay.value),
+    ),
   );
-
-  Widget _buildPresets(BuildContext context, DateTime today) {
-    final presets = [
-      (
-        context.l10n.tasksListDatePresetToday,
-        today,
-      ),
-      (
-        context.l10n.tasksListDatePresetTomorrow,
-        today.add(const Duration(days: 1)),
-      ),
-      (
-        context.l10n.tasksListDatePresetNextWeek,
-        today.add(const Duration(days: 7)),
-      ),
-      (
-        context.l10n.tasksListDatePresetNextMonth,
-        DateTime(today.year, today.month + 1, today.day),
-      ),
-    ];
-
-    return Wrap(
-      spacing: Sizes.p4,
-      runSpacing: Sizes.p4,
-      children: [
-        for (final (label, date) in presets)
-          InkWell(
-            borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
-            onTap: () => _selectPreset(date),
-            child: Container(
-              padding: const .symmetric(
-                horizontal: Sizes.p6,
-                vertical: Sizes.p2,
-              ),
-              decoration: BoxDecoration(
-                color: _isSameDay(_selectedDay.value, date)
-                    ? context.colors.primaryContainer
-                    : context.colors.surfaceContainerHighest.withValues(
-                        alpha: .5,
-                      ),
-                borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
-                border: Border.all(
-                  color: _isSameDay(_selectedDay.value, date)
-                      ? context.colors.primary.withValues(alpha: .4)
-                      : context.colors.outlineVariant.withValues(alpha: .4),
-                ),
-              ),
-              child: Text(
-                label,
-                style: context.text.labelSmall?.copyWith(
-                  fontSize: 11,
-                  fontWeight: _isSameDay(_selectedDay.value, date)
-                      ? FontWeight.w700
-                      : FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildMonthHeader(BuildContext context, String monthName) => Row(
-    children: [
-      Text(
-        monthName,
-        style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-      ),
-      const Spacer(),
-      IconButton(
-        visualDensity: .compact,
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints.tightFor(width: 24, height: 24),
-        onPressed: _previousMonth,
-        icon: const Icon(Symbols.chevron_left_rounded, size: 18),
-      ),
-      IconButton(
-        visualDensity: .compact,
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints.tightFor(width: 24, height: 24),
-        onPressed: _nextMonth,
-        icon: const Icon(Symbols.chevron_right_rounded, size: 18),
-      ),
-    ],
-  );
-
-  Widget _buildWeekDaysHeader(BuildContext context, String locale) {
-    final firstDayOfWeek = MaterialLocalizations.of(context)
-        .firstDayOfWeekIndex;
-    final now = DateTime.now();
-    final currentDayOfWeek = now.weekday % 7;
-    final sunday = now.subtract(Duration(days: currentDayOfWeek));
-
-    final weekDays = List.generate(7, (index) {
-      final day = sunday.add(Duration(days: (firstDayOfWeek + index) % 7));
-      return DateFormat.E(locale).format(day).substring(0, 2);
-    });
-
-    return Row(
-      children: [
-        for (final day in weekDays)
-          Expanded(
-            child: Center(
-              child: Text(
-                day,
-                style: context.text.labelSmall?.copyWith(
-                  color: context.colors.onSurfaceVariant.withValues(alpha: .6),
-                  fontSize: context.tasksTheme.metaText.fontSize,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildDaysGrid(BuildContext context, DateTime today) {
-    final firstDayOfMonth = DateTime(
-      _displayedMonth.value.year,
-      _displayedMonth.value.month,
-    );
-    final daysInMonth = DateTime(
-      _displayedMonth.value.year,
-      _displayedMonth.value.month + 1,
-      0,
-    ).day;
-    final firstDayOfWeek = MaterialLocalizations.of(context)
-        .firstDayOfWeekIndex;
-    final startingWeekday =
-        (firstDayOfMonth.weekday % 7 - firstDayOfWeek + 7) % 7;
-    final totalCells = ((startingWeekday + daysInMonth) / 7).ceil() * 7;
-
-    return Column(
-      children: [
-        for (var row = 0; row < totalCells / 7; row++)
-          Row(
-            children: [
-              for (var col = 0; col < 7; col++) ...[
-                () {
-                  final cellIndex = row * 7 + col;
-                  final dayNumber = cellIndex - startingWeekday + 1;
-                  if (dayNumber < 1 || dayNumber > daysInMonth) {
-                    return const Expanded(child: SizedBox(height: 28));
-                  }
-                  final cellDate = DateTime(
-                    _displayedMonth.value.year,
-                    _displayedMonth.value.month,
-                    dayNumber,
-                  );
-                  final isSelected = _isSameDay(_selectedDay.value, cellDate);
-                  final isToday = _isSameDay(today, cellDate);
-
-                  return Expanded(
-                    child: InkWell(
-                      borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
-                      onTap: () => _selectedDay.value = cellDate,
-                      child: Container(
-                        height: 28,
-                        alignment: .center,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? context.colors.primary
-                              : isToday
-                              ? context.colors.primaryContainer.withValues(
-                                  alpha: .4,
-                                )
-                              : null,
-                          borderRadius: const BorderRadius.all(
-                            .circular(Sizes.p4),
-                          ),
-                        ),
-                        child: Text(
-                          '$dayNumber',
-                          style: context.text.bodySmall?.copyWith(
-                            color: isSelected
-                                ? context.colors.onPrimary
-                                : isToday
-                                ? context.colors.primary
-                                : context.colors.onSurface,
-                            fontWeight: isSelected || isToday
-                                ? FontWeight.w700
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }(),
-              ],
-            ],
-          ),
-      ],
-    );
-  }
-
-  Widget _buildActionFooter(BuildContext context) => Row(
-    children: [
-      if (widget.onCleared != null)
-        TextButton(
-          style: TextButton.styleFrom(
-            visualDensity: .compact,
-            padding: const .symmetric(horizontal: Sizes.p4, vertical: Sizes.p4),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          onPressed: widget.onCleared,
-          child: Text(
-            context.l10n.tasksListClearDateButton,
-            style: context.text.labelSmall,
-          ),
-        ),
-      const Spacer(),
-      TextButton(
-        style: TextButton.styleFrom(
-          visualDensity: .compact,
-          padding: const .symmetric(horizontal: Sizes.p4, vertical: Sizes.p4),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        onPressed: widget.onCancelled,
-        child: Text(
-          context.l10n.tasksListCancelButton,
-          style: context.text.labelSmall,
-        ),
-      ),
-      const SizedBox(width: Sizes.p4),
-      FilledButton(
-        style: FilledButton.styleFrom(
-          visualDensity: .compact,
-          padding: const .symmetric(horizontal: Sizes.p8, vertical: Sizes.p4),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        onPressed: () => widget.onSelected(_selectedDay.value),
-        child: Text(
-          context.l10n.tasksListSaveButton,
-          style: context.tasksTheme.controlText.copyWith(
-            color: context.tasksTheme.onAccent,
-          ),
-        ),
-      ),
-    ],
-  );
-
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 }

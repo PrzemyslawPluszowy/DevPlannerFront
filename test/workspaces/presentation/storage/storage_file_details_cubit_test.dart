@@ -9,6 +9,7 @@ import 'package:devplanner/workspaces/data/storage/models/storage_extended_model
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
 import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,6 +64,8 @@ class _UploadTransport implements TaskAttachmentUploadTransport {
     required StorageUploadTicketResponse ticket,
     required Uint8List bytes,
     String? mimeType,
+    OnStorageUploadProgress? onProgress,
+    UploadCancellationToken? cancelToken,
   }) => throw UnimplementedError();
 }
 

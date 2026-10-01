@@ -20,8 +20,11 @@ final class TaskDetailsCollaborationCommands {
   final void Function(TaskDetailsReady state) emitReady;
 
   Future<bool> replaceAssignees(List<String> userIds) async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
-    if (current is! TaskDetailsReady || current.isSaving) return false;
+    if (current is! TaskDetailsReady || current.isSaving || !current.canEdit) {
+      return false;
+    }
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,
@@ -34,6 +37,7 @@ final class TaskDetailsCollaborationCommands {
   }
 
   Future<bool> toggleWatching() async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
     if (current is! TaskDetailsReady || current.isSaving) return false;
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
@@ -47,6 +51,7 @@ final class TaskDetailsCollaborationCommands {
   }
 
   Future<bool> togglePinned() async {
+    if (coordinator.isClosed()) return false;
     final current = readState();
     if (current is! TaskDetailsReady || current.isSaving) return false;
     final isPinned = !current.details.isPinnedByMe;

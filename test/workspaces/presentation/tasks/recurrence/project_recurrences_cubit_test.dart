@@ -30,6 +30,12 @@ final class _FakeTaskRecurrenceRepository implements TaskRecurrenceRepository {
   int runNowCalls = 0;
 
   @override
+  Future<Either<ApiError, List<String>>> listSupportedTimeZones({
+    required String workspaceId,
+    required String projectId,
+  }) async => const Right([]);
+
+  @override
   Future<Either<ApiError, List<ProjectTaskRecurrenceItemResponse>>>
   getProjectRecurrences({
     required String workspaceId,

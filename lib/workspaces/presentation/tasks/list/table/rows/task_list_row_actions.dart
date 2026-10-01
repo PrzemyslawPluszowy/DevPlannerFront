@@ -134,12 +134,15 @@ final class TaskRowContextMenu {
           onTap: (menuContext) async {
             final selection = await TaskDatePicker.pick(
               menuContext,
-              initialValue: task.dueAtUtc,
+              initialValue: task.dueAtUtc?.toLocal(),
               globalPosition: position,
             );
             if (selection == null) return;
             await onDueDateChanged(
-              TaskDatePicker.asUtcCalendarDate(selection.value),
+              TaskDatePicker.asUtcTaskInstant(
+                selection.value,
+                task.dueAtUtc,
+              ),
             );
           },
         ),
@@ -148,7 +151,7 @@ final class TaskRowContextMenu {
           label: task.isPinned
               ? context.l10n.taskDetailsUnpin
               : context.l10n.taskDetailsPin,
-          icon: task.isPinned ? Symbols.push_pin : Symbols.push_pin_rounded,
+          icon: task.isPinned ? Symbols.star_rounded : Symbols.star,
           onTap: (_) => onPinnedChanged(!task.isPinned),
         ),
       if (onWatchingToggled != null)

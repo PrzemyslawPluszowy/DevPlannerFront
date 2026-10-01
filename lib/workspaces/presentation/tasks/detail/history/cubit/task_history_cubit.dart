@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_history_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,9 +17,10 @@ final class TaskHistoryLoading extends TaskHistoryState {
 }
 
 final class TaskHistoryFailure extends TaskHistoryState {
-  const TaskHistoryFailure(this.message);
+  const TaskHistoryFailure(this.message, {this.apiError});
 
   final String message;
+  final ApiError? apiError;
 }
 
 final class TaskHistoryReady extends TaskHistoryState {
@@ -27,12 +29,14 @@ final class TaskHistoryReady extends TaskHistoryState {
     required this.nextCursor,
     this.isLoadingMore = false,
     this.loadMoreError,
+    this.loadMoreFailure,
   });
 
   final List<TaskHistoryEventResponse> events;
   final String? nextCursor;
   final bool isLoadingMore;
   final String? loadMoreError;
+  final ApiError? loadMoreFailure;
 
   bool get hasMore => nextCursor != null;
 
@@ -41,11 +45,15 @@ final class TaskHistoryReady extends TaskHistoryState {
     String? nextCursor,
     bool? isLoadingMore,
     String? loadMoreError,
+    ApiError? loadMoreFailure,
     bool clearLoadMoreError = false,
   }) => TaskHistoryReady(
     events: events ?? this.events,
     nextCursor: nextCursor ?? this.nextCursor,
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    loadMoreFailure: clearLoadMoreError
+        ? null
+        : loadMoreFailure ?? this.loadMoreFailure,
     loadMoreError: clearLoadMoreError
         ? null
         : loadMoreError ?? this.loadMoreError,
@@ -59,6 +67,7 @@ final class TaskHistoryCubit extends Cubit<TaskHistoryState> {
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
+    this.onAccessLost,
   }) : super(const TaskHistoryInitial());
 
   final TaskHistoryRepository repository;
@@ -66,6 +75,7 @@ final class TaskHistoryCubit extends Cubit<TaskHistoryState> {
   final String projectId;
   final String taskId;
   int _requestSerial = 0;
+  final void Function(ApiError)? onAccessLost;
 
   /// Ponownie pobiera pierwszą stronę, np. po błędzie lub po otwarciu panelu.
   Future<void> load() => _fetch(reset: true);
@@ -85,6 +95,7 @@ final class TaskHistoryCubit extends Cubit<TaskHistoryState> {
     required bool reset,
     TaskHistoryReady? current,
   }) async {
+    if (isClosed) return;
     final serial = ++_requestSerial;
     if (reset) {
       emit(const TaskHistoryLoading());
@@ -102,13 +113,19 @@ final class TaskHistoryCubit extends Cubit<TaskHistoryState> {
 
     result.fold(
       (error) {
-        if (reset) {
-          emit(TaskHistoryFailure(error.message));
+        final accessFailure =
+            error.type == ApiErrorType.unauthorized ||
+            error.type == ApiErrorType.forbidden ||
+            error.type == ApiErrorType.notFound;
+        if (reset || accessFailure) {
+          emit(TaskHistoryFailure(error.message, apiError: error));
+          if (accessFailure) onAccessLost?.call(error);
         } else {
           emit(
             current!.copyWith(
               isLoadingMore: false,
               loadMoreError: error.message,
+              loadMoreFailure: error,
             ),
           );
         }

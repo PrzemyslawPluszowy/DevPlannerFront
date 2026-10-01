@@ -6,10 +6,16 @@ import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart
 import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/recurrence/cubit/task_recurrence_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/recurrence/cubit/task_recurrence_time_zones_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/recurrence/cubit/task_recurrence_time_zones_state.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _TaskRecurrenceRepository implements TaskRecurrenceRepository {
   Either<ApiError, TaskRecurrenceResponse>? getResult;
+  Object? getThrown;
+  Object? createThrown;
+  Object? deleteThrown;
   Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>? createResult;
   Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>? updateResult;
   Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>? pauseResult;
@@ -18,13 +24,33 @@ final class _TaskRecurrenceRepository implements TaskRecurrenceRepository {
   UpdateTaskRecurrencePayload? updatePayload;
   int? pauseVersion;
   int? resumeVersion;
+  Either<ApiError, List<String>>? timeZonesResult;
+  Object? timeZonesThrown;
+  int timeZoneRequests = 0;
+
+  @override
+  Future<Either<ApiError, List<String>>> listSupportedTimeZones({
+    required String workspaceId,
+    required String projectId,
+  }) async {
+    timeZoneRequests++;
+    if (timeZonesThrown case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
+    return timeZonesResult!;
+  }
 
   @override
   Future<Either<ApiError, TaskRecurrenceResponse>> get({
     required String workspaceId,
     required String projectId,
     required String taskId,
-  }) async => getResult!;
+  }) async {
+    if (getThrown case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
+    return getResult!;
+  }
 
   @override
   Future<Either<ApiError, TaskMutationResponse<TaskRecurrenceResponse>>>
@@ -35,6 +61,9 @@ final class _TaskRecurrenceRepository implements TaskRecurrenceRepository {
     required CreateTaskRecurrencePayload payload,
   }) async {
     createPayload = payload;
+    if (createThrown case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
     return createResult!;
   }
 
@@ -79,14 +108,19 @@ final class _TaskRecurrenceRepository implements TaskRecurrenceRepository {
     required String projectId,
     required String taskId,
     int? expectedVersion,
-  }) async => right(
-    TaskMutationResponse(
-      taskId: taskId,
-      taskVersion: 1,
-      taskUpdatedAtUtc: DateTime.utc(2026),
-      data: true,
-    ),
-  );
+  }) async {
+    if (deleteThrown case final error?) {
+      Error.throwWithStackTrace(error, StackTrace.current);
+    }
+    return right(
+      TaskMutationResponse(
+        taskId: taskId,
+        taskVersion: 1,
+        taskUpdatedAtUtc: DateTime.utc(2026),
+        data: true,
+      ),
+    );
+  }
 
   @override
   Future<Either<ApiError, List<ProjectTaskRecurrenceItemResponse>>>
@@ -147,6 +181,111 @@ TaskRecurrenceCubit _cubit(_TaskRecurrenceRepository repository) =>
     );
 
 void main() {
+  test(
+    'ładuje katalog ze stanu początkowego Loading, sortuje i filtruje',
+    () async {
+      final repository = _TaskRecurrenceRepository()
+        ..timeZonesResult = const Right([
+          'Europe/Warsaw',
+          'America/New_York',
+        ]);
+      final cubit = TaskRecurrenceTimeZonesCubit(
+        repository: repository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        currentId: 'UTC',
+      );
+
+      await cubit.load();
+
+      final ready = cubit.state as TaskRecurrenceTimeZonesReady;
+      expect(repository.timeZoneRequests, 1);
+      expect(ready.allZones, ['America/New_York', 'Europe/Warsaw']);
+      expect(ready.currentIdIsUnlisted, isTrue);
+
+      cubit.search('warsaw');
+      expect(
+        (cubit.state as TaskRecurrenceTimeZonesReady).visibleZones,
+        ['Europe/Warsaw'],
+      );
+      await cubit.close();
+    },
+  );
+
+  test('zachowuje typowany błąd katalogu zamiast pustej listy', () async {
+    const failure = ApiError(
+      type: ApiErrorType.forbidden,
+      message: 'Brak dostępu',
+      apiCode: 'project_forbidden',
+      contractCode: 'project_forbidden',
+      traceId: 'trace-zone-1',
+    );
+    final repository = _TaskRecurrenceRepository()
+      ..timeZonesResult = const Left(failure);
+    final cubit = TaskRecurrenceTimeZonesCubit(
+      repository: repository,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      currentId: 'UTC',
+    );
+
+    await cubit.load();
+
+    final state = cubit.state as TaskRecurrenceTimeZonesFailure;
+    expect(state.error.apiCode, 'project_forbidden');
+    expect(state.error.traceId, 'trace-zone-1');
+    expect(repository.timeZoneRequests, 1);
+    await cubit.close();
+  });
+
+  test('nie zostawia katalogu w Loading po nieoczekiwanym throw', () async {
+    final repository = _TaskRecurrenceRepository()
+      ..timeZonesThrown = StateError('private transport detail')
+      ..timeZonesResult = const Right(['UTC']);
+    final cubit = TaskRecurrenceTimeZonesCubit(
+      repository: repository,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      currentId: 'Windows/UTC',
+    );
+
+    await cubit.load();
+
+    final failed = cubit.state as TaskRecurrenceTimeZonesFailure;
+    expect(failed.error.apiCode, 'task_recurrence_time_zones_load_failed');
+    expect(failed.error.message, isEmpty);
+    expect(repository.timeZoneRequests, 1);
+
+    repository.timeZonesThrown = null;
+    await cubit.load();
+    expect(cubit.state, isA<TaskRecurrenceTimeZonesReady>());
+    expect(repository.timeZoneRequests, 2);
+    await cubit.close();
+  });
+
+  test('Dio unknown bez odpowiedzi nie ujawnia surowej wiadomości', () async {
+    final repository = _TaskRecurrenceRepository()
+      ..timeZonesThrown = DioException(
+        requestOptions: RequestOptions(path: '/task-time-zones'),
+        message: 'private socket path and host detail',
+      )
+      ..timeZonesResult = const Right(['UTC']);
+    final cubit = TaskRecurrenceTimeZonesCubit(
+      repository: repository,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      currentId: 'UTC',
+    );
+
+    await cubit.load();
+
+    final failed = cubit.state as TaskRecurrenceTimeZonesFailure;
+    expect(failed.error.apiCode, 'task_recurrence_time_zones_load_failed');
+    expect(failed.error.message, isEmpty);
+    expect(failed.error.message, isNot(contains('private socket')));
+    await cubit.close();
+  });
+
   test('tworzy serię na wersji detailu taska', () async {
     final repository = _TaskRecurrenceRepository()
       ..createResult = Right(_mutation(_recurrence()));
