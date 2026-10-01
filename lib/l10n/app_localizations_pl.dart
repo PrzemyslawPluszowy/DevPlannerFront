@@ -12362,4 +12362,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get projectPeopleConnectionUnavailable =>
       'Połączenie obecności jest niedostępne. Status Twojej sesji może być nieaktualny.';
+
+  @override
+  String get chatAttachmentUploadFailed =>
+      'Nie udało się przygotować załącznika. Spróbuj ponownie.';
 }

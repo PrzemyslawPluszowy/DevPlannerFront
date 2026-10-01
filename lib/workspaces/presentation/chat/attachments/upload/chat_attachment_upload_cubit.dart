@@ -1,4 +1,7 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_prepared_file.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_upload_exception.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/ports/chat_attachment_failure_source.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/ports/chat_attachment_upload_owner.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,8 +33,9 @@ final class ChatAttachmentUploadReady extends ChatAttachmentUploadState {
 
 /// Błąd terminalny; sesja została anulowana zanim stan został wyemitowany.
 final class ChatAttachmentUploadFailed extends ChatAttachmentUploadState {
-  const ChatAttachmentUploadFailed(this.message);
+  const ChatAttachmentUploadFailed(this.message, {this.error});
   final String message;
+  final ApiError? error;
 }
 
 /// Port 7C/Storage ukrywający kontrakt HTTP i presigned URL przed presentation.
@@ -75,7 +79,7 @@ enum ChatAttachmentRemoteStatus {
 
 /// Owner fail-closed lifecycle jednego wybranego pliku; composer nie zna API ani sesji.
 final class ChatAttachmentUploadCubit extends Cubit<ChatAttachmentUploadState>
-    implements ChatAttachmentUploadOwner {
+    implements ChatAttachmentUploadOwner, ChatAttachmentFailureSource {
   ChatAttachmentUploadCubit(
     this._port, {
     this.maxPolls = 20,
@@ -87,6 +91,16 @@ final class ChatAttachmentUploadCubit extends Cubit<ChatAttachmentUploadState>
   String? _conversationId;
   String? _sessionId;
   var _generation = 0;
+  bool _closing = false;
+
+  bool _isCurrent(int generation) =>
+      !isClosed && !_closing && generation == _generation;
+
+  @override
+  ApiError? get uploadError => switch (state) {
+    ChatAttachmentUploadFailed(:final error) => error,
+    _ => null,
+  };
 
   @override
   ChatAttachmentPreparedFile? get preparedFile => switch (state) {
@@ -100,13 +114,15 @@ final class ChatAttachmentUploadCubit extends Cubit<ChatAttachmentUploadState>
 
   @override
   Future<void> start(String conversationId, StorageUploadInput input) async {
-    await cancel();
+    if (isClosed || _closing) return;
     final generation = ++_generation;
+    await _cancelSilently();
+    if (!_isCurrent(generation)) return;
     _conversationId = conversationId;
     try {
       emit(const ChatAttachmentUploadWorking('session'));
       final session = await _port.createSession(conversationId);
-      if (generation != _generation) {
+      if (!_isCurrent(generation)) {
         await _port.cancelSession(conversationId, session.id);
         return;
       }
@@ -119,7 +135,7 @@ final class ChatAttachmentUploadCubit extends Cubit<ChatAttachmentUploadState>
           sessionId: session.id,
           sourceStorageFileId: privateSourceId,
         );
-        if (generation != _generation) {
+        if (!_isCurrent(generation)) {
           await _port.cancelSession(conversationId, session.id);
           return;
         }
@@ -131,35 +147,61 @@ final class ChatAttachmentUploadCubit extends Cubit<ChatAttachmentUploadState>
         sessionId: session.id,
         input: input,
       );
+      if (!_isCurrent(generation)) return;
       await _port.upload(ticket, input);
+      if (!_isCurrent(generation)) return;
       await _port.complete(ticket.storageFileId);
+      if (!_isCurrent(generation)) return;
       for (var attempt = 0; attempt < maxPolls; attempt++) {
-        if (generation != _generation) return;
+        if (!_isCurrent(generation)) return;
         final status = await _port.status(ticket.storageFileId);
-        if (generation != _generation) return;
+        if (!_isCurrent(generation)) return;
         if (status == ChatAttachmentRemoteStatus.cleanReady) {
           emit(ChatAttachmentUploadReady(ticket.storageFileId, session.id));
           return;
         }
         if (status == ChatAttachmentRemoteStatus.infected ||
             status == ChatAttachmentRemoteStatus.failed) {
-          throw StateError('Plik nie przeszedł kontroli bezpieczeństwa.');
+          throw const ChatAttachmentUploadException(
+            ApiError(
+              type: ApiErrorType.validation,
+              message: '',
+              apiCode: 'chat.attachment_scan_rejected',
+            ),
+          );
         }
         emit(const ChatAttachmentUploadWorking('scan'));
         await Future<void>.delayed(pollDelay * (attempt + 1));
       }
-      throw StateError('Przekroczono czas oczekiwania na skanowanie pliku.');
+      throw const ChatAttachmentUploadException(
+        ApiError(
+          type: ApiErrorType.receiveTimeout,
+          message: '',
+          apiCode: 'chat.attachment_scan_timeout',
+        ),
+      );
     } catch (error) {
-      if (generation != _generation) return;
+      if (!_isCurrent(generation)) return;
       await _cancelSilently();
-      if (!isClosed) emit(ChatAttachmentUploadFailed('$error'));
+      if (_isCurrent(generation)) {
+        final safeError = switch (error) {
+          ChatAttachmentUploadException(:final error) => error,
+          ApiError() => error,
+          _ => const ApiError(
+            type: ApiErrorType.unknown,
+            message: '',
+            apiCode: 'chat.attachment_upload_failed',
+          ),
+        };
+        emit(ChatAttachmentUploadFailed(safeError.message, error: safeError));
+      }
     }
   }
 
   Future<void> cancel() async {
-    ++_generation;
+    final generation = ++_generation;
     await _cancelSilently();
-    if (!isClosed) emit(const ChatAttachmentUploadIdle());
+    if (_isCurrent(generation)) emit(const ChatAttachmentUploadIdle());
   }
 
   @override
@@ -184,6 +226,8 @@ final class ChatAttachmentUploadCubit extends Cubit<ChatAttachmentUploadState>
 
   @override
   Future<void> close() async {
+    _closing = true;
+    ++_generation;
     await _cancelSilently();
     return super.close();
   }

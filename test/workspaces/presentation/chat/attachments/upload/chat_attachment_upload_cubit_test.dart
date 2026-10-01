@@ -98,6 +98,26 @@ void main() {
       expect(port.cancelled, contains(('old', 'stale')));
     },
   );
+
+  for (final stage in ['ticket', 'upload']) {
+    test('closing during $stage prevents further upload and polling', () async {
+      final port = FakePort([ChatAttachmentRemoteStatus.cleanReady]);
+      if (stage == 'ticket') port.delayedTicket = Completer();
+      if (stage == 'upload') port.delayedUpload = Completer();
+      final cubit = ChatAttachmentUploadCubit(port, pollDelay: Duration.zero);
+      final pending = cubit.start('conversation', input());
+      await Future<void>.delayed(Duration.zero);
+      await cubit.close();
+      port.delayedTicket?.complete(const ChatAttachmentTicket('file-1'));
+      port.delayedUpload?.complete();
+      await pending;
+      expect(port.completions, 0);
+      expect(port.polls, 0);
+      expect(port.cancelled, [('conversation', 'session-1')]);
+      await cubit.start('after-close', input());
+      expect(port.creates, 1);
+    });
+  }
 }
 
 final class FakePort implements ChatAttachmentUploadPort {
@@ -109,6 +129,9 @@ final class FakePort implements ChatAttachmentUploadPort {
   Completer<ChatAttachmentUploadSession>? firstCreate;
   int creates = 0;
   int polls = 0;
+  int completions = 0;
+  Completer<ChatAttachmentTicket>? delayedTicket;
+  Completer<void>? delayedUpload;
   @override
   Future<ChatAttachmentUploadSession> createSession(
     String conversationId,
@@ -132,14 +155,23 @@ final class FakePort implements ChatAttachmentUploadPort {
   Future<ChatAttachmentTicket> createTicket({
     required String sessionId,
     required StorageUploadInput input,
-  }) async => const ChatAttachmentTicket('file-1');
+  }) async => delayedTicket != null
+      ? delayedTicket!.future
+      : const ChatAttachmentTicket('file-1');
   @override
-  Future<void> complete(String storageFileId) async {}
+  Future<void> complete(String storageFileId) async {
+    completions++;
+  }
+
   @override
   Future<void> upload(
     ChatAttachmentTicket ticket,
     StorageUploadInput input,
-  ) async => uploads++;
+  ) async {
+    uploads++;
+    await delayedUpload?.future;
+  }
+
   @override
   Future<ChatAttachmentRemoteStatus> status(String storageFileId) async =>
       statuses[polls++ < statuses.length ? polls - 1 : statuses.length - 1];

@@ -8,6 +8,7 @@ import 'package:devplanner/shared/presentation/widgets/app_toast.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_composer_coordinator.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_drop_input_adapter.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_upload_error.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_local_image_provider_stub.dart'
     if (dart.library.io) 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_local_image_provider_io.dart'
     as local_image;
@@ -103,11 +104,12 @@ final class ChatAttachmentComposerControls extends StatelessWidget {
                             failed: true,
                           ),
                         if (queueState
-                            is ChatAttachmentComposerCoordinatorFailed)
+                            is ChatAttachmentComposerCoordinatorFailed) ...[
+                          ChatAttachmentUploadError(error: queueState.error),
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-                              onPressed: _locked
+                              onPressed: _locked || !coordinator.canPrepare
                                   ? null
                                   : () => coordinator.prepare(
                                       conversationId,
@@ -117,6 +119,7 @@ final class ChatAttachmentComposerControls extends StatelessWidget {
                               ),
                             ),
                           ),
+                        ],
                       ],
                     ),
                   );

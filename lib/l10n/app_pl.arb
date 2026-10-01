@@ -3872,5 +3872,6 @@
   "projectPeopleEmpty": "Brak osób do wyświetlenia.",
   "projectPeopleNoMatches": "Nie znaleziono pasujących osób.",
   "projectPeopleYou": "Ty",
-  "projectPeopleConnectionUnavailable": "Połączenie obecności jest niedostępne. Status Twojej sesji może być nieaktualny."
+  "projectPeopleConnectionUnavailable": "Połączenie obecności jest niedostępne. Status Twojej sesji może być nieaktualny.",
+  "chatAttachmentUploadFailed": "Nie udało się przygotować załącznika. Spróbuj ponownie."
 }

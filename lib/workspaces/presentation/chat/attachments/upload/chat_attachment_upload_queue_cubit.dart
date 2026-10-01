@@ -1,4 +1,6 @@
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/ports/chat_attachment_failure_source.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/selection/cubit/chat_attachment_selection_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,9 +37,10 @@ final class ChatAttachmentUploadQueueReady
 /// Błąd jednego pliku; cała sesja composera została fail-closed anulowana.
 final class ChatAttachmentUploadQueueFailed
     extends ChatAttachmentUploadQueueState {
-  const ChatAttachmentUploadQueueFailed(this.message);
+  const ChatAttachmentUploadQueueFailed(this.message, {this.error});
 
   final String message;
+  final ApiError? error;
 }
 
 /// Fabryka ownerów pojedynczych plików; umożliwia testy bez API i widgetów.
@@ -94,6 +97,7 @@ final class ChatAttachmentUploadQueueCubit
     emit(ChatAttachmentUploadQueueWorking(owners.length));
 
     var failed = false;
+    ApiError? failure;
     Future<void> failClosed() async {
       if (failed) return;
       failed = true;
@@ -108,9 +112,14 @@ final class ChatAttachmentUploadQueueCubit
             acceptedAttachments[index].input,
           );
           if (generation == _generation && owners[index].preparedFile == null) {
+            final owner = owners[index];
+            if (owner is ChatAttachmentFailureSource) {
+              failure ??= (owner as ChatAttachmentFailureSource).uploadError;
+            }
             await failClosed();
           }
-        } on Object {
+        } on Object catch (error) {
+          if (error is ApiError) failure ??= error;
           if (generation == _generation) await failClosed();
         }
       }),
@@ -122,8 +131,9 @@ final class ChatAttachmentUploadQueueCubit
       _owners.clear();
       if (!isClosed) {
         emit(
-          const ChatAttachmentUploadQueueFailed(
+          ChatAttachmentUploadQueueFailed(
             'Co najmniej jeden załącznik nie przeszedł kontroli bezpieczeństwa.',
+            error: failure,
           ),
         );
       }

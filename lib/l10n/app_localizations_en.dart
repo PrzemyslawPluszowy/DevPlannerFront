@@ -12261,4 +12261,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get projectPeopleConnectionUnavailable =>
       'Presence connection is unavailable. Your session status may be out of date.';
+
+  @override
+  String get chatAttachmentUploadFailed =>
+      'Could not prepare the attachment. Please try again.';
 }

@@ -1,12 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/chat/attachments/chat_attachment_upload_port_adapter.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_session.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_upload_exception.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/ports/chat_attachment_session_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
@@ -120,6 +122,11 @@ void main() {
       );
       await adapter.upload(chatTicket, input);
       await adapter.complete(chatTicket.storageFileId);
+      expect(
+        await adapter.status(chatTicket.storageFileId),
+        ChatAttachmentRemoteStatus.cleanReady,
+      );
+      verifyNever(() => storageRepository.getFileDetails(any()));
 
       expect(chatTicket.storageFileId, 'file-1');
       final payload =
@@ -148,6 +155,124 @@ void main() {
       ).called(1);
     },
   );
+
+  test(
+    'pending concurrent completion is refreshed through idempotent complete',
+    () async {
+      when(() => storageRepository.requestUploadTicket(any()))
+          .thenAnswer((_) async => Right(ticket));
+      var completions = 0;
+      when(
+        () => storageRepository.completeUpload(
+          fileId: 'file-1',
+          fileSizeBytes: 3,
+        ),
+      ).thenAnswer(
+        (_) async => Right(
+          ++completions == 1
+              ? _file(
+                  scanStatus: StorageScanStatus.pending,
+                  processingStatus: StorageProcessingStatus.processing,
+                )
+              : _file(),
+        ),
+      );
+      await adapter.createTicket(sessionId: 'session-1', input: input);
+      await adapter.complete('file-1');
+      expect(
+        await adapter.status('file-1'),
+        ChatAttachmentRemoteStatus.cleanReady,
+      );
+      expect(completions, 2);
+      verifyNever(() => storageRepository.getFileDetails(any()));
+    },
+  );
+
+  for (final scan in [StorageScanStatus.infected, StorageScanStatus.skipped]) {
+    test(
+      'completion $scan cannot expose a clean prepared attachment',
+      () async {
+        when(() => storageRepository.requestUploadTicket(any()))
+            .thenAnswer((_) async => Right(ticket));
+        when(
+          () => storageRepository.completeUpload(
+            fileId: 'file-1',
+            fileSizeBytes: 3,
+          ),
+        ).thenAnswer((_) async => Right(_file(scanStatus: scan)));
+        await adapter.createTicket(sessionId: 'session-1', input: input);
+        await adapter.complete('file-1');
+        expect(
+          await adapter.status('file-1'),
+          scan == StorageScanStatus.infected
+              ? ChatAttachmentRemoteStatus.infected
+              : ChatAttachmentRemoteStatus.failed,
+        );
+        verifyNever(() => storageRepository.getFileDetails(any()));
+      },
+    );
+  }
+
+  test(
+    'completion failure preserves every API diagnostic in the port exception',
+    () async {
+      const error = ApiError(
+        type: ApiErrorType.validation,
+        message: 'QA validation',
+        statusCode: 422,
+        apiCode: 'qa.upload',
+        contractCode: 'qa.contract',
+        traceId: 'qa.trace',
+        fields: {
+          'file': ['QA file error'],
+        },
+      );
+      when(() => storageRepository.requestUploadTicket(any()))
+          .thenAnswer((_) async => Right(ticket));
+      when(
+        () => storageRepository.completeUpload(
+          fileId: 'file-1',
+          fileSizeBytes: 3,
+        ),
+      ).thenAnswer((_) async => const Left(error));
+      await adapter.createTicket(sessionId: 'session-1', input: input);
+      await expectLater(
+        adapter.complete('file-1'),
+        throwsA(
+          isA<ChatAttachmentUploadException>().having(
+            (e) => e.error,
+            'error',
+            same(error),
+          ),
+        ),
+      );
+      verifyNever(() => storageRepository.getFileDetails(any()));
+    },
+  );
+
+  test('failed cancellation still removes local reservation', () async {
+    when(() => storageRepository.requestUploadTicket(any()))
+        .thenAnswer((_) async => Right(ticket));
+    when(
+      () => sessionRepository.cancelAttachmentSession(
+        conversationId: 'conversation-1',
+        sessionId: 'session-1',
+      ),
+    ).thenAnswer(
+      (_) async =>
+          const Left(ApiError(type: ApiErrorType.connection, message: 'QA')),
+    );
+    final created = await adapter.createTicket(
+      sessionId: 'session-1',
+      input: input,
+    );
+    await expectLater(
+      adapter.cancelSession('conversation-1', 'session-1'),
+      throwsA(isA<ChatAttachmentUploadException>()),
+    );
+    await expectLater(adapter.upload(created, input), throwsStateError);
+    verifyNever(() => uploadTransport.upload(ticket: ticket, input: input));
+  });
 
   for (final testCase
       in <

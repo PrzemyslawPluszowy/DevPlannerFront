@@ -2,8 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
-import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
+import 'package:devplanner/workspaces/domain/chat/attachments/models/chat_attachment_upload_exception.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/ports/chat_attachment_session_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
@@ -100,34 +100,62 @@ final class ChatAttachmentUploadPortAdapter
   @override
   Future<void> complete(String storageFileId) async {
     final reservation = _reservationFor(storageFileId);
-    await _unwrap(
+    final file = await _unwrap(
       _storageRepository.completeUpload(
         fileId: storageFileId,
         fileSizeBytes: reservation.fileSizeBytes,
       ),
     );
-    _reservations.remove(storageFileId);
+    // Comment nie jest jeszcze przypięty do wiadomości. Odczyt metadata
+    // ma inny ACL; wynik finalizacji jest autorytatywnym snapshotem skanu.
+    if (identical(_reservations[storageFileId], reservation)) {
+      _reservations[storageFileId] = reservation.withCompletedFile(file);
+    }
   }
 
   @override
   Future<ChatAttachmentRemoteStatus> status(String storageFileId) async {
+    final reservation = _reservations[storageFileId];
+    if (reservation != null) {
+      var file = reservation.completedFile;
+      if (file == null) {
+        throw StateError('Upload załącznika Chat nie został zatwierdzony.');
+      }
+      var remoteStatus = _mapStatus(file);
+      if (remoteStatus == ChatAttachmentRemoteStatus.pending ||
+          remoteStatus == ChatAttachmentRemoteStatus.processing) {
+        // Równoległa finalizacja może oddać snapshot sprzed zatwierdzenia.
+        // Complete jest idempotentne i ponownie sprawdza prawa do sesji.
+        await complete(storageFileId);
+        file = _reservationFor(storageFileId).completedFile!;
+        remoteStatus = _mapStatus(file);
+      }
+      if (remoteStatus != ChatAttachmentRemoteStatus.pending &&
+          remoteStatus != ChatAttachmentRemoteStatus.processing) {
+        _reservations.remove(storageFileId);
+      }
+      return remoteStatus;
+    }
     final details = await _unwrap(
       _storageRepository.getFileDetails(storageFileId),
     );
-    return _mapStatus(details);
+    return _mapStatus(details.file);
   }
 
   @override
   Future<void> cancelSession(String conversationId, String sessionId) async {
-    await _unwrap(
-      _sessionRepository.cancelAttachmentSession(
-        conversationId: conversationId,
-        sessionId: sessionId,
-      ),
-    );
-    _reservations.removeWhere(
-      (_, reservation) => reservation.sessionId == sessionId,
-    );
+    try {
+      await _unwrap(
+        _sessionRepository.cancelAttachmentSession(
+          conversationId: conversationId,
+          sessionId: sessionId,
+        ),
+      );
+    } finally {
+      _reservations.removeWhere(
+        (_, reservation) => reservation.sessionId == sessionId,
+      );
+    }
   }
 
   _ChatAttachmentUploadReservation _reservationFor(String storageFileId) {
@@ -140,14 +168,13 @@ final class ChatAttachmentUploadPortAdapter
 
   static Future<T> _unwrap<T>(Future<Either<ApiError, T>> result) async =>
       (await result).fold(
-        (error) => throw _ChatAttachmentUploadPortException(error),
+        (error) => throw ChatAttachmentUploadException(error),
         (value) => value,
       );
 
   static ChatAttachmentRemoteStatus _mapStatus(
-    StorageFileDetailsResponse details,
+    StorageFileResponse file,
   ) {
-    final file = details.file;
     if (file.scanStatus == StorageScanStatus.infected) {
       return ChatAttachmentRemoteStatus.infected;
     }
@@ -167,23 +194,25 @@ final class ChatAttachmentUploadPortAdapter
   }
 }
 
-final class _ChatAttachmentUploadPortException implements Exception {
-  const _ChatAttachmentUploadPortException(this.error);
-
-  final ApiError error;
-
-  @override
-  String toString() => error.message;
-}
-
 final class _ChatAttachmentUploadReservation {
   const _ChatAttachmentUploadReservation({
     required this.sessionId,
     required this.ticket,
     required this.fileSizeBytes,
+    this.completedFile,
   });
 
   final String sessionId;
   final StorageUploadTicketResponse ticket;
   final int fileSizeBytes;
+  final StorageFileResponse? completedFile;
+
+  _ChatAttachmentUploadReservation withCompletedFile(
+    StorageFileResponse file,
+  ) => _ChatAttachmentUploadReservation(
+    sessionId: sessionId,
+    ticket: ticket,
+    fileSizeBytes: fileSizeBytes,
+    completedFile: file,
+  );
 }

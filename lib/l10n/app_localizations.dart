@@ -21869,6 +21869,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Presence connection is unavailable. Your session status may be out of date.'**
   String get projectPeopleConnectionUnavailable;
+
+  /// No description provided for @chatAttachmentUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not prepare the attachment. Please try again.'**
+  String get chatAttachmentUploadFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/attachments/chat_attachments_export.dart';
 import 'package:devplanner/workspaces/domain/storage/models/file_picker_constraints.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input.dart';
@@ -47,9 +50,10 @@ final class ChatAttachmentComposerCoordinatorAwaitingConfirmation
 /// Kolejka odrzuciła plik i anulowała wszystkie należące do niej sesje.
 final class ChatAttachmentComposerCoordinatorFailed
     extends ChatAttachmentComposerCoordinatorState {
-  const ChatAttachmentComposerCoordinatorFailed(this.message);
+  const ChatAttachmentComposerCoordinatorFailed(this.message, {this.error});
 
   final String message;
+  final ApiError? error;
 }
 
 /// Koordynuje wybór 7A, przygotowanie 7E-B oraz snapshot draftu.
@@ -77,6 +81,13 @@ final class ChatAttachmentComposerCoordinatorCubit
   final ChatAttachmentDraftUpdater _updateDraftAttachmentIds;
   var _generation = 0;
   var _consumedGeneration = -1;
+  Timer? _retryTimer;
+  DateTime? _retryAfterUtc;
+
+  bool get canPrepare =>
+      !isClosed &&
+      state is! ChatAttachmentComposerCoordinatorAwaitingConfirmation &&
+      !(_retryAfterUtc?.isAfter(DateTime.now().toUtc()) ?? false);
 
   /// Aktualny zaakceptowany snapshot 7A, przydatny przyszłemu pickerowi UI.
   ChatAttachmentSelectionReady get selection =>
@@ -126,7 +137,9 @@ final class ChatAttachmentComposerCoordinatorCubit
   /// Poprzednia kolejka jest anulowana przez 7E-B. UUID draftu są zerowane
   /// przed rozpoczęciem nowej generacji i wracają wyłącznie po pełnym ready.
   Future<void> prepare(String conversationId) async {
-    if (state is ChatAttachmentComposerCoordinatorAwaitingConfirmation) return;
+    if (!canPrepare) return;
+    _retryTimer?.cancel();
+    _retryAfterUtc = null;
     final generation = ++_generation;
     _consumedGeneration = -1;
     _updateDraftAttachmentIds(const <String>[]);
@@ -143,7 +156,26 @@ final class ChatAttachmentComposerCoordinatorCubit
     }
     _updateDraftAttachmentIds(const <String>[]);
     if (queueState is ChatAttachmentUploadQueueFailed) {
-      emit(ChatAttachmentComposerCoordinatorFailed(queueState.message));
+      _retryAfterUtc = queueState.error?.retryAfterUtc;
+      final delay = _retryAfterUtc?.difference(DateTime.now().toUtc());
+      if (delay != null && delay > Duration.zero) {
+        _retryTimer = Timer(delay, () {
+          if (isClosed || generation != _generation) return;
+          _retryAfterUtc = null;
+          emit(
+            ChatAttachmentComposerCoordinatorFailed(
+              queueState.message,
+              error: queueState.error,
+            ),
+          );
+        });
+      }
+      emit(
+        ChatAttachmentComposerCoordinatorFailed(
+          queueState.message,
+          error: queueState.error,
+        ),
+      );
     } else {
       emit(const ChatAttachmentComposerCoordinatorIdle());
     }
@@ -197,6 +229,8 @@ final class ChatAttachmentComposerCoordinatorCubit
 
   /// Anuluje wszystkie sesje po ręcznym revoke lub zmianie rozmowy.
   Future<void> revoke() async {
+    _retryTimer?.cancel();
+    _retryAfterUtc = null;
     ++_generation;
     _consumedGeneration = -1;
     await _uploadQueue.revoke();
@@ -215,6 +249,7 @@ final class ChatAttachmentComposerCoordinatorCubit
 
   @override
   Future<void> close() async {
+    _retryTimer?.cancel();
     ++_generation;
     _updateDraftAttachmentIds(const <String>[]);
     await _uploadQueue.close();
