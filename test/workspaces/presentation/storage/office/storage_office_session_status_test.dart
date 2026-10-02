@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
@@ -194,6 +196,36 @@ void main() {
         expect(cubit.state.hasSavedChanges, isFalse);
       },
     );
+
+    test('spóźniona odpowiedź nie potwierdza nowej edycji', () async {
+      final repository = _NoopRepository();
+      final pending = Completer<Either<ApiError, StorageFileDetailsResponse>>();
+      final requested = Completer<void>();
+      when(() => repository.getFileDetails(_sampleFile.id)).thenAnswer((_) {
+        if (!requested.isCompleted) requested.complete();
+        return pending.future;
+      });
+      cubit = StorageOfficeEditorActionsCubit(
+        _sampleFileForVersion(4),
+        repository,
+        _NoopDownloadTransport(),
+        _NoopUploadTransport(),
+        StorageOnlyOfficeHostController(),
+        confirmationInterval: const Duration(milliseconds: 5),
+      );
+      cubit.documentStateChanged(isModified: true);
+      cubit.documentStateChanged(isModified: false);
+      await requested.future;
+      cubit.documentStateChanged(isModified: true);
+      pending.complete(
+        await _VersionedRepository(initialVersion: 5)
+            .getFileDetails(_sampleFile.id),
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.hasUnsavedChanges, isTrue);
+      expect(cubit.state.saveConfirmation, StorageOfficeSaveConfirmation.none);
+      expect(cubit.state.hasSavedChanges, isFalse);
+    });
 
     test('zapis wcześniejszy nie ginie przy kolejnej edycji', () async {
       final repository = _VersionedRepository(initialVersion: 4);

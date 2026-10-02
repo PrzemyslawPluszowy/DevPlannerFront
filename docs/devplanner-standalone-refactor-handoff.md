@@ -10611,3 +10611,9 @@ Dowody: /tmp/devplanner-staging-onlyoffice-chrome-ready-2026-10-01.png, /tmp/dev
 ### Publikacja pakietu C07–C10
 
 Front Wasm 748a943071610600b2487d9df3ac6b788fb971d1: skrypt exit 0 i public version.json zgodne (1.7.4). Log /tmp/devplanner-c07-c10-wasm-deploy-2026-10-02.log. Backend kod bez zmian. Chrome został przejęty przy próbie nawigacji w osobnym oknie QA; dalsze interakcje zatrzymano. Retest C07–C10 funkcja/UX/UI NOT RUN; zakres zwolniony, nadal w kolejce. Cel całości pozostaje otwarty.
+
+## Office — lokalny pakiet w toku, 2026-10-02
+
+- Potwierdzono testem QA-O01 race: spóźniony GET wersji po nowej edycji pokazywał confirmed; test przed FAIL, po PASS. Osobny StorageOfficeSaveConfirmationWatch odrzuca poprzednie generacje, kontroluje timeout mimo pending GET oraz jawne unconfirmed/retry przy błędzie odczytu. Nazwy/MIME eksportów wydzielone bez zmiany zachowania; Cubit w limicie klasy 400 linii.
+- 55 testów Office PASS; analyzer clean18,3s; diff check clean. Logi /tmp/devplanner-office-save-race-{tests,analyze}-2026-10-02.log. Poprawki lokalne, NIE wdrożono; zbierać do kolejnego pakietu.
+- OnlyOffice onDocumentStateChange(false) znaczy wysłanie do usługi edytora, nie persist w Storage. Źródła Events i Callback handler oficjalnego Docs API zapisane w centralnym rejestrze. C06 force-save/autosave/close trace nadal otwarty; nie naprawiać samym timeoutem lub copy. Sama większa Version nie identyfikuje konkretnej nowej edycji; scenariusz opóźnionego callbacku/współedycji nadal wymagany.

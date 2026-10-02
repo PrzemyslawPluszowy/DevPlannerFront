@@ -9,6 +9,8 @@ import 'package:devplanner/workspaces/domain/storage/models/storage_upload_input
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_editor_actions_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_export_names.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_save_confirmation_watch.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_onlyoffice_host.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:printing/printing.dart';
@@ -24,35 +26,33 @@ final class StorageOfficeEditorActionsCubit
     this._hostController, {
     this.confirmationInterval = const Duration(milliseconds: 1500),
     this.confirmationTimeout = const Duration(seconds: 60),
-  }) : _baselineVersion = _file.version,
-       _confirmationFloor = _file.version,
-       super(const StorageOfficeEditorActionsState());
+  }) : _exportNames = StorageOfficeExportNames(
+         _file.originalFileName,
+         _file.extension,
+       ),
+       super(const StorageOfficeEditorActionsState()) {
+    _confirmationWatch = StorageOfficeSaveConfirmationWatch(
+      readVersion: _readServerVersion,
+      onConfirmed: _confirmVersion,
+      onUnconfirmed: _markSaveUnconfirmed,
+      interval: confirmationInterval,
+      timeout: confirmationTimeout,
+    );
+  }
 
   final StorageFileResponse _file;
+  final StorageOfficeExportNames _exportNames;
   final StorageRepository _repository;
   final DownloadTransport _downloadTransport;
   final UploadTransport _uploadTransport;
   final StorageOnlyOfficeHostController _hostController;
-
-  /// Wersja pliku w chwili otwarcia sesji.
-  final int _baselineVersion;
-
-  /// Próg potwierdzenia bieżącego oczekiwania.
-  ///
-  /// Startuje z wersji z chwili otwarcia, a po każdym potwierdzonym zapisie
-  /// przesuwa się na potwierdzoną wersję. Bez tego drugi zapis w tej samej sesji
-  /// „potwierdzałby się” wersją utworzoną przez pierwszy, zanim backend zdąży
-  /// zapisać nową treść.
-  int _confirmationFloor = 0;
 
   /// Odstęp kontroli potwierdzenia i okno, po którym zapis uznajemy za
   /// niepotwierdzony, zamiast pokazywać użytkownikowi fałszywe „zapisano”.
   final Duration confirmationInterval;
   final Duration confirmationTimeout;
 
-  Timer? _confirmationTimer;
-  DateTime? _confirmationDeadline;
-  bool _confirmationInFlight = false;
+  late final StorageOfficeSaveConfirmationWatch _confirmationWatch;
 
   bool get _isExportBusy =>
       state.isDownloading || state.isPrinting || state.isSavingCopy;
@@ -83,7 +83,7 @@ final class StorageOfficeEditorActionsCubit
     if (state.isClosing || state.isPrinting || state.isSavingCopy) return;
     if (!state.isDownloading) emit(state.copyWith(isDownloading: true));
 
-    final fileName = '$_fileStem.${download.fileType}';
+    final fileName = '${_exportNames.stem}.${download.fileType}';
     try {
       final result = await _downloadTransport
           .downloadUrl(
@@ -137,7 +137,7 @@ final class StorageOfficeEditorActionsCubit
           ),
         ),
         (bytes) => Printing.layoutPdf(
-          name: '$_fileStem.pdf',
+          name: '${_exportNames.stem}.pdf',
           onLayout: (_) async => bytes,
         ),
       );
@@ -216,7 +216,7 @@ final class StorageOfficeEditorActionsCubit
   /// dopiero z nową wersją pliku.
   void documentStateChanged({required bool isModified}) {
     if (isModified) {
-      _stopConfirmationWatch();
+      _confirmationWatch.stop();
       emit(
         state.copyWith(
           hasUnsavedChanges: true,
@@ -236,83 +236,38 @@ final class StorageOfficeEditorActionsCubit
       ),
     );
     if (editedBefore) {
-      _resetConfirmationFloor();
-      _startConfirmationWatch();
+      _confirmationWatch.start(state.confirmedVersion ?? _file.version);
     }
   }
 
-  /// Pilnuje, czy backend potwierdził nową wersję pliku.
-  void _startConfirmationWatch() {
-    _confirmationTimer?.cancel();
-    _confirmationDeadline = DateTime.now().add(confirmationTimeout);
-    _confirmationTimer = Timer.periodic(
-      confirmationInterval,
-      (_) => unawaited(_confirmSavedVersion()),
+  Future<int?> _readServerVersion() async {
+    final result = await _repository.getFileDetails(_file.id);
+    return result.fold((_) => null, (details) => details.file.version);
+  }
+
+  void _confirmVersion(int version) {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        hasSavedChanges: true,
+        saveConfirmation: StorageOfficeSaveConfirmation.confirmed,
+        confirmedVersion: version,
+      ),
     );
   }
 
-  void _stopConfirmationWatch() {
-    _confirmationTimer?.cancel();
-    _confirmationTimer = null;
-    _confirmationDeadline = null;
-  }
-
-  /// Ustawia próg potwierdzenia dla kolejnego oczekiwania.
-  ///
-  /// Progiem jest ostatnia wersja znana jako zapisana: potwierdzona w tej sesji
-  /// albo ta, na której sesję otwarto. Dzięki temu każdy zapis wymaga własnej,
-  /// nowszej wersji z backendu.
-  void _resetConfirmationFloor() {
-    _confirmationFloor = state.confirmedVersion ?? _baselineVersion;
-  }
-
-  /// Pyta o szczegóły pliku i potwierdza zapis tylko wyższą wersją.
-  Future<void> _confirmSavedVersion() async {
-    if (isClosed || _confirmationInFlight) return;
-    if (_confirmationDeadline case final deadline?
-        when DateTime.now().isAfter(deadline)) {
-      // Późniejszy ręczny Save nadal może utworzyć wersję. Pokazujemy brak
-      // potwierdzenia, ale sprawdzamy rzadziej aż do zamknięcia/nowej edycji.
-      _confirmationTimer?.cancel();
-      _confirmationDeadline = null;
-      _confirmationTimer = Timer.periodic(
-        const Duration(seconds: 5),
-        (_) => unawaited(_confirmSavedVersion()),
-      );
-      emit(
-        state.copyWith(
-          saveConfirmation: StorageOfficeSaveConfirmation.unconfirmed,
-        ),
-      );
-    }
-
-    _confirmationInFlight = true;
-    try {
-      final result = await _repository.getFileDetails(_file.id);
-      if (isClosed) return;
-      final version = result.fold(
-        (_) => null,
-        (details) => details.file.version,
-      );
-      if (version == null || version <= _confirmationFloor) return;
-      _stopConfirmationWatch();
-      emit(
-        state.copyWith(
-          hasSavedChanges: true,
-          saveConfirmation: StorageOfficeSaveConfirmation.confirmed,
-          confirmedVersion: version,
-        ),
-      );
-    } on Object {
-      // Błąd odczytu wersji oznacza brak potwierdzenia, nie udany zapis.
-    } finally {
-      _confirmationInFlight = false;
-    }
+  void _markSaveUnconfirmed() {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        saveConfirmation: StorageOfficeSaveConfirmation.unconfirmed,
+      ),
+    );
   }
 
   @override
   Future<void> close() async {
-    _stopConfirmationWatch();
+    _confirmationWatch.stop();
     return super.close();
   }
 
@@ -367,11 +322,11 @@ final class StorageOfficeEditorActionsCubit
     required String fileType,
     required String? suggestedTitle,
   }) async {
-    final targetFileName = _copyFileName(fileType, suggestedTitle);
+    final targetFileName = _exportNames.copyFileName(fileType, suggestedTitle);
     final payload = StorageUploadTicketPayload(
       fileName: targetFileName,
       fileSizeBytes: bytes.length,
-      mimeType: _guessMimeType(targetFileName),
+      mimeType: StorageOfficeExportNames.mimeType(targetFileName),
       module: _file.module,
       resourceType: _file.resourceType,
       resourceId: _file.resourceId,
@@ -425,41 +380,6 @@ final class StorageOfficeEditorActionsCubit
 
   Map<String, String>? _onlyOfficeHeaders(String? sessionToken) =>
       sessionToken == null ? null : {'X-OnlyOffice-JWT': sessionToken};
-
-  String get _fileStem {
-    final dot = _file.originalFileName.lastIndexOf('.');
-    return dot > 0
-        ? _file.originalFileName.substring(0, dot)
-        : _file.originalFileName;
-  }
-
-  String _copyFileName(String fileType, String? suggestedTitle) {
-    final cleanFileType = fileType.isNotEmpty
-        ? fileType
-        : _file.extension.replaceFirst('.', '');
-    final title = suggestedTitle?.trim();
-    final defaultName = '$_fileStem (kopia).$cleanFileType';
-    final candidate = title == null || title.isEmpty ? defaultName : title;
-    return candidate.endsWith('.$cleanFileType')
-        ? candidate
-        : '$candidate.$cleanFileType';
-  }
-
-  String _guessMimeType(String fileName) {
-    final lower = fileName.toLowerCase();
-    if (lower.endsWith('.docx')) {
-      return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    }
-    if (lower.endsWith('.xlsx')) {
-      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-    }
-    if (lower.endsWith('.pptx')) {
-      return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
-    }
-    if (lower.endsWith('.pdf')) return 'application/pdf';
-    if (lower.endsWith('.txt')) return 'text/plain';
-    return 'application/octet-stream';
-  }
 
   void _finishDownloadWithNotice(StorageOfficeEditorActionNotice notice) {
     if (isClosed) return;
