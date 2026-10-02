@@ -12487,4 +12487,37 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get taskTemplateCopySavedVersion =>
       'Zapis używa aktualnej konfiguracji zapisanej na serwerze. Podgląd liczników pochodzi z ostatnio odczytanej wersji zadania.';
+
+  @override
+  String taskRecurrenceSummary(
+    String state,
+    String interval,
+    String mode,
+    String nextInfo,
+  ) {
+    return 'Cykliczność: $state. $interval ($mode)$nextInfo';
+  }
+
+  @override
+  String taskRecurrenceSummaryNext(String date) {
+    return ' • Następne zadanie: $date';
+  }
+
+  @override
+  String get taskRecurrenceWaitingCompletion =>
+      'Oczekuje na ukończenie otwartego zadania';
+
+  @override
+  String taskRecurrenceAfterCompletionDate(String date) {
+    return '$date (po ukończeniu)';
+  }
+
+  @override
+  String get taskRecurrenceNextOccurrenceLocal =>
+      'Następne wystąpienie (czas urządzenia)';
+
+  @override
+  String taskRecurrenceDeviceTimeHint(String zone) {
+    return 'Datę i godzinę wpisujesz w czasie urządzenia ($zone). Strefa wybrana powyżej określa obliczanie kolejnych wystąpień.';
+  }
 }

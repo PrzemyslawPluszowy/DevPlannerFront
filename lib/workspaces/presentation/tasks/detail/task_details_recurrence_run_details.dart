@@ -1,5 +1,6 @@
 import 'package:devplanner/workspaces/presentation/tasks/detail/recurrence/cubit/task_recurrence_run_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_date_formatter.dart';
 
 /// Pokazuje stan ostatniego wykonania, niezależnie od edycji konfiguracji.
 final class TaskRecurrenceRunDetails extends StatelessWidget {
@@ -38,8 +39,6 @@ final class TaskRecurrenceRunDetails extends StatelessWidget {
           recurrence.sourceTaskId != task.id) {
         return const SizedBox.shrink();
       }
-      final locale = Localizations.localeOf(context).toLanguageTag();
-      final dateFormat = DateFormat.yMMMd(locale).add_Hm();
       final latest = state.latestRun;
       final nextOccurrenceAtUtc = recurrence.nextOccurrenceAtUtc;
       return Padding(
@@ -55,8 +54,8 @@ final class TaskRecurrenceRunDetails extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              '${context.l10n.taskRecurrenceNextOccurrenceUtc}: '
-              '${nextOccurrenceAtUtc == null ? context.l10n.taskDetailsNoDate : dateFormat.format(nextOccurrenceAtUtc.toUtc())}',
+              '${context.l10n.taskRecurrenceNextOccurrenceLocal}: '
+              '${nextOccurrenceAtUtc == null ? context.l10n.taskDetailsNoDate : TaskRecurrenceDateFormatter.local(context, nextOccurrenceAtUtc)}',
               style: context.text.bodySmall,
             ),
             Text(
@@ -146,7 +145,10 @@ final class TaskRecurrenceRunDetails extends StatelessWidget {
                 style: context.text.bodySmall,
               ),
               Text(
-                dateFormat.format(latest.executedAtUtc.toUtc()),
+                TaskRecurrenceDateFormatter.local(
+                  context,
+                  latest.executedAtUtc,
+                ),
                 style: context.text.bodySmall?.copyWith(
                   color: context.colors.onSurfaceVariant,
                 ),

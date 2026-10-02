@@ -19,73 +19,82 @@ final class _RecurrenceRepository extends Mock
 
 void main() {
   for (final locale in const [Locale('pl'), Locale('en')]) {
-    testWidgets('pokazuje strefę, UTC i wynik oddzielony od źródła: $locale', (
-      tester,
-    ) async {
-      final repository = _RecurrenceRepository();
-      when(
-        () => repository.getProjectRecurrenceRuns(
+    testWidgets(
+      'pokazuje lokalny czas ze strefą i wynik oddzielony od źródła: $locale',
+      (
+        tester,
+      ) async {
+        final repository = _RecurrenceRepository();
+        when(
+          () => repository.getProjectRecurrenceRuns(
+            workspaceId: 'workspace-1',
+            projectId: 'project-1',
+          ),
+        ).thenAnswer(
+          (_) async => Right([
+            ProjectTaskRecurrenceRunResponse(
+              id: 'run-1',
+              recurrenceRuleId: 'rule-1',
+              sourceTaskId: 'task-1',
+              taskKey: 'TASK-1',
+              taskTitle: 'Source task',
+              scheduledAtUtc: DateTime.utc(2026, 10, 3, 8),
+              executedAtUtc: DateTime.utc(2026, 10, 3, 8),
+              outcome: TaskRecurrenceRunOutcome.created,
+              createdTaskId: 'task-2',
+              createdTaskKey: 'TASK-2',
+            ),
+          ]),
+        );
+        final cubit = TaskRecurrenceRunCubit(
+          repository: repository,
           workspaceId: 'workspace-1',
           projectId: 'project-1',
-        ),
-      ).thenAnswer(
-        (_) async => Right([
-          ProjectTaskRecurrenceRunResponse(
-            id: 'run-1',
-            recurrenceRuleId: 'rule-1',
-            sourceTaskId: 'task-1',
-            taskKey: 'TASK-1',
-            taskTitle: 'Source task',
-            scheduledAtUtc: DateTime.utc(2026, 10, 3, 8),
-            executedAtUtc: DateTime.utc(2026, 10, 3, 8),
-            outcome: TaskRecurrenceRunOutcome.created,
-            createdTaskId: 'task-2',
-            createdTaskKey: 'TASK-2',
-          ),
-        ]),
-      );
-      final cubit = TaskRecurrenceRunCubit(
-        repository: repository,
-        workspaceId: 'workspace-1',
-        projectId: 'project-1',
-        sourceTaskId: 'task-1',
-      );
-      await cubit.ensureLatestLoaded('rule-1');
-      final task = _task();
-      final l10n = await AppLocalizations.delegate.load(locale);
+          sourceTaskId: 'task-1',
+        );
+        await cubit.ensureLatestLoaded('rule-1');
+        final task = _task();
+        final l10n = await AppLocalizations.delegate.load(locale);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          locale: locale,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          theme: MaterialTheme.crm().light(),
-          home: Scaffold(
-            body: BlocProvider.value(
-              value: cubit,
-              child: TaskRecurrenceRunDetails(
-                task: task,
-                isEditable: false,
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: MaterialTheme.crm().light(),
+            home: Scaffold(
+              body: BlocProvider.value(
+                value: cubit,
+                child: TaskRecurrenceRunDetails(
+                  task: task,
+                  isEditable: false,
+                ),
               ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(
-        find.textContaining(l10n.taskRecurrenceNextOccurrenceUtc),
-        findsOneWidget,
-      );
-      expect(find.textContaining('Europe/Warsaw'), findsOneWidget);
-      expect(find.text(l10n.tasksRecurrenceOutcomeCreated), findsOneWidget);
-      expect(
-        find.text('${l10n.taskRecurrenceCreatedTask}: TASK-2'),
-        findsOneWidget,
-      );
-      expect(find.text(l10n.tasksRecurrenceRunNow), findsOneWidget);
-      await tester.pumpWidget(const SizedBox.shrink());
-      await cubit.close();
-    });
+        expect(
+          find.textContaining(l10n.taskRecurrenceNextOccurrenceLocal),
+          findsOneWidget,
+        );
+        expect(find.textContaining('Europe/Warsaw'), findsOneWidget);
+        expect(find.textContaining('UTC'), findsOneWidget);
+        final localHour = DateTime.utc(2026, 10, 3, 8).toLocal().hour;
+        expect(
+          find.textContaining('${localHour.toString().padLeft(2, '0')}:00'),
+          findsOneWidget,
+        );
+        expect(find.text(l10n.tasksRecurrenceOutcomeCreated), findsOneWidget);
+        expect(
+          find.text('${l10n.taskRecurrenceCreatedTask}: TASK-2'),
+          findsOneWidget,
+        );
+        expect(find.text(l10n.tasksRecurrenceRunNow), findsOneWidget);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await cubit.close();
+      },
+    );
   }
 }
 

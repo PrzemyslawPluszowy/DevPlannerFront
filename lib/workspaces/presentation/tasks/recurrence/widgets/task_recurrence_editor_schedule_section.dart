@@ -23,7 +23,9 @@ final class TaskRecurrenceEditorScheduleSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat.yMMMMd('pl').add_EEEE();
+    final dateFormat = DateFormat.yMMMMd(
+      Localizations.localeOf(context).toLanguageTag(),
+    ).add_EEEE();
     final formattedDate = dateFormat.format(scheduledDate);
     final formattedTime = scheduledTime.format(context);
 
@@ -44,9 +46,7 @@ final class TaskRecurrenceEditorScheduleSection extends StatelessWidget {
               flex: 3,
               child: Builder(
                 builder: (buttonContext) => OutlinedButton.icon(
-                  onPressed: enabled
-                      ? () => onPickDate(buttonContext)
-                      : null,
+                  onPressed: enabled ? () => onPickDate(buttonContext) : null,
                   icon: Icon(
                     Symbols.calendar_today_rounded,
                     size: Sizes.p16,
@@ -77,9 +77,7 @@ final class TaskRecurrenceEditorScheduleSection extends StatelessWidget {
               flex: 2,
               child: Builder(
                 builder: (buttonContext) => OutlinedButton.icon(
-                  onPressed: enabled
-                      ? () => onPickTime(buttonContext)
-                      : null,
+                  onPressed: enabled ? () => onPickTime(buttonContext) : null,
                   icon: Icon(
                     Symbols.access_time_rounded,
                     size: Sizes.p16,

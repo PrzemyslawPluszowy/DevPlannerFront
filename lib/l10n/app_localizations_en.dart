@@ -12384,4 +12384,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get taskTemplateCopySavedVersion =>
       'Saving uses the current configuration stored on the server. Preview counts come from the last loaded task version.';
+
+  @override
+  String taskRecurrenceSummary(
+    String state,
+    String interval,
+    String mode,
+    String nextInfo,
+  ) {
+    return 'Recurrence: $state. $interval ($mode)$nextInfo';
+  }
+
+  @override
+  String taskRecurrenceSummaryNext(String date) {
+    return ' • Next task: $date';
+  }
+
+  @override
+  String get taskRecurrenceWaitingCompletion =>
+      'Waiting for the open task to be completed';
+
+  @override
+  String taskRecurrenceAfterCompletionDate(String date) {
+    return '$date (after completion)';
+  }
+
+  @override
+  String get taskRecurrenceNextOccurrenceLocal =>
+      'Next occurrence (device time)';
+
+  @override
+  String taskRecurrenceDeviceTimeHint(String zone) {
+    return 'Enter the date and time in your device time ($zone). The zone selected above governs the calculation of later occurrences.';
+  }
 }

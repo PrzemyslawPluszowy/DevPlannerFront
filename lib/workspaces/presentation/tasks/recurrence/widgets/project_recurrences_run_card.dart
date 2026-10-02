@@ -2,8 +2,8 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_date_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Wiersz historii wykonania serii z lokalnym stanem hover.
@@ -29,8 +29,9 @@ final class _ProjectRecurrencesRunCardState
 
   @override
   Widget build(BuildContext context) {
-    final timeText = DateFormat.yMMMd('pl').add_Hm().format(
-      widget.run.executedAtUtc.toLocal(),
+    final timeText = TaskRecurrenceDateFormatter.local(
+      context,
+      widget.run.executedAtUtc,
     );
     final isCreated = widget.run.outcome == TaskRecurrenceRunOutcome.created;
     return MouseRegion(

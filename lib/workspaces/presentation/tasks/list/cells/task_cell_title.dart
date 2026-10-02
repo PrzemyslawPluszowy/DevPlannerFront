@@ -303,7 +303,10 @@ class _TaskCellTitleState extends State<TaskCellTitle> {
               if (task.recurrence case final recurrence?) ...[
                 const SizedBox(width: 4),
                 Tooltip(
-                  message: TaskRecurrenceSummaryLabeler.format(recurrence),
+                  message: TaskRecurrenceSummaryLabeler.format(
+                    context,
+                    recurrence,
+                  ),
                   child: Container(
                     padding: const .symmetric(
                       horizontal: Sizes.p6,

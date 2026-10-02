@@ -3944,5 +3944,48 @@
         "type": "int"
       }
     }
+  },
+  "taskRecurrenceSummary": "Recurrence: {state}. {interval} ({mode}){nextInfo}",
+  "@taskRecurrenceSummary": {
+    "placeholders": {
+      "state": {
+        "type": "String"
+      },
+      "interval": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      },
+      "nextInfo": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRecurrenceSummaryNext": " • Next task: {date}",
+  "@taskRecurrenceSummaryNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRecurrenceWaitingCompletion": "Waiting for the open task to be completed",
+  "taskRecurrenceAfterCompletionDate": "{date} (after completion)",
+  "@taskRecurrenceAfterCompletionDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRecurrenceNextOccurrenceLocal": "Next occurrence (device time)",
+  "taskRecurrenceDeviceTimeHint": "Enter the date and time in your device time ({zone}). The zone selected above governs the calculation of later occurrences.",
+  "@taskRecurrenceDeviceTimeHint": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -8,10 +8,10 @@ import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart
 import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_context_editor.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_date_formatter.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_text_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Wiersz reguły cyklicznej z lokalnym stanem hover i akcjami serii.
@@ -242,12 +242,12 @@ final class _RuleNextOccurrenceCell extends StatelessWidget {
     final date = rule.nextOccurrenceAtUtc;
     final formatted = date == null
         ? rule.mode == TaskRecurrenceMode.scheduled
-              ? 'Brak terminu'
-              : 'Oczekuje na ukończenie'
-        : DateFormat.yMMMd('pl').add_Hm().format(date.toLocal());
+              ? context.l10n.taskDetailsNoDate
+              : context.l10n.taskRecurrenceWaitingCompletion
+        : TaskRecurrenceDateFormatter.local(context, date);
     final label =
         rule.mode == TaskRecurrenceMode.afterCompletion && date != null
-        ? '$formatted (po ukończeniu)'
+        ? context.l10n.taskRecurrenceAfterCompletionDate(formatted)
         : formatted;
     return Expanded(
       flex: 3,

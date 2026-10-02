@@ -3931,5 +3931,48 @@
         "type": "int"
       }
     }
+  },
+  "taskRecurrenceSummary": "Cykliczność: {state}. {interval} ({mode}){nextInfo}",
+  "@taskRecurrenceSummary": {
+    "placeholders": {
+      "state": {
+        "type": "String"
+      },
+      "interval": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      },
+      "nextInfo": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRecurrenceSummaryNext": " • Następne zadanie: {date}",
+  "@taskRecurrenceSummaryNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRecurrenceWaitingCompletion": "Oczekuje na ukończenie otwartego zadania",
+  "taskRecurrenceAfterCompletionDate": "{date} (po ukończeniu)",
+  "@taskRecurrenceAfterCompletionDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRecurrenceNextOccurrenceLocal": "Następne wystąpienie (czas urządzenia)",
+  "taskRecurrenceDeviceTimeHint": "Datę i godzinę wpisujesz w czasie urządzenia ({zone}). Strefa wybrana powyżej określa obliczanie kolejnych wystąpień.",
+  "@taskRecurrenceDeviceTimeHint": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
   }
 }

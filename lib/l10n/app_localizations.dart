@@ -22086,6 +22086,47 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saving uses the current configuration stored on the server. Preview counts come from the last loaded task version.'**
   String get taskTemplateCopySavedVersion;
+
+  /// No description provided for @taskRecurrenceSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence: {state}. {interval} ({mode}){nextInfo}'**
+  String taskRecurrenceSummary(
+    String state,
+    String interval,
+    String mode,
+    String nextInfo,
+  );
+
+  /// No description provided for @taskRecurrenceSummaryNext.
+  ///
+  /// In en, this message translates to:
+  /// **' • Next task: {date}'**
+  String taskRecurrenceSummaryNext(String date);
+
+  /// No description provided for @taskRecurrenceWaitingCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the open task to be completed'**
+  String get taskRecurrenceWaitingCompletion;
+
+  /// No description provided for @taskRecurrenceAfterCompletionDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} (after completion)'**
+  String taskRecurrenceAfterCompletionDate(String date);
+
+  /// No description provided for @taskRecurrenceNextOccurrenceLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Next occurrence (device time)'**
+  String get taskRecurrenceNextOccurrenceLocal;
+
+  /// No description provided for @taskRecurrenceDeviceTimeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the date and time in your device time ({zone}). The zone selected above governs the calculation of later occurrences.'**
+  String taskRecurrenceDeviceTimeHint(String zone);
 }
 
 class _AppLocalizationsDelegate

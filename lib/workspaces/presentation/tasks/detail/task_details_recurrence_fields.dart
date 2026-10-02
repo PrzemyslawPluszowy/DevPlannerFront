@@ -4,6 +4,7 @@ import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_lab
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_recurrence_time_fields.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_switch_field.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_date_formatter.dart';
 
 class TaskRecurrenceFields extends StatelessWidget {
   const TaskRecurrenceFields({
@@ -151,7 +152,9 @@ class TaskRecurrenceFields extends StatelessWidget {
       Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          context.l10n.taskRecurrenceTimeZoneScheduleHint,
+          context.l10n.taskRecurrenceDeviceTimeHint(
+            TaskRecurrenceDateFormatter.zone(occurrenceAtUtc ?? DateTime.now()),
+          ),
           style: context.tasksTheme.metaText,
         ),
       ),

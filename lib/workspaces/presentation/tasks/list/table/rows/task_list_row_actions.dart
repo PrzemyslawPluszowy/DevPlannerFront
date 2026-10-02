@@ -13,31 +13,44 @@ import 'package:devplanner/workspaces/presentation/tasks/list/cells/task_cell_as
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_priority_picker.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_status_picker.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_date_formatter.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_text_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 /// Czyste formatowanie opisu serii dla tabeli Tasks i karty Kanban.
 final class TaskRecurrenceSummaryLabeler {
   const TaskRecurrenceSummaryLabeler._();
 
-  static String format(TaskRecurrenceSummaryResponse recurrence) {
-    final frequency = switch (recurrence.frequency) {
-      TaskRecurrenceFrequency.daily => 'dzień',
-      TaskRecurrenceFrequency.weekly => 'tydzień',
-      TaskRecurrenceFrequency.monthly => 'miesiąc',
-    };
-    final mode = switch (recurrence.mode) {
-      TaskRecurrenceMode.scheduled => 'według harmonogramu',
-      TaskRecurrenceMode.afterCompletion => 'po ukończeniu',
-    };
-    final state = recurrence.isActive ? 'aktywna' : 'wstrzymana';
-    final nextInfo = recurrence.nextOccurrenceAtUtc != null
-        ? ' • Następne zadanie: ${DateFormat.yMMMd('pl').add_Hm().format(recurrence.nextOccurrenceAtUtc!.toLocal())}'
-        : (recurrence.mode == TaskRecurrenceMode.afterCompletion
-              ? ' • Oczekuje na ukończenie otwartego zadania'
-              : '');
-    return 'Cykliczność $state: co ${recurrence.interval} $frequency ($mode)$nextInfo';
+  static String format(
+    BuildContext context,
+    TaskRecurrenceSummaryResponse recurrence,
+  ) {
+    final l10n = context.l10n;
+    final interval = TaskRecurrenceTextFormatter.intervalLabel(
+      context,
+      recurrence.frequency,
+      recurrence.interval,
+    );
+    final mode = recurrence.mode == TaskRecurrenceMode.scheduled
+        ? l10n.tasksRecurrenceModeScheduled
+        : l10n.tasksRecurrenceModeAfterCompletion;
+    final next = recurrence.nextOccurrenceAtUtc;
+    final nextInfo = next != null
+        ? l10n.taskRecurrenceSummaryNext(
+            TaskRecurrenceDateFormatter.local(context, next),
+          )
+        : recurrence.mode == TaskRecurrenceMode.afterCompletion
+        ? ' • ${l10n.taskRecurrenceWaitingCompletion}'
+        : '';
+    return l10n.taskRecurrenceSummary(
+      recurrence.isActive
+          ? l10n.tasksRecurrenceActive
+          : l10n.tasksRecurrencePaused,
+      interval,
+      mode,
+      nextInfo,
+    );
   }
 }
 
