@@ -29,6 +29,7 @@ void main() {
         when(
           () => repository.create(
             workspaceId: 'ws',
+            projectId: 'project-1',
             taskId: 'task',
             payload: any(named: 'payload'),
           ),
@@ -36,6 +37,7 @@ void main() {
         final cubit = TaskTemplateCubit(
           repository: repository,
           workspaceId: 'ws',
+          projectId: 'project-1',
           taskId: 'task',
         );
         addTearDown(cubit.close);
@@ -71,16 +73,18 @@ void main() {
         verifyNever(
           () => repository.create(
             workspaceId: 'ws',
+            projectId: 'project-1',
             taskId: 'task',
             payload: any(named: 'payload'),
           ),
         );
-        await tester.enterText(name, 'Saved draft name');
+        final draftName = List.filled(160, 'a').join();
+        await tester.enterText(name, draftName);
         await tester.tap(create);
         await tester.pumpAndSettle();
         expect(
           tester.widget<TextField>(name).controller!.text,
-          'Saved draft name',
+          draftName,
         );
         expect(find.text(l10n.tasksTemplateSaveFailed), findsOneWidget);
         expect(create.hitTestable(), findsOneWidget);

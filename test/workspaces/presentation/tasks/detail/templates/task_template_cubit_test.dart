@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 final class _TaskTemplateRepository implements TaskTemplateRepository {
   Either<ApiError, TaskTemplateResponse>? createResult;
   CreateTaskTemplatePayload? createPayload;
+  String? createProjectId;
   Object? createException;
   Completer<Either<ApiError, TaskTemplateResponse>>? pending;
   int calls = 0;
@@ -19,11 +20,13 @@ final class _TaskTemplateRepository implements TaskTemplateRepository {
   @override
   Future<Either<ApiError, TaskTemplateResponse>> create({
     required String workspaceId,
+    required String projectId,
     required String taskId,
     required CreateTaskTemplatePayload payload,
   }) async {
     calls++;
     createPayload = payload;
+    createProjectId = projectId;
     if (createException case final error?) return Future.error(error);
     if (pending case final response?) return response.future;
     return createResult!;
@@ -91,6 +94,7 @@ TaskTemplateCubit _cubit(_TaskTemplateRepository repository) =>
     TaskTemplateCubit(
       repository: repository,
       workspaceId: 'workspace-1',
+      projectId: 'project-1',
       taskId: 'task-1',
     );
 
@@ -103,6 +107,7 @@ void main() {
     await cubit.createFromTask('  Wdrożenie  ');
 
     expect(repository.createPayload?.name, 'Wdrożenie');
+    expect(repository.createProjectId, 'project-1');
     expect(cubit.state, isA<TaskTemplateSaved>());
     await cubit.close();
   });
@@ -147,6 +152,7 @@ void main() {
     final cubit = TaskTemplateCubit(
       repository: repository,
       workspaceId: 'ws',
+      projectId: 'project-1',
       taskId: 'task',
       onAccessLost: revoked.add,
     );

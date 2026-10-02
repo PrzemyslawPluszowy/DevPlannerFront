@@ -1,3 +1,10 @@
+## 2026-10-02 — regresje zapisu szablonu i kalendarza cykliczności
+
+- Manual staging wykrył HTTP 400 podczas zapisu szablonu z zadania oraz brak otwarcia kalendarza pierwszego wystąpienia. Transportowy test przed poprawką wykazał brak projectId; widgetowy test rzeczywistego launchera odtworzył ProviderNotFound TaskDetailsCubit.
+- Front przekazuje wymagane projectId przez launcher, Cubit, repository i wygenerowany Retrofit query. Backend endpoint wymaga tego parametru już wcześniej; kontrakt tworzenia szablonu nie zawiera enumów i nie zmienia się. Limit nazwy 160 zgodny z domeną backendu, szkic zachowany po błędzie.
+- Root modal cykliczności otrzymuje istniejący TaskDetailsCubit przez BlocProvider.value, bez przejęcia jego lifecycle; canEdit odrzuca zamkniętego właściciela. Tooltip zamknięcia używa ogólnego Close. Istniejące tokeny i komponenty zachowane, UI UX Pro Max / Impeccable Operate.
+- Końcowy pakiet testów 52 PASS, pełny flutter analyze No issues found (13.5 s), git diff --check clean. Logi /tmp/devplanner-template-recurrence-batch-final-tests.log i /tmp/devplanner-template-recurrence-final-analyze.log. Przed publikacją: runtime obu poprawek pozostaje nieodebrany; dalsze Office, auth, trzy klienty i pełne P0–P7 nadal otwarte.
+
 ## 2026-10-02 — obecność w katalogu oraz batch cykliczności i szablonów
 
 - Wymóg użytkownika: online/offline widoczne na liście osób przed otwarciem rozmowy; kropka z tekstem, wspólne tokeny i lokalizacje. Na obecnym stagingu ręcznie potwierdzono Online i Offline w inboxie oraz przy właścicielach zadań.

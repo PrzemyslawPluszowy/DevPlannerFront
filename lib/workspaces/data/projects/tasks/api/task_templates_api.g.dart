@@ -55,10 +55,11 @@ class _TaskTemplatesApi implements TaskTemplatesApi {
   Future<TaskTemplateResponse> create(
     String workspaceId,
     String taskId,
+    String projectId,
     CreateTaskTemplatePayload body,
   ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'projectId': projectId};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body.toJson());

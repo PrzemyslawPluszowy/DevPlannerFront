@@ -24,6 +24,7 @@ final class TaskTemplateDialogLauncher {
         create: (_) => TaskTemplateCubit(
           repository: repository,
           workspaceId: detailsCubit.workspaceId,
+          projectId: detailsCubit.projectId,
           taskId: detailsCubit.taskId,
           canEdit: () =>
               !detailsCubit.isClosed &&
@@ -174,7 +175,7 @@ class CreateTaskTemplateDialogState extends State<CreateTaskTemplateDialog> {
                 key: const ValueKey('task_template_name'),
                 controller: _nameController,
                 autofocus: true,
-                maxLength: 120,
+                maxLength: 160,
                 enabled: !saving,
                 style: tasks.dataText.copyWith(color: colors.onSurface),
                 decoration: InputDecoration(

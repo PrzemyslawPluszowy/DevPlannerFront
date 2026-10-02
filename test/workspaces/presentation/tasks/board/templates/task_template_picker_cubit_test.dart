@@ -58,6 +58,7 @@ final class _TaskTemplateRepository implements TaskTemplateRepository {
   @override
   Future<Either<ApiError, TaskTemplateResponse>> create({
     required String workspaceId,
+    required String projectId,
     required String taskId,
     required CreateTaskTemplatePayload payload,
   }) => throw UnimplementedError();

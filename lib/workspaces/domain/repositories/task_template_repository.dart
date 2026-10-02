@@ -8,6 +8,7 @@ abstract interface class TaskTemplateRepository {
   Future<Either<ApiError, List<TaskTemplateResponse>>> list(String workspaceId);
   Future<Either<ApiError, TaskTemplateResponse>> create({
     required String workspaceId,
+    required String projectId,
     required String taskId,
     required CreateTaskTemplatePayload payload,
   });

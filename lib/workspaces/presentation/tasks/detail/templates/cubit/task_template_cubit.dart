@@ -41,6 +41,7 @@ final class TaskTemplateCubit extends Cubit<TaskTemplateState> {
   TaskTemplateCubit({
     required this.repository,
     required this.workspaceId,
+    required this.projectId,
     required this.taskId,
     this.canEdit,
     this.onAccessLost,
@@ -48,6 +49,7 @@ final class TaskTemplateCubit extends Cubit<TaskTemplateState> {
 
   final TaskTemplateRepository repository;
   final String workspaceId;
+  final String projectId;
   final String taskId;
   final bool Function()? canEdit;
   final void Function(ApiError)? onAccessLost;
@@ -79,6 +81,7 @@ final class TaskTemplateCubit extends Cubit<TaskTemplateState> {
     try {
       final result = await repository.create(
         workspaceId: workspaceId,
+        projectId: projectId,
         taskId: taskId,
         payload: CreateTaskTemplatePayload(name: normalizedName),
       );

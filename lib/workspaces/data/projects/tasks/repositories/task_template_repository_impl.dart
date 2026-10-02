@@ -20,10 +20,11 @@ final class TaskTemplateRepositoryImpl extends ApiRepository
   @override
   Future<Either<ApiError, TaskTemplateResponse>> create({
     required String workspaceId,
+    required String projectId,
     required String taskId,
     required CreateTaskTemplatePayload payload,
   }) => guardApiCall(
-    () => _api.create(workspaceId, taskId, payload),
+    () => _api.create(workspaceId, taskId, projectId, payload),
     fallbackMessage: 'Nie udało się utworzyć szablonu zadania.',
   );
   @override

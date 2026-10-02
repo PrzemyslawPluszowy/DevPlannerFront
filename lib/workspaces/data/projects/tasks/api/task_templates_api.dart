@@ -22,6 +22,7 @@ abstract class TaskTemplatesApi {
   Future<TaskTemplateResponse> create(
     @Path('workspaceId') String workspaceId,
     @Path('taskId') String taskId,
+    @Query('projectId') String projectId,
     @Body() CreateTaskTemplatePayload body,
   );
 

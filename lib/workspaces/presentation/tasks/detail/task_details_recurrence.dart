@@ -150,27 +150,32 @@ final class TaskRecurrenceDialogLauncher {
     );
     return DevPlannerModalHost.showDialog<void>(
       context,
-      builder: (_) => BlocProvider(
-        create: (_) {
-          final cubit = TaskRecurrenceCubit(
-            repository: recurrenceRepository,
-            workspaceId: detailsCubit.workspaceId,
-            projectId: detailsCubit.projectId,
-            taskId: detailsCubit.taskId,
-            canEdit: () => switch (detailsCubit.state) {
-              TaskDetailsReady(:final canEdit) => canEdit,
-              _ => false,
-            },
-            onAccessLost: (error) =>
-                unawaited(detailsCubit.reportAccessLost(error)),
-          );
-          unawaited(cubit.load(hasRecurrence: task.recurrence != null));
-          return cubit;
-        },
-        child: TaskRecurrenceDialog(
-          task: task,
-          onChanged: detailsCubit.load,
-          draft: draft,
+      builder: (_) => BlocProvider<TaskDetailsCubit>.value(
+        value: detailsCubit,
+        child: BlocProvider(
+          create: (_) {
+            final cubit = TaskRecurrenceCubit(
+              repository: recurrenceRepository,
+              workspaceId: detailsCubit.workspaceId,
+              projectId: detailsCubit.projectId,
+              taskId: detailsCubit.taskId,
+              canEdit: () =>
+                  !detailsCubit.isClosed &&
+                  switch (detailsCubit.state) {
+                    TaskDetailsReady(:final canEdit) => canEdit,
+                    _ => false,
+                  },
+              onAccessLost: (error) =>
+                  unawaited(detailsCubit.reportAccessLost(error)),
+            );
+            unawaited(cubit.load(hasRecurrence: task.recurrence != null));
+            return cubit;
+          },
+          child: TaskRecurrenceDialog(
+            task: task,
+            onChanged: detailsCubit.load,
+            draft: draft,
+          ),
         ),
       ),
     ).whenComplete(() => draft?.dispose());
@@ -239,7 +244,7 @@ class TaskRecurrenceDialogState extends State<TaskRecurrenceDialog> {
                     ),
                   ),
                   IconButton(
-                    tooltip: context.l10n.taskDetailsClose,
+                    tooltip: context.l10n.close,
                     onPressed: _requestClose,
                     icon: const Icon(Symbols.close_rounded),
                   ),
