@@ -236,46 +236,105 @@ class TaskHistoryEventTile extends StatelessWidget {
             .format(
               event.createdAtUtc.toLocal(),
             );
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
-      leading: CircleAvatar(
-        backgroundColor: context.tasksTheme.commandBarSurface,
-        foregroundColor: context.colors.onSurfaceVariant,
-        child: Icon(
-          TaskHistoryPresentation.eventIcon(event.eventType),
-          size: 19,
-        ),
+    final visibleChanges = <TaskHistoryChangeResponse>[];
+    for (final change in event.changes) {
+      if (!TaskHistoryPresentation.isTechnicalField(change.field) &&
+          visibleChanges.length < 3) {
+        visibleChanges.add(change);
+      }
+    }
+    final actorAndDate =
+        '${TaskHistoryPresentation.actorLabel(context, event.actor, actorNames)} · $date';
+    final title = TaskHistoryPresentation.actionLabel(context, event.eventType);
+    final version = Text(
+      context.l10n.taskDetailsHistoryVersion(event.taskVersion),
+      style: context.text.labelSmall?.copyWith(
+        color: context.colors.onSurfaceVariant,
       ),
-      title: Text(
-        TaskHistoryPresentation.actionLabel(context, event.eventType),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 3),
-          Text(
-            '${TaskHistoryPresentation.actorLabel(context, event.actor, actorNames)} · $date',
-          ),
-          if (event.changes.isNotEmpty) ...[
-            const SizedBox(height: 5),
-            for (final change in event.changes.take(3))
-              Text(
-                '${TaskHistoryPresentation.fieldLabel(context, change.field)}: ${TaskHistoryPresentation.value(context, change.field, change.before)} → ${TaskHistoryPresentation.value(context, change.field, change.after)}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.text.bodySmall,
-              ),
+    );
+    final leading = CircleAvatar(
+      backgroundColor: context.tasksTheme.commandBarSurface,
+      foregroundColor: context.colors.onSurfaceVariant,
+      child: Icon(TaskHistoryPresentation.eventIcon(event.eventType), size: 19),
+    );
+
+    if (event.changes.isEmpty) {
+      return ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+        leading: leading,
+        title: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+        subtitle: Text(actorAndDate),
+        trailing: version,
+      );
+    }
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        dense: true,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 4),
+        leading: leading,
+        iconColor: context.colors.onSurfaceVariant,
+        collapsedIconColor: context.colors.onSurfaceVariant,
+        textColor: context.colors.onSurface,
+        collapsedTextColor: context.colors.onSurface,
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+            ),
+            const SizedBox(width: 8),
+            version,
           ],
-        ],
-      ),
-      trailing: Text(
-        context.l10n.taskDetailsHistoryVersion(event.taskVersion),
-        style: context.text.labelSmall?.copyWith(
-          color: context.colors.onSurfaceVariant,
         ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(actorAndDate),
+            for (final change in visibleChanges)
+              TaskHistoryChangeLine(change: change, compact: true),
+          ],
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              context.l10n.taskHistoryFullDetails,
+              style: context.text.labelMedium,
+            ),
+          ),
+          const SizedBox(height: 4),
+          for (final change in event.changes)
+            TaskHistoryChangeLine(change: change),
+        ],
       ),
     );
   }
+}
+
+class TaskHistoryChangeLine extends StatelessWidget {
+  const TaskHistoryChangeLine({
+    required this.change,
+    this.compact = false,
+    super.key,
+  });
+
+  final TaskHistoryChangeResponse change;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 3),
+    child: Text(
+      '${TaskHistoryPresentation.fieldLabel(context, change.field)}: ${TaskHistoryPresentation.value(context, change.field, change.before, truncate: compact)} → ${TaskHistoryPresentation.value(context, change.field, change.after, truncate: compact)}',
+      maxLines: compact ? 1 : null,
+      overflow: compact ? TextOverflow.ellipsis : TextOverflow.visible,
+      softWrap: true,
+      style: compact
+          ? context.text.bodySmall?.copyWith(
+              color: context.colors.onSurfaceVariant,
+            )
+          : context.text.bodyMedium,
+    ),
+  );
 }

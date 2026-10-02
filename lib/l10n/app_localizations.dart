@@ -12410,6 +12410,102 @@ abstract class AppLocalizations {
   /// **'Incomplete'**
   String get taskHistoryIncompleteValue;
 
+  /// No description provided for @taskHistoryOperation.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation'**
+  String get taskHistoryOperation;
+
+  /// No description provided for @taskHistoryOperationCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get taskHistoryOperationCreated;
+
+  /// No description provided for @taskHistoryOperationUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get taskHistoryOperationUpdated;
+
+  /// No description provided for @taskHistoryOperationDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get taskHistoryOperationDeleted;
+
+  /// No description provided for @taskHistoryOperationPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get taskHistoryOperationPaused;
+
+  /// No description provided for @taskHistoryOperationResumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Resumed'**
+  String get taskHistoryOperationResumed;
+
+  /// No description provided for @taskHistoryOperationFollowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Started following'**
+  String get taskHistoryOperationFollowed;
+
+  /// No description provided for @taskHistoryOperationUnfollowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped following'**
+  String get taskHistoryOperationUnfollowed;
+
+  /// No description provided for @taskHistoryOperationSkippedOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped because the previous task is open'**
+  String get taskHistoryOperationSkippedOpen;
+
+  /// No description provided for @taskHistoryScheduledDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled date'**
+  String get taskHistoryScheduledDate;
+
+  /// No description provided for @taskHistoryTechnicalId.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical identifier'**
+  String get taskHistoryTechnicalId;
+
+  /// No description provided for @taskHistoryItemIdentifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Item ID'**
+  String get taskHistoryItemIdentifier;
+
+  /// No description provided for @taskHistoryCriterionIdentifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Criterion ID'**
+  String get taskHistoryCriterionIdentifier;
+
+  /// No description provided for @taskHistoryRecurrenceRuleIdentifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence rule ID'**
+  String get taskHistoryRecurrenceRuleIdentifier;
+
+  /// No description provided for @taskHistoryOccurrenceTaskIdentifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Occurrence task ID'**
+  String get taskHistoryOccurrenceTaskIdentifier;
+
+  /// No description provided for @taskHistoryFullDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Full change details'**
+  String get taskHistoryFullDetails;
+
   /// No description provided for @taskHistoryUnknownStatus.
   ///
   /// In en, this message translates to:

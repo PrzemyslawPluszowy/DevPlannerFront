@@ -24,6 +24,8 @@ TaskHistoryEventResponse _move({
 );
 
 void main() {
+  // TaskHistoryEventType and TaskActorType are transport response enums. The
+  // status/priority scalars and arbitrary change fields are persisted metadata.
   test('normalizes Kanban status pair without mutating API data or unchanged noise', () {
     final source = _move(
       changes: [
@@ -91,6 +93,86 @@ void main() {
     );
   }
 
+  for (final locale in ['pl', 'en']) {
+    testWidgets(
+      'history previews meaningful changes and expands all raw metadata: $locale',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        const longTitle = 'A long task title that remains available in full';
+        const itemId = '0a8dfdf1-9844-4c43-9242-2aca74898021';
+        const occurrenceId = 'de7cc0ce-bec8-4bd2-a849-2c7e1bccae11';
+        final event = _move(
+          changes: [
+            const TaskHistoryChangeResponse(field: 'action', after: 'create'),
+            const TaskHistoryChangeResponse(
+              field: 'scheduledAtUtc',
+              after: '2026-10-01T12:00:00Z',
+            ),
+            const TaskHistoryChangeResponse(field: 'title', after: longTitle),
+            const TaskHistoryChangeResponse(field: 'itemId', after: itemId),
+            const TaskHistoryChangeResponse(
+              field: 'occurrenceTaskId',
+              after: occurrenceId,
+            ),
+            const TaskHistoryChangeResponse(
+              field: 'status',
+              before: 2,
+              after: 0,
+            ),
+          ],
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: Locale(locale),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: TaskHistoryEventTile(event: event),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final context = tester.element(find.byType(TaskHistoryEventTile));
+        final l10n = AppLocalizations.of(context)!;
+        expect(
+          find.textContaining(l10n.taskHistoryOperationCreated),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining(l10n.taskHistoryScheduledDate),
+          findsOneWidget,
+        );
+        expect(find.textContaining(itemId), findsNothing);
+        expect(find.textContaining(occurrenceId), findsNothing);
+        expect(tester.takeException(), isNull);
+
+        await tester.tap(find.byType(ExpansionTile));
+        await tester.pumpAndSettle();
+        expect(find.textContaining(itemId), findsOneWidget);
+        expect(find.textContaining(occurrenceId), findsOneWidget);
+        expect(
+          find.textContaining(l10n.taskHistoryItemIdentifier),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining(l10n.taskHistoryOccurrenceTaskIdentifier),
+          findsOneWidget,
+        );
+        expect(find.textContaining(longTitle), findsNWidgets(2));
+        expect(
+          find.textContaining(l10n.taskDetailsStatusField),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets(
     'every numeric metadata status and priority maps to the matching textual value',
     (tester) async {
@@ -127,6 +209,15 @@ void main() {
       expect(
         TaskHistoryPresentation.value(context, 'status', 99),
         AppLocalizations.of(context)!.taskHistoryUnknownStatus,
+      );
+      const family = '👨‍👩‍👧‍👦';
+      expect(
+        TaskHistoryPresentation.value(
+          context,
+          'title',
+          '${'a' * 76}$family${'b' * 10}',
+        ),
+        '${'a' * 76}$family…',
       );
       expect(
         TaskHistoryPresentation.actorLabel(

@@ -60,6 +60,7 @@ abstract final class TaskHistoryPresentation {
 
   static String fieldLabel(BuildContext context, String field) =>
       switch (field) {
+        'action' => context.l10n.taskHistoryOperation,
         'title' => context.l10n.taskDetailsTitleField,
         'description' ||
         'descriptionDeltaJson' => context.l10n.taskDetailsDescription,
@@ -70,13 +71,32 @@ abstract final class TaskHistoryPresentation {
         'position' => context.l10n.taskHistoryPosition,
         'isCompleted' => context.l10n.taskHistoryCompleted,
         'startAtUtc' || 'startedAtUtc' => context.l10n.taskDetailsStartDate,
+        'scheduledAtUtc' => context.l10n.taskHistoryScheduledDate,
         'dueAtUtc' => context.l10n.taskDetailsDueDate,
         'assigneeUserIds' => context.l10n.taskDetailsAssignees,
         'milestoneId' => context.l10n.taskDetailsMilestone,
-        _ => field,
+        'itemId' => context.l10n.taskHistoryItemIdentifier,
+        'criterionId' => context.l10n.taskHistoryCriterionIdentifier,
+        'ruleId' => context.l10n.taskHistoryRecurrenceRuleIdentifier,
+        'occurrenceTaskId' => context.l10n.taskHistoryOccurrenceTaskIdentifier,
+        _ =>
+          isTechnicalField(field)
+              ? '${context.l10n.taskHistoryTechnicalId} ($field)'
+              : field,
       };
 
-  static String value(BuildContext context, String field, Object? value) {
+  static bool isTechnicalField(String field) =>
+      field == 'id' ||
+      field.endsWith('Id') ||
+      field.endsWith('Ids') ||
+      field == 'correlationId';
+
+  static String value(
+    BuildContext context,
+    String field,
+    Object? value, {
+    bool truncate = true,
+  }) {
     if (value == null) return '—';
     if (field == 'status' || field == 'targetStatus' || field == 'oldStatus') {
       final status = switch (value) {
@@ -104,6 +124,19 @@ abstract final class TaskHistoryPresentation {
           ? context.l10n.taskHistoryUnknownPriority
           : TaskDetailsLabeler.priority(context, priority);
     }
+    if (field == 'action' && value is String) {
+      return switch (value) {
+        'create' || 'created' => context.l10n.taskHistoryOperationCreated,
+        'update' || 'updated' => context.l10n.taskHistoryOperationUpdated,
+        'delete' || 'deleted' => context.l10n.taskHistoryOperationDeleted,
+        'paused' => context.l10n.taskHistoryOperationPaused,
+        'resumed' => context.l10n.taskHistoryOperationResumed,
+        'follow' => context.l10n.taskHistoryOperationFollowed,
+        'unfollow' => context.l10n.taskHistoryOperationUnfollowed,
+        'skipped_previous_open' => context.l10n.taskHistoryOperationSkippedOpen,
+        _ => value,
+      };
+    }
     if (value is bool) {
       if (field == 'isCompleted') {
         return value
@@ -121,6 +154,8 @@ abstract final class TaskHistoryPresentation {
       }
     }
     final text = value.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
-    return text.length <= 80 ? text : '${text.substring(0, 77)}…';
+    return !truncate || text.characters.length <= 80
+        ? text
+        : '${text.characters.take(77)}…';
   }
 }

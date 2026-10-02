@@ -7001,6 +7001,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskHistoryIncompleteValue => 'Incomplete';
 
   @override
+  String get taskHistoryOperation => 'Operation';
+
+  @override
+  String get taskHistoryOperationCreated => 'Created';
+
+  @override
+  String get taskHistoryOperationUpdated => 'Updated';
+
+  @override
+  String get taskHistoryOperationDeleted => 'Deleted';
+
+  @override
+  String get taskHistoryOperationPaused => 'Paused';
+
+  @override
+  String get taskHistoryOperationResumed => 'Resumed';
+
+  @override
+  String get taskHistoryOperationFollowed => 'Started following';
+
+  @override
+  String get taskHistoryOperationUnfollowed => 'Stopped following';
+
+  @override
+  String get taskHistoryOperationSkippedOpen =>
+      'Skipped because the previous task is open';
+
+  @override
+  String get taskHistoryScheduledDate => 'Scheduled date';
+
+  @override
+  String get taskHistoryTechnicalId => 'Technical identifier';
+
+  @override
+  String get taskHistoryItemIdentifier => 'Item ID';
+
+  @override
+  String get taskHistoryCriterionIdentifier => 'Criterion ID';
+
+  @override
+  String get taskHistoryRecurrenceRuleIdentifier => 'Recurrence rule ID';
+
+  @override
+  String get taskHistoryOccurrenceTaskIdentifier => 'Occurrence task ID';
+
+  @override
+  String get taskHistoryFullDetails => 'Full change details';
+
+  @override
   String get taskHistoryUnknownStatus => 'Unknown status';
 
   @override

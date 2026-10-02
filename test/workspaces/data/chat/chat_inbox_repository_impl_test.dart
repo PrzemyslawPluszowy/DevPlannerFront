@@ -94,6 +94,57 @@ void main() {
       expect(item.otherParticipants.single.userId, 'peer-user');
     });
 
+    test(
+      'odczytuje aktualną nazwę zadania z JSON bez cache nazwy rozmowy',
+      () async {
+        var taskName = 'TASK-64 · Migracja infrastruktury';
+        when(() => api.loadInbox(limit: 30, filter: 'All')).thenAnswer(
+          (_) async => ChatInboxPageResponse.fromJson({
+            'items': [
+              {
+                'conversation': {
+                  'id': 'a4eaa2fe-521a-4ae0-9f5c-ae43fec4596b',
+                  'type': 'Channel',
+                  'scopeKind': 'Resource',
+                  'scopeKey': 'tasks:task:310bd92c-fc7c-4135-a823-c33c9b4cc06d',
+                  'name': taskName,
+                  'version': 1,
+                  'createdAtUtc': '2026-10-01T12:00:00Z',
+                },
+                'lastActivityAtUtc': '2026-10-02T03:02:00Z',
+                'participants': [
+                  {'userId': 'current-user', 'isCurrentUser': true},
+                ],
+                'participantCount': 1,
+              },
+            ],
+          }),
+        );
+
+        final before = (await repository.loadInbox())
+            .getOrElse(
+              () => throw StateError('oczekiwano skrzynki'),
+            )
+            .items
+            .single;
+        expect(before.displayName, taskName);
+        expect(before.conversation.scopeKind, 'resource');
+        expect(before.conversation.type, 'channel');
+
+        taskName = 'TASK-64 · Migracja po zmianie nazwy';
+        final after = (await repository.loadInbox())
+            .getOrElse(
+              () => throw StateError('oczekiwano odświeżonej skrzynki'),
+            )
+            .items
+            .single;
+        expect(after.displayName, taskName);
+        expect(after.conversation.id, before.conversation.id);
+        expect(after, isNot(equals(before)));
+        verify(() => api.loadInbox(limit: 30, filter: 'All')).called(2);
+      },
+    );
+
     test('przekazuje filtr tekstowy i limit strony', () async {
       when(
         () => api.loadInbox(

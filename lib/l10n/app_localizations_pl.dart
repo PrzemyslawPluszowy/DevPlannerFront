@@ -7049,6 +7049,55 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskHistoryIncompleteValue => 'Do wykonania';
 
   @override
+  String get taskHistoryOperation => 'Czynność';
+
+  @override
+  String get taskHistoryOperationCreated => 'Utworzono';
+
+  @override
+  String get taskHistoryOperationUpdated => 'Zaktualizowano';
+
+  @override
+  String get taskHistoryOperationDeleted => 'Usunięto';
+
+  @override
+  String get taskHistoryOperationPaused => 'Wstrzymano';
+
+  @override
+  String get taskHistoryOperationResumed => 'Wznowiono';
+
+  @override
+  String get taskHistoryOperationFollowed => 'Rozpoczęto obserwowanie';
+
+  @override
+  String get taskHistoryOperationUnfollowed => 'Zakończono obserwowanie';
+
+  @override
+  String get taskHistoryOperationSkippedOpen =>
+      'Pominięto, poprzednie zadanie jest otwarte';
+
+  @override
+  String get taskHistoryScheduledDate => 'Data planowana';
+
+  @override
+  String get taskHistoryTechnicalId => 'Identyfikator techniczny';
+
+  @override
+  String get taskHistoryItemIdentifier => 'ID elementu';
+
+  @override
+  String get taskHistoryCriterionIdentifier => 'ID kryterium';
+
+  @override
+  String get taskHistoryRecurrenceRuleIdentifier => 'ID reguły cykliczności';
+
+  @override
+  String get taskHistoryOccurrenceTaskIdentifier => 'ID wystąpienia zadania';
+
+  @override
+  String get taskHistoryFullDetails => 'Pełne szczegóły zmian';
+
+  @override
   String get taskHistoryUnknownStatus => 'Nieznany status';
 
   @override
