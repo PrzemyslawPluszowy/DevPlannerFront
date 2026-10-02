@@ -1233,3 +1233,10 @@ Dowody: /tmp/devplanner-staging-onlyoffice-chrome-ready-2026-10-01.png, /tmp/dev
 - QA-C07: Chrome console ostrzega o niezgodnym rozmiarze favicon.png z manifestem; zebrać i poprawić w kolejnym pakiecie. Brak błędów JS w odczytanej konsoli, jedynie dodatkowe ostrzeżenie single-thread Skwasm (nie zmieniać izolacji bez analizy Office). Początkowo biały ekran podczas ładowania, następnie aplikacja załadowała się; nie uznano tego za trwały błąd bez pomiaru.
 - QA-C06 source trace: OnlyOffice config autosave=true i forcesave=true; onDocumentStateChange(false) uruchamia wyłącznie polling wyższej wersji, 60 s→unconfirmed i dalszy polling 5 s. Nie wywołuje osobnej komendy force-save. To zgodne z obserwacją potrzeby ręcznego Save, lecz wymaga odbioru autozapisu/callbacku; timeouty pozostają bez zmian.
 - Dalej: odbiór EN/light/klawiatury; Office trace; pełny czat/awarie i pozostałe punkty planu. Cel całości nie jest zakończony.
+
+## Centralny rejestr UI testing — 2026-10-02
+
+- [x] Wspólny punkt startowy QA: Backend/docs/ui-testing.md, frontendowy docs/ui-testing.md wskazuje ten sam plik. Macierz nocnych dowodów, kod/publikacja/manual, błędy, następne scenariusze i rezerwacje zastępują szukanie aktualnego statusu w historycznych WIP.
+- [x] AGENTS obu repo wymaga rejestru przed QA i aktualizacji po pakiecie; nie powtarzać zaliczonego wariantu bez zmiany/regresji/nowego dowodu. Każdy odbiór stosuje UI UX Pro Max + Impeccable Operate i osobno ocenia działanie, zrozumiałość dla nietechnicznego użytkownika i spójność z Listą/Kanbanem.
+- [x] Pełny lokalny flutter test po C07/C08: exit 0, 2362 PASS, 4m16s; /tmp/devplanner-chrome-next-batch-full-tests-2026-10-02.log. Flutter analyze clean 21,5s; /tmp/devplanner-chrome-next-batch-analyze-2026-10-02.log.
+- [ ] C07 manifest i C08 focus nadal nieopublikowane. Front runtime pozostaje Wasm0d46817; publikację oraz manual odbierać wspólnym pakietem. Pełny cel modal/chat/storage/awarie pozostaje otwarty; szczegóły i następny krok w rejestrze.
