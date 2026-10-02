@@ -81,6 +81,7 @@ final class TaskDetailsSelectFieldState<T>
         .where((option) => option.value == widget.value)
         .firstOrNull;
     return Focus(
+      canRequestFocus: false,
       onFocusChange: (focused) {
         if (_focused != focused) setState(() => _focused = focused);
       },

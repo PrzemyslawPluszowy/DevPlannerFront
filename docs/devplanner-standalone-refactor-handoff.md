@@ -10601,3 +10601,9 @@ Dowody: /tmp/devplanner-staging-onlyoffice-chrome-ready-2026-10-01.png, /tmp/dev
 - [x] AGENTS obu repo wymaga rejestru przed QA i aktualizacji po pakiecie; nie powtarzać zaliczonego wariantu bez zmiany/regresji/nowego dowodu. Każdy odbiór stosuje UI UX Pro Max + Impeccable Operate i osobno ocenia działanie, zrozumiałość dla nietechnicznego użytkownika i spójność z Listą/Kanbanem.
 - [x] Pełny lokalny flutter test po C07/C08: exit 0, 2362 PASS, 4m16s; /tmp/devplanner-chrome-next-batch-full-tests-2026-10-02.log. Flutter analyze clean 21,5s; /tmp/devplanner-chrome-next-batch-analyze-2026-10-02.log.
 - [ ] C07 manifest i C08 focus nadal nieopublikowane. Front runtime pozostaje Wasm0d46817; publikację oraz manual odbierać wspólnym pakietem. Pełny cel modal/chat/storage/awarie pozostaje otwarty; szczegóły i następny krok w rejestrze.
+
+## Pakiet C07–C10 — 2026-10-02
+
+- Wspólny TaskDetailsSwitchField dla cykliczności i Rozliczany: tokeny, typografia, gęstość, brak adaptive. Handler zmiany rozliczania poza builderem. Handler otwierania konfiguracji kolumn wydzielony poza build; domyślna zakładka bez zmian.
+- Razem z gotowym focus select i manifestem tworzy jeden pakiet. 12 testów proporcjonalnych PASS; analyzer clean 16,4s; diff check clean. Pełne 2362 PASS pochodzi sprzed C09/C10.
+- UI UX Pro Max (labels/feedback), Impeccable Operate/craft floor; detect Dart [] nie dowodzi wyglądu. Wdrożenie i Chrome light/dark/keyboard/config columns pozostają do wykonania. Aktualny status: docs/ui-testing.md.

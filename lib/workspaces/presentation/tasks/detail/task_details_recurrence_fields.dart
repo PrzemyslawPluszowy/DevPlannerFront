@@ -3,6 +3,7 @@ import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imp
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_labelers.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_recurrence_time_fields.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_switch_field.dart';
 
 class TaskRecurrenceFields extends StatelessWidget {
   const TaskRecurrenceFields({
@@ -123,16 +124,8 @@ class TaskRecurrenceFields extends StatelessWidget {
         ],
         onChanged: onStatusChanged,
       ),
-      SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        dense: true,
-        activeThumbColor: context.colors.primary,
-        activeTrackColor: context.colors.primaryContainer,
-        inactiveTrackColor: context.colors.surfaceContainerHighest,
-        title: Text(
-          context.l10n.taskDetailsRecurrenceSkipPrevious,
-          style: context.tasksTheme.controlText,
-        ),
+      TaskDetailsSwitchField(
+        label: context.l10n.taskDetailsRecurrenceSkipPrevious,
         value: skipIfPreviousOpen,
         onChanged: enabled ? onSkipChanged : null,
       ),

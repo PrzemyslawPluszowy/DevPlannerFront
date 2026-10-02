@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_switch_field.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/time_tracking/task_time_entry_error_banner.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
 import 'package:flutter/services.dart';
@@ -75,102 +76,107 @@ class ManualTimeEntryDialogState extends State<ManualTimeEntryDialog> {
       builder: (context, state) => AnimatedBuilder(
         animation: _formChanges,
         builder: (context, _) => WorkspaceCreationModalWrapper(
-        title: l10n.taskDetailsTimeAdd,
-        icon: Symbols.timer_rounded,
-        accentColor: tasks.selectionAccent,
-        isSubmitting: _saving.value,
-        submitLabel: l10n.save,
-        cancelLabel: l10n.cancel,
-        maxWidth: 460,
-        onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
-          context,
-          _draft,
-        ),
-        onSubmit: context.read<TaskTimeTrackingCubit>().canSubmit
-            ? _save
-            : null,
-        body: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const TaskTimeEntryErrorBanner(),
-            Text(
-              l10n.taskDetailsTimeStartedAt,
-              style: tasks.controlText.copyWith(color: colors.onSurfaceVariant),
-            ),
-            Gaps.h8,
-            Builder(
-              builder: (buttonContext) => OutlinedButton.icon(
-                onPressed: _saving.value
-                    ? null
-                    : () => _selectStartedAt(buttonContext),
-                icon: const Icon(Symbols.calendar_clock_rounded, size: 18),
-                label: Text(_startedAtLabel(context)),
-                style: OutlinedButton.styleFrom(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(tasks.controlRadius),
-                  ),
-                  side: BorderSide(color: tasks.canvasBorder),
-                  foregroundColor: colors.onSurface,
+          title: l10n.taskDetailsTimeAdd,
+          icon: Symbols.timer_rounded,
+          accentColor: tasks.selectionAccent,
+          isSubmitting: _saving.value,
+          submitLabel: l10n.save,
+          cancelLabel: l10n.cancel,
+          maxWidth: 460,
+          onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
+            context,
+            _draft,
+          ),
+          onSubmit: context.read<TaskTimeTrackingCubit>().canSubmit
+              ? _save
+              : null,
+          body: Column(
+            mainAxisSize: .min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const TaskTimeEntryErrorBanner(),
+              Text(
+                l10n.taskDetailsTimeStartedAt,
+                style: tasks.controlText.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
               ),
-            ),
-            Gaps.h12,
-            Text(
-              l10n.taskDetailsTimeMinutes,
-              style: tasks.controlText.copyWith(color: colors.onSurfaceVariant),
-            ),
-            Gaps.h8,
-            TextField(
-              controller: _minutes,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              maxLength: 4,
-              enabled: !_saving.value,
-              onChanged: (_) => _durationError.value = null,
-              decoration: _inputDecoration(
-                context,
-                l10n.taskDetailsTimeMinutes,
-              ).copyWith(errorText: _durationError.value),
-            ),
-            Gaps.h12,
-            Text(
-              l10n.taskDetailsTimeDescription,
-              style: tasks.controlText.copyWith(color: colors.onSurfaceVariant),
-            ),
-            Gaps.h8,
-            TextField(
-              controller: _description,
-              maxLines: 2,
-              enabled: !_saving.value,
-              decoration: _inputDecoration(
-                context,
-                l10n.taskDetailsTimeDescription,
+              Gaps.h8,
+              Builder(
+                builder: (buttonContext) => OutlinedButton.icon(
+                  onPressed: _saving.value
+                      ? null
+                      : () => _selectStartedAt(buttonContext),
+                  icon: const Icon(Symbols.calendar_clock_rounded, size: 18),
+                  label: Text(_startedAtLabel(context)),
+                  style: OutlinedButton.styleFrom(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(tasks.controlRadius),
+                    ),
+                    side: BorderSide(color: tasks.canvasBorder),
+                    foregroundColor: colors.onSurface,
+                  ),
+                ),
               ),
-            ),
-            Gaps.h8,
-            SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.taskDetailsTimeBillable),
-              value: _billable.value,
-              onChanged: _saving.value
-                  ? null
-                  : (value) {
-                      _billable.value = value;
-                      _refreshDraft();
-                    },
-            ),
-          ],
-        ),
+              Gaps.h12,
+              Text(
+                l10n.taskDetailsTimeMinutes,
+                style: tasks.controlText.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              Gaps.h8,
+              TextField(
+                controller: _minutes,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                maxLength: 4,
+                enabled: !_saving.value,
+                onChanged: (_) => _durationError.value = null,
+                decoration: _inputDecoration(
+                  context,
+                  l10n.taskDetailsTimeMinutes,
+                ).copyWith(errorText: _durationError.value),
+              ),
+              Gaps.h12,
+              Text(
+                l10n.taskDetailsTimeDescription,
+                style: tasks.controlText.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              Gaps.h8,
+              TextField(
+                controller: _description,
+                maxLines: 2,
+                enabled: !_saving.value,
+                decoration: _inputDecoration(
+                  context,
+                  l10n.taskDetailsTimeDescription,
+                ),
+              ),
+              Gaps.h8,
+              TaskDetailsSwitchField(
+                label: l10n.taskDetailsTimeBillable,
+                value: _billable.value,
+                onChanged: _saving.value ? null : _changeBillable,
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _changeBillable(bool value) {
+    _billable.value = value;
+    _refreshDraft();
   }
 
   InputDecoration _inputDecoration(BuildContext context, String hint) =>

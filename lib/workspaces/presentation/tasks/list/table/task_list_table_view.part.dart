@@ -2,6 +2,23 @@ part of 'task_list_table.dart';
 
 /// Rozszerzenie budujące główny widok przewijany tabeli zadań wraz z paskiem filtrów i masowych akcji.
 extension _TaskListTableViewExtension on _TaskListTableState {
+  void _openColumnSettings(
+    BuildContext context,
+    TaskListPreferencesCubit? preferences,
+    List<TaskCustomFieldResponse> customFields,
+    bool canManage,
+  ) {
+    if (preferences == null) return;
+    unawaited(
+      TaskListColumnsSheet.show(
+        context,
+        cubit: preferences,
+        customFields: customFields,
+        canManage: canManage,
+      ),
+    );
+  }
+
   Widget _buildList(
     BuildContext context,
     ProjectTasksListReady state,
@@ -38,22 +55,6 @@ extension _TaskListTableViewExtension on _TaskListTableState {
       context,
       memberProfiles: widget.memberProfilesByUserId,
     );
-
-    void openColumnSettings({
-      TaskColumnsSheetTab initialTab = TaskColumnsSheetTab.user,
-    }) {
-      if (resolvedPrefCubit != null) {
-        unawaited(
-          TaskListColumnsSheet.show(
-            context,
-            cubit: resolvedPrefCubit,
-            customFields: customFields,
-            canManage: canManage,
-            initialTab: initialTab,
-          ),
-        );
-      }
-    }
 
     return FocusableActionDetector(
       shortcuts: const {
@@ -240,8 +241,13 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                                                         resolvedPrefState,
                                                     resolvedPrefCubit:
                                                         resolvedPrefCubit,
-                                                    openColumnSettings:
-                                                        openColumnSettings,
+                                                    openColumnSettings: () =>
+                                                        _openColumnSettings(
+                                                          context,
+                                                          resolvedPrefCubit,
+                                                          customFields,
+                                                          canManage,
+                                                        ),
                                                   );
                                                 },
                                               ),
