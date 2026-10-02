@@ -1254,11 +1254,11 @@ Front Wasm 748a943071610600b2487d9df3ac6b788fb971d1: skrypt exit 0 i public vers
 ## Office — lokalny pakiet w toku, 2026-10-02
 
 - Potwierdzono testem QA-O01 race: spóźniony GET wersji po nowej edycji pokazywał confirmed; test przed FAIL, po PASS. Osobny StorageOfficeSaveConfirmationWatch odrzuca poprzednie generacje, kontroluje timeout mimo pending GET oraz jawne unconfirmed/retry przy błędzie odczytu. Nazwy/MIME eksportów wydzielone bez zmiany zachowania; Cubit w limicie klasy 400 linii.
-- 55 testów Office PASS; analyzer clean18,3s; diff check clean. Logi /tmp/devplanner-office-save-race-{tests,analyze}-2026-10-02.log. Poprawki lokalne, NIE wdrożono; zbierać do kolejnego pakietu.
+- 55 testów Office PASS; analyzer clean18,3s; diff check clean. Logi /tmp/devplanner-office-save-race-{tests,analyze}-2026-10-02.log. Pakiet opublikowany 2026-10-02 jako Front Wasm c1cac245621ab90ec8ece1a059d8e9fdc908eb44 (kod51e0410): skrypt exit0, publiczny SHA zgodny, Wasm HTTP200 i SPA tej wersji; Backend e0dc193 healthy/readiness ready. Manualny odbiór nowego pakietu NOT RUN; szczegóły w Backend/docs/ui-testing.md.
 - OnlyOffice onDocumentStateChange(false) znaczy wysłanie do usługi edytora, nie persist w Storage. Źródła Events i Callback handler oficjalnego Docs API zapisane w centralnym rejestrze. C06 force-save/autosave/close trace nadal otwarty; nie naprawiać samym timeoutem lub copy. Sama większa Version nie identyfikuje konkretnej nowej edycji; scenariusz opóźnionego callbacku/współedycji nadal wymagany.
 
 ## Edge QA i Office callback evidence — 2026-10-02
 
 - Runtime748a943: Edge PL dark1512×897, istniejący SSO wrócił do dokładnego task/view/taskTab; status select Tab→Space→menu→Escape→Tab→switch działa, switch Space off/on przywrócony bez save. Wysokość formularza i tokenowy switch dark odebrane w tym wariancie. Godzina/minuta, Rozliczany, light, kolumny i Office nadal NOT RUN. Aktywne okno Edge zmienione przez użytkownika, dalsze akcje zatrzymane, zakres zwolniony.
 - Read-only staging healthy/readiness ready. Baza istniejącej kopii QA potwierdza v2 status6(force-save), v3 status2(final-save), oba29220B lecz różne hashe. Nie dowodzi automatycznego persist ani duplikacji. Ostatnie2000 log lines bez callback records to ograniczenie danych, nie brak zdarzeń.
-- Funkcja/UX/UI oraz konkretne ograniczenia w docs/ui-testing.md; UX lokalnej strefy i UTCsummary wymaga dopracowania, nie zmiany reguły transportu. Office51e0410 nadal nieopublikowany i nie zalicza C06.
+- Funkcja/UX/UI oraz konkretne ograniczenia w docs/ui-testing.md; UX lokalnej strefy i UTCsummary wymaga dopracowania, nie zmiany reguły transportu. Office51e0410 opublikowano później w Wasm c1cac24; publikacja nie zalicza C06 ani runtime QA-O01/O02.
