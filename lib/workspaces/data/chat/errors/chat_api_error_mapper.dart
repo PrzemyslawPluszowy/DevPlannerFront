@@ -6,6 +6,7 @@ enum ChatApiErrorCode {
   loadConversations,
   loadInbox,
   loadInboxUnreadCount,
+  loadInboxPresence,
   markConversationRead,
   markMessageDelivered,
   loadMessages,
@@ -68,6 +69,7 @@ final class ChatApiErrorMapper {
     ChatApiErrorCode.loadConversations => 'chat.conversations.load_failed',
     ChatApiErrorCode.loadInbox => 'chat.inbox.load_failed',
     ChatApiErrorCode.loadInboxUnreadCount => 'chat.inbox.unread_count_failed',
+    ChatApiErrorCode.loadInboxPresence => 'chat.inbox.presence_failed',
     ChatApiErrorCode.markConversationRead =>
       'chat.conversations.mark_read_failed',
     ChatApiErrorCode.markMessageDelivered =>

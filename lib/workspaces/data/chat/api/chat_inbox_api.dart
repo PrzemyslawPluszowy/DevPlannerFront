@@ -27,6 +27,12 @@ abstract class ChatInboxApi {
   @GET('/api/v1/chat/inbox/unread-count')
   Future<ChatInboxUnreadCountResponse> loadInboxUnreadCount();
 
+  /// Pobiera lease-backed presence dla wskazanych rozmówców inboxa.
+  @POST('/api/v1/chat/inbox/presence')
+  Future<ChatInboxPresenceResponse> loadInboxPresence(
+    @Body() ChatInboxPresenceRequest request,
+  );
+
   /// Potwierdza odczyt wskazanej wiadomości.
   @POST('/api/v1/chat/conversations/{conversationId}/messages/{messageId}/read')
   Future<void> markRead(

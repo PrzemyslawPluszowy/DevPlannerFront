@@ -26,12 +26,19 @@ final class TaskTimeTrackingFailure extends TaskTimeTrackingState {
 final class TaskTimeTrackingReady extends TaskTimeTrackingState {
   TaskTimeTrackingReady({
     required List<TaskTimeEntryResponse> entries,
+    Map<String, String> reviewerNames = const {},
+    Set<String> reviewerIdsLookedUp = const {},
+    this.reviewerLookupFailure,
+    this.isReviewerLookupLoading = false,
+    this.isReviewerLookupRetryBlocked = false,
     this.isSaving = false,
     this.error,
     this.apiError,
     this.isRetryBlocked = false,
     this.nowUtc,
   }) : entries = List.unmodifiable(entries),
+       reviewerNames = Map.unmodifiable(reviewerNames),
+       reviewerIdsLookedUp = Set.unmodifiable(reviewerIdsLookedUp),
        totalMinutes = _totalMinutes(entries, nowUtc),
        activeTimers = List.unmodifiable(
          entries.where(
@@ -44,6 +51,11 @@ final class TaskTimeTrackingReady extends TaskTimeTrackingState {
          entries.where((entry) => entry.canStopTimer),
        );
   final List<TaskTimeEntryResponse> entries;
+  final Map<String, String> reviewerNames;
+  final Set<String> reviewerIdsLookedUp;
+  final ApiError? reviewerLookupFailure;
+  final bool isReviewerLookupLoading;
+  final bool isReviewerLookupRetryBlocked;
   final bool isSaving;
   final String? error;
   final ApiError? apiError;
@@ -73,6 +85,12 @@ final class TaskTimeTrackingReady extends TaskTimeTrackingState {
 
   TaskTimeTrackingReady copyWith({
     List<TaskTimeEntryResponse>? entries,
+    Map<String, String>? reviewerNames,
+    Set<String>? reviewerIdsLookedUp,
+    ApiError? reviewerLookupFailure,
+    bool clearReviewerLookupFailure = false,
+    bool? isReviewerLookupLoading,
+    bool? isReviewerLookupRetryBlocked,
     bool? isSaving,
     String? error,
     ApiError? apiError,
@@ -81,6 +99,15 @@ final class TaskTimeTrackingReady extends TaskTimeTrackingState {
     DateTime? nowUtc,
   }) => TaskTimeTrackingReady(
     entries: entries ?? this.entries,
+    reviewerNames: reviewerNames ?? this.reviewerNames,
+    reviewerIdsLookedUp: reviewerIdsLookedUp ?? this.reviewerIdsLookedUp,
+    reviewerLookupFailure: clearReviewerLookupFailure
+        ? null
+        : reviewerLookupFailure ?? this.reviewerLookupFailure,
+    isReviewerLookupLoading:
+        isReviewerLookupLoading ?? this.isReviewerLookupLoading,
+    isReviewerLookupRetryBlocked:
+        isReviewerLookupRetryBlocked ?? this.isReviewerLookupRetryBlocked,
     isSaving: isSaving ?? this.isSaving,
     error: clearError ? null : error ?? this.error,
     apiError: clearError ? null : apiError ?? this.apiError,

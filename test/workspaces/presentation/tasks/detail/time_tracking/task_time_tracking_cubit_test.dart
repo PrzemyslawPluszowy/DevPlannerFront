@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/time_tracking/cubit/task_time_tracking_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -136,7 +141,348 @@ TaskTimeTrackingCubit _cubit(_Repository repository) => TaskTimeTrackingCubit(
   taskId: 'task-1',
 );
 
+final class _Profiles implements ProjectMemberProfilesRepository {
+  _Profiles(this.result);
+  Either<ApiError, List<ProjectMemberProfile>> result;
+  int calls = 0;
+  bool? lastForceRefresh;
+  final pendingResults =
+      <Completer<Either<ApiError, List<ProjectMemberProfile>>>>[];
+
+  @override
+  Future<Either<ApiError, List<ProjectMemberProfile>>> listProfiles({
+    required String workspaceId,
+    required String projectId,
+    bool forceRefresh = false,
+  }) async {
+    calls++;
+    lastForceRefresh = forceRefresh;
+    if (pendingResults.isNotEmpty) return pendingResults.removeAt(0).future;
+    return result;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
+  test('wzbogaca autora recenzji tylko nazwą z profilu ACL projektu', () async {
+    final entry = _entry().copyWith(
+      approvalStatus: TaskTimeEntryApprovalStatus.approved,
+      reviewedByUserId: 'reviewer-uuid',
+      reviewedAtUtc: DateTime.utc(2026, 8, 27),
+      reviewComment: 'Checked',
+    );
+    final cubit = TaskTimeTrackingCubit(
+      repository: _Repository(Right([entry])),
+      memberProfilesRepository: _Profiles(
+        const Right([
+          ProjectMemberProfile(
+            userId: 'reviewer-uuid',
+            displayName: 'Reviewer Name',
+            role: ProjectRole.member,
+          ),
+        ]),
+      ),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+
+    await cubit.load();
+    await cubit.stream.firstWhere(
+      (state) =>
+          state is TaskTimeTrackingReady &&
+          state.reviewerIdsLookedUp.contains('reviewer-uuid'),
+    );
+
+    final state = cubit.state as TaskTimeTrackingReady;
+    expect(state.entries, [entry]);
+    expect(state.reviewerNames, {'reviewer-uuid': 'Reviewer Name'});
+    expect(state.reviewerLookupFailure, isNull);
+    expect(state.reviewerIdsLookedUp, {'reviewer-uuid'});
+    await cubit.close();
+  });
+
+  test('błąd profili nie odrzuca wpisów czasu ani nie ujawnia UUID', () async {
+    final entry = _entry().copyWith(
+      approvalStatus: TaskTimeEntryApprovalStatus.rejected,
+      reviewedByUserId: 'reviewer-uuid',
+    );
+    const profileFailure = ApiError(
+      type: ApiErrorType.connection,
+      message: 'offline',
+    );
+    final profiles = _Profiles(const Left(profileFailure));
+    final cubit = TaskTimeTrackingCubit(
+      repository: _Repository(Right([entry])),
+      memberProfilesRepository: profiles,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+
+    await cubit.load();
+    await cubit.stream.firstWhere(
+      (state) =>
+          state is TaskTimeTrackingReady && state.reviewerLookupFailure != null,
+    );
+
+    var state = cubit.state as TaskTimeTrackingReady;
+    expect(state.entries, [entry]);
+    expect(state.reviewerNames, isEmpty);
+    expect(state.reviewerLookupFailure, profileFailure);
+    expect(state.reviewerIdsLookedUp, isEmpty);
+    profiles.result = const Right([
+      ProjectMemberProfile(
+        userId: 'reviewer-uuid',
+        displayName: 'Reviewer Name',
+        role: ProjectRole.member,
+      ),
+    ]);
+    await cubit.retryReviewerNames();
+    state = cubit.state as TaskTimeTrackingReady;
+    expect(profiles.lastForceRefresh, isTrue);
+    expect(state.reviewerNames, {'reviewer-uuid': 'Reviewer Name'});
+    expect(state.reviewerLookupFailure, isNull);
+    await cubit.close();
+  });
+
+  test(
+    'looks up a newly seen reviewer after a successful prior lookup',
+    () async {
+      final firstEntry = _entry().copyWith(reviewedByUserId: 'reviewer-one');
+      final repository = _Repository(Right([firstEntry]));
+      final profiles = _Profiles(
+        const Right([
+          ProjectMemberProfile(
+            userId: 'reviewer-one',
+            displayName: 'Reviewer One',
+            role: ProjectRole.member,
+          ),
+          ProjectMemberProfile(
+            userId: 'reviewer-two',
+            displayName: 'Reviewer Two',
+            role: ProjectRole.member,
+          ),
+        ]),
+      );
+      final cubit = TaskTimeTrackingCubit(
+        repository: repository,
+        memberProfilesRepository: profiles,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+      );
+      await cubit.load();
+      await cubit.stream.firstWhere(
+        (state) =>
+            state is TaskTimeTrackingReady &&
+            state.reviewerIdsLookedUp.contains('reviewer-one'),
+      );
+
+      repository.listResult = Right([
+        firstEntry.copyWith(reviewedByUserId: 'reviewer-two'),
+      ]);
+      repository.startResult = Right(_entry());
+      await cubit.startTimer();
+      await cubit.stream.firstWhere(
+        (state) =>
+            state is TaskTimeTrackingReady &&
+            state.reviewerIdsLookedUp.contains('reviewer-two'),
+      );
+
+      final state = cubit.state as TaskTimeTrackingReady;
+      expect(state.reviewerNames['reviewer-two'], 'Reviewer Two');
+      expect(profiles.calls, 2);
+      expect(profiles.lastForceRefresh, isTrue);
+      await cubit.close();
+    },
+  );
+
+  test(
+    'blocks duplicate reviewer lookup while one request is pending',
+    () async {
+      final entry = _entry().copyWith(reviewedByUserId: 'reviewer-uuid');
+      final profiles = _Profiles(const Right([]));
+      final pending = Completer<Either<ApiError, List<ProjectMemberProfile>>>();
+      profiles.pendingResults.add(pending);
+      final cubit = TaskTimeTrackingCubit(
+        repository: _Repository(Right([entry])),
+        memberProfilesRepository: profiles,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+      );
+
+      await cubit.load();
+      expect(profiles.calls, 1);
+      expect(
+        (cubit.state as TaskTimeTrackingReady).isReviewerLookupLoading,
+        isTrue,
+      );
+      await cubit.retryReviewerNames();
+      await cubit.retryReviewerNames();
+      expect(profiles.calls, 1);
+
+      pending.complete(
+        const Right([
+          ProjectMemberProfile(
+            userId: 'reviewer-uuid',
+            displayName: 'Reviewer',
+            role: ProjectRole.member,
+          ),
+        ]),
+      );
+      await cubit.stream.firstWhere(
+        (state) =>
+            state is TaskTimeTrackingReady &&
+            state.reviewerIdsLookedUp.contains('reviewer-uuid'),
+      );
+      await cubit.close();
+    },
+  );
+
+  test(
+    'reviewer 429 cooldown blocks retry but leaves time actions enabled',
+    () async {
+      final entry = _entry().copyWith(reviewedByUserId: 'reviewer-uuid');
+      final profiles = _Profiles(
+        Left(
+          ApiError(
+            type: ApiErrorType.server,
+            message: 'rate limited',
+            statusCode: 429,
+            retryAfterUtc: DateTime.now().toUtc().add(
+              const Duration(minutes: 1),
+            ),
+            traceId: 'reviewer-trace-429',
+          ),
+        ),
+      );
+      final repository = _Repository(Right([entry]))
+        ..startResult = Right(_entry());
+      final cubit = TaskTimeTrackingCubit(
+        repository: repository,
+        memberProfilesRepository: profiles,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+      );
+
+      await cubit.load();
+      await cubit.stream.firstWhere(
+        (state) =>
+            state is TaskTimeTrackingReady &&
+            state.reviewerLookupFailure?.statusCode == 429,
+      );
+      final state = cubit.state as TaskTimeTrackingReady;
+      expect(state.isReviewerLookupRetryBlocked, isTrue);
+      expect(state.reviewerLookupFailure?.traceId, 'reviewer-trace-429');
+      await cubit.retryReviewerNames();
+      expect(profiles.calls, 1);
+
+      expect(await cubit.startTimer(), isTrue);
+      final afterStart = cubit.state as TaskTimeTrackingReady;
+      expect(repository.startCalls, 1);
+      expect(afterStart.entries, isNotEmpty);
+      expect(afterStart.isReviewerLookupRetryBlocked, isTrue);
+      expect(afterStart.isRetryBlocked, isFalse);
+      await cubit.close();
+    },
+  );
+
+  test('ignores stale profile retry after a newer entries reload', () async {
+    final entry = _entry().copyWith(reviewedByUserId: 'reviewer-uuid');
+    final profiles = _Profiles(
+      const Left(
+        ApiError(type: ApiErrorType.connection, message: 'offline'),
+      ),
+    );
+    final cubit = TaskTimeTrackingCubit(
+      repository: _Repository(Right([entry])),
+      memberProfilesRepository: profiles,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    await cubit.load();
+    await cubit.stream.firstWhere(
+      (state) =>
+          state is TaskTimeTrackingReady && state.reviewerLookupFailure != null,
+    );
+
+    final stale = Completer<Either<ApiError, List<ProjectMemberProfile>>>();
+    final fresh = Completer<Either<ApiError, List<ProjectMemberProfile>>>();
+    profiles.pendingResults.add(stale);
+    final staleRetry = cubit.retryReviewerNames();
+    expect(profiles.calls, 2);
+    profiles.pendingResults.add(fresh);
+    await cubit.load();
+    expect(profiles.calls, 3);
+
+    stale.complete(
+      const Right([
+        ProjectMemberProfile(
+          userId: 'reviewer-uuid',
+          displayName: 'Stale reviewer',
+          role: ProjectRole.member,
+        ),
+      ]),
+    );
+    await staleRetry;
+    expect((cubit.state as TaskTimeTrackingReady).reviewerNames, isEmpty);
+
+    fresh.complete(
+      const Right([
+        ProjectMemberProfile(
+          userId: 'reviewer-uuid',
+          displayName: 'Current reviewer',
+          role: ProjectRole.member,
+        ),
+      ]),
+    );
+    await cubit.stream.firstWhere(
+      (state) =>
+          state is TaskTimeTrackingReady &&
+          state.reviewerNames.containsKey('reviewer-uuid'),
+    );
+    expect(
+      (cubit.state as TaskTimeTrackingReady).reviewerNames['reviewer-uuid'],
+      'Current reviewer',
+    );
+    await cubit.close();
+  });
+
+  test('does not publish profile results after Cubit closes', () async {
+    final entry = _entry().copyWith(reviewedByUserId: 'reviewer-uuid');
+    final profiles = _Profiles(const Right([]));
+    final pending = Completer<Either<ApiError, List<ProjectMemberProfile>>>();
+    profiles.pendingResults.add(pending);
+    final cubit = TaskTimeTrackingCubit(
+      repository: _Repository(Right([entry])),
+      memberProfilesRepository: profiles,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+    );
+    await cubit.load();
+    expect(profiles.calls, 1);
+    await cubit.close();
+
+    pending.complete(
+      const Right([
+        ProjectMemberProfile(
+          userId: 'reviewer-uuid',
+          displayName: 'Late reviewer',
+          role: ProjectRole.member,
+        ),
+      ]),
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(cubit.isClosed, isTrue);
+  });
+
   test('snapshot czasu nie zmienia się po mutacji listy repozytorium', () {
     final entries = [_entry(), _entry(active: true).copyWith(id: 'timer-2')];
     final ready = TaskTimeTrackingReady(

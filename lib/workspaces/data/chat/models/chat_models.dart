@@ -6,6 +6,7 @@ export 'chat_directory_models.dart';
 export 'chat_draft_models.dart';
 export 'chat_history_models.dart';
 export 'chat_inbox_models.dart';
+export 'chat_inbox_presence_models.dart';
 export 'chat_invitation_models.dart';
 export 'chat_member_models.dart';
 export 'chat_message_action_models.dart';

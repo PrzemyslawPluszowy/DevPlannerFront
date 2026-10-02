@@ -49,6 +49,13 @@ final class ChatInboxItem extends Equatable {
         growable: false,
       );
 
+  /// Pełny identyfikator jedynego rozmówcy w bezpośredniej rozmowie.
+  String? get directPeerUserId {
+    if (conversation.type != 'direct' || conversation.isArchived) return null;
+    final others = otherParticipants;
+    return others.length == 1 ? others.single.userId : null;
+  }
+
   /// Nazwa do prezentacji nagłówka: nazwa rozmowy albo etykieta rozmówcy.
   String get displayName {
     final name = conversation.name?.trim();

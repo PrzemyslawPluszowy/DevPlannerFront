@@ -12392,6 +12392,24 @@ abstract class AppLocalizations {
   /// **'Position'**
   String get taskHistoryPosition;
 
+  /// No description provided for @taskHistoryAcceptance.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptance'**
+  String get taskHistoryAcceptance;
+
+  /// No description provided for @taskHistoryAcceptedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get taskHistoryAcceptedValue;
+
+  /// No description provided for @taskHistoryNotAcceptedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepted'**
+  String get taskHistoryNotAcceptedValue;
+
   /// No description provided for @taskHistoryCompleted.
   ///
   /// In en, this message translates to:
@@ -12949,6 +12967,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Convert to PDF'**
   String get storageConvertToPdfAction;
+
+  /// No description provided for @taskDetailsTimeReviewedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed by {reviewer}'**
+  String taskDetailsTimeReviewedBy(String reviewer);
+
+  /// No description provided for @taskDetailsTimeReviewerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer unavailable'**
+  String get taskDetailsTimeReviewerUnavailable;
+
+  /// No description provided for @taskDetailsTimeReviewDateUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Review date unavailable'**
+  String get taskDetailsTimeReviewDateUnavailable;
 
   /// No description provided for @taskDetailsTimeTracking.
   ///
@@ -19865,6 +19901,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not complete this action. Please try again.'**
   String get chatInboxActionFailureMessage;
+
+  /// No description provided for @chatInboxPresenceFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not refresh direct-chat presence.'**
+  String get chatInboxPresenceFailure;
 
   /// No description provided for @chatInboxRetry.
   ///

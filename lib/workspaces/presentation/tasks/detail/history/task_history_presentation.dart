@@ -70,6 +70,7 @@ abstract final class TaskHistoryPresentation {
         'priority' => context.l10n.taskDetailsPriorityField,
         'position' => context.l10n.taskHistoryPosition,
         'isCompleted' => context.l10n.taskHistoryCompleted,
+        'isAccepted' || 'IsAccepted' => context.l10n.taskHistoryAcceptance,
         'startAtUtc' || 'startedAtUtc' => context.l10n.taskDetailsStartDate,
         'scheduledAtUtc' => context.l10n.taskHistoryScheduledDate,
         'dueAtUtc' => context.l10n.taskDetailsDueDate,
@@ -142,6 +143,11 @@ abstract final class TaskHistoryPresentation {
         return value
             ? context.l10n.taskHistoryCompletedValue
             : context.l10n.taskHistoryIncompleteValue;
+      }
+      if (field == 'isAccepted' || field == 'IsAccepted') {
+        return value
+            ? context.l10n.taskHistoryAcceptedValue
+            : context.l10n.taskHistoryNotAcceptedValue;
       }
       return value ? context.l10n.yes : context.l10n.no;
     }

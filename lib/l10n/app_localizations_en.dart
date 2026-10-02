@@ -6992,6 +6992,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskHistoryPosition => 'Position';
 
   @override
+  String get taskHistoryAcceptance => 'Acceptance';
+
+  @override
+  String get taskHistoryAcceptedValue => 'Accepted';
+
+  @override
+  String get taskHistoryNotAcceptedValue => 'Not accepted';
+
+  @override
   String get taskHistoryCompleted => 'Completion';
 
   @override
@@ -7288,6 +7297,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageConvertToPdfAction => 'Convert to PDF';
+
+  @override
+  String taskDetailsTimeReviewedBy(String reviewer) {
+    return 'Reviewed by $reviewer';
+  }
+
+  @override
+  String get taskDetailsTimeReviewerUnavailable => 'Reviewer unavailable';
+
+  @override
+  String get taskDetailsTimeReviewDateUnavailable => 'Review date unavailable';
 
   @override
   String get taskDetailsTimeTracking => 'Time tracking';
@@ -11123,6 +11143,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get chatInboxActionFailureMessage =>
       'Could not complete this action. Please try again.';
+
+  @override
+  String get chatInboxPresenceFailure =>
+      'Could not refresh direct-chat presence.';
 
   @override
   String get chatInboxRetry => 'Try again';

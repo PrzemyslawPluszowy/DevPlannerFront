@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
@@ -10,9 +11,11 @@ import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_m
 import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_empty_copy.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_presence_failure.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row_menu.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_presence_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/members/chat_members_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_section.dart';
@@ -70,6 +73,12 @@ class ChatPanelInboxView extends StatelessWidget {
     ChatInboxCubit cubit,
     List<ChatInboxItem> items,
   ) {
+    final presenceError = context.select<ChatInboxPresenceCubit?, ApiError?>(
+      (cubit) => cubit?.state.error,
+    );
+    final retryCountdownSeconds = context.select<ChatInboxPresenceCubit?, int>(
+      (cubit) => cubit?.state.retryCountdownSeconds ?? 0,
+    );
     final now = (nowUtc ?? DateTime.now)();
     final archived =
         context.read<ChatPanelSectionCubit>().state.section ==
@@ -106,10 +115,23 @@ class ChatPanelInboxView extends StatelessWidget {
     return ListView.builder(
       controller: scrollController,
       padding: const EdgeInsets.fromLTRB(Sizes.p8, 0, Sizes.p8, Sizes.p16),
-      itemCount: filtered.length + 1,
+      itemCount: filtered.length + 1 + (presenceError == null ? 0 : 1),
       itemBuilder: (context, index) {
-        if (index == filtered.length) return _footer(context, cubit);
-        final item = filtered[index];
+        if (presenceError != null && index == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: Sizes.p4),
+            child: ChatInboxPresenceFailure(
+              error: presenceError,
+              retryCountdownSeconds: retryCountdownSeconds,
+              onRetry: () => unawaited(
+                context.read<ChatInboxPresenceCubit?>()?.retry(),
+              ),
+            ),
+          );
+        }
+        final rowIndex = index - (presenceError == null ? 0 : 1);
+        if (rowIndex == filtered.length) return _footer(context, cubit);
+        final item = filtered[rowIndex];
         final actionsBuilder = _rowActions(context, item, archived: archived);
         return Padding(
           padding: const EdgeInsets.only(bottom: Sizes.p2),

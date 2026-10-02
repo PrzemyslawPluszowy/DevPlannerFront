@@ -5,6 +5,7 @@ import 'package:devplanner/workspaces/domain/chat/conversation/chat_conversation
 import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/discussion/chat_discussion_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/links/chat_link_preview_repository.dart';
@@ -33,6 +34,7 @@ final class DevPlannerGlobalChatComposition {
     required this.userId,
     required this.draftRepository,
     this.inboxRepository,
+    this.inboxPresenceRepository,
     this.conversationManagementRepository,
     this.directoryRepository,
     this.pendingSendStore,
@@ -65,6 +67,9 @@ final class DevPlannerGlobalChatComposition {
 
   /// Port serwerowej skrzynki: licznik nieprzeczytanych, kursory i znacznik odczytu.
   final ChatInboxRepository? inboxRepository;
+
+  /// Batchowy live presence rozmówców bez dołączania każdego wiersza.
+  final ChatInboxPresenceRepository? inboxPresenceRepository;
 
   /// Port zarządzania rozmowami: tworzenie, szczegóły, archiwum, opuszczenie.
   final ChatConversationManagementRepository? conversationManagementRepository;

@@ -173,6 +173,47 @@ void main() {
     );
   }
 
+  for (final locale in ['pl', 'en']) {
+    testWidgets(
+      'acceptance audit keeps persisted PascalCase fields readable: $locale',
+      (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: Locale(locale),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: TaskHistoryEventTile(
+                event: _move(
+                  changes: const [
+                    TaskHistoryChangeResponse(
+                      field: 'IsAccepted',
+                      before: false,
+                      after: true,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text(
+            locale == 'pl'
+                ? 'Akceptacja: Niezaakceptowane → Zaakceptowane'
+                : 'Acceptance: Not accepted → Accepted',
+          ),
+          findsOneWidget,
+        );
+        expect(find.textContaining('IsAccepted'), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets(
     'every numeric metadata status and priority maps to the matching textual value',
     (tester) async {

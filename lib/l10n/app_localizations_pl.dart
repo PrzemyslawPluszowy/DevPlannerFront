@@ -7040,6 +7040,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskHistoryPosition => 'Kolejność';
 
   @override
+  String get taskHistoryAcceptance => 'Akceptacja';
+
+  @override
+  String get taskHistoryAcceptedValue => 'Zaakceptowane';
+
+  @override
+  String get taskHistoryNotAcceptedValue => 'Niezaakceptowane';
+
+  @override
   String get taskHistoryCompleted => 'Ukończenie';
 
   @override
@@ -7342,6 +7351,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageConvertToPdfAction => 'Konwertuj do PDF';
+
+  @override
+  String taskDetailsTimeReviewedBy(String reviewer) {
+    return 'Osoba weryfikująca: $reviewer';
+  }
+
+  @override
+  String get taskDetailsTimeReviewerUnavailable =>
+      'Osoba weryfikująca niedostępna';
+
+  @override
+  String get taskDetailsTimeReviewDateUnavailable =>
+      'Data weryfikacji niedostępna';
 
   @override
   String get taskDetailsTimeTracking => 'Rejestracja czasu';
@@ -11214,6 +11236,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get chatInboxActionFailureMessage =>
       'Nie udało się wykonać tej akcji. Spróbuj ponownie.';
+
+  @override
+  String get chatInboxPresenceFailure =>
+      'Nie udało się odświeżyć obecności rozmówców.';
 
   @override
   String get chatInboxRetry => 'Spróbuj ponownie';

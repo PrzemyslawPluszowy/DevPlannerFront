@@ -2,6 +2,7 @@ import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imp
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_time_entry_dialog.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_time_entry_review_dialog.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/time_tracking/widgets/task_time_entry_review_details.dart';
 
 class TaskTimeTrackingSection extends StatelessWidget {
   const TaskTimeTrackingSection({
@@ -18,6 +19,8 @@ class TaskTimeTrackingSection extends StatelessWidget {
       create: (context) {
         final cubit = TaskTimeTrackingCubit(
           repository: context.read<TaskTimeTrackingRepository>(),
+          memberProfilesRepository: context
+              .read<ProjectMemberProfilesRepository?>(),
           workspaceId: details.workspaceId,
           projectId: details.projectId,
           taskId: taskId,
@@ -69,8 +72,7 @@ class TaskTimeTrackingBody extends StatelessWidget {
               if (state.apiError case final error?)
                 TaskDetailsModalError(
                   error: error,
-                  fallbackMessage:
-                      context.l10n.taskDetailsTimeOperationFailed,
+                  fallbackMessage: context.l10n.taskDetailsTimeOperationFailed,
                 )
               else
                 Text(message),
@@ -170,11 +172,43 @@ class TimeTrackingReady extends StatelessWidget {
               const SizedBox(height: 9),
               Text(state.error!, style: TextStyle(color: context.colors.error)),
             ],
+            if (state.reviewerLookupFailure case final reviewerError?) ...[
+              const SizedBox(height: 8),
+              TaskDetailsModalError(
+                error: reviewerError,
+                fallbackMessage:
+                    context.l10n.taskDetailsTimeReviewerUnavailable,
+              ),
+              Row(
+                children: [
+                  const Spacer(),
+                  TextButton(
+                    onPressed:
+                        state.isSaving ||
+                            state.isReviewerLookupLoading ||
+                            state.isReviewerLookupRetryBlocked
+                        ? null
+                        : () => unawaited(
+                            context
+                                .read<TaskTimeTrackingCubit>()
+                                .retryReviewerNames(),
+                          ),
+                    child: state.isReviewerLookupLoading
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(context.l10n.retry),
+                  ),
+                ],
+              ),
+            ],
             for (final entry in state.entries)
               TimeEntryTile(
                 entry: entry,
                 isSaving: state.isSaving || state.isRetryBlocked,
                 nowUtc: state.nowUtc,
+                reviewerName: state.reviewerNames[entry.reviewedByUserId],
               ),
           ],
         ),
@@ -188,11 +222,13 @@ class TimeEntryTile extends StatelessWidget {
     required this.entry,
     required this.isSaving,
     required this.nowUtc,
+    this.reviewerName,
     super.key,
   });
   final TaskTimeEntryResponse entry;
   final bool isSaving;
   final DateTime? nowUtc;
+  final String? reviewerName;
   @override
   Widget build(BuildContext context) => ListTile(
     dense: true,
@@ -207,8 +243,19 @@ class TimeEntryTile extends StatelessWidget {
           ? entry.description!
           : context.l10n.taskDetailsTimeNoDescription,
     ),
-    subtitle: Text(
-      '${TaskTimeTrackingPresentation.durationLabel(context, entry.durationMinutes ?? TaskTimeTrackingPresentation.timerMinutes(entry, nowUtc))} · ${TaskTimeTrackingPresentation.approvalLabel(context, entry.approvalStatus)}',
+    subtitle: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${TaskTimeTrackingPresentation.durationLabel(context, entry.durationMinutes ?? TaskTimeTrackingPresentation.timerMinutes(entry, nowUtc))} · ${TaskTimeTrackingPresentation.approvalLabel(context, entry.approvalStatus)}',
+        ),
+        if (entry.approvalStatus == TaskTimeEntryApprovalStatus.approved ||
+            entry.approvalStatus == TaskTimeEntryApprovalStatus.rejected)
+          TaskTimeEntryReviewDetails(
+            entry: entry,
+            reviewerName: reviewerName,
+          ),
+      ],
     ),
     trailing: TimeEntryActions(entry: entry, isSaving: isSaving),
   );

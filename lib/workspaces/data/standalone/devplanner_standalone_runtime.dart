@@ -17,6 +17,7 @@ import 'package:devplanner/workspaces/data/chat/delivery/chat_pending_send_store
 import 'package:devplanner/workspaces/data/chat/links/chat_external_link_port_adapter.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_conversation_management_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_directory_repository_impl.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_inbox_presence_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_inbox_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_link_policy_repository_impl.dart';
 import 'package:devplanner/workspaces/data/chat/repositories/chat_link_preview_repository_impl.dart';
@@ -42,6 +43,7 @@ import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository
 import 'package:devplanner/workspaces/domain/chat/composer/chat_server_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/link_policy/chat_link_policy_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/links/chat_link_preview_repository.dart';
@@ -200,6 +202,8 @@ final class DevPlannerStandaloneRuntime {
   late final ChatInboxRepository _chatInboxRepository = ChatInboxRepositoryImpl(
     _chatInboxApi,
   );
+  late final ChatInboxPresenceRepository _chatInboxPresenceRepository =
+      ChatInboxPresenceRepositoryImpl(_chatInboxApi);
   late final ChatLinkPolicyRepository _chatLinkPolicy =
       ChatLinkPolicyRepositoryImpl(_chatContentApi);
   late final ChatLinkPreviewRepository _chatLinkPreviews =
@@ -248,6 +252,7 @@ final class DevPlannerStandaloneRuntime {
       userId: _userId,
       draftRepository: _draftRepository,
       inboxRepository: _chatInboxRepository,
+      inboxPresenceRepository: _chatInboxPresenceRepository,
       conversationManagementRepository: _chatManagement,
       directoryRepository: _chatDirectory,
       pendingSendStore: _chatPendingSends,

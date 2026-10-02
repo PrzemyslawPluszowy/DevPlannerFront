@@ -5,10 +5,13 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_presence_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/presence/widgets/chat_inbox_presence_label.dart';
 import 'package:devplanner/workspaces/presentation/chat/shared/chat_timestamp_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:provider/provider.dart';
 
 /// Wiersz skrzynki rozmów: awatar, nazwa, podgląd, czas i stan nieprzeczytania.
 ///
@@ -48,12 +51,18 @@ class ChatInboxRow extends StatelessWidget {
     final chat = context.chatTheme;
     final unread = item.hasUnread;
     final preview = _previewText(context);
+    final peerUserId = item.directPeerUserId;
+    final peerPresence = peerUserId == null
+        ? null
+        : context.select<ChatInboxPresenceCubit?, bool?>(
+            (cubit) => cubit?.state.statusFor(peerUserId),
+          );
     final builder = actionsBuilder;
 
     return Semantics(
       button: true,
       selected: selected,
-      label: _semanticsLabel(context, preview),
+      label: _semanticsLabel(context, preview, peerPresence),
       child: Focus(
         onKeyEvent: builder == null
             ? null
@@ -201,6 +210,12 @@ class ChatInboxRow extends StatelessWidget {
                                     ),
                                   ),
                                 ),
+                                if (peerUserId != null) ...[
+                                  const SizedBox(width: Sizes.p8),
+                                  ChatInboxPresenceLabel(
+                                    isOnline: peerPresence,
+                                  ),
+                                ],
                                 if (unread) ...[
                                   const SizedBox(width: Sizes.p8),
                                   _ChatUnreadBadge(count: item.unreadCount),
@@ -276,10 +291,20 @@ class ChatInboxRow extends StatelessWidget {
             : l10n.globalChatDeletedMessage);
   }
 
-  String _semanticsLabel(BuildContext context, String preview) {
+  String _semanticsLabel(
+    BuildContext context,
+    String preview,
+    bool? peerPresence,
+  ) {
     final l10n = context.l10n;
     final parts = <String>[
       item.displayName,
+      if (item.directPeerUserId != null)
+        switch (peerPresence) {
+          true => l10n.tasksPresenceOnline,
+          false => l10n.tasksPresenceOffline,
+          null => l10n.projectPeoplePresenceUnknown,
+        },
       if (item.hasUnread) l10n.chatInboxUnreadSemantics(item.unreadCount),
       if (item.isMuted) l10n.chatInboxMutedSemantics,
       preview,
