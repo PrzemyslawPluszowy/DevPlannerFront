@@ -18,6 +18,55 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('empty draft disables only send, not editor semantics', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(_ComposerWidgetFixture.app([]));
+    await tester.pump();
+    final label = AppLocalizations.of(
+      tester.element(find.byType(TextField)),
+    )!.globalChatSendMessage;
+    final sendSemantics = find.byWidgetPredicate(
+      (widget) => widget is Semantics && widget.properties.label == label,
+    );
+    expect(sendSemantics, findsOneWidget);
+    expect(
+      tester
+          .getSemantics(sendSemantics)
+          .getSemanticsData()
+          .flagsCollection
+          .isEnabled
+          .toBoolOrNull(),
+      isFalse,
+    );
+    final editorNode = tester.getSemantics(find.byType(TextField));
+    for (var node = editorNode; node.parent != null; node = node.parent!) {
+      expect(
+        node.getSemanticsData().flagsCollection.isEnabled.toBoolOrNull(),
+        isNot(false),
+        reason: 'An empty draft must not disable the editor or its ancestors.',
+      );
+    }
+    await tester.enterText(find.byType(TextField), 'Test message');
+    await tester.pump();
+    expect(
+      tester
+          .getSemantics(sendSemantics)
+          .getSemanticsData()
+          .flagsCollection
+          .isEnabled
+          .toBoolOrNull(),
+      isTrue,
+    );
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'Test message',
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    semantics.dispose();
+  });
   testWidgets(
     'przyjęty UUID czyści composer i drugi Enter nie duplikuje wysyłki',
     (tester) async {

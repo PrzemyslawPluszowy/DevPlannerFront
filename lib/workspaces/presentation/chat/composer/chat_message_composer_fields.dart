@@ -246,6 +246,7 @@ final class ChatComposerSubmitButton extends StatelessWidget {
                 )
               : const CircleBorder(),
           child: Semantics(
+            container: true,
             button: true,
             enabled: isEnabled,
             label: context.l10n.globalChatSendMessage,
