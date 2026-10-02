@@ -1212,3 +1212,14 @@ Dowody: /tmp/devplanner-staging-onlyoffice-chrome-ready-2026-10-01.png, /tmp/dev
 - IAB staging /me/files: po reload menu Systemowy/Jasny/Ciemny z zaznaczonym Systemowy; wybrano Ciemny, obejrzano prawidłową ciemną powierzchnię i menu. Reload zachował Ciemny i zaznaczenie. Następnie przywrócono Systemowy i widoczny jasny motyw wynikający z bieżącego ustawienia przeglądarki. Zmianę ustawienia platformy w trakcie sesji potwierdza test widgetowy, nie ręczna zmiana macOS.
 - Dowody: /tmp/devplanner-staging-system-theme-menu-2026-10-01.png, /tmp/devplanner-staging-theme-dark-2026-10-01.png, /tmp/devplanner-staging-theme-system-restored-2026-10-01.png. Log publikacji /tmp/devplanner-system-theme-wasm-deploy-2026-10-01.log. Native Chrome/Safari/Firefox wymagają odblokowania Maca; IAB działa i karta 6 zachowana markHandoff.
 - Nadal niezamknięta całość: pozostałe funkcje czatu, pełny task modal, awarie i OnlyOffice zapis/reopen/print. IAB timeout OnlyOffice nadal otwarty oddzielnie od udanego Chrome/Safari.
+
+## Pakiet cykliczności QA-C01–C05 — kod i bramki, 2026-10-02
+
+- Locale daty pochodzi z kontekstu PL/EN. Dialog dopasowuje wysokość do treści, z Flexible i ograniczonym scroll; test 1200x1100 potwierdza wysokość poniżej 700, 400x450 brak overflow i dostęp do zapisu.
+- SwitchListTile bez adaptive korzysta z tokenów primary/primaryContainer/surfaceContainerHighest i zwartego tekstu aplikacji; zachowuje wbudowaną semantykę/klawiaturę.
+- TaskRecurrenceTimeFields dodaje wspólne dropdowny godziny 00–23 i minuty 00–59. Wybór jest lokalny, payload nadal UTC. Niezmieniona godzina zachowuje sekundy i podsekundy; jawna zmiana godziny/minuty ustawia precyzję minutową. Pusta data lub brak uprawnień wyłącza wybór. Nie zmieniono API ani enumów transportowych.
+- TaskDetailsSelectField odrzuca wynik po zmianie wartości, selectionScope, disabled lub usunięciu opcji. Dla czasu scope obejmuje ownera formularza i cały timestamp, co chroni przed wynikiem dotyczącym starej daty.
+- PL/EN wyjaśnienie Uruchom teraz wskazuje tworzenie wystąpienia także przy pauzie/otwartym poprzednim zadaniu; backend force:true pozostaje bez zmian.
+- Zastosowano UI UX Pro Max (widoczny focus formularza) oraz Impeccable Operate/craft floor: istniejące tokeny, zwarta gęstość, czytelność czynności.
+- Walidacja: 34 testy pakietu PASS; dodatkowy retest polskiego formatu 17 paź 2026 i małego modala PASS; flutter analyze clean (11,1 s); git diff --check clean. Dwa pierwsze testy minut nie przewijały menu — poprawiono scenariusz ensureVisible i cały pakiet przeszedł.
+- Odbiór Chrome po publikacji i wygląd obu motywów pozostają do wykonania. QA-C06 potwierdzenie zapisu Office wymaga osobnego trace; pełny zakres modal/chat/files/awarie nadal otwarty.

@@ -7207,6 +7207,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Existing identifier is outside the current server catalog; it will be kept unless you choose another.';
 
   @override
+  String get taskRecurrenceHour => 'Hour';
+
+  @override
+  String get taskRecurrenceMinute => 'Minute';
+
+  @override
   String get taskRecurrenceTimeZoneScheduleHint =>
       'The selected date and time use your device\'s local time. This zone governs later recurrence calculations.';
 
@@ -12347,7 +12353,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskRecurrenceRunSourceHint =>
-      'This runs the series from the source task and creates a separate occurrence.';
+      'Run now creates a separate occurrence even when the series is paused or the previous task is open. Protection against another open occurrence applies only to the automatic schedule.';
 
   @override
   String get taskRecurrenceCreatedTask => 'Created task';

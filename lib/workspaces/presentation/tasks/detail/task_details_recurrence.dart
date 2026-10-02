@@ -230,6 +230,7 @@ class TaskRecurrenceDialogState extends State<TaskRecurrenceDialog> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(22, 18, 14, 18),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
@@ -251,7 +252,7 @@ class TaskRecurrenceDialogState extends State<TaskRecurrenceDialog> {
                 ],
               ),
               const SizedBox(height: 10),
-              Expanded(
+              Flexible(
                 child: TaskRecurrenceForm(
                   task: widget.task,
                   onChanged: widget.onChanged,

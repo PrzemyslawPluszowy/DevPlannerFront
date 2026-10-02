@@ -1,6 +1,7 @@
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_recurrence.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -20,6 +21,10 @@ void main() {
   testWidgets('kalendarz cyklu w rootowym dialogu zachowuje ownera zadania', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(1200, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final task = visualTaskDetails(TaskDetailVisualMode.editable).task
         .copyWith(recurrence: null);
     final details = TaskDetailsCubit(
@@ -56,6 +61,24 @@ void main() {
       ),
     );
     await tester.tap(find.text('Configure'));
+    await tester.pumpAndSettle();
+    final dateField = tester.widget<DateField>(find.byType(DateField));
+    expect(dateField.format.locale, 'pl');
+    dateField.onChanged(DateTime(2026, 10, 17, 9, 17).toUtc());
+    await tester.pumpAndSettle();
+    expect(find.text('17 paź 2026'), findsOneWidget);
+    final content = find.byWidgetPredicate(
+      (widget) =>
+          widget is ConstrainedBox &&
+          widget.constraints.maxWidth == 540 &&
+          widget.constraints.maxHeight == 700,
+    );
+    expect(tester.getSize(content).height, lessThan(700));
+    tester.view.physicalSize = const Size(400, 450);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(FilledButton));
+    expect(tester.takeException(), isNull);
+    tester.view.physicalSize = const Size(1200, 1100);
     await tester.pumpAndSettle();
     final l10n = AppLocalizations.of(
       tester.element(find.byType(TaskRecurrenceDialog)),

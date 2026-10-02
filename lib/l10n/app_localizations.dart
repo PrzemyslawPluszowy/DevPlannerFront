@@ -12800,6 +12800,18 @@ abstract class AppLocalizations {
   /// **'Existing identifier is outside the current server catalog; it will be kept unless you choose another.'**
   String get taskRecurrenceTimeZoneCurrentUnlisted;
 
+  /// No description provided for @taskRecurrenceHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Hour'**
+  String get taskRecurrenceHour;
+
+  /// No description provided for @taskRecurrenceMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Minute'**
+  String get taskRecurrenceMinute;
+
   /// No description provided for @taskRecurrenceTimeZoneScheduleHint.
   ///
   /// In en, this message translates to:
@@ -22029,7 +22041,7 @@ abstract class AppLocalizations {
   /// No description provided for @taskRecurrenceRunSourceHint.
   ///
   /// In en, this message translates to:
-  /// **'This runs the series from the source task and creates a separate occurrence.'**
+  /// **'Run now creates a separate occurrence even when the series is paused or the previous task is open. Protection against another open occurrence applies only to the automatic schedule.'**
   String get taskRecurrenceRunSourceHint;
 
   /// No description provided for @taskRecurrenceCreatedTask.

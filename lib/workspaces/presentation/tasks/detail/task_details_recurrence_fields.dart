@@ -1,6 +1,7 @@
 import 'package:devplanner/workspaces/presentation/tasks/detail/recurrence/task_recurrence_time_zone_picker.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_labelers.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_recurrence_time_fields.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
 class TaskRecurrenceFields extends StatelessWidget {
@@ -122,9 +123,16 @@ class TaskRecurrenceFields extends StatelessWidget {
         ],
         onChanged: onStatusChanged,
       ),
-      SwitchListTile.adaptive(
+      SwitchListTile(
         contentPadding: EdgeInsets.zero,
-        title: Text(context.l10n.taskDetailsRecurrenceSkipPrevious),
+        dense: true,
+        activeThumbColor: context.colors.primary,
+        activeTrackColor: context.colors.primaryContainer,
+        inactiveTrackColor: context.colors.surfaceContainerHighest,
+        title: Text(
+          context.l10n.taskDetailsRecurrenceSkipPrevious,
+          style: context.tasksTheme.controlText,
+        ),
         value: skipIfPreviousOpen,
         onChanged: enabled ? onSkipChanged : null,
       ),
@@ -133,7 +141,16 @@ class TaskRecurrenceFields extends StatelessWidget {
             ? context.l10n.taskDetailsRecurrenceFirstOccurrence
             : context.l10n.taskDetailsRecurrenceNextOccurrence,
         value: occurrenceAtUtc,
-        format: DateFormat.yMMMd(),
+        format: DateFormat.yMMMd(
+          Localizations.localeOf(context).toLanguageTag(),
+        ),
+        enabled: enabled,
+        onChanged: onDateChanged,
+      ),
+      const SizedBox(height: 12),
+      TaskRecurrenceTimeFields(
+        value: occurrenceAtUtc,
+        selectionScope: timeZoneSelectionScope,
         enabled: enabled,
         onChanged: onDateChanged,
       ),

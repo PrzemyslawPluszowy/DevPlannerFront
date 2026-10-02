@@ -7260,6 +7260,12 @@ class AppLocalizationsPl extends AppLocalizations {
       'Obecny identyfikator nie ma go w bieżącym katalogu serwera; pozostanie bez zmian, dopóki nie wybierzesz innego.';
 
   @override
+  String get taskRecurrenceHour => 'Godzina';
+
+  @override
+  String get taskRecurrenceMinute => 'Minuta';
+
+  @override
   String get taskRecurrenceTimeZoneScheduleHint =>
       'Wybrana data i godzina używają czasu lokalnego urządzenia. Ta strefa wyznacza dalsze obliczenia cykliczności.';
 
@@ -12450,7 +12456,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get taskRecurrenceRunSourceHint =>
-      'Uruchomienie serii z zadania źródłowego utworzy osobne wystąpienie.';
+      'Uruchom teraz tworzy osobne wystąpienie także przy wstrzymanej serii i otwartym poprzednim zadaniu. Ochrona przed kolejnym otwartym wystąpieniem dotyczy tylko automatycznego harmonogramu.';
 
   @override
   String get taskRecurrenceCreatedTask => 'Utworzone zadanie';

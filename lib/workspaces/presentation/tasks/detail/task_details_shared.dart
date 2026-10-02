@@ -23,6 +23,7 @@ final class TaskDetailsSelectField<T> extends StatefulWidget {
     required this.options,
     required this.onChanged,
     this.enabled = true,
+    this.selectionScope,
     super.key,
   });
 
@@ -31,6 +32,7 @@ final class TaskDetailsSelectField<T> extends StatefulWidget {
   final List<TaskDetailsSelectOption<T>> options;
   final ValueChanged<T> onChanged;
   final bool enabled;
+  final Object? selectionScope;
 
   @override
   State<TaskDetailsSelectField<T>> createState() =>
@@ -43,6 +45,8 @@ final class TaskDetailsSelectFieldState<T>
 
   Future<void> _open() async {
     if (!widget.enabled) return;
+    final sourceValue = widget.value;
+    final sourceScope = widget.selectionScope;
     final selected = await AppContextMenu.select<T>(
       context,
       globalPosition: AppContextMenu.positionFor(context),
@@ -58,7 +62,14 @@ final class TaskDetailsSelectFieldState<T>
           ),
       ],
     );
-    if (!mounted || selected == null) return;
+    if (!mounted ||
+        selected == null ||
+        !widget.enabled ||
+        widget.value != sourceValue ||
+        widget.selectionScope != sourceScope ||
+        !widget.options.any((option) => option.value == selected)) {
+      return;
+    }
     widget.onChanged(selected);
   }
 
