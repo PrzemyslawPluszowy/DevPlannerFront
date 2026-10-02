@@ -361,7 +361,7 @@ final class ChatPanelMessageListView extends StatelessWidget {
 
   /// Rozmowy dostępne jako cel przekazania; brak listy oznacza brak akcji.
   static List<ChatInboxItem> _forwardTargets(BuildContext context) {
-    final state = context.read<ChatInboxCubit?>()?.state;
+    final state = context.watch<ChatInboxCubit?>()?.state;
     return state is ChatInboxReady ? state.items : const <ChatInboxItem>[];
   }
 }

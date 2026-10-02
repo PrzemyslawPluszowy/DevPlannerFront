@@ -24,6 +24,7 @@ final class ChatPanelMessageList extends StatefulWidget {
     required this.onEnsureTargetLoaded,
     this.onThread,
     this.targetMessageId,
+    this.targetRequestId = 0,
     this.canModerate = false,
     this.participantLabels = const <String, String>{},
     this.participantAvatarUrls = const <String, String?>{},
@@ -50,6 +51,7 @@ final class ChatPanelMessageList extends StatefulWidget {
 
   /// Wiadomość, do której widok ma przewinąć po otwarciu z wyszukiwania.
   final String? targetMessageId;
+  final int targetRequestId;
 
   /// Etykiety autorów z katalogu; w DM mapa jest pusta, więc autor się nie pokazuje.
   final Map<String, String> participantLabels;
@@ -280,7 +282,8 @@ class _ChatPanelMessageListState extends State<ChatPanelMessageList> {
         oldWidget.loadMoreFailed != widget.loadMoreFailed) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _maybeLoadMore());
     }
-    if (oldWidget.targetMessageId != widget.targetMessageId) {
+    if (oldWidget.targetMessageId != widget.targetMessageId ||
+        oldWidget.targetRequestId != widget.targetRequestId) {
       _replyTargetMessageId = null;
     }
     _scheduleScrollToTarget();
@@ -305,7 +308,11 @@ class _ChatPanelMessageListState extends State<ChatPanelMessageList> {
         !widget.messages.any((message) => message.id == target)) {
       return;
     }
-    _targetScroller.schedule(target, messageCount: widget.messages.length);
+    _targetScroller.schedule(
+      target,
+      messageCount: widget.messages.length,
+      requestId: widget.targetRequestId,
+    );
   }
 
   void _openReplyTarget(String messageId) {

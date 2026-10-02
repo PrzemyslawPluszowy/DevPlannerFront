@@ -25,6 +25,7 @@ class ChatPanelReadAwareMessages extends StatefulWidget {
     required this.onReply,
     this.onThread,
     this.targetMessageId,
+    this.targetRequestId = 0,
     this.canModerate = false,
     this.participantLabels = const <String, String>{},
     this.participantAvatarUrls = const <String, String?>{},
@@ -44,6 +45,7 @@ class ChatPanelReadAwareMessages extends StatefulWidget {
 
   /// Wiadomość, do której widok ma przewinąć.
   final String? targetMessageId;
+  final int targetRequestId;
 
   /// Czy bieżący użytkownik może moderować cudzą treść.
   final bool canModerate;
@@ -112,6 +114,7 @@ class ChatPanelReadAwareMessagesState extends State<ChatPanelReadAwareMessages>
     onReply: widget.onReply,
     onThread: widget.onThread,
     targetMessageId: widget.targetMessageId,
+    targetRequestId: widget.targetRequestId,
     canModerate: widget.canModerate,
     participantLabels: widget.participantLabels,
     participantAvatarUrls: widget.participantAvatarUrls,

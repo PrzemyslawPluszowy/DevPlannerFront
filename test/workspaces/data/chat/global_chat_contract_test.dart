@@ -5,6 +5,30 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('global Chat local identity contract', () {
+    test(
+      'bookmark and pin message text decodes and encodes with legacy fallback',
+      () {
+        final json = <String, dynamic>{
+          'id': 'id',
+          'messageId': 'message',
+          'conversationId': 'conversation',
+          'userId': 'user',
+          'pinnedByUserId': 'user',
+          'createdAtUtc': '2026-10-02T00:00:00Z',
+          'pinnedAtUtc': '2026-10-02T00:00:00Z',
+          'messageText': 'Załącznik we wątku',
+        };
+        final bookmark = ChatBookmarkResponse.fromJson(json);
+        final pin = ChatPinnedMessageResponse.fromJson(json);
+        expect(bookmark.messageText, 'Załącznik we wątku');
+        expect(pin.messageText, 'Załącznik we wątku');
+        expect(bookmark.toJson()['messageText'], 'Załącznik we wątku');
+        expect(pin.toJson()['messageText'], 'Załącznik we wątku');
+        json.remove('messageText');
+        expect(ChatBookmarkResponse.fromJson(json).messageText, isNull);
+        expect(ChatPinnedMessageResponse.fromJson(json).messageText, isNull);
+      },
+    );
     test('serializes conversation scope with local user UUIDs', () {
       final payload = ResolveChatConversationPayload.fromJson({
         'type': 'Direct',

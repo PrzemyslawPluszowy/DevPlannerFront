@@ -98,12 +98,14 @@ final class ChatSearchCubit extends Cubit<ChatSearchState> {
     int minimumTermLength = 2,
     int maximumTermLength = 160,
     int limit = 30,
+    String? conversationId,
   }) : this._(
          repository,
          debounce,
          minimumTermLength,
          maximumTermLength,
          limit,
+         conversationId,
        );
 
   ChatSearchCubit._(
@@ -112,6 +114,7 @@ final class ChatSearchCubit extends Cubit<ChatSearchState> {
     this.minimumTermLength,
     this.maximumTermLength,
     this.limit,
+    this.conversationId,
   ) : super(const ChatSearchState());
 
   final ChatSearchRepository _repository;
@@ -127,6 +130,9 @@ final class ChatSearchCubit extends Cubit<ChatSearchState> {
 
   /// Liczba wyników na stronę.
   final int limit;
+
+  /// Optional immutable scope for search embedded in one resource conversation.
+  final String? conversationId;
 
   Timer? _timer;
   Timer? _retryCooldownTimer;
@@ -217,7 +223,12 @@ final class ChatSearchCubit extends Cubit<ChatSearchState> {
     final requestId = ++_requestId;
     emit(state.copyWith(isSearching: true, clearFailure: true));
     final result = await _repository.searchMessages(
-      ChatSearchQuery(term: value.trim(), cursor: cursor, limit: limit),
+      ChatSearchQuery(
+        term: value.trim(),
+        cursor: cursor,
+        limit: limit,
+        conversationId: conversationId,
+      ),
     );
     // Późniejsza odpowiedź starszego zapytania nie może nadpisać nowszej frazy.
     if (requestId != _requestId || isClosed) return;
@@ -249,7 +260,10 @@ final class ChatSearchCubit extends Cubit<ChatSearchState> {
       _startRetryCooldown(retryAt);
     }
     if (!withFacets || isClosed) return;
-    final facets = await _repository.loadFacets(term: value.trim());
+    final facets = await _repository.loadFacets(
+      term: value.trim(),
+      conversationId: conversationId,
+    );
     if (requestId != _requestId || isClosed) return;
     facets.fold((_) {}, (value) => emit(state.copyWith(facets: value)));
   }

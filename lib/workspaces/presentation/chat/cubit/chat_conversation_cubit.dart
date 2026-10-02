@@ -149,7 +149,15 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
     }
     final historyGeneration = ++_historyGeneration;
     if (current.messages.any((message) => message.id == messageId)) {
-      emit(current.copyWith(isJumpingToMessage: false, isLoadingMore: false));
+      emit(
+        current.copyWith(
+          isJumpingToMessage: false,
+          isLoadingMore: false,
+          targetMessageId: messageId,
+          targetRequestId: current.targetRequestId + 1,
+          clearJumpFailure: true,
+        ),
+      );
       return;
     }
     emit(
@@ -157,6 +165,8 @@ final class ChatConversationCubit extends Cubit<ChatConversationState> {
         isJumpingToMessage: true,
         isLoadingMore: false,
         clearJumpFailure: true,
+        targetMessageId: messageId,
+        targetRequestId: current.targetRequestId + 1,
       ),
     );
     final result = await _repository.loadMessageWindow(

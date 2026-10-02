@@ -188,6 +188,7 @@ final class ChatMessageActionsRepositoryImpl
         messageId: response.messageId,
         pinnedByUserId: response.pinnedByUserId,
         pinnedAtUtc: response.pinnedAtUtc,
+        messageText: response.messageText,
       );
 
   static ChatBookmark _toBookmark(ChatBookmarkResponse response) =>
@@ -197,6 +198,7 @@ final class ChatMessageActionsRepositoryImpl
         conversationId: response.conversationId,
         userId: response.userId,
         note: response.note,
+        messageText: response.messageText,
         createdAtUtc: response.createdAtUtc,
       );
 

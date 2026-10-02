@@ -20,6 +20,7 @@ final class _SearchFake implements ChatSearchRepository {
   ApiError? failure;
   final List<ChatSearchQuery> queries = <ChatSearchQuery>[];
   final List<String> facetTerms = <String>[];
+  final List<String?> facetConversationIds = <String?>[];
 
   @override
   Future<Either<ApiError, ChatSearchPage>> searchMessages(
@@ -37,6 +38,7 @@ final class _SearchFake implements ChatSearchRepository {
     String? conversationId,
   }) async {
     facetTerms.add(term);
+    facetConversationIds.add(conversationId);
     return const Right(ChatSearchFacets(total: 0));
   }
 
@@ -195,6 +197,22 @@ ChatSearchHit hit(String id) => ChatSearchHit(
 
 void main() {
   group('ChatSearchCubit', () {
+    test(
+      'resource search scopes results and facets to its conversation',
+      () async {
+        final repository = _SearchFake();
+        final cubit = ChatSearchCubit(
+          repository: repository,
+          conversationId: 'task-conversation',
+          debounce: Duration.zero,
+        );
+        cubit.updateTerm('załącznik');
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(repository.queries.single.conversationId, 'task-conversation');
+        expect(repository.facetConversationIds, ['task-conversation']);
+        await cubit.close();
+      },
+    );
     test('nie pyta backendu o frazę krótszą niż minimum', () async {
       final repository = _SearchFake();
       final cubit = ChatSearchCubit(

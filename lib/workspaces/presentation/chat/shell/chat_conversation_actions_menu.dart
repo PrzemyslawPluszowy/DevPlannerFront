@@ -12,12 +12,14 @@ import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_m
 import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/management/chat_rename_conversation_dialog.dart';
 import 'package:devplanner/workspaces/presentation/chat/members/chat_members_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_message_list_sheets.dart';
+import 'package:devplanner/workspaces/presentation/chat/search/components/chat_conversation_search_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/search/cubit/chat_search_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/chat_conversation_notification_settings_modal.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/cubit/chat_conversation_mute_cubit.dart';
@@ -102,7 +104,9 @@ class ChatConversationActionsMenu extends StatelessWidget {
               AppContextMenuAction(
                 label: context.l10n.chatSearchOpen,
                 icon: Symbols.search,
-                enabled: context.read<ChatSearchCubit?>() != null,
+                enabled:
+                    context.read<ChatSearchCubit?>() != null ||
+                    context.read<ChatSearchRepository?>() != null,
                 onTap: (_) => _handle(context, 'search'),
               ),
               AppContextMenuAction(
@@ -216,7 +220,17 @@ class ChatConversationActionsMenu extends StatelessWidget {
   Future<void> _handle(BuildContext context, String value) async {
     switch (value) {
       case 'search':
-        context.read<ChatSearchCubit?>()?.open();
+        final search = context.read<ChatSearchCubit?>();
+        if (search != null) {
+          search.open();
+        } else if (context.read<ChatSearchRepository?>()
+            case final repository?) {
+          await ChatConversationSearchSheet.show(
+            context,
+            repository: repository,
+            conversationId: conversation.id,
+          );
+        }
       case 'members':
         await ChatMembersSheet.show(
           context,
@@ -268,6 +282,10 @@ class ChatConversationActionsMenu extends StatelessWidget {
     String conversationId,
     String messageId,
   ) async {
+    if (conversationId == conversation.id) {
+      await context.read<ChatConversationCubit>().ensureTargetLoaded(messageId);
+      return;
+    }
     final selection = context.read<ChatPanelSelectionCubit?>();
     if (selection == null) return;
     final inbox = context.read<ChatInboxCubit?>()?.state;

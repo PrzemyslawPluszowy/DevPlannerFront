@@ -5,6 +5,7 @@ import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_action_list_components.dart';
+import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_action_side_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/shared/chat_timestamp_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -24,11 +25,13 @@ abstract final class ChatPinnedMessagesSheet {
     if (repository == null) return;
     await DevPlannerModalHost.showSideSheet<void>(
       context,
-      builder: (sheetContext) => _ChatPinnedList(
-        repository: repository,
-        conversationId: conversationId,
-        onOpenMessage: onOpenMessage,
-        onClose: () => Navigator.of(sheetContext).pop(),
+      builder: (sheetContext) => ChatActionSideSheet(
+        child: _ChatPinnedList(
+          repository: repository,
+          conversationId: conversationId,
+          onOpenMessage: onOpenMessage,
+          onClose: () => Navigator.of(sheetContext).pop(),
+        ),
       ),
     );
   }
@@ -151,7 +154,9 @@ class _ChatPinnedListState extends State<_ChatPinnedList> {
                     final pin = pins[index];
                     return ChatActionListRow(
                       icon: Symbols.push_pin,
-                      title: context.l10n.chatPinnedMessageFallback,
+                      title: pin.messageText?.trim().isNotEmpty == true
+                          ? pin.messageText!
+                          : context.l10n.chatPinnedMessageFallback,
                       subtitle: context.l10n.chatPinnedAt(
                         ChatTimestampFormatter.dateTimeLabel(
                           pin.pinnedAtUtc,

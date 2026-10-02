@@ -130,6 +130,7 @@ _ChatBookmarkResponse _$ChatBookmarkResponseFromJson(
   userId: json['userId'] as String,
   note: json['note'] as String?,
   createdAtUtc: DateTime.parse(json['createdAtUtc'] as String),
+  messageText: json['messageText'] as String?,
 );
 
 Map<String, dynamic> _$ChatBookmarkResponseToJson(
@@ -141,6 +142,7 @@ Map<String, dynamic> _$ChatBookmarkResponseToJson(
   'userId': instance.userId,
   'note': instance.note,
   'createdAtUtc': instance.createdAtUtc.toIso8601String(),
+  'messageText': instance.messageText,
 };
 
 _ChatPinnedMessageResponse _$ChatPinnedMessageResponseFromJson(
@@ -151,6 +153,7 @@ _ChatPinnedMessageResponse _$ChatPinnedMessageResponseFromJson(
   messageId: json['messageId'] as String,
   pinnedByUserId: json['pinnedByUserId'] as String,
   pinnedAtUtc: DateTime.parse(json['pinnedAtUtc'] as String),
+  messageText: json['messageText'] as String?,
 );
 
 Map<String, dynamic> _$ChatPinnedMessageResponseToJson(
@@ -161,4 +164,5 @@ Map<String, dynamic> _$ChatPinnedMessageResponseToJson(
   'messageId': instance.messageId,
   'pinnedByUserId': instance.pinnedByUserId,
   'pinnedAtUtc': instance.pinnedAtUtc.toIso8601String(),
+  'messageText': instance.messageText,
 };

@@ -303,7 +303,9 @@ final class _ChatPanelConversationContentState
                     onThread: widget.onOpenThread == null
                         ? null
                         : (message) => widget.onOpenThread!(context, message),
-                    targetMessageId: widget.targetMessageId,
+                    targetMessageId:
+                        state.targetMessageId ?? widget.targetMessageId,
+                    targetRequestId: state.targetRequestId,
                     canModerate: widget.canModerateMessages,
                     participantLabels: presentation.participantLabels,
                     participantAvatarUrls: presentation.participantAvatarUrls,

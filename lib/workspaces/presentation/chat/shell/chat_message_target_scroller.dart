@@ -23,11 +23,17 @@ final class ChatMessageTargetScroller {
   String? _target;
   int _maxSteps = 0;
   String? _completedTarget;
+  int _requestId = 0;
 
-  void schedule(String? target, {required int messageCount}) {
-    if (target != _target) {
+  void schedule(
+    String? target, {
+    required int messageCount,
+    int requestId = 0,
+  }) {
+    if (target != _target || requestId != _requestId) {
       ++_generation;
       _target = target;
+      _requestId = requestId;
       _completedTarget = null;
     }
     _maxSteps = messageCount * 2 + 2;
@@ -82,7 +88,11 @@ final class ChatMessageTargetScroller {
     } finally {
       _running = false;
       if (isMounted() && generation != _generation) {
-        schedule(_target, messageCount: (_maxSteps - 2) ~/ 2);
+        schedule(
+          _target,
+          messageCount: (_maxSteps - 2) ~/ 2,
+          requestId: _requestId,
+        );
       }
     }
   }

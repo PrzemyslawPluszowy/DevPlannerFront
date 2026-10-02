@@ -112,6 +112,31 @@ final class _FakeConversationRepository implements ChatConversationRepository {
 }
 
 void main() {
+  test('repeated selection of a loaded message requests a scroll without entering window history', () async {
+    final repository = _FakeConversationRepository(
+      pageResults: [
+        Right(
+          ChatMessagePage(items: [_ChatConversationFixture.message('target')]),
+        ),
+      ],
+    );
+    final cubit = ChatConversationCubit(
+      repository: repository,
+      conversationId: 'conversation-1',
+      currentUserId: 'u',
+    );
+    await cubit.load();
+    await cubit.ensureTargetLoaded('target');
+    final first = cubit.state as ChatConversationReady;
+    expect(first.targetMessageId, 'target');
+    expect(first.isWindowedHistory, isFalse);
+    await cubit.ensureTargetLoaded('target');
+    final second = cubit.state as ChatConversationReady;
+    expect(second.targetMessageId, 'target');
+    expect(second.targetRequestId, first.targetRequestId + 1);
+    expect(second.isWindowedHistory, isFalse);
+    await cubit.close();
+  });
   test('scalanie nie cofa nowszej edycji i nie wskrzesza usuniętej wersji', () {
     final edited = _ChatConversationFixture.message(
       'm',

@@ -7,6 +7,8 @@ import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_messa
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/global_chat_composition.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_conversation.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/chat_thread_sheet.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/conversation/task_detail_chat_theme_scope.dart';
@@ -207,6 +209,7 @@ final class _TaskConversationPanel extends StatelessWidget {
       return;
     }
     final lease = chat?.realtimeFactory?.open(conversation.id);
+    final inbox = context.read<ChatInboxCubit?>()?.state;
     unawaited(
       ChatThreadSheet.showThread(
         context,
@@ -217,6 +220,7 @@ final class _TaskConversationPanel extends StatelessWidget {
         rootMessage: message,
         conversationEvents: lease?.conversationEvents,
         messageActionsRepository: chat?.messageActionsRepository,
+        forwardTargets: inbox is ChatInboxReady ? inbox.items : const [],
       ).whenComplete(() async => lease?.dispose()),
     );
   }

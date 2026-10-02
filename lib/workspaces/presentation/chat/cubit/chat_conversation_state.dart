@@ -27,6 +27,8 @@ final class ChatConversationReady extends ChatConversationState {
     this.isJumpingToMessage = false,
     this.jumpFailureCode,
     this.jumpAnchorMessageId,
+    this.targetMessageId,
+    this.targetRequestId = 0,
   });
 
   final ChatConversation conversation;
@@ -48,6 +50,8 @@ final class ChatConversationReady extends ChatConversationState {
   /// wiadomości, a nie najnowszą stronę, więc scalanie z najnowszymi utworzyłoby
   /// niewidoczną lukę. Wyjście z trybu pobiera najnowszą stronę od nowa.
   final String? jumpAnchorMessageId;
+  final String? targetMessageId;
+  final int targetRequestId;
 
   /// Czy historia pokazuje okno wokół wskazanej wiadomości.
   bool get isWindowedHistory => jumpAnchorMessageId != null;
@@ -72,6 +76,8 @@ final class ChatConversationReady extends ChatConversationState {
     bool clearJumpFailure = false,
     String? jumpAnchorMessageId,
     bool clearWindowHistory = false,
+    String? targetMessageId,
+    int? targetRequestId,
   }) => ChatConversationReady(
     conversation: conversation ?? this.conversation,
     messages: messages ?? this.messages,
@@ -86,6 +92,10 @@ final class ChatConversationReady extends ChatConversationState {
     jumpAnchorMessageId: clearWindowHistory
         ? null
         : jumpAnchorMessageId ?? this.jumpAnchorMessageId,
+    targetMessageId: clearWindowHistory
+        ? null
+        : targetMessageId ?? this.targetMessageId,
+    targetRequestId: targetRequestId ?? this.targetRequestId,
   );
 }
 

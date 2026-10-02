@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
@@ -24,6 +26,7 @@ import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/emoji/cubit/chat_emoji_recent_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/global_chat_composition.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/links/chat_external_link_port.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -119,6 +122,16 @@ final class TaskDetailChatDependencyScope extends StatelessWidget {
     var result = providers.isEmpty
         ? child
         : MultiRepositoryProvider(providers: providers, child: child);
+    if (chat?.inboxRepository case final repository?) {
+      result = BlocProvider(
+        create: (_) {
+          final cubit = ChatInboxCubit(repository: repository);
+          unawaited(cubit.load());
+          return cubit;
+        },
+        child: result,
+      );
+    }
     if (authSession case final session?) {
       result = ListenableProvider<AuthSessionPort>.value(
         value: session,

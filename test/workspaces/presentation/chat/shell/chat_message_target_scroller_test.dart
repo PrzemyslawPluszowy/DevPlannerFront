@@ -3,6 +3,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('selecting the same target again scrolls back after leaving it', (
+    tester,
+  ) async {
+    final history = GlobalKey<_LazyHistoryState>();
+    final target = GlobalKey();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox(
+          height: 240,
+          child: _LazyHistory(key: history, targetKey: target, target: 45),
+        ),
+      ),
+    );
+    for (var frame = 0; frame < 100; frame++) {
+      await tester.pump(const Duration(milliseconds: 20));
+    }
+    history.currentState!.repeatTarget();
+    for (var frame = 0; frame < 100; frame++) {
+      await tester.pump(const Duration(milliseconds: 20));
+    }
+    expect(target.currentContext, isNotNull);
+    final box = target.currentContext!.findRenderObject()! as RenderBox;
+    expect(box.localToGlobal(Offset.zero).dy, lessThan(720));
+    expect(box.localToGlobal(Offset(0, box.size.height)).dy, greaterThan(0));
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'skok odnajduje cel poza lazy viewportem przy różnych wysokościach',
     (tester) async {
@@ -39,7 +66,11 @@ void main() {
 }
 
 final class _LazyHistory extends StatefulWidget {
-  const _LazyHistory({required this.targetKey, required this.target});
+  const _LazyHistory({
+    required this.targetKey,
+    required this.target,
+    super.key,
+  });
   final GlobalKey targetKey;
   final int target;
   @override
@@ -49,6 +80,17 @@ final class _LazyHistory extends StatefulWidget {
 final class _LazyHistoryState extends State<_LazyHistory> {
   final ScrollController _scroll = ScrollController();
   late final ChatMessageTargetScroller _scroller;
+  int _request = 0;
+
+  void repeatTarget() {
+    _scroll.jumpTo(0);
+    _scroller.schedule(
+      '${widget.target}',
+      messageCount: 60,
+      requestId: ++_request,
+    );
+  }
+
   @override
   void initState() {
     super.initState();

@@ -47,6 +47,7 @@ final class ChatPinnedMessage extends Equatable {
     required this.messageId,
     required this.pinnedByUserId,
     required this.pinnedAtUtc,
+    this.messageText,
   });
 
   final String id;
@@ -54,6 +55,7 @@ final class ChatPinnedMessage extends Equatable {
   final String messageId;
   final String pinnedByUserId;
   final DateTime pinnedAtUtc;
+  final String? messageText;
 
   @override
   List<Object?> get props => [
@@ -62,6 +64,7 @@ final class ChatPinnedMessage extends Equatable {
     messageId,
     pinnedByUserId,
     pinnedAtUtc,
+    messageText,
   ];
 }
 
@@ -75,6 +78,7 @@ final class ChatBookmark extends Equatable {
     required this.userId,
     required this.createdAtUtc,
     this.note,
+    this.messageText,
   });
 
   final String id;
@@ -82,6 +86,7 @@ final class ChatBookmark extends Equatable {
   final String conversationId;
   final String userId;
   final String? note;
+  final String? messageText;
   final DateTime createdAtUtc;
 
   @override
@@ -91,6 +96,7 @@ final class ChatBookmark extends Equatable {
     conversationId,
     userId,
     note,
+    messageText,
     createdAtUtc,
   ];
 }

@@ -5,6 +5,7 @@ import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_action_list_components.dart';
+import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_action_side_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/shared/chat_timestamp_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -20,10 +21,12 @@ abstract final class ChatBookmarksSheet {
     if (repository == null) return;
     await DevPlannerModalHost.showSideSheet<void>(
       context,
-      builder: (sheetContext) => _ChatBookmarkList(
-        repository: repository,
-        onOpenMessage: onOpenMessage,
-        onClose: () => Navigator.of(sheetContext).pop(),
+      builder: (sheetContext) => ChatActionSideSheet(
+        child: _ChatBookmarkList(
+          repository: repository,
+          onOpenMessage: onOpenMessage,
+          onClose: () => Navigator.of(sheetContext).pop(),
+        ),
       ),
     );
   }
@@ -141,13 +144,20 @@ class _ChatBookmarkListState extends State<_ChatBookmarkList> {
                     final bookmark = items[index];
                     return ChatActionListRow(
                       icon: Symbols.bookmark_rounded,
-                      title: bookmark.note?.trim().isNotEmpty == true
+                      title: bookmark.messageText?.trim().isNotEmpty == true
+                          ? bookmark.messageText!
+                          : bookmark.note?.trim().isNotEmpty == true
                           ? bookmark.note!
                           : context.l10n.chatSavedMessageFallback,
-                      subtitle: ChatTimestampFormatter.dateTimeLabel(
-                        bookmark.createdAtUtc,
-                        Localizations.localeOf(context),
-                      ),
+                      subtitle: [
+                        if (bookmark.messageText?.trim().isNotEmpty == true &&
+                            bookmark.note?.trim().isNotEmpty == true)
+                          bookmark.note!,
+                        ChatTimestampFormatter.dateTimeLabel(
+                          bookmark.createdAtUtc,
+                          Localizations.localeOf(context),
+                        ),
+                      ].join(' · '),
                       onTap: widget.onOpenMessage == null
                           ? null
                           : () {

@@ -128,6 +128,7 @@ abstract class ChatBookmarkResponse with _$ChatBookmarkResponse {
     required String userId,
     String? note,
     required DateTime createdAtUtc,
+    String? messageText,
   }) = _ChatBookmarkResponse;
 
   /// Odtwarza zakładkę z JSON.
@@ -145,6 +146,7 @@ abstract class ChatPinnedMessageResponse with _$ChatPinnedMessageResponse {
     required String messageId,
     required String pinnedByUserId,
     required DateTime pinnedAtUtc,
+    String? messageText,
   }) = _ChatPinnedMessageResponse;
 
   /// Odtwarza przypięcie z JSON.
