@@ -32,6 +32,12 @@ final class _TasksGlobalSearchDialogState
   int _selectedIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _query.text = context.read<TasksGlobalSearchCubit>().state.query;
+  }
+
+  @override
   void dispose() {
     _queryFocus.dispose();
     _resultsFocus.dispose();

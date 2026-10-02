@@ -393,7 +393,10 @@ final class _FakeWebBffTransport implements WebBffSessionTransport {
   Future<AuthUser?> restoreSession() async => user;
 
   @override
-  Future<AuthUser> signIn(LoginCredentials credentials) async {
+  Future<AuthUser> signIn(
+    LoginCredentials credentials, {
+    String? returnTo,
+  }) async {
     signInCalls++;
     return user;
   }

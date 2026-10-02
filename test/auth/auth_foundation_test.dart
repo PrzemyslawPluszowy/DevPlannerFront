@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/auth/domain/ports/auth_gateway.dart';
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
@@ -18,6 +20,9 @@ void main() {
       expect(AuthReturnTo.sanitize('https://example.com/workspaces'), isNull);
       expect(AuthReturnTo.sanitize('//example.com/workspaces'), isNull);
       expect(AuthReturnTo.sanitize('/dashboard'), isNull);
+      expect(AuthReturnTo.sanitize('/workspaces\\evil'), isNull);
+      expect(AuthReturnTo.sanitize('/workspaces/ws-1\n?task=x'), isNull);
+      expect(AuthReturnTo.sanitize('/workspaces/ws-1\t'), isNull);
     });
   });
 
@@ -111,12 +116,18 @@ void main() {
 
     final states = <AuthLoginState>[];
     final stateFuture = cubit.stream.take(2).forEach(states.add);
-    await cubit.startInteractive();
+    await cubit.startInteractive(
+      returnTo: '/workspaces/ws-1/projects/project-1/tasks?task=task-1&taskTab=planning',
+    );
     await stateFuture;
 
     expect(states[0], isA<AuthLoginSubmitting>());
     expect(states[1], isA<AuthLoginRedirecting>());
     expect(states.whereType<AuthLoginFailure>(), isEmpty);
+    expect(
+      gateway.returnTo,
+      '/workspaces/ws-1/projects/project-1/tasks?task=task-1&taskTab=planning',
+    );
   });
 
   test('login cubit keeps non-redirect auth failures visible', () async {
@@ -144,6 +155,42 @@ void main() {
     expect(failure, isA<AuthLoginFailure>());
     expect((failure as AuthLoginFailure).message, 'Invalid credentials');
   });
+
+  test('closed login cubit ignores pending interactive results', () async {
+    for (final failure in [null, const AuthFailure('late failure')]) {
+      final gate = Completer<void>();
+      final gateway = _FakeAuthGateway(
+        user: const AuthUser(
+          userId: 'u-1',
+          login: 'anna',
+          displayName: 'Anna',
+        ),
+        signInFailure: failure,
+        signInGate: gate,
+      );
+      final cubit = AuthLoginCubit(
+        useCases: AuthUseCases(
+          gateway: gateway,
+          session: AuthSessionController(),
+        ),
+      );
+      final observed = <AuthLoginState>[];
+      final subscription = cubit.stream.listen(observed.add);
+
+      final request = cubit.startInteractive(
+        returnTo: '/workspaces/ws-1?task=task-1',
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state, isA<AuthLoginSubmitting>());
+      await cubit.close();
+      gate.complete();
+      await request;
+
+      expect(observed, hasLength(1));
+      expect(observed.single, isA<AuthLoginSubmitting>());
+      await subscription.cancel();
+    }
+  });
 }
 
 final class _FakeAuthGateway implements AuthGateway {
@@ -151,16 +198,21 @@ final class _FakeAuthGateway implements AuthGateway {
     required this.user,
     this.signInFailure,
     this.signOutFailure,
+    this.signInGate,
   });
 
   final AuthUser user;
   final AuthFailure? signInFailure;
   final AuthFailure? signOutFailure;
+  final Completer<void>? signInGate;
   LoginCredentials? credentials;
+  String? returnTo;
 
   @override
-  Future<AuthUser> signIn(LoginCredentials value) async {
+  Future<AuthUser> signIn(LoginCredentials value, {String? returnTo}) async {
     credentials = value;
+    this.returnTo = returnTo;
+    await signInGate?.future;
     if (signInFailure case final failure?) throw failure;
     return user;
   }

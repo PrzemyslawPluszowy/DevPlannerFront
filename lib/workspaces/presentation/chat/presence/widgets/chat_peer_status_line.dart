@@ -4,14 +4,16 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/models/chat_user_status.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_presence_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/presence/cubit/chat_conversation_presence_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Jedna linia statusu rozmówcy w nagłówku rozmowy 1:1.
 ///
-/// Pokazuje obecność online/offline z snapshotu rozmowy oraz niezależny custom
-/// status z REST. Przed pierwszym snapshotem nie zgaduje dostępności.
+/// Pokazuje globalną obecność online/offline z właściciela skrzynki, gdy jest
+/// dostępny; poza globalnym panelem używa snapshotu rozmowy. Custom status z
+/// REST pozostaje niezależny, a brak snapshotu nie jest traktowany jako offline.
 class ChatPeerStatusLine extends StatefulWidget {
   /// Tworzy linię statusu dla wskazanego użytkownika.
   const ChatPeerStatusLine({required this.userId, super.key});
@@ -121,7 +123,11 @@ class _ChatPeerStatusLineState extends State<ChatPeerStatusLine> {
 
   @override
   Widget build(BuildContext context) {
-    final livePresence =
+    final inboxPresenceOwner = context.read<ChatInboxPresenceCubit?>();
+    final inboxPresence = context.select<ChatInboxPresenceCubit?, bool?>(
+      (cubit) => cubit?.state.statusFor(widget.userId),
+    );
+    final conversationPresence =
         context
             .select<
               ChatConversationPresenceCubit?,
@@ -131,6 +137,13 @@ class _ChatPeerStatusLineState extends State<ChatPeerStatusLine> {
             )
             ?.forUser(widget.userId) ??
         ChatPeerLivePresence.unknown;
+    final livePresence = inboxPresenceOwner == null
+        ? conversationPresence
+        : switch (inboxPresence) {
+            true => ChatPeerLivePresence.online,
+            false => ChatPeerLivePresence.offline,
+            null => ChatPeerLivePresence.unknown,
+          };
     final realtimeStatus = _realtimeStatus;
     final status = _hasRealtimeStatus ? realtimeStatus : _status;
     final chat = context.chatTheme;
@@ -146,7 +159,10 @@ class _ChatPeerStatusLineState extends State<ChatPeerStatusLine> {
     final presenceLabel = switch (livePresence) {
       ChatPeerLivePresence.online => context.l10n.chatPeerOnline,
       ChatPeerLivePresence.offline => context.l10n.chatPeerOffline,
-      ChatPeerLivePresence.unknown => null,
+      ChatPeerLivePresence.unknown =>
+        inboxPresenceOwner == null
+            ? null
+            : context.l10n.projectPeoplePresenceUnknown,
     };
     final text = [
       ?presenceLabel,

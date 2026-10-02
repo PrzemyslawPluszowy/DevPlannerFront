@@ -11,7 +11,7 @@ import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 abstract interface class WebBffSessionTransport {
   Future<AuthUser?> restoreSession();
 
-  Future<AuthUser> signIn(LoginCredentials credentials);
+  Future<AuthUser> signIn(LoginCredentials credentials, {String? returnTo});
 
   Future<void> signOut();
 }
@@ -89,8 +89,11 @@ final class HttpWebBffSessionTransport implements WebBffSessionTransport {
   }
 
   @override
-  Future<AuthUser> signIn(LoginCredentials _) async {
-    final path = AuthReturnTo.sanitize(returnTo) ?? '/workspaces';
+  Future<AuthUser> signIn(LoginCredentials _, {String? returnTo}) async {
+    final path =
+        AuthReturnTo.sanitize(returnTo) ??
+        AuthReturnTo.sanitize(this.returnTo) ??
+        '/workspaces';
     final uri = Uri.parse(_httpTransport.baseUrl)
         .resolve('/bff/auth/start')
         .replace(queryParameters: {'returnTo': path});
@@ -224,8 +227,8 @@ final class WebBffAuthAdapter implements WebBffAuthPort {
   Future<AuthUser?> restoreSession() => _transport.restoreSession();
 
   @override
-  Future<AuthUser> signIn(LoginCredentials credentials) =>
-      _transport.signIn(credentials);
+  Future<AuthUser> signIn(LoginCredentials credentials, {String? returnTo}) =>
+      _transport.signIn(credentials, returnTo: returnTo);
 
   @override
   Future<void> signOut() => _transport.signOut();
@@ -247,8 +250,10 @@ final class UnavailableWebBffSessionTransport
   Future<AuthUser?> restoreSession() async => null;
 
   @override
-  Future<AuthUser> signIn(LoginCredentials credentials) async =>
-      throw _unavailable;
+  Future<AuthUser> signIn(
+    LoginCredentials credentials, {
+    String? returnTo,
+  }) async => throw _unavailable;
 
   @override
   Future<void> signOut() async {}

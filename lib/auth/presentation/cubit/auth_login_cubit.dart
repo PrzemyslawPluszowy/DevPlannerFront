@@ -46,16 +46,22 @@ final class AuthLoginCubit extends Cubit<AuthLoginState> {
   /// Web BFF intentionally does not accept credentials from Flutter. The
   /// browser performs the login at the backend and returns through its
   /// callback, so this path must not validate or persist form fields.
-  Future<void> startInteractive() => _signIn(
+  Future<void> startInteractive({String? returnTo}) => _signIn(
     const LoginCredentials(login: '', password: ''),
+    returnTo: returnTo,
   );
 
-  Future<void> _signIn(LoginCredentials credentials) async {
+  Future<void> _signIn(
+    LoginCredentials credentials, {
+    String? returnTo,
+  }) async {
     emit(const AuthLoginSubmitting());
     try {
-      await _useCases.signIn(credentials);
+      await _useCases.signIn(credentials, returnTo: returnTo);
+      if (isClosed) return;
       emit(const AuthLoginSucceeded());
     } on AuthFailure catch (error) {
+      if (isClosed) return;
       if (kDebugMode) {
         debugPrint('[auth] failure code=${error.code}: ${error.message}');
       }
@@ -65,6 +71,7 @@ final class AuthLoginCubit extends Cubit<AuthLoginState> {
       }
       emit(AuthLoginFailure(error.message));
     } catch (error, stackTrace) {
+      if (isClosed) return;
       if (kDebugMode) {
         debugPrint('[auth] unexpected failure: ${error.runtimeType}');
         if (error case final PlatformException platformError) {

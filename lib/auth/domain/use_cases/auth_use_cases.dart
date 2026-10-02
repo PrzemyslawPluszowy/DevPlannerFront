@@ -25,9 +25,9 @@ final class AuthUseCases {
     }
   }
 
-  Future<void> signIn(LoginCredentials credentials) async {
+  Future<void> signIn(LoginCredentials credentials, {String? returnTo}) async {
     final generation = session.generation;
-    final user = await gateway.signIn(credentials);
+    final user = await gateway.signIn(credentials, returnTo: returnTo);
     if (generation != session.generation) return;
     session.setSignedIn(user, clientKind: clientKind);
   }

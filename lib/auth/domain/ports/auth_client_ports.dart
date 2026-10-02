@@ -16,7 +16,7 @@ abstract interface class AuthClientPort {
 /// Web BFF contract. The browser owns only the cookie session and CSRF flow;
 /// credentials and cookies are handled by the future backend adapter.
 abstract interface class WebBffAuthPort implements AuthClientPort {
-  Future<AuthUser> signIn(LoginCredentials credentials);
+  Future<AuthUser> signIn(LoginCredentials credentials, {String? returnTo});
 }
 
 /// Desktop system-browser Code + PKCE contract.

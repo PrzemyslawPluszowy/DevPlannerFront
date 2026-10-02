@@ -36,6 +36,7 @@ void main() {
       await expectLater(
         auth.signIn(
           const LoginCredentials(login: 'ignored', password: 'ignored'),
+          returnTo: '/workspaces/ws-1/projects/project-1/tasks?task=task-1&taskTab=planning',
         ),
         throwsA(
           isA<AuthFailure>().having(
@@ -47,8 +48,46 @@ void main() {
       );
       expect(adapter.requests, isEmpty);
       expect(launcher.opened, hasLength(1));
+      expect(
+        launcher.opened.single.queryParameters['returnTo'],
+        '/workspaces/ws-1/projects/project-1/tasks?task=task-1&taskTab=planning',
+      );
     },
   );
+
+  test('niebezpieczny powrót BFF używa domyślnej trasy lokalnej', () async {
+    final adapter = _RecordingAdapter();
+    final transport = DevPlannerHttpTransport(
+      dio: Dio()..httpClientAdapter = adapter,
+      baseUrl: 'http://localhost:5072',
+      isWeb: true,
+    );
+    final launcher = _RedirectingLauncher();
+    final auth = HttpWebBffSessionTransport(
+      httpTransport: transport,
+      browserLauncher: launcher,
+    );
+
+    for (final invalidReturnTo in [
+      'https://example.com/workspaces',
+      '//example.com/workspaces',
+      r'/workspaces\\evil',
+      '/workspaces/ws-1\n?task=task-1',
+    ]) {
+      await expectLater(
+        auth.signIn(
+          const LoginCredentials(login: '', password: ''),
+          returnTo: invalidReturnTo,
+        ),
+        throwsA(isA<AuthFailure>()),
+      );
+      expect(
+        launcher.opened.last.queryParameters['returnTo'],
+        '/workspaces',
+      );
+    }
+    expect(adapter.requests, isEmpty);
+  });
 }
 
 final class _RedirectingLauncher implements WebBffBrowserLauncher {

@@ -144,9 +144,11 @@ final class _ClientAuthGateway implements AuthGateway {
   Future<AuthUser?> restoreSession() => _client.restoreSession();
 
   @override
-  Future<AuthUser> signIn(LoginCredentials credentials) {
+  Future<AuthUser> signIn(LoginCredentials credentials, {String? returnTo}) {
     final client = _client;
-    if (client is WebBffAuthPort) return client.signIn(credentials);
+    if (client is WebBffAuthPort) {
+      return client.signIn(credentials, returnTo: returnTo);
+    }
     if (client is DesktopPkceAuthPort) return client.authorizeInteractively();
     throw const AuthFailure(
       'Logowanie desktopowe wymaga systemowej przeglądarki i PKCE.',

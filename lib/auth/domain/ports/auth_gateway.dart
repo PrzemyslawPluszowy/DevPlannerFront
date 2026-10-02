@@ -2,7 +2,7 @@ import 'package:devplanner/auth/domain/models/auth_models.dart';
 
 abstract interface class AuthGateway {
   Future<AuthUser?> restoreSession();
-  Future<AuthUser> signIn(LoginCredentials credentials);
+  Future<AuthUser> signIn(LoginCredentials credentials, {String? returnTo});
   Future<void> signOut();
   Future<void> activate({required String token, required String password});
   Future<void> requestPasswordReset(String loginOrEmail);
@@ -23,8 +23,10 @@ final class UnavailableAuthGateway implements AuthGateway {
   Future<AuthUser?> restoreSession() async => null;
 
   @override
-  Future<AuthUser> signIn(LoginCredentials credentials) async =>
-      throw _unavailable;
+  Future<AuthUser> signIn(
+    LoginCredentials credentials, {
+    String? returnTo,
+  }) async => throw _unavailable;
 
   @override
   Future<void> signOut() async {}

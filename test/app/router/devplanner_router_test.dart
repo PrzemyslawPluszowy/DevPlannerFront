@@ -173,6 +173,22 @@ void main() {
       );
     });
 
+    test('keeps task modal context through the login redirect', () {
+      final redirect =
+          DevPlannerAuthGuard(
+            session: AuthSessionController(),
+          ).redirectFor(
+            Uri.parse(
+              '/workspaces/ws-1/projects/p-2/tasks?task=task-3&view=kanban&taskTab=planning',
+            ),
+          );
+
+      expect(
+        redirect,
+        '/login?returnTo=%2Fworkspaces%2Fws-1%2Fprojects%2Fp-2%2Ftasks%3Ftask%3Dtask-3%26view%3Dkanban%26taskTab%3Dplanning',
+      );
+    });
+
     test('does not guard auth lifecycle paths', () {
       expect(
         DevPlannerAuthGuard(session: AuthSessionController()).redirectFor(

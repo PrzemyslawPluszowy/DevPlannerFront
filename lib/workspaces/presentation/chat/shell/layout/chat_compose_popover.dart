@@ -12,6 +12,7 @@ import 'package:devplanner/workspaces/presentation/chat/creation/chat_creation_s
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/participants/cubit/chat_directory_search_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_presence_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_compose_directory_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,6 +39,7 @@ abstract final class ChatComposePopover {
     required ChatConversationManagementRepository repository,
     required ChatDirectoryRepository directoryRepository,
     List<ChatInboxItem> recent = const <ChatInboxItem>[],
+    ChatInboxPresenceCubit? inboxPresenceCubit,
     Set<String> existingDirectConversationIds = const <String>{},
   }) async {
     ChatConversation? created;
@@ -66,6 +68,8 @@ abstract final class ChatComposePopover {
               repository: directoryRepository,
             ),
           ),
+          if (inboxPresenceCubit case final presence?)
+            BlocProvider<ChatInboxPresenceCubit>.value(value: presence),
         ],
         child: _ChatComposePopoverContent(
           repository: repository,

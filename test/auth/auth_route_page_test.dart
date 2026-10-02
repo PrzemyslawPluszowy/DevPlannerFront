@@ -67,8 +67,10 @@ void main() {
     final semantics = tester.ensureSemantics();
     final transport = _FakeWebBffTransport();
     final auth = AuthComposition.fromWebBff(transport);
+    const taskReturnTo =
+        '/workspaces/ws-1/projects/project-1/tasks?task=task-1&view=kanban&taskTab=planning';
     final router = GoRouter(
-      initialLocation: '/login',
+      initialLocation: '/login?returnTo=${Uri.encodeComponent(taskReturnTo)}',
       routes: [
         GoRoute(
           path: '/login',
@@ -80,6 +82,10 @@ void main() {
           ),
         ),
         GoRoute(path: '/workspaces', builder: (_, _) => const SizedBox()),
+        GoRoute(
+          path: '/workspaces/:workspaceId/projects/:projectId/tasks',
+          builder: (_, _) => const Text('Task board'),
+        ),
       ],
     );
 
@@ -109,6 +115,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(transport.signInCalls, 1);
+    expect(transport.lastReturnTo, taskReturnTo);
+    expect(router.routeInformationProvider.value.uri.toString(), taskReturnTo);
     expect(auth.session.snapshot.isAuthenticated, isTrue);
     semantics.dispose();
   });
@@ -170,13 +178,18 @@ final class _FakeWebBffTransport implements WebBffSessionTransport {
 
   final AuthFailure? failure;
   int signInCalls = 0;
+  String? lastReturnTo;
 
   @override
   Future<AuthUser?> restoreSession() async => null;
 
   @override
-  Future<AuthUser> signIn(LoginCredentials credentials) async {
+  Future<AuthUser> signIn(
+    LoginCredentials credentials, {
+    String? returnTo,
+  }) async {
     signInCalls++;
+    lastReturnTo = returnTo;
     if (failure case final error?) throw error;
     return const AuthUser(
       userId: '11111111-1111-4111-8111-111111111111',

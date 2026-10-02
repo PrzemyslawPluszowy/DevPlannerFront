@@ -22,6 +22,7 @@ import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/chat_drawer_host_actions.dart';
 import 'package:devplanner/workspaces/presentation/chat/chat_section_filter_sync.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_presence_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/search/components/chat_search_view.dart';
 import 'package:devplanner/workspaces/presentation/chat/search/cubit/chat_search_cubit.dart';
@@ -261,6 +262,7 @@ class ChatDrawerContent extends StatelessWidget {
   ) async {
     final management = context.read<ChatConversationManagementRepository?>();
     final directory = context.read<ChatDirectoryRepository?>();
+    final inboxPresenceCubit = context.read<ChatInboxPresenceCubit?>();
     if (management == null || directory == null) return;
     final inboxCubit = context.read<ChatInboxCubit?>();
     final recent = switch (inboxCubit?.state) {
@@ -273,6 +275,7 @@ class ChatDrawerContent extends StatelessWidget {
       repository: management,
       directoryRepository: directory,
       recent: recent,
+      inboxPresenceCubit: inboxPresenceCubit,
       existingDirectConversationIds:
           ChatDrawerHostActions.existingDirectConversationIds(context),
     );

@@ -86,7 +86,9 @@ class _LoginForm extends StatelessWidget {
               submitting: submitting,
               redirecting: redirecting,
               onPressed: () => unawaited(
-                context.read<AuthLoginCubit>().startInteractive(),
+                context.read<AuthLoginCubit>().startInteractive(
+                  returnTo: returnTo,
+                ),
               ),
             ),
             AuthClientKind.desktopPkce => _DesktopPkceLoginAction(

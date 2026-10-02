@@ -159,6 +159,55 @@ Widget _host({
 }
 
 void main() {
+  testWidgets('reopened search restores the query and matching results', (
+    tester,
+  ) async {
+    final cubit = TasksGlobalSearchCubit(repository: _Repository());
+    addTearDown(() async {
+      if (!cubit.isClosed) await cubit.close();
+    });
+
+    await tester.pumpWidget(
+      _host(
+        cubit: cubit,
+        brightness: Brightness.light,
+        locale: const Locale('en'),
+        onOpen: (_) {},
+      ),
+    );
+    await tester.tap(find.text('Open search'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'tasks');
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump();
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller?.text,
+      'tasks',
+    );
+    expect(find.text('First result'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close task search'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Open search'));
+    await tester.pumpAndSettle();
+
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.controller?.text, 'tasks');
+    expect(find.text('First result'), findsOneWidget);
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pump();
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller?.text,
+      isEmpty,
+    );
+    expect(
+      find.text('Type at least two characters to search'),
+      findsOneWidget,
+    );
+    expect(find.text('First result'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('keyboard moves selection and opens the selected task', (
     tester,
   ) async {

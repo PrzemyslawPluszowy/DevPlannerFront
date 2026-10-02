@@ -60,11 +60,16 @@ final class AuthReturnTo {
   const AuthReturnTo._();
 
   static String? sanitize(String? raw) {
-    final value = raw?.trim() ?? '';
+    final source = raw ?? '';
+    if (source.codeUnits.any((unit) => unit < 0x20 || unit == 0x7f)) {
+      return null;
+    }
+    final value = source.trim();
     final uri = Uri.tryParse(value);
     if (uri == null ||
         uri.hasScheme ||
         uri.hasAuthority ||
+        value.contains('\\') ||
         !value.startsWith('/')) {
       return null;
     }
