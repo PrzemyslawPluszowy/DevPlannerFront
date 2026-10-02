@@ -85,44 +85,63 @@ final class _RunOutcomeCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fullLabel = isCreated
+        ? context.l10n.tasksRecurrenceOutcomeCreated
+        : context.l10n.tasksRecurrenceOutcomeSkipped;
     return SizedBox(
       width: 110,
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Sizes.p8,
-            vertical: Sizes.p2,
-          ),
-          decoration: BoxDecoration(
-            color: isCreated
-                ? context.colors.primaryContainer
-                : context.colors.surfaceContainerHighest,
-            borderRadius: const BorderRadius.all(Radius.circular(Sizes.p999)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isCreated ? Symbols.check_circle_rounded : Symbols.info_rounded,
-                size: Sizes.p16,
-                color: isCreated
-                    ? context.colors.onPrimaryContainer
-                    : context.colors.onSurfaceVariant,
+        child: Tooltip(
+          message: fullLabel,
+          excludeFromSemantics: true,
+          child: Semantics(
+            label: fullLabel,
+            excludeSemantics: true,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: Sizes.p8,
+                vertical: Sizes.p2,
               ),
-              Gaps.w6,
-              Text(
-                isCreated
-                    ? context.l10n.tasksRecurrenceOutcomeCreated
-                    : context.l10n.tasksRecurrenceOutcomeSkipped,
-                style: context.text.labelSmall?.copyWith(
-                  color: isCreated
-                      ? context.colors.onPrimaryContainer
-                      : context.colors.onSurfaceVariant,
-                  fontWeight: FontWeight.w700,
+              decoration: BoxDecoration(
+                color: isCreated
+                    ? context.colors.primaryContainer
+                    : context.colors.surfaceContainerHighest,
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(Sizes.p999),
                 ),
               ),
-            ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isCreated
+                        ? Symbols.check_circle_rounded
+                        : Symbols.info_rounded,
+                    size: Sizes.p16,
+                    color: isCreated
+                        ? context.colors.onPrimaryContainer
+                        : context.colors.onSurfaceVariant,
+                  ),
+                  Gaps.w6,
+                  Flexible(
+                    child: Text(
+                      isCreated
+                          ? context.l10n.taskRecurrenceRunCreatedLabel
+                          : context.l10n.taskRecurrenceRunSkippedLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.labelSmall?.copyWith(
+                        color: isCreated
+                            ? context.colors.onPrimaryContainer
+                            : context.colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

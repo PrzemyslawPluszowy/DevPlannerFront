@@ -12417,4 +12417,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String taskRecurrenceDeviceTimeHint(String zone) {
     return 'Enter the date and time in your device time ($zone). The zone selected above governs the calculation of later occurrences.';
   }
+
+  @override
+  String get taskRecurrenceRunCreatedLabel => 'Created';
+
+  @override
+  String get taskRecurrenceRunSkippedLabel => 'Skipped';
+
+  @override
+  String taskRecurrenceEditorLocalTimeHint(String zone) {
+    return 'Enter the date and time in your device time ($zone).';
+  }
+
+  @override
+  String taskRecurrenceSeriesTimeZoneHint(String zone) {
+    return 'Time zone for later occurrences: $zone.';
+  }
 }

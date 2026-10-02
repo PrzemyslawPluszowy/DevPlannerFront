@@ -22127,6 +22127,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the date and time in your device time ({zone}). The zone selected above governs the calculation of later occurrences.'**
   String taskRecurrenceDeviceTimeHint(String zone);
+
+  /// No description provided for @taskRecurrenceRunCreatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get taskRecurrenceRunCreatedLabel;
+
+  /// No description provided for @taskRecurrenceRunSkippedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get taskRecurrenceRunSkippedLabel;
+
+  /// No description provided for @taskRecurrenceEditorLocalTimeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the date and time in your device time ({zone}).'**
+  String taskRecurrenceEditorLocalTimeHint(String zone);
+
+  /// No description provided for @taskRecurrenceSeriesTimeZoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Time zone for later occurrences: {zone}.'**
+  String taskRecurrenceSeriesTimeZoneHint(String zone);
 }
 
 class _AppLocalizationsDelegate

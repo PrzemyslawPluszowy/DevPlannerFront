@@ -1,5 +1,6 @@
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_date_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -12,9 +13,11 @@ final class TaskRecurrenceEditorScheduleSection extends StatelessWidget {
     required this.enabled,
     required this.onPickDate,
     required this.onPickTime,
+    this.seriesTimeZoneId,
     super.key,
   });
 
+  final String? seriesTimeZoneId;
   final DateTime scheduledDate;
   final TimeOfDay scheduledTime;
   final bool enabled;
@@ -103,6 +106,30 @@ final class TaskRecurrenceEditorScheduleSection extends StatelessWidget {
             ),
           ],
         ),
+        Gaps.h6,
+        Text(
+          context.l10n.taskRecurrenceEditorLocalTimeHint(
+            TaskRecurrenceDateFormatter.zone(
+              DateTime(
+                scheduledDate.year,
+                scheduledDate.month,
+                scheduledDate.day,
+                scheduledTime.hour,
+                scheduledTime.minute,
+              ),
+            ),
+          ),
+          style: context.text.bodySmall?.copyWith(
+            color: context.colors.onSurfaceVariant,
+          ),
+        ),
+        if (seriesTimeZoneId case final zone?)
+          Text(
+            context.l10n.taskRecurrenceSeriesTimeZoneHint(zone),
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSurfaceVariant,
+            ),
+          ),
       ],
     );
   }

@@ -107,7 +107,8 @@ final class _ProjectRecurrencesRuleCardState
               _RuleActions(
                 rule: rule,
                 isActionInProgress: widget.isActionInProgress,
-                onEdit: () => unawaited(_openEditor(context)),
+                onEdit: (buttonContext) =>
+                    unawaited(_openEditor(buttonContext)),
               ),
             ],
           ),
@@ -296,7 +297,7 @@ final class _RuleActions extends StatelessWidget {
 
   final ProjectTaskRecurrenceItemResponse rule;
   final bool isActionInProgress;
-  final VoidCallback onEdit;
+  final ValueChanged<BuildContext> onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -327,10 +328,14 @@ final class _RuleActions extends StatelessWidget {
                 : () => unawaited(cubit.triggerRunNow(rule)),
             icon: const Icon(Symbols.flash_on_rounded, size: Sizes.p18),
           ),
-          IconButton(
-            tooltip: context.l10n.tasksRecurrenceEdit,
-            onPressed: isActionInProgress ? null : onEdit,
-            icon: const Icon(Symbols.edit, size: Sizes.p18),
+          Builder(
+            builder: (buttonContext) => IconButton(
+              tooltip: context.l10n.tasksRecurrenceEdit,
+              onPressed: isActionInProgress
+                  ? null
+                  : () => onEdit(buttonContext),
+              icon: const Icon(Symbols.edit, size: Sizes.p18),
+            ),
           ),
           IconButton(
             tooltip: context.l10n.tasksRecurrenceDelete,

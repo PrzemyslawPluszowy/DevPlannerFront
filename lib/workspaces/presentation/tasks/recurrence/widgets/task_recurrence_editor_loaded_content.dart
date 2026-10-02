@@ -154,6 +154,7 @@ final class TaskRecurrenceEditorLoadedContent extends StatelessWidget {
           Gaps.h12,
           TaskRecurrenceEditorScheduleSection(
             scheduledDate: state.scheduledDate,
+            seriesTimeZoneId: state.recurrence?.timeZoneId,
             enabled: !state.isSaving,
             scheduledTime: TimeOfDay(
               hour: state.scheduledTime.hour,

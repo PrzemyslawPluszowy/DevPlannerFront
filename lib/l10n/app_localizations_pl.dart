@@ -12520,4 +12520,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String taskRecurrenceDeviceTimeHint(String zone) {
     return 'Datę i godzinę wpisujesz w czasie urządzenia ($zone). Strefa wybrana powyżej określa obliczanie kolejnych wystąpień.';
   }
+
+  @override
+  String get taskRecurrenceRunCreatedLabel => 'Utworzono';
+
+  @override
+  String get taskRecurrenceRunSkippedLabel => 'Pominięto';
+
+  @override
+  String taskRecurrenceEditorLocalTimeHint(String zone) {
+    return 'Datę i godzinę wpisujesz w czasie urządzenia ($zone).';
+  }
+
+  @override
+  String taskRecurrenceSeriesTimeZoneHint(String zone) {
+    return 'Strefa kolejnych wystąpień: $zone.';
+  }
 }

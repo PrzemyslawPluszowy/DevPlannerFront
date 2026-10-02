@@ -3974,5 +3974,23 @@
         "type": "String"
       }
     }
+  },
+"taskRecurrenceRunCreatedLabel": "Utworzono",
+  "taskRecurrenceRunSkippedLabel": "Pominięto",
+  "taskRecurrenceEditorLocalTimeHint": "Datę i godzinę wpisujesz w czasie urządzenia ({zone}).",
+  "@taskRecurrenceEditorLocalTimeHint": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "taskRecurrenceSeriesTimeZoneHint": "Strefa kolejnych wystąpień: {zone}.",
+  "@taskRecurrenceSeriesTimeZoneHint": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
   }
 }
