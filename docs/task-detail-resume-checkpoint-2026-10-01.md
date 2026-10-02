@@ -1,3 +1,8 @@
+## 2026-10-02 — odbiór Chrome szablonu i cykliczności
+
+- Chrome runtime na opublikowanym Wasm c2bc2d2: powrót SSO do zadania, zapis szablonu potwierdzony SQL, kalendarz i utworzenie cyklu, dwa ręczne wystąpienia TASK-162/TASK-163 oraz wstrzymanie serii PASS. Nie jest to pełny logout/login, wszystkie tryby cyklu ani Office.
+- Zebrano osobną listę funkcjonalnych i wizualnych usterek: Backend/docs/qa-chrome-batch-2026-10-02.md (QA-C01..C05). Potwierdzone: locale daty, nadmierna wysokość dialogu, adaptive switch spoza tokenów, brak wyjaśnienia force w Uruchom teraz. Precyzja godziny wymaga trace. Bez kolejnego deploy; następny pakiet po dalszym przeglądzie. Dowody screenshot Chrome zapisane w /tmp.
+
 ### Publikacja i zmiana zakresu przeglądarek
 
 - Front Wasm c2bc2d2caaad590fb7c4b875f29175002db88694 opublikowany skryptem SSH, exit 0; publiczny version.json potwierdza SHA. Backend runtime bez zmian. Nowe instrukcje AGENTS obu repo: aktualnie odbiór w Chrome albo Edge; docelowo również Firefox. IAB Codexa wyłączony z kryterium odbioru. W code review zapisywać również niespójności wizualne i zbierać pakiet przed poprawkami.
