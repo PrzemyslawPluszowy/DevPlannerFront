@@ -10607,3 +10607,7 @@ Dowody: /tmp/devplanner-staging-onlyoffice-chrome-ready-2026-10-01.png, /tmp/dev
 - Wspólny TaskDetailsSwitchField dla cykliczności i Rozliczany: tokeny, typografia, gęstość, brak adaptive. Handler zmiany rozliczania poza builderem. Handler otwierania konfiguracji kolumn wydzielony poza build; domyślna zakładka bez zmian.
 - Razem z gotowym focus select i manifestem tworzy jeden pakiet. 12 testów proporcjonalnych PASS; analyzer clean 16,4s; diff check clean. Pełne 2362 PASS pochodzi sprzed C09/C10.
 - UI UX Pro Max (labels/feedback), Impeccable Operate/craft floor; detect Dart [] nie dowodzi wyglądu. Wdrożenie i Chrome light/dark/keyboard/config columns pozostają do wykonania. Aktualny status: docs/ui-testing.md.
+
+### Publikacja pakietu C07–C10
+
+Front Wasm 748a943071610600b2487d9df3ac6b788fb971d1: skrypt exit 0 i public version.json zgodne (1.7.4). Log /tmp/devplanner-c07-c10-wasm-deploy-2026-10-02.log. Backend kod bez zmian. Chrome został przejęty przy próbie nawigacji w osobnym oknie QA; dalsze interakcje zatrzymano. Retest C07–C10 funkcja/UX/UI NOT RUN; zakres zwolniony, nadal w kolejce. Cel całości pozostaje otwarty.
