@@ -1,3 +1,11 @@
+## 2026-10-02 — opublikowany i ręcznie odebrany pakiet akcji Chat
+
+- Backend a62b81c7c2b2ffa3cf685816b96942acd300be02: devplanner-deploy-local exit 0, obraz API zgodny, healthy/readiness ready. Brak migracji do zastosowania. Front Wasm 81df8850827d3b049bc55857db51ff873e475ac9: deploy_staging_wasm.sh exit 0, publiczny version.json potwierdza SHA. Publikacja przez skrypty, bez GitHub Actions.
+- Ręczny staging po reload: wyszukiwanie w modalu zadania aktywne, fraza znalazła wiadomość wątku, wybór zamknął panel i wyróżnił właściwą wiadomość. Zakładki i przypięte pokazują prawdziwą treść w nieprzezroczystym panelu 480 px; wybór lokalnej zakładki/pinu wraca do wiadomości. Picker przekazywania pokazuje rozmowy; wybór grupy QA wysłał treść i w docelowym globalnym panelu potwierdzono Wysłano.
+- Dowody: /tmp/devplanner-staging-task-chat-search-2026-10-02.png, /tmp/devplanner-staging-chat-bookmark-previews-2026-10-02.png, /tmp/devplanner-staging-chat-pin-previews-2026-10-02.png, /tmp/devplanner-staging-task-chat-forward-targets-2026-10-02.png, /tmp/devplanner-staging-chat-forward-received-2026-10-02.png.
+- Kolejny pakiet do wykonania: otwieranie zakładek z innej rozmowy w task modal; serwerowe wyszukiwanie i paginacja pickera forward; forwarding załączników (aktualny Backend ForwardAsync przekazuje wyłącznie Text/DeltaJson, manualnie odebrano tylko tekst); nieprzezroczysta powierzchnia globalnego panelu Chat (obecna przepuszcza tabelę zadań). Dalszy Office/3 izolowane sesje i P0–P7 pozostają otwarte. Żaden z tych punktów nie jest oznaczony jako zaliczony.
+- Testy i ich zakres zapisane w sekcji przygotowania poniżej. Nie wykonano nowej pełnej suite backendu ani pełnego Front po końcowym inbox; scoped testy i runtime pokrywają ten pakiet. IAB tab 6 markHandoff: docelowa grupa QA w globalnym panelu, pusty composer.
+
 ## 2026-10-02 — zbiorczy pakiet akcji Chat przygotowany do publikacji
 
 - Backend: ChatBookmarkResponse/ChatPinnedMessageResponse otrzymują opcjonalne messageText. Listy i odpowiedzi mutacji korzystają z aktualnego SearchText dopiero po ACL; zmiana treści i usunięcie wiadomości nie pozostawiają starego podglądu. Brak DDL/migracji. DTO/generowane modele Flutter i adaptery aktualizowane razem; legacy bez pola pozostaje dekodowalne.
