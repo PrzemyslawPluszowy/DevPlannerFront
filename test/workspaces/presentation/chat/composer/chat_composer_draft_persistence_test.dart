@@ -32,13 +32,14 @@ void main() {
 
     test('debounce zapisuje, a flush nie czeka na timer', () async {
       final repository = _MemoryDraftRepository();
+      final firstSave = repository.nextSave = Completer<void>();
       final cubit = _ComposerDraftFixture.cubit(
         repository,
         debounce: const Duration(milliseconds: 1),
       );
 
       cubit.updatePlainText('Wersja robocza');
-      await Future<void>.delayed(const Duration(milliseconds: 5));
+      await firstSave.future;
       expect(repository.saveCalls, 1);
 
       cubit.updatePlainText('Nowsza wersja');
@@ -157,6 +158,7 @@ final class _DelayedReadDraftRepository extends _MemoryDraftRepository {
 class _MemoryDraftRepository implements ChatDraftRepository {
   final Map<String, ChatComposerDraft> _values = <String, ChatComposerDraft>{};
   int saveCalls = 0;
+  Completer<void>? nextSave;
 
   @override
   Future<void> delete({
@@ -183,6 +185,9 @@ class _MemoryDraftRepository implements ChatDraftRepository {
   }) async {
     saveCalls++;
     _values['$userId:$conversationId'] = draft;
+    final completion = nextSave;
+    nextSave = null;
+    completion?.complete();
   }
 
   @override

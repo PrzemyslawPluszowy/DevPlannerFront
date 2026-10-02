@@ -5,6 +5,7 @@ import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_toast.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
@@ -62,6 +63,7 @@ final class ChatPanelMessageListView extends StatelessWidget {
     final isBookmarked =
         secondary?.state.bookmarkedMessageIds ?? const <String>{};
     final forwardTargets = _forwardTargets(context);
+    final inboxRepository = context.read<ChatInboxRepository?>();
     final chat = context.chatTheme;
     final showIdentity = list.participantLabels.isNotEmpty;
     // Lista jest odwrócona, więc historię czytamy od końca.
@@ -169,7 +171,8 @@ final class ChatPanelMessageListView extends StatelessWidget {
                           list.participantAvatarUrls[item.authorUserId],
                       showIdentity: showIdentity,
                       bubbleBuilder: (message, isFirst, position) {
-                        final messageMenu = message.isDeleted
+                        final messageMenu =
+                            message.isDeleted || secondary == null
                             ? null
                             : ChatMessageActionMenu(
                                 message: message,
@@ -197,6 +200,7 @@ final class ChatPanelMessageListView extends StatelessWidget {
                                     context,
                                     message: target,
                                     conversations: forwardTargets,
+                                    inboxRepository: inboxRepository,
                                     globalPosition: position,
                                   ),
                                 ),

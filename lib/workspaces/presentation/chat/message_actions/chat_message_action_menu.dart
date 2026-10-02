@@ -8,6 +8,7 @@ import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_messa
 import 'package:devplanner/workspaces/presentation/chat/emoji/chat_emoji_catalog.dart';
 import 'package:devplanner/workspaces/presentation/chat/emoji/chat_emoji_picker.dart';
 import 'package:devplanner/workspaces/presentation/chat/emoji/cubit/chat_emoji_recent_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_message_action_dialogs.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_secondary_actions_state.dart';
 import 'package:flutter/material.dart';
@@ -221,7 +222,11 @@ class ChatMessageActionMenu extends StatelessWidget {
           onPinnedChanged?.call(!isPinned);
         } else if (outcome == ChatMessageSecondaryActionOutcome.failed) {
           if (!context.mounted) return;
-          _showSecondaryActionFailure(context);
+          await ChatMessageActionDialogs.showSecondaryActionFailureForMessage(
+            context,
+            cubit,
+            message.id,
+          );
         }
       case 'bookmark':
         final outcome = await cubit.toggleBookmark(
@@ -230,7 +235,11 @@ class ChatMessageActionMenu extends StatelessWidget {
         );
         if (outcome == ChatMessageSecondaryActionOutcome.failed) {
           if (!context.mounted) return;
-          _showSecondaryActionFailure(context);
+          await ChatMessageActionDialogs.showSecondaryActionFailureForMessage(
+            context,
+            cubit,
+            message.id,
+          );
         }
       case 'react':
         if (!context.mounted) return;
@@ -328,7 +337,11 @@ Future<void> showChatQuickReactionPicker(
     final outcome = await cubit.react(messageId: message.id, emoji: emoji);
     if (outcome == ChatMessageSecondaryActionOutcome.failed &&
         context.mounted) {
-      _showSecondaryActionFailure(context);
+      await ChatMessageActionDialogs.showSecondaryActionFailureForMessage(
+        context,
+        cubit,
+        message.id,
+      );
     }
     return;
   }
@@ -337,17 +350,12 @@ Future<void> showChatQuickReactionPicker(
     emoji: selectedReaction,
   );
   if (outcome == ChatMessageSecondaryActionOutcome.failed && context.mounted) {
-    _showSecondaryActionFailure(context);
+    await ChatMessageActionDialogs.showSecondaryActionFailureForMessage(
+      context,
+      cubit,
+      message.id,
+    );
   }
-}
-
-void _showSecondaryActionFailure(BuildContext context) {
-  if (!context.mounted) return;
-  AppToast.show(
-    context,
-    message: context.l10n.chatActionFailureMessage,
-    tone: AppToastTone.error,
-  );
 }
 
 /// Znacznik pozycji `+` w pasku szybkich reakcji.

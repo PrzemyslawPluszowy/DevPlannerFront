@@ -174,12 +174,17 @@ void main() {
           hasMore: false,
         );
 
+        final refreshed = cubit.stream.firstWhere(
+          (state) =>
+              state is ChatInboxReady &&
+              state.items.single.conversation.id == 'c2',
+        );
         cubit
           ..applySignal()
           ..applySignal()
           ..applySignal();
         expect(cubit.state, isA<ChatInboxReady>());
-        await Future<void>.delayed(const Duration(milliseconds: 15));
+        await refreshed;
 
         expect(repository.requestedCursors, <String?>[null, null]);
         expect(

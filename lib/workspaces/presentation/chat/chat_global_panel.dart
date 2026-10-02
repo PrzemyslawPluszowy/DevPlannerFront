@@ -24,6 +24,7 @@ class AppGlobalChatPanel extends StatelessWidget {
     this.onClose,
     this.onConversationSelected,
     this.initialConversationId,
+    this.initialSelection,
     this.inboxCubit,
     this.resourceConversationId,
     this.resourceContext,
@@ -39,6 +40,7 @@ class AppGlobalChatPanel extends StatelessWidget {
   final VoidCallback? onClose;
   final ValueChanged<String>? onConversationSelected;
   final String? initialConversationId;
+  final ChatPanelSelection? initialSelection;
 
   /// Host sesji może współdzielić inbox pomiędzy otwartym panelem i hubem.
   final ChatInboxCubit? inboxCubit;
@@ -82,14 +84,31 @@ class AppGlobalChatPanel extends StatelessWidget {
                   ChatSearchCubit(repository: searchRepository),
             ),
           BlocProvider(
-            create: (context) => ChatPanelSelectionCubit(
-              initialConversationId: initialConversationId,
-            ),
+            create: (context) {
+              final cubit = ChatPanelSelectionCubit(
+                initialConversationId: initialConversationId,
+              );
+              final selection = initialSelection;
+              if (selection != null) {
+                cubit.select(
+                  selection.conversation,
+                  targetMessageId: selection.targetMessageId,
+                  role: selection.role,
+                );
+              }
+              return cubit;
+            },
           ),
           // Sekcja panelu jest stanem prezentacji; filtr skrzynki ustawia
           // słuchacz w kolumnie listy, więc przełączenie zakładki nie kasuje
           // zaznaczonej rozmowy ani szkicu w composerze.
-          BlocProvider(create: (context) => ChatPanelSectionCubit()),
+          BlocProvider(
+            create: (context) {
+              final cubit = ChatPanelSectionCubit();
+              if (initialSelection != null) cubit.showConversation();
+              return cubit;
+            },
+          ),
         ],
         child: Material(
           color: Colors.transparent,
@@ -100,7 +119,7 @@ class AppGlobalChatPanel extends StatelessWidget {
               padding: const EdgeInsets.all(Sizes.p12),
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: context.workspaceGlassGradient,
+                  color: context.chatTheme.panelSurface,
                   border: context.workspaceGlassBorder,
                   borderRadius: const BorderRadius.all(Radius.circular(18)),
                   boxShadow: context.workspaceGlassShadow,

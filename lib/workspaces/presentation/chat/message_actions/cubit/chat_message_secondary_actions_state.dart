@@ -1,3 +1,4 @@
+import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
 import 'package:equatable/equatable.dart';
 
@@ -31,6 +32,7 @@ class ChatMessageSecondaryActionsState extends Equatable {
   const ChatMessageSecondaryActionsState({
     this.pending = const <String, ChatMessageSecondaryAction>{},
     this.failures = const <String, String>{},
+    this.apiErrors = const <String, ApiError>{},
     this.lastCompleted,
     this.pinnedConversationId,
     this.forwardedMessageId,
@@ -43,6 +45,9 @@ class ChatMessageSecondaryActionsState extends Equatable {
 
   /// Kody błędów per wiadomość; UI mapuje je na tekst przez ARB.
   final Map<String, String> failures;
+
+  /// Pełne błędy API per wiadomość dla diagnostyki i retry.
+  final Map<String, ApiError> apiErrors;
 
   /// Ostatnio zakończona akcja, żeby UI mogło pokazać potwierdzenie.
   final ChatMessageSecondaryAction? lastCompleted;
@@ -65,10 +70,14 @@ class ChatMessageSecondaryActionsState extends Equatable {
   /// Kod błędu dla wiadomości albo `null`.
   String? failureFor(String messageId) => failures[messageId];
 
+  /// Pełny błąd API dla wiadomości albo `null`.
+  ApiError? apiErrorFor(String messageId) => apiErrors[messageId];
+
   /// Tworzy kopię stanu z nowymi wartościami.
   ChatMessageSecondaryActionsState copyWith({
     Map<String, ChatMessageSecondaryAction>? pending,
     Map<String, String>? failures,
+    Map<String, ApiError>? apiErrors,
     ChatMessageSecondaryAction? lastCompleted,
     String? pinnedConversationId,
     String? forwardedMessageId,
@@ -79,6 +88,7 @@ class ChatMessageSecondaryActionsState extends Equatable {
   }) => ChatMessageSecondaryActionsState(
     pending: pending ?? this.pending,
     failures: failures ?? this.failures,
+    apiErrors: apiErrors ?? this.apiErrors,
     lastCompleted: lastCompleted ?? this.lastCompleted,
     pinnedConversationId: clearPinnedConversation
         ? null
@@ -94,6 +104,7 @@ class ChatMessageSecondaryActionsState extends Equatable {
   List<Object?> get props => [
     pending,
     failures,
+    apiErrors,
     lastCompleted,
     pinnedConversationId,
     forwardedMessageId,

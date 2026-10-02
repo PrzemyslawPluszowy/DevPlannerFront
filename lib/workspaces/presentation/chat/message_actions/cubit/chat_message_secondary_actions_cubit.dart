@@ -26,6 +26,8 @@ final class ChatMessageSecondaryActionsCubit
   int _pinsGeneration = 0;
   int _bookmarksGeneration = 0;
   StreamSubscription<ChatConversationRealtimeEvent>? _pinEvents;
+  final Map<(String, String), String> _uncertainForwardKeys =
+      <(String, String), String>{};
 
   /// Odświeża zbiór przypięć po zmianie wykonanej przez innego uczestnika.
   void watchConversationPins({
@@ -109,16 +111,40 @@ final class ChatMessageSecondaryActionsCubit
     required String messageId,
     required String targetConversationId,
     required String clientMessageId,
-  }) => _run(
-    messageId: messageId,
-    action: ChatMessageSecondaryAction.forward,
-    call: () => repository.forwardMessage(
+  }) async {
+    final key = (messageId, targetConversationId);
+    final effectiveClientMessageId =
+        _uncertainForwardKeys[key] ?? clientMessageId;
+    final outcome = await _run(
       messageId: messageId,
-      targetConversationId: targetConversationId,
-      clientMessageId: clientMessageId,
-    ),
-    onSuccess: () => emit(state.copyWith(forwardedMessageId: messageId)),
-  );
+      action: ChatMessageSecondaryAction.forward,
+      call: () => repository.forwardMessage(
+        messageId: messageId,
+        targetConversationId: targetConversationId,
+        clientMessageId: effectiveClientMessageId,
+      ),
+      onSuccess: () => emit(state.copyWith(forwardedMessageId: messageId)),
+    );
+    if (outcome == ChatMessageSecondaryActionOutcome.succeeded) {
+      _uncertainForwardKeys.remove(key);
+    } else if (outcome == ChatMessageSecondaryActionOutcome.failed) {
+      final error = state.apiErrorFor(messageId);
+      if (error != null && _isUncertainForwardFailure(error)) {
+        _uncertainForwardKeys[key] = effectiveClientMessageId;
+      } else {
+        _uncertainForwardKeys.remove(key);
+      }
+    }
+    return outcome;
+  }
+
+  bool _isUncertainForwardFailure(ApiError error) {
+    final statusCode = error.statusCode;
+    return statusCode == null ||
+        statusCode < 400 ||
+        statusCode == 408 ||
+        statusCode >= 500;
+  }
 
   /// Dodaje własną reakcję emoji do wiadomości.
   Future<ChatMessageSecondaryActionOutcome> react({
@@ -177,9 +203,15 @@ final class ChatMessageSecondaryActionsCubit
 
   /// Czyści kod błędu wiadomości po zamknięciu komunikatu w UI.
   void clearFailure(String messageId) {
-    if (!state.failures.containsKey(messageId)) return;
+    if (isClosed) return;
+    if (!state.failures.containsKey(messageId) &&
+        !state.apiErrors.containsKey(messageId)) {
+      return;
+    }
     final failures = Map<String, String>.of(state.failures)..remove(messageId);
-    emit(state.copyWith(failures: failures));
+    final apiErrors = Map<String, ApiError>.of(state.apiErrors)
+      ..remove(messageId);
+    emit(state.copyWith(failures: failures, apiErrors: apiErrors));
   }
 
   Future<ChatMessageSecondaryActionOutcome> _run<T>({
@@ -211,6 +243,10 @@ final class ChatMessageSecondaryActionsCubit
                 ...state.failures,
                 messageId: error.apiCode ?? error.message,
               },
+              apiErrors: <String, ApiError>{
+                ...state.apiErrors,
+                messageId: error,
+              },
             ),
           );
           return ChatMessageSecondaryActionOutcome.failed;
@@ -235,15 +271,21 @@ final class ChatMessageSecondaryActionsCubit
   }
 
   void _clearFailureFor(String messageId) {
-    if (!state.failures.containsKey(messageId)) return;
+    if (!state.failures.containsKey(messageId) &&
+        !state.apiErrors.containsKey(messageId)) {
+      return;
+    }
     final failures = Map<String, String>.of(state.failures)..remove(messageId);
-    emit(state.copyWith(failures: failures));
+    final apiErrors = Map<String, ApiError>.of(state.apiErrors)
+      ..remove(messageId);
+    emit(state.copyWith(failures: failures, apiErrors: apiErrors));
   }
 
   @override
   Future<void> close() async {
     await _pinEvents?.cancel();
     _pinEvents = null;
+    _uncertainForwardKeys.clear();
     await super.close();
   }
 }

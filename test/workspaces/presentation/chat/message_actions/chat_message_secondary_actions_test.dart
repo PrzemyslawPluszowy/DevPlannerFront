@@ -12,7 +12,7 @@ import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/ch
 import 'package:flutter_test/flutter_test.dart';
 
 /// Repozytorium akcji rejestrujące wywołania i pozwalające wymusić błąd.
-final class _ActionsFake implements ChatMessageActionsRepository {
+class _ActionsFake implements ChatMessageActionsRepository {
   ApiError? failure;
   final List<String> calls = <String>[];
   Set<String> pinned = <String>{};
@@ -188,6 +188,17 @@ final class _ActionsFake implements ChatMessageActionsRepository {
     isDeleted: false,
     deliveryState: ChatMessageDeliveryState.sent,
   );
+}
+
+final class _DelayedActionsFake extends _ActionsFake {
+  final Completer<Either<ApiError, ChatMessageReaction>> reactionCompleter =
+      Completer<Either<ApiError, ChatMessageReaction>>();
+
+  @override
+  Future<Either<ApiError, ChatMessageReaction>> addReaction({
+    required String messageId,
+    required String emoji,
+  }) => reactionCompleter.future;
 }
 
 void main() {
@@ -377,6 +388,64 @@ void main() {
       await cubit.close();
     });
 
+    test('forward retry zachowuje key tylko dla niepewnego wyniku', () async {
+      final repository = _ActionsFake()
+        ..failure = const ApiError(
+          type: ApiErrorType.server,
+          message: 'Serwer chwilowo niedostępny.',
+          statusCode: 503,
+        );
+      final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
+
+      expect(
+        await cubit.forward(
+          messageId: 'message-1',
+          targetConversationId: 'conversation-2',
+          clientMessageId: 'key-first',
+        ),
+        ChatMessageSecondaryActionOutcome.failed,
+      );
+      repository.failure = null;
+      await cubit.forward(
+        messageId: 'message-1',
+        targetConversationId: 'conversation-2',
+        clientMessageId: 'key-retry',
+      );
+      await cubit.forward(
+        messageId: 'message-1',
+        targetConversationId: 'conversation-2',
+        clientMessageId: 'key-new-intent',
+      );
+
+      expect(repository.calls, <String>[
+        'forward:message-1:conversation-2:key-first',
+        'forward:message-1:conversation-2:key-first',
+        'forward:message-1:conversation-2:key-new-intent',
+      ]);
+
+      repository.failure = const ApiError(
+        type: ApiErrorType.conflict,
+        message: 'Wiadomość nie może zostać przekazana.',
+        statusCode: 409,
+      );
+      await cubit.forward(
+        messageId: 'message-1',
+        targetConversationId: 'conversation-2',
+        clientMessageId: 'key-rejected',
+      );
+      repository.failure = null;
+      await cubit.forward(
+        messageId: 'message-1',
+        targetConversationId: 'conversation-2',
+        clientMessageId: 'key-after-rejection',
+      );
+      expect(repository.calls.skip(3), <String>[
+        'forward:message-1:conversation-2:key-rejected',
+        'forward:message-1:conversation-2:key-after-rejection',
+      ]);
+      await cubit.close();
+    });
+
     test(
       'błąd portu jest raportowany kodem przy wiadomości, bez pętli',
       () async {
@@ -406,6 +475,68 @@ void main() {
         await cubit.close();
       },
     );
+
+    test(
+      'zachowuje pełny ApiError, retry i dismiss czyszczą diagnostykę',
+      () async {
+        const error = ApiError(
+          type: ApiErrorType.validation,
+          message: 'Nie można dodać reakcji.',
+          apiCode: 'chat.reaction.invalid',
+          contractCode: 'chat.validation',
+          backendCode: 17,
+          statusCode: 422,
+          traceId: 'trace-secondary-action',
+          fields: <String, List<String>>{
+            'emoji': <String>['Nieobsługiwana wartość.'],
+          },
+        );
+        final repository = _ActionsFake()..failure = error;
+        final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
+
+        expect(
+          await cubit.react(messageId: 'message-1', emoji: '🤖'),
+          ChatMessageSecondaryActionOutcome.failed,
+        );
+        expect(cubit.state.apiErrorFor('message-1'), same(error));
+        expect(cubit.state.failureFor('message-1'), 'chat.reaction.invalid');
+
+        repository.failure = null;
+        final retry = cubit.react(messageId: 'message-1', emoji: '👍');
+        expect(cubit.state.apiErrorFor('message-1'), isNull);
+        expect(cubit.state.failureFor('message-1'), isNull);
+        expect(await retry, ChatMessageSecondaryActionOutcome.succeeded);
+
+        repository.failure = error;
+        await cubit.react(messageId: 'message-1', emoji: '🤖');
+        cubit.clearFailure('message-1');
+        expect(cubit.state.apiErrorFor('message-1'), isNull);
+        expect(cubit.state.failureFor('message-1'), isNull);
+        await cubit.close();
+      },
+    );
+
+    test('odrzuca odpowiedź zakończoną po zamknięciu cubita', () async {
+      final repository = _DelayedActionsFake();
+      final cubit = ChatMessageSecondaryActionsCubit(repository: repository);
+      final pending = cubit.react(messageId: 'message-1', emoji: '👍');
+      await Future<void>.delayed(Duration.zero);
+
+      await cubit.close();
+      repository.reactionCompleter.complete(
+        const Left<ApiError, ChatMessageReaction>(
+          ApiError(
+            type: ApiErrorType.forbidden,
+            message: 'Brak uprawnień.',
+            apiCode: 'chat.reaction.forbidden',
+          ),
+        ),
+      );
+
+      expect(await pending, ChatMessageSecondaryActionOutcome.ignored);
+      expect(cubit.state.apiErrors, isEmpty);
+      expect(cubit.state.failures, isEmpty);
+    });
 
     test(
       'równoległa akcja dla tej samej wiadomości nie dubluje żądania',

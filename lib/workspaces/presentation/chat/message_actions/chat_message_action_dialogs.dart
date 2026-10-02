@@ -1,13 +1,16 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/shared/presentation/widgets/app_toast.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/models/chat_message_action_models.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_upload_error.dart';
 import 'package:devplanner/workspaces/presentation/chat/conversation_delivery/chat_client_message_id_factory.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_forward_target_picker.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/cubit/chat_message_actions_cubit.dart';
@@ -22,6 +25,55 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// wiadomości i wybór rozmowy docelowej dla przekazania. Zamknięcie dialogu
 /// nie wykonuje żadnej akcji.
 abstract final class ChatMessageActionDialogs {
+  /// Pokazuje zachowany błąd akcji wiadomości bez emisji do zamkniętej sesji.
+  static Future<void> showSecondaryActionFailureForMessage(
+    BuildContext context,
+    ChatMessageSecondaryActionsCubit cubit,
+    String messageId,
+  ) async {
+    if (!context.mounted || cubit.isClosed) return;
+    final error = cubit.state.apiErrorFor(messageId);
+    if (error == null) {
+      AppToast.show(
+        context,
+        message: context.l10n.chatActionFailureMessage,
+        tone: AppToastTone.error,
+      );
+      cubit.clearFailure(messageId);
+      return;
+    }
+    await ChatMessageActionDialogs.showSecondaryActionFailure(
+      context,
+      error: error,
+      onDismiss: () {
+        if (!cubit.isClosed) cubit.clearFailure(messageId);
+      },
+    );
+  }
+
+  /// Pokazuje kompletną diagnostykę błędu akcji i czyści ją po zamknięciu.
+  static Future<void> showSecondaryActionFailure(
+    BuildContext context, {
+    required ApiError error,
+    required VoidCallback onDismiss,
+  }) async {
+    if (!context.mounted) return;
+    await DevPlannerModalHost.showDialog<void>(
+      context,
+      builder: (dialogContext) => ChatSurfaceDialog(
+        title: dialogContext.l10n.chatActionFailureMessage,
+        content: ChatAttachmentUploadError(error: error),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).maybePop(),
+            child: Text(dialogContext.l10n.frameworkClose),
+          ),
+        ],
+      ),
+    );
+    if (context.mounted) onDismiss();
+  }
+
   /// Potwierdza i wykonuje logiczne usunięcie wiadomości.
   static Future<void> confirmDelete(
     BuildContext context, {
@@ -120,11 +172,13 @@ abstract final class ChatMessageActionDialogs {
     required List<ChatInboxItem> conversations,
     required Offset globalPosition,
     ChatClientMessageIdFactory? idFactory,
+    ChatInboxRepository? inboxRepository,
   }) async {
+    final inbox = inboxRepository ?? context.read<ChatInboxRepository?>();
     final targets = conversations
         .where((item) => item.conversation.id != message.conversationId)
         .toList(growable: false);
-    if (targets.isEmpty) {
+    if (targets.isEmpty && inbox == null) {
       await AppContextMenu.showCustom(
         context,
         globalPosition: globalPosition,
@@ -151,6 +205,8 @@ abstract final class ChatMessageActionDialogs {
       maxHeight: 440,
       contentBuilder: (_, dismiss) => ChatForwardTargetPicker(
         targets: targets,
+        repository: inbox,
+        sourceConversationId: message.conversationId,
         onSelected: (selected) {
           target = selected;
           dismiss();
@@ -159,23 +215,31 @@ abstract final class ChatMessageActionDialogs {
     );
     final selectedTarget = target;
     if (selectedTarget == null || !context.mounted) return;
-    // Nowy idempotency key dla przekazania; powtórzenie użyje tego samego.
+    final actionsCubit = context.read<ChatMessageSecondaryActionsCubit>();
+    // Cubit zachowa ten klucz przy niepewnym błędzie transportu/serwera.
     final clientMessageId = (idFactory ?? ChatClientMessageIdFactory())
         .create();
-    final outcome = await context
-        .read<ChatMessageSecondaryActionsCubit>()
-        .forward(
-          messageId: message.id,
-          targetConversationId: selectedTarget.conversation.id,
-          clientMessageId: clientMessageId,
-        );
+    final outcome = await actionsCubit.forward(
+      messageId: message.id,
+      targetConversationId: selectedTarget.conversation.id,
+      clientMessageId: clientMessageId,
+    );
     if (outcome == ChatMessageSecondaryActionOutcome.failed &&
         context.mounted) {
-      AppToast.show(
-        context,
-        message: context.l10n.chatActionFailureMessage,
-        tone: AppToastTone.error,
-      );
+      final error = actionsCubit.state.apiErrorFor(message.id);
+      if (error != null) {
+        await showSecondaryActionFailure(
+          context,
+          error: error,
+          onDismiss: () => actionsCubit.clearFailure(message.id),
+        );
+      } else {
+        AppToast.show(
+          context,
+          message: context.l10n.chatActionFailureMessage,
+          tone: AppToastTone.error,
+        );
+      }
     }
   }
 }

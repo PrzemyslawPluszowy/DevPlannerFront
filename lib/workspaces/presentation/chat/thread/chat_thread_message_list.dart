@@ -4,6 +4,7 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_message.dart';
+import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_message_action_dialogs.dart';
@@ -196,6 +197,7 @@ class ChatThreadMessageList extends StatelessWidget {
   ) {
     final secondary = context.read<ChatMessageSecondaryActionsCubit?>();
     if (secondary == null) return null;
+    final inboxRepository = context.read<ChatInboxRepository?>();
     return ChatMessageActionMenu(
       message: message,
       isOwnMessage: message.authorUserId == currentUserId,
@@ -213,13 +215,14 @@ class ChatThreadMessageList extends StatelessWidget {
           : (target) => unawaited(
               ChatMessageActionDialogs.confirmDelete(context, message: target),
             ),
-      onForward: forwardTargets.isEmpty
+      onForward: forwardTargets.isEmpty && inboxRepository == null
           ? null
           : (target, position) => unawaited(
               ChatMessageActionDialogs.forward(
                 context,
                 message: target,
                 conversations: forwardTargets,
+                inboxRepository: inboxRepository,
                 globalPosition: position,
               ),
             ),

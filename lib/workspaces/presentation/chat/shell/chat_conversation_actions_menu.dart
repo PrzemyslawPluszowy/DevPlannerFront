@@ -13,12 +13,15 @@ import 'package:devplanner/workspaces/domain/chat/members/chat_members_repositor
 import 'package:devplanner/workspaces/domain/chat/message_actions/chat_message_actions_export.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
+import 'package:devplanner/workspaces/presentation/chat/attachments/composer/chat_attachment_upload_error.dart';
 import 'package:devplanner/workspaces/presentation/chat/cubit/chat_conversation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/global_chat_composition.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_state.dart';
 import 'package:devplanner/workspaces/presentation/chat/management/chat_rename_conversation_dialog.dart';
 import 'package:devplanner/workspaces/presentation/chat/members/chat_members_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_message_list_sheets.dart';
+import 'package:devplanner/workspaces/presentation/chat/message_actions/chat_saved_conversation_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/search/components/chat_conversation_search_sheet.dart';
 import 'package:devplanner/workspaces/presentation/chat/search/cubit/chat_search_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/settings/chat_conversation_notification_settings_modal.dart';
@@ -287,11 +290,22 @@ class ChatConversationActionsMenu extends StatelessWidget {
       return;
     }
     final selection = context.read<ChatPanelSelectionCubit?>();
-    if (selection == null) return;
+    final composition = context.read<DevPlannerGlobalChatComposition?>();
+    if (selection == null && composition == null) {
+      AppToast.show(
+        context,
+        message: context.l10n.globalChatLoadFailureTitle,
+        tone: AppToastTone.error,
+      );
+      return;
+    }
     final inbox = context.read<ChatInboxCubit?>()?.state;
+    String? targetRole;
     if (inbox case ChatInboxReady(:final items)) {
       for (final item in items) {
-        if (item.conversation.id == conversationId) {
+        if (item.conversation.id != conversationId) continue;
+        targetRole = item.role;
+        if (selection != null) {
           selection.select(
             item.conversation,
             role: item.role,
@@ -305,16 +319,46 @@ class ChatConversationActionsMenu extends StatelessWidget {
     if (repository == null) return;
     final result = await repository.getConversation(conversationId);
     if (!context.mounted) return;
-    result.fold(
-      (_) => AppToast.show(
-        context,
-        message: context.l10n.globalChatLoadFailureTitle,
-        tone: AppToastTone.error,
-      ),
-      (conversation) => selection.select(
-        conversation,
-        targetMessageId: messageId,
-      ),
+    await result.fold<Future<void>>(
+      (error) async {
+        await DevPlannerModalHost.showDialog<void>(
+          context,
+          builder: (dialogContext) => ChatSurfaceDialog(
+            title: dialogContext.l10n.globalChatLoadFailureTitle,
+            content: SizedBox(
+              width: 420,
+              child: ChatAttachmentUploadError(error: error),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(
+                  MaterialLocalizations.of(dialogContext).closeButtonLabel,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      (conversation) async {
+        if (selection != null) {
+          if (!selection.isClosed) {
+            selection.select(
+              conversation,
+              targetMessageId: messageId,
+              role: targetRole,
+            );
+          }
+        } else if (composition != null) {
+          await ChatSavedConversationSheet.show(
+            context,
+            composition: composition,
+            conversation: conversation,
+            messageId: messageId,
+            role: targetRole,
+          );
+        }
+      },
     );
   }
 }
