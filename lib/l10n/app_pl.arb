@@ -3897,5 +3897,37 @@
   "projectPeopleNoMatches": "Nie znaleziono pasujących osób.",
   "projectPeopleYou": "Ty",
   "projectPeopleConnectionUnavailable": "Połączenie obecności jest niedostępne. Status Twojej sesji może być nieaktualny.",
-  "chatAttachmentUploadFailed": "Nie udało się przygotować załącznika. Spróbuj ponownie."
+  "chatAttachmentUploadFailed": "Nie udało się przygotować załącznika. Spróbuj ponownie.",
+  "taskRecurrenceLatestRun": "Ostatnie uruchomienie",
+  "taskRecurrenceNextOccurrenceUtc": "Następne wystąpienie (UTC)",
+  "taskRecurrenceRunSourceHint": "Uruchomienie serii z zadania źródłowego utworzy osobne wystąpienie.",
+  "taskRecurrenceCreatedTask": "Utworzone zadanie",
+  "taskTemplateCopyHeading": "Co zapisze szablon",
+  "taskTemplateCopyFields": "Status i własny status, priorytet, daty, typ, rozmiar, złożoność, ryzyko, wartość biznesowa i estymata oraz przypisani, pozycje checklisty, kryteria akceptacji, etykiety i wartości pól własnych.",
+  "taskTemplateCopyCounts": "Podgląd {taskKey}: przypisani {assignees} · checklista {checklist} · kryteria {criteria} · etykiety {labels} · wartości pól {customValues}.",
+  "taskTemplateCopyExcluded": "Nie są kopiowane: tytuł i opis zadania, pliki, historia, obserwatorzy, zależności, podzadania, kamień milowy ani wpisy czasu. Pozycje checklisty i kryteria będą do ponownego wykonania.",
+  "taskTemplateCopySavedVersion": "Zapis używa aktualnej konfiguracji zapisanej na serwerze. Podgląd liczników pochodzi z ostatnio odczytanej wersji zadania.",
+  "@taskTemplateCopyCounts": {
+    "description": "Counts in the last loaded source task; not a guarantee of a later server snapshot.",
+    "placeholders": {
+      "taskKey": {
+        "type": "String"
+      },
+      "assignees": {
+        "type": "int"
+      },
+      "checklist": {
+        "type": "int"
+      },
+      "criteria": {
+        "type": "int"
+      },
+      "labels": {
+        "type": "int"
+      },
+      "customValues": {
+        "type": "int"
+      }
+    }
+  }
 }

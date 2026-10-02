@@ -13,6 +13,7 @@ _ChatDirectoryUserResponse _$ChatDirectoryUserResponseFromJson(
   login: json['login'] as String,
   displayName: json['displayName'] as String,
   avatarUrl: json['avatarUrl'] as String?,
+  isOnline: json['isOnline'] as bool?,
 );
 
 Map<String, dynamic> _$ChatDirectoryUserResponseToJson(
@@ -22,4 +23,5 @@ Map<String, dynamic> _$ChatDirectoryUserResponseToJson(
   'login': instance.login,
   'displayName': instance.displayName,
   'avatarUrl': instance.avatarUrl,
+  'isOnline': instance.isOnline,
 };

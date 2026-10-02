@@ -1,3 +1,13 @@
+## 2026-10-02 — obecność w katalogu oraz batch cykliczności i szablonów
+
+- Wymóg użytkownika: online/offline widoczne na liście osób przed otwarciem rozmowy; kropka z tekstem, wspólne tokeny i lokalizacje. Na obecnym stagingu ręcznie potwierdzono Online i Offline w inboxie oraz przy właścicielach zadań.
+- Katalog nowego czatu otrzymuje `isOnline` z Backend `ChatDirectoryService` / `IApplicationPresenceReader.ListOnlineAsync`, wyłącznie dla aktywnych kont zwróconych przez autoryzowane wyszukiwanie, po wykluczeniu bieżącego użytkownika. ACL istniejącego `/chat/inbox/presence` pozostaje bez zmian. Front nullable bool obsługuje starszy payload jako status nieznany; wyniki katalogu odświeżają się co 15 s, timer jest anulowany przy zmianie frazy, czyszczeniu i close.
+- Kontrakt katalogu nie zawiera enumów. Generator Freezed/json_serializable wykonany exit 0; test adaptera sprawdza true/false/brak pola i mapping, OpenAPI potwierdza pole `isOnline`.
+- Cykl zadania: jawne Uruchom teraz, osobny pending/error/Retry-After i odczyt ostatniego wyniku; GET retry nie ponawia POST. Termin oznaczony UTC, obok skonfigurowana strefa IANA. Enum odpowiedzi wyników nadal Created/SkippedPreviousOpen; istniejące testy JSON i OpenAPI pokrywają cały zestaw.
+- Zapis szablonu pokazuje zakres kopii i liczniki z ostatnio odczytanego zadania. Backend celowo pomija tytuł/opis, pliki, historię, obserwatorów, zależności, podzadania, kamień milowy i czas; zapis używa aktualnej konfiguracji na serwerze. UI jawnie wyjaśnia różnicę świeżości liczników i zapisu.
+- Walidacja: Backend ChatDirectoryServiceTests 3/3 i ChatOpenApiContractTests 15/15; Front wspólny batch adapter/popover/szablony/cykliczność 53/53. Pierwszy test popovera wykrył select w itemBuilder; obserwację wydzielono do osobnego widgetu, powtórka przechodzi. UI UX Pro Max: status nie jest komunikowany samym kolorem; Impeccable Operate: wspólne komponenty, gęstość i tokeny. Brak nowego motywu.
+- Wdrożenie tego batcha i ręczny odbiór nowego katalogu oczekują na finalną analizę oraz publikację Backend + Front Wasm. Nie oznacza to pełnego odbioru P0–P7, Office ani wszystkich scenariuszy trzech klientów.
+
 ## 2026-10-02 — pusty direct chat: wysyłka działa, poprawka semantyki gotowa do następnego batcha
 
 - Zweryfikowano staging na bieżącym FrontWasm272e6ed: mimo AX „disabled” pole przyjęło tekst; Enter wysłał pierwszą wiadomość w dotąd pustej testowej DM. Wysyłanie → Wysłano, po reload wiadomość zachowana w inbox preview i historii. Dowód `/tmp/devplanner-staging-empty-dm-send-2026-10-02.png`. Nie jest to test odbioru po stronie drugiego klienta ani pełny test3 kont. Nie traktować wcześniejszej obserwacji jako potwierdzonej blokady biznesowej composera.

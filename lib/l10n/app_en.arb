@@ -3910,5 +3910,37 @@
   "projectPeopleNoMatches": "No matching people.",
   "projectPeopleYou": "You",
   "projectPeopleConnectionUnavailable": "Presence connection is unavailable. Your session status may be out of date.",
-  "chatAttachmentUploadFailed": "Could not prepare the attachment. Please try again."
+  "chatAttachmentUploadFailed": "Could not prepare the attachment. Please try again.",
+  "taskRecurrenceLatestRun": "Latest run",
+  "taskRecurrenceNextOccurrenceUtc": "Next occurrence (UTC)",
+  "taskRecurrenceRunSourceHint": "This runs the series from the source task and creates a separate occurrence.",
+  "taskRecurrenceCreatedTask": "Created task",
+  "taskTemplateCopyHeading": "What the template saves",
+  "taskTemplateCopyFields": "Status and custom status, priority, dates, type, size, complexity, risk, business value and estimate, plus assignees, checklist items, acceptance criteria, labels and custom field values.",
+  "taskTemplateCopyCounts": "Preview of {taskKey}: assignees {assignees} · checklist {checklist} · criteria {criteria} · labels {labels} · field values {customValues}.",
+  "taskTemplateCopyExcluded": "Not copied: task title and description, files, history, watchers, dependencies, subtasks, milestone or time entries. Checklist items and acceptance criteria start incomplete.",
+  "taskTemplateCopySavedVersion": "Saving uses the current configuration stored on the server. Preview counts come from the last loaded task version.",
+  "@taskTemplateCopyCounts": {
+    "description": "Counts in the last loaded source task; not a guarantee of a later server snapshot.",
+    "placeholders": {
+      "taskKey": {
+        "type": "String"
+      },
+      "assignees": {
+        "type": "int"
+      },
+      "checklist": {
+        "type": "int"
+      },
+      "criteria": {
+        "type": "int"
+      },
+      "labels": {
+        "type": "int"
+      },
+      "customValues": {
+        "type": "int"
+      }
+    }
+  }
 }

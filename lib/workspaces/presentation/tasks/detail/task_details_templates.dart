@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/templates/task_template_copy_preview.dart';
 
 /// Składa modal utworzenia template z aktualnym zadaniem i jego Cubitem.
 ///
@@ -12,6 +13,11 @@ final class TaskTemplateDialogLauncher {
   }) {
     final detailsCubit = context.read<TaskDetailsCubit>();
     final repository = context.read<TaskTemplateRepository>();
+    final preview = switch (detailsCubit.state) {
+      TaskDetailsReady(:final details) =>
+        TaskTemplateCopyPreviewData.fromDetails(details),
+      _ => null,
+    };
     return DevPlannerModalHost.showDialog<void>(
       context,
       builder: (_) => BlocProvider(
@@ -28,16 +34,24 @@ final class TaskTemplateDialogLauncher {
           onAccessLost: (error) =>
               unawaited(detailsCubit.reportAccessLost(error)),
         ),
-        child: CreateTaskTemplateDialog(initialName: initialName),
+        child: CreateTaskTemplateDialog(
+          initialName: initialName,
+          copyPreview: preview,
+        ),
       ),
     );
   }
 }
 
 class CreateTaskTemplateDialog extends StatefulWidget {
-  const CreateTaskTemplateDialog({required this.initialName, super.key});
+  const CreateTaskTemplateDialog({
+    required this.initialName,
+    this.copyPreview,
+    super.key,
+  });
 
   final String initialName;
+  final TaskTemplateCopyPreviewData? copyPreview;
 
   @override
   State<CreateTaskTemplateDialog> createState() =>
@@ -127,7 +141,7 @@ class CreateTaskTemplateDialogState extends State<CreateTaskTemplateDialog> {
         isSubmitting: saving,
         submitLabel: l10n.create,
         cancelLabel: l10n.cancel,
-        maxWidth: 460,
+        maxWidth: 560,
         onBeforeClose: () => TaskDetailEditorCloseGuard.canClose(
           context,
           _draft,
@@ -189,6 +203,8 @@ class CreateTaskTemplateDialogState extends State<CreateTaskTemplateDialog> {
                     : null,
               ),
             ),
+            Gaps.h16,
+            TaskTemplateCopyPreview(data: widget.copyPreview),
           ],
         ),
       );

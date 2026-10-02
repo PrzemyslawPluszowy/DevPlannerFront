@@ -12441,4 +12441,44 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get chatAttachmentUploadFailed =>
       'Nie udało się przygotować załącznika. Spróbuj ponownie.';
+
+  @override
+  String get taskRecurrenceLatestRun => 'Ostatnie uruchomienie';
+
+  @override
+  String get taskRecurrenceNextOccurrenceUtc => 'Następne wystąpienie (UTC)';
+
+  @override
+  String get taskRecurrenceRunSourceHint =>
+      'Uruchomienie serii z zadania źródłowego utworzy osobne wystąpienie.';
+
+  @override
+  String get taskRecurrenceCreatedTask => 'Utworzone zadanie';
+
+  @override
+  String get taskTemplateCopyHeading => 'Co zapisze szablon';
+
+  @override
+  String get taskTemplateCopyFields =>
+      'Status i własny status, priorytet, daty, typ, rozmiar, złożoność, ryzyko, wartość biznesowa i estymata oraz przypisani, pozycje checklisty, kryteria akceptacji, etykiety i wartości pól własnych.';
+
+  @override
+  String taskTemplateCopyCounts(
+    String taskKey,
+    int assignees,
+    int checklist,
+    int criteria,
+    int labels,
+    int customValues,
+  ) {
+    return 'Podgląd $taskKey: przypisani $assignees · checklista $checklist · kryteria $criteria · etykiety $labels · wartości pól $customValues.';
+  }
+
+  @override
+  String get taskTemplateCopyExcluded =>
+      'Nie są kopiowane: tytuł i opis zadania, pliki, historia, obserwatorzy, zależności, podzadania, kamień milowy ani wpisy czasu. Pozycje checklisty i kryteria będą do ponownego wykonania.';
+
+  @override
+  String get taskTemplateCopySavedVersion =>
+      'Zapis używa aktualnej konfiguracji zapisanej na serwerze. Podgląd liczników pochodzi z ostatnio odczytanej wersji zadania.';
 }

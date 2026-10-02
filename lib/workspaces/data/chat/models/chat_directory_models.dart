@@ -12,6 +12,7 @@ abstract class ChatDirectoryUserResponse with _$ChatDirectoryUserResponse {
     required String login,
     required String displayName,
     String? avatarUrl,
+    bool? isOnline,
   }) = _ChatDirectoryUserResponse;
 
   /// Odtwarza kandydata z JSON.

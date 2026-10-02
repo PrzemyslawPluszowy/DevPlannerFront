@@ -60,11 +60,14 @@ final class ChatDirectorySearchCubit extends Cubit<ChatDirectorySearchState> {
   final int limit;
 
   Timer? _timer;
+  Timer? _presenceRefreshTimer;
   int _requestId = 0;
 
   /// Ustawia frazę i planuje zapytanie po debounce.
   void updateQuery(String value) {
     _timer?.cancel();
+    _presenceRefreshTimer?.cancel();
+    _presenceRefreshTimer = null;
     // Unieważnia także żądanie już wysłane. Jego odpowiedź nie może wrócić do
     // nowej frazy w trakcie debounce i pokazać osób znalezionych dla starego
     // zapytania.
@@ -84,12 +87,16 @@ final class ChatDirectorySearchCubit extends Cubit<ChatDirectorySearchState> {
   /// Ponawia ostatnie zapytanie bez czekania na debounce.
   Future<void> retry() {
     _timer?.cancel();
+    _presenceRefreshTimer?.cancel();
+    _presenceRefreshTimer = null;
     return _search(state.query);
   }
 
   /// Czyści wyniki bez czekania na debounce.
   void clear() {
     _timer?.cancel();
+    _presenceRefreshTimer?.cancel();
+    _presenceRefreshTimer = null;
     _requestId++;
     emit(const ChatDirectorySearchState());
   }
@@ -113,15 +120,29 @@ final class ChatDirectorySearchCubit extends Cubit<ChatDirectorySearchState> {
           failureCode: error.apiCode ?? error.message,
         ),
       ),
-      (entries) => emit(
-        ChatDirectorySearchState(query: value, results: entries),
-      ),
+      (entries) {
+        emit(ChatDirectorySearchState(query: value, results: entries));
+        _presenceRefreshTimer?.cancel();
+        if (entries.isNotEmpty) {
+          _presenceRefreshTimer = Timer(
+            const Duration(seconds: 15),
+            _refreshVisiblePeople,
+          );
+        }
+      },
     );
+  }
+
+  void _refreshVisiblePeople() {
+    if (isClosed || state.isSearching || state.isQueryTooShort) return;
+    unawaited(_search(state.query));
   }
 
   @override
   Future<void> close() {
     _timer?.cancel();
+    _presenceRefreshTimer?.cancel();
+    _presenceRefreshTimer = null;
     return super.close();
   }
 }

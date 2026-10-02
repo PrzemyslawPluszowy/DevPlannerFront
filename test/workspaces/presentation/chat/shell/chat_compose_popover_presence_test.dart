@@ -5,6 +5,7 @@ import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation_models_export.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/directory/models/chat_directory_entry.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/chat_inbox_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export.dart';
@@ -22,6 +23,89 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  for (final status in <bool?>[true, false, null]) {
+    testWidgets('directory result shows presence $status before opening chat', (
+      tester,
+    ) async {
+      final inbox = ChatInboxCubit(repository: _InboxRepository(_item()));
+      await inbox.load();
+      final presence = ChatInboxPresenceCubit(
+        inbox: inbox,
+        repository: _PresenceRepository(status),
+        currentUserId: 'me',
+        refreshInterval: const Duration(hours: 1),
+        maxStaleAge: const Duration(hours: 1),
+      );
+      var closed = false;
+      addTearDown(() async {
+        if (closed) return;
+        await tester.runAsync(() async {
+          await presence.close();
+          await inbox.close();
+        });
+      });
+      final directory = _DirectoryRepositoryFake(status);
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => unawaited(
+                  ChatComposePopover.show(
+                    context,
+                    globalPosition: const Offset(120, 80),
+                    repository: _ManagementRepositoryFake(),
+                    directoryRepository: directory,
+                    inboxPresenceCubit: presence,
+                  ),
+                ),
+                child: const Text('New chat'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('New chat'));
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.enterText(
+        find.byKey(const ValueKey('chat-compose-search')),
+        'New',
+      );
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump();
+      await _waitFor(tester, () => presence.state.snapshotAtUtc != null);
+      await tester.pump();
+      expect(find.text('New person'), findsOneWidget);
+      final l10n = AppLocalizations.of(
+        tester.element(find.text('New person')),
+      )!;
+      final expected = switch (status) {
+        true => l10n.tasksPresenceOnline,
+        false => l10n.tasksPresenceOffline,
+        null => l10n.projectPeoplePresenceUnknown,
+      };
+      expect(find.text(expected), findsOneWidget);
+      if (status == true) {
+        directory.isOnline = false;
+        await tester.pump(const Duration(seconds: 15));
+        await tester.pump();
+        expect(find.text(l10n.tasksPresenceOffline), findsOneWidget);
+        expect(find.text(l10n.tasksPresenceOnline), findsNothing);
+      }
+      expect(tester.takeException(), isNull);
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.runAsync(() async {
+        await presence.close();
+        await inbox.close();
+      });
+      closed = true;
+    });
+  }
+
   testWidgets(
     'recent chat keeps the existing batch presence provider in popover',
     (
@@ -159,13 +243,14 @@ void main() {
 
 final class _OfflineRealtimeClient implements ChatConversationRealtimeClient {
   @override
-  Stream<ChatConversationPresenceSnapshot?> get presenceSnapshots => Stream.value(
-    ChatConversationPresenceSnapshot(
-      conversationId: 'conversation',
-      users: const [],
-      changedAtUtc: DateTime.utc(2026, 10, 2),
-    ),
-  );
+  Stream<ChatConversationPresenceSnapshot?> get presenceSnapshots =>
+      Stream.value(
+        ChatConversationPresenceSnapshot(
+          conversationId: 'conversation',
+          users: const [],
+          changedAtUtc: DateTime.utc(2026, 10, 2),
+        ),
+      );
 
   @override
   Stream<ChatUserStatusChanged> get userStatusChanges => const Stream.empty();
@@ -269,6 +354,18 @@ final class _ManagementRepositoryFake
 }
 
 final class _DirectoryRepositoryFake implements ChatDirectoryRepository {
+  _DirectoryRepositoryFake([this.isOnline]);
+  bool? isOnline;
   @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  Future<Either<ApiError, List<ChatDirectoryEntry>>> search({
+    required String term,
+    int limit = 20,
+  }) async => Right([
+    ChatDirectoryEntry(
+      userId: 'new-person',
+      login: 'new.person',
+      displayName: 'New person',
+      isOnline: isOnline,
+    ),
+  ]);
 }

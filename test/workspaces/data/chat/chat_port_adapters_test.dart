@@ -399,6 +399,7 @@ void main() {
       final entry = result.getOrElse(() => []).single;
       expect(entry.userId, 'user-1');
       expect(entry.label, 'Anna Kowalska');
+      expect(entry.isOnline, isNull);
       expect(
         ChatDirectoryUserResponse.fromJson(const <String, dynamic>{
           'userId': 'user-1',
@@ -408,6 +409,46 @@ void main() {
         isNot(contains('email')),
       );
       verify(() => api.searchDirectory(query: 'anna', limit: 20)).called(1);
+    });
+
+    test('dekoduje i mapuje obecność online/offline oraz brak pola jako null', () async {
+      final onlineResponse = ChatDirectoryUserResponse.fromJson(
+        const <String, dynamic>{
+          'userId': 'online',
+          'login': 'online.user',
+          'displayName': 'Online User',
+          'isOnline': true,
+        },
+      );
+      final offlineResponse = ChatDirectoryUserResponse.fromJson(
+        const <String, dynamic>{
+          'userId': 'offline',
+          'login': 'offline.user',
+          'displayName': 'Offline User',
+          'isOnline': false,
+        },
+      );
+      final unknownResponse = ChatDirectoryUserResponse.fromJson(
+        const <String, dynamic>{
+          'userId': 'unknown',
+          'login': 'unknown.user',
+          'displayName': 'Unknown User',
+        },
+      );
+      when(
+        () => api.searchDirectory(
+          query: any(named: 'query'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer((_) async => [onlineResponse, offlineResponse, unknownResponse]);
+
+      final entries = (await ChatDirectoryRepositoryImpl(api).search(term: 'user'))
+          .getOrElse(() => throw StateError('brak'));
+
+      expect(entries.map((entry) => entry.isOnline), [true, false, null]);
+      expect(onlineResponse.toJson()['isOnline'], isTrue);
+      expect(offlineResponse.toJson()['isOnline'], isFalse);
+      expect(unknownResponse.toJson()['isOnline'], isNull);
     });
 
     test('błąd katalogu ma własny kod domenowy', () async {

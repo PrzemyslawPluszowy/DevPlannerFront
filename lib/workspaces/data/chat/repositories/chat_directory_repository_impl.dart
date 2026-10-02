@@ -37,6 +37,7 @@ final class ChatDirectoryRepositoryImpl implements ChatDirectoryRepository {
         login: response.login,
         displayName: response.displayName,
         avatarUrl: response.avatarUrl,
+        isOnline: response.isOnline,
       );
 
   Future<Either<ApiError, T>> _guard<T>(

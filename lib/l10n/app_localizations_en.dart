@@ -12338,4 +12338,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get chatAttachmentUploadFailed =>
       'Could not prepare the attachment. Please try again.';
+
+  @override
+  String get taskRecurrenceLatestRun => 'Latest run';
+
+  @override
+  String get taskRecurrenceNextOccurrenceUtc => 'Next occurrence (UTC)';
+
+  @override
+  String get taskRecurrenceRunSourceHint =>
+      'This runs the series from the source task and creates a separate occurrence.';
+
+  @override
+  String get taskRecurrenceCreatedTask => 'Created task';
+
+  @override
+  String get taskTemplateCopyHeading => 'What the template saves';
+
+  @override
+  String get taskTemplateCopyFields =>
+      'Status and custom status, priority, dates, type, size, complexity, risk, business value and estimate, plus assignees, checklist items, acceptance criteria, labels and custom field values.';
+
+  @override
+  String taskTemplateCopyCounts(
+    String taskKey,
+    int assignees,
+    int checklist,
+    int criteria,
+    int labels,
+    int customValues,
+  ) {
+    return 'Preview of $taskKey: assignees $assignees · checklist $checklist · criteria $criteria · labels $labels · field values $customValues.';
+  }
+
+  @override
+  String get taskTemplateCopyExcluded =>
+      'Not copied: task title and description, files, history, watchers, dependencies, subtasks, milestone or time entries. Checklist items and acceptance criteria start incomplete.';
+
+  @override
+  String get taskTemplateCopySavedVersion =>
+      'Saving uses the current configuration stored on the server. Preview counts come from the last loaded task version.';
 }

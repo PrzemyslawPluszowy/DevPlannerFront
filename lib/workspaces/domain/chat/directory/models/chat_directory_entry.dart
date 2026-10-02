@@ -11,17 +11,19 @@ final class ChatDirectoryEntry extends Equatable {
     required this.login,
     required this.displayName,
     this.avatarUrl,
+    this.isOnline,
   });
 
   final String userId;
   final String login;
   final String displayName;
   final String? avatarUrl;
+  final bool? isOnline;
 
   /// Etykieta do prezentacji: nazwa wyświetlana albo login.
   String get label =>
       displayName.trim().isNotEmpty ? displayName.trim() : login.trim();
 
   @override
-  List<Object?> get props => [userId, login, displayName, avatarUrl];
+  List<Object?> get props => [userId, login, displayName, avatarUrl, isOnline];
 }

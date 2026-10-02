@@ -1,10 +1,16 @@
+import 'package:devplanner/workspaces/presentation/tasks/detail/recurrence/cubit/task_recurrence_run_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_labelers.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_recurrence_form.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_recurrence_run_details.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
 class TaskRecurrenceSection extends StatelessWidget {
-  const TaskRecurrenceSection({required this.task, required this.isEditable, super.key});
+  const TaskRecurrenceSection({
+    required this.task,
+    required this.isEditable,
+    super.key,
+  });
 
   final ProjectTaskResponse task;
   final bool isEditable;
@@ -12,6 +18,59 @@ class TaskRecurrenceSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recurrence = task.recurrence;
+    final detailsCubit = context.read<TaskDetailsCubit>();
+    final repository = context.read<TaskRecurrenceRepository>();
+    return BlocProvider(
+      key: ValueKey((
+        task.workspaceId,
+        task.projectId,
+        task.id,
+        recurrence?.id,
+        repository,
+      )),
+      create: (_) {
+        final cubit = TaskRecurrenceRunCubit(
+          repository: repository,
+          workspaceId: task.workspaceId,
+          projectId: task.projectId,
+          sourceTaskId: task.id,
+          canEdit: () =>
+              !detailsCubit.isClosed &&
+              switch (detailsCubit.state) {
+                TaskDetailsReady(:final canEdit) => canEdit,
+                _ => false,
+              },
+          onAccessLost: (error) =>
+              unawaited(detailsCubit.reportAccessLost(error)),
+        );
+        if (recurrence case final rule? when rule.isSourceTask) {
+          unawaited(cubit.ensureLatestLoaded(rule.id));
+        }
+        return cubit;
+      },
+      child: _TaskRecurrenceSectionContent(
+        task: task,
+        recurrence: recurrence,
+        isEditable: isEditable,
+      ),
+    );
+  }
+}
+
+final class _TaskRecurrenceSectionContent extends StatelessWidget {
+  const _TaskRecurrenceSectionContent({
+    required this.task,
+    required this.recurrence,
+    required this.isEditable,
+  });
+
+  final ProjectTaskResponse task;
+  final TaskRecurrenceSummaryResponse? recurrence;
+  final bool isEditable;
+
+  @override
+  Widget build(BuildContext context) {
+    final recurrence = this.recurrence;
     return Section(
       title: context.l10n.taskDetailsRecurrence,
       action: TextButton.icon(
@@ -21,49 +80,57 @@ class TaskRecurrenceSection extends StatelessWidget {
         icon: const Icon(Symbols.repeat_rounded, size: 18),
         label: Text(context.l10n.taskDetailsConfigureRecurrence),
       ),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.colors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
-          border: Border.all(color: context.colors.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: recurrence == null
-              ? Text(
-                  context.l10n.taskDetailsRecurrenceNotConfigured,
-                  style: context.text.bodySmall?.copyWith(
-                    color: context.colors.onSurfaceVariant,
-                  ),
-                )
-              : Row(
-                  children: [
-                    Icon(
-                      recurrence.isActive
-                          ? Symbols.repeat_rounded
-                          : Symbols.pause_circle_outline_rounded,
-                      color: recurrence.isActive
-                          ? context.colors.primary
-                          : context.colors.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        '${TaskRecurrenceFrequencyLabeler.label(context, recurrence.frequency)} '
-                        '· ${context.l10n.taskDetailsRecurrenceEvery(recurrence.interval)}',
-                      ),
-                    ),
-                    Text(
-                      recurrence.isActive
-                          ? context.l10n.taskDetailsRecurrenceActive
-                          : context.l10n.taskDetailsRecurrencePaused,
-                      style: context.text.labelMedium?.copyWith(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: context.colors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(
+                context.tasksTheme.controlRadius,
+              ),
+              border: Border.all(color: context.colors.outlineVariant),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: recurrence == null
+                  ? Text(
+                      context.l10n.taskDetailsRecurrenceNotConfigured,
+                      style: context.text.bodySmall?.copyWith(
                         color: context.colors.onSurfaceVariant,
                       ),
+                    )
+                  : Row(
+                      children: [
+                        Icon(
+                          recurrence.isActive
+                              ? Symbols.repeat_rounded
+                              : Symbols.pause_circle_outline_rounded,
+                          color: recurrence.isActive
+                              ? context.colors.primary
+                              : context.colors.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '${TaskRecurrenceFrequencyLabeler.label(context, recurrence.frequency)} '
+                            '· ${context.l10n.taskDetailsRecurrenceEvery(recurrence.interval)}',
+                          ),
+                        ),
+                        Text(
+                          recurrence.isActive
+                              ? context.l10n.taskDetailsRecurrenceActive
+                              : context.l10n.taskDetailsRecurrencePaused,
+                          style: context.text.labelMedium?.copyWith(
+                            color: context.colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-        ),
+            ),
+          ),
+          TaskRecurrenceRunDetails(task: task, isEditable: isEditable),
+        ],
       ),
     );
   }

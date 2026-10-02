@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ChatDirectoryUserResponse {
 
- String get userId; String get login; String get displayName; String? get avatarUrl;
+ String get userId; String get login; String get displayName; String? get avatarUrl; bool? get isOnline;
 /// Create a copy of ChatDirectoryUserResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ChatDirectoryUserResponseCopyWith<ChatDirectoryUserResponse> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatDirectoryUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChatDirectoryUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,login,displayName,avatarUrl);
+int get hashCode => Object.hash(runtimeType,userId,login,displayName,avatarUrl,isOnline);
 
 @override
 String toString() {
-  return 'ChatDirectoryUserResponse(userId: $userId, login: $login, displayName: $displayName, avatarUrl: $avatarUrl)';
+  return 'ChatDirectoryUserResponse(userId: $userId, login: $login, displayName: $displayName, avatarUrl: $avatarUrl, isOnline: $isOnline)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ChatDirectoryUserResponseCopyWith<$Res>  {
   factory $ChatDirectoryUserResponseCopyWith(ChatDirectoryUserResponse value, $Res Function(ChatDirectoryUserResponse) _then) = _$ChatDirectoryUserResponseCopyWithImpl;
 @useResult
 $Res call({
- String userId, String login, String displayName, String? avatarUrl
+ String userId, String login, String displayName, String? avatarUrl, bool? isOnline
 });
 
 
@@ -65,13 +65,14 @@ class _$ChatDirectoryUserResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatDirectoryUserResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? login = null,Object? displayName = null,Object? avatarUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? login = null,Object? displayName = null,Object? avatarUrl = freezed,Object? isOnline = freezed,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,isOnline: freezed == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
+as bool?,
   ));
 }
 
@@ -156,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String login,  String displayName,  String? avatarUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String login,  String displayName,  String? avatarUrl,  bool? isOnline)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ChatDirectoryUserResponse() when $default != null:
-return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case _:
+return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl,_that.isOnline);case _:
   return orElse();
 
 }
@@ -177,10 +178,10 @@ return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String login,  String displayName,  String? avatarUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String login,  String displayName,  String? avatarUrl,  bool? isOnline)  $default,) {final _that = this;
 switch (_that) {
 case _ChatDirectoryUserResponse():
-return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case _:
+return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl,_that.isOnline);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +198,10 @@ return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String login,  String displayName,  String? avatarUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String login,  String displayName,  String? avatarUrl,  bool? isOnline)?  $default,) {final _that = this;
 switch (_that) {
 case _ChatDirectoryUserResponse() when $default != null:
-return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case _:
+return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl,_that.isOnline);case _:
   return null;
 
 }
@@ -212,13 +213,14 @@ return $default(_that.userId,_that.login,_that.displayName,_that.avatarUrl);case
 @JsonSerializable()
 
 class _ChatDirectoryUserResponse implements ChatDirectoryUserResponse {
-  const _ChatDirectoryUserResponse({required this.userId, required this.login, required this.displayName, this.avatarUrl});
+  const _ChatDirectoryUserResponse({required this.userId, required this.login, required this.displayName, this.avatarUrl, this.isOnline});
   factory _ChatDirectoryUserResponse.fromJson(Map<String, dynamic> json) => _$ChatDirectoryUserResponseFromJson(json);
 
 @override final  String userId;
 @override final  String login;
 @override final  String displayName;
 @override final  String? avatarUrl;
+@override final  bool? isOnline;
 
 /// Create a copy of ChatDirectoryUserResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +235,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatDirectoryUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChatDirectoryUserResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.login, login) || other.login == login)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,login,displayName,avatarUrl);
+int get hashCode => Object.hash(runtimeType,userId,login,displayName,avatarUrl,isOnline);
 
 @override
 String toString() {
-  return 'ChatDirectoryUserResponse(userId: $userId, login: $login, displayName: $displayName, avatarUrl: $avatarUrl)';
+  return 'ChatDirectoryUserResponse(userId: $userId, login: $login, displayName: $displayName, avatarUrl: $avatarUrl, isOnline: $isOnline)';
 }
 
 
@@ -253,7 +255,7 @@ abstract mixin class _$ChatDirectoryUserResponseCopyWith<$Res> implements $ChatD
   factory _$ChatDirectoryUserResponseCopyWith(_ChatDirectoryUserResponse value, $Res Function(_ChatDirectoryUserResponse) _then) = __$ChatDirectoryUserResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, String login, String displayName, String? avatarUrl
+ String userId, String login, String displayName, String? avatarUrl, bool? isOnline
 });
 
 
@@ -270,13 +272,14 @@ class __$ChatDirectoryUserResponseCopyWithImpl<$Res>
 
 /// Create a copy of ChatDirectoryUserResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? login = null,Object? displayName = null,Object? avatarUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? login = null,Object? displayName = null,Object? avatarUrl = freezed,Object? isOnline = freezed,}) {
   return _then(_ChatDirectoryUserResponse(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,login: null == login ? _self.login : login // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,isOnline: freezed == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
+as bool?,
   ));
 }
 

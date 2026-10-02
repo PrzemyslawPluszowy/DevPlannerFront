@@ -22013,6 +22013,67 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not prepare the attachment. Please try again.'**
   String get chatAttachmentUploadFailed;
+
+  /// No description provided for @taskRecurrenceLatestRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest run'**
+  String get taskRecurrenceLatestRun;
+
+  /// No description provided for @taskRecurrenceNextOccurrenceUtc.
+  ///
+  /// In en, this message translates to:
+  /// **'Next occurrence (UTC)'**
+  String get taskRecurrenceNextOccurrenceUtc;
+
+  /// No description provided for @taskRecurrenceRunSourceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This runs the series from the source task and creates a separate occurrence.'**
+  String get taskRecurrenceRunSourceHint;
+
+  /// No description provided for @taskRecurrenceCreatedTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Created task'**
+  String get taskRecurrenceCreatedTask;
+
+  /// No description provided for @taskTemplateCopyHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'What the template saves'**
+  String get taskTemplateCopyHeading;
+
+  /// No description provided for @taskTemplateCopyFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Status and custom status, priority, dates, type, size, complexity, risk, business value and estimate, plus assignees, checklist items, acceptance criteria, labels and custom field values.'**
+  String get taskTemplateCopyFields;
+
+  /// Counts in the last loaded source task; not a guarantee of a later server snapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview of {taskKey}: assignees {assignees} · checklist {checklist} · criteria {criteria} · labels {labels} · field values {customValues}.'**
+  String taskTemplateCopyCounts(
+    String taskKey,
+    int assignees,
+    int checklist,
+    int criteria,
+    int labels,
+    int customValues,
+  );
+
+  /// No description provided for @taskTemplateCopyExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not copied: task title and description, files, history, watchers, dependencies, subtasks, milestone or time entries. Checklist items and acceptance criteria start incomplete.'**
+  String get taskTemplateCopyExcluded;
+
+  /// No description provided for @taskTemplateCopySavedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving uses the current configuration stored on the server. Preview counts come from the last loaded task version.'**
+  String get taskTemplateCopySavedVersion;
 }
 
 class _AppLocalizationsDelegate

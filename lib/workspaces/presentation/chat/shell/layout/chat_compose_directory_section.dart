@@ -9,6 +9,8 @@ import 'package:devplanner/workspaces/domain/chat/inbox/models/chat_inbox_export
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/participants/cubit/chat_directory_search_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/components/chat_inbox_row.dart';
+import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_presence_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/presence/widgets/chat_inbox_presence_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -140,6 +142,7 @@ class ChatComposeDirectorySection extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                          _ChatDirectoryPresenceLabel(entry: entry),
                           Text(
                             entry.login,
                             maxLines: 1,
@@ -188,4 +191,19 @@ class ChatComposeDirectorySection extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Własny element obserwacji zapobiega przebudowie całej listy presence.
+final class _ChatDirectoryPresenceLabel extends StatelessWidget {
+  const _ChatDirectoryPresenceLabel({required this.entry});
+
+  final ChatDirectoryEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final isOnline = context.select<ChatInboxPresenceCubit?, bool?>(
+      (cubit) => entry.isOnline ?? cubit?.state.statusFor(entry.userId),
+    );
+    return ChatInboxPresenceLabel(isOnline: isOnline);
+  }
 }
