@@ -1,3 +1,8 @@
+### Publikacja i zmiana zakresu przeglądarek
+
+- Front Wasm c2bc2d2caaad590fb7c4b875f29175002db88694 opublikowany skryptem SSH, exit 0; publiczny version.json potwierdza SHA. Backend runtime bez zmian. Nowe instrukcje AGENTS obu repo: aktualnie odbiór w Chrome albo Edge; docelowo również Firefox. IAB Codexa wyłączony z kryterium odbioru. W code review zapisywać również niespójności wizualne i zbierać pakiet przed poprawkami.
+- Chrome dostępny ponownie. Stara karta Office pokazywała Połączono; po zamknięciu edytora lista plików zgłosiła wymagane uwierzytelnienie. Po nawigacji i reload zadania nastąpiło przekierowanie do login z zachowanym returnTo. To obserwacja wygasłej sesji, bez potwierdzenia defektu Office; brak nowego dowodu save/reopen/print. Dokładny runtime szablonu/kalendarza wymaga zalogowania w Chrome i pozostaje otwarty.
+
 ## 2026-10-02 — regresje zapisu szablonu i kalendarza cykliczności
 
 - Manual staging wykrył HTTP 400 podczas zapisu szablonu z zadania oraz brak otwarcia kalendarza pierwszego wystąpienia. Transportowy test przed poprawką wykazał brak projectId; widgetowy test rzeczywistego launchera odtworzył ProviderNotFound TaskDetailsCubit.
