@@ -1223,3 +1223,13 @@ Dowody: /tmp/devplanner-staging-onlyoffice-chrome-ready-2026-10-01.png, /tmp/dev
 - Zastosowano UI UX Pro Max (widoczny focus formularza) oraz Impeccable Operate/craft floor: istniejące tokeny, zwarta gęstość, czytelność czynności.
 - Walidacja: 34 testy pakietu PASS; dodatkowy retest polskiego formatu 17 paź 2026 i małego modala PASS; flutter analyze clean (11,1 s); git diff --check clean. Dwa pierwsze testy minut nie przewijały menu — poprawiono scenariusz ensureVisible i cały pakiet przeszedł.
 - Odbiór Chrome po publikacji i wygląd obu motywów pozostają do wykonania. QA-C06 potwierdzenie zapisu Office wymaga osobnego trace; pełny zakres modal/chat/files/awarie nadal otwarty.
+
+## Cykl — publikacja i odbiór Chrome, 2026-10-02
+
+- Front 0d46817fd70d442c37255e2d358998a3931654f7 opublikowany jednym scripts/deploy_staging_wasm.sh, exit 0; version.json wskazuje dokładnie ten SHA. Backend zmieniony wyłącznie dokumentacyjnie (7e98ec5), bez nowego wdrożenia binariów.
+- Chrome staging: formularz pokazuje 17 paź 2026, brak dawnej pustej przestrzeni, przełącznik w kolorach aplikacji, osobne dropdowny godziny/minuty. Wybrano 09 i 23, zapisano, zamknięto i otwarto ponownie: 09:23 zachowane. Podsumowanie pokazuje 17 paź 2026 07:23 UTC. Seria pozostaje Wstrzymana, nie uruchomiono następnego wystąpienia.
+- Tekst wyjaśnienia ręcznego force widoczny w panelu. Przełącznik kliknięciem off/on odtworzono do pierwotnego on. Nie zaliczać pełnego testu klawiatury: sześć Tab zostawiło zaznaczony interwał, brak jednoznacznego dowodu Space; kolejność/focus wymagają osobnego odbioru. EN/jasny motyw i małe okno Chrome nadal nie są odebrane runtime; PL dark 3440x1410 potwierdzone.
+- Dowód: /tmp/devplanner-chrome-recurrence-time-fixed-2026-10-02.png.
+- QA-C07: Chrome console ostrzega o niezgodnym rozmiarze favicon.png z manifestem; zebrać i poprawić w kolejnym pakiecie. Brak błędów JS w odczytanej konsoli, jedynie dodatkowe ostrzeżenie single-thread Skwasm (nie zmieniać izolacji bez analizy Office). Początkowo biały ekran podczas ładowania, następnie aplikacja załadowała się; nie uznano tego za trwały błąd bez pomiaru.
+- QA-C06 source trace: OnlyOffice config autosave=true i forcesave=true; onDocumentStateChange(false) uruchamia wyłącznie polling wyższej wersji, 60 s→unconfirmed i dalszy polling 5 s. Nie wywołuje osobnej komendy force-save. To zgodne z obserwacją potrzeby ręcznego Save, lecz wymaga odbioru autozapisu/callbacku; timeouty pozostają bez zmian.
+- Dalej: odbiór EN/light/klawiatury; Office trace; pełny czat/awarie i pozostałe punkty planu. Cel całości nie jest zakończony.
