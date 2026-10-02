@@ -1,3 +1,9 @@
+## 2026-10-02 — Chrome Office: zapis, reopen i PDF
+
+- Kopia DOCX QA przyjęła znacznik, backend potwierdził Version=2; po zamknięciu i ponownym otwarciu znacznik widoczny. Aplikacyjne Drukuj wygenerowało jednokartkowy preview i zapis PDF do /tmp/QA-Office-Chrome-2026-10-02.pdf (26860 B, %PDF-1.7). Nie drukowano fizycznie. Dowód /tmp/devplanner-chrome-office-reopen-marker-2026-10-02.png.
+- Przejściowy Zapis niepotwierdzony mimo Wszystkie zmiany zapisane wymaga trace (QA-C06), nie oznacza trwałego niepowodzenia: później wersja potwierdzona i treść zachowana. QA-C05 potwierdzone kodem: modal cykliczności nie pozwala edytować godziny, nowy dzień oznacza lokalną północ, zmiana dnia zachowuje istniejący czas. Lista zbiorcza Backend/docs/qa-chrome-batch-2026-10-02.md; brak nowego deploy.
+- Pełny cel pozostaje otwarty: pozostałe funkcje czatu/plików, awarie/reconnect/role, auth logout/login, layout i następny pakiet QA-C01..C06. Chrome pozostawiony na liście plików, bez otwartego edytora ani niespisanych zmian.
+
 ## 2026-10-02 — odbiór Chrome szablonu i cykliczności
 
 - Chrome runtime na opublikowanym Wasm c2bc2d2: powrót SSO do zadania, zapis szablonu potwierdzony SQL, kalendarz i utworzenie cyklu, dwa ręczne wystąpienia TASK-162/TASK-163 oraz wstrzymanie serii PASS. Nie jest to pełny logout/login, wszystkie tryby cyklu ani Office.
