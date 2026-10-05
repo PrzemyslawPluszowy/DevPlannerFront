@@ -54,7 +54,7 @@ class StorageFolderRows extends StatelessWidget {
 
         return StorageFolderDropTarget(
           folder: folder,
-          enabled: capabilities.canMove,
+          enabled: capabilities.canMove && folder.canEdit,
           child: GestureDetector(
             onSecondaryTapDown: (details) =>
                 StorageFolderActionsMenu.showContextMenu(

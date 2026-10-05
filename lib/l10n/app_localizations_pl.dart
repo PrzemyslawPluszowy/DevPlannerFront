@@ -10568,7 +10568,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get resourceChatFileDescription =>
-      'Otwórz autoryzowaną rozmowę dotyczącą tego udostępnionego pliku.';
+      'Omów plik z osobami, które mają do niego dostęp.';
 
   @override
   String resourceChatFileHeader(String fileName) {
@@ -12569,4 +12569,37 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get taskDetailsParentTask => 'Zadanie nadrzędne';
+
+  @override
+  String get storageFileNoDescription => 'Brak opisu pliku.';
+
+  @override
+  String get storageFileFormat => 'Format';
+
+  @override
+  String get storageFilePermissions => 'Twoje uprawnienia';
+
+  @override
+  String get storageFileReadPermission => 'Odczyt';
+
+  @override
+  String get storageFileEditPermission => 'Edycja';
+
+  @override
+  String get storageFileSharePermission => 'Udostępnianie';
+
+  @override
+  String get storagePermissionAllowed => 'Dostępne';
+
+  @override
+  String get storagePermissionUnavailable => 'Niedostępne';
+
+  @override
+  String get storageVersionCurrent => 'Aktualna wersja';
+
+  @override
+  String get storageVersionNoSummary => 'Brak opisu zmiany';
+
+  @override
+  String get storageFileFormatUnknown => 'Nieznany format';
 }

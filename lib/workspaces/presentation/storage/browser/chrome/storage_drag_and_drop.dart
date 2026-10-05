@@ -78,7 +78,7 @@ class _StorageFolderDropTargetState extends State<StorageFolderDropTarget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.enabled) return widget.child;
+    if (!widget.enabled || !widget.folder.canEdit) return widget.child;
     final colors = context.colors;
 
     return DragTarget<String>(

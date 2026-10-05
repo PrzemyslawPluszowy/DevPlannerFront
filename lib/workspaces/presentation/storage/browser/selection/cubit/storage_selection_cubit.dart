@@ -233,6 +233,12 @@ final class StorageSelectionCubit extends Cubit<StorageSelectionState> {
         selectedFolderList.isEmpty &&
         selectedFileList.every((file) => file.canRead);
 
+    final canMove =
+        hasCompleteCapabilityData &&
+        selectedFileList.isNotEmpty &&
+        selectedFolderList.isEmpty &&
+        selectedFileList.every((file) => file.canEdit && !file.isDeleted);
+
     emit(
       StorageSelectionState(
         selectedFileIds: selectedFiles,
@@ -242,6 +248,7 @@ final class StorageSelectionCubit extends Cubit<StorageSelectionState> {
         canDownloadZip: canDownloadZip,
         canShare: canShare,
         canFavorite: canFavorite,
+        canMove: canMove,
       ),
     );
   }

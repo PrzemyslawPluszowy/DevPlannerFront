@@ -98,6 +98,7 @@ final class _StorageFolderPickerDialogState
     if (state.loading ||
         state.error != null ||
         selected == null ||
+        !selected.canEdit ||
         widget.disabledFolderIds.contains(selected.id)) {
       return;
     }
@@ -120,6 +121,7 @@ final class _StorageFolderPickerDialogState
               !state.loading &&
               state.error == null &&
               selected != null &&
+              selected.canEdit &&
               !widget.disabledFolderIds.contains(selected.id);
           return AlertDialog(
             backgroundColor: tasks.canvas,

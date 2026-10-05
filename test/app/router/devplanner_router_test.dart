@@ -344,7 +344,9 @@ void main() {
       );
     });
 
-    testWidgets('BFF route nie wystawia pobierania', (tester) async {
+    testWidgets('BFF route wystawia pobieranie i sharing z ACL', (
+      tester,
+    ) async {
       final repository = _StorageRepositoryMock();
       _stubStorage(repository);
       final auth = AuthComposition.unavailable();
@@ -371,11 +373,11 @@ void main() {
 
       expect(
         find.byKey(const ValueKey('download-file-$_routerFileId')),
-        findsNothing,
+        findsOneWidget,
       );
       expect(
         find.byKey(const ValueKey('share-file-$_routerFileId')),
-        findsNothing,
+        findsOneWidget,
       );
     });
 

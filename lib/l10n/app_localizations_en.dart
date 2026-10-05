@@ -10474,7 +10474,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resourceChatFileDescription =>
-      'Open the authorized conversation for this shared file.';
+      'Discuss this file with the people who have access to it.';
 
   @override
   String resourceChatFileHeader(String fileName) {
@@ -12466,4 +12466,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskDetailsParentTask => 'Parent task';
+
+  @override
+  String get storageFileNoDescription => 'No file description.';
+
+  @override
+  String get storageFileFormat => 'Format';
+
+  @override
+  String get storageFilePermissions => 'Your permissions';
+
+  @override
+  String get storageFileReadPermission => 'Read';
+
+  @override
+  String get storageFileEditPermission => 'Edit';
+
+  @override
+  String get storageFileSharePermission => 'Share';
+
+  @override
+  String get storagePermissionAllowed => 'Allowed';
+
+  @override
+  String get storagePermissionUnavailable => 'Unavailable';
+
+  @override
+  String get storageVersionCurrent => 'Current version';
+
+  @override
+  String get storageVersionNoSummary => 'No change description';
+
+  @override
+  String get storageFileFormatUnknown => 'Unknown format';
 }

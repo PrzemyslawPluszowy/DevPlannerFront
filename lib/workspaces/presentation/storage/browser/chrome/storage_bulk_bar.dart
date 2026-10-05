@@ -69,7 +69,7 @@ final class StorageBulkBar extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              if (capabilities.canMove && state.selectedFileIds.isNotEmpty) ...[
+              if (capabilities.canMove && state.canMove) ...[
                 StorageChromePill(
                   key: const ValueKey('storage_bulk_move'),
                   icon: AppIcons.folder,

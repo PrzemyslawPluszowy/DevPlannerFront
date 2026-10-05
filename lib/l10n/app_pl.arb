@@ -3322,7 +3322,7 @@
   "chatConversationNotificationModeMuted": "Wyciszone",
   "chatConversationNotificationModeHighOnly": "Tylko wysoki priorytet",
   "resourceChatFileAction": "Czat pliku",
-  "resourceChatFileDescription": "Otwórz autoryzowaną rozmowę dotyczącą tego udostępnionego pliku.",
+  "resourceChatFileDescription": "Omów plik z osobami, które mają do niego dostęp.",
   "resourceChatFileHeader": "Plik: {fileName}",
   "@resourceChatFileHeader": {"placeholders": {"fileName": {"type": "String"}}},
   "chatDiscussionTitle": "Nazwana dyskusja",
@@ -4004,5 +4004,16 @@
   "tasksRecurrenceColumnOutcome": "WYNIK",
   "tasksRecurrenceColumnCreatedTask": "UTWORZONE ZADANIE",
   "tasksRecurrenceColumnExecutedAt": "DATA URUCHOMIENIA",
-  "taskDetailsParentTask": "Zadanie nadrzędne"
+  "taskDetailsParentTask": "Zadanie nadrzędne",
+  "storageFileNoDescription": "Brak opisu pliku.",
+  "storageFileFormat": "Format",
+  "storageFilePermissions": "Twoje uprawnienia",
+  "storageFileReadPermission": "Odczyt",
+  "storageFileEditPermission": "Edycja",
+  "storageFileSharePermission": "Udostępnianie",
+  "storagePermissionAllowed": "Dostępne",
+  "storagePermissionUnavailable": "Niedostępne",
+  "storageVersionCurrent": "Aktualna wersja",
+  "storageVersionNoSummary": "Brak opisu zmiany",
+  "storageFileFormatUnknown": "Nieznany format"
 }

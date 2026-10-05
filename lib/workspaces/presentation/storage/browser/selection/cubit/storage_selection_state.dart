@@ -11,6 +11,7 @@ class StorageSelectionState extends Equatable {
     this.canDownloadZip = false,
     this.canShare = false,
     this.canFavorite = false,
+    this.canMove = false,
   });
 
   /// Zbiór identyfikatorów zaznaczonych plików.
@@ -33,6 +34,9 @@ class StorageSelectionState extends Equatable {
 
   /// Czy zaznaczone pliki można dodać do ulubionych.
   final bool canFavorite;
+
+  /// Czy wszystkie zaznaczone pliki można przenieść; foldery są poza zakresem.
+  final bool canMove;
 
   /// Łączna liczba zaznaczonych elementów.
   int get count => selectedFileIds.length + selectedFolderIds.length;
@@ -57,6 +61,7 @@ class StorageSelectionState extends Equatable {
     bool? canDownloadZip,
     bool? canShare,
     bool? canFavorite,
+    bool? canMove,
   }) => StorageSelectionState(
     selectedFileIds: selectedFileIds ?? this.selectedFileIds,
     selectedFolderIds: selectedFolderIds ?? this.selectedFolderIds,
@@ -65,6 +70,7 @@ class StorageSelectionState extends Equatable {
     canDownloadZip: canDownloadZip ?? this.canDownloadZip,
     canShare: canShare ?? this.canShare,
     canFavorite: canFavorite ?? this.canFavorite,
+    canMove: canMove ?? this.canMove,
   );
 
   @override
@@ -76,5 +82,6 @@ class StorageSelectionState extends Equatable {
     canDownloadZip,
     canShare,
     canFavorite,
+    canMove,
   ];
 }

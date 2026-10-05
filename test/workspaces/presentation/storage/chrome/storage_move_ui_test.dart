@@ -16,6 +16,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storag
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_page.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -195,6 +196,75 @@ void main() {
     await tester.pumpWidget(harness(capabilities));
     await tester.pumpAndSettle();
   }
+
+  for (final deleted in [false, true]) {
+    testWidgets('ACL lub kosz wyłącza move w liście i siatce: $deleted', (
+      tester,
+    ) async {
+      final denied = file.copyWith(canEdit: deleted, isDeleted: deleted);
+      when(
+        () => repository.listFiles(
+          scope: any(named: 'scope'),
+          folderId: any(named: 'folderId'),
+          cursor: any(named: 'cursor'),
+          limit: any(named: 'limit'),
+          query: any(named: 'query'),
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer(
+        (_) async =>
+            Right(CursorPageResponse<StorageFileResponse>(items: [denied])),
+      );
+      await pumpShell(tester);
+      expect(find.byKey(const ValueKey('move-file-file-1')), findsNothing);
+      expect(find.byType(Draggable<String>), findsNothing);
+      await tester.tap(find.text('raport.pdf'), buttons: kSecondaryMouseButton);
+      await tester.pumpAndSettle();
+      expect(find.text('Przenieś'), findsNothing);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      await tester.longPress(find.text('raport.pdf'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('storage_bulk_move')), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('storage_bulk_clear')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Widok siatki'));
+      await tester.pumpAndSettle();
+      expect(find.byType(Draggable<String>), findsNothing);
+    });
+  }
+
+  testWidgets('read-only cel nie przyjmuje drop ani potwierdzenia pickera', (
+    tester,
+  ) async {
+    final deniedFolder = folder.copyWith(canEdit: false);
+    when(
+      () => repository.listFolders(
+        scope: any(named: 'scope'),
+        parentFolderId: any(named: 'parentFolderId'),
+      ),
+    ).thenAnswer((_) async => Right([deniedFolder]));
+    when(() => repository.getFolder(folder.id))
+        .thenAnswer((_) async => Right(deniedFolder));
+    await pumpShell(tester);
+    expect(find.byType(DragTarget<String>), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('move-file-file-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('storage_picker_folder-folder-1')),
+    );
+    await tester.pumpAndSettle();
+    final confirm = tester.widget<FilledButton>(
+      find.byKey(const ValueKey('storage_picker_confirm')),
+    );
+    expect(confirm.onPressed, isNull);
+    verifyNever(
+      () => repository.createFilePlacement(
+        fileId: any(named: 'fileId'),
+        folderId: any(named: 'folderId'),
+      ),
+    );
+  });
 
   testWidgets('picker folderu przenosi plik do wybranego folderu', (
     tester,

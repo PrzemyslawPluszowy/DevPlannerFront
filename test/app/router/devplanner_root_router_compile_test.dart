@@ -620,7 +620,7 @@ void main() {
     expect(find.byType(StorageShellPage), findsOneWidget);
   });
 
-  testWidgets('Web BFF Files route fails closed for upload composition', (
+  testWidgets('Web BFF Files route exposes authenticated storage actions', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(1920, 1080));
@@ -673,14 +673,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Ten sam pełny shell renderuje się także na Web/BFF, ale bez żadnej akcji
-    // mutującej: brak bezpiecznego źródła Bearera nie może zamienić się w
-    // widoczną, martwą akcję.
+    // Web/BFF korzysta z cookie/CSRF i izolowanych presigned transferów.
+    // Akcje tworzenia są dostępne przez menu, tak jak na desktopie.
     expect(find.byType(StorageShellPage), findsOneWidget);
     expect(find.text('Udostępnione mi'), findsOneWidget);
-    expect(find.text('Prześlij pliki'), findsNothing);
-    expect(find.text('Nowy folder'), findsNothing);
-    expect(find.text('Nowy dokument'), findsNothing);
+    expect(find.text('Prześlij pliki'), findsOneWidget);
+    expect(find.byKey(const ValueKey('storage_create_menu')), findsOneWidget);
   });
 
   testWidgets('invalid workspace id is a typed unavailable route state', (

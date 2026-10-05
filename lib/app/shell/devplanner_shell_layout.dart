@@ -280,7 +280,9 @@ final class _DevPlannerTopBar extends StatelessWidget {
   }
 
   String _sectionTitle(AppLocalizations l10n) {
-    if (location == '/me/files' || location.startsWith('/me/files/')) {
+    if (location == '/me/files' ||
+        location.startsWith('/me/files/') ||
+        location.startsWith('/storage/files/')) {
       return l10n.workspacesSectionFiles;
     }
     if (location == '/me/tasks' || location.startsWith('/me/tasks/')) {

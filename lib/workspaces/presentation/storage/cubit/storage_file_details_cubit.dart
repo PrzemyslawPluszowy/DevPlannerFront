@@ -11,12 +11,15 @@ final class StorageFileDetailsCubit extends Cubit<StorageFileDetailsState> {
 
   final StorageRepository _repository;
   final String fileId;
+  int _loadGeneration = 0;
 
   /// Pobiera dane ponownie po błędzie lub odświeżeniu widoku.
   Future<void> load() async {
+    if (isClosed) return;
+    final generation = ++_loadGeneration;
     emit(const StorageFileDetailsLoading());
     final result = await _repository.getFileDetails(fileId);
-    if (isClosed) return;
+    if (isClosed || generation != _loadGeneration) return;
     result.fold(
       (error) => emit(
         StorageFileDetailsFailure(

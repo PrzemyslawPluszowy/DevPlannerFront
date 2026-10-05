@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bloc_test/bloc_test.dart';
@@ -58,6 +59,23 @@ class _StorageRepository implements StorageRepository {
   ) => throw UnimplementedError();
 }
 
+class _PendingStorageRepository extends _StorageRepository {
+  _PendingStorageRepository()
+    : super(
+        const Left(ApiError(type: ApiErrorType.unknown, message: 'unused')),
+      );
+  final requests = <Completer<Either<ApiError, StorageFileDetailsResponse>>>[];
+
+  @override
+  Future<Either<ApiError, StorageFileDetailsResponse>> getFileDetails(
+    String fileId,
+  ) {
+    final request = Completer<Either<ApiError, StorageFileDetailsResponse>>();
+    requests.add(request);
+    return request.future;
+  }
+}
+
 class _UploadTransport implements TaskAttachmentUploadTransport {
   @override
   Future<Either<ApiError, Unit>> upload({
@@ -70,6 +88,55 @@ class _UploadTransport implements TaskAttachmentUploadTransport {
 }
 
 void main() {
+  test(
+    'older file details response cannot replace the latest request',
+    () async {
+      final repository = _PendingStorageRepository();
+      final cubit = StorageFileDetailsCubit(
+        repository: repository,
+        fileId: 'file-1',
+      );
+      final oldLoad = cubit.load();
+      final currentLoad = cubit.load();
+      repository.requests[1].complete(
+        const Left(
+          ApiError(type: ApiErrorType.connection, message: 'latest failure'),
+        ),
+      );
+      await currentLoad;
+      repository.requests[0].complete(
+        const Left(
+          ApiError(type: ApiErrorType.forbidden, message: 'stale failure'),
+        ),
+      );
+      await oldLoad;
+      expect(
+        (cubit.state as StorageFileDetailsFailure).message,
+        'latest failure',
+      );
+      await cubit.close();
+      await cubit.load();
+      expect(repository.requests, hasLength(2));
+    },
+  );
+
+  test('closing file details ignores pending network completion', () async {
+    final repository = _PendingStorageRepository();
+    final cubit = StorageFileDetailsCubit(
+      repository: repository,
+      fileId: 'file-1',
+    );
+    final load = cubit.load();
+    await cubit.close();
+    repository.requests.single.complete(
+      const Left(
+        ApiError(type: ApiErrorType.connection, message: 'network failure'),
+      ),
+    );
+    await load;
+    expect(cubit.state, isA<StorageFileDetailsLoading>());
+  });
+
   blocTest<StorageFileDetailsCubit, StorageFileDetailsState>(
     'pokazuje kod backendu zamiast ukrywać błąd deep-linku pliku',
     build: () => StorageFileDetailsCubit(

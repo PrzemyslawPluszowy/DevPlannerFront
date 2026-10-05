@@ -3319,7 +3319,7 @@
   "chatConversationNotificationModeMuted": "Muted",
   "chatConversationNotificationModeHighOnly": "High priority only",
   "resourceChatFileAction": "File chat",
-  "resourceChatFileDescription": "Open the authorized conversation for this shared file.",
+  "resourceChatFileDescription": "Discuss this file with the people who have access to it.",
   "resourceChatFileHeader": "File: {fileName}",
   "@resourceChatFileHeader": {"placeholders": {"fileName": {"type": "String"}}},
   "chatDiscussionTitle": "Named discussion",
@@ -4017,5 +4017,16 @@
   "tasksRecurrenceColumnOutcome": "OUTCOME",
   "tasksRecurrenceColumnCreatedTask": "CREATED TASK",
   "tasksRecurrenceColumnExecutedAt": "EXECUTION DATE",
-  "taskDetailsParentTask": "Parent task"
+  "taskDetailsParentTask": "Parent task",
+  "storageFileNoDescription": "No file description.",
+  "storageFileFormat": "Format",
+  "storageFilePermissions": "Your permissions",
+  "storageFileReadPermission": "Read",
+  "storageFileEditPermission": "Edit",
+  "storageFileSharePermission": "Share",
+  "storagePermissionAllowed": "Allowed",
+  "storagePermissionUnavailable": "Unavailable",
+  "storageVersionCurrent": "Current version",
+  "storageVersionNoSummary": "No change description",
+  "storageFileFormatUnknown": "Unknown format"
 }

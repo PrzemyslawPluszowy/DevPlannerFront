@@ -11,9 +11,9 @@ import 'package:devplanner/me/me.dart';
 import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_board_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
+import 'package:devplanner/workspaces/data/standalone/devplanner_storage_composition.dart';
 import 'package:devplanner/workspaces/data/storage/transport/download_transport_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/file_picker_port_impl.dart';
-import 'package:devplanner/workspaces/data/storage/transport/presigned_upload_transport.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/storage_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/ports/tasks_project_view_preference_store.dart';
@@ -44,18 +44,22 @@ final class DevPlannerRouterPages {
     required this.explicitAdminUsers,
     required this.explicitMeGateway,
     required this.dependencies,
-  });
+  }) : _storageComposition = DevPlannerStorageComposition.resolve(
+         transport: dependencies.httpTransport,
+         explicitRepository: dependencies.resolvedStorageRepository,
+       );
 
   final AuthComposition auth;
   final AdminUsersComposition? explicitAdminUsers;
   final MeGateway? explicitMeGateway;
   final DevPlannerRouterDependencies dependencies;
+  final DevPlannerStorageComposition _storageComposition;
 
   DevPlannerHttpTransport? get httpTransport => dependencies.httpTransport;
   ProjectsGateway? get _resolvedProjectsGateway =>
       dependencies.resolvedProjectsGateway;
   StorageRepository? get _resolvedStorageRepository =>
-      dependencies.resolvedStorageRepository;
+      _storageComposition.repository;
   StorageViewPreferenceStore get _resolvedStorageViewPreferenceStore =>
       dependencies.filesViewPreferenceStore;
   StorageUserDirectoryPort? get _resolvedStorageUserDirectory =>
@@ -111,16 +115,16 @@ final class DevPlannerRouterPages {
         failure: StorageWorkspaceFilesRouteFailure.repositoryUnavailable,
       );
     }
-    final desktopComposition = _desktopStorageUploadComposition;
+    final supportsStorageActions = _supportsStorageActions;
     return StorageShellPage(
       initialScope: scope,
       storageRepository: repository,
-      capabilities: desktopComposition
-          ? StorageShellCapabilities.desktop
+      capabilities: supportsStorageActions
+          ? StorageShellCapabilities.full
           : StorageShellCapabilities.readOnly,
-      filePicker: desktopComposition ? const FilePickerPortImpl() : null,
-      uploadTransport: desktopComposition ? PresignedUploadTransport() : null,
-      downloadTransport: desktopComposition
+      filePicker: supportsStorageActions ? const FilePickerPortImpl() : null,
+      uploadTransport: _storageComposition.uploadTransport,
+      downloadTransport: supportsStorageActions
           ? const DownloadTransportImpl()
           : null,
       viewPreferenceStore: _resolvedStorageViewPreferenceStore,
@@ -184,11 +188,9 @@ final class DevPlannerRouterPages {
     onOpenFileDetails: (fileId) => _openFileDetails(context, fileId),
   );
 
-  bool get _desktopStorageUploadComposition {
+  bool get _supportsStorageActions {
     final transport = httpTransport;
-    return transport != null &&
-        !transport.isBffCookieTransport &&
-        transport.supportsStandaloneApiClients;
+    return transport != null && transport.supportsStandaloneApiClients;
   }
 
   Widget tasksBoardRoutePage(GoRouterState state) {

@@ -18755,7 +18755,7 @@ abstract class AppLocalizations {
   /// No description provided for @resourceChatFileDescription.
   ///
   /// In en, this message translates to:
-  /// **'Open the authorized conversation for this shared file.'**
+  /// **'Discuss this file with the people who have access to it.'**
   String get resourceChatFileDescription;
 
   /// No description provided for @resourceChatFileHeader.
@@ -22219,6 +22219,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Parent task'**
   String get taskDetailsParentTask;
+
+  /// No description provided for @storageFileNoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No file description.'**
+  String get storageFileNoDescription;
+
+  /// No description provided for @storageFileFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get storageFileFormat;
+
+  /// No description provided for @storageFilePermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Your permissions'**
+  String get storageFilePermissions;
+
+  /// No description provided for @storageFileReadPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get storageFileReadPermission;
+
+  /// No description provided for @storageFileEditPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get storageFileEditPermission;
+
+  /// No description provided for @storageFileSharePermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get storageFileSharePermission;
+
+  /// No description provided for @storagePermissionAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get storagePermissionAllowed;
+
+  /// No description provided for @storagePermissionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get storagePermissionUnavailable;
+
+  /// No description provided for @storageVersionCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current version'**
+  String get storageVersionCurrent;
+
+  /// No description provided for @storageVersionNoSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'No change description'**
+  String get storageVersionNoSummary;
+
+  /// No description provided for @storageFileFormatUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown format'**
+  String get storageFileFormatUnknown;
 }
 
 class _AppLocalizationsDelegate

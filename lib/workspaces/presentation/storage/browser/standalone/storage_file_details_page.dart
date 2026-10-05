@@ -10,6 +10,7 @@ import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_re
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/resource/cubit/resource_chat_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_file_details_metadata.dart';
 import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_state.dart';
 import 'package:flutter/material.dart';
@@ -53,12 +54,8 @@ final class _StorageFileDetailsView extends StatelessWidget {
         builder: (context, state) => switch (state) {
           StorageFileDetailsInitial() || StorageFileDetailsLoading() =>
             const Center(child: CircularProgressIndicator.adaptive()),
-          StorageFileDetailsFailure(:final message, :final backendCode) =>
-            _StorageFileDetailsFailure(
-              message: backendCode == null
-                  ? message
-                  : '$message ($backendCode)',
-            ),
+          StorageFileDetailsFailure(:final message) =>
+            _StorageFileDetailsFailure(message: message),
           StorageFileDetailsLoaded(:final details) =>
             _StorageFileDetailsContent(details: details),
         },
@@ -84,7 +81,10 @@ final class _StorageFileDetailsFailure extends StatelessWidget {
               color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center),
+            Semantics(
+              liveRegion: true,
+              child: Text(message, textAlign: TextAlign.center),
+            ),
             const SizedBox(height: 12),
             FilledButton.tonal(
               onPressed: () =>
@@ -116,59 +116,17 @@ final class _StorageFileDetailsContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        Text(
-          file.originalFileName,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 8),
-        Text(file.manualDescription ?? 'Brak opisu pliku.'),
-        const SizedBox(height: 24),
-        _StorageFileDetailsProperty(label: 'Typ', value: file.mimeType),
-        _StorageFileDetailsProperty(
-          label: 'Rozmiar',
-          value: '${file.fileSizeBytes} B · wersja ${file.version}',
-        ),
+        StorageFileDetailsMetadata(details: details),
         if (canOpenResourceChat)
           _StorageFileResourceChatAction(
             file: file,
             repository: resourceRepository,
           ),
-        _StorageFileDetailsProperty(
-          label: 'Uprawnienia',
-          value:
-              'Odczyt: ${file.canRead ? 'tak' : 'nie'} · '
-              'Edycja: ${details.canEdit ? 'tak' : 'nie'} · '
-              'Udostępnianie: ${file.canShare ? 'tak' : 'nie'}',
-        ),
-        if (details.versions.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Text(
-            'Historia wersji',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          for (final version in details.versions)
-            ListTile(
-              dense: true,
-              title: Text('Wersja ${version.version}'),
-              subtitle: Text(version.changeSummary ?? 'Bez opisu zmiany'),
-            ),
-        ],
+        const SizedBox(height: 24),
+        StorageFileDetailsHistory(details: details),
       ],
     );
   }
-}
-
-final class _StorageFileDetailsProperty extends StatelessWidget {
-  const _StorageFileDetailsProperty({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) => ListTile(
-    title: Text(label),
-    subtitle: Text(value),
-  );
 }
 
 /// Rozstrzyga czat tylko z aktualnego, zweryfikowanego snapshotu szczegółu.

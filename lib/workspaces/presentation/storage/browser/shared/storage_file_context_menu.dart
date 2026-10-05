@@ -68,7 +68,10 @@ abstract final class StorageFileContextMenu {
                 runStorageOpenOfficeDocument(context, file: file),
               ),
             ),
-          if (capabilities.canMove && !isTrash)
+          if (capabilities.canMove &&
+              file.canEdit &&
+              !file.isDeleted &&
+              !isTrash)
             AppContextMenuAction(
               label: l10n.storageMoveAction,
               icon: AppIcons.folder,

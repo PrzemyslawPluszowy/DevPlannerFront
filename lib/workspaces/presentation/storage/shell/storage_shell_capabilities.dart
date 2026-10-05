@@ -2,11 +2,9 @@ import 'package:flutter/foundation.dart';
 
 /// Uprawnienia kompozycji dla modułu Files.
 ///
-/// Pliki osobiste, workspace i projektu używają jednego pełnego shella, dlatego
-/// o tym, czy użytkownik widzi akcje mutujące, nie decyduje widget ani rola
-/// zapisana lokalnie, lecz jawna decyzja composition rootu. Klient Web/BFF nie
-/// ma bezpiecznego źródła Bearera dla bezpośrednich transferów, więc jego
-/// kompozycja pozostaje read-only, a desktop otrzymuje pełny zestaw akcji.
+/// Web/BFF i desktop korzystają z tych samych uwierzytelnionych operacji API.
+/// Transfery binarne mają izolowane adaptery presigned; nie wymagają przekazania
+/// Bearera do przeglądarki. Capability opisuje dostępność adaptera, nie grant ACL.
 ///
 /// Brak flagi zawsze oznacza akcję ukrytą; ACL pojedynczego elementu jest
 /// sprawdzane dodatkowo i niezależnie.
@@ -27,11 +25,11 @@ final class StorageShellCapabilities {
     this.canManageVersions = false,
   });
 
-  /// Kompozycja Web/BFF: przeglądanie, wyszukiwanie, sortowanie i podgląd.
+  /// Brak uwierzytelnionego transportu: wyłącznie odczyt.
   static const StorageShellCapabilities readOnly = StorageShellCapabilities();
 
-  /// Kompozycja desktopowa z bearerem, pickerem plików i portami transferu.
-  static const StorageShellCapabilities desktop = StorageShellCapabilities(
+  /// Pełna kompozycja BFF/cookie lub desktop/PKCE z adapterami transferu.
+  static const StorageShellCapabilities full = StorageShellCapabilities(
     canUpload: true,
     canCreateFolder: true,
     canRenameFolder: true,
@@ -44,6 +42,9 @@ final class StorageShellCapabilities {
     canMove: true,
     canManageVersions: true,
   );
+
+  /// Zgodność istniejących kompozycji desktopowych.
+  static const StorageShellCapabilities desktop = full;
 
   /// Czy klient może wysyłać pliki przez presigned transfer.
   final bool canUpload;

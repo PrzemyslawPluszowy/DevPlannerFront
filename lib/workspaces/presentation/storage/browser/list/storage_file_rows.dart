@@ -72,7 +72,7 @@ class StorageFileRows extends StatelessWidget {
         return StorageFileDragSource(
           fileId: file.id,
           label: file.originalFileName,
-          enabled: capabilities.canMove,
+          enabled: capabilities.canMove && file.canEdit && !file.isDeleted,
           child: GestureDetector(
             onSecondaryTapDown: (details) => StorageFileContextMenu.show(
               context,
@@ -120,7 +120,7 @@ class StorageFileRows extends StatelessWidget {
                       tooltip: context.l10n.storageDetailsTitle,
                       onPressed: () => openDetails(file.id),
                     ),
-                  if (capabilities.canMove)
+                  if (capabilities.canMove && file.canEdit && !file.isDeleted)
                     IconButton(
                       key: ValueKey('move-file-${file.id}'),
                       icon: const Icon(AppIcons.folder, size: 18),

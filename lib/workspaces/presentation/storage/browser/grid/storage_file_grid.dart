@@ -95,7 +95,7 @@ class _FileGridCard extends StatelessWidget {
     return StorageFileDragSource(
       fileId: file.id,
       label: file.originalFileName,
-      enabled: capabilities.canMove,
+      enabled: capabilities.canMove && file.canEdit && !file.isDeleted,
       child: GestureDetector(
         onSecondaryTapDown: (details) => StorageFileContextMenu.show(
           context,
