@@ -7512,3 +7512,13 @@ Dowody: /tmp/devplanner-staging-onlyoffice-chrome-ready-2026-10-01.png, /tmp/dev
 - IAB staging /me/files: po reload menu Systemowy/Jasny/Ciemny z zaznaczonym Systemowy; wybrano Ciemny, obejrzano prawidłową ciemną powierzchnię i menu. Reload zachował Ciemny i zaznaczenie. Następnie przywrócono Systemowy i widoczny jasny motyw wynikający z bieżącego ustawienia przeglądarki. Zmianę ustawienia platformy w trakcie sesji potwierdza test widgetowy, nie ręczna zmiana macOS.
 - Dowody: /tmp/devplanner-staging-system-theme-menu-2026-10-01.png, /tmp/devplanner-staging-theme-dark-2026-10-01.png, /tmp/devplanner-staging-theme-system-restored-2026-10-01.png. Log publikacji /tmp/devplanner-system-theme-wasm-deploy-2026-10-01.log. Native Chrome/Safari/Firefox wymagają odblokowania Maca; IAB działa i karta 6 zachowana markHandoff.
 - Nadal niezamknięta całość: pozostałe funkcje czatu, pełny task modal, awarie i OnlyOffice zapis/reopen/print. IAB timeout OnlyOffice nadal otwarty oddzielnie od udanego Chrome/Safari.
+
+### QA nagłówka Listy/Kanbanu — 2026-10-05
+
+- [x] Potwierdzono przycięcie „Cykliczne” w Chrome PL/dark 1513×895 i teście CRM/1250 px (FAIL przed poprawką).
+- [x] Front `3071614`: tytuł rezerwuje tylko rzeczywistą szerokość do limitu, przestrzeń oddana zakładkom. Dwie gałęzie nagłówka są osobnymi widgetami, bez helperów tworzących UI. Test zawiera 24 osoby (facepile + nadmiar).
+- [x] 17 testów nagłówka PASS, pełny analyzer No issues (33.2 s); diff --check i detector Impeccable czyste; niezależny review bez potwierdzonej regresji.
+- [x] Publikacja Wasm exit 0: `30716145553538ef344c6c2946352f01351c19b1`; version.json/Wasm HTTP200 (9769729 B)/SPA zgodne. Chrome PL/ciemny 1513×895: pełna zakładka Cykliczne i przełączenie do harmonogramu PASS; menu otwarcie/Escape PASS; panel osób otwarcie/search/zamknięcie PASS. AX + screenshot potwierdzają dokładnie ten zakres. Log `/tmp/devplanner-header-wasm-deploy.log`.
+- [ ] Drag/drop i pełny focus wszystkich kontrolek nadal nieodebrane. Nowe własne okno Chrome pozwoliło wykonać powyższe kliknięcia. Nowy defekt QA-20261005-06: role panelu osób zawierają zbędne angielskie nazwy w PL; zbierać do kolejnego pakietu. Pełna obecność 3 kont, pozostałe warianty i menu pozostają otwarte.
+
+Pełna kolejka UI pozostaje w Backend/docs/ui-testing.md; nie zaliczać całej aplikacji ani P0–P7 tym pakietem.

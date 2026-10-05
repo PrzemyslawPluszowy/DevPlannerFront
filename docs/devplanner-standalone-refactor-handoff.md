@@ -10631,3 +10631,13 @@ UI UX Pro Max targeted form helper text clarity; Impeccable Operate / clarify i 
 ## QA-C12/C13 — pakiet czytelności i kotwicy, 2026-10-02
 
 UI UX Pro Max badge label wraps (cała przewidywalna etykieta) oraz Impeccable Operate / clarify i craft floor. Wynik historii ma czytelne krótkie pełne etykiety Utworzono/Pominięto, zachowany pełny opis w semantyce i dodatkowym tooltipie, bez zmiany znaczenia wyniku. Edycja bierze RenderBox przycisku przez Builder, nie całego wiersza; nazwany handler i efekty pozostają poza build. Starszy edytor podaje czas urządzenia z offsetem dla wybranej daty i, gdy załadowana, strefę dalszych wystąpień. Payload UTC i lifecycle Cubit bez zmiany. 21 focused PASS, analyzer clean23,5s, diffcheck; logi /tmp/devplanner-recurrence-readable-{tests,analyze}-2026-10-02.log. Wdrożono Wasm533a455445cad5f2bc11c1b57ce913081ec10987: skrypt exit0, publiczny SHA/WasmHTTP2009766653B i SPA zgodne, Backend e0dc193healthy/readinessready. Runtime funkcja/UX/UI jeszcze otwarte. QA-C14 nadal diagnoza: source liczy counts z bieżącego stanu, brak potwierdzonego root cause starych liczb w parent AX; nie zmieniono losowo Semantics.
+
+### QA nagłówka Listy/Kanbanu — 2026-10-05
+
+- [x] Potwierdzono przycięcie „Cykliczne” w Chrome PL/dark 1513×895 i teście CRM/1250 px (FAIL przed poprawką).
+- [x] Front `3071614`: tytuł rezerwuje tylko rzeczywistą szerokość do limitu, przestrzeń oddana zakładkom. Dwie gałęzie nagłówka są osobnymi widgetami, bez helperów tworzących UI. Test zawiera 24 osoby (facepile + nadmiar).
+- [x] 17 testów nagłówka PASS, pełny analyzer No issues (33.2 s); diff --check i detector Impeccable czyste; niezależny review bez potwierdzonej regresji.
+- [x] Publikacja Wasm exit 0: `30716145553538ef344c6c2946352f01351c19b1`; version.json/Wasm HTTP200 (9769729 B)/SPA zgodne. Chrome PL/ciemny 1513×895: pełna zakładka Cykliczne i przełączenie do harmonogramu PASS; menu otwarcie/Escape PASS; panel osób otwarcie/search/zamknięcie PASS. AX + screenshot potwierdzają dokładnie ten zakres. Log `/tmp/devplanner-header-wasm-deploy.log`.
+- [ ] Drag/drop i pełny focus wszystkich kontrolek nadal nieodebrane. Nowe własne okno Chrome pozwoliło wykonać powyższe kliknięcia. Nowy defekt QA-20261005-06: role panelu osób zawierają zbędne angielskie nazwy w PL; zbierać do kolejnego pakietu. Pełna obecność 3 kont, pozostałe warianty i menu pozostają otwarte.
+
+Pełna kolejka UI pozostaje w Backend/docs/ui-testing.md; nie zaliczać całej aplikacji ani P0–P7 tym pakietem.
