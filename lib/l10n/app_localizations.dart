@@ -22151,6 +22151,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time zone for later occurrences: {zone}.'**
   String taskRecurrenceSeriesTimeZoneHint(String zone);
+
+  /// No description provided for @tasksRecurrenceColumnStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'STATUS'**
+  String get tasksRecurrenceColumnStatus;
+
+  /// No description provided for @tasksRecurrenceColumnSourceTask.
+  ///
+  /// In en, this message translates to:
+  /// **'SOURCE TASK'**
+  String get tasksRecurrenceColumnSourceTask;
+
+  /// No description provided for @tasksRecurrenceColumnSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'SCHEDULE'**
+  String get tasksRecurrenceColumnSchedule;
+
+  /// No description provided for @tasksRecurrenceColumnNextRun.
+  ///
+  /// In en, this message translates to:
+  /// **'NEXT OCCURRENCE'**
+  String get tasksRecurrenceColumnNextRun;
+
+  /// No description provided for @tasksRecurrenceColumnActions.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIONS'**
+  String get tasksRecurrenceColumnActions;
+
+  /// No description provided for @tasksRecurrenceColumnOutcome.
+  ///
+  /// In en, this message translates to:
+  /// **'OUTCOME'**
+  String get tasksRecurrenceColumnOutcome;
+
+  /// No description provided for @tasksRecurrenceColumnCreatedTask.
+  ///
+  /// In en, this message translates to:
+  /// **'CREATED TASK'**
+  String get tasksRecurrenceColumnCreatedTask;
+
+  /// No description provided for @tasksRecurrenceColumnExecutedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'EXECUTION DATE'**
+  String get tasksRecurrenceColumnExecutedAt;
 }
 
 class _AppLocalizationsDelegate

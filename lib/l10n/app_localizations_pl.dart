@@ -12536,4 +12536,28 @@ class AppLocalizationsPl extends AppLocalizations {
   String taskRecurrenceSeriesTimeZoneHint(String zone) {
     return 'Strefa kolejnych wystąpień: $zone.';
   }
+
+  @override
+  String get tasksRecurrenceColumnStatus => 'STATUS';
+
+  @override
+  String get tasksRecurrenceColumnSourceTask => 'ZADANIE ŹRÓDŁOWE';
+
+  @override
+  String get tasksRecurrenceColumnSchedule => 'HARMONOGRAM';
+
+  @override
+  String get tasksRecurrenceColumnNextRun => 'NASTĘPNE WYKONANIE';
+
+  @override
+  String get tasksRecurrenceColumnActions => 'AKCJE';
+
+  @override
+  String get tasksRecurrenceColumnOutcome => 'WYNIK';
+
+  @override
+  String get tasksRecurrenceColumnCreatedTask => 'UTWORZONE ZADANIE';
+
+  @override
+  String get tasksRecurrenceColumnExecutedAt => 'DATA URUCHOMIENIA';
 }

@@ -4005,5 +4005,13 @@
         "type": "String"
       }
     }
-  }
+  },
+  "tasksRecurrenceColumnStatus": "STATUS",
+  "tasksRecurrenceColumnSourceTask": "SOURCE TASK",
+  "tasksRecurrenceColumnSchedule": "SCHEDULE",
+  "tasksRecurrenceColumnNextRun": "NEXT OCCURRENCE",
+  "tasksRecurrenceColumnActions": "ACTIONS",
+  "tasksRecurrenceColumnOutcome": "OUTCOME",
+  "tasksRecurrenceColumnCreatedTask": "CREATED TASK",
+  "tasksRecurrenceColumnExecutedAt": "EXECUTION DATE"
 }

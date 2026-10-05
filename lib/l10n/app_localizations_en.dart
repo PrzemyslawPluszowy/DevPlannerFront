@@ -12433,4 +12433,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String taskRecurrenceSeriesTimeZoneHint(String zone) {
     return 'Time zone for later occurrences: $zone.';
   }
+
+  @override
+  String get tasksRecurrenceColumnStatus => 'STATUS';
+
+  @override
+  String get tasksRecurrenceColumnSourceTask => 'SOURCE TASK';
+
+  @override
+  String get tasksRecurrenceColumnSchedule => 'SCHEDULE';
+
+  @override
+  String get tasksRecurrenceColumnNextRun => 'NEXT OCCURRENCE';
+
+  @override
+  String get tasksRecurrenceColumnActions => 'ACTIONS';
+
+  @override
+  String get tasksRecurrenceColumnOutcome => 'OUTCOME';
+
+  @override
+  String get tasksRecurrenceColumnCreatedTask => 'CREATED TASK';
+
+  @override
+  String get tasksRecurrenceColumnExecutedAt => 'EXECUTION DATE';
 }

@@ -3992,5 +3992,13 @@
         "type": "String"
       }
     }
-  }
+  },
+  "tasksRecurrenceColumnStatus": "STATUS",
+  "tasksRecurrenceColumnSourceTask": "ZADANIE ŹRÓDŁOWE",
+  "tasksRecurrenceColumnSchedule": "HARMONOGRAM",
+  "tasksRecurrenceColumnNextRun": "NASTĘPNE WYKONANIE",
+  "tasksRecurrenceColumnActions": "AKCJE",
+  "tasksRecurrenceColumnOutcome": "WYNIK",
+  "tasksRecurrenceColumnCreatedTask": "UTWORZONE ZADANIE",
+  "tasksRecurrenceColumnExecutedAt": "DATA URUCHOMIENIA"
 }

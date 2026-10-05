@@ -10,6 +10,8 @@ import 'package:devplanner/workspaces/data/shared/enums/task_advanced_enums.dart
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_recurrence_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/cubit/project_recurrences_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/recurrence/project_recurrences_sheet.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/project_recurrences_rule_card.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/project_recurrences_run_card.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/widgets/task_recurrence_editor_schedule_section.dart';
@@ -22,6 +24,100 @@ import 'package:mocktail/mocktail.dart';
 class _Repository extends Mock implements TaskRecurrenceRepository {}
 
 void main() {
+  for (final language in ['pl', 'en']) {
+    testWidgets('panel headers and error recovery: $language', (tester) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repository = _Repository();
+      when(
+        () => repository.getProjectRecurrences(
+          workspaceId: 'workspace',
+          projectId: 'project',
+        ),
+      ).thenAnswer((_) async => Right([_rule()]));
+      when(
+        () => repository.getProjectRecurrenceRuns(
+          workspaceId: 'workspace',
+          projectId: 'project',
+        ),
+      ).thenAnswer(
+        (_) async => Right([
+          ProjectTaskRecurrenceRunResponse(
+            id: 'run',
+            recurrenceRuleId: 'rule',
+            sourceTaskId: 'task',
+            taskKey: 'TASK-1',
+            taskTitle: 'Source task',
+            scheduledAtUtc: DateTime.utc(2026),
+            executedAtUtc: DateTime.utc(2026),
+            outcome: TaskRecurrenceRunOutcome.created,
+            createdTaskKey: 'TASK-2',
+          ),
+        ]),
+      );
+      final cubit = ProjectRecurrencesCubit(
+        repository: repository,
+        workspaceId: 'workspace',
+        projectId: 'project',
+      );
+      await cubit.load();
+      await tester.pumpWidget(
+        _host(
+          language,
+          BlocProvider.value(
+            value: cubit,
+            child: const ProjectRecurrencesSheet(
+              workspaceId: 'workspace',
+              projectId: 'project',
+            ),
+          ),
+        ),
+      );
+      final l10n = await AppLocalizations.delegate.load(Locale(language));
+      for (final label in [
+        l10n.tasksRecurrenceColumnStatus,
+        l10n.tasksRecurrenceColumnSourceTask,
+        l10n.tasksRecurrenceColumnSchedule,
+        l10n.tasksRecurrenceColumnNextRun,
+        l10n.tasksRecurrenceColumnActions,
+      ]) {
+        expect(find.text(label), findsOneWidget);
+      }
+      await tester.tap(find.text('${l10n.tasksRecurrenceTabRuns} (1)'));
+      await tester.pump();
+      for (final label in [
+        l10n.tasksRecurrenceColumnOutcome,
+        l10n.tasksRecurrenceColumnSourceTask,
+        l10n.tasksRecurrenceColumnCreatedTask,
+        l10n.tasksRecurrenceColumnExecutedAt,
+      ]) {
+        expect(find.text(label), findsOneWidget);
+      }
+      cubit.emit(const ProjectRecurrencesError('Connection unavailable'));
+      await tester.pump();
+      expect(find.text('Connection unavailable'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, l10n.retry), findsOneWidget);
+      expect(
+        find.widgetWithText(OutlinedButton, 'Connection unavailable'),
+        findsNothing,
+      );
+      await tester.tap(find.text(l10n.retry));
+      await tester.pumpAndSettle();
+      expect(find.text('Connection unavailable'), findsNothing);
+      expect(find.text(l10n.tasksRecurrenceColumnOutcome), findsOneWidget);
+      verify(
+        () => repository.getProjectRecurrences(
+          workspaceId: 'workspace',
+          projectId: 'project',
+        ),
+      ).called(2);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await cubit.close();
+    });
+  }
   for (final language in ['pl', 'en']) {
     for (final outcome in TaskRecurrenceRunOutcome.values) {
       testWidgets('complete outcome label and meaning: $language $outcome', (
