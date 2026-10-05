@@ -21,7 +21,8 @@ abstract final class TaskListColumnHelper {
     TaskSavedViewColumn.status => context.l10n.tasksListStatus,
     TaskSavedViewColumn.customStatus => context.l10n.tasksListCustomStatus,
     TaskSavedViewColumn.priority => context.l10n.tasksListPriority,
-    TaskSavedViewColumn.assignees => context.l10n.tasksListOwner,
+    TaskSavedViewColumn.assignees =>
+      context.l10n.tasksSavedViewsColumnAssignees,
     TaskSavedViewColumn.owner => context.l10n.tasksListOwner,
     TaskSavedViewColumn.collaborators => context.l10n.tasksListCollaborators,
     TaskSavedViewColumn.labels => context.l10n.taskDetailsLabels,

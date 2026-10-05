@@ -85,7 +85,7 @@ void main() {
       expect(find.text('Moje Centrum Projektu'), findsOneWidget);
       expect(find.text('Mój Profil'), findsOneWidget);
       expect(find.text('Moje Preferencje'), findsOneWidget);
-      expect(find.text('Administrator (Admin)'), findsOneWidget);
+      expect(find.text('Administrator'), findsOneWidget);
 
       // Przejście do zakładki Preferencje
       await tester.tap(find.text('Moje Preferencje'));

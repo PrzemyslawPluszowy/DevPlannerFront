@@ -8780,16 +8780,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get projectSettingsSelectRole => 'Wybierz rolę w projekcie';
 
   @override
-  String get projectSettingsMemberRoleOwner => 'Właściciel (Owner)';
+  String get projectSettingsMemberRoleOwner => 'Właściciel';
 
   @override
-  String get projectSettingsMemberRoleAdmin => 'Administrator (Admin)';
+  String get projectSettingsMemberRoleAdmin => 'Administrator';
 
   @override
-  String get projectSettingsMemberRoleMember => 'Członek (Member)';
+  String get projectSettingsMemberRoleMember => 'Członek';
 
   @override
-  String get projectSettingsMemberRoleObserver => 'Obserwator (Observer)';
+  String get projectSettingsMemberRoleObserver => 'Obserwator';
 
   @override
   String get projectSettingsRemoveMemberConfirm =>
@@ -8996,16 +8996,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workspaceSettingsInvitationCancel => 'Anuluj';
 
   @override
-  String get workspaceSettingsMemberRoleOwner => 'Właściciel (Owner)';
+  String get workspaceSettingsMemberRoleOwner => 'Właściciel';
 
   @override
-  String get workspaceSettingsMemberRoleAdmin => 'Administrator (Admin)';
+  String get workspaceSettingsMemberRoleAdmin => 'Administrator';
 
   @override
-  String get workspaceSettingsMemberRoleMember => 'Członek (Member)';
+  String get workspaceSettingsMemberRoleMember => 'Członek';
 
   @override
-  String get workspaceSettingsMemberRoleObserver => 'Obserwator (Observer)';
+  String get workspaceSettingsMemberRoleObserver => 'Obserwator';
 
   @override
   String get workspaceSettingsRemoveMemberConfirm =>

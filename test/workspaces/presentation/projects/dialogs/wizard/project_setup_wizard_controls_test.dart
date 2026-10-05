@@ -166,16 +166,16 @@ void main() {
       expect(
         control.options.map((option) => option.label),
         <String>[
-          'Administrator (Admin)',
-          'Członek (Member)',
-          'Obserwator (Observer)',
+          'Administrator',
+          'Członek',
+          'Obserwator',
         ],
       );
 
       // Prawdziwe menu: kliknięcie w kontrolkę otwiera overlay z pozycjami.
       await _tap(tester, dropdown);
-      expect(find.text('Administrator (Admin)'), findsOneWidget);
-      expect(find.text('Obserwator (Observer)'), findsOneWidget);
+      expect(find.text('Administrator'), findsOneWidget);
+      expect(find.text('Obserwator'), findsOneWidget);
 
       // Wybór pozycji zmienia draft. Akcję wykonujemy tą samą drogą, której
       // używa czytnik ekranu: ten wiersz leży pod zgięciem panelu i klik
@@ -183,7 +183,7 @@ void main() {
       // sprawdza geometrię — sprawdza działanie pozycji menu. Ścieżkę kliknięcia
       // w pozycję pokrywa test dropdownu gęstości kafelka.
       tester.semantics.performAction(
-        find.semantics.byLabel('Administrator (Admin)'),
+        find.semantics.byLabel('Administrator'),
         SemanticsAction.tap,
       );
       await tester.pumpAndSettle();
