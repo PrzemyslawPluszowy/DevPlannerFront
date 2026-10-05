@@ -314,3 +314,16 @@ Produkt jest naprawiony dopiero wtedy, gdy zalogowany użytkownik może rzeczywi
 - [ ] Zbierać powiązane błędy przed naprawą i wdrażać pakietami. Po bramkach kodu i niezależnym review publikować Wasm na staging, następnie wykonać dokładny manualny retest. Nie uznawać testów lokalnych za odbiór UI.
 - [ ] Bieżący pakiet QA24/25/26: tytuły tras z query, systemowe widoki plików, podfoldery, otwarcie/menu folderu i focus, udostępnianie osobistych plików, prawa oraz odebranie dostępu. Lokalna naprawa i niezależny review gotowe; publikacja i Chrome retest niezaliczone.
 - [ ] Dalej: pozostałe Storage, QA15 Listy, Kanban loading/rollback, modal, czat i obecność wielu sesji oraz keyboard/error/role/theme/locale zgodnie z rejestrem. Pełny odbiór pozostaje otwarty.
+
+
+### Publikacja i manualny retest QA24/25/26 — 2026-10-05
+
+Front042c39ba6896460bc9733705dc9f8156053f372b commit/push [skip ci], deploy31887exit0, log /tmp/devplanner-storage-folder-sharing-wasm-deploy.log. Public version.json dokładny SHA; main.dart.wasm200/9786730B; fallback /workspaces dostępny. Backend3b68398 healthy, nginx active/readiness ready; kod Backend bez zmiany (06b9adb doc-only), bez ponownej publikacji binarki. Niezależny review ui_batch_review bez potwierdzonej regresji.
+
+Chrome staging PL/dark1513×895, AX i screenshots w sesji CUA:
+- QA24 funkcja/UX/UI PASS oglądanego wariantu: /me/files?view=favorites tytuł Pliki i dokumenty, Ulubione1 pokazują tylko ulubiony TXT, bez zwykłego folderu.
+- QA25 funkcja PASS: po Enable accessibility AX ma osobne otwarcie i menu folderu. Klik nazwy otwiera folder/pliki; klik menu otwiera Zmień nazwę/Usuń bez nawigacji; Escape zamyka. Podfolder utworzony wewnątrz QA Storage, jest widoczny także po reload/Enable accessibility. Pełny keyboardfocus, grid, inne scope/role nadal NOT RUN.
+- QA26 funkcja/UX/UI PASS konkretnych kroków: personal share ma Szukaj osób bez pustego Workspace; QA wyszukuje dwa konta; wybór QA02 daje Podgląd/Komentarz/Edycja i Udostępnij; domyślny Podgląd tworzy wpis. Odebranie dostępu pokazuje właściwy dialog z wyjaśnieniem utraty dostępu i pozostawienia pliku, potwierdzenie usuwa wpis. Testowe uprawnienie cofnięte. Nie sprawdzono skutecznego dostępu z drugiego konta ani odmowy po revoke; nie zaliczać ACL runtime. Lista istniejących grantów nadal pokazuje UUID zamiast nazwy — UX FAIL tej części, do kolejnego pakietu.
+- Wcześniej na eb71830: Nowy dokument→formatTXT→nazwa→Utwórz tworzy3B/wersja1 i otwiera neutralny podgląd z CTA OnlyOffice. Funkcja createTXT PASS; otwarcie tego nowego dokumentu w Office i inne formaty NOT RUN.
+
+Pełna aplikacja i wszystkie kontrolki nie są odebrane. Następny pakiet: UUID odbiorców, QA27 podwójne context menu, aktywne niewłaściwe akcje Kosza i opóźnione liczniki; dalej centralna kolejka. Rezerwacja tej sesji Storage zwolniona po zapisie; własne okno Chrome pozostaje w folderzeQA, nowy podfolder widoczny.
