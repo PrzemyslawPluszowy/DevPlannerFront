@@ -1278,3 +1278,11 @@ Przygotowano i push main [skip ci]: tłumaczenia ośmiu unikalnych nagłówków 
 ## 2026-10-05 — publikacja panelu cykliczności potwierdzona
 
 Front Wasm ea2931b31fc6a4da29df553230a067f32b30efd9: scripts/deploy_staging_wasm.sh exit0, build113,8s. Publiczny version.json wskazuje dokładny SHA; main.dart.wasm HTTP2009767924B; /workspaces zwraca bootstrap release tego samego SHA. Log /tmp/devplanner-panel-wasm-deploy-2026-10-05.log. Ostrzeżenia tar o extended header provenance nie przerwały publikacji. Backend e0dc193dc673453e145cd64a618c2eb333a21541 healthy, readinessready, Nginxactive sprawdzone dziś; nie zmieniono binarki Backendu. 15focused PASS i analyzer clean13,1s. Runtime funkcja/UX/UI nowego panelu NOT RUN; C12/C13, Office i pełny odbiór nadal otwarte.
+
+## 2026-10-05 — wspólny pakiet wyścigów Kanbanu 33e2183
+
+Front33e2183f72a121f5bf806fee8625169e65592f0e commit/pushmain [skip ci] exit0. Dwie regresje przed naprawą FAIL; końcowe56testów PASS exit0 (43s), pełny analyzer No issues found137,1s, diffcheckclean. Logi /tmp/devplanner-board-races-final-{tests,analyze}-2026-10-05.log. Skrypt scripts/deploy_staging_wasm.sh uruchomiony z FLUTTER_BIN=/Users/Shared/flutter_sdk/flutter/bin/flutter, żywa sesja56256; kompilacja w toku, /tmp/devplanner-board-races-wasm-deploy-2026-10-05.log. Nie oznaczać publikacji PASS przed exit0/version.json/Wasm/SPA. Backend kod/kontrakt/enumy bez zmiany. Runtime funkcja/UX/UI nadal NOT RUN.
+
+## 2026-10-05 — wyścigi Kanbanu opublikowane
+
+Front Wasm33e2183f72a121f5bf806fee8625169e65592f0e: skrypt exit0, build191,2s, publiczny version.json dokładny SHA, main.dart.wasm HTTP2009767756B, /workspacesSPAbootstrap zgodny. Backend readiness Healthy po publikacji; kod Backendu bez zmiany. Log /tmp/devplanner-board-races-wasm-deploy-2026-10-05.log. Obie regresje przed naprawą FAIL;56testów PASS i analyzer No issues found137,1s po naprawie. Runtime funkcja/UX/UI NOT RUN; nie zalicza DnD/loadera całego nagłówka ani suwaka Listy. Pozostałe C12/C13, Office i pełny zakres nadal otwarte.
