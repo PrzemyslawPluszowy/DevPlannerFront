@@ -10712,3 +10712,20 @@ Pakiet Office/nawigacji opublikowany Wasm5ab883bcbef4aad3f4e11506c965098b6ff30b2
 - [x] Router/composition/http/details pierwsze49 PASS, final router/composition/wire/details45 PASS. API/DTO/transportenumy nie zmienione; nowy canMove jest lokalnym stanem UI. Pierwszy analyzer miał tylko ordering importu; po poprawie pełny analyzer No issues14,4s; końcowy analyzer po kompozycji/shell title No issues12,7s, 8shell PASS. Drugi ordering importu poprawiono. UI UX Pro Max error clarity/heading + Impeccable Operate/craft floor zastosowane; detector exit0. Review końcowy bez dalszego potwierdzonego błędu.
 - [x] Staging storage CORS preflight PUT/content-type z dokładnym originem https://devnote.flutter-dev.pl: HTTP204 i odpowiednie allow-origin/method/headers. To nie dowód zakończonego uploadu.
 - [ ] Jedna publikacja FrontWasm i manualny Chrome retest QA20/23, dozwolonych/odmówionych CRUD, picker/transfer/restore/bulk/error. Backend binarka bez zmiany; obecna3b68398 healthy. Cały audyt nadal otwarty; QA22 i pozostałe scenariusze z centralnego rejestru w kolejce.
+
+
+### Publikacja i pierwszy odbiór QA20/23 — 2026-10-05
+
+FrontWasm eb7183005947361ba764205d01acf371cc153448: deploy75224 exit0, public version.json i fallback SPA zgodne, main.dart.wasm HTTP2009784529B. Backend pozostaje3b68398b0f122b51f70f871ff4a3f8dca9bafc31 healthy/readiness ready (pakiet zmienia tylko Front; Backend doc-only c35410b).
+
+Chrome PL/dark1513×895 na stagingu:
+- Funkcja PASS: Dodaj→Nowy folder; pusty submit pokazuje Wpisz wartość; poprawna nazwa tworzy folder QA Storage 2026-10-05. Formularz czytelny i zgodny z menu neutralnego shella w oglądanym wariancie.
+- Funkcja PASS: upload lokalnego, niesekretnego /tmp/DevNote-QA-storage-actions-20261005.txt (69 B) przez systemowy picker, kolejka1/1 i plik widoczny; rename na QA Storage zmieniona nazwa 2026-10-05.txt zachowuje .txt i nowe dane pojawiają się na liście. Dodanie do favorites pokazuje plik w Ulubionych; rename/favorite przeżywają reload.
+- Funkcja PASS dla placement: Przenieś do…→folderQA→Przenieś tutaj, po wejściu do folderu plik jest obecny. Osobiste Moje pliki nadal pokazują plik; nie uznano tego za błąd bez ustalenia semantyki widoku zbiorczego.
+- QA20 metadata/history: nowa strona testowego pliku pokazuje TXT, rozmiar, daty PL, prawa i aktualną wersję z datą; autor bez nazwy bezpiecznie Nieznany autor, bez UUID. Screenshot w CUA potwierdza czytelniejsze metadane i spójne neutralne tokeny. Funkcja/UX/UI PASS wyłącznie tego widoku PL/dark szerokiego; pełne wersjonowanie/restore/share/error/ACL/lightEN nadal NOT RUN.
+
+Nowe problemy kierowane do następnego pakietu, bez natychmiastowego deploya każdej usterki:
+- QA-20261005-24: query routes /me/files?view=favorites i ?folder=... mają tytuł górnej belki Workspaces zamiast Pliki i dokumenty. Ulubione pokazały również zwykły folderQA, którego nie dodano do ulubionych; wymaga diagnozy zakresu folderów tego widoku. Badge topbar po uploadzie pozostawał1, po pełnym load3 (folder+2pliki), podczas gdy sekcja plików2; zbadać stan licznika zanim uznać błędne liczenie. Screenshot/AX eb71830.
+- QA-20261005-25: z Enable accessibility lista folderów AX pokazuje całą pozycję jako Więcej opcji QA Storage...; klik w tekst lub ikonę otwiera menu. Po reload bez Enable accessibility ten sam klik tekstu otwiera folder i pokazuje plik. Rzeczywisty scenariusz nawigacji bez semantycznej nakładki PASS; odbiór accessibility folderu FAIL/diagnoza źródłowa w toku. Nie maskować problemu samym użyciem canvas.
+
+Nie wykonano download/ZIP/share/delete/restore/createOffice/bulk/deniedrole/errorcancel w Chrome; zostają następne w tej rezerwacji. Materiał QA: osobisty plik370b7cb4-1338-4da5-b1ea-fe2739f866a5 i folder4de22cee-8a35-4642-b10b-04e4d167f9fc (identyfikatory zasobów testowych, nie kont). Aktualne okno Chrome na szczegółach tego pliku, accessibility niewłączona po ostatnim reloadzie. Pełny audyt aktywny.
