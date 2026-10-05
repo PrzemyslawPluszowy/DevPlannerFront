@@ -1,3 +1,5 @@
+import 'package:devplanner/app/router/devplanner_navigation.dart';
+import 'package:devplanner/app/shell/overlays/devplanner_global_panels_host.dart';
 import 'package:devplanner/auth/domain/models/auth_models.dart';
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
@@ -72,6 +74,10 @@ void main() {
       await tester.pumpWidget(
         MaterialApp.router(
           routerConfig: router,
+          builder: (context, child) => DevPlannerGlobalPanelsHost(
+            navigation: DevPlannerNavigation(router),
+            child: child ?? const SizedBox.shrink(),
+          ),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
         ),
@@ -82,6 +88,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(TaskDetailModalUnavailableContent), findsOneWidget);
       expect(openerFocus.hasFocus, isFalse);
+      expect(
+        GoRouter.maybeOf(
+          tester.element(find.byType(TaskDetailModalUnavailableContent)),
+        ),
+        same(router),
+        reason: 'Task links inside the root modal must retain the app router',
+      );
 
       // A platform/browser Back request uses the same guarded close path.
       await tester.binding.handlePopRoute();

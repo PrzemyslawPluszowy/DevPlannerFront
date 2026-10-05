@@ -45,6 +45,7 @@ import 'package:devplanner/workspaces/presentation/projects/people/project_peopl
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 /// Jeden session-scoped host dla Chatu i powiadomień nad aktywną trasą.
@@ -260,9 +261,12 @@ final class _DevPlannerGlobalPanelsHostState
   @override
   Widget build(BuildContext context) => Overlay(initialEntries: [_rootEntry]);
 
-  Widget _buildRootEntry(BuildContext context) => DevPlannerModalLayer(
-    navigatorKey: _modalNavigatorKey,
-    content: _buildAppContent(),
+  Widget _buildRootEntry(BuildContext context) => InheritedGoRouter(
+    goRouter: widget.navigation.router,
+    child: DevPlannerModalLayer(
+      navigatorKey: _modalNavigatorKey,
+      content: _buildAppContent(),
+    ),
   );
 
   Widget _buildAppContent() {

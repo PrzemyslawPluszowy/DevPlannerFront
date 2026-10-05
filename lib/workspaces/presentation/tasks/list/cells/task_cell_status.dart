@@ -66,7 +66,7 @@ class TaskCellStatus extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.tasksTheme.controlText.copyWith(
-                  color: context.tasksTheme.onAccent,
+                  color: TaskStatusVisualHelper.foreground(status),
                   fontWeight: FontWeight.w800,
                 ),
               ),

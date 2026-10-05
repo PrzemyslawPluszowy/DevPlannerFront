@@ -26,6 +26,14 @@ abstract final class TaskStatusVisualHelper {
     ProjectTaskStatus.cancelled => const Color(0xFF94A3B8),
   };
 
+  /// Dobiera czytelny tekst do koloru statusu, niezależnie od motywu.
+  static Color foreground(ProjectTaskStatus status) {
+    final luminance = color(status).computeLuminance();
+    final lightContrast = 1.05 / (luminance + .05);
+    final darkContrast = (luminance + .05) / .05;
+    return lightContrast >= darkContrast ? Colors.white : Colors.black;
+  }
+
   /// Zwraca ikonę reprezentującą dany status zadania.
   static IconData icon(ProjectTaskStatus status) => switch (status) {
     ProjectTaskStatus.backlog => Symbols.inbox_rounded,
