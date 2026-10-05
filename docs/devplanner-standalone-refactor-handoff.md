@@ -10641,3 +10641,12 @@ UI UX Pro Max badge label wraps (cała przewidywalna etykieta) oraz Impeccable O
 - [ ] Drag/drop i pełny focus wszystkich kontrolek nadal nieodebrane. Nowe własne okno Chrome pozwoliło wykonać powyższe kliknięcia. Nowy defekt QA-20261005-06: role panelu osób zawierają zbędne angielskie nazwy w PL; zbierać do kolejnego pakietu. Pełna obecność 3 kont, pozostałe warianty i menu pozostają otwarte.
 
 Pełna kolejka UI pozostaje w Backend/docs/ui-testing.md; nie zaliczać całej aplikacji ani P0–P7 tym pakietem.
+
+### QA etykiet kolumn i ról — 2026-10-05
+
+- [x] Chrome PL/dark 1513×895: dodanie Etykiety i Czas rzeczywisty, Gotowe, reload, usunięcie obu → Gotowe PASS. Filtr Gotowe zwraca 5 zadań; Wyczyść wszystko przywraca listę.
+- [x] Potwierdzone UX usterki: assignees/owner mają tę samą etykietę Właściciel; role PL zawierają wewnętrzne angielskie nazwy. Front `89945ad` zmienia wyłącznie prezentację — Wykonawcy i czyste polskie role projektu/workspace. Enumy i API bez zmian.
+- [x] 35 testów PASS, pełny analyzer No issues (13.7 s), gen-l10n i diffcheck. Niezależny review wskazał stare oczekiwania testów; poprawione i ponownie wykonane. UI UX Pro Max / Impeccable Operate: ludzki język, rozróżnienie znaczenia kolumn, spójne istniejące tokeny.
+- [x] Wasm deploy 52177 exit0: `89945ad3aca2ae3fb825c3dde6728972261f1bf0`; version.json/Wasm200 (9769555B)/SPA zgodne, Backend readiness Healthy. Chrome PL/dark 1513×895: tabela/dialog poprawnie rozróżniają Wykonawcy/Właściciel, panel osób ma polskie role bez dopisków — AX i screenshot, UX/UI PASS w tym wariancie. Backend bez zmiany.
+- [x] Kanban TASK-91 drag Backlog→Do zrobienia i reload PASS (2/25→1/26). Cofnięto przez dropdown statusu Backlog w modalu; kolejny reload potwierdza 2/25. Odwrotny drag i przejściowy loader nie zaliczone; pełny DnD/rollback/ACL nadal otwarty.
+- [ ] Następny pakiet: QA-20261005-09 puste grupy przed wynikami filtra; QA-20261005-10 niezaliczona interakcja poziomego suwaka (możliwy problem trafienia narzędzia). Pełna kolejka i zakresy NOT RUN pozostają w Backend/docs/ui-testing.md.
