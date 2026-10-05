@@ -10,7 +10,7 @@ import 'package:devplanner/workspaces/data/storage/models/storage_contract_model
 import 'package:devplanner/workspaces/data/storage/transport/public_share_link_builder_impl.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/public_share_link_builder.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_sharing_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_sharing_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/standalone/storage_public_share_form.dart';
@@ -26,7 +26,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
   const StorageDesktopSharingDialog({
     required this.file,
     required this.repository,
-    this.userDirectory,
+    this.recipientDirectory,
     this.onMutationConfirmed,
     this.publicShareLinkBuilder,
     super.key,
@@ -34,7 +34,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
 
   final StorageFileResponse file;
   final StorageRepository repository;
-  final StorageUserDirectoryPort? userDirectory;
+  final StorageShareRecipientDirectoryPort? recipientDirectory;
   final Future<void> Function()? onMutationConfirmed;
   final PublicShareLinkBuilder? publicShareLinkBuilder;
 
@@ -42,7 +42,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
     BuildContext context, {
     required StorageFileResponse file,
     required StorageRepository repository,
-    StorageUserDirectoryPort? userDirectory,
+    StorageShareRecipientDirectoryPort? recipientDirectory,
     Future<void> Function()? onMutationConfirmed,
     PublicShareLinkBuilder? publicShareLinkBuilder,
   }) => DevPlannerModalHost.showDialog<void>(
@@ -50,7 +50,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
     builder: (_) => StorageDesktopSharingDialog(
       file: file,
       repository: repository,
-      userDirectory: userDirectory,
+      recipientDirectory: recipientDirectory,
       onMutationConfirmed: onMutationConfirmed,
       publicShareLinkBuilder: publicShareLinkBuilder,
     ),
@@ -64,7 +64,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
       file.workspaceId,
       file.projectId,
       ObjectKey(repository),
-      ObjectKey(userDirectory),
+      ObjectKey(recipientDirectory),
       ObjectKey(publicShareLinkBuilder),
       ObjectKey(onMutationConfirmed),
     )),
@@ -79,7 +79,7 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
     },
     child: _StorageDesktopSharingView(
       file: file,
-      userDirectory: userDirectory,
+      recipientDirectory: recipientDirectory,
       publicShareLinkBuilder:
           publicShareLinkBuilder ?? const PublicShareLinkBuilderImpl(),
     ),
@@ -89,12 +89,12 @@ final class StorageDesktopSharingDialog extends StatelessWidget {
 final class _StorageDesktopSharingView extends StatefulWidget {
   const _StorageDesktopSharingView({
     required this.file,
-    required this.userDirectory,
+    required this.recipientDirectory,
     required this.publicShareLinkBuilder,
   });
 
   final StorageFileResponse file;
-  final StorageUserDirectoryPort? userDirectory;
+  final StorageShareRecipientDirectoryPort? recipientDirectory;
   final PublicShareLinkBuilder publicShareLinkBuilder;
 
   @override
@@ -184,7 +184,7 @@ final class _StorageDesktopSharingViewState
                 child: SingleChildScrollView(
                   child: _StorageSharingContent(
                     file: widget.file,
-                    userDirectory: widget.userDirectory,
+                    recipientDirectory: widget.recipientDirectory,
                     onCreatePublicLink: _createPublicLink,
                     onRefresh: _refreshShares,
                   ),
@@ -232,13 +232,13 @@ final class _SharingDialogHeader extends StatelessWidget {
 final class _StorageSharingContent extends StatelessWidget {
   const _StorageSharingContent({
     required this.file,
-    required this.userDirectory,
+    required this.recipientDirectory,
     required this.onCreatePublicLink,
     required this.onRefresh,
   });
 
   final StorageFileResponse file;
-  final StorageUserDirectoryPort? userDirectory;
+  final StorageShareRecipientDirectoryPort? recipientDirectory;
   final Future<StoragePublicShareCreation> Function(
     String?,
     DateTime?,
@@ -255,14 +255,15 @@ final class _StorageSharingContent extends StatelessWidget {
         _SharingSectionTitle(context.l10n.storageSharePeopleSection),
         SizedBox(height: common.tightGap * 2),
         StorageSharePeopleSection(
-          workspaceId: file.workspaceId,
-          userDirectory: userDirectory,
+          recipientDirectory: recipientDirectory,
         ),
         SizedBox(height: common.sectionGap),
-        _SharingSectionTitle(context.l10n.storageShareWorkspaceSection),
-        SizedBox(height: common.tightGap * 2),
-        StorageShareTargets(file: file),
-        SizedBox(height: common.sectionGap),
+        if (file.workspaceId != null || file.projectId != null) ...[
+          _SharingSectionTitle(context.l10n.storageShareWorkspaceSection),
+          SizedBox(height: common.tightGap * 2),
+          StorageShareTargets(file: file),
+          SizedBox(height: common.sectionGap),
+        ],
         _SharingSectionTitle(context.l10n.storageShareLinkSection),
         SizedBox(height: common.tightGap * 2),
         BlocBuilder<StorageSharingCubit, StorageSharingState>(

@@ -4015,5 +4015,8 @@
   "storagePermissionUnavailable": "Niedostępne",
   "storageVersionCurrent": "Aktualna wersja",
   "storageVersionNoSummary": "Brak opisu zmiany",
-  "storageFileFormatUnknown": "Nieznany format"
+  "storageFileFormatUnknown": "Nieznany format",
+  "storageShareRecipientUnavailable": "Wyszukiwanie osób jest teraz niedostępne. Zamknij okno i spróbuj ponownie.",
+  "storageShareRevokeAction": "Odbierz dostęp",
+  "storageShareRevokeMessage": "Osoba lub link utraci dostęp do tego pliku. Plik pozostanie na swoim miejscu."
 }

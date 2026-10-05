@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
+
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
@@ -141,10 +143,12 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
         if (isClosed || requestGeneration != _requestGeneration) return null;
       }
 
-      final foldersResult = await repository.listFolders(
-        scope: scope,
-        parentFolderId: scope.folderId,
-      );
+      final foldersResult = scope.isFavorites || scope.isRecent || scope.isTrash
+          ? const Right<ApiError, List<StorageFolderResponse>>([])
+          : await repository.listFolders(
+              scope: scope,
+              parentFolderId: scope.folderId,
+            );
       if (isClosed || requestGeneration != _requestGeneration) return null;
 
       if (foldersResult.isLeft()) {

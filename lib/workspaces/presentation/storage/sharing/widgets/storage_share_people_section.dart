@@ -3,8 +3,8 @@ import 'package:devplanner/foundation/theme/files_theme.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
-import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/domain/chat/directory/models/chat_directory_entry.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_share_directory_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_share_directory_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_sharing_cubit.dart';
@@ -13,30 +13,26 @@ import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/stora
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Sekcja udostępniania osobie z lokalnego katalogu użytkowników.
+/// Udostępnianie osobie bez wymagania kontekstu workspace lub projektu.
 final class StorageSharePeopleSection extends StatelessWidget {
   const StorageSharePeopleSection({
-    required this.workspaceId,
-    required this.userDirectory,
+    required this.recipientDirectory,
     super.key,
   });
 
-  final String? workspaceId;
-  final StorageUserDirectoryPort? userDirectory;
+  final StorageShareRecipientDirectoryPort? recipientDirectory;
 
   @override
   Widget build(BuildContext context) {
-    final workspace = workspaceId;
-    final directory = userDirectory;
-    if (workspace == null || directory == null) {
+    final directory = recipientDirectory;
+    if (directory == null) {
       return StorageShareDirectoryNote(
-        text: context.l10n.storageUserSearchWorkspaceRequired,
+        text: context.l10n.storageShareRecipientUnavailable,
       );
     }
     return BlocProvider(
-      key: ValueKey((workspace, identityHashCode(directory))),
+      key: ObjectKey(directory),
       create: (_) => StorageShareDirectoryCubit(
-        workspaceId: workspace,
         directory: directory,
       ),
       child: const _StorageSharePeopleForm(),
@@ -55,7 +51,7 @@ final class _StorageSharePeopleForm extends StatefulWidget {
 final class _StorageSharePeopleFormState
     extends State<_StorageSharePeopleForm> {
   final _queryController = TextEditingController();
-  LocalUserDirectoryResponse? _selected;
+  ChatDirectoryEntry? _selected;
   StorageShareAccessLevel _level = StorageShareAccessLevel.reader;
 
   @override
@@ -69,7 +65,7 @@ final class _StorageSharePeopleFormState
     context.read<StorageShareDirectoryCubit>().search(query);
   }
 
-  void _selectUser(LocalUserDirectoryResponse user) {
+  void _selectUser(ChatDirectoryEntry user) {
     setState(() => _selected = user);
   }
 
@@ -167,7 +163,7 @@ final class _DirectoryResults extends StatelessWidget {
 
   final StorageShareDirectoryState state;
   final String? selectedUserId;
-  final ValueChanged<LocalUserDirectoryResponse> onSelect;
+  final ValueChanged<ChatDirectoryEntry> onSelect;
 
   @override
   Widget build(BuildContext context) => switch (state) {
@@ -204,9 +200,9 @@ final class _DirectoryUserList extends StatelessWidget {
     required this.onSelect,
   });
 
-  final List<LocalUserDirectoryResponse> users;
+  final List<ChatDirectoryEntry> users;
   final String? selectedUserId;
-  final ValueChanged<LocalUserDirectoryResponse>? onSelect;
+  final ValueChanged<ChatDirectoryEntry>? onSelect;
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(
@@ -230,9 +226,9 @@ final class _DirectoryUserRow extends StatelessWidget {
     required this.onSelect,
   });
 
-  final LocalUserDirectoryResponse user;
+  final ChatDirectoryEntry user;
   final bool isSelected;
-  final ValueChanged<LocalUserDirectoryResponse>? onSelect;
+  final ValueChanged<ChatDirectoryEntry>? onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +244,7 @@ final class _DirectoryUserRow extends StatelessWidget {
         ),
       ),
       title: Text(
-        user.displayName,
+        user.label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: context.filesTheme.common.dataText,

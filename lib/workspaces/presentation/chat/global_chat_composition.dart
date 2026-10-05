@@ -19,6 +19,7 @@ import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/links/chat_external_link_port.dart';
@@ -37,6 +38,7 @@ final class DevPlannerGlobalChatComposition {
     this.inboxPresenceRepository,
     this.conversationManagementRepository,
     this.directoryRepository,
+    this.storageShareRecipientDirectory,
     this.pendingSendStore,
     this.serverDraftRepository,
     this.threadRepository,
@@ -88,6 +90,9 @@ final class DevPlannerGlobalChatComposition {
 
   /// Port lokalnego katalogu kont do rozpoczęcia nowej rozmowy.
   final ChatDirectoryRepository? directoryRepository;
+
+  /// Odbiorcy udostępnienia pliku, bez administracyjnego katalogu zaproszeń.
+  final StorageShareRecipientDirectoryPort? storageShareRecipientDirectory;
 
   /// Port członkostwa rozmowy: lista, dodawanie, role, usuwanie.
   final ChatMembersRepository? membersRepository;

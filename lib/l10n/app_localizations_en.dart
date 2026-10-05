@@ -12499,4 +12499,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageFileFormatUnknown => 'Unknown format';
+
+  @override
+  String get storageShareRecipientUnavailable =>
+      'People search is currently unavailable. Close this dialog and try again.';
+
+  @override
+  String get storageShareRevokeAction => 'Revoke access';
+
+  @override
+  String get storageShareRevokeMessage =>
+      'This person or link will lose access to this file. The file will remain in its current location.';
 }

@@ -73,6 +73,7 @@ final class StorageRepositoryImpl extends ApiRepository
   }) => guardApiCall(
     () async {
       final folders = await _api.listFolders(
+        parentFolderId: parentFolderId,
         folderType: scope.folderType?.apiValue,
         workspaceId: scope.workspaceId,
         projectId: scope.projectId,

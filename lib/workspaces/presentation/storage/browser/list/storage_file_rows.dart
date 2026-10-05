@@ -6,7 +6,7 @@ import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_view_preference.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_drag_and_drop.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_move_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_open_document_action.dart';
@@ -143,8 +143,8 @@ class StorageFileRows extends StatelessWidget {
                             context,
                             file: file,
                             repository: context.read<StorageRepository>(),
-                            userDirectory: context
-                                .read<StorageUserDirectoryPort?>(),
+                            recipientDirectory: context
+                                .read<StorageShareRecipientDirectoryPort?>(),
                           ),
                         );
                       },

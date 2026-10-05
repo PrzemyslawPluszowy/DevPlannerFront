@@ -14,6 +14,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  for (final query in ['?view=favorites', '?folder=qa-folder']) {
+    testWidgets('Files title is preserved with query $query', (tester) async {
+      final router = GoRouter(
+        initialLocation: '/me/files$query',
+        routes: [
+          GoRoute(
+            path: '/me/files',
+            builder: (_, _) =>
+                const DevPlannerShellRoute(child: Text('qa content')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(_LocalizedRouter(router));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('devplanner-topbar')),
+          matching: find.text('Files and documents'),
+        ),
+        findsOneWidget,
+      );
+    });
+  }
+
   testWidgets('renders desktop shell geometry and collapsible sidebar', (
     tester,
   ) async {
@@ -216,7 +241,10 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.descendant(of: tasksNode, matching: find.byIcon(Icons.chevron_right)),
+      find.descendant(
+        of: tasksNode,
+        matching: find.byIcon(Icons.chevron_right),
+      ),
       findsNothing,
     );
     expect(find.text('List'), findsNothing);

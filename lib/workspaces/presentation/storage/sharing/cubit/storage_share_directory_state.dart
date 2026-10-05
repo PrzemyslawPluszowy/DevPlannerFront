@@ -1,5 +1,5 @@
 import 'package:devplanner/foundation/error/api_error.dart';
-import 'package:devplanner/workspaces/data/workspaces/responses/workspace_responses.dart';
+import 'package:devplanner/workspaces/domain/chat/directory/models/chat_directory_entry.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class StorageShareDirectoryState extends Equatable {
@@ -25,11 +25,11 @@ final class StorageShareDirectoryLoading extends StorageShareDirectoryState {
 final class StorageShareDirectoryReady extends StorageShareDirectoryState {
   StorageShareDirectoryReady({
     required this.query,
-    required List<LocalUserDirectoryResponse> users,
+    required List<ChatDirectoryEntry> users,
   }) : users = List.unmodifiable(users);
 
   final String query;
-  final List<LocalUserDirectoryResponse> users;
+  final List<ChatDirectoryEntry> users;
 
   @override
   List<Object?> get props => [query, users];

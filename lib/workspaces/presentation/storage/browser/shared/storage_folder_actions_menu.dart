@@ -14,6 +14,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/shared/storag
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_delete_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Menu operacji folderu wspólne dla siatki i listy.
@@ -71,11 +72,26 @@ final class StorageFolderActionsMenu extends StatelessWidget {
     final canRename = capabilities.canRenameFolder && folder.canEdit;
     final canDelete = capabilities.canDelete && folder.canDelete;
     if (!canRename && !canDelete) return const SizedBox.shrink();
-    return StorageChromePill(
-      key: ValueKey('folder-actions-${folder.id}'),
-      icon: AppIcons.moreVertical,
-      tooltip: context.l10n.storageMoreOptionsTooltip,
+    return Semantics(
+      container: true,
+      button: true,
+      label: '${context.l10n.storageMoreOptionsTooltip}: ${folder.name}',
+      excludeSemantics: true,
       onTap: () => unawaited(_openMenu(context, canRename, canDelete)),
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.enter): () =>
+              unawaited(_openMenu(context, canRename, canDelete)),
+          const SingleActivator(LogicalKeyboardKey.space): () =>
+              unawaited(_openMenu(context, canRename, canDelete)),
+        },
+        child: StorageChromePill(
+          key: ValueKey('folder-actions-${folder.id}'),
+          icon: AppIcons.moreVertical,
+          tooltip: context.l10n.storageMoreOptionsTooltip,
+          onTap: () => unawaited(_openMenu(context, canRename, canDelete)),
+        ),
+      ),
     );
   }
 

@@ -4,7 +4,7 @@ import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_rename_file_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
@@ -77,7 +77,8 @@ abstract final class TaskAttachmentFileMenu {
               menuContext,
               file: file,
               repository: repository,
-              userDirectory: menuContext.read<StorageUserDirectoryPort?>(),
+              recipientDirectory: menuContext
+                  .read<StorageShareRecipientDirectoryPort?>(),
             );
             if (menuContext.mounted) await attachments.load();
           },

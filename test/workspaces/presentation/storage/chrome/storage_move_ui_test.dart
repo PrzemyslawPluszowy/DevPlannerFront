@@ -18,6 +18,8 @@ import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_c
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -265,6 +267,98 @@ void main() {
       ),
     );
   });
+
+  for (final keyboard in [false, true]) {
+    for (final grid in [false, true]) {
+      testWidgets(
+        'semantyka folder open i menu są niezależne: grid=$grid keyboard=$keyboard',
+        (
+          tester,
+        ) async {
+          final handle = tester.ensureSemantics();
+          await pumpShell(tester);
+          if (grid) {
+            await tester.tap(find.byTooltip('Widok siatki'));
+            await tester.pumpAndSettle();
+          }
+          final open = tester.getSemantics(
+            find.byKey(const ValueKey('folder-open-folder-1')),
+          );
+          final menu = tester.getSemantics(
+            find.byKey(const ValueKey('folder-actions-folder-1')),
+          );
+          expect(open.id, isNot(menu.id));
+          expect(open.label, 'Umowy');
+          expect(menu.label, contains('Więcej opcji'));
+          expect(
+            menu.getSemanticsData().hasAction(SemanticsAction.tap),
+            isTrue,
+          );
+          menu.owner!.performAction(
+            menu.id,
+            SemanticsAction.tap,
+          );
+          await tester.pumpAndSettle();
+          expect(
+            find.text('Zmień nazwę folderu'),
+            findsOneWidget,
+            reason: tester
+                .widgetList<Text>(find.byType(Text))
+                .map((t) => t.data)
+                .join('|'),
+          );
+          expect(find.text('Podfolder'), findsNothing);
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+          final openFocus = Focus.of(
+            tester.element(
+              find
+                  .descendant(
+                    of: find.byKey(const ValueKey('folder-open-folder-1')),
+                    matching: find.byType(Text),
+                  )
+                  .first,
+            ),
+          );
+          final menuFocus = Focus.of(
+            tester.element(
+              find
+                  .descendant(
+                    of: find.byKey(const ValueKey('folder-actions-folder-1')),
+                    matching: find.byType(Icon),
+                  )
+                  .first,
+            ),
+          );
+          expect(openFocus, isNot(same(menuFocus)));
+          for (final key in [
+            LogicalKeyboardKey.enter,
+            LogicalKeyboardKey.space,
+          ]) {
+            menuFocus.requestFocus();
+            await tester.pump();
+            expect(menuFocus.hasPrimaryFocus, isTrue);
+            await tester.sendKeyEvent(key);
+            await tester.pumpAndSettle();
+            expect(find.text('Zmień nazwę folderu'), findsOneWidget);
+            await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+            await tester.pumpAndSettle();
+          }
+          if (keyboard) {
+            openFocus.requestFocus();
+            await tester.pump();
+            await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          } else {
+            open.owner!.performAction(open.id, SemanticsAction.tap);
+          }
+          await tester.pumpAndSettle();
+          expect(find.text('Podfolder'), findsOneWidget);
+          expect(find.text('Zmień nazwę folderu'), findsNothing);
+          handle.dispose();
+        },
+      );
+    }
+  }
 
   testWidgets('picker folderu przenosi plik do wybranego folderu', (
     tester,

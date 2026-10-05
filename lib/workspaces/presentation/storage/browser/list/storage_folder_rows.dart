@@ -12,6 +12,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/selection/cub
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_actions_menu.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Wiersze folderów w widoku tabelarycznym / liście eksploratora.
@@ -52,70 +53,112 @@ class StorageFolderRows extends StatelessWidget {
         final folder = folders[index];
         final isSelected = selectionCubit.state.isFolderSelected(folder.id);
 
-        return StorageFolderDropTarget(
+        return _FolderRow(
           folder: folder,
-          enabled: capabilities.canMove && folder.canEdit,
-          child: GestureDetector(
-            onSecondaryTapDown: (details) =>
-                StorageFolderActionsMenu.showContextMenu(
-                  context,
-                  folder,
-                  details.globalPosition,
-                  capabilities: capabilities,
-                ),
-            child: ListTile(
-              dense: dense,
-              minVerticalPadding: dense ? 4 : 8,
-              selected: isSelected,
-              selectedTileColor: context.colors.primaryContainer.withValues(
-                alpha: 0.3,
-              ),
-              leading: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  AppIcons.folder,
-                  color: Color(0xFFD58A00),
-                  size: 20,
-                ),
-              ),
-              title: Text(
-                folder.name,
-                style: context.text.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: folder.itemCount > 0
-                  ? Text(context.l10n.storageItemsCount(folder.itemCount))
-                  : null,
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  StorageFolderActionsMenu(
-                    folder: folder,
-                    capabilities: capabilities,
-                  ),
-                  const Icon(AppIcons.chevronRight, size: 16),
-                ],
-              ),
-              onTap: () {
-                if (selectionCubit.state.hasSelection) {
-                  selectionCubit.toggleFolder(folder);
-                } else {
-                  unawaited(
-                    context.read<StorageBrowserCubit>().openFolder(folder),
-                  );
-                }
-              },
-              onLongPress: () => selectionCubit.toggleFolder(folder),
-            ),
-          ),
+          capabilities: capabilities,
+          dense: dense,
+          isSelected: isSelected,
         );
       },
     );
   }
+}
+
+/// Otwarcie folderu i jego menu są niezależnymi celami focus oraz semantyki.
+final class _FolderRow extends StatelessWidget {
+  const _FolderRow({
+    required this.folder,
+    required this.capabilities,
+    required this.dense,
+    required this.isSelected,
+  });
+  final StorageFolderResponse folder;
+  final StorageShellCapabilities capabilities;
+  final bool dense;
+  final bool isSelected;
+
+  void _activate(BuildContext context) {
+    final selection = context.read<StorageSelectionCubit>();
+    if (selection.state.hasSelection) {
+      selection.toggleFolder(folder);
+    } else {
+      unawaited(context.read<StorageBrowserCubit>().openFolder(folder));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => StorageFolderDropTarget(
+    folder: folder,
+    enabled: capabilities.canMove && folder.canEdit,
+    child: GestureDetector(
+      onSecondaryTapDown: (details) => StorageFolderActionsMenu.showContextMenu(
+        context,
+        folder,
+        details.globalPosition,
+        capabilities: capabilities,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              key: ValueKey('folder-open-${folder.id}'),
+              container: true,
+              button: true,
+              label: folder.name,
+              selected: isSelected,
+              excludeSemantics: true,
+              onTap: () => _activate(context),
+              onLongPress: () =>
+                  context.read<StorageSelectionCubit>().toggleFolder(folder),
+              child: CallbackShortcuts(
+                bindings: {
+                  const SingleActivator(LogicalKeyboardKey.enter): () =>
+                      _activate(context),
+                  const SingleActivator(LogicalKeyboardKey.space): () =>
+                      _activate(context),
+                },
+                child: ListTile(
+                  dense: dense,
+                  minVerticalPadding: dense ? 4 : 8,
+                  selected: isSelected,
+                  selectedTileColor: context.colors.primaryContainer.withValues(
+                    alpha: 0.3,
+                  ),
+                  leading: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      AppIcons.folder,
+                      color: Color(0xFFD58A00),
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    folder.name,
+                    style: context.text.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: folder.itemCount > 0
+                      ? Text(context.l10n.storageItemsCount(folder.itemCount))
+                      : null,
+                  trailing: const Icon(AppIcons.chevronRight, size: 16),
+                  onTap: () => _activate(context),
+                  onLongPress: () => context
+                      .read<StorageSelectionCubit>()
+                      .toggleFolder(folder),
+                ),
+              ),
+            ),
+          ),
+          StorageFolderActionsMenu(folder: folder, capabilities: capabilities),
+          const SizedBox(width: 16),
+        ],
+      ),
+    ),
+  );
 }

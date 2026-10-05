@@ -129,6 +129,7 @@ final class DevPlannerRouterPages {
           : null,
       viewPreferenceStore: _resolvedStorageViewPreferenceStore,
       userDirectory: _resolvedStorageUserDirectory,
+      recipientDirectory: dependencies.resolvedStorageShareRecipientDirectory,
       realtimeClientFactory: _resolvedStorageRealtimeClientFactory,
       onOpenFileDetails: onOpenFileDetails,
     );

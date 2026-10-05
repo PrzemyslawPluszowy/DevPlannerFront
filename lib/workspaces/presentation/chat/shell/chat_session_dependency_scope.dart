@@ -23,6 +23,7 @@ import 'package:devplanner/workspaces/domain/chat/thread/chat_thread_repository.
 import 'package:devplanner/workspaces/domain/notifications/chat_notification_settings_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/history/chat_attachment_access_port.dart';
 import 'package:devplanner/workspaces/presentation/chat/attachments/upload/chat_attachment_upload_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/emoji/cubit/chat_emoji_recent_cubit.dart';
@@ -55,6 +56,9 @@ final class ChatSessionDependencyScope extends StatelessWidget {
   Widget build(BuildContext context) {
     final chat = composition;
     final providers = <RepositoryProvider<dynamic>>[
+      RepositoryProvider<StorageShareRecipientDirectoryPort?>.value(
+        value: chat?.storageShareRecipientDirectory,
+      ),
       if (chat != null)
         RepositoryProvider<DevPlannerGlobalChatComposition>.value(value: chat),
       if (chat != null)

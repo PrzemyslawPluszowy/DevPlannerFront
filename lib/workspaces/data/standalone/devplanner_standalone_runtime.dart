@@ -39,6 +39,7 @@ import 'package:devplanner/workspaces/data/realtime/signalr/workspace_realtime_c
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/data/storage/transport/download_transport_impl.dart';
 import 'package:devplanner/workspaces/data/storage/transport/file_picker_port_impl.dart';
+import 'package:devplanner/workspaces/data/storage/transport/storage_share_recipient_directory_adapter.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_server_draft_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/delivery/chat_pending_send_store.dart';
@@ -238,6 +239,10 @@ final class DevPlannerStandaloneRuntime {
   late final NotificationsRepository _notificationsRepository =
       NotificationsRepositoryImpl(_notificationsApi);
 
+  late final _storageShareRecipients = StorageShareRecipientDirectoryAdapter(
+    _chatDirectory,
+  );
+
   WorkspaceChatRealtimeFactory? _chatRealtimeFactory;
   String? _lastAuthenticatedUserId;
   WorkspaceNotificationsRealtimeRealtime? _notificationsRealtime;
@@ -255,6 +260,7 @@ final class DevPlannerStandaloneRuntime {
       inboxPresenceRepository: _chatInboxPresenceRepository,
       conversationManagementRepository: _chatManagement,
       directoryRepository: _chatDirectory,
+      storageShareRecipientDirectory: _storageShareRecipients,
       pendingSendStore: _chatPendingSends,
       serverDraftRepository: _chatServerDrafts,
       threadRepository: _chatThreads,

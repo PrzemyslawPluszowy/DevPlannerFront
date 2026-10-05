@@ -75,6 +75,7 @@ abstract class StorageApi {
   /// Pobiera foldery dostępne w wybranym kontekście.
   @GET('/api/v1/storage/folders')
   Future<List<StorageFolderResponse>> listFolders({
+    @Query('parentFolderId') String? parentFolderId,
     @Query('folderType') String? folderType,
     @Query('workspaceId') String? workspaceId,
     @Query('projectId') String? projectId,

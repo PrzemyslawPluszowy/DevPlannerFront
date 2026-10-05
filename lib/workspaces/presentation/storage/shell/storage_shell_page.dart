@@ -11,6 +11,7 @@ import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/file_picker_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_realtime_client.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_file_mutation_listener.dart';
@@ -59,6 +60,7 @@ class StorageShellPage extends StatelessWidget {
     this.initialViewMode = StorageViewMode.list,
     this.viewPreferenceStore,
     this.userDirectory,
+    this.recipientDirectory,
     this.realtimeClientFactory,
     this.onOpenFileDetails,
     super.key,
@@ -92,6 +94,7 @@ class StorageShellPage extends StatelessWidget {
   /// Lokalny katalog użytkowników; brak portu wyłącza tryb udostępniania osobie
   /// i filtr właściciela, zamiast pokazywać pole, które nic nie zwraca.
   final StorageUserDirectoryPort? userDirectory;
+  final StorageShareRecipientDirectoryPort? recipientDirectory;
 
   /// Nawigacja do świeżych szczegółów pliku, składana wyłącznie przez router.
   final ValueChanged<String>? onOpenFileDetails;
@@ -173,9 +176,12 @@ class StorageShellPage extends StatelessWidget {
             value: effectiveRepository,
           ),
           Provider<DownloadTransport>.value(value: effectiveDownload),
-          // Modal udostępniania i filtr właściciela czytają katalog z drzewa
-          // modułu, a do samego modala port wędruje jawnie z miejsca otwarcia.
+          // Filtr właściciela i odbiorcy udostępnienia mają osobne porty.
+          // Do rootowego modala port odbiorców wędruje jawnie.
           Provider<StorageUserDirectoryPort?>.value(value: userDirectory),
+          Provider<StorageShareRecipientDirectoryPort?>.value(
+            value: recipientDirectory,
+          ),
         ],
         child: _StorageShellView(
           routedScope: routedScope,

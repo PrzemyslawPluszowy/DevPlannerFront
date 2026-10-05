@@ -4028,5 +4028,8 @@
   "storagePermissionUnavailable": "Unavailable",
   "storageVersionCurrent": "Current version",
   "storageVersionNoSummary": "No change description",
-  "storageFileFormatUnknown": "Unknown format"
+  "storageFileFormatUnknown": "Unknown format",
+  "storageShareRecipientUnavailable": "People search is currently unavailable. Close this dialog and try again.",
+  "storageShareRevokeAction": "Revoke access",
+  "storageShareRevokeMessage": "This person or link will lose access to this file. The file will remain in its current location."
 }

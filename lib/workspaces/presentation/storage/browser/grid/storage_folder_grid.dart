@@ -10,6 +10,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/selection/cub
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_actions_menu.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Siatka folderów w widoku kafelkowym eksploratora.
@@ -86,80 +87,113 @@ class _FolderCard extends StatelessWidget {
               details.globalPosition,
               capabilities: capabilities,
             ),
-        child: InkWell(
-          onTap: () {
-            if (selectionCubit.state.hasSelection) {
-              selectionCubit.toggleFolder(folder);
-            } else {
-              unawaited(context.read<StorageBrowserCubit>().openFolder(folder));
-            }
-          },
-          onLongPress: () => selectionCubit.toggleFolder(folder),
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? context.colors.primaryContainer.withValues(alpha: 0.4)
+                : context.colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
               color: isSelected
-                  ? context.colors.primaryContainer.withValues(alpha: 0.4)
-                  : context.colors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : context.colors.outlineVariant.withValues(alpha: 0.4),
-                width: isSelected ? 1.5 : 1.0,
-              ),
+                  ? Theme.of(context).colorScheme.primary
+                  : context.colors.outlineVariant.withValues(alpha: 0.4),
+              width: isSelected ? 1.5 : 1.0,
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    AppIcons.folder,
-                    size: 23,
-                    color: Color(0xFFD58A00),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        folder.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.text.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      if (folder.itemCount > 0)
-                        Text(
-                          context.l10n.storageItemsCount(folder.itemCount),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.text.labelSmall?.copyWith(
-                            color: context.colors.onSurfaceVariant,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  key: ValueKey('folder-open-${folder.id}'),
+                  container: true,
+                  button: true,
+                  label: folder.name,
+                  selected: isSelected,
+                  excludeSemantics: true,
+                  onTap: () => _activate(context),
+                  onLongPress: () => context
+                      .read<StorageSelectionCubit>()
+                      .toggleFolder(folder),
+                  child: CallbackShortcuts(
+                    bindings: {
+                      const SingleActivator(LogicalKeyboardKey.enter): () =>
+                          _activate(context),
+                      const SingleActivator(LogicalKeyboardKey.space): () =>
+                          _activate(context),
+                    },
+                    child: InkWell(
+                      onTap: () => _activate(context),
+                      onLongPress: () => context
+                          .read<StorageSelectionCubit>()
+                          .toggleFolder(folder),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withValues(alpha: 0.16),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              AppIcons.folder,
+                              size: 23,
+                              color: Color(0xFFD58A00),
+                            ),
                           ),
-                        ),
-                    ],
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  folder.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.text.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (folder.itemCount > 0)
+                                  Text(
+                                    context.l10n.storageItemsCount(
+                                      folder.itemCount,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: context.text.labelSmall?.copyWith(
+                                      color: context.colors.onSurfaceVariant,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                StorageFolderActionsMenu(
-                  folder: folder,
-                  capabilities: capabilities,
-                ),
-              ],
-            ),
+              ),
+              StorageFolderActionsMenu(
+                folder: folder,
+                capabilities: capabilities,
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  void _activate(BuildContext context) {
+    final selection = context.read<StorageSelectionCubit>();
+    if (selection.state.hasSelection) {
+      selection.toggleFolder(folder);
+    } else {
+      unawaited(context.read<StorageBrowserCubit>().openFolder(folder));
+    }
   }
 }

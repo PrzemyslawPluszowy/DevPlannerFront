@@ -5,7 +5,7 @@ import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_move_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_open_document_action.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_preview_action.dart';
@@ -86,7 +86,8 @@ abstract final class StorageFileContextMenu {
                 context,
                 file: file,
                 repository: context.read<StorageRepository>(),
-                userDirectory: context.read<StorageUserDirectoryPort?>(),
+                recipientDirectory: context
+                    .read<StorageShareRecipientDirectoryPort?>(),
               ),
             ),
           if (capabilities.canFavorite && file.canRead && !isTrash)

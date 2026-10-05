@@ -16,7 +16,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_rep
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/task_details_modal_tabs.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_page.dart';
 import 'package:flutter/foundation.dart';
@@ -52,7 +52,8 @@ final class TasksDetailsRoutePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userDirectory = context.read<StorageUserDirectoryPort?>();
+    final recipientDirectory = context
+        .read<StorageShareRecipientDirectoryPort?>();
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<TasksRepository>.value(
@@ -106,7 +107,9 @@ final class TasksDetailsRoutePage extends StatelessWidget {
           Provider<DownloadTransport>.value(
             value: const DownloadTransportImpl(),
           ),
-          Provider<StorageUserDirectoryPort?>.value(value: userDirectory),
+          Provider<StorageShareRecipientDirectoryPort?>.value(
+            value: recipientDirectory,
+          ),
         ],
         child: WorkspaceTaskDetailsPage(
           workspaceId: workspaceId,

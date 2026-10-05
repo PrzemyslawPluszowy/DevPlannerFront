@@ -1,7 +1,7 @@
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/standalone/storage_desktop_sharing_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +16,7 @@ final class StorageSharingDialog extends StatelessWidget {
   const StorageSharingDialog({
     required this.file,
     required this.repository,
-    this.userDirectory,
+    this.recipientDirectory,
     super.key,
   });
 
@@ -27,20 +27,20 @@ final class StorageSharingDialog extends StatelessWidget {
   final StorageRepository repository;
 
   /// Lokalny katalog użytkowników; brak portu wyłącza tryb udostępniania osobie.
-  final StorageUserDirectoryPort? userDirectory;
+  final StorageShareRecipientDirectoryPort? recipientDirectory;
 
   /// Otwiera modal na rootowym Navigatorze także zagnieżdżonego browsera.
   static Future<void> show(
     BuildContext context, {
     required StorageFileResponse file,
     required StorageRepository repository,
-    StorageUserDirectoryPort? userDirectory,
+    StorageShareRecipientDirectoryPort? recipientDirectory,
   }) => DevPlannerModalHost.showDialog<void>(
     context,
     builder: (_) => StorageSharingDialog(
       file: file,
       repository: repository,
-      userDirectory: userDirectory,
+      recipientDirectory: recipientDirectory,
     ),
   );
 
@@ -48,6 +48,6 @@ final class StorageSharingDialog extends StatelessWidget {
   Widget build(BuildContext context) => StorageDesktopSharingDialog(
     file: file,
     repository: repository,
-    userDirectory: userDirectory,
+    recipientDirectory: recipientDirectory,
   );
 }

@@ -22285,6 +22285,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown format'**
   String get storageFileFormatUnknown;
+
+  /// No description provided for @storageShareRecipientUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'People search is currently unavailable. Close this dialog and try again.'**
+  String get storageShareRecipientUnavailable;
+
+  /// No description provided for @storageShareRevokeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke access'**
+  String get storageShareRevokeAction;
+
+  /// No description provided for @storageShareRevokeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This person or link will lose access to this file. The file will remain in its current location.'**
+  String get storageShareRevokeMessage;
 }
 
 class _AppLocalizationsDelegate

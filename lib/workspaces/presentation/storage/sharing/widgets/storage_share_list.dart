@@ -92,13 +92,13 @@ final class StorageShareRow extends StatelessWidget {
               style: common.dataText,
             ),
             subtitle: Text(
-              context.l10n.storageShareAccessLabel(share.accessLevel.name),
+              context.l10n.storageShareAccessLabel(_accessLabel(context)),
               style: common.metaText.copyWith(
                 color: context.colors.onSurfaceVariant,
               ),
             ),
             trailing: IconButton(
-              tooltip: context.l10n.storageRemoveShareTooltip,
+              tooltip: context.l10n.storageShareRevokeAction,
               icon: const Icon(AppIcons.delete),
               onPressed:
                   state is StorageSharingReady &&
@@ -115,6 +115,15 @@ final class StorageShareRow extends StatelessWidget {
           );
         },
       );
+
+  String _accessLabel(BuildContext context) => switch (share.accessLevel) {
+    StorageShareAccessLevel.read ||
+    StorageShareAccessLevel.reader => context.l10n.storageAccessReader,
+    StorageShareAccessLevel.write ||
+    StorageShareAccessLevel.editor => context.l10n.storageAccessEditor,
+    StorageShareAccessLevel.commenter => context.l10n.storageAccessCommenter,
+    StorageShareAccessLevel.owner => context.l10n.storageAccessOwner,
+  };
 
   String _targetLabel(BuildContext context) => switch (share.shareType) {
     StorageShareType.workspace => context.l10n.storageShareWorkspaceLabel(
@@ -136,9 +145,9 @@ final class StorageShareRow extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => StorageShareConfirmationDialog(
-        title: context.l10n.storageDeleteConfirmTitle,
-        message: context.l10n.storageDeleteConfirmMessage,
-        action: context.l10n.delete,
+        title: context.l10n.storageShareRevokeAction,
+        message: context.l10n.storageShareRevokeMessage,
+        action: context.l10n.storageShareRevokeAction,
       ),
     );
     if (!context.mounted ||

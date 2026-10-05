@@ -280,6 +280,7 @@ final class _DevPlannerTopBar extends StatelessWidget {
   }
 
   String _sectionTitle(AppLocalizations l10n) {
+    final location = Uri.tryParse(this.location)?.path ?? this.location;
     if (location == '/me/files' ||
         location.startsWith('/me/files/') ||
         location.startsWith('/storage/files/')) {

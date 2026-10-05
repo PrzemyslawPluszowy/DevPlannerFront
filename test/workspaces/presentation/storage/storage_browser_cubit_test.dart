@@ -140,6 +140,41 @@ void main() {
       await cubit.close();
     });
 
+    for (final scope in [
+      const StorageScope.favorites(),
+      const StorageScope.recent(),
+      const StorageScope.trash(),
+    ]) {
+      test('widok systemowy $scope nie odczytuje zwykłych folderów', () async {
+        when(
+          () => repository.listFiles(
+            scope: any(named: 'scope'),
+            folderId: any(named: 'folderId'),
+            cursor: any(named: 'cursor'),
+            limit: any(named: 'limit'),
+            query: any(named: 'query'),
+            filter: any(named: 'filter'),
+          ),
+        ).thenAnswer(
+          (_) async =>
+              right(const CursorPageResponse<StorageFileResponse>(items: [])),
+        );
+        final cubit = StorageBrowserCubit(
+          repository: repository,
+          initialScope: scope,
+        );
+        await cubit.load();
+        expect(cubit.state, isA<StorageBrowserEmpty>());
+        verifyNever(
+          () => repository.listFolders(
+            scope: any(named: 'scope'),
+            parentFolderId: any(named: 'parentFolderId'),
+          ),
+        );
+        await cubit.close();
+      });
+    }
+
     test('load emituje Ready gdy są elementy', () async {
       when(
         () => repository.listFolders(

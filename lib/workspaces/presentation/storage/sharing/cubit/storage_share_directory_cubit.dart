@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/error/api_error.dart';
-import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/cubit/storage_share_directory_state.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,12 +10,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 final class StorageShareDirectoryCubit
     extends Cubit<StorageShareDirectoryState> {
   StorageShareDirectoryCubit({
-    required this.workspaceId,
     required this.directory,
   }) : super(const StorageShareDirectoryIdle());
 
-  final String workspaceId;
-  final StorageUserDirectoryPort directory;
+  final StorageShareRecipientDirectoryPort directory;
   Timer? _debounce;
   int _generation = 0;
   int? _loadingGeneration;
@@ -71,7 +69,6 @@ final class StorageShareDirectoryCubit
     _loadingGeneration = generation;
     try {
       final result = await directory.search(
-        workspaceId: workspaceId,
         query: query,
       );
       final responseError = result.fold<ApiError?>(

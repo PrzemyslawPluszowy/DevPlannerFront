@@ -12602,4 +12602,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageFileFormatUnknown => 'Nieznany format';
+
+  @override
+  String get storageShareRecipientUnavailable =>
+      'Wyszukiwanie osób jest teraz niedostępne. Zamknij okno i spróbuj ponownie.';
+
+  @override
+  String get storageShareRevokeAction => 'Odbierz dostęp';
+
+  @override
+  String get storageShareRevokeMessage =>
+      'Osoba lub link utraci dostęp do tego pliku. Plik pozostanie na swoim miejscu.';
 }

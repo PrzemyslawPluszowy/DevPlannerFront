@@ -305,3 +305,12 @@ Checklist:
 - [ ] R8 aktualna walidacja, README i uczciwy raport platform.
 
 Produkt jest naprawiony dopiero wtedy, gdy zalogowany użytkownik może rzeczywiście korzystać z odzyskanych zadań/kanbanu/plików i reszty wcześniejszych funkcji w samodzielnym DevPlannerze. Samo przywrócenie plików, zielony analyzer, nowy shell lub działające logowanie nie spełniają tego kryterium.
+
+
+### Aktywny audyt manualny UI — polecenie właściciela, 2026-10-05
+
+- [x] Uruchomiono dalsze przeklikiwanie stagingu w Chrome. Rejestr i rezerwacje: Backend/docs/ui-testing.md.
+- [ ] Kontynuować kolejne nieodebrane kontrolki i przepływy; sprawdzać działanie, zrozumiałość dla nietechnicznej osoby i spójność z Listą/Kanbanem. Stosować UI UX Pro Max oraz Impeccable Operate. Naprawiać także zauważone nieczytelne lub brzydkie powierzchnie.
+- [ ] Zbierać powiązane błędy przed naprawą i wdrażać pakietami. Po bramkach kodu i niezależnym review publikować Wasm na staging, następnie wykonać dokładny manualny retest. Nie uznawać testów lokalnych za odbiór UI.
+- [ ] Bieżący pakiet QA24/25/26: tytuły tras z query, systemowe widoki plików, podfoldery, otwarcie/menu folderu i focus, udostępnianie osobistych plików, prawa oraz odebranie dostępu. Lokalna naprawa i niezależny review gotowe; publikacja i Chrome retest niezaliczone.
+- [ ] Dalej: pozostałe Storage, QA15 Listy, Kanban loading/rollback, modal, czat i obecność wielu sesji oraz keyboard/error/role/theme/locale zgodnie z rejestrem. Pełny odbiór pozostaje otwarty.

@@ -272,12 +272,14 @@ class _StorageApi implements StorageApi {
 
   @override
   Future<List<StorageFolderResponse>> listFolders({
+    String? parentFolderId,
     String? folderType,
     String? workspaceId,
     String? projectId,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
+      r'parentFolderId': parentFolderId,
       r'folderType': folderType,
       r'workspaceId': workspaceId,
       r'projectId': projectId,

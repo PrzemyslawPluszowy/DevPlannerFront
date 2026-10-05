@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/http/http.dart';
+import 'package:devplanner/workspaces/data/chat/api/chat_directory_api.dart';
+import 'package:devplanner/workspaces/data/chat/repositories/chat_directory_repository_impl.dart';
 import 'package:devplanner/workspaces/data/preferences/shared_preferences_storage_view_store.dart';
 import 'package:devplanner/workspaces/data/preferences/shared_preferences_tasks_project_view_store.dart';
 import 'package:devplanner/workspaces/data/projects/api/projects_api.dart';
@@ -18,6 +20,7 @@ import 'package:devplanner/workspaces/data/standalone/workspace_navigation_gatew
 import 'package:devplanner/workspaces/data/standalone/workspaces_gateway.dart';
 import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
 import 'package:devplanner/workspaces/data/storage/repositories/storage_repository_impl.dart';
+import 'package:devplanner/workspaces/data/storage/transport/storage_share_recipient_directory_adapter.dart';
 import 'package:devplanner/workspaces/data/storage/transport/storage_user_directory_adapter.dart';
 import 'package:devplanner/workspaces/data/workspaces/api/workspaces_api.dart';
 import 'package:devplanner/workspaces/data/workspaces/repositories/workspaces_repository_impl.dart';
@@ -31,6 +34,7 @@ import 'package:devplanner/workspaces/domain/repositories/projects_repository.da
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_realtime_client.dart';
+import 'package:devplanner/workspaces/domain/storage/ports/storage_share_recipient_directory_port.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/storage_user_directory_port.dart';
 
 /// Resolves typed route dependencies and owns per-user view preference loads.
@@ -167,6 +171,19 @@ final class DevPlannerRouterDependencies {
     }
     return TaskViewRepositoryImpl(
       TaskViewsApi(transport.apiDio, baseUrl: transport.baseUrl),
+    );
+  }
+
+  StorageShareRecipientDirectoryPort?
+  get resolvedStorageShareRecipientDirectory {
+    final transport = httpTransport;
+    if (transport == null || !transport.supportsStandaloneApiClients) {
+      return null;
+    }
+    return StorageShareRecipientDirectoryAdapter(
+      ChatDirectoryRepositoryImpl(
+        ChatDirectoryApi(transport.apiDio, baseUrl: transport.baseUrl),
+      ),
     );
   }
 
