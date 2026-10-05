@@ -76,17 +76,33 @@ class _TasksHeaderLayout extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _contextRow(
-                  context,
-                  tasksTheme: tasksTheme,
+                _TasksHeaderContextRow(
+                  state: state,
+                  workspaceId: workspaceId,
+                  projectId: projectId,
+                  view: view,
+                  onViewChanged: onViewChanged,
+                  projectName: projectName,
+                  taskCount: taskCount,
+                  currentUserId: currentUserId,
+                  effectiveRole: effectiveRole,
+                  canManage: canManage,
+                  onSettingsClosed: onSettingsClosed,
+                  onProjectExited: onProjectExited,
+                  taskSearchAction: taskSearchAction,
                   width: width,
                   isNarrow: isNarrow,
                   showUtilities: showUtilities,
                 ),
                 SizedBox(height: tasksTheme.tightGap),
-                _commandRow(
-                  context,
-                  tasksTheme: tasksTheme,
+                _TasksHeaderCommandRow(
+                  state: state,
+                  workspaceId: workspaceId,
+                  projectId: projectId,
+                  view: view,
+                  currentSnapshot: currentSnapshot,
+                  commandBar: commandBar,
+                  bulkBar: bulkBar,
                   width: width,
                   isNarrow: isNarrow,
                   hasSelection: hasSelection,
@@ -140,15 +156,49 @@ class _TasksHeaderLayout extends StatelessWidget {
       ),
     );
   }
+}
 
-  /// Wiersz kontekstu: projekt, licznik, zakładki widoków, obecność, menu i CTA.
-  Widget _contextRow(
-    BuildContext context, {
-    required DevPlannerTasksTheme tasksTheme,
-    required double width,
-    required bool isNarrow,
-    required bool showUtilities,
-  }) {
+/// Kontekst projektu i akcje; tytuł zajmuje tylko potrzebną przestrzeń.
+class _TasksHeaderContextRow extends StatelessWidget {
+  const _TasksHeaderContextRow({
+    required this.state,
+    required this.workspaceId,
+    required this.projectId,
+    required this.view,
+    required this.onViewChanged,
+    required this.projectName,
+    required this.taskCount,
+    required this.currentUserId,
+    required this.effectiveRole,
+    required this.canManage,
+    required this.width,
+    required this.isNarrow,
+    required this.showUtilities,
+    this.onSettingsClosed,
+    this.onProjectExited,
+    this.taskSearchAction,
+  });
+
+  final TasksBoardReady state;
+  final String workspaceId;
+  final String projectId;
+  final TasksProjectView view;
+  final ValueChanged<TasksProjectView> onViewChanged;
+  final String projectName;
+  final int taskCount;
+  final String? currentUserId;
+  final ProjectRole? effectiveRole;
+  final bool canManage;
+  final double width;
+  final bool isNarrow;
+  final bool showUtilities;
+  final VoidCallback? onSettingsClosed;
+  final VoidCallback? onProjectExited;
+  final Widget? taskSearchAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final tasksTheme = context.tasksTheme;
     final colors = context.colors;
     final projectLabel = projectName.isNotEmpty
         ? projectName
@@ -160,7 +210,10 @@ class _TasksHeaderLayout extends StatelessWidget {
         children: [
           Icon(WorkspaceIcons.tasks, size: 18, color: colors.primary),
           SizedBox(width: tasksTheme.controlGap),
-          Flexible(
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: width < 700 ? width * .15 : 220,
+            ),
             child: Text(
               projectLabel,
               style: tasksTheme.projectTitleText.copyWith(
@@ -245,15 +298,37 @@ class _TasksHeaderLayout extends StatelessWidget {
       ),
     );
   }
+}
 
-  /// Wiersz poleceń aktywnego widoku albo jeden kontekstowy pasek akcji masowych.
-  Widget _commandRow(
-    BuildContext context, {
-    required DevPlannerTasksTheme tasksTheme,
-    required double width,
-    required bool isNarrow,
-    required bool hasSelection,
-  }) {
+/// Polecenia aktywnego widoku i akcje zaznaczenia.
+class _TasksHeaderCommandRow extends StatelessWidget {
+  const _TasksHeaderCommandRow({
+    required this.state,
+    required this.workspaceId,
+    required this.projectId,
+    required this.view,
+    required this.width,
+    required this.isNarrow,
+    required this.hasSelection,
+    this.currentSnapshot,
+    this.commandBar,
+    this.bulkBar,
+  });
+
+  final TasksBoardReady state;
+  final String workspaceId;
+  final String projectId;
+  final TasksProjectView view;
+  final double width;
+  final bool isNarrow;
+  final bool hasSelection;
+  final TaskListViewSnapshot? currentSnapshot;
+  final Widget? commandBar;
+  final Widget? bulkBar;
+
+  @override
+  Widget build(BuildContext context) {
+    final tasksTheme = context.tasksTheme;
     // Wiersz poleceń Listy opisuje kursorowy snapshot Listy, więc montujemy go
     // wyłącznie na widoku Listy; na Kanbanie jego kontrolki nie mają na co
     // działać.

@@ -4,6 +4,8 @@ import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
 import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 TasksBoardReady _createReadyState({
   Set<String> selectedTaskIds = const {},
   KanbanQuickFilter quickFilter = KanbanQuickFilter.all,
+  Map<String, ProjectMemberProfile> members = const {},
 }) => TasksBoardReady(
   board: const KanbanBoardResponse(
     projectId: 'p-1',
@@ -50,6 +53,7 @@ TasksBoardReady _createReadyState({
     quickFilter: quickFilter,
   ),
   selectedTaskIds: selectedTaskIds,
+  memberProfilesByUserId: members,
   presence: const [],
   connectionState: WorkspaceSignalRConnectionState.connected,
 );
@@ -60,8 +64,11 @@ Widget _buildHeaderTestApp({
   double textScale = 1.0,
   TasksProjectView view = TasksProjectView.board,
   ValueChanged<TasksProjectView>? onViewChanged,
+  Widget? taskSearchAction,
+  ThemeData? theme,
 }) => MaterialApp(
   locale: const Locale('pl'),
+  theme: theme,
   localizationsDelegates: const [
     AppLocalizations.delegate,
     GlobalMaterialLocalizations.delegate,
@@ -83,6 +90,7 @@ Widget _buildHeaderTestApp({
           projectId: 'p-1',
           view: view,
           onViewChanged: onViewChanged ?? (_) {},
+          taskSearchAction: taskSearchAction,
         ),
       ),
     ),
@@ -162,6 +170,38 @@ void main() {
         );
       }
     }
+
+    testWidgets('desktop exposes the complete final view tab beside search', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1250, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        _buildHeaderTestApp(
+          state: _createReadyState(
+            members: {
+              for (var i = 0; i < 24; i++)
+                'qa-$i': ProjectMemberProfile(
+                  userId: 'qa-$i',
+                  role: ProjectRole.member,
+                  displayName: 'QA person $i',
+                  isOnline: i == 0,
+                ),
+            },
+          ),
+          width: 1250,
+          theme: MaterialTheme.crm().dark(),
+          taskSearchAction: const SizedBox(width: 36, height: 32),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final lastTab = tester.getRect(find.text('Cykliczne'));
+      final viewport = tester.getRect(find.byType(TabBar));
+      expect(lastTab.right, lessThanOrEqualTo(viewport.right));
+      expect(tester.takeException(), isNull);
+    });
 
     testWidgets(
       'renderuje się poprawnie przy powiększonym tekście textScale=2.0 bez overflow',
