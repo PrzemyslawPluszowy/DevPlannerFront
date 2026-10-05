@@ -41,7 +41,12 @@ final class TaskDetailsMutationCoordinator {
     return result.fold(
       (error) => _handleError(current, error),
       (value) {
-        emitState(onSuccess(latest, value));
+        final updated = onSuccess(latest, value);
+        emitState(
+          updated.details.task.version < latest.details.task.version
+              ? latest.copyWith(isSaving: false, clearMutationError: true)
+              : updated,
+        );
         return true;
       },
     );
@@ -89,23 +94,27 @@ final class TaskDetailsMutationCoordinator {
   Future<bool> refresh(TaskDetailsReady previous) async {
     final refreshed = await _load();
     if (isClosed() || readState() is! TaskDetailsReady) return false;
+    final latest = readState();
+    if (latest is! TaskDetailsReady) return false;
     return refreshed.fold(
       (error) {
         if (_emitAccessFailure(error)) return false;
         emitState(
-          previous.copyWith(
+          latest.copyWith(
             isSaving: false,
             mutationError: error.message,
             mutationFailure: error,
-            mutationSerial: previous.mutationSerial + 1,
+            mutationSerial: latest.mutationSerial + 1,
           ),
         );
         return false;
       },
       (details) {
         emitState(
-          previous.copyWith(
-            details: details,
+          latest.copyWith(
+            details: details.task.version >= latest.details.task.version
+                ? details
+                : latest.details,
             isSaving: false,
             clearMutationError: true,
           ),
@@ -139,42 +148,51 @@ final class TaskDetailsMutationCoordinator {
         error.type == ApiErrorType.forbidden) {
       final refreshed = await _load();
       if (isClosed() || readState() is! TaskDetailsReady) return false;
+      final latest = readState();
+      if (latest is! TaskDetailsReady) return false;
       return refreshed.fold(
         (refreshError) {
           if (_emitAccessFailure(refreshError)) return false;
           emitState(
-            current.copyWith(
+            latest.copyWith(
               isSaving: false,
               mutationError: error.message,
               mutationFailure: error,
-              mutationSerial: current.mutationSerial + 1,
+              mutationSerial: latest.mutationSerial + 1,
             ),
           );
           return false;
         },
         (details) {
           emitState(
-            current.copyWith(
-              details: details,
+            latest.copyWith(
+              details: details.task.version >= latest.details.task.version
+                  ? details
+                  : latest.details.copyWith(
+                      capabilities:
+                          details.capabilities ?? latest.details.capabilities,
+                    ),
               conflictBase: error.type == ApiErrorType.conflict
-                  ? current.conflictBase ?? current.details
-                  : current.conflictBase,
+                  ? latest.conflictBase ?? current.details
+                  : latest.conflictBase,
               isSaving: false,
               mutationError: error.message,
               mutationFailure: error,
-              mutationSerial: current.mutationSerial + 1,
+              mutationSerial: latest.mutationSerial + 1,
             ),
           );
           return false;
         },
       );
     }
+    final latest = readState();
+    if (latest is! TaskDetailsReady) return false;
     emitState(
-      current.copyWith(
+      latest.copyWith(
         isSaving: false,
         mutationError: error.message,
         mutationFailure: error,
-        mutationSerial: current.mutationSerial + 1,
+        mutationSerial: latest.mutationSerial + 1,
       ),
     );
     return false;

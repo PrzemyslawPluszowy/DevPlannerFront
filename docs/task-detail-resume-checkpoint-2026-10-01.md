@@ -1286,3 +1286,17 @@ Front33e2183f72a121f5bf806fee8625169e65592f0e commit/pushmain [skip ci] exit0. D
 ## 2026-10-05 — wyścigi Kanbanu opublikowane
 
 Front Wasm33e2183f72a121f5bf806fee8625169e65592f0e: skrypt exit0, build191,2s, publiczny version.json dokładny SHA, main.dart.wasm HTTP2009767756B, /workspacesSPAbootstrap zgodny. Backend readiness Healthy po publikacji; kod Backendu bez zmiany. Log /tmp/devplanner-board-races-wasm-deploy-2026-10-05.log. Obie regresje przed naprawą FAIL;56testów PASS i analyzer No issues found137,1s po naprawie. Runtime funkcja/UX/UI NOT RUN; nie zalicza DnD/loadera całego nagłówka ani suwaka Listy. Pozostałe C12/C13, Office i pełny zakres nadal otwarte.
+
+## 2026-10-05 — pakiet ochrony nowszego stanu modala (lokalny)
+
+TaskDetailsMutationCoordinator.refresh i _handleError zachowują najnowszy stan po await oraz nie cofają agregatu do niższej wersji. Baza konfliktu pozostaje snapshotem sprzed nieudanego zapisu (test v1), podczas gdy bieżące dane pozostają v4. Trzy regresje przed naprawą FAIL (refresh, conflict, forbidden: Expected4 Actual2), po naprawie cały task_details_cubit_test.dart35PASS; gitdiffcheckclean. Pliki: Front/lib/workspaces/presentation/tasks/detail/cubit/task_details_mutation_coordinator.dart i Front/test/workspaces/presentation/tasks/task_details_cubit_test.dart. Logi /tmp/devplanner-modal-refresh-before.log, /tmp/devplanner-modal-errors-before.log, /tmp/devplanner-modal-errors-after.log. API/DTO/enumy bez zmian; flutter-state-management zastosowany bez migracji architektury.
+
+Pełny analyzer nadal działa w sesji71910 (/tmp/devplanner-modal-races-analyze.log); potwierdzono żywy proces, nie uruchamiać ponownie tylko z powodu braku wyniku. Brak publikacji/commit tego pakietu; staging33e2183. Następny krok: odebrać wynik analyzera, ocenić pokrewną ścieżkę sukcesu mutacji przy równoległym ACL, następnie commit/push [skip ci], wspólna publikacja Wasm oraz potwierdzenie wersji i manualny retest. Pełny zakres modala/chat/files/Office/obecności i odbioru wizualnego pozostaje otwarty.
+
+## 2026-10-05 — końcowe testy czterech wyścigów modala
+
+TaskDetailsMutationCoordinator obejmuje refresh, konflikt, forbidden i udany zapis. Każda regresja odtworzona przed poprawką (v4 cofnięte do v2). Końcowy task_details_cubit_test.dart36PASS, sesja6404 exit0, log/tmp/devplanner-modal-races-final-tests.log; diffcheckclean. Sukces z niższą wersją nie cofa nowszego agregatu, kończy isSaving i czyści błąd; wynik aktualny i osobiste akcje bez zwiększenia wersji nadal stosują assembler. Pełny analyzer71910 nadal aktywny, potwierdzony proces potomny language-server zużywa CPU; nie restartować tylko na podstawie długości oczekiwania. Brak commit/publikacji pakietu; staging33e2183. Bramka analyzer oraz późniejszy manualny odbiór pozostają otwarte.
+
+## 2026-10-05 — końcowy ACL i wynik pełnego analyzera
+
+Końcowy task_details_cubit_test.dart36PASS, sesja85528exit0 (/tmp/devplanner-modal-acl-final.log), obejmuje odbierane canEdit wraz z zachowaniem v4 oraz bazę konfliktu v1. Pełny flutter analyze71910exit1 po860,4s: jedynie dwa identyczne zgłoszenia directives_ordering w nowym imporcie testu; brak innych zgłoszeń. Importy uporządkowano. Kontrola obu zmienionych plików dart analyze uruchomiona w sesji22789 (/tmp/devplanner-modal-races-focused-analyze.log); wynik do odczytu. Nie deklarować pełnego analyzer clean — historyczny wynik to exit1; po korekcie potwierdzić lokalny zakres kontroli. Brak commit/deploy pakietu, staging33e2183.

@@ -13,6 +13,8 @@ import 'package:devplanner/workspaces/domain/repositories/task_metadata_reposito
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_basic_mutation_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_mutation_coordinator.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_response_assembler.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -432,6 +434,141 @@ ProjectTaskDetailsResponse _details() => ProjectTaskDetailsResponse(
 );
 
 void main() {
+  test('mutation refresh preserves a newer access refresh snapshot', () async {
+    final original = _details();
+    final pending = Completer<Either<ApiError, ProjectTaskDetailsResponse>>();
+    final repository = _TasksRepository(Right(original))
+      ..getReplies.add(pending.future);
+    TaskDetailsState state = TaskDetailsReady(original);
+    final coordinator = TaskDetailsMutationCoordinator(
+      repository: repository,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+      emitState: (next) => state = next,
+      isClosed: () => false,
+      readState: () => state,
+    );
+    final refreshing = coordinator.refresh(state as TaskDetailsReady);
+    final newer = original.copyWith(
+      task: original.task.copyWith(version: 4, title: 'Latest task'),
+    );
+    state = TaskDetailsReady(newer);
+    pending.complete(
+      Right(
+        original.copyWith(
+          task: original.task.copyWith(version: 2),
+        ),
+      ),
+    );
+    expect(await refreshing, isTrue);
+    expect((state as TaskDetailsReady).details.task.version, 4);
+    expect((state as TaskDetailsReady).details.task.title, 'Latest task');
+  });
+
+  for (final errorType in [ApiErrorType.conflict, ApiErrorType.forbidden]) {
+    test('late $errorType recovery preserves newer task data', () async {
+      final original = _details();
+      final pending = Completer<Either<ApiError, ProjectTaskDetailsResponse>>();
+      final repository = _TasksRepository(Right(original))
+        ..getReplies.add(pending.future);
+      final initial = TaskDetailsReady(original);
+      TaskDetailsState state = initial;
+      final coordinator = TaskDetailsMutationCoordinator(
+        repository: repository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+        emitState: (next) => state = next,
+        isClosed: () => false,
+        readState: () => state,
+      );
+      final error = ApiError(type: errorType, message: 'Save rejected');
+      final saving = coordinator.execute<int>(
+        current: initial,
+        operation: Future.value(Left(error)),
+        onSuccess: (current, _) => current,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(repository.getCalls, 1);
+      state = TaskDetailsReady(
+        original.copyWith(
+          task: original.task.copyWith(version: 4, title: 'Latest task'),
+        ),
+      );
+      pending.complete(
+        Right(
+          original.copyWith(
+            task: original.task.copyWith(version: 2),
+            capabilities: const TaskCapabilitiesResponse(
+              canEdit: false,
+              canArchive: false,
+              canRestore: false,
+            ),
+          ),
+        ),
+      );
+      expect(await saving, isFalse);
+      final ready = state as TaskDetailsReady;
+      expect(ready.details.task.version, 4);
+      expect(ready.details.task.title, 'Latest task');
+      expect(ready.mutationFailure, error);
+      expect(ready.canEdit, isFalse);
+      if (errorType == ApiErrorType.conflict) {
+        expect(ready.conflictBase?.task.version, 1);
+      }
+    });
+  }
+
+  test(
+    'late successful mutation does not roll back a newer snapshot',
+    () async {
+      final original = _details();
+      final pending =
+          Completer<
+            Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>
+          >();
+      final initial = TaskDetailsReady(original);
+      TaskDetailsState state = initial;
+      final coordinator = TaskDetailsMutationCoordinator(
+        repository: _TasksRepository(Right(original)),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+        emitState: (next) => state = next,
+        isClosed: () => false,
+        readState: () => state,
+      );
+      final saving = coordinator
+          .execute<TaskMutationResponse<ProjectTaskResponse>>(
+            current: initial,
+            operation: pending.future,
+            onSuccess:
+                const TaskDetailsResponseAssembler().withProjectTaskMutation,
+          );
+      state = TaskDetailsReady(
+        original.copyWith(
+          task: original.task.copyWith(version: 4, title: 'Latest task'),
+        ),
+      );
+      pending.complete(
+        Right(
+          TaskMutationResponse(
+            taskId: original.task.id,
+            taskVersion: 2,
+            taskUpdatedAtUtc: original.task.updatedAtUtc,
+            data: original.task.copyWith(version: 2),
+          ),
+        ),
+      );
+      expect(await saving, isTrue);
+      final ready = state as TaskDetailsReady;
+      expect(ready.details.task.version, 4);
+      expect(ready.details.task.title, 'Latest task');
+      expect(ready.isSaving, isFalse);
+    },
+  );
+
   test('inline priority uses the latest title, status and version', () async {
     final latest = _details().copyWith(
       task: _details().task.copyWith(
