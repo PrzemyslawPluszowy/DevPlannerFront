@@ -5,9 +5,13 @@ import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_cl
 import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
+import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/chrome/task_list_command_bar.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_state.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/task_list_preferences_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +70,7 @@ Widget _buildHeaderTestApp({
   ValueChanged<TasksProjectView>? onViewChanged,
   Widget? taskSearchAction,
   ThemeData? theme,
+  Widget? commandBar,
 }) => MaterialApp(
   locale: const Locale('pl'),
   theme: theme,
@@ -91,6 +96,7 @@ Widget _buildHeaderTestApp({
           view: view,
           onViewChanged: onViewChanged ?? (_) {},
           taskSearchAction: taskSearchAction,
+          commandBar: commandBar,
         ),
       ),
     ),
@@ -101,6 +107,46 @@ void main() {
   setUp(() {
     FlutterError.onError = null;
   });
+
+  for (final width in [360.0, 768.0, 1250.0]) {
+    testWidgets('List command actions fit actual header at $width', (
+      tester,
+    ) async {
+      tester.view.physicalSize = Size(width, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        _buildHeaderTestApp(
+          state: _createReadyState(),
+          width: width,
+          view: TasksProjectView.list,
+          theme: MaterialTheme.crm().dark(),
+          commandBar: const TaskListCommandBar(
+            listState: ProjectTasksListReady(
+              tasks: [],
+              status: ProjectTaskStatus.done,
+              priority: TaskPriority.critical,
+              assigneeUserId: null,
+              myInvolvement: null,
+              unassignedOnly: false,
+              nextCursor: null,
+            ),
+            preferencesState: TaskListPreferencesLoading(),
+            memberProfiles: {},
+            hasCustomWorkflow: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      for (final key in ['command_columns', 'command_clear_filters']) {
+        final action = find.byKey(ValueKey(key));
+        expect(action.hitTestable(), findsOneWidget);
+        expect(tester.getRect(action).right, lessThanOrEqualTo(width));
+      }
+    });
+  }
 
   group('TasksHeader - Responsywność i hierarchia', () {
     // Zakres desktopowy z planu (§3.2) plus wąskie okna dla odporności układu.

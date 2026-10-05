@@ -16,15 +16,18 @@ import 'package:material_symbols_icons/symbols.dart';
 class TaskListCommandBarColumnsButton extends StatelessWidget {
   const TaskListCommandBarColumnsButton({
     required this.memberProfiles,
+    this.compact = false,
     super.key,
   });
 
   final Map<String, ProjectMemberProfile> memberProfiles;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) => TasksCommandButton(
     icon: Symbols.view_column_rounded,
     label: context.l10n.tasksListColumnsTitle,
+    compact: compact,
     onTap: () => _openColumns(context),
   );
 

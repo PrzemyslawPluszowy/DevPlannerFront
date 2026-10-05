@@ -14,6 +14,15 @@ abstract final class TaskPriorityVisualHelper {
         TaskPriority.critical => context.l10n.tasksPriorityCritical,
       };
 
+  /// Krótka etykieta dla komórki pod nagłówkiem Priorytet.
+  static String compactLabel(BuildContext context, TaskPriority priority) =>
+      switch (priority) {
+        TaskPriority.low => context.l10n.workspacesTaskPriorityLow,
+        TaskPriority.normal => context.l10n.workspacesTaskPriorityNormal,
+        TaskPriority.high => context.l10n.workspacesTaskPriorityHigh,
+        TaskPriority.critical => context.l10n.workspacesTaskPriorityCritical,
+      };
+
   /// Zwraca kolor semantyczny priorytetu.
   static Color color(TaskPriority priority) => switch (priority) {
     TaskPriority.low => const Color(0xFF64748B),

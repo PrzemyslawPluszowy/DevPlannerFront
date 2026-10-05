@@ -51,6 +51,7 @@ class TasksCommandButton extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.isActive = false,
+    this.compact = false,
     this.leading,
     super.key,
   });
@@ -59,6 +60,7 @@ class TasksCommandButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final bool isActive;
+  final bool compact;
   final Widget? leading;
 
   @override
@@ -92,18 +94,20 @@ class TasksCommandButton extends StatelessWidget {
                   leading
                 else
                   Icon(icon, size: 16, color: foreground),
-                const SizedBox(width: 6),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 190),
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: tasksTheme.controlText.copyWith(color: foreground),
+                if (!compact) ...[
+                  const SizedBox(width: 6),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 190),
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: tasksTheme.controlText.copyWith(color: foreground),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 2),
-                Icon(icon, size: 12, color: colors.onSurfaceVariant),
+                  const SizedBox(width: 2),
+                  Icon(icon, size: 12, color: colors.onSurfaceVariant),
+                ],
               ],
             ),
           ),

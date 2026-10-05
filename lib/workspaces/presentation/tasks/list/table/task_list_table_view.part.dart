@@ -192,72 +192,82 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                           thumbVisibility: true,
                           trackVisibility: true,
                           interactive: true,
-                          child: SingleChildScrollView(
-                            controller: _horizontalController,
-                            scrollDirection: Axis.horizontal,
-                            child: SizedBox(
-                              width: tableWidth,
-                              child: Stack(
-                                children: [
-                                  Column(
-                                    children: [
-                                      Expanded(
-                                        child: rows.isEmpty
-                                            ? TaskListEmptyResult(
-                                                hasActiveFilters:
-                                                    state.hasActiveFilters,
-                                              )
-                                            : ListView.builder(
-                                                controller: _controller,
-                                                padding: EdgeInsets.zero,
-                                                itemCount:
-                                                    rows.length +
-                                                    (state.hasNextPage ? 1 : 0),
-                                                itemBuilder: (context, index) {
-                                                  if (index == rows.length) {
-                                                    return const SizedBox(
-                                                      height: 48,
-                                                      child: Center(
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                              strokeWidth: 2,
-                                                            ),
-                                                      ),
-                                                    );
-                                                  }
-                                                  return _buildRowItem(
-                                                    context,
-                                                    state: state,
-                                                    row: rows[index],
-                                                    visibleColumns:
-                                                        visibleColumns,
-                                                    effectiveColumnRefs:
-                                                        effectiveColumnRefs,
-                                                    customFields: customFields,
-                                                    milestones: milestones,
-                                                    canMoveBetweenGroups:
-                                                        canMoveBetweenGroups,
-                                                    resolvedPrefState:
-                                                        resolvedPrefState,
-                                                    resolvedPrefCubit:
-                                                        resolvedPrefCubit,
-                                                    openColumnSettings: () =>
-                                                        _openColumnSettings(
-                                                          context,
-                                                          resolvedPrefCubit,
-                                                          customFields,
-                                                          canManage,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              bottom: tableWidth > constraints.maxWidth
+                                  ? 12
+                                  : 0,
+                            ),
+                            child: SingleChildScrollView(
+                              controller: _horizontalController,
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(
+                                width: tableWidth,
+                                child: Stack(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Expanded(
+                                          child: rows.isEmpty
+                                              ? TaskListEmptyResult(
+                                                  hasActiveFilters:
+                                                      state.hasActiveFilters,
+                                                )
+                                              : ListView.builder(
+                                                  controller: _controller,
+                                                  padding: EdgeInsets.zero,
+                                                  itemCount:
+                                                      rows.length +
+                                                      (state.hasNextPage
+                                                          ? 1
+                                                          : 0),
+                                                  itemBuilder: (context, index) {
+                                                    if (index == rows.length) {
+                                                      return const SizedBox(
+                                                        height: 48,
+                                                        child: Center(
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                                strokeWidth: 2,
+                                                              ),
                                                         ),
-                                                  );
-                                                },
-                                              ),
-                                      ),
-                                    ],
-                                  ),
-                                  _ColumnResizeGuideOverlay(
-                                    guideNotifier: _resizeGuideNotifier,
-                                  ),
-                                ],
+                                                      );
+                                                    }
+                                                    return _buildRowItem(
+                                                      context,
+                                                      state: state,
+                                                      row: rows[index],
+                                                      visibleColumns:
+                                                          visibleColumns,
+                                                      effectiveColumnRefs:
+                                                          effectiveColumnRefs,
+                                                      customFields:
+                                                          customFields,
+                                                      milestones: milestones,
+                                                      canMoveBetweenGroups:
+                                                          canMoveBetweenGroups,
+                                                      resolvedPrefState:
+                                                          resolvedPrefState,
+                                                      resolvedPrefCubit:
+                                                          resolvedPrefCubit,
+                                                      openColumnSettings: () =>
+                                                          _openColumnSettings(
+                                                            context,
+                                                            resolvedPrefCubit,
+                                                            customFields,
+                                                            canManage,
+                                                          ),
+                                                    );
+                                                  },
+                                                ),
+                                        ),
+                                      ],
+                                    ),
+                                    _ColumnResizeGuideOverlay(
+                                      guideNotifier: _resizeGuideNotifier,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

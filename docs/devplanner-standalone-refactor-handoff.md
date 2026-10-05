@@ -10659,3 +10659,15 @@ Pełna kolejka UI pozostaje w Backend/docs/ui-testing.md; nie zaliczać całej a
 - [x] 77 testów PASS, pełny analyzer No issues (11.8 s), niezależny review bez dalszych regresji. Test filtra FAIL przed / PASS po; test rzeczywistego scrollbara potwierdza zakres i drag po zastosowaniu szerokości. UI UX Pro Max (filtered empty results), Impeccable Operate i flutter-state-management: wspólne tokeny, czytelny powrót, efekty poza build.
 - [ ] Publikacja Front Wasm i manualny retest Chrome na stagingu: filtr, brak wyników, resize/reload i poziomy suwak. Backend/HTTP/DTO/enumy bez zmian. Nie jest to odbiór całej aplikacji.
 - [ ] Dalszy zakres i rezerwacje są w Backend/docs/ui-testing.md. Audyt obejmuje funkcję, zrozumiałość dla nietechnicznej osoby i spójność wszystkich powierzchni; zauważone usterki zbierane do powiązanych pakietów.
+
+Publikacja pakietu Listy: Front `4e9a6bc363a618433eed0c79dd43caa479ffa8f1`, skrypt Wasm exit 0 (sesja 41263); version.json i SPA zgodne, main.dart.wasm HTTP200 / 9770889 B, backend readiness Healthy. Log `/tmp/devplanner-list-widths-wasm-deploy.log`. Dodatkowy finalny zestaw 14 testów flow/stanu PASS po porządkowaniu testów. Backend kod bez zmiany. Manualny retest Chrome w toku, bez dziedziczenia PASS z testów lokalnych.
+
+
+### Kolejny pakiet audytu Listy — 2026-10-05
+
+- [x] Retest4e9a6bc: Gotowe5 bez pustych grup; kombinacja Gotowe/Krytyczny daje czytelny pusty wynik, Wyczyść wszystko przywraca Listę. AX i screenshot Chrome PL/dark1513×895, funkcja/UX/UI PASS tych kroków.
+- [x] Retest wykrył dalszy FAIL szerokości po reload: zapis istnieje w PostgreSQL, efektywne API zachowuje PascalCase klucza sys:Title; tabela pomijała ten casing. Lokalnie odczyt ignoruje casing systemowych kluczy, dokładny canonical ma pierwszeństwo. Test z backendowym casing FAIL przed / PASS po.
+- [x] QA13/14: końcowe akcje Columns/Clear pozostają widoczne poza przewijaną częścią filtrów, przy małej szerokości mają ikony z nazwami tooltip. Faktyczny nagłówek ma ograniczoną szerokość Listy; Kanban bez zmiany. Tekst priorytetów z tokenu onSurface, kolor semantyczny nadal w akcencie, ikona low z onSurfaceVariant.
+- [x] QA10: Chrome bez nakładki dostępności suwak działa, z nakładką otwiera wiersz pod paskiem. Lokalnie 12px osobny pas przy overflow wyłącza wiersze z tego obszaru. Test potwierdza rozdzielenie viewportu i drag. Runtime retest obu wariantów wymagany.
+- [x] 38 testów finalnych PASS: realny header360/768/1250, bar360/768/1000/1250, kontrast wszystkich priorytetów light/dark, flow/resize/scroll. Niezależny review naprawionej kompozycji bez dalszych regresji; review dolnego pasa czysty; pełny analyzer No issues (42.8 s). Po skróceniu etykiet: 8 testów dopasowania/kontrastu PASS, focused analyzer trzech plików No issues, niezależny review czysty. Pełna nazwa pozostaje w tooltip i semantyce, krótkie PL/EN nazwy z istniejących lokalizacji.
+- [ ] Commit/push [skip ci], jedna publikacja Wasm i dokładny retest Chrome staging. Backend/DTO/HTTP/serializacja/transportowe enumy bez zmian; zmiany prezentacji istniejących kluczy szerokości. Szerszy modal/chat/Office i warianty pozostają w centralnej kolejce.

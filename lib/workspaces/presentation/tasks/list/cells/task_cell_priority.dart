@@ -30,56 +30,65 @@ class TaskCellPriority extends StatelessWidget {
     final icon = TaskPriorityVisualHelper.icon(priority);
     final label = TaskPriorityVisualHelper.label(context, priority);
 
-    return Builder(
-      builder: (cellContext) => SizedBox(
-        width: TaskListGrid.priority,
-        child: Padding(
-          padding: const .symmetric(horizontal: Sizes.p8, vertical: Sizes.p6),
-          child: InkWell(
-            borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
-            onTap: onChanged == null
-                ? null
-                : () => unawaited(
-                    TaskPriorityPicker.show(
-                      cellContext,
-                      selected: priority,
-                      onChanged: onChanged!,
-                    ),
-                  ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.14),
-                borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
-                border: Border.all(
-                  color: color.withValues(alpha: 0.4),
-                  width: 0.8,
-                ),
-              ),
-              child: Padding(
-                padding: const .symmetric(horizontal: Sizes.p6),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: .min,
-                    mainAxisAlignment: .center,
-                    children: [
-                      Icon(
-                        icon,
-                        size: 14,
-                        color: color,
+    return Tooltip(
+      message: label,
+      child: Builder(
+        builder: (cellContext) => SizedBox(
+          width: TaskListGrid.priority,
+          child: Padding(
+            padding: const .symmetric(horizontal: Sizes.p8, vertical: Sizes.p6),
+            child: InkWell(
+              borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
+              onTap: onChanged == null
+                  ? null
+                  : () => unawaited(
+                      TaskPriorityPicker.show(
+                        cellContext,
+                        selected: priority,
+                        onChanged: onChanged!,
                       ),
-                      const SizedBox(width: Sizes.p4),
-                      Flexible(
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.text.labelSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: color,
+                    ),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.14),
+                  borderRadius: const BorderRadius.all(.circular(Sizes.p4)),
+                  border: Border.all(
+                    color: color.withValues(alpha: 0.4),
+                    width: 0.8,
+                  ),
+                ),
+                child: Padding(
+                  padding: const .symmetric(horizontal: Sizes.p6),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: .min,
+                      mainAxisAlignment: .center,
+                      children: [
+                        Icon(
+                          icon,
+                          size: 14,
+                          color: priority == TaskPriority.low
+                              ? context.colors.onSurfaceVariant
+                              : color,
+                        ),
+                        const SizedBox(width: Sizes.p4),
+                        Flexible(
+                          child: Text(
+                            TaskPriorityVisualHelper.compactLabel(
+                              context,
+                              priority,
+                            ),
+                            semanticsLabel: label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.text.labelSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: context.colors.onSurface,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

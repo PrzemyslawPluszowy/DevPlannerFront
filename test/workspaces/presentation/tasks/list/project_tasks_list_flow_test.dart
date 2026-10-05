@@ -284,7 +284,7 @@ void main() {
           workspaceId: 'w-1',
           projectId: 'p-1',
           effectiveVisibleColumns: ['sys:key', 'sys:title'],
-          effectiveColumnWidths: {'sys:key': 90, 'sys:title': 1000},
+          effectiveColumnWidths: {'sys:Key': 90, 'sys:Title': 1000},
           availableColumns: ['sys:key', 'sys:title'],
           requiredColumns: ['sys:title'],
           sortField: TaskSavedViewSortField.position,
@@ -349,6 +349,10 @@ void main() {
     expect(scrollbarFinder, findsOneWidget);
     final scrollbar = tester.widget<Scrollbar>(scrollbarFinder);
     final rect = tester.getRect(scrollbarFinder);
+    final rowsViewport = tester.getRect(
+      find.descendant(of: scrollbarFinder, matching: find.byType(ListView)),
+    );
+    expect(rowsViewport.bottom, lessThanOrEqualTo(rect.bottom - 12));
     final start = Offset(rect.left + 50, rect.bottom - 3);
     expect(scrollbar.controller!.position.maxScrollExtent, greaterThan(0));
     await tester.dragFrom(

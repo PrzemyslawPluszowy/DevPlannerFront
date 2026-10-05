@@ -226,9 +226,16 @@ class _TaskListTableState extends State<TaskListTable> {
       ..clear()
       ..addAll(state.columnWidths);
     _columnWidths.clear();
+    final caseInsensitiveWidths = {
+      for (final entry in state.columnWidths.entries)
+        entry.key.toLowerCase(): entry.value,
+    };
     for (final column in TaskSavedViewColumn.values) {
       final id = TaskColumnReference.system(column).id;
-      final width = state.columnWidths[id] ?? state.columnWidths[column.name];
+      final width =
+          state.columnWidths[id] ??
+          caseInsensitiveWidths[id.toLowerCase()] ??
+          caseInsensitiveWidths[column.name.toLowerCase()];
       if (width != null) {
         _columnWidths[column] = width;
         _columnWidthsById[id] = width;

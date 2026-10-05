@@ -342,6 +342,15 @@ class _TasksHeaderCommandRow extends StatelessWidget {
                   state: state,
                   isCompact: isNarrow,
                 ))
+          : listCommandBar != null
+          ? _TasksHeaderListCommandRow(
+              commandBar: listCommandBar,
+              workspaceId: workspaceId,
+              projectId: projectId,
+              width: width,
+              currentSnapshot: currentSnapshot,
+              memberProfiles: state.memberProfilesByUserId,
+            )
           : SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -376,13 +385,42 @@ class _TasksHeaderCommandRow extends StatelessWidget {
                     currentSnapshot: currentSnapshot,
                     memberProfiles: state.memberProfilesByUserId,
                   ),
-                  if (listCommandBar case final listCommandBar?) ...[
-                    SizedBox(width: tasksTheme.controlGap),
-                    listCommandBar,
-                  ],
                 ],
               ),
             ),
     );
   }
+}
+
+class _TasksHeaderListCommandRow extends StatelessWidget {
+  const _TasksHeaderListCommandRow({
+    required this.commandBar,
+    required this.workspaceId,
+    required this.projectId,
+    required this.width,
+    required this.currentSnapshot,
+    required this.memberProfiles,
+  });
+
+  final Widget commandBar;
+  final String workspaceId;
+  final String projectId;
+  final double width;
+  final TaskListViewSnapshot? currentSnapshot;
+  final Map<String, ProjectMemberProfile> memberProfiles;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      _TaskSavedViewsMenu(
+        compact: width < 1300,
+        workspaceId: workspaceId,
+        projectId: projectId,
+        currentSnapshot: currentSnapshot,
+        memberProfiles: memberProfiles,
+      ),
+      SizedBox(width: context.tasksTheme.controlGap),
+      Expanded(child: commandBar),
+    ],
+  );
 }
