@@ -17042,6 +17042,18 @@ abstract class AppLocalizations {
   /// **'Clear selection'**
   String get storageClearSelection;
 
+  /// No description provided for @storageFilteredEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching files'**
+  String get storageFilteredEmptyTitle;
+
+  /// No description provided for @storageFilteredEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change or clear the filters to see your files again.'**
+  String get storageFilteredEmptySubtitle;
+
   /// No description provided for @storageEmptyTitle.
   ///
   /// In en, this message translates to:
@@ -17309,7 +17321,7 @@ abstract class AppLocalizations {
   /// No description provided for @storageUserSearchWorkspaceRequired.
   ///
   /// In en, this message translates to:
-  /// **'Local directory search is available for workspace or project files.'**
+  /// **'The owner filter is available in workspace or project files.'**
   String get storageUserSearchWorkspaceRequired;
 
   /// No description provided for @storageUserSearchNoResults.
@@ -18749,12 +18761,8 @@ abstract class AppLocalizations {
   /// No description provided for @resourceChatFileHeader.
   ///
   /// In en, this message translates to:
-  /// **'File: {fileName} · Owner: {ownerUserId} · Access: {accessLevel}'**
-  String resourceChatFileHeader(
-    String fileName,
-    String ownerUserId,
-    String accessLevel,
-  );
+  /// **'File: {fileName}'**
+  String resourceChatFileHeader(String fileName);
 
   /// No description provided for @chatDiscussionTitle.
   ///

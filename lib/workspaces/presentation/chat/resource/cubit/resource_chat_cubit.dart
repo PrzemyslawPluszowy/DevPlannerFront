@@ -62,6 +62,7 @@ final class ResourceChatCubit extends Cubit<ResourceChatState> {
           conversation: conversation,
           openRequest: ResourceChatOpenRequest(
             conversationId: conversation.id,
+            conversation: conversation,
             fileContext: request.fileContext,
           ),
         ),

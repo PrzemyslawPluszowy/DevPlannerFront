@@ -9574,6 +9574,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageClearSelection => 'Wyczyść zaznaczenie';
 
   @override
+  String get storageFilteredEmptyTitle => 'Brak pasujących plików';
+
+  @override
+  String get storageFilteredEmptySubtitle =>
+      'Zmień filtry lub je wyczyść, aby ponownie zobaczyć pliki.';
+
+  @override
   String get storageEmptyTitle => 'Katalog jest pusty';
 
   @override
@@ -9725,7 +9732,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageUserSearchWorkspaceRequired =>
-      'Wyszukiwanie lokalnego katalogu jest dostępne dla plików workspace lub projektu.';
+      'Filtr właściciela jest dostępny w plikach zespołu lub projektu.';
 
   @override
   String get storageUserSearchNoResults =>
@@ -10564,12 +10571,8 @@ class AppLocalizationsPl extends AppLocalizations {
       'Otwórz autoryzowaną rozmowę dotyczącą tego udostępnionego pliku.';
 
   @override
-  String resourceChatFileHeader(
-    String fileName,
-    String ownerUserId,
-    String accessLevel,
-  ) {
-    return 'Plik: $fileName · Właściciel: $ownerUserId · Dostęp: $accessLevel';
+  String resourceChatFileHeader(String fileName) {
+    return 'Plik: $fileName';
   }
 
   @override

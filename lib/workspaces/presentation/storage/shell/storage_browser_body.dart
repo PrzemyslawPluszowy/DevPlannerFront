@@ -61,7 +61,11 @@ final class _StorageBrowserBodyState extends State<StorageBrowserBody> {
           StorageBrowserInitial() || StorageBrowserLoading() => const Center(
             child: CircularProgressIndicator(),
           ),
-          StorageBrowserEmpty() => const StorageEmptyView(),
+          StorageBrowserEmpty(:final filter, :final searchQuery) =>
+            StorageEmptyView(
+              filtered:
+                  filter.hasActiveFilters || (searchQuery?.isNotEmpty ?? false),
+            ),
           // Błąd zakresu należy do trwałego bannera w chrome'ie: on pokazuje
           // komunikat, kod, traceId oraz Ponów i Odśwież. Ciało nie powtarza
           // tego samego komunikatu drugi raz.

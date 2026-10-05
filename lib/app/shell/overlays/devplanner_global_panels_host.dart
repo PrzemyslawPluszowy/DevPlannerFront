@@ -37,6 +37,7 @@ import 'package:devplanner/workspaces/presentation/chat/global_chat_composition.
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_unread_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/links/chat_external_link_port.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/cubit/chat_panel_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/layout/chat_panel_size.dart';
 import 'package:devplanner/workspaces/presentation/notifications/global_notifications_composition.dart';
 import 'package:devplanner/workspaces/presentation/notifications/global_notifications_page.dart';
@@ -541,6 +542,12 @@ final class _DevPlannerGlobalPanelsHostState
         repository: composition.repository,
         onClose: _controller.close,
         initialConversationId: request?.conversationId,
+        openIntentToken: request,
+        initialSelection: request?.resourceRequest == null
+            ? null
+            : ChatPanelSelection(
+                conversation: request!.resourceRequest!.conversation,
+              ),
         inboxCubit: _chatInboxCubit,
         inboxPresenceRepository: composition.inboxPresenceRepository,
         presenceUserId: composition.userId,

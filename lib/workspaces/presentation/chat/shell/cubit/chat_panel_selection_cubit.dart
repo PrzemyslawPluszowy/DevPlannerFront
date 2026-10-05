@@ -57,6 +57,7 @@ final class ChatPanelSelectionCubit extends Cubit<ChatPanelSelection?> {
     String? targetMessageId,
     String? role,
   }) {
+    _pendingConversationId = null;
     if (state?.conversation == conversation &&
         state?.targetMessageId == targetMessageId &&
         state?.role == role) {
@@ -73,12 +74,23 @@ final class ChatPanelSelectionCubit extends Cubit<ChatPanelSelection?> {
 
   /// Wraca z treści rozmowy do listy skrótów panelu.
   void clear() {
+    _pendingConversationId = null;
     if (state == null) return;
     emit(null);
   }
 
+  /// Nowa intencja z zewnętrznego zasobu, bez kasowania stanu innych paneli.
+  void requestConversation(String id) {
+    if (isClosed || state?.conversation.id == id) return;
+    _pendingConversationId = id;
+    if (state != null) emit(null);
+  }
+
   /// Odtwarza zapamiętany wybór dopiero po załadowaniu listy rozmów.
-  void restoreFrom(List<ChatConversation> conversations) {
+  void restoreFrom(
+    List<ChatConversation> conversations, {
+    Map<String, String> roles = const {},
+  }) {
     if (state != null) return;
     final conversationId = _pendingConversationId;
     if (conversationId == null) return;
@@ -88,6 +100,6 @@ final class ChatPanelSelectionCubit extends Cubit<ChatPanelSelection?> {
     );
     if (match == null) return;
     _pendingConversationId = null;
-    emit(ChatPanelSelection(conversation: match));
+    emit(ChatPanelSelection(conversation: match, role: roles[match.id]));
   }
 }

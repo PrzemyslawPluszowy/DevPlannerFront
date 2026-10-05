@@ -195,8 +195,6 @@ final class _ResourceChatHeader extends StatelessWidget {
       child: Text(
         buildContext.l10n.resourceChatFileHeader(
           context.fileName,
-          context.ownerUserId,
-          context.accessLevel,
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

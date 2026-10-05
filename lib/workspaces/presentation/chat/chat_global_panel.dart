@@ -9,6 +9,7 @@ import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_co
 import 'package:devplanner/workspaces/domain/chat/search/chat_search_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/chat_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/chat_drawer_content.dart';
+import 'package:devplanner/workspaces/presentation/chat/chat_panel_open_intent_sync.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/inbox/cubit/chat_inbox_presence_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/search/cubit/chat_search_cubit.dart';
@@ -29,6 +30,7 @@ class AppGlobalChatPanel extends StatelessWidget {
     this.onConversationSelected,
     this.initialConversationId,
     this.initialSelection,
+    this.openIntentToken,
     this.inboxCubit,
     this.inboxPresenceRepository,
     this.presenceUserId,
@@ -49,6 +51,7 @@ class AppGlobalChatPanel extends StatelessWidget {
   final ValueChanged<String>? onConversationSelected;
   final String? initialConversationId;
   final ChatPanelSelection? initialSelection;
+  final Object? openIntentToken;
 
   /// Host sesji może współdzielić inbox pomiędzy otwartym panelem i hubem.
   final ChatInboxCubit? inboxCubit;
@@ -122,22 +125,27 @@ class AppGlobalChatPanel extends StatelessWidget {
             },
           ),
         ],
-        child: _ChatGlobalPanelSurface(
-          repository: repository,
-          onClose: onClose,
-          onConversationSelected: onConversationSelected,
-          resourceConversationId: resourceConversationId,
-          resourceContext: resourceContext,
-          onResourceContextDismissed: onResourceContextDismissed,
-          realtimeFactory: realtimeFactory,
-          pinned: pinned,
-          canPin: canPin,
-          onTogglePin: onTogglePin,
-          fillAvailableWidth: fillAvailableWidth,
-          inboxPresenceRepository: inboxPresenceRepository,
-          presenceUserId: presenceUserId,
-          authSession: authSession,
-          presenceAvailability: presenceAvailability,
+        child: ChatPanelOpenIntentSync(
+          intentToken: openIntentToken,
+          initialConversationId: initialConversationId,
+          initialSelection: initialSelection,
+          child: _ChatGlobalPanelSurface(
+            repository: repository,
+            onClose: onClose,
+            onConversationSelected: onConversationSelected,
+            resourceConversationId: resourceConversationId,
+            resourceContext: resourceContext,
+            onResourceContextDismissed: onResourceContextDismissed,
+            realtimeFactory: realtimeFactory,
+            pinned: pinned,
+            canPin: canPin,
+            onTogglePin: onTogglePin,
+            fillAvailableWidth: fillAvailableWidth,
+            inboxPresenceRepository: inboxPresenceRepository,
+            presenceUserId: presenceUserId,
+            authSession: authSession,
+            presenceAvailability: presenceAvailability,
+          ),
         ),
       ),
     );

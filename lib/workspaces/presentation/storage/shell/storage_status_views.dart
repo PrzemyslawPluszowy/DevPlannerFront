@@ -11,7 +11,9 @@ import 'package:flutter/material.dart';
 /// operacji na jednym ekranie to zaproszenie do rozjazdu ich bramkowania.
 final class StorageEmptyView extends StatelessWidget {
   /// Tworzy widok pustego katalogu.
-  const StorageEmptyView({super.key});
+  const StorageEmptyView({this.filtered = false, super.key});
+
+  final bool filtered;
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +33,17 @@ final class StorageEmptyView extends StatelessWidget {
             ),
             SizedBox(height: common.rowGutter),
             Text(
-              context.l10n.storageEmptyTitle,
+              filtered
+                  ? context.l10n.storageFilteredEmptyTitle
+                  : context.l10n.storageEmptyTitle,
               textAlign: TextAlign.center,
               style: common.projectTitleText.copyWith(color: colors.onSurface),
             ),
             SizedBox(height: common.tightGap),
             Text(
-              context.l10n.storageEmptySubtitle,
+              filtered
+                  ? context.l10n.storageFilteredEmptySubtitle
+                  : context.l10n.storageEmptySubtitle,
               textAlign: TextAlign.center,
               style: common.dataText.copyWith(color: colors.onSurfaceVariant),
             ),
