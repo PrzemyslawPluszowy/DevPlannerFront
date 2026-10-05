@@ -11,6 +11,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cub
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_artwork.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_grid_name.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_item_selection_checkbox.dart';
 import 'package:devplanner/workspaces/presentation/storage/shared/storage_formatters.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
@@ -56,9 +57,14 @@ class StorageFileGrid extends StatelessWidget {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 200,
-            mainAxisExtent: 160,
+            mainAxisExtent:
+                180 +
+                (MediaQuery.textScalerOf(context).scale(12) - 12)
+                        .clamp(0, double.infinity)
+                        .toDouble() *
+                    4,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
@@ -139,6 +145,13 @@ class _FileGridCard extends StatelessWidget {
                         child: StorageFileArtwork(
                           file: file,
                           size: 72,
+                          actionLabel:
+                              (file.isDeleted ||
+                                      (!file.canEditOnline &&
+                                          !file.canPreview)) &&
+                                  onOpenFileDetails != null
+                              ? context.l10n.storageDetailsTitle
+                              : null,
                           onTap: () => _openFile(context, file),
                         ),
                       ),
@@ -163,10 +176,8 @@ class _FileGridCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        file.originalFileName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      StorageGridName(
+                        name: file.originalFileName,
                         style: context.text.bodySmall?.copyWith(
                           fontWeight: FontWeight.w500,
                         ),

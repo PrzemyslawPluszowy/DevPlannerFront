@@ -101,6 +101,12 @@ class StorageFileRows extends StatelessWidget {
                   StorageFileArtwork(
                     file: file,
                     size: 36,
+                    actionLabel:
+                        (file.isDeleted ||
+                                (!file.canEditOnline && !file.canPreview)) &&
+                            onOpenFileDetails != null
+                        ? context.l10n.storageDetailsTitle
+                        : null,
                     onTap: () {
                       if (file.canEditOnline && !file.isDeleted) {
                         unawaited(

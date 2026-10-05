@@ -10737,3 +10737,12 @@ Opcjonalne `targetDisplayName` jest generowane w modelu i renderowane zamiast UU
 starszy JSON ma null z czytelnym stanem niedostępności. Front25PASS i Backend10PASS.
 Wspólny final analyzer należy do końcowego pakietu root. Deploy/Chrome NOT RUN;
 OpenAPI i HTTP fixture5440 blocked, nie oznaczać PASS.
+
+
+2026-10-05: QA26–28 opublikowane Frontc405a75/Backend640ce36; manualny Chrome retest częściowy PASS (nazwy grantów, checkboxy, menu, liczniki, kosz). Nowy QA30 ZIP FAIL potwierdzony logiem Kestrel sync write; następny pakiet QA29/30 w przygotowaniu. Szczegółowy aktualny zakres, dowody i NOT RUN: Backend/docs/ui-testing.md. Pełny audyt pozostaje aktywny.
+
+
+### QA29/30/32 — końcowe bramki kodu i review, 2026-10-05
+
+Front: byteserrorparser40PASS; accessibility/filter/grid/sort4PASS; storage_repository12PASS po naprawie nieaktualnego mocka parentFolderId (produkcja bez zmiany). Pełny analyzer Noissues27.5s. Pełny fluttertest2476PASS/25FAIL4m11s:1mocknaprawiony,20taskgoldens+1recurrencystaletext+3storagegoldens powtórzone na izolowanym eksporcie poprzedniego c405a75 i potwierdzone jako istniejące wcześniej; Storage3testImage byteidenticalSHA256 do aktualnego, modaltestImage również zgodne. Fullgate nadal FAIL, nie przegenerowano referencji. Własne18tracked obrazy wygenerowane przez test zachowane w /tmp/devplanner-qa29-fulltest-captures, checkout tych obrazów przywrócony; nie trafiają do commita.
+Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.log, /tmp/devplanner-qa29-storage-golden-baseline.log, /tmp/devplanner-qa29-task-golden-baseline.log, /tmp/devplanner-qa29-rows-baseline.log. Niezależny review storage_personal_sharing bez blokujących regresji. Backend73/73PASS/build/format/EFscriptPASS; kod commit e27db3b, publikacja w toku. PublikacjaFrontu i manualny odbiór nowychpoprawek NOT RUN. Kolejna luka kontraktu QA31folderrecovery pozostaje do naprawy; aktualny pakiet jej nie implementuje.

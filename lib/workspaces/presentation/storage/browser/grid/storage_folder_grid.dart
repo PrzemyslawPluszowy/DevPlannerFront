@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
@@ -7,6 +8,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storag
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_actions_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_grid_name.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_item_selection_checkbox.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
@@ -48,11 +50,16 @@ class StorageFolderGrid extends StatelessWidget {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 220,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            mainAxisExtent: 76,
+            mainAxisExtent:
+                104 +
+                (MediaQuery.textScalerOf(context).scale(12) - 12)
+                        .clamp(0, double.infinity)
+                        .toDouble() *
+                    4,
           ),
           itemCount: folders.length,
           itemBuilder: (context, index) {
@@ -156,10 +163,8 @@ class _FolderCard extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  folder.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                StorageGridName(
+                                  name: folder.name,
                                   style: context.text.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w500,
                                   ),

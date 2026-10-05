@@ -226,6 +226,7 @@ void main() {
       final root = sampleFolder.copyWith(id: 'root');
       when(
         () => api.listFolders(
+          parentFolderId: 'parent',
           folderType: 'Personal',
         ),
       ).thenAnswer((_) async => [root, child]);
@@ -239,7 +240,33 @@ void main() {
         (error) => fail(error.message),
         (folders) => expect(folders.map((folder) => folder.id), ['child']),
       );
+      verify(
+        () => api.listFolders(parentFolderId: 'parent', folderType: 'Personal'),
+      ).called(1);
     });
+
+    test(
+      'listFolders bez parentFolderId odczytuje wyłącznie foldery główne',
+      () async {
+        final child = sampleFolder.copyWith(
+          id: 'child',
+          parentFolderId: 'parent',
+        );
+        final root = sampleFolder.copyWith(id: 'root');
+        when(() => api.listFolders(folderType: 'Personal'))
+            .thenAnswer((_) async => [root, child]);
+
+        final result = await repository.listFolders(
+          scope: const StorageScope.personal(),
+        );
+
+        result.fold(
+          (error) => fail(error.message),
+          (folders) => expect(folders.map((folder) => folder.id), ['root']),
+        );
+        verify(() => api.listFolders(folderType: 'Personal')).called(1);
+      },
+    );
 
     test('createFolder wywołuje api i zwraca nowo utworzony folder', () async {
       when(() => api.createFolder(any())).thenAnswer((_) async => sampleFolder);

@@ -312,7 +312,7 @@ Produkt jest naprawiony dopiero wtedy, gdy zalogowany użytkownik może rzeczywi
 - [x] Uruchomiono dalsze przeklikiwanie stagingu w Chrome. Rejestr i rezerwacje: Backend/docs/ui-testing.md.
 - [ ] Kontynuować kolejne nieodebrane kontrolki i przepływy; sprawdzać działanie, zrozumiałość dla nietechnicznej osoby i spójność z Listą/Kanbanem. Stosować UI UX Pro Max oraz Impeccable Operate. Naprawiać także zauważone nieczytelne lub brzydkie powierzchnie.
 - [ ] Zbierać powiązane błędy przed naprawą i wdrażać pakietami. Po bramkach kodu i niezależnym review publikować Wasm na staging, następnie wykonać dokładny manualny retest. Nie uznawać testów lokalnych za odbiór UI.
-- [ ] Bieżący pakiet QA24/25/26: tytuły tras z query, systemowe widoki plików, podfoldery, otwarcie/menu folderu i focus, udostępnianie osobistych plików, prawa oraz odebranie dostępu. Lokalna naprawa i niezależny review gotowe; publikacja i Chrome retest niezaliczone.
+- [x] Pakiet QA24/25/26 opublikowany; konkretne Chrome retesty zapisane w Backend/docs/ui-testing.md. Pełny ACL/keyboard/role odbiór pozostaje otwarty.
 - [ ] Dalej: pozostałe Storage, QA15 Listy, Kanban loading/rollback, modal, czat i obecność wielu sesji oraz keyboard/error/role/theme/locale zgodnie z rejestrem. Pełny odbiór pozostaje otwarty.
 
 
@@ -327,3 +327,12 @@ Chrome staging PL/dark1513×895, AX i screenshots w sesji CUA:
 - Wcześniej na eb71830: Nowy dokument→formatTXT→nazwa→Utwórz tworzy3B/wersja1 i otwiera neutralny podgląd z CTA OnlyOffice. Funkcja createTXT PASS; otwarcie tego nowego dokumentu w Office i inne formaty NOT RUN.
 
 Pełna aplikacja i wszystkie kontrolki nie są odebrane. Następny pakiet: UUID odbiorców, QA27 podwójne context menu, aktywne niewłaściwe akcje Kosza i opóźnione liczniki; dalej centralna kolejka. Rezerwacja tej sesji Storage zwolniona po zapisie; własne okno Chrome pozostaje w folderzeQA, nowy podfolder widoczny.
+
+
+Aktualny pakiet QA26–28 wdrożony: Front c405a75, Backend640ce36. Chrome potwierdził nazwy grantów po reopen, checkbox mouse/Space/Return, pojedyncze menu, tekstowe Wytnij/Kopiuj/Wklej, liczniki delete/restore/foldercreate i ukrycie niewłaściwych akcji Kosza. QA29 (filtry/nazwy grid) i QA30 (ZIP finalizacja i bytes error parser) w naprawie przed kolejnym wspólnym deployem. Pełny audyt aktywny; centralne dowody i luki w Backend/docs/ui-testing.md.
+
+
+### QA29/30/32 — końcowe bramki kodu i review, 2026-10-05
+
+Front: byteserrorparser40PASS; accessibility/filter/grid/sort4PASS; storage_repository12PASS po naprawie nieaktualnego mocka parentFolderId (produkcja bez zmiany). Pełny analyzer Noissues27.5s. Pełny fluttertest2476PASS/25FAIL4m11s:1mocknaprawiony,20taskgoldens+1recurrencystaletext+3storagegoldens powtórzone na izolowanym eksporcie poprzedniego c405a75 i potwierdzone jako istniejące wcześniej; Storage3testImage byteidenticalSHA256 do aktualnego, modaltestImage również zgodne. Fullgate nadal FAIL, nie przegenerowano referencji. Własne18tracked obrazy wygenerowane przez test zachowane w /tmp/devplanner-qa29-fulltest-captures, checkout tych obrazów przywrócony; nie trafiają do commita.
+Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.log, /tmp/devplanner-qa29-storage-golden-baseline.log, /tmp/devplanner-qa29-task-golden-baseline.log, /tmp/devplanner-qa29-rows-baseline.log. Niezależny review storage_personal_sharing bez blokujących regresji. Backend73/73PASS/build/format/EFscriptPASS; kod commit e27db3b, publikacja w toku. PublikacjaFrontu i manualny odbiór nowychpoprawek NOT RUN. Kolejna luka kontraktu QA31folderrecovery pozostaje do naprawy; aktualny pakiet jej nie implementuje.

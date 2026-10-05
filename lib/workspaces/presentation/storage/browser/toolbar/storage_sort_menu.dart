@@ -6,6 +6,7 @@ import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filter.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_chrome_pill.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,15 +21,19 @@ final class StorageSortMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<StorageBrowserCubit>();
-    final current = cubit.currentSort;
-    final label = _labelFor(context, current);
-
-    return StorageChromePill(
-      key: const ValueKey('storage_sort_menu'),
-      icon: AppIcons.sort,
-      label: label,
-      tooltip: context.l10n.storageSortTooltip,
-      onTap: () => unawaited(_select(context, cubit)),
+    return BlocSelector<
+      StorageBrowserCubit,
+      StorageBrowserState,
+      StorageSortCriteria
+    >(
+      selector: (_) => cubit.currentSort,
+      builder: (context, current) => StorageChromePill(
+        key: const ValueKey('storage_sort_menu'),
+        icon: AppIcons.sort,
+        label: _labelFor(context, current),
+        tooltip: context.l10n.storageSortTooltip,
+        onTap: () => unawaited(_select(context, cubit)),
+      ),
     );
   }
 

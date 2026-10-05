@@ -91,9 +91,24 @@ final class ApiErrorResponseParser {
   }
 
   static Object? _decodeJson(Object? rawData) {
-    if (rawData is! String || rawData.trim().isEmpty) return rawData;
+    final String text;
+    if (rawData is String) {
+      text = rawData;
+    } else if (rawData is List<int>) {
+      // ResponseType.bytes dotyczy także błędnej odpowiedzi endpointu ZIP.
+      // Nie dekodujemy dowolnych liczb ani uszkodzonego UTF-8 z podmianą znaków.
+      if (rawData.any((byte) => byte < 0 || byte > 255)) return rawData;
+      try {
+        text = utf8.decode(rawData);
+      } on FormatException {
+        return rawData;
+      }
+    } else {
+      return rawData;
+    }
+    if (text.trim().isEmpty) return rawData;
     try {
-      return jsonDecode(rawData);
+      return jsonDecode(text);
     } on FormatException {
       return rawData;
     }

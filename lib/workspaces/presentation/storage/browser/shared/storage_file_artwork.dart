@@ -13,12 +13,14 @@ final class StorageFileArtwork extends StatefulWidget {
     required this.file,
     required this.size,
     this.onTap,
+    this.actionLabel,
     super.key,
   });
 
   final StorageFileResponse file;
   final double size;
   final VoidCallback? onTap;
+  final String? actionLabel;
 
   @override
   State<StorageFileArtwork> createState() => _StorageFileArtworkState();
@@ -92,9 +94,11 @@ final class _StorageFileArtworkState extends State<StorageFileArtwork> {
     );
     if (widget.onTap == null) return icon;
     return Tooltip(
-      message: widget.file.canEditOnline
-          ? context.l10n.storageOpenOfficeAction
-          : context.l10n.storagePreviewTitle,
+      message:
+          widget.actionLabel ??
+          (widget.file.canEditOnline
+              ? context.l10n.storageOpenOfficeAction
+              : context.l10n.storagePreviewTitle),
       child: InkResponse(
         onTap: widget.onTap,
         radius: widget.size,

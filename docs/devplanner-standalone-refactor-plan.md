@@ -7613,3 +7613,9 @@ Nie wykonano download/ZIP/share/delete/restore/createOffice/bulk/deniedrole/erro
   Front25PASS, Backend10PASS; enumy type4/access6/effective5 zgodne w JSON testach.
 - [ ] Końcowy analyzer pakietu, OpenAPI/HTTP gate, deploy i Chrome NOT RUN.
   Szczegóły: Backend/docs/qa26-share-target-names-handoff-2026-10-05.md.
+
+
+### QA29/30/32 — końcowe bramki kodu i review, 2026-10-05
+
+Front: byteserrorparser40PASS; accessibility/filter/grid/sort4PASS; storage_repository12PASS po naprawie nieaktualnego mocka parentFolderId (produkcja bez zmiany). Pełny analyzer Noissues27.5s. Pełny fluttertest2476PASS/25FAIL4m11s:1mocknaprawiony,20taskgoldens+1recurrencystaletext+3storagegoldens powtórzone na izolowanym eksporcie poprzedniego c405a75 i potwierdzone jako istniejące wcześniej; Storage3testImage byteidenticalSHA256 do aktualnego, modaltestImage również zgodne. Fullgate nadal FAIL, nie przegenerowano referencji. Własne18tracked obrazy wygenerowane przez test zachowane w /tmp/devplanner-qa29-fulltest-captures, checkout tych obrazów przywrócony; nie trafiają do commita.
+Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.log, /tmp/devplanner-qa29-storage-golden-baseline.log, /tmp/devplanner-qa29-task-golden-baseline.log, /tmp/devplanner-qa29-rows-baseline.log. Niezależny review storage_personal_sharing bez blokujących regresji. Backend73/73PASS/build/format/EFscriptPASS; kod commit e27db3b, publikacja w toku. PublikacjaFrontu i manualny odbiór nowychpoprawek NOT RUN. Kolejna luka kontraktu QA31folderrecovery pozostaje do naprawy; aktualny pakiet jej nie implementuje.

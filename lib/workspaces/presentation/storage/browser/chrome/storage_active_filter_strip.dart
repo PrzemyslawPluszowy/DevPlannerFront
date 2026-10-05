@@ -8,6 +8,7 @@ import 'package:devplanner/workspaces/domain/storage/models/storage_browser_filt
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -25,11 +26,14 @@ final class StorageActiveFilterStrip extends StatelessWidget {
     final colors = context.colors;
     final cubit = context.read<StorageBrowserCubit>();
 
-    return BlocSelector<StorageBrowserCubit, StorageBrowserState, bool>(
-      selector: (_) => cubit.currentFilter.hasActiveFilters,
-      builder: (context, isActive) {
-        if (!isActive) return const SizedBox.shrink();
-        final chips = _activeChips(context, cubit);
+    return BlocSelector<
+      StorageBrowserCubit,
+      StorageBrowserState,
+      StorageBrowserFilter
+    >(
+      selector: (_) => cubit.currentFilter,
+      builder: (context, filter) {
+        if (!filter.hasActiveFilters) return const SizedBox.shrink();
         return Padding(
           padding: EdgeInsets.only(top: common.tightGap),
           child: Row(
@@ -49,13 +53,7 @@ final class StorageActiveFilterStrip extends StatelessWidget {
               ),
               SizedBox(width: common.controlGap),
               Expanded(
-                child: Wrap(
-                  spacing: common.controlGap,
-                  runSpacing: common.controlGap,
-                  children: [
-                    for (final chip in chips) chip,
-                  ],
-                ),
+                child: _ActiveFilterChips(filter: filter),
               ),
               TextButton(
                 key: const ValueKey('storage_active_filter_clear'),
@@ -70,41 +68,57 @@ final class StorageActiveFilterStrip extends StatelessWidget {
       },
     );
   }
+}
 
-  static List<Widget> _activeChips(
-    BuildContext context,
-    StorageBrowserCubit cubit,
-  ) {
-    final filter = cubit.currentFilter;
-    return [
-      if (filter.extension case final extension?)
-        _FilterChip(
-          label: extension.toUpperCase(),
-          onDeleted: () =>
-              unawaited(cubit.setFilter(filter.copyWith(clearExtension: true))),
-        ),
-      if (filter.aiStatus case final status?)
-        _FilterChip(
-          label: switch (status) {
-            StorageAiStatus.none => context.l10n.storageFilterStatusNone,
-            StorageAiStatus.queued => context.l10n.storageFilterStatusQueued,
-            StorageAiStatus.processing =>
-              context.l10n.storageFilterStatusProcessing,
-            StorageAiStatus.completed =>
-              context.l10n.storageFilterStatusCompleted,
-            StorageAiStatus.failed => context.l10n.storageFilterStatusFailed,
-          },
-          onDeleted: () =>
-              unawaited(cubit.setFilter(filter.copyWith(clearAiStatus: true))),
-        ),
-      if (filter.createdFromUtc != null)
-        _FilterChip(
-          label: _windowLabel(context, filter.createdFromUtc!),
-          onDeleted: () => unawaited(
-            cubit.setFilter(filter.copyWith(clearCreatedFromUtc: true)),
+final class _ActiveFilterChips extends StatelessWidget {
+  const _ActiveFilterChips({required this.filter});
+
+  final StorageBrowserFilter filter;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<StorageBrowserCubit>();
+    return Wrap(
+      spacing: context.filesTheme.common.controlGap,
+      runSpacing: context.filesTheme.common.controlGap,
+      children: [
+        if (filter.extension case final extension?)
+          _FilterChip(
+            label: extension.toUpperCase(),
+            onDeleted: () => unawaited(
+              cubit.setFilter(
+                cubit.currentFilter.copyWith(clearExtension: true),
+              ),
+            ),
           ),
-        ),
-    ];
+        if (filter.aiStatus case final status?)
+          _FilterChip(
+            label: switch (status) {
+              StorageAiStatus.none => context.l10n.storageFilterStatusNone,
+              StorageAiStatus.queued => context.l10n.storageFilterStatusQueued,
+              StorageAiStatus.processing =>
+                context.l10n.storageFilterStatusProcessing,
+              StorageAiStatus.completed =>
+                context.l10n.storageFilterStatusCompleted,
+              StorageAiStatus.failed => context.l10n.storageFilterStatusFailed,
+            },
+            onDeleted: () => unawaited(
+              cubit.setFilter(
+                cubit.currentFilter.copyWith(clearAiStatus: true),
+              ),
+            ),
+          ),
+        if (filter.createdFromUtc != null)
+          _FilterChip(
+            label: _windowLabel(context, filter.createdFromUtc!),
+            onDeleted: () => unawaited(
+              cubit.setFilter(
+                cubit.currentFilter.copyWith(clearCreatedFromUtc: true),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   static String _windowLabel(BuildContext context, DateTime from) {
@@ -126,12 +140,36 @@ class _FilterChip extends StatelessWidget {
   final VoidCallback onDeleted;
 
   @override
-  Widget build(BuildContext context) => InputChip(
-    label: Text(label),
-    onDeleted: onDeleted,
-    deleteIcon: const Icon(Symbols.close_rounded, size: 14),
-    visualDensity: VisualDensity.compact,
-    labelStyle: context.filesTheme.common.metaText,
-    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-  );
+  Widget build(BuildContext context) {
+    final common = context.filesTheme.common;
+    final actionLabel = '${context.l10n.storageFilterClear}: $label';
+    return Tooltip(
+      message: actionLabel,
+      excludeFromSemantics: true,
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.enter): onDeleted,
+          const SingleActivator(LogicalKeyboardKey.space): onDeleted,
+        },
+        child: TextButton.icon(
+          key: ValueKey('storage-filter-remove-$label'),
+          onPressed: onDeleted,
+          icon: const Icon(Symbols.close_rounded, size: 14),
+          label: Text(label, semanticsLabel: actionLabel),
+          style: TextButton.styleFrom(
+            foregroundColor: context.colors.onSurface,
+            backgroundColor: context.colors.surfaceContainerLow,
+            textStyle: common.metaText,
+            minimumSize: const Size(0, 28),
+            padding: EdgeInsets.symmetric(horizontal: common.controlGap),
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(common.controlRadius),
+              side: BorderSide(color: context.colors.outlineVariant),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
