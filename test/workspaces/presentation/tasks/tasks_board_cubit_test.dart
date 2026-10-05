@@ -30,6 +30,7 @@ final class _KanbanRepository implements KanbanRepository {
 
   final KanbanBoardResponse board;
   int boardCalls = 0;
+  Future<Either<ApiError, KanbanBoardResponse>> Function(int call)? boardLoader;
   final List<KanbanBoardFilter> boardFilters = [];
   final List<KanbanColumnQuery> systemColumnQueries = [];
   Either<ApiError, KanbanBoardResponse>? boardResult;
@@ -64,6 +65,7 @@ final class _KanbanRepository implements KanbanRepository {
     if (throwBoardErrorOnCall == boardCalls) {
       throw StateError('board refresh transport failure');
     }
+    if (boardLoader case final loader?) return loader(boardCalls);
     return boardResult ?? Right(board);
   }
 
@@ -398,6 +400,82 @@ UserKanbanPreferenceResponse _preference() =>
     );
 
 void main() {
+  test(
+    'ignored duplicate load does not invalidate the active initial read',
+    () async {
+      final pending = Completer<Either<ApiError, KanbanBoardResponse>>();
+      final repository = _KanbanRepository(_board())
+        ..boardLoader = (_) => pending.future;
+      final cubit = TasksBoardCubit(
+        repository,
+        _Realtime(),
+        _TasksRepository(),
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+      );
+      addTearDown(cubit.close);
+      final first = cubit.load();
+      expect(cubit.state, isA<TasksBoardLoading>());
+      await cubit.load();
+      expect(repository.boardCalls, 1);
+      pending.complete(Right(_board()));
+      await first;
+      expect(cubit.state, isA<TasksBoardReady>());
+    },
+  );
+
+  test('forced newer read still wins over an older late response', () async {
+    final firstReply = Completer<Either<ApiError, KanbanBoardResponse>>();
+    final secondReply = Completer<Either<ApiError, KanbanBoardResponse>>();
+    final repository = _KanbanRepository(_board())
+      ..boardLoader = (call) =>
+          call == 1 ? firstReply.future : secondReply.future;
+    final cubit = TasksBoardCubit(
+      repository,
+      _Realtime(),
+      _TasksRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+    );
+    addTearDown(cubit.close);
+    final first = cubit.load();
+    final second = cubit.load(force: true);
+    secondReply.complete(Right(_board().copyWith(settingsVersion: 20)));
+    await second;
+    firstReply.complete(Right(_board().copyWith(settingsVersion: 10)));
+    await first;
+    expect(repository.boardCalls, 2);
+    expect((cubit.state as TasksBoardReady).board.settingsVersion, 20);
+  });
+
+  test('older filter response keeps the newer filter pending', () async {
+    final repository = _KanbanRepository(_board());
+    final cubit = TasksBoardCubit(
+      repository,
+      _Realtime(),
+      _TasksRepository(),
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+    );
+    addTearDown(cubit.close);
+    await cubit.load();
+    final olderReply = Completer<Either<ApiError, KanbanBoardResponse>>();
+    final newerReply = Completer<Either<ApiError, KanbanBoardResponse>>();
+    repository.boardLoader = (call) =>
+        call == 2 ? olderReply.future : newerReply.future;
+    final older = cubit.setFilterPriority(TaskPriority.high);
+    final newer = cubit.setFilterPriority(TaskPriority.low);
+    expect((cubit.state as TasksBoardReady).loadingFilter, isTrue);
+    olderReply.complete(Right(_board().copyWith(settingsVersion: 10)));
+    await older;
+    expect((cubit.state as TasksBoardReady).loadingFilter, isTrue);
+    expect((cubit.state as TasksBoardReady).filter.priority, TaskPriority.low);
+    newerReply.complete(Right(_board().copyWith(settingsVersion: 20)));
+    await newer;
+    expect((cubit.state as TasksBoardReady).loadingFilter, isFalse);
+    expect((cubit.state as TasksBoardReady).board.settingsVersion, 20);
+  });
+
   test('przypina i obserwuje kartę lokalnie bez odczytu boarda', () async {
     final repository = _KanbanRepository(_board());
     final collaboration = _TaskCollaborationRepository();

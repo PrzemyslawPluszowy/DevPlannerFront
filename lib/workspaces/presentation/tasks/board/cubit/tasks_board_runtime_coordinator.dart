@@ -63,17 +63,15 @@ final class TasksBoardRuntimeCoordinator {
       _context.publish(current.copyWith(filter: filter, loadingFilter: true));
     }
     await load(force: true);
-    final ready = _context.currentState;
-    if (_context.isBoardClosed || ready is! TasksBoardReady) return;
-    _context.publish(ready.copyWith(loadingFilter: false));
   }
 
   Future<void> load({bool force = false}) async {
-    final revision = ++_boardQueryRevision;
     if (_context.isBoardClosed ||
         (!force && _context.currentState is TasksBoardLoading)) {
       return;
     }
+    // Pominięta operacja nie może unieważnić jedynego trwającego odczytu.
+    final revision = ++_boardQueryRevision;
     final previousState = _context.currentState;
     if (previousState is TasksBoardReady) {
       _context.publish(
@@ -102,7 +100,11 @@ final class TasksBoardRuntimeCoordinator {
         // z realtime mógłby ukryć banner i chwilowo odblokować kontrolki.
         _context.publish(
           previous is TasksBoardReady
-              ? previous.copyWith(board: board, filter: _filter)
+              ? previous.copyWith(
+                  board: board,
+                  filter: _filter,
+                  loadingFilter: false,
+                )
               : TasksBoardReady(
                   board: board,
                   connectionState: WorkspaceSignalRConnectionState.disconnected,
