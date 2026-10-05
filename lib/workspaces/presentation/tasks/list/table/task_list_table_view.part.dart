@@ -181,7 +181,8 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                           TaskListGrid.actions +
                           columnsWidthSum;
                       final tableWidth =
-                          constraints.maxWidth < requiredTableWidth
+                          rows.isNotEmpty &&
+                              constraints.maxWidth < requiredTableWidth
                           ? requiredTableWidth
                           : constraints.maxWidth;
                       return ColoredBox(
@@ -202,10 +203,9 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                                     children: [
                                       Expanded(
                                         child: rows.isEmpty
-                                            ? Center(
-                                                child: Text(
-                                                  context.l10n.tasksListEmpty,
-                                                ),
+                                            ? TaskListEmptyResult(
+                                                hasActiveFilters:
+                                                    state.hasActiveFilters,
                                               )
                                             : ListView.builder(
                                                 controller: _controller,

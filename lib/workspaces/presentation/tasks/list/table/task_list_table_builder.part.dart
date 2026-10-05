@@ -16,20 +16,25 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
       return _cachedGroupedRows!;
     }
 
-    final groups = [...state.groups]
-      ..sort((left, right) {
-        final leftStatus = TaskListGrouping.statusForGroup(left.key);
-        final rightStatus = TaskListGrouping.statusForGroup(right.key);
-        if (leftStatus == null || rightStatus == null) {
-          return left.position.compareTo(right.position);
-        }
-        return TaskListGrouping.statusOrder(leftStatus).compareTo(
-          TaskListGrouping.statusOrder(rightStatus),
-        );
-      });
+    final groups =
+        [
+          for (final group in state.groups)
+            if (state.shouldDisplayGroup(group)) group,
+        ]..sort((left, right) {
+          final leftStatus = TaskListGrouping.statusForGroup(left.key);
+          final rightStatus = TaskListGrouping.statusForGroup(right.key);
+          if (leftStatus == null || rightStatus == null) {
+            return left.position.compareTo(right.position);
+          }
+          return TaskListGrouping.statusOrder(leftStatus).compareTo(
+            TaskListGrouping.statusOrder(rightStatus),
+          );
+        });
     final isFlat = groupBy == TaskSavedViewGroupBy.none;
     final List<_ListRow> rows;
-    if (isFlat) {
+    if (state.hasActiveFilters && groups.isEmpty) {
+      rows = const [];
+    } else if (isFlat) {
       final allItems = [for (final group in groups) ...group.items];
       final flatGroupKey = groups.firstOrNull?.key ?? 'flat';
       rows = [

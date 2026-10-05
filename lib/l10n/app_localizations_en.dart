@@ -6647,6 +6647,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasksPresenceAnonymousUser => 'User currently viewing this board';
 
   @override
+  String get tasksListProjectEmpty => 'This project has no tasks yet.';
+
+  @override
   String get tasksListEmpty => 'No tasks match the selected filters.';
 
   @override

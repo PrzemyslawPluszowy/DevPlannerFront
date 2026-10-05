@@ -84,6 +84,23 @@ final class ProjectTasksListReady extends ProjectTasksListState {
   final Set<String> selectedTaskIds;
   final String? selectionAnchorTaskId;
 
+  /// Jedno źródło informacji dla paska filtrów i prezentacji grup.
+  bool get hasActiveFilters =>
+      status != null ||
+      priority != null ||
+      assigneeUserId != null ||
+      myInvolvement != null ||
+      unassignedOnly ||
+      pinnedOnly;
+
+  /// Puste grupy pozostają celami tworzenia zadań bez aktywnych filtrów.
+  /// Przy filtrze zachowujemy grupy z wynikiem lub stroną do odczytu.
+  bool shouldDisplayGroup(ProjectTaskListGroupResponse group) =>
+      !hasActiveFilters ||
+      group.totalCount > 0 ||
+      group.items.isNotEmpty ||
+      group.nextCursor != null;
+
   bool get hasNextPage => nextCursor != null;
   bool get canLoadMore => hasNextPage && !isLoadingMore;
 

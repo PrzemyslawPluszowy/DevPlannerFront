@@ -7531,3 +7531,12 @@ Pełna kolejka UI pozostaje w Backend/docs/ui-testing.md; nie zaliczać całej a
 - [x] Wasm deploy 52177 exit0: `89945ad3aca2ae3fb825c3dde6728972261f1bf0`; version.json/Wasm200 (9769555B)/SPA zgodne, Backend readiness Healthy. Chrome PL/dark 1513×895: tabela/dialog poprawnie rozróżniają Wykonawcy/Właściciel, panel osób ma polskie role bez dopisków — AX i screenshot, UX/UI PASS w tym wariancie. Backend bez zmiany.
 - [x] Kanban TASK-91 drag Backlog→Do zrobienia i reload PASS (2/25→1/26). Cofnięto przez dropdown statusu Backlog w modalu; kolejny reload potwierdza 2/25. Odwrotny drag i przejściowy loader nie zaliczone; pełny DnD/rollback/ACL nadal otwarty.
 - [ ] Następny pakiet: QA-20261005-09 puste grupy przed wynikami filtra; QA-20261005-10 niezaliczona interakcja poziomego suwaka (możliwy problem trafienia narzędzia). Pełna kolejka i zakresy NOT RUN pozostają w Backend/docs/ui-testing.md.
+
+
+### Audyt Listy — filtrowane grupy i zapisane szerokości, 2026-10-05
+
+- [x] Naprawa QA-20261005-09: filtrowany wynik nie wyświetla pustych wyczerpanych grup; pusty wynik ma komunikat i akcję wyczyszczenia filtrów. Bez filtrów zachowano puste grupy tworzenia i neutralny komunikat.
+- [x] Naprawa QA-20261005-12: zapisane szerokości kolumn są odczytywane podczas inicjalizacji i zmian preferencji, poza build. Canonical ID mają pierwszeństwo, legacy i custom fields zachowane; reset czyści stare mapy.
+- [x] 77 testów PASS, pełny analyzer No issues (11.8 s), niezależny review bez dalszych regresji. Test filtra FAIL przed / PASS po; test rzeczywistego scrollbara potwierdza zakres i drag po zastosowaniu szerokości. UI UX Pro Max (filtered empty results), Impeccable Operate i flutter-state-management: wspólne tokeny, czytelny powrót, efekty poza build.
+- [ ] Publikacja Front Wasm i manualny retest Chrome na stagingu: filtr, brak wyników, resize/reload i poziomy suwak. Backend/HTTP/DTO/enumy bez zmian. Nie jest to odbiór całej aplikacji.
+- [ ] Dalszy zakres i rezerwacje są w Backend/docs/ui-testing.md. Audyt obejmuje funkcję, zrozumiałość dla nietechnicznej osoby i spójność wszystkich powierzchni; zauważone usterki zbierane do powiązanych pakietów.

@@ -236,6 +236,16 @@ final class ProjectTasksListCubit extends ProjectTasksListCubitBase
     );
   }
 
+  /// Przywraca pełny widok bez zmiany sortowania, grupowania lub kolumn.
+  Future<void> clearFilters() => load(
+    clearStatus: true,
+    clearPriority: true,
+    clearAssigneeUserId: true,
+    clearMyInvolvement: true,
+    unassignedOnly: false,
+    pinnedOnly: false,
+  );
+
   @override
   Future<void> load({
     ProjectTaskStatus? status,

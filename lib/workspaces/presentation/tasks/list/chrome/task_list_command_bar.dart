@@ -52,16 +52,7 @@ class TaskListCommandBar extends StatelessWidget {
       ? preferencesState as TaskListPreferencesReady
       : null;
 
-  bool get _hasActiveFilter {
-    final ready = _ready;
-    return ready != null &&
-        (ready.status != null ||
-            ready.priority != null ||
-            ready.assigneeUserId != null ||
-            ready.unassignedOnly ||
-            ready.myInvolvement != null ||
-            ready.pinnedOnly);
-  }
+  bool get _hasActiveFilter => _ready?.hasActiveFilters ?? false;
 
   @override
   Widget build(BuildContext context) {
@@ -379,14 +370,6 @@ class TaskListCommandBar extends StatelessWidget {
     );
   }
 
-  Future<void> _clearFilters(BuildContext context) async {
-    await context.read<ProjectTasksListCubit>().load(
-      clearStatus: true,
-      clearPriority: true,
-      clearAssigneeUserId: true,
-      clearMyInvolvement: true,
-      unassignedOnly: false,
-      pinnedOnly: false,
-    );
-  }
+  Future<void> _clearFilters(BuildContext context) =>
+      context.read<ProjectTasksListCubit>().clearFilters();
 }

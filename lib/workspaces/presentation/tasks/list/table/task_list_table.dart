@@ -19,6 +19,7 @@ import 'package:devplanner/workspaces/presentation/tasks/list/preferences/widget
 import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_header.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_group_row.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_row.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_empty_result.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_subtasks.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/task_list_grouping.dart';
@@ -95,11 +96,13 @@ class _TaskListTableState extends State<TaskListTable> {
     super.initState();
     _controller.addListener(_loadMoreIfNeeded);
     _metadata = _loadMetadata();
+    _syncColumnWidths(_readPreferencesCubit()?.state);
   }
 
   @override
   void didUpdateWidget(covariant TaskListTable oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _syncColumnWidths(_readPreferencesCubit()?.state);
     if (!listEquals(oldWidget.customFieldIds, widget.customFieldIds) ||
         oldWidget.metadataRevision != widget.metadataRevision) {
       _metadata = _loadMetadata();
@@ -207,20 +210,43 @@ class _TaskListTableState extends State<TaskListTable> {
     builder: (context, _, _) => _buildWithLocalUiState(context),
   );
 
+  TaskListPreferencesCubit? _readPreferencesCubit() {
+    if (widget.preferencesCubit case final preferences?) return preferences;
+    try {
+      return context.read<TaskListPreferencesCubit>();
+    } on ProviderNotFoundException {
+      // Preferences are optional for embedded tables.
+      return null;
+    }
+  }
+
+  void _syncColumnWidths(TaskListPreferencesState? state) {
+    if (state is! TaskListPreferencesReady) return;
+    _columnWidthsById
+      ..clear()
+      ..addAll(state.columnWidths);
+    _columnWidths.clear();
+    for (final column in TaskSavedViewColumn.values) {
+      final id = TaskColumnReference.system(column).id;
+      final width = state.columnWidths[id] ?? state.columnWidths[column.name];
+      if (width != null) {
+        _columnWidths[column] = width;
+        _columnWidthsById[id] = width;
+      }
+    }
+  }
+
   Widget _buildWithLocalUiState(BuildContext context) {
-    final prefCubit =
-        widget.preferencesCubit ??
-        () {
-          try {
-            return context.read<TaskListPreferencesCubit>();
-          } catch (_) {
-            return null;
-          }
-        }();
+    final prefCubit = _readPreferencesCubit();
 
     if (prefCubit != null) {
-      return BlocBuilder<TaskListPreferencesCubit, TaskListPreferencesState>(
+      return BlocConsumer<TaskListPreferencesCubit, TaskListPreferencesState>(
         bloc: prefCubit,
+        listenWhen: (previous, current) =>
+            current is TaskListPreferencesReady &&
+            (previous is! TaskListPreferencesReady ||
+                !mapEquals(previous.columnWidths, current.columnWidths)),
+        listener: (_, state) => _syncColumnWidths(state),
         builder: (context, prefState) {
           final readyState = prefState is TaskListPreferencesReady
               ? prefState

@@ -6695,6 +6695,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get tasksPresenceAnonymousUser => 'Użytkownik obecny w widoku';
 
   @override
+  String get tasksListProjectEmpty => 'Projekt nie ma jeszcze zadań.';
+
+  @override
   String get tasksListEmpty => 'Brak zadań spełniających wybrane filtry.';
 
   @override

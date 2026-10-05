@@ -11756,6 +11756,12 @@ abstract class AppLocalizations {
   /// **'User currently viewing this board'**
   String get tasksPresenceAnonymousUser;
 
+  /// No description provided for @tasksListProjectEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This project has no tasks yet.'**
+  String get tasksListProjectEmpty;
+
   /// No description provided for @tasksListEmpty.
   ///
   /// In en, this message translates to:

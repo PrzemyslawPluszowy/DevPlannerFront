@@ -2106,6 +2106,7 @@
   "tasksAutomationsDryRunMatched": "Warunki są spełnione",
   "tasksAutomationsDryRunSkipped": "Warunki nie są spełnione",
   "tasksPresenceAnonymousUser": "Użytkownik obecny w widoku",
+  "tasksListProjectEmpty": "Projekt nie ma jeszcze zadań.",
   "tasksListEmpty": "Brak zadań spełniających wybrane filtry.",
   "tasksListLoadMore": "Pokaż kolejne zadania",
   "tasksListSort": "Sortowanie",

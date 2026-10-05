@@ -2103,6 +2103,7 @@
   "tasksAutomationsDryRunMatched": "Conditions are met",
   "tasksAutomationsDryRunSkipped": "Conditions are not met",
   "tasksPresenceAnonymousUser": "User currently viewing this board",
+  "tasksListProjectEmpty": "This project has no tasks yet.",
   "tasksListEmpty": "No tasks match the selected filters.",
   "tasksListLoadMore": "Show more tasks",
   "tasksListSort": "Sort",
