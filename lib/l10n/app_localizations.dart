@@ -22303,6 +22303,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This person or link will lose access to this file. The file will remain in its current location.'**
   String get storageShareRevokeMessage;
+
+  /// No description provided for @storageSharePersonUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Person unavailable'**
+  String get storageSharePersonUnavailable;
+
+  /// No description provided for @storageShareWorkspaceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace unavailable'**
+  String get storageShareWorkspaceUnavailable;
+
+  /// No description provided for @storageShareProjectUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Project unavailable'**
+  String get storageShareProjectUnavailable;
+
+  /// No description provided for @storageSelectItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {name}'**
+  String storageSelectItem(String name);
 }
 
 class _AppLocalizationsDelegate

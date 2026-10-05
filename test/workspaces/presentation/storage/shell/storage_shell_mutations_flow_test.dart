@@ -452,7 +452,17 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => repository.restoreFile('file-1')).called(1);
-    expect(folderReadCount, readsBefore + 1);
+    expect(folderReadCount, readsBefore);
+    verify(
+      () => repository.listFiles(
+        scope: any(named: 'scope'),
+        folderId: any(named: 'folderId'),
+        cursor: any(named: 'cursor'),
+        limit: any(named: 'limit'),
+        query: any(named: 'query'),
+        filter: any(named: 'filter'),
+      ),
+    ).called(2);
   });
 
   testWidgets('udostępnienie z wiersza nadaje dostęp workspace’owi', (

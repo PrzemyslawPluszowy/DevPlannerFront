@@ -243,6 +243,55 @@ void main() {
     },
   );
 
+  testWidgets(
+    'existing grants show names and meaningful unavailable labels without UUID',
+    (tester) async {
+      StorageFileShareResponse grant(
+        String id,
+        StorageShareType type,
+        String? name,
+      ) => StorageFileShareResponse(
+        id: id,
+        fileId: 'file-1',
+        shareType: type,
+        accessLevel: StorageShareAccessLevel.reader,
+        sharedWithUserId: type == StorageShareType.user
+            ? 'private-user-id'
+            : null,
+        sharedWithWorkspaceId: type == StorageShareType.workspace
+            ? 'private-workspace-id'
+            : null,
+        sharedWithProjectId: type == StorageShareType.project
+            ? 'private-project-id'
+            : null,
+        targetDisplayName: name,
+        createdByUserId: 'user-1',
+        createdAtUtc: now,
+        effectiveAccessLevel: StorageEffectiveAccessLevel.reader,
+        canRead: true,
+        canComment: false,
+        canEdit: false,
+        canShare: false,
+        canDelete: false,
+      );
+      when(() => repository.listFileShares(any())).thenAnswer(
+        (_) async => Right([
+          grant('one', StorageShareType.user, 'Anna Nowak'),
+          grant('two', StorageShareType.workspace, 'Zespół QA'),
+          grant('three', StorageShareType.project, 'Projekt QA'),
+          grant('four', StorageShareType.user, null),
+        ]),
+      );
+      await tester.pumpWidget(harness(target: file()));
+      await tester.pumpAndSettle();
+      expect(find.text('Anna Nowak'), findsOneWidget);
+      expect(find.textContaining('Zespół QA'), findsOneWidget);
+      expect(find.textContaining('Projekt QA'), findsOneWidget);
+      expect(find.text('Osoba niedostępna'), findsOneWidget);
+      expect(find.textContaining('private-'), findsNothing);
+    },
+  );
+
   testWidgets('brak portu katalogu nie pokazuje pola bez wyników', (
     tester,
   ) async {

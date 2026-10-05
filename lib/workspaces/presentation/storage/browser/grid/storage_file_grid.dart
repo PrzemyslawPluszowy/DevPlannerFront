@@ -11,6 +11,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cub
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_artwork.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_item_selection_checkbox.dart';
 import 'package:devplanner/workspaces/presentation/storage/shared/storage_formatters.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
@@ -132,12 +133,25 @@ class _FileGridCard extends StatelessWidget {
               children: [
                 // Obszar ikony / miniatury
                 Expanded(
-                  child: Center(
-                    child: StorageFileArtwork(
-                      file: file,
-                      size: 72,
-                      onTap: () => _openFile(context, file),
-                    ),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: StorageFileArtwork(
+                          file: file,
+                          size: 72,
+                          onTap: () => _openFile(context, file),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: StorageItemSelectionCheckbox(
+                          key: ValueKey('select-file-${file.id}'),
+                          name: file.originalFileName,
+                          selected: isSelected,
+                          onToggle: () => selectionCubit.toggleFile(file),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 // Pasek metadanych pliku
@@ -170,7 +184,22 @@ class _FileGridCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          if (capabilities.canFavorite && file.canRead)
+                          if (capabilities.canDelete &&
+                              file.isDeleted &&
+                              file.canRestore)
+                            IconButton(
+                              key: ValueKey('restore-file-${file.id}'),
+                              icon: const Icon(AppIcons.refresh, size: 16),
+                              tooltip: context.l10n.storageRestoreSelected,
+                              onPressed: () => unawaited(
+                                context
+                                    .read<StorageFileMutationCubit>()
+                                    .restoreFile(file.id),
+                              ),
+                            ),
+                          if (capabilities.canFavorite &&
+                              file.canRead &&
+                              !file.isDeleted)
                             IconButton(
                               icon: Icon(
                                 file.isFavorite
@@ -216,11 +245,15 @@ class _FileGridCard extends StatelessWidget {
   }
 
   void _openPreview(BuildContext context, StorageFileResponse file) {
-    unawaited(showStoragePreview(context, file: file));
+    if ((file.isDeleted || !file.canPreview) && onOpenFileDetails != null) {
+      onOpenFileDetails!(file.id);
+      return;
+    }
+    if (!file.isDeleted) unawaited(showStoragePreview(context, file: file));
   }
 
   void _openFile(BuildContext context, StorageFileResponse file) {
-    if (file.canEditOnline) {
+    if (file.canEditOnline && !file.isDeleted) {
       unawaited(runStorageOpenOfficeDocument(context, file: file));
     } else {
       _openPreview(context, file);

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
@@ -8,6 +7,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storag
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_actions_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_item_selection_checkbox.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -103,6 +103,13 @@ class _FolderCard extends StatelessWidget {
           ),
           child: Row(
             children: [
+              StorageItemSelectionCheckbox(
+                key: ValueKey('select-folder-${folder.id}'),
+                name: folder.name,
+                selected: isSelected,
+                onToggle: () =>
+                    context.read<StorageSelectionCubit>().toggleFolder(folder),
+              ),
               Expanded(
                 child: Semantics(
                   key: ValueKey('folder-open-${folder.id}'),

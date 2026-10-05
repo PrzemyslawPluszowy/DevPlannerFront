@@ -203,6 +203,7 @@ _StorageFileShareResponse _$StorageFileShareResponseFromJson(
   canEdit: json['canEdit'] as bool,
   canShare: json['canShare'] as bool,
   canDelete: json['canDelete'] as bool,
+  targetDisplayName: json['targetDisplayName'] as String?,
 );
 
 Map<String, dynamic> _$StorageFileShareResponseToJson(
@@ -226,6 +227,7 @@ Map<String, dynamic> _$StorageFileShareResponseToJson(
   'canEdit': instance.canEdit,
   'canShare': instance.canShare,
   'canDelete': instance.canDelete,
+  'targetDisplayName': instance.targetDisplayName,
 };
 
 const _$StorageEffectiveAccessLevelEnumMap = {

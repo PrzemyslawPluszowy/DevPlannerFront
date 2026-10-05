@@ -123,6 +123,7 @@ abstract class StorageFileShareResponse with _$StorageFileShareResponse {
     required bool canEdit,
     required bool canShare,
     required bool canDelete,
+    String? targetDisplayName,
   }) = _StorageFileShareResponse;
 
   /// Odtwarza odpowiedź z JSON.

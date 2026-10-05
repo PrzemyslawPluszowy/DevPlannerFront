@@ -12613,4 +12613,18 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get storageShareRevokeMessage =>
       'Osoba lub link utraci dostęp do tego pliku. Plik pozostanie na swoim miejscu.';
+
+  @override
+  String get storageSharePersonUnavailable => 'Osoba niedostępna';
+
+  @override
+  String get storageShareWorkspaceUnavailable => 'Zespół niedostępny';
+
+  @override
+  String get storageShareProjectUnavailable => 'Projekt niedostępny';
+
+  @override
+  String storageSelectItem(String name) {
+    return 'Zaznacz $name';
+  }
 }

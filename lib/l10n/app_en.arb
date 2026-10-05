@@ -4031,5 +4031,10 @@
   "storageFileFormatUnknown": "Unknown format",
   "storageShareRecipientUnavailable": "People search is currently unavailable. Close this dialog and try again.",
   "storageShareRevokeAction": "Revoke access",
-  "storageShareRevokeMessage": "This person or link will lose access to this file. The file will remain in its current location."
+  "storageShareRevokeMessage": "This person or link will lose access to this file. The file will remain in its current location.",
+  "storageSharePersonUnavailable": "Person unavailable",
+  "storageShareWorkspaceUnavailable": "Workspace unavailable",
+  "storageShareProjectUnavailable": "Project unavailable",
+  "storageSelectItem": "Select {name}",
+  "@storageSelectItem": {"placeholders": {"name": {"type": "String"}}}
 }

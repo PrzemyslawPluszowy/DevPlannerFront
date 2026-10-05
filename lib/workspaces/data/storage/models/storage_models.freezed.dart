@@ -1414,7 +1414,7 @@ as DateTime?,
 /// @nodoc
 mixin _$StorageFileShareResponse {
 
- String get id; String get fileId; StorageShareType get shareType; StorageShareAccessLevel get accessLevel; String? get sharedWithUserId; String? get sharedWithWorkspaceId; String? get sharedWithProjectId; String? get shareToken; DateTime? get expiresAtUtc; String get createdByUserId; DateTime get createdAtUtc; StorageEffectiveAccessLevel get effectiveAccessLevel; bool get canRead; bool get canComment; bool get canEdit; bool get canShare; bool get canDelete;
+ String get id; String get fileId; StorageShareType get shareType; StorageShareAccessLevel get accessLevel; String? get sharedWithUserId; String? get sharedWithWorkspaceId; String? get sharedWithProjectId; String? get shareToken; DateTime? get expiresAtUtc; String get createdByUserId; DateTime get createdAtUtc; StorageEffectiveAccessLevel get effectiveAccessLevel; bool get canRead; bool get canComment; bool get canEdit; bool get canShare; bool get canDelete; String? get targetDisplayName;
 /// Create a copy of StorageFileShareResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1427,16 +1427,16 @@ $StorageFileShareResponseCopyWith<StorageFileShareResponse> get copyWith => _$St
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFileShareResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.fileId, fileId) || other.fileId == fileId)&&(identical(other.shareType, shareType) || other.shareType == shareType)&&(identical(other.accessLevel, accessLevel) || other.accessLevel == accessLevel)&&(identical(other.sharedWithUserId, sharedWithUserId) || other.sharedWithUserId == sharedWithUserId)&&(identical(other.sharedWithWorkspaceId, sharedWithWorkspaceId) || other.sharedWithWorkspaceId == sharedWithWorkspaceId)&&(identical(other.sharedWithProjectId, sharedWithProjectId) || other.sharedWithProjectId == sharedWithProjectId)&&(identical(other.shareToken, shareToken) || other.shareToken == shareToken)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.effectiveAccessLevel, effectiveAccessLevel) || other.effectiveAccessLevel == effectiveAccessLevel)&&(identical(other.canRead, canRead) || other.canRead == canRead)&&(identical(other.canComment, canComment) || other.canComment == canComment)&&(identical(other.canEdit, canEdit) || other.canEdit == canEdit)&&(identical(other.canShare, canShare) || other.canShare == canShare)&&(identical(other.canDelete, canDelete) || other.canDelete == canDelete));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFileShareResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.fileId, fileId) || other.fileId == fileId)&&(identical(other.shareType, shareType) || other.shareType == shareType)&&(identical(other.accessLevel, accessLevel) || other.accessLevel == accessLevel)&&(identical(other.sharedWithUserId, sharedWithUserId) || other.sharedWithUserId == sharedWithUserId)&&(identical(other.sharedWithWorkspaceId, sharedWithWorkspaceId) || other.sharedWithWorkspaceId == sharedWithWorkspaceId)&&(identical(other.sharedWithProjectId, sharedWithProjectId) || other.sharedWithProjectId == sharedWithProjectId)&&(identical(other.shareToken, shareToken) || other.shareToken == shareToken)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.effectiveAccessLevel, effectiveAccessLevel) || other.effectiveAccessLevel == effectiveAccessLevel)&&(identical(other.canRead, canRead) || other.canRead == canRead)&&(identical(other.canComment, canComment) || other.canComment == canComment)&&(identical(other.canEdit, canEdit) || other.canEdit == canEdit)&&(identical(other.canShare, canShare) || other.canShare == canShare)&&(identical(other.canDelete, canDelete) || other.canDelete == canDelete)&&(identical(other.targetDisplayName, targetDisplayName) || other.targetDisplayName == targetDisplayName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fileId,shareType,accessLevel,sharedWithUserId,sharedWithWorkspaceId,sharedWithProjectId,shareToken,expiresAtUtc,createdByUserId,createdAtUtc,effectiveAccessLevel,canRead,canComment,canEdit,canShare,canDelete);
+int get hashCode => Object.hash(runtimeType,id,fileId,shareType,accessLevel,sharedWithUserId,sharedWithWorkspaceId,sharedWithProjectId,shareToken,expiresAtUtc,createdByUserId,createdAtUtc,effectiveAccessLevel,canRead,canComment,canEdit,canShare,canDelete,targetDisplayName);
 
 @override
 String toString() {
-  return 'StorageFileShareResponse(id: $id, fileId: $fileId, shareType: $shareType, accessLevel: $accessLevel, sharedWithUserId: $sharedWithUserId, sharedWithWorkspaceId: $sharedWithWorkspaceId, sharedWithProjectId: $sharedWithProjectId, shareToken: $shareToken, expiresAtUtc: $expiresAtUtc, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc, effectiveAccessLevel: $effectiveAccessLevel, canRead: $canRead, canComment: $canComment, canEdit: $canEdit, canShare: $canShare, canDelete: $canDelete)';
+  return 'StorageFileShareResponse(id: $id, fileId: $fileId, shareType: $shareType, accessLevel: $accessLevel, sharedWithUserId: $sharedWithUserId, sharedWithWorkspaceId: $sharedWithWorkspaceId, sharedWithProjectId: $sharedWithProjectId, shareToken: $shareToken, expiresAtUtc: $expiresAtUtc, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc, effectiveAccessLevel: $effectiveAccessLevel, canRead: $canRead, canComment: $canComment, canEdit: $canEdit, canShare: $canShare, canDelete: $canDelete, targetDisplayName: $targetDisplayName)';
 }
 
 
@@ -1447,7 +1447,7 @@ abstract mixin class $StorageFileShareResponseCopyWith<$Res>  {
   factory $StorageFileShareResponseCopyWith(StorageFileShareResponse value, $Res Function(StorageFileShareResponse) _then) = _$StorageFileShareResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String fileId, StorageShareType shareType, StorageShareAccessLevel accessLevel, String? sharedWithUserId, String? sharedWithWorkspaceId, String? sharedWithProjectId, String? shareToken, DateTime? expiresAtUtc, String createdByUserId, DateTime createdAtUtc, StorageEffectiveAccessLevel effectiveAccessLevel, bool canRead, bool canComment, bool canEdit, bool canShare, bool canDelete
+ String id, String fileId, StorageShareType shareType, StorageShareAccessLevel accessLevel, String? sharedWithUserId, String? sharedWithWorkspaceId, String? sharedWithProjectId, String? shareToken, DateTime? expiresAtUtc, String createdByUserId, DateTime createdAtUtc, StorageEffectiveAccessLevel effectiveAccessLevel, bool canRead, bool canComment, bool canEdit, bool canShare, bool canDelete, String? targetDisplayName
 });
 
 
@@ -1464,7 +1464,7 @@ class _$StorageFileShareResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageFileShareResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fileId = null,Object? shareType = null,Object? accessLevel = null,Object? sharedWithUserId = freezed,Object? sharedWithWorkspaceId = freezed,Object? sharedWithProjectId = freezed,Object? shareToken = freezed,Object? expiresAtUtc = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,Object? effectiveAccessLevel = null,Object? canRead = null,Object? canComment = null,Object? canEdit = null,Object? canShare = null,Object? canDelete = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fileId = null,Object? shareType = null,Object? accessLevel = null,Object? sharedWithUserId = freezed,Object? sharedWithWorkspaceId = freezed,Object? sharedWithProjectId = freezed,Object? shareToken = freezed,Object? expiresAtUtc = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,Object? effectiveAccessLevel = null,Object? canRead = null,Object? canComment = null,Object? canEdit = null,Object? canShare = null,Object? canDelete = null,Object? targetDisplayName = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fileId: null == fileId ? _self.fileId : fileId // ignore: cast_nullable_to_non_nullable
@@ -1483,7 +1483,8 @@ as bool,canComment: null == canComment ? _self.canComment : canComment // ignore
 as bool,canEdit: null == canEdit ? _self.canEdit : canEdit // ignore: cast_nullable_to_non_nullable
 as bool,canShare: null == canShare ? _self.canShare : canShare // ignore: cast_nullable_to_non_nullable
 as bool,canDelete: null == canDelete ? _self.canDelete : canDelete // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,targetDisplayName: freezed == targetDisplayName ? _self.targetDisplayName : targetDisplayName // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -1568,10 +1569,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String fileId,  StorageShareType shareType,  StorageShareAccessLevel accessLevel,  String? sharedWithUserId,  String? sharedWithWorkspaceId,  String? sharedWithProjectId,  String? shareToken,  DateTime? expiresAtUtc,  String createdByUserId,  DateTime createdAtUtc,  StorageEffectiveAccessLevel effectiveAccessLevel,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String fileId,  StorageShareType shareType,  StorageShareAccessLevel accessLevel,  String? sharedWithUserId,  String? sharedWithWorkspaceId,  String? sharedWithProjectId,  String? shareToken,  DateTime? expiresAtUtc,  String createdByUserId,  DateTime createdAtUtc,  StorageEffectiveAccessLevel effectiveAccessLevel,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  String? targetDisplayName)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StorageFileShareResponse() when $default != null:
-return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sharedWithUserId,_that.sharedWithWorkspaceId,_that.sharedWithProjectId,_that.shareToken,_that.expiresAtUtc,_that.createdByUserId,_that.createdAtUtc,_that.effectiveAccessLevel,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete);case _:
+return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sharedWithUserId,_that.sharedWithWorkspaceId,_that.sharedWithProjectId,_that.shareToken,_that.expiresAtUtc,_that.createdByUserId,_that.createdAtUtc,_that.effectiveAccessLevel,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.targetDisplayName);case _:
   return orElse();
 
 }
@@ -1589,10 +1590,10 @@ return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sh
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String fileId,  StorageShareType shareType,  StorageShareAccessLevel accessLevel,  String? sharedWithUserId,  String? sharedWithWorkspaceId,  String? sharedWithProjectId,  String? shareToken,  DateTime? expiresAtUtc,  String createdByUserId,  DateTime createdAtUtc,  StorageEffectiveAccessLevel effectiveAccessLevel,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String fileId,  StorageShareType shareType,  StorageShareAccessLevel accessLevel,  String? sharedWithUserId,  String? sharedWithWorkspaceId,  String? sharedWithProjectId,  String? shareToken,  DateTime? expiresAtUtc,  String createdByUserId,  DateTime createdAtUtc,  StorageEffectiveAccessLevel effectiveAccessLevel,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  String? targetDisplayName)  $default,) {final _that = this;
 switch (_that) {
 case _StorageFileShareResponse():
-return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sharedWithUserId,_that.sharedWithWorkspaceId,_that.sharedWithProjectId,_that.shareToken,_that.expiresAtUtc,_that.createdByUserId,_that.createdAtUtc,_that.effectiveAccessLevel,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete);case _:
+return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sharedWithUserId,_that.sharedWithWorkspaceId,_that.sharedWithProjectId,_that.shareToken,_that.expiresAtUtc,_that.createdByUserId,_that.createdAtUtc,_that.effectiveAccessLevel,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.targetDisplayName);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1609,10 +1610,10 @@ return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sh
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String fileId,  StorageShareType shareType,  StorageShareAccessLevel accessLevel,  String? sharedWithUserId,  String? sharedWithWorkspaceId,  String? sharedWithProjectId,  String? shareToken,  DateTime? expiresAtUtc,  String createdByUserId,  DateTime createdAtUtc,  StorageEffectiveAccessLevel effectiveAccessLevel,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String fileId,  StorageShareType shareType,  StorageShareAccessLevel accessLevel,  String? sharedWithUserId,  String? sharedWithWorkspaceId,  String? sharedWithProjectId,  String? shareToken,  DateTime? expiresAtUtc,  String createdByUserId,  DateTime createdAtUtc,  StorageEffectiveAccessLevel effectiveAccessLevel,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  String? targetDisplayName)?  $default,) {final _that = this;
 switch (_that) {
 case _StorageFileShareResponse() when $default != null:
-return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sharedWithUserId,_that.sharedWithWorkspaceId,_that.sharedWithProjectId,_that.shareToken,_that.expiresAtUtc,_that.createdByUserId,_that.createdAtUtc,_that.effectiveAccessLevel,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete);case _:
+return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sharedWithUserId,_that.sharedWithWorkspaceId,_that.sharedWithProjectId,_that.shareToken,_that.expiresAtUtc,_that.createdByUserId,_that.createdAtUtc,_that.effectiveAccessLevel,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.targetDisplayName);case _:
   return null;
 
 }
@@ -1624,7 +1625,7 @@ return $default(_that.id,_that.fileId,_that.shareType,_that.accessLevel,_that.sh
 @JsonSerializable()
 
 class _StorageFileShareResponse implements StorageFileShareResponse {
-  const _StorageFileShareResponse({required this.id, required this.fileId, required this.shareType, required this.accessLevel, this.sharedWithUserId, this.sharedWithWorkspaceId, this.sharedWithProjectId, this.shareToken, this.expiresAtUtc, required this.createdByUserId, required this.createdAtUtc, required this.effectiveAccessLevel, required this.canRead, required this.canComment, required this.canEdit, required this.canShare, required this.canDelete});
+  const _StorageFileShareResponse({required this.id, required this.fileId, required this.shareType, required this.accessLevel, this.sharedWithUserId, this.sharedWithWorkspaceId, this.sharedWithProjectId, this.shareToken, this.expiresAtUtc, required this.createdByUserId, required this.createdAtUtc, required this.effectiveAccessLevel, required this.canRead, required this.canComment, required this.canEdit, required this.canShare, required this.canDelete, this.targetDisplayName});
   factory _StorageFileShareResponse.fromJson(Map<String, dynamic> json) => _$StorageFileShareResponseFromJson(json);
 
 @override final  String id;
@@ -1644,6 +1645,7 @@ class _StorageFileShareResponse implements StorageFileShareResponse {
 @override final  bool canEdit;
 @override final  bool canShare;
 @override final  bool canDelete;
+@override final  String? targetDisplayName;
 
 /// Create a copy of StorageFileShareResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -1658,16 +1660,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageFileShareResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.fileId, fileId) || other.fileId == fileId)&&(identical(other.shareType, shareType) || other.shareType == shareType)&&(identical(other.accessLevel, accessLevel) || other.accessLevel == accessLevel)&&(identical(other.sharedWithUserId, sharedWithUserId) || other.sharedWithUserId == sharedWithUserId)&&(identical(other.sharedWithWorkspaceId, sharedWithWorkspaceId) || other.sharedWithWorkspaceId == sharedWithWorkspaceId)&&(identical(other.sharedWithProjectId, sharedWithProjectId) || other.sharedWithProjectId == sharedWithProjectId)&&(identical(other.shareToken, shareToken) || other.shareToken == shareToken)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.effectiveAccessLevel, effectiveAccessLevel) || other.effectiveAccessLevel == effectiveAccessLevel)&&(identical(other.canRead, canRead) || other.canRead == canRead)&&(identical(other.canComment, canComment) || other.canComment == canComment)&&(identical(other.canEdit, canEdit) || other.canEdit == canEdit)&&(identical(other.canShare, canShare) || other.canShare == canShare)&&(identical(other.canDelete, canDelete) || other.canDelete == canDelete));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageFileShareResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.fileId, fileId) || other.fileId == fileId)&&(identical(other.shareType, shareType) || other.shareType == shareType)&&(identical(other.accessLevel, accessLevel) || other.accessLevel == accessLevel)&&(identical(other.sharedWithUserId, sharedWithUserId) || other.sharedWithUserId == sharedWithUserId)&&(identical(other.sharedWithWorkspaceId, sharedWithWorkspaceId) || other.sharedWithWorkspaceId == sharedWithWorkspaceId)&&(identical(other.sharedWithProjectId, sharedWithProjectId) || other.sharedWithProjectId == sharedWithProjectId)&&(identical(other.shareToken, shareToken) || other.shareToken == shareToken)&&(identical(other.expiresAtUtc, expiresAtUtc) || other.expiresAtUtc == expiresAtUtc)&&(identical(other.createdByUserId, createdByUserId) || other.createdByUserId == createdByUserId)&&(identical(other.createdAtUtc, createdAtUtc) || other.createdAtUtc == createdAtUtc)&&(identical(other.effectiveAccessLevel, effectiveAccessLevel) || other.effectiveAccessLevel == effectiveAccessLevel)&&(identical(other.canRead, canRead) || other.canRead == canRead)&&(identical(other.canComment, canComment) || other.canComment == canComment)&&(identical(other.canEdit, canEdit) || other.canEdit == canEdit)&&(identical(other.canShare, canShare) || other.canShare == canShare)&&(identical(other.canDelete, canDelete) || other.canDelete == canDelete)&&(identical(other.targetDisplayName, targetDisplayName) || other.targetDisplayName == targetDisplayName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fileId,shareType,accessLevel,sharedWithUserId,sharedWithWorkspaceId,sharedWithProjectId,shareToken,expiresAtUtc,createdByUserId,createdAtUtc,effectiveAccessLevel,canRead,canComment,canEdit,canShare,canDelete);
+int get hashCode => Object.hash(runtimeType,id,fileId,shareType,accessLevel,sharedWithUserId,sharedWithWorkspaceId,sharedWithProjectId,shareToken,expiresAtUtc,createdByUserId,createdAtUtc,effectiveAccessLevel,canRead,canComment,canEdit,canShare,canDelete,targetDisplayName);
 
 @override
 String toString() {
-  return 'StorageFileShareResponse(id: $id, fileId: $fileId, shareType: $shareType, accessLevel: $accessLevel, sharedWithUserId: $sharedWithUserId, sharedWithWorkspaceId: $sharedWithWorkspaceId, sharedWithProjectId: $sharedWithProjectId, shareToken: $shareToken, expiresAtUtc: $expiresAtUtc, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc, effectiveAccessLevel: $effectiveAccessLevel, canRead: $canRead, canComment: $canComment, canEdit: $canEdit, canShare: $canShare, canDelete: $canDelete)';
+  return 'StorageFileShareResponse(id: $id, fileId: $fileId, shareType: $shareType, accessLevel: $accessLevel, sharedWithUserId: $sharedWithUserId, sharedWithWorkspaceId: $sharedWithWorkspaceId, sharedWithProjectId: $sharedWithProjectId, shareToken: $shareToken, expiresAtUtc: $expiresAtUtc, createdByUserId: $createdByUserId, createdAtUtc: $createdAtUtc, effectiveAccessLevel: $effectiveAccessLevel, canRead: $canRead, canComment: $canComment, canEdit: $canEdit, canShare: $canShare, canDelete: $canDelete, targetDisplayName: $targetDisplayName)';
 }
 
 
@@ -1678,7 +1680,7 @@ abstract mixin class _$StorageFileShareResponseCopyWith<$Res> implements $Storag
   factory _$StorageFileShareResponseCopyWith(_StorageFileShareResponse value, $Res Function(_StorageFileShareResponse) _then) = __$StorageFileShareResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String fileId, StorageShareType shareType, StorageShareAccessLevel accessLevel, String? sharedWithUserId, String? sharedWithWorkspaceId, String? sharedWithProjectId, String? shareToken, DateTime? expiresAtUtc, String createdByUserId, DateTime createdAtUtc, StorageEffectiveAccessLevel effectiveAccessLevel, bool canRead, bool canComment, bool canEdit, bool canShare, bool canDelete
+ String id, String fileId, StorageShareType shareType, StorageShareAccessLevel accessLevel, String? sharedWithUserId, String? sharedWithWorkspaceId, String? sharedWithProjectId, String? shareToken, DateTime? expiresAtUtc, String createdByUserId, DateTime createdAtUtc, StorageEffectiveAccessLevel effectiveAccessLevel, bool canRead, bool canComment, bool canEdit, bool canShare, bool canDelete, String? targetDisplayName
 });
 
 
@@ -1695,7 +1697,7 @@ class __$StorageFileShareResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageFileShareResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fileId = null,Object? shareType = null,Object? accessLevel = null,Object? sharedWithUserId = freezed,Object? sharedWithWorkspaceId = freezed,Object? sharedWithProjectId = freezed,Object? shareToken = freezed,Object? expiresAtUtc = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,Object? effectiveAccessLevel = null,Object? canRead = null,Object? canComment = null,Object? canEdit = null,Object? canShare = null,Object? canDelete = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fileId = null,Object? shareType = null,Object? accessLevel = null,Object? sharedWithUserId = freezed,Object? sharedWithWorkspaceId = freezed,Object? sharedWithProjectId = freezed,Object? shareToken = freezed,Object? expiresAtUtc = freezed,Object? createdByUserId = null,Object? createdAtUtc = null,Object? effectiveAccessLevel = null,Object? canRead = null,Object? canComment = null,Object? canEdit = null,Object? canShare = null,Object? canDelete = null,Object? targetDisplayName = freezed,}) {
   return _then(_StorageFileShareResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fileId: null == fileId ? _self.fileId : fileId // ignore: cast_nullable_to_non_nullable
@@ -1714,7 +1716,8 @@ as bool,canComment: null == canComment ? _self.canComment : canComment // ignore
 as bool,canEdit: null == canEdit ? _self.canEdit : canEdit // ignore: cast_nullable_to_non_nullable
 as bool,canShare: null == canShare ? _self.canShare : canShare // ignore: cast_nullable_to_non_nullable
 as bool,canDelete: null == canDelete ? _self.canDelete : canDelete // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,targetDisplayName: freezed == targetDisplayName ? _self.targetDisplayName : targetDisplayName // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

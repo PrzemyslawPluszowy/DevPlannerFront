@@ -17,6 +17,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cub
 import 'package:devplanner/workspaces/presentation/storage/browser/selection/cubit/storage_selection_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_artwork.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_file_context_menu.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_item_selection_checkbox.dart';
 import 'package:devplanner/workspaces/presentation/storage/shared/storage_formatters.dart';
 import 'package:devplanner/workspaces/presentation/storage/sharing/widgets/storage_sharing_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
@@ -88,18 +89,29 @@ class StorageFileRows extends StatelessWidget {
               selectedTileColor: context.colors.primaryContainer.withValues(
                 alpha: 0.3,
               ),
-              leading: StorageFileArtwork(
-                file: file,
-                size: 36,
-                onTap: () {
-                  if (file.canEditOnline) {
-                    unawaited(
-                      runStorageOpenOfficeDocument(context, file: file),
-                    );
-                  } else {
-                    _openPreview(context, file);
-                  }
-                },
+              leading: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  StorageItemSelectionCheckbox(
+                    key: ValueKey('select-file-${file.id}'),
+                    name: file.originalFileName,
+                    selected: isSelected,
+                    onToggle: () => selectionCubit.toggleFile(file),
+                  ),
+                  StorageFileArtwork(
+                    file: file,
+                    size: 36,
+                    onTap: () {
+                      if (file.canEditOnline && !file.isDeleted) {
+                        unawaited(
+                          runStorageOpenOfficeDocument(context, file: file),
+                        );
+                      } else {
+                        _openPreview(context, file);
+                      }
+                    },
+                  ),
+                ],
               ),
               title: Text(
                 file.originalFileName,
@@ -120,6 +132,19 @@ class StorageFileRows extends StatelessWidget {
                       tooltip: context.l10n.storageDetailsTitle,
                       onPressed: () => openDetails(file.id),
                     ),
+                  if (capabilities.canDelete &&
+                      file.isDeleted &&
+                      file.canRestore)
+                    IconButton(
+                      key: ValueKey('restore-file-${file.id}'),
+                      icon: const Icon(AppIcons.refresh, size: 18),
+                      tooltip: context.l10n.storageRestoreSelected,
+                      onPressed: () => unawaited(
+                        context.read<StorageFileMutationCubit>().restoreFile(
+                          file.id,
+                        ),
+                      ),
+                    ),
                   if (capabilities.canMove && file.canEdit && !file.isDeleted)
                     IconButton(
                       key: ValueKey('move-file-${file.id}'),
@@ -132,7 +157,7 @@ class StorageFileRows extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (capabilities.canShare && file.canShare)
+                  if (capabilities.canShare && file.canShare && !file.isDeleted)
                     IconButton(
                       key: ValueKey('share-file-${file.id}'),
                       icon: const Icon(AppIcons.share, size: 18),
@@ -149,7 +174,9 @@ class StorageFileRows extends StatelessWidget {
                         );
                       },
                     ),
-                  if (capabilities.canFavorite && file.canRead)
+                  if (capabilities.canFavorite &&
+                      file.canRead &&
+                      !file.isDeleted)
                     IconButton(
                       icon: Icon(
                         file.isFavorite
@@ -173,7 +200,9 @@ class StorageFileRows extends StatelessWidget {
                         );
                       },
                     ),
-                  if (capabilities.canDownload && file.canDownload)
+                  if (capabilities.canDownload &&
+                      file.canDownload &&
+                      !file.isDeleted)
                     IconButton(
                       key: ValueKey('download-file-${file.id}'),
                       icon: const Icon(AppIcons.download, size: 18),
@@ -204,6 +233,10 @@ class StorageFileRows extends StatelessWidget {
   }
 
   void _openPreview(BuildContext context, StorageFileResponse file) {
-    unawaited(showStoragePreview(context, file: file));
+    if ((file.isDeleted || !file.canPreview) && onOpenFileDetails != null) {
+      onOpenFileDetails!(file.id);
+      return;
+    }
+    if (!file.isDeleted) unawaited(showStoragePreview(context, file: file));
   }
 }

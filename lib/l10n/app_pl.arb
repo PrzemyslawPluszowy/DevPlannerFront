@@ -4018,5 +4018,10 @@
   "storageFileFormatUnknown": "Nieznany format",
   "storageShareRecipientUnavailable": "Wyszukiwanie osób jest teraz niedostępne. Zamknij okno i spróbuj ponownie.",
   "storageShareRevokeAction": "Odbierz dostęp",
-  "storageShareRevokeMessage": "Osoba lub link utraci dostęp do tego pliku. Plik pozostanie na swoim miejscu."
+  "storageShareRevokeMessage": "Osoba lub link utraci dostęp do tego pliku. Plik pozostanie na swoim miejscu.",
+  "storageSharePersonUnavailable": "Osoba niedostępna",
+  "storageShareWorkspaceUnavailable": "Zespół niedostępny",
+  "storageShareProjectUnavailable": "Projekt niedostępny",
+  "storageSelectItem": "Zaznacz {name}",
+  "@storageSelectItem": {"placeholders": {"name": {"type": "String"}}}
 }

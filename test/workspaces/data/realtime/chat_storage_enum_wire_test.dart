@@ -214,6 +214,18 @@ void main() {
     },
   );
 
+  test('share target display name is additive and absent legacy field remains null', () {
+    final namedJson = _shareJson();
+    namedJson['targetDisplayName'] = 'Anna Nowak';
+    final named = StorageFileShareResponse.fromJson(namedJson);
+    expect(named.targetDisplayName, 'Anna Nowak');
+    expect(named.toJson()['targetDisplayName'], 'Anna Nowak');
+    expect(
+      StorageFileShareResponse.fromJson(_shareJson()).targetDisplayName,
+      isNull,
+    );
+  });
+
   test('required storage enums reject unknown strings and nullable access defaults safely', () {
     expect(
       () => StorageFileResponse.fromJson(_fileJson(module: 'FutureModule')),

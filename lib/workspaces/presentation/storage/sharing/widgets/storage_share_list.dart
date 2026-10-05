@@ -125,18 +125,23 @@ final class StorageShareRow extends StatelessWidget {
     StorageShareAccessLevel.owner => context.l10n.storageAccessOwner,
   };
 
-  String _targetLabel(BuildContext context) => switch (share.shareType) {
-    StorageShareType.workspace => context.l10n.storageShareWorkspaceLabel(
-      share.sharedWithWorkspaceId ?? '-',
-    ),
-    StorageShareType.project => context.l10n.storageShareProjectLabel(
-      share.sharedWithProjectId ?? '-',
-    ),
-    StorageShareType.publicLink => context.l10n.storagePublicLinkTitle,
-    StorageShareType.user => context.l10n.storageShareUserLabel(
-      share.sharedWithUserId ?? '-',
-    ),
-  };
+  String _targetLabel(BuildContext context) {
+    final name = share.targetDisplayName?.trim();
+    final displayName = name == null || name.isEmpty ? null : name;
+    return switch (share.shareType) {
+      StorageShareType.workspace =>
+        displayName == null
+            ? context.l10n.storageShareWorkspaceUnavailable
+            : context.l10n.storageShareWorkspaceLabel(displayName),
+      StorageShareType.project =>
+        displayName == null
+            ? context.l10n.storageShareProjectUnavailable
+            : context.l10n.storageShareProjectLabel(displayName),
+      StorageShareType.publicLink => context.l10n.storagePublicLinkTitle,
+      StorageShareType.user =>
+        displayName ?? context.l10n.storageSharePersonUnavailable,
+    };
+  }
 
   Future<void> _confirmRevoke(
     BuildContext context,

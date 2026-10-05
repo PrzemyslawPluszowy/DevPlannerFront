@@ -7606,3 +7606,10 @@ Nowe problemy kierowane do następnego pakietu, bez natychmiastowego deploya ka�
 - QA-20261005-25: z Enable accessibility lista folderów AX pokazuje całą pozycję jako Więcej opcji QA Storage...; klik w tekst lub ikonę otwiera menu. Po reload bez Enable accessibility ten sam klik tekstu otwiera folder i pokazuje plik. Rzeczywisty scenariusz nawigacji bez semantycznej nakładki PASS; odbiór accessibility folderu FAIL/diagnoza źródłowa w toku. Nie maskować problemu samym użyciem canvas.
 
 Nie wykonano download/ZIP/share/delete/restore/createOffice/bulk/deniedrole/errorcancel w Chrome; zostają następne w tej rezerwacji. Materiał QA: osobisty plik370b7cb4-1338-4da5-b1ea-fe2739f866a5 i folder4de22cee-8a35-4642-b10b-04e4d167f9fc (identyfikatory zasobów testowych, nie kont). Aktualne okno Chrome na szczegółach tego pliku, accessibility niewłączona po ostatnim reloadzie. Pełny audyt aktywny.
+
+## 2026-10-05 — QA26 lokalne nazwy grantów
+
+- [x] Wygenerowane opcjonalne `targetDisplayName` i human labels bez UUID;
+  Front25PASS, Backend10PASS; enumy type4/access6/effective5 zgodne w JSON testach.
+- [ ] Końcowy analyzer pakietu, OpenAPI/HTTP gate, deploy i Chrome NOT RUN.
+  Szczegóły: Backend/docs/qa26-share-target-names-handoff-2026-10-05.md.

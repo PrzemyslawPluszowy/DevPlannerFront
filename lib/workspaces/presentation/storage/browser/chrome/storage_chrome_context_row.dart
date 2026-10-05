@@ -60,7 +60,8 @@ final class StorageChromeContextRow extends StatelessWidget {
 
     return BlocBuilder<StorageBrowserCubit, StorageBrowserState>(
       buildWhen: (previous, current) =>
-          previous.runtimeType != current.runtimeType,
+          previous.runtimeType != current.runtimeType ||
+          _completeItemCount(previous) != _completeItemCount(current),
       builder: (context, state) {
         final scope = cubit.currentScope;
         final canCreateFolder =
@@ -68,7 +69,10 @@ final class StorageChromeContextRow extends StatelessWidget {
         final canCreateDocument =
             capabilities.canCreateDocument && _supportsDocuments(scope);
         final canCreate = canCreateFolder || canCreateDocument;
-        final canUpload = capabilities.canUpload && filePicker != null;
+        final canUpload =
+            scope.canCreateContent &&
+            capabilities.canUpload &&
+            filePicker != null;
         final count = _completeItemCount(state);
         final returnTo = StorageScopeRouteCodec.returnLocation(
           StorageScopeRouteCodec.routeUri(context),
@@ -106,7 +110,10 @@ final class StorageChromeContextRow extends StatelessWidget {
               ),
               if (count case final count?) ...[
                 SizedBox(width: common.controlGap),
-                _CountPill(count: count),
+                _CountPill(
+                  key: const ValueKey('storage-item-count'),
+                  count: count,
+                ),
               ],
               SizedBox(width: common.sectionGap),
               if (!isNarrow && canCreate) ...[
@@ -380,7 +387,7 @@ class _ChromeMenu extends StatelessWidget {
 
 /// Licznik elementów katalogu w formie pigułki, jak w nagłówku Tasks.
 class _CountPill extends StatelessWidget {
-  const _CountPill({required this.count});
+  const _CountPill({super.key, required this.count});
 
   final int count;
 

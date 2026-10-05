@@ -8,6 +8,7 @@ import 'package:devplanner/foundation/config/app_env.dart';
 import 'package:devplanner/foundation/http/devplanner_http_transport.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 /// Minimal standalone bootstrap.
@@ -25,6 +26,11 @@ Future<void> bootstrap({
     talker.handle(error, stackTrace, 'Uncaught platform error');
     return true;
   };
+  // The application supplies menus for rows, actions and text fields. Keep
+  // Chrome/Edge's menu from opening over them on the same secondary click.
+  if (kIsWeb) {
+    await BrowserContextMenu.disableContextMenu();
+  }
   // Launch state is intentionally local to DevPlanner. The old embedded-host
   // bridge and its token hand-off are not part of the standalone runtime.
   final resolvedTransport =

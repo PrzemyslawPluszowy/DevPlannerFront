@@ -209,20 +209,23 @@ final class StorageSelectionCubit extends Cubit<StorageSelectionState> {
 
     final canDelete =
         hasCompleteCapabilityData &&
-        selectedFileList.every((f) => f.canDelete) &&
+        selectedFileList.every((f) => f.canDelete && !f.isDeleted) &&
         selectedFolderList.every((f) => f.canDelete);
 
     final canDownloadZip =
         hasCompleteCapabilityData &&
         selectedFileList.isNotEmpty &&
         selectedFolderList.isEmpty &&
-        selectedFileList.every((file) => file.canRead);
+        selectedFileList.every(
+          (file) => file.canRead && file.canDownload && !file.isDeleted,
+        );
 
     final canShare =
         hasCompleteCapabilityData &&
         ((selectedFileList.length == 1 &&
                 selectedFolderList.isEmpty &&
-                selectedFileList.single.canShare) ||
+                selectedFileList.single.canShare &&
+                !selectedFileList.single.isDeleted) ||
             (selectedFolderList.length == 1 &&
                 selectedFileList.isEmpty &&
                 selectedFolderList.single.canShare));
@@ -231,7 +234,7 @@ final class StorageSelectionCubit extends Cubit<StorageSelectionState> {
         hasCompleteCapabilityData &&
         selectedFileList.isNotEmpty &&
         selectedFolderList.isEmpty &&
-        selectedFileList.every((file) => file.canRead);
+        selectedFileList.every((file) => file.canRead && !file.isDeleted);
 
     final canMove =
         hasCompleteCapabilityData &&
