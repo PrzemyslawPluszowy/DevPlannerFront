@@ -443,7 +443,7 @@ final class _SidebarRouteLinks extends StatelessWidget {
             icon: Icons.person_outline,
             depth: 0,
             isCollapsed: isCollapsed,
-            isSelected: location == '/me' || location.startsWith('/me/'),
+            isSelected: location == '/me',
             isExpandable: false,
             isExpanded: false,
             onTap: () => context.go('/me'),

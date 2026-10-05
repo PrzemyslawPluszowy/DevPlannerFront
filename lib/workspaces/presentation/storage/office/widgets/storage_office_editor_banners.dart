@@ -5,7 +5,6 @@ import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_editor_actions_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_editor_actions_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_state.dart';
-import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_office_status_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -75,49 +74,6 @@ final class StorageOfficePlainFormatBanner extends StatelessWidget {
     final state = context.read<StorageOfficeCubit>().state;
     return state is StorageOfficeReady ? state.session.token : null;
   }
-}
-
-/// Stały komunikat o zmianach, których backend jeszcze nie potwierdził.
-/// Snackbar znika zbyt szybko, by mógł chronić użytkownika przed utratą pracy.
-final class StorageOfficeSaveBanner extends StatelessWidget {
-  const StorageOfficeSaveBanner({super.key});
-
-  @override
-  Widget build(BuildContext context) =>
-      BlocBuilder<
-        StorageOfficeEditorActionsCubit,
-        StorageOfficeEditorActionsState
-      >(
-        buildWhen: (previous, current) =>
-            previous.hasUnsavedChanges != current.hasUnsavedChanges ||
-            previous.saveConfirmation != current.saveConfirmation,
-        builder: (context, actions) {
-          if (!actions.hasUnsavedChanges &&
-              actions.saveConfirmation !=
-                  StorageOfficeSaveConfirmation.awaitingServer &&
-              actions.saveConfirmation !=
-                  StorageOfficeSaveConfirmation.unconfirmed &&
-              actions.saveConfirmation !=
-                  StorageOfficeSaveConfirmation.confirmed) {
-            return const SizedBox.shrink();
-          }
-          final isUnconfirmed =
-              actions.saveConfirmation ==
-              StorageOfficeSaveConfirmation.unconfirmed;
-          final color = isUnconfirmed
-              ? context.colors.error
-              : actions.saveConfirmation ==
-                    StorageOfficeSaveConfirmation.confirmed
-              ? context.tasksTheme.selectionAccent
-              : context.tasksTheme.selectionAccent;
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            color: color.withValues(alpha: 0.10),
-            child: StorageOfficeStatusLabel(actions: actions),
-          );
-        },
-      );
 }
 
 final class StorageOfficeOperationBanner extends StatelessWidget {

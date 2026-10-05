@@ -67,7 +67,6 @@ final class StorageOfficeEditorView extends StatelessWidget {
             body: Column(
               children: [
                 const StorageOfficeOperationBanner(),
-                const StorageOfficeSaveBanner(),
                 StorageOfficePlainFormatBanner(file: file),
                 Expanded(
                   child: StorageOfficeEditorBody(

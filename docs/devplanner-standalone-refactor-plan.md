@@ -7552,3 +7552,11 @@ Pełna kolejka UI pozostaje w Backend/docs/ui-testing.md; nie zaliczać całej a
 - [ ] Commit/push [skip ci], jedna publikacja Wasm i dokładny retest Chrome staging. Backend/DTO/HTTP/serializacja/transportowe enumy bez zmian; zmiany prezentacji istniejących kluczy szerokości. Szerszy modal/chat/Office i warianty pozostają w centralnej kolejce.
 
 Retest pakietu33eab34 zakończony dla Chrome PL/dark1513×895: suwak działa z i bez Enable accessibility, resize400→560 trafia do backendu i przeżywa reload, reset domyślnych przywraca6kolumn/szerokości i przeżywa reload. Gotowe/Krytyczny pokazuje komunikat i widoczne Columns/Clear; klik Clear po Gotowe5 przywraca Do zrobienia25. Wszystkie4 priorytety czytelne i krótkie w dark. AX/screenshots w tej sesji CUA; zakresy i luki QA07/09/10/12/13/14 w centralnym rejestrze. Warianty narrow/light/EN/role/awarie i pełna klawiatura NOT RUN. Nowa uwaga QA15: nazwa grupy/akcja tworzenia uciekają przy poziomym scrollu, header Priorytet obcięty przy110px — następny pakiet. Office C06 jest następnym zakresem; pełny odbiór nadal otwarty.
+
+
+### Office i nawigacja — manualny audyt 2026-10-05
+
+- [x] Chrome PL/dark1513×895 staging33eab34: dwie nowe edycje kopii QA, ręczny Save i Cmd+S, host Zapisano oraz close/reopen zachowuje obie linie. Sam autosave przed Save nieodebrany; komunikaty hosta i edytora różniły się.
+- [x] QA16/17 potwierdzone: /me/files zaznaczało również Ustawienia, banner zapisu dublował status i przesuwał edytor36px. Lokalnie dokładny route /me i usunięcie redundantnego bannera; stały status AppBar/ostrzeżenia zamknięcia/polling bez zmiany. API/DTO/enumy bez zmian.
+- [x] UI UX Pro Max save status feedback + Impeccable Operate/craft floor: jeden trwały status i stabilny obszar pracy, istniejące tokeny. 38focused shell/Office PASS, detector[], pełny analyzer No issues42,7s; niezależny review bez konkretnych regresji. Logi /tmp/devplanner-office-shell-ui-tests.log oraz /tmp/devplanner-office-shell-ui-analyze.log.
+- [ ] Jedna publikacja Wasm oraz dokładny Chrome retest QA16/17, nowy Save/reopen. Pełny C06 autosave/trace/współzapis/ACL pozostaje otwarty. Dalsza kolejka Backend/docs/ui-testing.md; zadanie pełnego manualnego QA aktywne.
