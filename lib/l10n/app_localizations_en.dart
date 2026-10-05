@@ -12457,4 +12457,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasksRecurrenceColumnExecutedAt => 'EXECUTION DATE';
+
+  @override
+  String get taskDetailsParentTask => 'Parent task';
 }

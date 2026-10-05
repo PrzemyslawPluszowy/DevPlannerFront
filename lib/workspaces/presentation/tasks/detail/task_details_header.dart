@@ -4,6 +4,7 @@ import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_his
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_templates.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_parent_navigation_link.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_priority_header_control.dart';
 
 class DetailHeader extends StatelessWidget {
@@ -129,6 +130,13 @@ class DetailHeader extends StatelessWidget {
                 ),
               ],
             ),
+            if (task.parentTaskId case final parentId?)
+              TaskParentNavigationLink(
+                workspaceId: task.workspaceId,
+                projectId: task.projectId,
+                parentTaskId: parentId,
+                enabled: !isSaving,
+              ),
             const SizedBox(height: 4),
             Text(
               task.title,

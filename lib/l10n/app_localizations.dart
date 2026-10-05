@@ -22199,6 +22199,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'EXECUTION DATE'**
   String get tasksRecurrenceColumnExecutedAt;
+
+  /// No description provided for @taskDetailsParentTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent task'**
+  String get taskDetailsParentTask;
 }
 
 class _AppLocalizationsDelegate

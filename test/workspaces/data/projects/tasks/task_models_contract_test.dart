@@ -9,6 +9,33 @@ import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('subtask custom status fields round-trip and remain optional', () {
+    final base = <String, dynamic>{
+      'id': 'child',
+      'number': 2,
+      'key': 'TASK-2',
+      'title': 'Child',
+      'status': 'InProgress',
+      'priority': 'High',
+      'version': 3,
+    };
+    final legacy = ProjectTaskSubtaskSummaryResponse.fromJson(base);
+    expect(legacy.customStatusName, isNull);
+    final json = {
+      ...base,
+      'customStatusId': 'status-1',
+      'customStatusName': 'Review',
+      'customStatusColor': '#123ABC',
+    };
+    final custom = ProjectTaskSubtaskSummaryResponse.fromJson(json);
+    expect(custom.customStatusName, 'Review');
+    expect(custom.customStatusId, 'status-1');
+    expect(custom.customStatusColor, '#123ABC');
+    expect(custom.status, ProjectTaskStatus.inProgress);
+    expect(custom.priority, TaskPriority.high);
+    expect(ProjectTaskSubtaskSummaryResponse.fromJson(custom.toJson()), custom);
+  });
+
   group('Kontrakt JSON zależności zadań', () {
     test('payload edycji zachowuje rodzaj, lag i wersję optimistic lock', () {
       const payload = UpdateTaskDependencyPayload(
@@ -157,7 +184,11 @@ void main() {
         'isWatchedByMe': false,
         'isPinnedByMe': false,
         'subtasks': <dynamic>[],
-        'workflow': {'statuses': <dynamic>[], 'transitions': <dynamic>[], 'version': 1},
+        'workflow': {
+          'statuses': <dynamic>[],
+          'transitions': <dynamic>[],
+          'version': 1,
+        },
         'includedUsers': <dynamic>[],
         'capabilities': {
           'canEdit': true,

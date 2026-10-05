@@ -4013,5 +4013,6 @@
   "tasksRecurrenceColumnActions": "ACTIONS",
   "tasksRecurrenceColumnOutcome": "OUTCOME",
   "tasksRecurrenceColumnCreatedTask": "CREATED TASK",
-  "tasksRecurrenceColumnExecutedAt": "EXECUTION DATE"
+  "tasksRecurrenceColumnExecutedAt": "EXECUTION DATE",
+  "taskDetailsParentTask": "Parent task"
 }

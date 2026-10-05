@@ -349,6 +349,9 @@ abstract class ProjectTaskSubtaskSummaryResponse
     required TaskPriority priority,
     DateTime? dueAtUtc,
     required int version,
+    String? customStatusId,
+    String? customStatusName,
+    String? customStatusColor,
   }) = _ProjectTaskSubtaskSummaryResponse;
 
   /// Odtwarza skrót podzadania z JSON.

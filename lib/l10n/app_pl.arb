@@ -4000,5 +4000,6 @@
   "tasksRecurrenceColumnActions": "AKCJE",
   "tasksRecurrenceColumnOutcome": "WYNIK",
   "tasksRecurrenceColumnCreatedTask": "UTWORZONE ZADANIE",
-  "tasksRecurrenceColumnExecutedAt": "DATA URUCHOMIENIA"
+  "tasksRecurrenceColumnExecutedAt": "DATA URUCHOMIENIA",
+  "taskDetailsParentTask": "Zadanie nadrzędne"
 }

@@ -520,6 +520,9 @@ _ProjectTaskSubtaskSummaryResponse _$ProjectTaskSubtaskSummaryResponseFromJson(
       ? null
       : DateTime.parse(json['dueAtUtc'] as String),
   version: (json['version'] as num).toInt(),
+  customStatusId: json['customStatusId'] as String?,
+  customStatusName: json['customStatusName'] as String?,
+  customStatusColor: json['customStatusColor'] as String?,
 );
 
 Map<String, dynamic> _$ProjectTaskSubtaskSummaryResponseToJson(
@@ -533,4 +536,7 @@ Map<String, dynamic> _$ProjectTaskSubtaskSummaryResponseToJson(
   'priority': _$TaskPriorityEnumMap[instance.priority]!,
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
   'version': instance.version,
+  'customStatusId': instance.customStatusId,
+  'customStatusName': instance.customStatusName,
+  'customStatusColor': instance.customStatusColor,
 };

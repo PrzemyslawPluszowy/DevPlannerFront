@@ -12560,4 +12560,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tasksRecurrenceColumnExecutedAt => 'DATA URUCHOMIENIA';
+
+  @override
+  String get taskDetailsParentTask => 'Zadanie nadrzędne';
 }

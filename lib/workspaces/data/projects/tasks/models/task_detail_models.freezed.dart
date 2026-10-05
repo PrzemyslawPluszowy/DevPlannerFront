@@ -4886,7 +4886,7 @@ as int,
 /// @nodoc
 mixin _$ProjectTaskSubtaskSummaryResponse {
 
- String get id; int get number; String get key; String get title; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get dueAtUtc; int get version;
+ String get id; int get number; String get key; String get title; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get dueAtUtc; int get version; String? get customStatusId; String? get customStatusName; String? get customStatusColor;
 /// Create a copy of ProjectTaskSubtaskSummaryResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4899,16 +4899,16 @@ $ProjectTaskSubtaskSummaryResponseCopyWith<ProjectTaskSubtaskSummaryResponse> ge
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectTaskSubtaskSummaryResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.key, key) || other.key == key)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.version, version) || other.version == version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectTaskSubtaskSummaryResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.key, key) || other.key == key)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.customStatusName, customStatusName) || other.customStatusName == customStatusName)&&(identical(other.customStatusColor, customStatusColor) || other.customStatusColor == customStatusColor));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,number,key,title,status,priority,dueAtUtc,version);
+int get hashCode => Object.hash(runtimeType,id,number,key,title,status,priority,dueAtUtc,version,customStatusId,customStatusName,customStatusColor);
 
 @override
 String toString() {
-  return 'ProjectTaskSubtaskSummaryResponse(id: $id, number: $number, key: $key, title: $title, status: $status, priority: $priority, dueAtUtc: $dueAtUtc, version: $version)';
+  return 'ProjectTaskSubtaskSummaryResponse(id: $id, number: $number, key: $key, title: $title, status: $status, priority: $priority, dueAtUtc: $dueAtUtc, version: $version, customStatusId: $customStatusId, customStatusName: $customStatusName, customStatusColor: $customStatusColor)';
 }
 
 
@@ -4919,7 +4919,7 @@ abstract mixin class $ProjectTaskSubtaskSummaryResponseCopyWith<$Res>  {
   factory $ProjectTaskSubtaskSummaryResponseCopyWith(ProjectTaskSubtaskSummaryResponse value, $Res Function(ProjectTaskSubtaskSummaryResponse) _then) = _$ProjectTaskSubtaskSummaryResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, int number, String key, String title, ProjectTaskStatus status, TaskPriority priority, DateTime? dueAtUtc, int version
+ String id, int number, String key, String title, ProjectTaskStatus status, TaskPriority priority, DateTime? dueAtUtc, int version, String? customStatusId, String? customStatusName, String? customStatusColor
 });
 
 
@@ -4936,7 +4936,7 @@ class _$ProjectTaskSubtaskSummaryResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectTaskSubtaskSummaryResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? number = null,Object? key = null,Object? title = null,Object? status = null,Object? priority = null,Object? dueAtUtc = freezed,Object? version = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? number = null,Object? key = null,Object? title = null,Object? status = null,Object? priority = null,Object? dueAtUtc = freezed,Object? version = null,Object? customStatusId = freezed,Object? customStatusName = freezed,Object? customStatusColor = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
@@ -4946,7 +4946,10 @@ as String,status: null == status ? _self.status : status // ignore: cast_nullabl
 as ProjectTaskStatus,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
-as int,
+as int,customStatusId: freezed == customStatusId ? _self.customStatusId : customStatusId // ignore: cast_nullable_to_non_nullable
+as String?,customStatusName: freezed == customStatusName ? _self.customStatusName : customStatusName // ignore: cast_nullable_to_non_nullable
+as String?,customStatusColor: freezed == customStatusColor ? _self.customStatusColor : customStatusColor // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -5031,10 +5034,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int number,  String key,  String title,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? dueAtUtc,  int version)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  int number,  String key,  String title,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? dueAtUtc,  int version,  String? customStatusId,  String? customStatusName,  String? customStatusColor)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProjectTaskSubtaskSummaryResponse() when $default != null:
-return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.priority,_that.dueAtUtc,_that.version);case _:
+return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.priority,_that.dueAtUtc,_that.version,_that.customStatusId,_that.customStatusName,_that.customStatusColor);case _:
   return orElse();
 
 }
@@ -5052,10 +5055,10 @@ return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int number,  String key,  String title,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? dueAtUtc,  int version)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  int number,  String key,  String title,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? dueAtUtc,  int version,  String? customStatusId,  String? customStatusName,  String? customStatusColor)  $default,) {final _that = this;
 switch (_that) {
 case _ProjectTaskSubtaskSummaryResponse():
-return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.priority,_that.dueAtUtc,_that.version);case _:
+return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.priority,_that.dueAtUtc,_that.version,_that.customStatusId,_that.customStatusName,_that.customStatusColor);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -5072,10 +5075,10 @@ return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int number,  String key,  String title,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? dueAtUtc,  int version)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  int number,  String key,  String title,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? dueAtUtc,  int version,  String? customStatusId,  String? customStatusName,  String? customStatusColor)?  $default,) {final _that = this;
 switch (_that) {
 case _ProjectTaskSubtaskSummaryResponse() when $default != null:
-return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.priority,_that.dueAtUtc,_that.version);case _:
+return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.priority,_that.dueAtUtc,_that.version,_that.customStatusId,_that.customStatusName,_that.customStatusColor);case _:
   return null;
 
 }
@@ -5087,7 +5090,7 @@ return $default(_that.id,_that.number,_that.key,_that.title,_that.status,_that.p
 @JsonSerializable()
 
 class _ProjectTaskSubtaskSummaryResponse implements ProjectTaskSubtaskSummaryResponse {
-  const _ProjectTaskSubtaskSummaryResponse({required this.id, required this.number, required this.key, required this.title, required this.status, required this.priority, this.dueAtUtc, required this.version});
+  const _ProjectTaskSubtaskSummaryResponse({required this.id, required this.number, required this.key, required this.title, required this.status, required this.priority, this.dueAtUtc, required this.version, this.customStatusId, this.customStatusName, this.customStatusColor});
   factory _ProjectTaskSubtaskSummaryResponse.fromJson(Map<String, dynamic> json) => _$ProjectTaskSubtaskSummaryResponseFromJson(json);
 
 @override final  String id;
@@ -5098,6 +5101,9 @@ class _ProjectTaskSubtaskSummaryResponse implements ProjectTaskSubtaskSummaryRes
 @override final  TaskPriority priority;
 @override final  DateTime? dueAtUtc;
 @override final  int version;
+@override final  String? customStatusId;
+@override final  String? customStatusName;
+@override final  String? customStatusColor;
 
 /// Create a copy of ProjectTaskSubtaskSummaryResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -5112,16 +5118,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectTaskSubtaskSummaryResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.key, key) || other.key == key)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.version, version) || other.version == version));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProjectTaskSubtaskSummaryResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.number, number) || other.number == number)&&(identical(other.key, key) || other.key == key)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.version, version) || other.version == version)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.customStatusName, customStatusName) || other.customStatusName == customStatusName)&&(identical(other.customStatusColor, customStatusColor) || other.customStatusColor == customStatusColor));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,number,key,title,status,priority,dueAtUtc,version);
+int get hashCode => Object.hash(runtimeType,id,number,key,title,status,priority,dueAtUtc,version,customStatusId,customStatusName,customStatusColor);
 
 @override
 String toString() {
-  return 'ProjectTaskSubtaskSummaryResponse(id: $id, number: $number, key: $key, title: $title, status: $status, priority: $priority, dueAtUtc: $dueAtUtc, version: $version)';
+  return 'ProjectTaskSubtaskSummaryResponse(id: $id, number: $number, key: $key, title: $title, status: $status, priority: $priority, dueAtUtc: $dueAtUtc, version: $version, customStatusId: $customStatusId, customStatusName: $customStatusName, customStatusColor: $customStatusColor)';
 }
 
 
@@ -5132,7 +5138,7 @@ abstract mixin class _$ProjectTaskSubtaskSummaryResponseCopyWith<$Res> implement
   factory _$ProjectTaskSubtaskSummaryResponseCopyWith(_ProjectTaskSubtaskSummaryResponse value, $Res Function(_ProjectTaskSubtaskSummaryResponse) _then) = __$ProjectTaskSubtaskSummaryResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, int number, String key, String title, ProjectTaskStatus status, TaskPriority priority, DateTime? dueAtUtc, int version
+ String id, int number, String key, String title, ProjectTaskStatus status, TaskPriority priority, DateTime? dueAtUtc, int version, String? customStatusId, String? customStatusName, String? customStatusColor
 });
 
 
@@ -5149,7 +5155,7 @@ class __$ProjectTaskSubtaskSummaryResponseCopyWithImpl<$Res>
 
 /// Create a copy of ProjectTaskSubtaskSummaryResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? number = null,Object? key = null,Object? title = null,Object? status = null,Object? priority = null,Object? dueAtUtc = freezed,Object? version = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? number = null,Object? key = null,Object? title = null,Object? status = null,Object? priority = null,Object? dueAtUtc = freezed,Object? version = null,Object? customStatusId = freezed,Object? customStatusName = freezed,Object? customStatusColor = freezed,}) {
   return _then(_ProjectTaskSubtaskSummaryResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,number: null == number ? _self.number : number // ignore: cast_nullable_to_non_nullable
@@ -5159,7 +5165,10 @@ as String,status: null == status ? _self.status : status // ignore: cast_nullabl
 as ProjectTaskStatus,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
-as int,
+as int,customStatusId: freezed == customStatusId ? _self.customStatusId : customStatusId // ignore: cast_nullable_to_non_nullable
+as String?,customStatusName: freezed == customStatusName ? _self.customStatusName : customStatusName // ignore: cast_nullable_to_non_nullable
+as String?,customStatusColor: freezed == customStatusColor ? _self.customStatusColor : customStatusColor // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

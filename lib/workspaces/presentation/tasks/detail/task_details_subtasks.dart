@@ -63,7 +63,10 @@ class SubtasksSection extends StatelessWidget {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14),
                     leading: const Icon(Symbols.subdirectory_arrow_right),
                     title: Text(subtask.title),
-                    subtitle: Text(subtask.key),
+                    subtitle: Text(
+                      '${subtask.key} · '
+                      '${subtask.customStatusName ?? TaskDetailsLabeler.status(context, subtask.status)}',
+                    ),
                     onTap: () => _openSubtask(context, subtask.id),
                   ),
               ],
