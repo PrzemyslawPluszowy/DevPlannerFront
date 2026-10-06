@@ -60,7 +60,8 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
   final String projectId;
   final bool Function()? canEdit;
   final void Function(ApiError)? onAccessLost;
-  ({String taskId, DateTime start, DateTime due})? _previewInput;
+  ({String taskId, DateTime start, DateTime due, int draftGeneration})?
+  _previewInput;
   late final _lifecycle = TaskDetailSectionLifecycle(
     isClosed: () => isClosed,
     canEdit: canEdit,
@@ -75,6 +76,7 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
     required String taskId,
     required DateTime newStartAtUtc,
     required DateTime newDueAtUtc,
+    int draftGeneration = 0,
   }) async {
     if (!_lifecycle.canMutate || state.isBusy) return false;
     final generation = _lifecycle.begin()!;
@@ -113,6 +115,7 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
           taskId: taskId,
           start: newStartAtUtc,
           due: newDueAtUtc,
+          draftGeneration: draftGeneration,
         );
         emit(state.copyWith(isPreviewing: false, preview: preview));
         return true;
@@ -128,11 +131,17 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
     required String taskId,
     required DateTime newStartAtUtc,
     required DateTime newDueAtUtc,
+    int draftGeneration = 0,
   }) async {
     final preview = state.preview;
     if (!_lifecycle.canMutate || preview == null || state.isBusy) return false;
     if (_previewInput !=
-        (taskId: taskId, start: newStartAtUtc, due: newDueAtUtc)) {
+        (
+          taskId: taskId,
+          start: newStartAtUtc,
+          due: newDueAtUtc,
+          draftGeneration: draftGeneration,
+        )) {
       const error = ApiError(
         type: ApiErrorType.validation,
         message: 'Oblicz podgląd dla aktualnych terminów przed zapisem.',

@@ -14852,6 +14852,36 @@ abstract class AppLocalizations {
   /// **'dependencies'**
   String get tasksTimelineDependencies;
 
+  /// No description provided for @taskDetailsCascadeExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'The preview shows how the new dates affect dependent tasks without saving. Applying the cascade saves those task dates and the estimate entered in this form.'**
+  String get taskDetailsCascadeExplanation;
+
+  /// No description provided for @taskDetailsCascadeBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently'**
+  String get taskDetailsCascadeBefore;
+
+  /// No description provided for @taskDetailsCascadeAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After change'**
+  String get taskDetailsCascadeAfter;
+
+  /// No description provided for @taskDetailsCascadeDateUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'No date'**
+  String get taskDetailsCascadeDateUnset;
+
+  /// No description provided for @taskDetailsCascadeEstimatePending.
+  ///
+  /// In en, this message translates to:
+  /// **'The dates were saved, but saving the estimate has not completed. Your estimate is still in the form. Select Save to finish; the cascade will not be applied again.'**
+  String get taskDetailsCascadeEstimatePending;
+
   /// No description provided for @taskDetailsCascadePreview.
   ///
   /// In en, this message translates to:
@@ -14861,7 +14891,7 @@ abstract class AppLocalizations {
   /// No description provided for @taskDetailsCascadePreviewDescription.
   ///
   /// In en, this message translates to:
-  /// **'Review affected tasks and dates before saving.'**
+  /// **'Compare the current and proposed dates before saving.'**
   String get taskDetailsCascadePreviewDescription;
 
   /// No description provided for @taskDetailsCascadeChanges.
@@ -14873,7 +14903,7 @@ abstract class AppLocalizations {
   /// No description provided for @taskDetailsCascadeNoChanges.
   ///
   /// In en, this message translates to:
-  /// **'The date change does not move other tasks.'**
+  /// **'There are no date changes to apply.'**
   String get taskDetailsCascadeNoChanges;
 
   /// No description provided for @taskDetailsCascadeApply.

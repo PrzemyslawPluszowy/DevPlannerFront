@@ -8349,18 +8349,35 @@ class AppLocalizationsPl extends AppLocalizations {
   String get tasksTimelineDependencies => 'zależności';
 
   @override
+  String get taskDetailsCascadeExplanation =>
+      'Podgląd pokaże, jak nowe daty wpłyną na zadania zależne. Niczego nie zapisuje. Zastosowanie kaskady zapisze terminy tych zadań oraz estymację z tego formularza.';
+
+  @override
+  String get taskDetailsCascadeBefore => 'Obecnie';
+
+  @override
+  String get taskDetailsCascadeAfter => 'Po zmianie';
+
+  @override
+  String get taskDetailsCascadeDateUnset => 'Brak daty';
+
+  @override
+  String get taskDetailsCascadeEstimatePending =>
+      'Terminy zostały zapisane, ale zapis estymacji nie został zakończony. Formularz zachował Twoją estymację. Kliknij Zapisz, aby dokończyć — kaskada nie zostanie zastosowana ponownie.';
+
+  @override
   String get taskDetailsCascadePreview => 'Podgląd kaskady';
 
   @override
   String get taskDetailsCascadePreviewDescription =>
-      'Sprawdź, które zadania i terminy zmienią się przed zapisem.';
+      'Porównaj obecne daty z proponowanymi przed ich zapisaniem.';
 
   @override
   String get taskDetailsCascadeChanges => 'Zmiany harmonogramu';
 
   @override
   String get taskDetailsCascadeNoChanges =>
-      'Zmiana terminu nie przesuwa innych zadań.';
+      'Nie ma zmian terminów do zastosowania.';
 
   @override
   String get taskDetailsCascadeApply => 'Zastosuj kaskadę';

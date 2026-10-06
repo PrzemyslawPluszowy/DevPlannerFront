@@ -74,6 +74,25 @@ void main() {
 
   tearDown(() => cubit.close());
 
+  test('pierwszy harmonogram zachowuje nullable poprzednie daty w JSON', () {
+    final shift = TaskDateShiftResponse.fromJson({
+      'taskId': 'task-1',
+      'title': 'Nowy harmonogram',
+      'currentStartAtUtc': null,
+      'currentDueAtUtc': null,
+      'proposedStartAtUtc': '2026-10-06T00:00:00.000Z',
+      'proposedDueAtUtc': '2026-10-07T00:00:00.000Z',
+      'shiftWorkingDays': 0,
+      'isOnCriticalPath': false,
+      'expectedVersion': 7,
+    });
+    expect(shift.currentStartAtUtc, isNull);
+    expect(shift.currentDueAtUtc, isNull);
+    expect(shift.toJson()['currentStartAtUtc'], isNull);
+    expect(shift.toJson()['currentDueAtUtc'], isNull);
+    expect(TaskDateShiftResponse.fromJson(shift.toJson()), shift);
+  });
+
   test('zmiana dat podczas odczytu odrzuca spóźniony podgląd', () async {
     final pending = Completer<Either<ApiError, ScheduleCascadeResponse>>();
     repository.pendingPreview = pending.future;
@@ -110,6 +129,32 @@ void main() {
       );
       expect(repository.applies, isEmpty);
       expect(cubit.state.apiError?.apiCode, 'task_cascade_preview_stale');
+    },
+  );
+
+  test(
+    'zmiana wersji szkicu uniemożliwia zastosowanie starego podglądu',
+    () async {
+      repository.previewResult = Right(
+        _previewWith(taskId: 'task-1', expectedVersion: 7),
+      );
+      await cubit.preview(
+        taskId: 'task-1',
+        newStartAtUtc: DateTime.utc(2026, 9, 21),
+        newDueAtUtc: DateTime.utc(2026, 9, 25),
+        draftGeneration: 3,
+      );
+      expect(
+        await cubit.apply(
+          taskId: 'task-1',
+          newStartAtUtc: DateTime.utc(2026, 9, 21),
+          newDueAtUtc: DateTime.utc(2026, 9, 25),
+          draftGeneration: 4,
+        ),
+        isFalse,
+      );
+      expect(repository.applies, isEmpty);
+      expect(cubit.state.preview, isNull);
     },
   );
 

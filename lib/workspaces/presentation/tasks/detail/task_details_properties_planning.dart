@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/presentation/tasks/detail/cascade/task_schedule_cascade_preview.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
@@ -19,6 +20,8 @@ class EditPlanningDialogState extends State<EditPlanningDialog> {
   final ValueNotifier<String?> _validationMessage = ValueNotifier(null);
   final ValueNotifier<bool> _saving = ValueNotifier(false);
   late final Listenable _formChanges;
+  int _draftGeneration = 0;
+  bool _cascadeApplied = false;
 
   /// Podgląd i zapis kaskady mają własny stan: widget tylko przekazuje daty.
   late final TaskScheduleCascadeCubit _cascadeCubit;
@@ -60,6 +63,8 @@ class EditPlanningDialogState extends State<EditPlanningDialog> {
   }
 
   void _refreshDraft() {
+    _draftGeneration++;
+    _cascadeCubit.clearPreview();
     final task = widget.task;
     final estimateText = _estimateController.text.trim();
     final originalEstimate = task.estimatedMinutes?.toString() ?? '';
@@ -114,47 +119,28 @@ class EditPlanningDialogState extends State<EditPlanningDialog> {
             _draft,
           ),
           onSubmit: cascade.isPreviewing ? () {} : _save,
-          additionalActions: [
-            OutlinedButton.icon(
-              onPressed: _saving.value || cascade.isBusy
-                  ? null
-                  : _previewCascade,
-              icon: cascade.isPreviewing
-                  ? const SizedBox.square(
-                      dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Symbols.visibility),
-              label: Text(context.l10n.taskDetailsCascadePreview),
-            ),
-            if (cascade.preview != null) ...[
-              const SizedBox(width: 8),
-              FilledButton.icon(
-                onPressed: cascade.isApplying ? null : _applyCascade,
-                icon: cascade.isApplying
-                    ? const SizedBox.square(
-                        dimension: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Symbols.account_tree),
-                label: Text(context.l10n.taskDetailsCascadeApply),
-              ),
-            ],
-          ],
           body: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const TaskDetailsDialogMutationError(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    context.l10n.taskDetailsCascadeExplanation,
+                    style: context.text.bodySmall,
+                  ),
+                ),
+                const SizedBox(height: 12),
                 DateField(
                   label: context.l10n.taskDetailsStartDate,
                   value: _startAtUtc.value,
                   format: format,
-                  enabled: !_saving.value,
+                  enabled:
+                      !_saving.value && !cascade.isApplying && !_cascadeApplied,
                   onChanged: (value) {
                     _startAtUtc.value = value;
                     _refreshDraft();
-                    _cascadeCubit.clearPreview();
                     _validationMessage.value = null;
                   },
                 ),
@@ -163,23 +149,31 @@ class EditPlanningDialogState extends State<EditPlanningDialog> {
                   label: context.l10n.taskDetailsDueDate,
                   value: _dueAtUtc.value,
                   format: format,
-                  enabled: !_saving.value,
+                  enabled:
+                      !_saving.value && !cascade.isApplying && !_cascadeApplied,
                   onChanged: (value) {
                     _dueAtUtc.value = value;
                     _refreshDraft();
-                    _cascadeCubit.clearPreview();
                     _validationMessage.value = null;
                   },
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _estimateController,
-                  enabled: !_saving.value,
+                  enabled: !_saving.value && !cascade.isApplying,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: context.l10n.taskDetailsEstimateMinutes,
                     suffixText: 'min',
                   ),
+                ),
+                const SizedBox(height: 12),
+                _PlanningCascadeActions(
+                  cascade: cascade,
+                  isSaving: _saving.value,
+                  isApplied: _cascadeApplied,
+                  onPreview: _previewCascade,
+                  onApply: _applyCascade,
                 ),
                 if (cascade.apiError case final error?) ...[
                   TaskDetailsModalError(error: error),
@@ -225,6 +219,10 @@ class EditPlanningDialogState extends State<EditPlanningDialog> {
     }
     _saving.value = true;
     final source = context.read<TaskDetailsCubit>();
+    if (_cascadeApplied) {
+      await _completeAppliedCascade(source, estimate);
+      return;
+    }
     final saved = await source.updatePlanning(
       startAtUtc: _startAtUtc.value,
       dueAtUtc: _dueAtUtc.value,
@@ -255,25 +253,87 @@ class EditPlanningDialogState extends State<EditPlanningDialog> {
       taskId: widget.task.id,
       newStartAtUtc: _startAtUtc.value!,
       newDueAtUtc: _dueAtUtc.value!,
+      draftGeneration: _draftGeneration,
     );
   }
 
   Future<void> _applyCascade() async {
+    if (_saving.value || _cascadeCubit.state.isBusy || _cascadeApplied) return;
     if (!_validateDateRange()) return;
     if (_startAtUtc.value == null || _dueAtUtc.value == null) return;
+    final estimateText = _estimateController.text.trim();
+    final estimate = estimateText.isEmpty ? null : int.tryParse(estimateText);
+    if ((estimateText.isNotEmpty && estimate == null) ||
+        (estimate != null && estimate <= 0)) {
+      _validationMessage.value = context.l10n.taskDetailsInvalidEstimate;
+      return;
+    }
+    final source = context.read<TaskDetailsCubit>();
+    final generation = _draftGeneration;
+    _saving.value = true;
+    _validationMessage.value = null;
     final applied = await _cascadeCubit.apply(
       taskId: widget.task.id,
       newStartAtUtc: _startAtUtc.value!,
       newDueAtUtc: _dueAtUtc.value!,
+      draftGeneration: generation,
     );
-    if (!mounted || !applied) return;
-    _draft?.clear();
-    await _reloadAfterCascade();
+    if (!mounted) return;
+    if (!applied) {
+      _saving.value = false;
+      return;
+    }
+    _cascadeApplied = true;
+    if (generation != _draftGeneration ||
+        source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      _validationMessage.value = context.l10n.taskDetailsCascadeEstimatePending;
+      return;
+    }
+    await _completeAppliedCascade(source, estimate);
   }
 
-  Future<void> _reloadAfterCascade() async {
-    await context.read<TaskDetailsCubit>().load();
-    if (mounted) Navigator.of(context).pop();
+  Future<void> _completeAppliedCascade(
+    TaskDetailsCubit source,
+    int? estimate,
+  ) async {
+    await source.load();
+    if (!mounted) return;
+    if (source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      _validationMessage.value = context.l10n.taskDetailsCascadeEstimatePending;
+      return;
+    }
+    final current = source.state;
+    if (current is! TaskDetailsReady ||
+        current.details.task.id != widget.task.id ||
+        !current.canEdit) {
+      _saving.value = false;
+      _validationMessage.value = context.l10n.taskDetailsCascadeEstimatePending;
+      return;
+    }
+    final task = current.details.task;
+    // Daty pochodzą z zapisanego wyniku kaskady, a wersja z aktualnego odczytu.
+    final saved =
+        estimate == widget.task.estimatedMinutes ||
+        estimate == task.estimatedMinutes ||
+        await source.updatePlanning(
+          startAtUtc: task.startAtUtc,
+          dueAtUtc: task.dueAtUtc,
+          estimatedMinutes: estimate,
+        );
+    if (!mounted) return;
+    if (!saved ||
+        source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      _saving.value = false;
+      _validationMessage.value = context.l10n.taskDetailsCascadeEstimatePending;
+      return;
+    }
+    _draft?.clear();
+    Navigator.of(context).pop();
   }
 
   bool _validateDateRange() {
@@ -287,92 +347,54 @@ class EditPlanningDialogState extends State<EditPlanningDialog> {
   }
 }
 
-class CascadePreview extends StatelessWidget {
-  const CascadePreview({
-    required this.preview,
-    required this.format,
-    super.key,
+final class _PlanningCascadeActions extends StatelessWidget {
+  const _PlanningCascadeActions({
+    required this.cascade,
+    required this.isSaving,
+    required this.isApplied,
+    required this.onPreview,
+    required this.onApply,
   });
-
-  final ScheduleCascadeResponse preview;
-  final DateFormat format;
-
+  final TaskScheduleCascadeState cascade;
+  final bool isSaving;
+  final bool isApplied;
+  final VoidCallback onPreview;
+  final VoidCallback onApply;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: context.colors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: context.colors.outlineVariant),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.taskDetailsCascadeChanges,
-            style: context.text.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerLeft,
+    child: Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        Tooltip(
+          message: context.l10n.taskDetailsCascadeExplanation,
+          child: OutlinedButton.icon(
+            onPressed: isSaving || cascade.isBusy || isApplied
+                ? null
+                : onPreview,
+            icon: cascade.isPreviewing
+                ? const SizedBox.square(
+                    dimension: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Symbols.visibility),
+            label: Text(context.l10n.taskDetailsCascadePreview),
           ),
-          const SizedBox(height: 6),
-          Text(
-            context.l10n.taskDetailsCascadePreviewDescription,
-            style: context.text.bodySmall,
+        ),
+        if (cascade.preview != null) ...[
+          FilledButton.icon(
+            onPressed: isSaving || cascade.isBusy ? null : onApply,
+            icon: cascade.isApplying
+                ? const SizedBox.square(
+                    dimension: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Symbols.account_tree),
+            label: Text(context.l10n.taskDetailsCascadeApply),
           ),
-          const SizedBox(height: 8),
-          if (preview.dateShifts.isEmpty)
-            Text(context.l10n.taskDetailsCascadeNoChanges)
-          else
-            ...preview.dateShifts.map(
-              (shift) => Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      shift.isOnCriticalPath
-                          ? Symbols.warning_amber_rounded
-                          : Symbols.calendar_month,
-                      size: 18,
-                      color: shift.isOnCriticalPath
-                          ? context.colors.error
-                          : context.colors.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          text: '${shift.title}\n',
-                          style: context.text.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                          children: [
-                            TextSpan(
-                              text:
-                                  '${format.format(shift.proposedStartAtUtc.toLocal())} – ${format.format(shift.proposedDueAtUtc.toLocal())}',
-                              style: context.text.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            if (shift.isOnCriticalPath)
-                              TextSpan(
-                                text:
-                                    ' · ${context.l10n.taskDetailsCascadeCritical}',
-                                style: context.text.bodySmall?.copyWith(
-                                  color: context.colors.error,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
         ],
-      ),
+      ],
     ),
   );
 }

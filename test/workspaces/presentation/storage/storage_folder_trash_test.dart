@@ -6,6 +6,7 @@ import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_error_banner.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_bulk_restore_commands.dart';
@@ -30,109 +31,139 @@ void main() {
     testWidgets(
       'trash folder ${grid ? "grid" : "list"} retains rename and root fields after conflict and updates total on restore',
       (tester) async {
-        final repository = _Repository();
-        var folders = [
-          storageTestFolder(name: 'Archived').copyWith(
-            isDeleted: true,
-            canRestore: true,
-            canRead: false,
-            canEdit: false,
-            canDelete: false,
-            canShare: false,
-          ),
-        ];
-        when(repository.listTrashFolders)
-            .thenAnswer((_) async => right(folders));
-        when(
-          () => repository.listFiles(
-            scope: any(named: 'scope'),
-            folderId: any(named: 'folderId'),
-            cursor: any(named: 'cursor'),
-            limit: any(named: 'limit'),
-            query: any(named: 'query'),
-            filter: any(named: 'filter'),
-          ),
-        ).thenAnswer((_) async => right(const CursorPageResponse(items: [])));
-        var attempts = 0;
-        final calls = <(String?, bool)>[];
-        when(
-          () => repository.restoreFolder(
-            folderId: 'folder-1',
-            name: any(named: 'name'),
-            parentFolderId: any(named: 'parentFolderId'),
-            restoreToRoot: any(named: 'restoreToRoot'),
-          ),
-        ).thenAnswer((invocation) async {
-          calls.add((
-            invocation.namedArguments[#name] as String?,
-            invocation.namedArguments[#restoreToRoot]! as bool,
-          ));
-          if (attempts++ == 0) {
-            return left(
-              const ApiError(
-                type: ApiErrorType.conflict,
-                message: 'backend',
-                apiCode: 'storage.folder_name_conflict',
-                statusCode: 409,
-              ),
+        final semantics = tester.ensureSemantics();
+        try {
+          final repository = _Repository();
+          var folders = [
+            storageTestFolder(name: 'Archived').copyWith(
+              isDeleted: true,
+              canRestore: true,
+              canRead: false,
+              canEdit: false,
+              canDelete: false,
+              canShare: false,
+            ),
+          ];
+          when(repository.listTrashFolders)
+              .thenAnswer((_) async => right(folders));
+          when(
+            () => repository.listFiles(
+              scope: any(named: 'scope'),
+              folderId: any(named: 'folderId'),
+              cursor: any(named: 'cursor'),
+              limit: any(named: 'limit'),
+              query: any(named: 'query'),
+              filter: any(named: 'filter'),
+            ),
+          ).thenAnswer((_) async => right(const CursorPageResponse(items: [])));
+          var attempts = 0;
+          final calls = <(String?, bool)>[];
+          when(
+            () => repository.restoreFolder(
+              folderId: 'folder-1',
+              name: any(named: 'name'),
+              parentFolderId: any(named: 'parentFolderId'),
+              restoreToRoot: any(named: 'restoreToRoot'),
+            ),
+          ).thenAnswer((invocation) async {
+            calls.add((
+              invocation.namedArguments[#name] as String?,
+              invocation.namedArguments[#restoreToRoot]! as bool,
+            ));
+            if (attempts++ == 0) {
+              return left(
+                const ApiError(
+                  type: ApiErrorType.conflict,
+                  message: 'backend',
+                  apiCode: 'storage.folder_name_conflict',
+                  statusCode: 409,
+                  traceId: 'restore-conflict-trace',
+                ),
+              );
+            }
+            final restored = folders.single.copyWith(
+              isDeleted: false,
+              canRestore: false,
             );
-          }
-          final restored = folders.single.copyWith(
-            isDeleted: false,
-            canRestore: false,
+            folders = [];
+            return right(restored);
+          });
+          await pumpStorageShell(
+            tester,
+            repository: repository,
+            scope: const StorageScope.trash(),
           );
-          folders = [];
-          return right(restored);
-        });
-        await pumpStorageShell(
-          tester,
-          repository: repository,
-          scope: const StorageScope.trash(),
-        );
-        final context = tester.element(find.byType(StorageBrowserBody));
-        if (grid) {
-          context.read<StorageBrowserCubit>().setViewMode(StorageViewMode.grid);
+          final context = tester.element(find.byType(StorageBrowserBody));
+          if (grid) {
+            context.read<StorageBrowserCubit>().setViewMode(
+              StorageViewMode.grid,
+            );
+            await tester.pumpAndSettle();
+          }
+          await tester.tap(find.byKey(const ValueKey('folder-open-folder-1')));
           await tester.pumpAndSettle();
+          expect(
+            context.read<StorageBrowserCubit>().currentScope,
+            const StorageScope.trash(),
+          );
+          await tester.tap(
+            find.byKey(const ValueKey('folder-restore-folder-1')),
+          );
+          await tester.pumpAndSettle();
+          await tester.enterText(find.byType(TextField), 'Renamed');
+          await tester.tap(find.byType(CheckboxListTile));
+          await tester.tap(
+            find.byKey(const ValueKey('storage_folder_restore_save')),
+          );
+          await tester.pumpAndSettle();
+          expect(find.text('Renamed'), findsOneWidget);
+          expect(
+            tester
+                .widget<CheckboxListTile>(find.byType(CheckboxListTile))
+                .value,
+            isTrue,
+          );
+          expect(
+            find.text(
+              'Folder o tej nazwie już istnieje. Wprowadź inną nazwę lub wybierz katalog główny.',
+            ),
+            findsOneWidget,
+          );
+          expect(find.byType(StorageErrorBanner), findsNothing);
+          expect(find.textContaining('restore-conflict-trace'), findsNothing);
+          final announcedError = find.byWidgetPredicate(
+            (widget) =>
+                widget is Semantics &&
+                widget.properties.liveRegion == true &&
+                (widget.properties.label?.contains('Folder o tej nazwie') ??
+                    false),
+          );
+          expect(announcedError, findsOneWidget);
+          expect(
+            tester.getSemantics(announcedError).getSemanticsData().label,
+            contains('Wprowadź inną nazwę'),
+          );
+          await tester.tap(find.byType(ExpansionTile));
+          await tester.pumpAndSettle();
+          expect(find.textContaining('restore-conflict-trace'), findsOneWidget);
+          await tester.tap(
+            find.byKey(const ValueKey('storage_folder_restore_save')),
+          );
+          await tester.pumpAndSettle();
+          expect(calls, [('Renamed', true), ('Renamed', true)]);
+          expect(
+            find.byKey(const ValueKey('folder-restore-folder-1')),
+            findsNothing,
+          );
+          expect(
+            context.read<StorageBrowserCubit>().state,
+            isA<StorageBrowserEmpty>(),
+          );
+          expect(tester.takeException(), isNull);
+          expect(find.byType(StorageErrorBanner), findsNothing);
+        } finally {
+          semantics.dispose();
         }
-        await tester.tap(find.byKey(const ValueKey('folder-open-folder-1')));
-        await tester.pumpAndSettle();
-        expect(
-          context.read<StorageBrowserCubit>().currentScope,
-          const StorageScope.trash(),
-        );
-        await tester.tap(find.byKey(const ValueKey('folder-restore-folder-1')));
-        await tester.pumpAndSettle();
-        await tester.enterText(find.byType(TextField), 'Renamed');
-        await tester.tap(find.byType(CheckboxListTile));
-        await tester.tap(
-          find.byKey(const ValueKey('storage_folder_restore_save')),
-        );
-        await tester.pumpAndSettle();
-        expect(find.text('Renamed'), findsOneWidget);
-        expect(
-          tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
-          isTrue,
-        );
-        expect(
-          find.text(
-            'Folder o tej nazwie już istnieje. Wprowadź inną nazwę lub wybierz katalog główny.',
-          ),
-          findsOneWidget,
-        );
-        await tester.tap(
-          find.byKey(const ValueKey('storage_folder_restore_save')),
-        );
-        await tester.pumpAndSettle();
-        expect(calls, [('Renamed', true), ('Renamed', true)]);
-        expect(
-          find.byKey(const ValueKey('folder-restore-folder-1')),
-          findsNothing,
-        );
-        expect(
-          context.read<StorageBrowserCubit>().state,
-          isA<StorageBrowserEmpty>(),
-        );
-        expect(tester.takeException(), isNull);
       },
     );
   }

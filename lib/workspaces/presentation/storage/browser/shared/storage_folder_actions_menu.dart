@@ -326,6 +326,7 @@ final class _StorageFolderActionOwner {
       folderId: folder.id,
       name: name == folder.name ? null : name,
       restoreToRoot: restoreToRoot,
+      presentErrorLocally: true,
     );
     if (!isCurrent) return StorageFolderActionOutcome.stale;
     return source.state is StorageFolderMutationSuccess

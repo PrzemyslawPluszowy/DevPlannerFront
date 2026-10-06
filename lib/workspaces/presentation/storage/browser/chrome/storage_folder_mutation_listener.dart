@@ -68,7 +68,8 @@ final class _StorageFolderMutationListenerState
         if (id != null) selection.removeSelectedIds({id});
       }
       unawaited(browser.load(showLoading: false));
-    } else if (state is StorageFolderMutationFailure) {
+    } else if (state is StorageFolderMutationFailure &&
+        !state.presentedLocally) {
       widget.onError(
         StorageMutationError(
           message: state.message,

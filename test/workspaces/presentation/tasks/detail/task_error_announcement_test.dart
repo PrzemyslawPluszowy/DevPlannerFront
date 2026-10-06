@@ -72,7 +72,9 @@ void main() {
         );
         final alert = find.byWidgetPredicate(
           (widget) =>
-              widget is Semantics && widget.properties.liveRegion == true,
+              widget is Semantics &&
+              widget.properties.liveRegion == true &&
+              widget.container,
         );
         expect(alert, findsOneWidget);
         expect(
@@ -87,6 +89,9 @@ void main() {
           tester.getSemantics(alert).getSemanticsData().value,
           contains('Access revoked'),
         );
+        expect(find.textContaining('error-trace'), findsNothing);
+        await tester.tap(find.byType(ExpansionTile));
+        await tester.pumpAndSettle();
         expect(find.textContaining('error-trace'), findsOneWidget);
         await tester.pumpWidget(
           _app(

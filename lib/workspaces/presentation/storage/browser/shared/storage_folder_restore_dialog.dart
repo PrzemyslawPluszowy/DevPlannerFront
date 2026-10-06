@@ -244,8 +244,11 @@ final class _StorageFolderRestoreViewState
             FilledButton(
               key: const ValueKey('storage_folder_restore_save'),
               style: FilledButton.styleFrom(
-                backgroundColor: context.colors.onSurface,
-                foregroundColor: context.colors.surface,
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.onPrimary,
+                disabledBackgroundColor: common.commandBarSurface,
+                disabledForegroundColor: context.colors.onSurfaceVariant
+                    .withValues(alpha: .55),
                 textStyle: common.controlText,
                 minimumSize: Size(0, common.commandRowHeight),
                 shape: RoundedRectangleBorder(
@@ -254,9 +257,14 @@ final class _StorageFolderRestoreViewState
               ),
               onPressed: _saving || !canSubmit || _hasEmptyName ? null : _save,
               child: _saving
-                  ? const SizedBox.square(
+                  ? SizedBox.square(
                       dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: context.colors.onSurfaceVariant.withValues(
+                          alpha: .55,
+                        ),
+                      ),
                     )
                   : Text(context.l10n.storageRestoreSelected),
             ),

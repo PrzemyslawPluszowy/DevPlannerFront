@@ -79,7 +79,9 @@ final class StorageFolderMutationCubit
     String? name,
     String? parentFolderId,
     bool restoreToRoot = false,
+    bool presentErrorLocally = false,
   }) => _run<StorageFolderResponse>(
+    presentErrorLocally: presentErrorLocally,
     request: () => repository.restoreFolder(
       folderId: folderId,
       name: name?.trim(),
@@ -104,6 +106,7 @@ final class StorageFolderMutationCubit
   Future<void> _run<T>({
     required Future<Either<ApiError, T>> Function() request,
     required StorageFolderMutationState Function(T value) onSuccess,
+    bool presentErrorLocally = false,
   }) async {
     if (!canMutate) return;
     _inFlight = true;
@@ -116,7 +119,10 @@ final class StorageFolderMutationCubit
       outcome = result.fold<StorageFolderMutationState>(
         (error) {
           _recordRetryAfter(error.retryAfterUtc);
-          return StorageFolderMutationFailure(error: error);
+          return StorageFolderMutationFailure(
+            error: error,
+            presentedLocally: presentErrorLocally,
+          );
         },
         onSuccess,
       );
@@ -124,7 +130,10 @@ final class StorageFolderMutationCubit
       if (!_isCurrent(generation)) return;
       final apiError = _errorFromThrown(error);
       _recordRetryAfter(apiError.retryAfterUtc);
-      outcome = StorageFolderMutationFailure(error: apiError);
+      outcome = StorageFolderMutationFailure(
+        error: apiError,
+        presentedLocally: presentErrorLocally,
+      );
     } finally {
       if (_isCurrent(generation)) {
         _inFlight = false;

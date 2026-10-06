@@ -44,10 +44,12 @@ final class StorageFolderMutationFailure extends StorageFolderMutationState {
   const StorageFolderMutationFailure({
     required this.error,
     this.retryEnabledRevision = 0,
+    this.presentedLocally = false,
   });
 
   final ApiError error;
   final int retryEnabledRevision;
+  final bool presentedLocally;
 
   /// Pola zachowane dla dotychczasowych listenerów powłoki.
   String get message => error.message;
@@ -60,8 +62,9 @@ final class StorageFolderMutationFailure extends StorageFolderMutationState {
       StorageFolderMutationFailure(
         error: error,
         retryEnabledRevision: retryEnabledRevision ?? this.retryEnabledRevision,
+        presentedLocally: presentedLocally,
       );
 
   @override
-  List<Object?> get props => [error, retryEnabledRevision];
+  List<Object?> get props => [error, retryEnabledRevision, presentedLocally];
 }

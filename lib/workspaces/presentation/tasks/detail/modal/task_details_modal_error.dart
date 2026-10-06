@@ -81,35 +81,61 @@ final class TaskDetailsModalError extends StatelessWidget {
                 error.traceId != null)
               Padding(
                 padding: const EdgeInsets.only(left: 34, top: 5),
-                child: Wrap(
-                  spacing: 16,
-                  runSpacing: 4,
+                child: ExpansionTile(
+                  key: ValueKey((
+                    error.apiCode,
+                    error.contractCode,
+                    error.backendCode,
+                    error.traceId,
+                    error.statusCode,
+                    error.message,
+                  )),
+                  dense: true,
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(bottom: 8),
+                  expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                  shape: const Border(),
+                  collapsedShape: const Border(),
+                  iconColor: colors.onSurfaceVariant,
+                  collapsedIconColor: colors.onSurfaceVariant,
+                  textColor: colors.onSurface,
+                  collapsedTextColor: colors.onSurface,
+                  title: Text(
+                    context.l10n.tasksGlobalSearchShowDiagnostics,
+                    style: tasks.metaText,
+                  ),
                   children: [
-                    if (code != null)
-                      _TaskDetailsErrorMetadata(
-                        label: context.l10n.taskDetailsErrorCode,
-                        value: code,
-                      ),
-                    if (error.contractCode case final contractCode?)
-                      _TaskDetailsErrorMetadata(
-                        label: context.l10n.taskDetailsErrorContractCode,
-                        value: contractCode,
-                      ),
-                    if (error.backendCode case final backendCode?)
-                      _TaskDetailsErrorMetadata(
-                        label: context.l10n.taskDetailsErrorBackendCode,
-                        value: '$backendCode',
-                      ),
-                    if (error.statusCode case final statusCode?)
-                      _TaskDetailsErrorMetadata(
-                        label: context.l10n.taskDetailsErrorHttpStatus,
-                        value: '$statusCode',
-                      ),
-                    if (error.traceId case final traceId?)
-                      _TaskDetailsErrorMetadata(
-                        label: context.l10n.taskDetailsErrorTraceId,
-                        value: traceId,
-                      ),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 4,
+                      children: [
+                        if (code != null)
+                          _TaskDetailsErrorMetadata(
+                            label: context.l10n.taskDetailsErrorCode,
+                            value: code,
+                          ),
+                        if (error.contractCode case final contractCode?)
+                          _TaskDetailsErrorMetadata(
+                            label: context.l10n.taskDetailsErrorContractCode,
+                            value: contractCode,
+                          ),
+                        if (error.backendCode case final backendCode?)
+                          _TaskDetailsErrorMetadata(
+                            label: context.l10n.taskDetailsErrorBackendCode,
+                            value: '$backendCode',
+                          ),
+                        if (error.statusCode case final statusCode?)
+                          _TaskDetailsErrorMetadata(
+                            label: context.l10n.taskDetailsErrorHttpStatus,
+                            value: '$statusCode',
+                          ),
+                        if (error.traceId case final traceId?)
+                          _TaskDetailsErrorMetadata(
+                            label: context.l10n.taskDetailsErrorTraceId,
+                            value: traceId,
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),

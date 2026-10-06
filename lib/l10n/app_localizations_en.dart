@@ -8289,18 +8289,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasksTimelineDependencies => 'dependencies';
 
   @override
+  String get taskDetailsCascadeExplanation =>
+      'The preview shows how the new dates affect dependent tasks without saving. Applying the cascade saves those task dates and the estimate entered in this form.';
+
+  @override
+  String get taskDetailsCascadeBefore => 'Currently';
+
+  @override
+  String get taskDetailsCascadeAfter => 'After change';
+
+  @override
+  String get taskDetailsCascadeDateUnset => 'No date';
+
+  @override
+  String get taskDetailsCascadeEstimatePending =>
+      'The dates were saved, but saving the estimate has not completed. Your estimate is still in the form. Select Save to finish; the cascade will not be applied again.';
+
+  @override
   String get taskDetailsCascadePreview => 'Preview cascade';
 
   @override
   String get taskDetailsCascadePreviewDescription =>
-      'Review affected tasks and dates before saving.';
+      'Compare the current and proposed dates before saving.';
 
   @override
   String get taskDetailsCascadeChanges => 'Schedule changes';
 
   @override
   String get taskDetailsCascadeNoChanges =>
-      'The date change does not move other tasks.';
+      'There are no date changes to apply.';
 
   @override
   String get taskDetailsCascadeApply => 'Apply cascade';
