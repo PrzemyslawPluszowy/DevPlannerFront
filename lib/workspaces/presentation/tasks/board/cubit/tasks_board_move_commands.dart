@@ -13,9 +13,11 @@ final class TasksBoardMoveCommands {
     required this._context,
     required this._repository,
     required this._canMoveTaskTo,
+    required this._scopeRevision,
   });
   final TasksBoardCommandContext _context;
   final KanbanRepository _repository;
+  final int Function() _scopeRevision;
   final bool Function({
     required KanbanTaskCardResponse task,
     required KanbanColumnResponse targetColumn,
@@ -27,9 +29,17 @@ final class TasksBoardMoveCommands {
     required int targetIndex,
   }) async {
     final current = _context.currentState;
-    if (current is! TasksBoardReady || current.isBulkSaving) {
+    if (_context.isBoardClosed ||
+        current is! TasksBoardReady ||
+        current.isBulkSaving ||
+        current.pendingTaskIds.contains(task.id)) {
       return;
     }
+    final revision = _scopeRevision();
+    final target = current.board.columns
+        .where((column) => _columnKey(column) == _columnKey(targetColumn))
+        .firstOrNull;
+    if (target == null) return;
     final latestTask = TasksBoardCardStateMutator.findCard(current, task.id);
     if (latestTask == null) {
       _publishError(
@@ -38,7 +48,7 @@ final class TasksBoardMoveCommands {
       );
       return;
     }
-    if (!_canMoveTaskTo(task: latestTask, targetColumn: targetColumn)) {
+    if (!_canMoveTaskTo(task: latestTask, targetColumn: target)) {
       _publishError(
         current,
         'To przejście statusu nie jest dozwolone w workflow.',
@@ -52,7 +62,7 @@ final class TasksBoardMoveCommands {
       return;
     }
     final sourceKey = _columnKey(sourceColumn);
-    final targetKey = _columnKey(targetColumn);
+    final targetKey = _columnKey(target);
     final sameColumn = sourceKey == targetKey;
     final sourceIndex = sourceColumn.tasks.indexWhere(
       (item) => item.id == latestTask.id,
@@ -61,7 +71,7 @@ final class TasksBoardMoveCommands {
         sameColumn && sourceIndex >= 0 && sourceIndex < targetIndex
         ? targetIndex - 1
         : targetIndex;
-    final targetCards = targetColumn.tasks
+    final targetCards = target.tasks
         .where((item) => item.id != latestTask.id)
         .toList(growable: true);
     // Backend waliduje wstawienie względem pełnej kolumny, a filtr może ukryć
@@ -81,12 +91,14 @@ final class TasksBoardMoveCommands {
     targetCards.insert(
       safeIndex,
       latestTask.copyWith(
-        status: targetColumn.status,
-        customStatusId: targetColumn.customStatusId,
+        status: target.status,
+        customStatusId: target.customStatusId,
       ),
     );
+    final owner = Object();
     _context.publish(
       current.copyWith(
+        pendingMoveOwners: {...current.pendingMoveOwners, latestTask.id: owner},
         board: current.board.copyWith(
           columns: current.board.columns
               .map((column) {
@@ -118,36 +130,79 @@ final class TasksBoardMoveCommands {
         clearError: true,
       ),
     );
-    final result = await _repository.moveTask(
-      workspaceId: _context.workspaceId,
-      projectId: _context.projectId,
-      taskId: latestTask.id,
-      payload: MoveKanbanTaskPayload(
-        targetStatus: targetColumn.status,
-        previousTaskId: previousTaskId,
-        nextTaskId: nextTaskId,
-        expectedVersion: latestTask.version,
-        customStatusId: targetColumn.customStatusId,
-      ),
-    );
-    if (_context.isBoardClosed) {
-      return;
-    }
-    result.fold(
-      (error) => _rollbackMove(
+    try {
+      final result = await _repository.moveTask(
+        workspaceId: _context.workspaceId,
+        projectId: _context.projectId,
+        taskId: latestTask.id,
+        payload: MoveKanbanTaskPayload(
+          targetStatus: target.status,
+          previousTaskId: previousTaskId,
+          nextTaskId: nextTaskId,
+          expectedVersion: latestTask.version,
+          customStatusId: target.customStatusId,
+        ),
+      );
+      if (!_isCurrentScope(current, revision, latestTask.id, owner)) return;
+      result.fold(
+        (error) => _rollbackMove(
+          task: latestTask,
+          sourceKey: sourceKey,
+          targetKey: targetKey,
+          sourceIndex: sourceIndex,
+          sameColumn: sameColumn,
+          error: tasksViewErrorFrom(error),
+        ),
+        (response) => _confirmMove(
+          taskId: latestTask.id,
+          targetKey: targetKey,
+          response: response,
+        ),
+      );
+    } catch (_) {
+      if (!_isCurrentScope(current, revision, latestTask.id, owner)) return;
+      _rollbackMove(
         task: latestTask,
         sourceKey: sourceKey,
         targetKey: targetKey,
         sourceIndex: sourceIndex,
         sameColumn: sameColumn,
-        errorMessage: error.message,
-      ),
-      (response) => _confirmMove(
-        taskId: latestTask.id,
-        targetKey: targetKey,
-        response: response,
+        error: const TasksViewError(code: 'tasks.bulk.save_failed'),
+      );
+    } finally {
+      _releasePending(latestTask.id, owner);
+    }
+  }
+
+  void _releasePending(String taskId, Object owner) {
+    final current = _context.currentState;
+    if (_context.isBoardClosed ||
+        current is! TasksBoardReady ||
+        !identical(current.pendingMoveOwners[taskId], owner)) {
+      return;
+    }
+    _context.publish(
+      current.copyWith(
+        pendingTaskIds: {...current.pendingTaskIds}..remove(taskId),
       ),
     );
+  }
+
+  bool _isCurrentScope(
+    TasksBoardReady initial,
+    int revision,
+    String taskId,
+    Object owner,
+  ) {
+    final current = _context.currentState;
+    return !_context.isBoardClosed &&
+        current is TasksBoardReady &&
+        _scopeRevision() == revision &&
+        identical(current.pendingMoveOwners[taskId], owner) &&
+        current.filter == initial.filter &&
+        current.grouping == initial.grouping &&
+        current.userPreference?.quickFilter ==
+            initial.userPreference?.quickFilter;
   }
 
   void _rollbackMove({
@@ -156,16 +211,27 @@ final class TasksBoardMoveCommands {
     required String targetKey,
     required int sourceIndex,
     required bool sameColumn,
-    required String errorMessage,
+    required TasksViewError error,
   }) {
     final current = _context.currentState;
     if (current is! TasksBoardReady) {
       return;
     }
+    final latest = TasksBoardCardStateMutator.findCard(current, task.id);
+    if (latest == null || latest.version != task.version) {
+      _context.publish(
+        current.copyWith(
+          pendingTaskIds: {...current.pendingTaskIds}..remove(task.id),
+          failedTaskIds: {...current.failedTaskIds, task.id},
+          error: error,
+        ),
+      );
+      return;
+    }
     final columns = current.board.columns
         .map((column) {
           final key = _columnKey(column);
-          if (key == targetKey) {
+          if (key == targetKey && !sameColumn) {
             return column.copyWith(
               tasks: column.tasks.where((item) => item.id != task.id).toList(),
               totalTaskCount: sameColumn
@@ -193,7 +259,7 @@ final class TasksBoardMoveCommands {
         board: current.board.copyWith(columns: columns),
         pendingTaskIds: {...current.pendingTaskIds}..remove(task.id),
         failedTaskIds: {...current.failedTaskIds, task.id},
-        error: TasksViewError(code: errorMessage),
+        error: error,
       ),
     );
   }

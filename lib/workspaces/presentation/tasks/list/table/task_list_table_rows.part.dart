@@ -66,7 +66,7 @@ final class _ListSubtaskTable extends _ListRow {
 final class _ListGroupLoadMore extends _ListRow {
   const _ListGroupLoadMore(this.groupKey);
 
-  final String groupKey;
+  final String? groupKey;
 }
 
 /// Formularz szybkiego dodawania nowego zadania bezpośrednio wewnątrz grupy.

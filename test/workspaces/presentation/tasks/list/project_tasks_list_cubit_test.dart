@@ -31,6 +31,10 @@ final class _TasksRepository implements TasksRepository {
   ApiError? bulkError;
   ApiError? selectionTokenError;
   int archiveCalls = 0;
+  ApiError? flatPageError;
+  bool throwFlatPage = false;
+  Completer<Either<ApiError, CursorPageResponse<ProjectTaskListItemResponse>>>?
+  deferredFlatPage;
   int bulkCalls = 0;
   Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>? deferredBulk;
   int rootSubtaskCount = 0;
@@ -62,6 +66,9 @@ final class _TasksRepository implements TasksRepository {
     ProjectTasksQuery query = const ProjectTasksQuery(),
   }) async {
     lastQuery = query;
+    if (throwFlatPage) throw StateError('Unexpected page error');
+    if (flatPageError case final error?) return Left(error);
+    if (deferredFlatPage case final deferred?) return deferred.future;
     page++;
     if (query.parentTaskId case final parentTaskId?) {
       subtaskPage++;
@@ -718,6 +725,263 @@ void main() {
     );
     expect(repository.bulkCalls, 0);
   });
+
+  test(
+    'flat UI grouping accepts backend None-to-Status normalization',
+    () async {
+      final flat = ProjectTasksListCubit(
+        repository: repository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        groupBy: TaskSavedViewGroupBy.none,
+      );
+      addTearDown(flat.close);
+      await flat.load();
+      await flat.loadMoreGroup('status:Todo');
+      expect(
+        (flat.state as ProjectTasksListReady).tasks.map((task) => task.id),
+        ['task-1', 'task-2'],
+      );
+      expect((flat.state as ProjectTasksListReady).groupLoadErrors, isEmpty);
+    },
+  );
+
+  test(
+    'closed pagination and forbidden group retry send no additional GET',
+    () async {
+      await cubit.load();
+      repository.groupedListError = const ApiError(
+        type: ApiErrorType.forbidden,
+        message: 'No access',
+      );
+      await cubit.loadMoreGroup('status:Todo');
+      expect(repository.groupedCalls, 2);
+      await cubit.loadMoreGroup('status:Todo');
+      expect(repository.groupedCalls, 2);
+      await cubit.close();
+      await cubit.loadMoreGroup('status:Todo');
+      await cubit.loadMore(retry: true);
+      expect(repository.groupedCalls, 2);
+    },
+  );
+
+  test('group page failure preserves cursor and data with local loading and explicit retry', () async {
+    await cubit.load();
+    final initial = cubit.state as ProjectTasksListReady;
+    repository.groupedListError = const ApiError(
+      type: ApiErrorType.server,
+      message: 'Temporary read failure',
+    );
+    final request = cubit.loadMoreGroup('status:Todo');
+    expect((cubit.state as ProjectTasksListReady).loadingGroupKeys, {
+      'status:Todo',
+    });
+    await request;
+    final failed = cubit.state as ProjectTasksListReady;
+    expect(failed.tasks, initial.tasks);
+    expect(failed.groups.single.nextCursor, 'cursor-2');
+    expect(failed.loadingGroupKeys, isEmpty);
+    expect(
+      failed.groupLoadErrors['status:Todo']?.message,
+      'Temporary read failure',
+    );
+    repository.groupedListError = null;
+    await cubit.loadMoreGroup('status:Todo');
+    final retried = cubit.state as ProjectTasksListReady;
+    expect(retried.tasks.map((task) => task.id), ['task-1', 'task-2']);
+    expect(retried.groupLoadErrors, isEmpty);
+  });
+
+  test('old group epoch cannot append or clear loading in a new same-key filtered request', () async {
+    await cubit.load();
+    final oldPage =
+        Completer<Either<ApiError, ProjectTaskGroupedListResponse>>();
+    repository.deferredNextGroupPage = oldPage;
+    final oldRequest = cubit.loadMoreGroup('status:Todo');
+    await cubit.load(status: ProjectTaskStatus.blocked);
+    final newPage =
+        Completer<Either<ApiError, ProjectTaskGroupedListResponse>>();
+    repository.deferredNextGroupPage = newPage;
+    final newRequest = cubit.loadMoreGroup('status:Todo');
+    ProjectTaskGroupedListResponse response(String id) =>
+        ProjectTaskGroupedListResponse(
+          totalCount: 2,
+          groupBy: TaskSavedViewGroupBy.status,
+          groups: [
+            ProjectTaskListGroupResponse(
+              key: 'status:Todo',
+              displayName: 'Todo',
+              color: '#123456',
+              position: 0,
+              totalCount: 2,
+              items: [_task(id)],
+            ),
+          ],
+        );
+    oldPage.complete(Right(response('old-filter-task')));
+    await oldRequest;
+    expect((cubit.state as ProjectTasksListReady).loadingGroupKeys, {
+      'status:Todo',
+    });
+    expect(
+      (cubit.state as ProjectTasksListReady).tasks.any(
+        (task) => task.id == 'old-filter-task',
+      ),
+      isFalse,
+    );
+    newPage.complete(Right(response('new-filter-task')));
+    await newRequest;
+    final finalState = cubit.state as ProjectTasksListReady;
+    expect(finalState.status, ProjectTaskStatus.blocked);
+    expect(finalState.tasks.map((task) => task.id), [
+      'task-1',
+      'new-filter-task',
+    ]);
+    expect(finalState.loadingGroupKeys, isEmpty);
+  });
+
+  test('group page rejects changed task versions and mismatched group without losing data', () async {
+    await cubit.load();
+    final pending =
+        Completer<Either<ApiError, ProjectTaskGroupedListResponse>>();
+    repository.deferredNextGroupPage = pending;
+    final request = cubit.loadMoreGroup('status:Todo');
+    final latest = cubit.state as ProjectTasksListReady;
+    final changed = latest.tasks.single.copyWith(version: 7);
+    cubit.emit(
+      latest.copyWith(
+        tasks: [changed],
+        groups: [
+          latest.groups.single.copyWith(items: [changed]),
+        ],
+      ),
+    );
+    pending.complete(
+      Right(
+        ProjectTaskGroupedListResponse(
+          totalCount: 2,
+          groupBy: TaskSavedViewGroupBy.status,
+          groups: [
+            latest.groups.single.copyWith(
+              items: [_task('task-2')],
+              nextCursor: null,
+            ),
+          ],
+        ),
+      ),
+    );
+    await request;
+    final rejected = cubit.state as ProjectTasksListReady;
+    expect(rejected.tasks.single.version, 7);
+    expect(
+      rejected.groupLoadErrors['status:Todo']?.message,
+      'tasks.list.page_changed',
+    );
+    expect(rejected.groups.single.nextCursor, 'cursor-2');
+    final wrong = Completer<Either<ApiError, ProjectTaskGroupedListResponse>>();
+    repository.deferredNextGroupPage = wrong;
+    final retry = cubit.loadMoreGroup('status:Todo');
+    wrong.complete(
+      Right(
+        ProjectTaskGroupedListResponse(
+          totalCount: 2,
+          groupBy: TaskSavedViewGroupBy.status,
+          groups: [
+            latest.groups.single.copyWith(
+              key: 'wrong-group',
+              items: [_task('task-2')],
+              nextCursor: null,
+            ),
+          ],
+        ),
+      ),
+    );
+    await retry;
+    expect((cubit.state as ProjectTasksListReady).tasks.single.version, 7);
+    expect(
+      (cubit.state as ProjectTasksListReady)
+          .groupLoadErrors['status:Todo']
+          ?.message,
+      'tasks.list.page_failed',
+    );
+  });
+
+  test('flat page ignores duplicate scroll, preserves versions and retries only explicitly', () async {
+    await cubit.load();
+    final initial = cubit.state as ProjectTasksListReady;
+    cubit.emit(initial.copyWith(groups: [], nextCursor: 'flat-cursor'));
+    final pending =
+        Completer<
+          Either<ApiError, CursorPageResponse<ProjectTaskListItemResponse>>
+        >();
+    repository.deferredFlatPage = pending;
+    final request = cubit.loadMore();
+    await cubit.loadMore();
+    final latest = cubit.state as ProjectTasksListReady;
+    cubit.emit(
+      latest.copyWith(tasks: [latest.tasks.single.copyWith(version: 8)]),
+    );
+    pending.complete(
+      Right(CursorPageResponse(items: [_task('task-2')])),
+    );
+    await request;
+    expect((cubit.state as ProjectTasksListReady).tasks.single.version, 8);
+    expect(
+      (cubit.state as ProjectTasksListReady).moreError,
+      'tasks.list.page_changed',
+    );
+    expect((cubit.state as ProjectTasksListReady).isLoadingMore, isFalse);
+    repository.deferredFlatPage = null;
+    repository.flatPageError = const ApiError(
+      type: ApiErrorType.server,
+      message: 'Read failure',
+    );
+    await cubit.loadMore(); // scroll cannot automatically retry a failed page
+    expect(
+      (cubit.state as ProjectTasksListReady).moreError,
+      'tasks.list.page_changed',
+    );
+    await cubit.loadMore(retry: true);
+    expect((cubit.state as ProjectTasksListReady).moreError, 'Read failure');
+    repository.flatPageError = null;
+    await cubit.loadMore(retry: true);
+    expect((cubit.state as ProjectTasksListReady).tasks.single.version, 8);
+    expect((cubit.state as ProjectTasksListReady).moreError, isNull);
+  });
+
+  test(
+    'flat page wrong cursor and exception settle loading and preserve snapshot',
+    () async {
+      await cubit.load();
+      final initial = cubit.state as ProjectTasksListReady;
+      cubit.emit(initial.copyWith(groups: [], nextCursor: 'cursor-a'));
+      final pending =
+          Completer<
+            Either<ApiError, CursorPageResponse<ProjectTaskListItemResponse>>
+          >();
+      repository.deferredFlatPage = pending;
+      final request = cubit.loadMore();
+      cubit.emit(
+        (cubit.state as ProjectTasksListReady).copyWith(nextCursor: 'cursor-b'),
+      );
+      pending.complete(
+        Right(
+          CursorPageResponse(items: [_task('wrong-page')]),
+        ),
+      );
+      await request;
+      expect((cubit.state as ProjectTasksListReady).tasks, initial.tasks);
+      expect((cubit.state as ProjectTasksListReady).nextCursor, 'cursor-b');
+      repository.deferredFlatPage = null;
+      repository.throwFlatPage = true;
+      await cubit.loadMore();
+      expect(
+        (cubit.state as ProjectTasksListReady).moreError,
+        'tasks.list.page_failed',
+      );
+      expect((cubit.state as ProjectTasksListReady).isLoadingMore, isFalse);
+    },
+  );
 
   test('pauzuje cykliczność bez przeładowania grupy', () async {
     recurrenceRepository.pauseResult = Right(

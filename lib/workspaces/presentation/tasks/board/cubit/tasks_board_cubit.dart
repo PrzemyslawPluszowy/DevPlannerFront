@@ -79,6 +79,7 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
       scopeRevision: () => _bulkScopeRevision,
     );
     _moves = TasksBoardMoveCommands(
+      scopeRevision: () => _bulkScopeRevision,
       context: this,
       repository: repository,
       canMoveTaskTo: _canMoveFromBulkCommand,
@@ -128,7 +129,10 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
     if (state is TasksBoardReady) {
       final scope = _lastBulkScope;
       if (scope != null &&
-          (scope.filter != state.filter || scope.grouping != state.grouping)) {
+          (scope.filter != state.filter ||
+              scope.grouping != state.grouping ||
+              scope.userPreference?.quickFilter !=
+                  state.userPreference?.quickFilter)) {
         _bulkScopeRevision++;
         next = state.copyWith(clearBulkError: true, canRetryBulk: false);
       }

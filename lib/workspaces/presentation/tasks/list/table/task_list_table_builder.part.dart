@@ -101,6 +101,8 @@ extension _TaskListTableBuilderExtension on _TaskListTableState {
       ];
     }
 
+    if (state.hasNextPage) rows.add(const _ListGroupLoadMore(null));
+
     _lastStateForGroupedRows = state;
     _lastGroupByForRows = groupBy;
     _lastSortFieldForRows = sortField;

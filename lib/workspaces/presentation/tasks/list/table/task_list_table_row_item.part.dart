@@ -162,7 +162,19 @@ extension _TaskListTableRowItemExtension on _TaskListTableState {
             columnWidthsById: _columnWidthsById,
           ),
         ),
-      _ListGroupLoadMore() => const SizedBox.shrink(),
+      _ListGroupLoadMore(:final groupKey) => TaskListPageFooter(
+        key: ValueKey('task_page_footer_${groupKey ?? 'flat'}'),
+        isLoading: groupKey == null
+            ? state.isLoadingMore
+            : state.loadingGroupKeys.contains(groupKey),
+        isBlocked: state.isRefreshing || state.isBulkSaving,
+        error: groupKey == null
+            ? state.moreApiError
+            : state.groupLoadErrors[groupKey],
+        onLoadMore: () => groupKey == null
+            ? context.read<ProjectTasksListCubit>().loadMore(retry: true)
+            : context.read<ProjectTasksListCubit>().loadMoreGroup(groupKey),
+      ),
       _ListGroupInlineCreate(:final groupKey) => TaskListGroupInlineCreateRow(
         isEditing: _addingRootGroupKey == groupKey,
         controller: _rootCreateController,

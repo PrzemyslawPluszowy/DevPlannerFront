@@ -2,83 +2,184 @@ part of 'project_tasks_list_cubit.dart';
 
 /// Operacje loading wydzielone poza klasę stanu listy.
 mixin TaskListLoadingMixin on ProjectTasksListCubitPort {
-  Future<void> loadMore() async {
-    final current = state;
-    if (current is! ProjectTasksListReady || !current.canLoadMore) return;
-    final cursor = current.nextCursor;
-    if (cursor == null) return;
-    final serial = _requestSerial;
-    emit(current.copyWith(isLoadingMore: true, clearMoreError: true));
-    final result = await repository.listProjectTasks(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      query: TaskListQuery.fromReady(
-        current,
-        savedViewId: savedViewId,
-      ).listPage(cursor: cursor),
-    );
-    if (isClosed || serial != _requestSerial) return;
-    final latest = state;
-    if (latest is! ProjectTasksListReady) return;
-    result.fold(
-      (error) => emit(
-        latest.copyWith(isLoadingMore: false, moreError: error.message),
-      ),
-      (page) {
-        final knownIds = latest.tasks.map((task) => task.id).toSet();
-        emit(
-          latest.copyWith(
-            tasks: [
-              ...latest.tasks,
-              ...page.items.where((task) => knownIds.add(task.id)),
-            ],
-            nextCursor: page.nextCursor,
-            clearCursor: page.nextCursor == null,
-            isLoadingMore: false,
-          ),
-        );
-      },
-    );
+  bool _canPage(ProjectTasksListReady current) =>
+      !isClosed &&
+      !current.isRefreshing &&
+      !current.isBulkSaving &&
+      _localMutationDepth == 0;
+
+  bool _pageChanged(
+    ProjectTasksListReady initial,
+    ProjectTasksListReady latest,
+  ) {
+    if (_localMutationDepth > 0 || latest.isBulkSaving) return true;
+    final versions = {
+      for (final task in TaskListSnapshot.allLoadedTasks(latest))
+        task.id: task.version,
+    };
+    return TaskListSnapshot.allLoadedTasks(initial)
+        .any((task) => versions[task.id] != task.version);
   }
 
-  /// Doładowuje wyłącznie jedną grupę według jej niezależnego kursora.
-  Future<void> loadMoreGroup(String groupKey) async {
-    final current = state;
-    if (current is! ProjectTasksListReady || !_loadingGroupKeys.add(groupKey)) {
+  static bool canRetryPage(ApiError? error) =>
+      error == null ||
+      (!const {
+            ApiErrorType.unauthorized,
+            ApiErrorType.forbidden,
+            ApiErrorType.notFound,
+          }.contains(error.type) &&
+          !const {401, 403, 404}.contains(error.statusCode));
+
+  static const _changedPage = ApiError(
+    type: ApiErrorType.conflict,
+    message: 'tasks.list.page_changed',
+  );
+  static const _invalidPage = ApiError(
+    type: ApiErrorType.parsing,
+    message: 'tasks.list.page_failed',
+  );
+
+  Future<void> loadMore({bool retry = false}) async {
+    final initial = state;
+    if (initial is! ProjectTasksListReady ||
+        !initial.canLoadMore ||
+        !_canPage(initial) ||
+        (initial.moreApiError != null &&
+            (!retry || !canRetryPage(initial.moreApiError)))) {
       return;
     }
-    final group = current.groups
+    final cursor = initial.nextCursor!;
+    final serial = _requestSerial;
+    emit(initial.copyWith(isLoadingMore: true, clearMoreError: true));
+    try {
+      final result = await repository.listProjectTasks(
+        workspaceId: workspaceId,
+        projectId: projectId,
+        query: TaskListQuery.fromReady(
+          initial,
+          savedViewId: savedViewId,
+        ).listPage(cursor: cursor),
+      );
+      if (isClosed || serial != _requestSerial) return;
+      final latest = state;
+      if (latest is! ProjectTasksListReady || latest.nextCursor != cursor) {
+        return;
+      }
+      result.fold<void>(
+        (error) => emit(latest.copyWith(moreApiError: error)),
+        (page) {
+          if (_pageChanged(initial, latest) || page.nextCursor == cursor) {
+            emit(
+              latest.copyWith(
+                moreApiError: _pageChanged(initial, latest)
+                    ? _changedPage
+                    : _invalidPage,
+              ),
+            );
+            return;
+          }
+          final knownIds = TaskListSnapshot.allLoadedTasks(latest)
+              .map((task) => task.id)
+              .toSet();
+          emit(
+            latest.copyWith(
+              tasks: [
+                ...latest.tasks,
+                ...page.items.where((task) => knownIds.add(task.id)),
+              ],
+              nextCursor: page.nextCursor,
+              clearCursor: page.nextCursor == null,
+            ),
+          );
+        },
+      );
+    } catch (_) {
+      final latest = state;
+      if (!isClosed &&
+          serial == _requestSerial &&
+          latest is ProjectTasksListReady) {
+        emit(latest.copyWith(moreApiError: _invalidPage));
+      }
+    } finally {
+      final latest = state;
+      if (!isClosed &&
+          serial == _requestSerial &&
+          latest is ProjectTasksListReady) {
+        emit(latest.copyWith(isLoadingMore: false));
+      }
+    }
+  }
+
+  /// Kolejna strona należy do konkretnego kursora, grupy i epoki zapytania.
+  Future<void> loadMoreGroup(String groupKey) async {
+    final initial = state;
+    if (initial is! ProjectTasksListReady ||
+        !_canPage(initial) ||
+        initial.loadingGroupKeys.contains(groupKey) ||
+        !canRetryPage(initial.groupLoadErrors[groupKey])) {
+      return;
+    }
+    final group = initial.groups
         .where((item) => item.key == groupKey)
         .firstOrNull;
-    if (group?.nextCursor == null) {
-      _loadingGroupKeys.remove(groupKey);
-      return;
-    }
+    final cursor = group?.nextCursor;
+    if (group == null || cursor == null) return;
+    final serial = _requestSerial;
+    final grouping = groupBy;
+    // Backend normalizuje None do Status, choć UI prezentuje płaską listę.
+    final responseGrouping = grouping == TaskSavedViewGroupBy.none
+        ? TaskSavedViewGroupBy.status
+        : grouping;
+    emit(
+      initial.copyWith(
+        loadingGroupKeys: {...initial.loadingGroupKeys, groupKey},
+        groupLoadErrors: {...initial.groupLoadErrors}..remove(groupKey),
+      ),
+    );
     try {
       final result = await repository.listProjectTaskGroups(
         workspaceId: workspaceId,
         projectId: projectId,
-        query:
-            TaskListQuery.fromReady(
-              current,
-              savedViewId: savedViewId,
-            ).groups(
-              groupBy: groupBy,
-              groupKey: groupKey,
-              cursor: group!.nextCursor,
-            ),
+        query: TaskListQuery.fromReady(
+          initial,
+          savedViewId: savedViewId,
+        ).groups(groupBy: grouping, groupKey: groupKey, cursor: cursor),
       );
-      if (isClosed || state is! ProjectTasksListReady) return;
-      result.fold(
-        (_) {},
+      if (isClosed || serial != _requestSerial || grouping != groupBy) return;
+      final latest = state;
+      if (latest is! ProjectTasksListReady) return;
+      final latestGroup = latest.groups
+          .where((item) => item.key == groupKey)
+          .firstOrNull;
+      if (latestGroup == null || latestGroup.nextCursor != cursor) return;
+      result.fold<void>(
+        (error) => emit(
+          latest.copyWith(
+            groupLoadErrors: {...latest.groupLoadErrors, groupKey: error},
+          ),
+        ),
         (page) {
-          final latest = state as ProjectTasksListReady;
-          final latestGroup = latest.groups
-              .where((item) => item.key == groupKey)
-              .firstOrNull;
-          if (latestGroup == null) return;
+          if (_pageChanged(initial, latest) ||
+              page.groupBy != responseGrouping ||
+              page.groups.length != 1 ||
+              page.groups.single.key != groupKey ||
+              page.groups.single.nextCursor == cursor) {
+            emit(
+              latest.copyWith(
+                groupLoadErrors: {
+                  ...latest.groupLoadErrors,
+                  groupKey: _pageChanged(initial, latest)
+                      ? _changedPage
+                      : _invalidPage,
+                },
+              ),
+            );
+            return;
+          }
           final incoming = page.groups.single;
-          final knownIds = latestGroup.items.map((item) => item.id).toSet();
+          final knownIds = TaskListSnapshot.allLoadedTasks(latest)
+              .map((task) => task.id)
+              .toSet();
           final merged = latestGroup.copyWith(
             items: [
               ...latestGroup.items,
@@ -86,22 +187,43 @@ mixin TaskListLoadingMixin on ProjectTasksListCubitPort {
             ],
             nextCursor: incoming.nextCursor,
           );
+          final groups = [
+            for (final item in latest.groups)
+              if (item.key == groupKey) merged else item,
+          ];
           emit(
             latest.copyWith(
-              groups: [
-                for (final item in latest.groups)
-                  if (item.key == groupKey) merged else item,
-              ],
-              tasks: [
-                for (final item in latest.groups)
-                  if (item.key == groupKey) ...merged.items else ...item.items,
-              ],
+              groups: groups,
+              tasks: [for (final item in groups) ...item.items],
             ),
           );
         },
       );
+    } catch (_) {
+      final latest = state;
+      if (!isClosed &&
+          serial == _requestSerial &&
+          latest is ProjectTasksListReady) {
+        emit(
+          latest.copyWith(
+            groupLoadErrors: {
+              ...latest.groupLoadErrors,
+              groupKey: _invalidPage,
+            },
+          ),
+        );
+      }
     } finally {
-      _loadingGroupKeys.remove(groupKey);
+      final latest = state;
+      if (!isClosed &&
+          serial == _requestSerial &&
+          latest is ProjectTasksListReady) {
+        emit(
+          latest.copyWith(
+            loadingGroupKeys: {...latest.loadingGroupKeys}..remove(groupKey),
+          ),
+        );
+      }
     }
   }
 

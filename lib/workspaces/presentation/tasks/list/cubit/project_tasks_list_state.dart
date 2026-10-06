@@ -45,7 +45,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     this.groups = const [],
     this.totalCount = 0,
     this.isLoadingMore = false,
-    this.moreError,
+    this.moreApiError,
+    this.loadingGroupKeys = const {},
+    this.groupLoadErrors = const {},
     this.isRefreshing = false,
     this.filterError,
     this.expandedTaskIds = const {},
@@ -72,7 +74,10 @@ final class ProjectTasksListReady extends ProjectTasksListState {
   final List<ProjectTaskListGroupResponse> groups;
   final int totalCount;
   final bool isLoadingMore;
-  final String? moreError;
+  final ApiError? moreApiError;
+  String? get moreError => moreApiError?.message;
+  final Set<String> loadingGroupKeys;
+  final Map<String, ApiError> groupLoadErrors;
   final bool isRefreshing;
 
   /// Błąd odczytu nowej kombinacji filtrów. Poprzedni snapshot pozostaje
@@ -127,7 +132,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     bool clearMyInvolvement = false,
     bool clearCursor = false,
     bool? isLoadingMore,
-    String? moreError,
+    ApiError? moreApiError,
+    Set<String>? loadingGroupKeys,
+    Map<String, ApiError>? groupLoadErrors,
     bool clearMoreError = false,
     bool? isRefreshing,
     String? filterError,
@@ -161,7 +168,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     groups: groups ?? this.groups,
     totalCount: totalCount ?? this.totalCount,
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-    moreError: clearMoreError ? null : moreError ?? this.moreError,
+    moreApiError: clearMoreError ? null : moreApiError ?? this.moreApiError,
+    loadingGroupKeys: loadingGroupKeys ?? this.loadingGroupKeys,
+    groupLoadErrors: groupLoadErrors ?? this.groupLoadErrors,
     isRefreshing: isRefreshing ?? this.isRefreshing,
     filterError: clearFilterError ? null : filterError ?? this.filterError,
     expandedTaskIds: expandedTaskIds ?? this.expandedTaskIds,

@@ -12864,4 +12864,15 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get tasksBulkScopeExpired =>
       'Potwierdzony zakres wygasł lub zmieniły się filtry. Wybierz ponownie akcję dla całego wyniku i sprawdź aktualny zakres.';
+
+  @override
+  String get tasksListPageLoading => 'Wczytywanie kolejnych zadań…';
+
+  @override
+  String get tasksListPageChanged =>
+      'Zadania zmieniły się podczas wczytywania. Zachowaliśmy aktualne dane. Ponów wczytywanie kolejnej strony.';
+
+  @override
+  String get tasksListPageFailed =>
+      'Nie udało się wczytać kolejnych zadań. Wyświetlane dane zachowano. Spróbuj ponownie.';
 }

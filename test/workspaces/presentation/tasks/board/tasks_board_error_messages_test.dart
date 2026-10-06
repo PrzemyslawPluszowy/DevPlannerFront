@@ -1,9 +1,26 @@
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_error_messages.dart';
+import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test(
+    'unexpected save failure uses existing PL and EN localized feedback',
+    () async {
+      for (final locale in ['pl', 'en']) {
+        final l10n = await AppLocalizations.delegate.load(Locale(locale));
+        expect(
+          tasksViewErrorText(l10n, 'tasks.bulk.save_failed'),
+          l10n.tasksBulkSaveFailed,
+        );
+        expect(
+          tasksViewErrorText(l10n, 'tasks.bulk.save_failed'),
+          isNot(contains('tasks.bulk.')),
+        );
+      }
+    },
+  );
   test('kod blokady ruchu przez filtr ma tekst w ARB, nie w Cubicie', () async {
     final pl = await AppLocalizations.delegate.load(const Locale('pl'));
     final en = await AppLocalizations.delegate.load(const Locale('en'));

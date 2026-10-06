@@ -22,6 +22,7 @@ import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_li
 import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_row.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_empty_result.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_page_footer.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_subtasks.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/task_list_grouping.dart';
 import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurrence_context_editor.dart';

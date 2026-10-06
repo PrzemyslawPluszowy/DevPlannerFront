@@ -69,7 +69,6 @@ abstract interface class ProjectTasksListCubitPort {
   set _realtimeRefreshPending(bool value);
   List<TaskRealtimeMutation> get _pendingRealtimeMutations;
   Map<String, Future<bool>> get _inFlightListItemUpdates;
-  Set<String> get _loadingGroupKeys;
   bool get _rootTaskCreationInFlight;
   set _rootTaskCreationInFlight(bool value);
   bool get _shouldIgnoreRealtime;
@@ -203,7 +202,6 @@ final class ProjectTasksListCubit extends ProjectTasksListCubitBase
   @override
   final Map<String, Future<bool>> _inFlightListItemUpdates = {};
   @override
-  final Set<String> _loadingGroupKeys = {};
   @override
   bool _rootTaskCreationInFlight = false;
 
@@ -306,6 +304,8 @@ final class ProjectTasksListCubit extends ProjectTasksListCubitBase
       emit(
         current.copyWith(
           isRefreshing: true,
+          isLoadingMore: false,
+          loadingGroupKeys: const {},
           clearFilterError: true,
         ),
       );

@@ -12760,4 +12760,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tasksBulkScopeExpired =>
       'The confirmed scope has expired or the filters have changed. Choose the entire-result action again and review its current scope.';
+
+  @override
+  String get tasksListPageLoading => 'Loading more tasks…';
+
+  @override
+  String get tasksListPageChanged =>
+      'Tasks changed while the page was loading. Your current data is preserved. Retry loading the next page.';
+
+  @override
+  String get tasksListPageFailed =>
+      'Could not load more tasks. Your current data is preserved. Try again.';
 }

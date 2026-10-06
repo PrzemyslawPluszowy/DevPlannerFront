@@ -4097,5 +4097,8 @@
   "tasksBulkErrorTitle": "Nie udało się ukończyć operacji",
   "tasksBulkSaveFailed": "Nie udało się zapisać zmian. Zaznaczenie zachowano; możesz ponowić tę operację.",
   "tasksBulkSavedViewFilter": "Filtry zapisanego widoku",
-  "tasksBulkScopeExpired": "Potwierdzony zakres wygasł lub zmieniły się filtry. Wybierz ponownie akcję dla całego wyniku i sprawdź aktualny zakres."
+  "tasksBulkScopeExpired": "Potwierdzony zakres wygasł lub zmieniły się filtry. Wybierz ponownie akcję dla całego wyniku i sprawdź aktualny zakres.",
+  "tasksListPageLoading": "Wczytywanie kolejnych zadań…",
+  "tasksListPageChanged": "Zadania zmieniły się podczas wczytywania. Zachowaliśmy aktualne dane. Ponów wczytywanie kolejnej strony.",
+  "tasksListPageFailed": "Nie udało się wczytać kolejnych zadań. Wyświetlane dane zachowano. Spróbuj ponownie."
 }

@@ -48,6 +48,7 @@ final class TasksBoardReady extends TasksBoardState {
     this.columnLoadApiErrors = const <String, ApiError>{},
     this.selectedTaskIds = const <String>{},
     this.pendingTaskIds = const <String>{},
+    this.pendingMoveOwners = const {},
     this.isBulkSaving = false,
     this.bulkError,
     this.canRetryBulk = false,
@@ -87,6 +88,10 @@ final class TasksBoardReady extends TasksBoardState {
   final Map<String, ApiError> columnLoadApiErrors;
   final Set<String> selectedTaskIds;
   final Set<String> pendingTaskIds;
+
+  /// Właściciel konkretnego ruchu; nie pozwala starej odpowiedzi zwolnić
+  /// blokady należącej do nowszej operacji tego samego zadania.
+  final Map<String, Object> pendingMoveOwners;
   final bool isBulkSaving;
   final TasksViewError? bulkError;
   final bool canRetryBulk;
@@ -164,6 +169,7 @@ final class TasksBoardReady extends TasksBoardState {
     Map<String, ApiError>? columnLoadApiErrors,
     Set<String>? selectedTaskIds,
     Set<String>? pendingTaskIds,
+    Map<String, Object>? pendingMoveOwners,
     bool? isBulkSaving,
     TasksViewError? bulkError,
     bool clearBulkError = false,
@@ -199,6 +205,11 @@ final class TasksBoardReady extends TasksBoardState {
     columnLoadApiErrors: columnLoadApiErrors ?? this.columnLoadApiErrors,
     selectedTaskIds: selectedTaskIds ?? this.selectedTaskIds,
     pendingTaskIds: pendingTaskIds ?? this.pendingTaskIds,
+    pendingMoveOwners: Map.unmodifiable({
+      for (final entry in (pendingMoveOwners ?? this.pendingMoveOwners).entries)
+        if ((pendingTaskIds ?? this.pendingTaskIds).contains(entry.key))
+          entry.key: entry.value,
+    }),
     isBulkSaving: isBulkSaving ?? this.isBulkSaving,
     bulkError: clearBulkError ? null : bulkError ?? this.bulkError,
     canRetryBulk: canRetryBulk ?? this.canRetryBulk,

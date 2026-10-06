@@ -72,6 +72,7 @@ final class TasksViewError {
 /// mapy — wtedy prezentacja sięga po tłumaczenie właściwe dla widoku.
 String? tasksViewErrorText(AppLocalizations l10n, String code) =>
     switch (code) {
+      'tasks.bulk.save_failed' => l10n.tasksBulkSaveFailed,
       TasksViewErrorCodes.versionConflict => l10n.tasksListPreferencesConflict,
       TasksViewErrorCodes.loadFailed => l10n.tasksViewPreferencesLoadFailed,
       TasksViewErrorCodes.quickCreateFailed => l10n.tasksQuickCreateFailed,

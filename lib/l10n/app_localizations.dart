@@ -22741,6 +22741,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The confirmed scope has expired or the filters have changed. Choose the entire-result action again and review its current scope.'**
   String get tasksBulkScopeExpired;
+
+  /// No description provided for @tasksListPageLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more tasks…'**
+  String get tasksListPageLoading;
+
+  /// No description provided for @tasksListPageChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks changed while the page was loading. Your current data is preserved. Retry loading the next page.'**
+  String get tasksListPageChanged;
+
+  /// No description provided for @tasksListPageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load more tasks. Your current data is preserved. Try again.'**
+  String get tasksListPageFailed;
 }
 
 class _AppLocalizationsDelegate
