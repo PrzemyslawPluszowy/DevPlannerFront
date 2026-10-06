@@ -363,3 +363,12 @@ Właściciel zlecił dalsze przeklikiwanie Chrome/Edge na stagingu oraz naprawę
 QA33 finalserialrun:28/28PASS exit0, /tmp/qa33-folder-accent-persistence-tests.log; brakujący mocklistTrashFolders naprawiony. Pełnej suity nie powtarzano, wcześniejsze24baseline pozostają otwarte. Final rootanalyzer45911 w toku.
 
 Final fullFrontend analyzer45911 exit0 Noissues; log /tmp/devplanner-qa31-35-final-analyze.log. Pakiet źródeł zamrożony, bramki ukierunkowane PASS z powyższymi jawnymi ograniczeniami pełnych suit.
+
+### Publikacja QA31/33/15/34/35 potwierdzona — 2026-10-06
+Backend58f327ed1e88f278355f1d01f48e28dd5423477c script27944exit0; observeexactimagehealthy/readinessready; publichealthHealthy. Frontc36a95c82db09a9c16145ab0758b85f0f4d26f0e script95482exit0; version.jsonexactSHA, main.dart.wasm200/9833734B, SPA/workspaces zawieraexactSHA. DBtarget135.125.200.141/devplanner jako devplanner_agent.
+Chrome PLdark1513×895 po hardrefresh: TASK176 daty6–7paź/90min zachowane. QA15 pełnePriorytet, scrollbar pozwala dotrzeć doEtykiety, Dozrobienia27 pozostaje widoczne na prawym końcu; klikZwiń działa i pokazuje Wtoku7. Function iUI tego wariantu PASS; keyboard/zoom/narrow NOT RUN. QA34 modal560px iAXheading/Zamknij potwierdzone, zamknięcie działa; nadal większa pusta przestrzeń pod krótką listą (backlogpolish, nie pełny UI PASS). QA35 pustyUtwórz→inline„Wprowadź tytuł zadania”+focusinput; PLcopyStatus/Szablon/Bezszablonu poprawne. Function/UX tego błędu PASS; nowe create/reload po wersjiNOTRUN.
+QA31 Kosz teraz pokazuje wcześniejszy softdeletedQAlicznik2026-10-05, licznik1, Przywróć otwiera dialog z nazwą/root i czytelną instrukcją. Przywracanie wywołane, wynik w toku. Nowy UI38: główne„Przywróć”białe domyślneMaterial zamiast wspólnego akcentu modaliTasks; poprawić razem z kolejnym pakietemkontrolek po dowodzie screenshot.
+
+- [x] Pakiet opublikowany i wersje potwierdzone: Backend58f327e healthy/readiness, FrontWasmc36a95c/200/SPA.
+- [x] ChromePLdark1513×895 retest: QA15stickygroup/collapse/priority, QA35emptytitlefocus, QA31wcześniejszyfolderrestoretoprevlocation, QA33fullfoldernames/list-gridamber; tylko opisane warianty PASS. QA34geometry/AX/close potwierdzone, dalszy polish krótkiejlisty.
+- [ ] Conflict/root/ACL/bulk, wszystkie pozostałe kontrolki, jasny/EN/keyboard/narrow nadal otwarte w centralnym docs/ui-testing.md; QA37kaskada iQA38restorebutton następny powiązany pakiet.
