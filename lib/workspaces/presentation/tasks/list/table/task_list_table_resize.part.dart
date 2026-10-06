@@ -228,7 +228,12 @@ extension _TaskListTableResizeExtension on _TaskListTableState {
           }()
         : TaskListGrid.customField;
     final current = _columnWidthsById[columnId] ?? baseWidth;
-    final next = (current + delta).clamp(50.0, 1000.0);
+    final minimum =
+        TaskColumnReference.fromId(columnId) is SystemColumnReference &&
+            columnId.toLowerCase() == 'sys:priority'
+        ? TaskListGrid.priority
+        : 50.0;
+    final next = (current + delta).clamp(minimum, 1000.0);
     if (next == current) return;
     updateState(() {
       _columnWidthsById[columnId] = next;

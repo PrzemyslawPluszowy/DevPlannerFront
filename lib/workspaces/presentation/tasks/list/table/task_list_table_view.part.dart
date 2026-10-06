@@ -236,6 +236,8 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                                                     return _buildRowItem(
                                                       context,
                                                       state: state,
+                                                      viewportWidth:
+                                                          constraints.maxWidth,
                                                       row: rows[index],
                                                       visibleColumns:
                                                           visibleColumns,

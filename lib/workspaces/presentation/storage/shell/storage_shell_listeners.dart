@@ -4,13 +4,12 @@ import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/workspaces/domain/ports/storage_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_scope.dart';
 import 'package:devplanner/workspaces/domain/storage/models/storage_view_preference.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_folder_mutation_listener.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_mutation_error.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/cubit/storage_browser_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_document_mutation_state.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_cubit.dart';
-import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_folder_mutation_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/preview/cubit/storage_preview_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/preview/widgets/storage_preview_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_scope_route_codec.dart';
@@ -67,24 +66,6 @@ final class StorageShellListeners extends StatelessWidget {
           listener: (context, state) =>
               onScopeChanged(StorageShellStateScope.read(state)),
         ),
-        BlocListener<StorageFolderMutationCubit, StorageFolderMutationState>(
-          listener: (context, state) {
-            if (state is StorageFolderMutationSuccess) {
-              unawaited(
-                context.read<StorageBrowserCubit>().load(showLoading: false),
-              );
-            } else if (state is StorageFolderMutationFailure) {
-              onMutationError(
-                StorageMutationError(
-                  message: state.message,
-                  code: state.apiCode,
-                  traceId: state.traceId,
-                  apiError: state.error,
-                ),
-              );
-            }
-          },
-        ),
         BlocListener<StorageBrowserCubit, StorageBrowserState>(
           listenWhen: (previous, current) =>
               StorageShellStateScope.read(previous) !=
@@ -107,7 +88,10 @@ final class StorageShellListeners extends StatelessWidget {
           ),
         ),
       ],
-      child: child,
+      child: StorageFolderMutationListener(
+        onError: onMutationError,
+        child: child,
+      ),
     ),
   );
 

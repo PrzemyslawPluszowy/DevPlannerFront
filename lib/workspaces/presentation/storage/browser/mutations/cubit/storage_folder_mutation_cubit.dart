@@ -74,6 +74,25 @@ final class StorageFolderMutationCubit
     ),
   );
 
+  Future<void> restoreFolder({
+    required String folderId,
+    String? name,
+    String? parentFolderId,
+    bool restoreToRoot = false,
+  }) => _run<StorageFolderResponse>(
+    request: () => repository.restoreFolder(
+      folderId: folderId,
+      name: name?.trim(),
+      parentFolderId: parentFolderId,
+      restoreToRoot: restoreToRoot,
+    ),
+    onSuccess: (folder) => StorageFolderMutationSuccess(
+      type: StorageFolderMutationType.restored,
+      folder: folder,
+      folderId: folder.id,
+    ),
+  );
+
   Future<void> deleteFolder(String folderId) => _run<Unit>(
     request: () => repository.deleteFolder(folderId),
     onSuccess: (_) => StorageFolderMutationSuccess(

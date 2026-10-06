@@ -7,9 +7,14 @@ import 'package:intl/intl.dart';
 
 /// Pokazuje komunikat oraz komplet diagnostyki, zachowując ograniczony viewport.
 final class StorageFolderMutationErrorView extends StatelessWidget {
-  const StorageFolderMutationErrorView({required this.error, super.key});
+  const StorageFolderMutationErrorView({
+    required this.error,
+    this.isRestoring = false,
+    super.key,
+  });
 
   final ApiError error;
+  final bool isRestoring;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +37,20 @@ final class StorageFolderMutationErrorView extends StatelessWidget {
               Semantics(
                 liveRegion: true,
                 child: SelectableText(
-                  error.message.isEmpty
-                      ? context.l10n.storageActionFailed
-                      : error.message,
+                  switch (isRestoring
+                      ? (error.contractCode ?? error.apiCode)
+                      : null) {
+                    'storage.folder_name_conflict' =>
+                      context.l10n.storageRestoreFolderNameConflict,
+                    'storage.folder_parent_deleted' =>
+                      context.l10n.storageRestoreFolderParentDeleted,
+                    'storage.folder_version_conflict' =>
+                      context.l10n.storageRestoreFolderVersionConflict,
+                    _ =>
+                      error.message.isEmpty
+                          ? context.l10n.storageActionFailed
+                          : error.message,
+                  },
                   style: common.dataStrongText.copyWith(
                     color: context.colors.error,
                   ),

@@ -2006,7 +2006,7 @@ as String?,
 /// @nodoc
 mixin _$StorageFolderResponse {
 
- String get id; String get name; StorageFolderType get folderType; String? get parentFolderId; String? get workspaceId; String? get projectId; bool get canRead; bool get canComment; bool get canEdit; bool get canShare; bool get canDelete; int get itemCount; DateTime get updatedAtUtc; StorageEffectiveAccessLevel get accessLevel;
+ String get id; String get name; StorageFolderType get folderType; String? get parentFolderId; String? get workspaceId; String? get projectId; bool get canRead; bool get canComment; bool get canEdit; bool get canShare; bool get canDelete; bool get isDeleted; DateTime? get deletedAtUtc; bool get canRestore; int get itemCount; DateTime get updatedAtUtc; StorageEffectiveAccessLevel get accessLevel;
 /// Create a copy of StorageFolderResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2019,16 +2019,16 @@ $StorageFolderResponseCopyWith<StorageFolderResponse> get copyWith => _$StorageF
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFolderResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.folderType, folderType) || other.folderType == folderType)&&(identical(other.parentFolderId, parentFolderId) || other.parentFolderId == parentFolderId)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.canRead, canRead) || other.canRead == canRead)&&(identical(other.canComment, canComment) || other.canComment == canComment)&&(identical(other.canEdit, canEdit) || other.canEdit == canEdit)&&(identical(other.canShare, canShare) || other.canShare == canShare)&&(identical(other.canDelete, canDelete) || other.canDelete == canDelete)&&(identical(other.itemCount, itemCount) || other.itemCount == itemCount)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.accessLevel, accessLevel) || other.accessLevel == accessLevel));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFolderResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.folderType, folderType) || other.folderType == folderType)&&(identical(other.parentFolderId, parentFolderId) || other.parentFolderId == parentFolderId)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.canRead, canRead) || other.canRead == canRead)&&(identical(other.canComment, canComment) || other.canComment == canComment)&&(identical(other.canEdit, canEdit) || other.canEdit == canEdit)&&(identical(other.canShare, canShare) || other.canShare == canShare)&&(identical(other.canDelete, canDelete) || other.canDelete == canDelete)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc)&&(identical(other.canRestore, canRestore) || other.canRestore == canRestore)&&(identical(other.itemCount, itemCount) || other.itemCount == itemCount)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.accessLevel, accessLevel) || other.accessLevel == accessLevel));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,folderType,parentFolderId,workspaceId,projectId,canRead,canComment,canEdit,canShare,canDelete,itemCount,updatedAtUtc,accessLevel);
+int get hashCode => Object.hash(runtimeType,id,name,folderType,parentFolderId,workspaceId,projectId,canRead,canComment,canEdit,canShare,canDelete,isDeleted,deletedAtUtc,canRestore,itemCount,updatedAtUtc,accessLevel);
 
 @override
 String toString() {
-  return 'StorageFolderResponse(id: $id, name: $name, folderType: $folderType, parentFolderId: $parentFolderId, workspaceId: $workspaceId, projectId: $projectId, canRead: $canRead, canComment: $canComment, canEdit: $canEdit, canShare: $canShare, canDelete: $canDelete, itemCount: $itemCount, updatedAtUtc: $updatedAtUtc, accessLevel: $accessLevel)';
+  return 'StorageFolderResponse(id: $id, name: $name, folderType: $folderType, parentFolderId: $parentFolderId, workspaceId: $workspaceId, projectId: $projectId, canRead: $canRead, canComment: $canComment, canEdit: $canEdit, canShare: $canShare, canDelete: $canDelete, isDeleted: $isDeleted, deletedAtUtc: $deletedAtUtc, canRestore: $canRestore, itemCount: $itemCount, updatedAtUtc: $updatedAtUtc, accessLevel: $accessLevel)';
 }
 
 
@@ -2039,7 +2039,7 @@ abstract mixin class $StorageFolderResponseCopyWith<$Res>  {
   factory $StorageFolderResponseCopyWith(StorageFolderResponse value, $Res Function(StorageFolderResponse) _then) = _$StorageFolderResponseCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, StorageFolderType folderType, String? parentFolderId, String? workspaceId, String? projectId, bool canRead, bool canComment, bool canEdit, bool canShare, bool canDelete, int itemCount, DateTime updatedAtUtc, StorageEffectiveAccessLevel accessLevel
+ String id, String name, StorageFolderType folderType, String? parentFolderId, String? workspaceId, String? projectId, bool canRead, bool canComment, bool canEdit, bool canShare, bool canDelete, bool isDeleted, DateTime? deletedAtUtc, bool canRestore, int itemCount, DateTime updatedAtUtc, StorageEffectiveAccessLevel accessLevel
 });
 
 
@@ -2056,7 +2056,7 @@ class _$StorageFolderResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageFolderResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? folderType = null,Object? parentFolderId = freezed,Object? workspaceId = freezed,Object? projectId = freezed,Object? canRead = null,Object? canComment = null,Object? canEdit = null,Object? canShare = null,Object? canDelete = null,Object? itemCount = null,Object? updatedAtUtc = null,Object? accessLevel = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? folderType = null,Object? parentFolderId = freezed,Object? workspaceId = freezed,Object? projectId = freezed,Object? canRead = null,Object? canComment = null,Object? canEdit = null,Object? canShare = null,Object? canDelete = null,Object? isDeleted = null,Object? deletedAtUtc = freezed,Object? canRestore = null,Object? itemCount = null,Object? updatedAtUtc = null,Object? accessLevel = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -2069,6 +2069,9 @@ as bool,canComment: null == canComment ? _self.canComment : canComment // ignore
 as bool,canEdit: null == canEdit ? _self.canEdit : canEdit // ignore: cast_nullable_to_non_nullable
 as bool,canShare: null == canShare ? _self.canShare : canShare // ignore: cast_nullable_to_non_nullable
 as bool,canDelete: null == canDelete ? _self.canDelete : canDelete // ignore: cast_nullable_to_non_nullable
+as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
+as bool,deletedAtUtc: freezed == deletedAtUtc ? _self.deletedAtUtc : deletedAtUtc // ignore: cast_nullable_to_non_nullable
+as DateTime?,canRestore: null == canRestore ? _self.canRestore : canRestore // ignore: cast_nullable_to_non_nullable
 as bool,itemCount: null == itemCount ? _self.itemCount : itemCount // ignore: cast_nullable_to_non_nullable
 as int,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,accessLevel: null == accessLevel ? _self.accessLevel : accessLevel // ignore: cast_nullable_to_non_nullable
@@ -2157,10 +2160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  StorageFolderType folderType,  String? parentFolderId,  String? workspaceId,  String? projectId,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  int itemCount,  DateTime updatedAtUtc,  StorageEffectiveAccessLevel accessLevel)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  StorageFolderType folderType,  String? parentFolderId,  String? workspaceId,  String? projectId,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  bool isDeleted,  DateTime? deletedAtUtc,  bool canRestore,  int itemCount,  DateTime updatedAtUtc,  StorageEffectiveAccessLevel accessLevel)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StorageFolderResponse() when $default != null:
-return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.workspaceId,_that.projectId,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.itemCount,_that.updatedAtUtc,_that.accessLevel);case _:
+return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.workspaceId,_that.projectId,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.isDeleted,_that.deletedAtUtc,_that.canRestore,_that.itemCount,_that.updatedAtUtc,_that.accessLevel);case _:
   return orElse();
 
 }
@@ -2178,10 +2181,10 @@ return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  StorageFolderType folderType,  String? parentFolderId,  String? workspaceId,  String? projectId,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  int itemCount,  DateTime updatedAtUtc,  StorageEffectiveAccessLevel accessLevel)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  StorageFolderType folderType,  String? parentFolderId,  String? workspaceId,  String? projectId,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  bool isDeleted,  DateTime? deletedAtUtc,  bool canRestore,  int itemCount,  DateTime updatedAtUtc,  StorageEffectiveAccessLevel accessLevel)  $default,) {final _that = this;
 switch (_that) {
 case _StorageFolderResponse():
-return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.workspaceId,_that.projectId,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.itemCount,_that.updatedAtUtc,_that.accessLevel);case _:
+return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.workspaceId,_that.projectId,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.isDeleted,_that.deletedAtUtc,_that.canRestore,_that.itemCount,_that.updatedAtUtc,_that.accessLevel);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2198,10 +2201,10 @@ return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  StorageFolderType folderType,  String? parentFolderId,  String? workspaceId,  String? projectId,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  int itemCount,  DateTime updatedAtUtc,  StorageEffectiveAccessLevel accessLevel)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  StorageFolderType folderType,  String? parentFolderId,  String? workspaceId,  String? projectId,  bool canRead,  bool canComment,  bool canEdit,  bool canShare,  bool canDelete,  bool isDeleted,  DateTime? deletedAtUtc,  bool canRestore,  int itemCount,  DateTime updatedAtUtc,  StorageEffectiveAccessLevel accessLevel)?  $default,) {final _that = this;
 switch (_that) {
 case _StorageFolderResponse() when $default != null:
-return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.workspaceId,_that.projectId,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.itemCount,_that.updatedAtUtc,_that.accessLevel);case _:
+return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.workspaceId,_that.projectId,_that.canRead,_that.canComment,_that.canEdit,_that.canShare,_that.canDelete,_that.isDeleted,_that.deletedAtUtc,_that.canRestore,_that.itemCount,_that.updatedAtUtc,_that.accessLevel);case _:
   return null;
 
 }
@@ -2213,7 +2216,7 @@ return $default(_that.id,_that.name,_that.folderType,_that.parentFolderId,_that.
 @JsonSerializable()
 
 class _StorageFolderResponse implements StorageFolderResponse {
-  const _StorageFolderResponse({required this.id, required this.name, required this.folderType, this.parentFolderId, this.workspaceId, this.projectId, required this.canRead, required this.canComment, required this.canEdit, required this.canShare, required this.canDelete, required this.itemCount, required this.updatedAtUtc, required this.accessLevel});
+  const _StorageFolderResponse({required this.id, required this.name, required this.folderType, this.parentFolderId, this.workspaceId, this.projectId, required this.canRead, required this.canComment, required this.canEdit, required this.canShare, required this.canDelete, this.isDeleted = false, this.deletedAtUtc, this.canRestore = false, required this.itemCount, required this.updatedAtUtc, required this.accessLevel});
   factory _StorageFolderResponse.fromJson(Map<String, dynamic> json) => _$StorageFolderResponseFromJson(json);
 
 @override final  String id;
@@ -2227,6 +2230,9 @@ class _StorageFolderResponse implements StorageFolderResponse {
 @override final  bool canEdit;
 @override final  bool canShare;
 @override final  bool canDelete;
+@override@JsonKey() final  bool isDeleted;
+@override final  DateTime? deletedAtUtc;
+@override@JsonKey() final  bool canRestore;
 @override final  int itemCount;
 @override final  DateTime updatedAtUtc;
 @override final  StorageEffectiveAccessLevel accessLevel;
@@ -2244,16 +2250,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageFolderResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.folderType, folderType) || other.folderType == folderType)&&(identical(other.parentFolderId, parentFolderId) || other.parentFolderId == parentFolderId)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.canRead, canRead) || other.canRead == canRead)&&(identical(other.canComment, canComment) || other.canComment == canComment)&&(identical(other.canEdit, canEdit) || other.canEdit == canEdit)&&(identical(other.canShare, canShare) || other.canShare == canShare)&&(identical(other.canDelete, canDelete) || other.canDelete == canDelete)&&(identical(other.itemCount, itemCount) || other.itemCount == itemCount)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.accessLevel, accessLevel) || other.accessLevel == accessLevel));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorageFolderResponse&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.folderType, folderType) || other.folderType == folderType)&&(identical(other.parentFolderId, parentFolderId) || other.parentFolderId == parentFolderId)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.projectId, projectId) || other.projectId == projectId)&&(identical(other.canRead, canRead) || other.canRead == canRead)&&(identical(other.canComment, canComment) || other.canComment == canComment)&&(identical(other.canEdit, canEdit) || other.canEdit == canEdit)&&(identical(other.canShare, canShare) || other.canShare == canShare)&&(identical(other.canDelete, canDelete) || other.canDelete == canDelete)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&(identical(other.deletedAtUtc, deletedAtUtc) || other.deletedAtUtc == deletedAtUtc)&&(identical(other.canRestore, canRestore) || other.canRestore == canRestore)&&(identical(other.itemCount, itemCount) || other.itemCount == itemCount)&&(identical(other.updatedAtUtc, updatedAtUtc) || other.updatedAtUtc == updatedAtUtc)&&(identical(other.accessLevel, accessLevel) || other.accessLevel == accessLevel));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,folderType,parentFolderId,workspaceId,projectId,canRead,canComment,canEdit,canShare,canDelete,itemCount,updatedAtUtc,accessLevel);
+int get hashCode => Object.hash(runtimeType,id,name,folderType,parentFolderId,workspaceId,projectId,canRead,canComment,canEdit,canShare,canDelete,isDeleted,deletedAtUtc,canRestore,itemCount,updatedAtUtc,accessLevel);
 
 @override
 String toString() {
-  return 'StorageFolderResponse(id: $id, name: $name, folderType: $folderType, parentFolderId: $parentFolderId, workspaceId: $workspaceId, projectId: $projectId, canRead: $canRead, canComment: $canComment, canEdit: $canEdit, canShare: $canShare, canDelete: $canDelete, itemCount: $itemCount, updatedAtUtc: $updatedAtUtc, accessLevel: $accessLevel)';
+  return 'StorageFolderResponse(id: $id, name: $name, folderType: $folderType, parentFolderId: $parentFolderId, workspaceId: $workspaceId, projectId: $projectId, canRead: $canRead, canComment: $canComment, canEdit: $canEdit, canShare: $canShare, canDelete: $canDelete, isDeleted: $isDeleted, deletedAtUtc: $deletedAtUtc, canRestore: $canRestore, itemCount: $itemCount, updatedAtUtc: $updatedAtUtc, accessLevel: $accessLevel)';
 }
 
 
@@ -2264,7 +2270,7 @@ abstract mixin class _$StorageFolderResponseCopyWith<$Res> implements $StorageFo
   factory _$StorageFolderResponseCopyWith(_StorageFolderResponse value, $Res Function(_StorageFolderResponse) _then) = __$StorageFolderResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, StorageFolderType folderType, String? parentFolderId, String? workspaceId, String? projectId, bool canRead, bool canComment, bool canEdit, bool canShare, bool canDelete, int itemCount, DateTime updatedAtUtc, StorageEffectiveAccessLevel accessLevel
+ String id, String name, StorageFolderType folderType, String? parentFolderId, String? workspaceId, String? projectId, bool canRead, bool canComment, bool canEdit, bool canShare, bool canDelete, bool isDeleted, DateTime? deletedAtUtc, bool canRestore, int itemCount, DateTime updatedAtUtc, StorageEffectiveAccessLevel accessLevel
 });
 
 
@@ -2281,7 +2287,7 @@ class __$StorageFolderResponseCopyWithImpl<$Res>
 
 /// Create a copy of StorageFolderResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? folderType = null,Object? parentFolderId = freezed,Object? workspaceId = freezed,Object? projectId = freezed,Object? canRead = null,Object? canComment = null,Object? canEdit = null,Object? canShare = null,Object? canDelete = null,Object? itemCount = null,Object? updatedAtUtc = null,Object? accessLevel = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? folderType = null,Object? parentFolderId = freezed,Object? workspaceId = freezed,Object? projectId = freezed,Object? canRead = null,Object? canComment = null,Object? canEdit = null,Object? canShare = null,Object? canDelete = null,Object? isDeleted = null,Object? deletedAtUtc = freezed,Object? canRestore = null,Object? itemCount = null,Object? updatedAtUtc = null,Object? accessLevel = null,}) {
   return _then(_StorageFolderResponse(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -2294,10 +2300,282 @@ as bool,canComment: null == canComment ? _self.canComment : canComment // ignore
 as bool,canEdit: null == canEdit ? _self.canEdit : canEdit // ignore: cast_nullable_to_non_nullable
 as bool,canShare: null == canShare ? _self.canShare : canShare // ignore: cast_nullable_to_non_nullable
 as bool,canDelete: null == canDelete ? _self.canDelete : canDelete // ignore: cast_nullable_to_non_nullable
+as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
+as bool,deletedAtUtc: freezed == deletedAtUtc ? _self.deletedAtUtc : deletedAtUtc // ignore: cast_nullable_to_non_nullable
+as DateTime?,canRestore: null == canRestore ? _self.canRestore : canRestore // ignore: cast_nullable_to_non_nullable
 as bool,itemCount: null == itemCount ? _self.itemCount : itemCount // ignore: cast_nullable_to_non_nullable
 as int,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,accessLevel: null == accessLevel ? _self.accessLevel : accessLevel // ignore: cast_nullable_to_non_nullable
 as StorageEffectiveAccessLevel,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$RestoreStorageFolderPayload {
+
+ String? get name; String? get parentFolderId; bool get restoreToRoot;
+/// Create a copy of RestoreStorageFolderPayload
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RestoreStorageFolderPayloadCopyWith<RestoreStorageFolderPayload> get copyWith => _$RestoreStorageFolderPayloadCopyWithImpl<RestoreStorageFolderPayload>(this as RestoreStorageFolderPayload, _$identity);
+
+  /// Serializes this RestoreStorageFolderPayload to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RestoreStorageFolderPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.parentFolderId, parentFolderId) || other.parentFolderId == parentFolderId)&&(identical(other.restoreToRoot, restoreToRoot) || other.restoreToRoot == restoreToRoot));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,name,parentFolderId,restoreToRoot);
+
+@override
+String toString() {
+  return 'RestoreStorageFolderPayload(name: $name, parentFolderId: $parentFolderId, restoreToRoot: $restoreToRoot)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RestoreStorageFolderPayloadCopyWith<$Res>  {
+  factory $RestoreStorageFolderPayloadCopyWith(RestoreStorageFolderPayload value, $Res Function(RestoreStorageFolderPayload) _then) = _$RestoreStorageFolderPayloadCopyWithImpl;
+@useResult
+$Res call({
+ String? name, String? parentFolderId, bool restoreToRoot
+});
+
+
+
+
+}
+/// @nodoc
+class _$RestoreStorageFolderPayloadCopyWithImpl<$Res>
+    implements $RestoreStorageFolderPayloadCopyWith<$Res> {
+  _$RestoreStorageFolderPayloadCopyWithImpl(this._self, this._then);
+
+  final RestoreStorageFolderPayload _self;
+  final $Res Function(RestoreStorageFolderPayload) _then;
+
+/// Create a copy of RestoreStorageFolderPayload
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? parentFolderId = freezed,Object? restoreToRoot = null,}) {
+  return _then(_self.copyWith(
+name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,parentFolderId: freezed == parentFolderId ? _self.parentFolderId : parentFolderId // ignore: cast_nullable_to_non_nullable
+as String?,restoreToRoot: null == restoreToRoot ? _self.restoreToRoot : restoreToRoot // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RestoreStorageFolderPayload].
+extension RestoreStorageFolderPayloadPatterns on RestoreStorageFolderPayload {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RestoreStorageFolderPayload value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RestoreStorageFolderPayload() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RestoreStorageFolderPayload value)  $default,){
+final _that = this;
+switch (_that) {
+case _RestoreStorageFolderPayload():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RestoreStorageFolderPayload value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RestoreStorageFolderPayload() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? name,  String? parentFolderId,  bool restoreToRoot)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RestoreStorageFolderPayload() when $default != null:
+return $default(_that.name,_that.parentFolderId,_that.restoreToRoot);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? name,  String? parentFolderId,  bool restoreToRoot)  $default,) {final _that = this;
+switch (_that) {
+case _RestoreStorageFolderPayload():
+return $default(_that.name,_that.parentFolderId,_that.restoreToRoot);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? name,  String? parentFolderId,  bool restoreToRoot)?  $default,) {final _that = this;
+switch (_that) {
+case _RestoreStorageFolderPayload() when $default != null:
+return $default(_that.name,_that.parentFolderId,_that.restoreToRoot);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RestoreStorageFolderPayload implements RestoreStorageFolderPayload {
+  const _RestoreStorageFolderPayload({this.name, this.parentFolderId, this.restoreToRoot = false});
+  factory _RestoreStorageFolderPayload.fromJson(Map<String, dynamic> json) => _$RestoreStorageFolderPayloadFromJson(json);
+
+@override final  String? name;
+@override final  String? parentFolderId;
+@override@JsonKey() final  bool restoreToRoot;
+
+/// Create a copy of RestoreStorageFolderPayload
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RestoreStorageFolderPayloadCopyWith<_RestoreStorageFolderPayload> get copyWith => __$RestoreStorageFolderPayloadCopyWithImpl<_RestoreStorageFolderPayload>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RestoreStorageFolderPayloadToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RestoreStorageFolderPayload&&(identical(other.name, name) || other.name == name)&&(identical(other.parentFolderId, parentFolderId) || other.parentFolderId == parentFolderId)&&(identical(other.restoreToRoot, restoreToRoot) || other.restoreToRoot == restoreToRoot));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,name,parentFolderId,restoreToRoot);
+
+@override
+String toString() {
+  return 'RestoreStorageFolderPayload(name: $name, parentFolderId: $parentFolderId, restoreToRoot: $restoreToRoot)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RestoreStorageFolderPayloadCopyWith<$Res> implements $RestoreStorageFolderPayloadCopyWith<$Res> {
+  factory _$RestoreStorageFolderPayloadCopyWith(_RestoreStorageFolderPayload value, $Res Function(_RestoreStorageFolderPayload) _then) = __$RestoreStorageFolderPayloadCopyWithImpl;
+@override @useResult
+$Res call({
+ String? name, String? parentFolderId, bool restoreToRoot
+});
+
+
+
+
+}
+/// @nodoc
+class __$RestoreStorageFolderPayloadCopyWithImpl<$Res>
+    implements _$RestoreStorageFolderPayloadCopyWith<$Res> {
+  __$RestoreStorageFolderPayloadCopyWithImpl(this._self, this._then);
+
+  final _RestoreStorageFolderPayload _self;
+  final $Res Function(_RestoreStorageFolderPayload) _then;
+
+/// Create a copy of RestoreStorageFolderPayload
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = freezed,Object? parentFolderId = freezed,Object? restoreToRoot = null,}) {
+  return _then(_RestoreStorageFolderPayload(
+name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,parentFolderId: freezed == parentFolderId ? _self.parentFolderId : parentFolderId // ignore: cast_nullable_to_non_nullable
+as String?,restoreToRoot: null == restoreToRoot ? _self.restoreToRoot : restoreToRoot // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

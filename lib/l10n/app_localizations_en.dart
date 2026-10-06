@@ -1551,7 +1551,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workspacesCreateTaskSubtitle =>
-      'Add a task to the project workflow.';
+      'Name the task and choose its initial status.';
 
   @override
   String get workspacesTaskTitleLabel => 'Task title *';
@@ -6227,7 +6227,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create a new template from scratch with custom default values.';
 
   @override
-  String get tasksTemplateForThisTask => 'Template for this task';
+  String get tasksTemplateForThisTask => 'Template';
 
   @override
   String get tasksTemplateNoTemplate => 'No template';
@@ -12524,4 +12524,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String storageSelectItem(String name) {
     return 'Select $name';
   }
+
+  @override
+  String get storageRestoreFolderTitle => 'Restore folder';
+
+  @override
+  String get storageRestoreFolderExplanation =>
+      'The folder will return to its previous location. If there is a conflict, change its name or choose the root folder.';
+
+  @override
+  String get storageRestoreFolderRoot => 'Restore to root folder';
+
+  @override
+  String get storageRestoreFolderNameConflict =>
+      'A folder with this name already exists. Enter another name or choose the root folder.';
+
+  @override
+  String get storageRestoreFolderParentDeleted =>
+      'The previous location is in the trash. Restore the parent folder first or choose the root folder.';
+
+  @override
+  String get storageRestoreFolderVersionConflict =>
+      'The folder was changed by another person. Refresh the list and check its current state before trying again.';
+
+  @override
+  String get storagePartialRestoreFailed =>
+      'Some items could not be restored. Items that were not restored remain selected.';
 }

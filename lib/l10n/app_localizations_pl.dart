@@ -1553,7 +1553,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get workspacesCreateTaskSubtitle =>
-      'Dodaj zadanie do workflow projektu.';
+      'Nadaj zadaniu tytuł i wybierz jego początkowy status.';
 
   @override
   String get workspacesTaskTitleLabel => 'Tytuł zadania *';
@@ -6272,18 +6272,18 @@ class AppLocalizationsPl extends AppLocalizations {
       'Utwórz nową formatkę od zera z własnymi ustawieniami domyślnymi.';
 
   @override
-  String get tasksTemplateForThisTask => 'Formatka dla tego zadania';
+  String get tasksTemplateForThisTask => 'Szablon';
 
   @override
-  String get tasksTemplateNoTemplate => 'Bez formatki';
+  String get tasksTemplateNoTemplate => 'Bez szablonu';
 
   @override
   String tasksTemplateDefaultChip(String name) {
-    return 'Formatka: $name';
+    return 'Szablon: $name';
   }
 
   @override
-  String get tasksTemplateUsingDefault => 'Domyślna formatka';
+  String get tasksTemplateUsingDefault => 'Domyślny szablon';
 
   @override
   String tasksBulkSelected(int count) {
@@ -12627,4 +12627,30 @@ class AppLocalizationsPl extends AppLocalizations {
   String storageSelectItem(String name) {
     return 'Zaznacz $name';
   }
+
+  @override
+  String get storageRestoreFolderTitle => 'Przywróć folder';
+
+  @override
+  String get storageRestoreFolderExplanation =>
+      'Folder wróci do poprzedniej lokalizacji. W razie konfliktu zmień nazwę lub wybierz katalog główny.';
+
+  @override
+  String get storageRestoreFolderRoot => 'Przywróć do katalogu głównego';
+
+  @override
+  String get storageRestoreFolderNameConflict =>
+      'Folder o tej nazwie już istnieje. Wprowadź inną nazwę lub wybierz katalog główny.';
+
+  @override
+  String get storageRestoreFolderParentDeleted =>
+      'Poprzednia lokalizacja jest w koszu. Najpierw przywróć folder nadrzędny lub wybierz katalog główny.';
+
+  @override
+  String get storageRestoreFolderVersionConflict =>
+      'Folder został zmieniony przez inną osobę. Odśwież listę i sprawdź jego aktualny stan przed ponowieniem.';
+
+  @override
+  String get storagePartialRestoreFailed =>
+      'Nie udało się przywrócić wszystkich elementów. Nieprzywrócone pozostały zaznaczone.';
 }

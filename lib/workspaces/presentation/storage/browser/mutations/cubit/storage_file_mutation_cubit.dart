@@ -3,6 +3,7 @@ import 'package:devplanner/workspaces/data/storage/models/storage_contract_model
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_bulk_delete_commands.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_bulk_restore_commands.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_download_commands.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_mutation_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cubit/storage_file_placement_mutations.dart';
@@ -137,6 +138,21 @@ final class StorageFileMutationCubit extends Cubit<StorageFileMutationState> {
         ),
       );
     });
+  }
+
+  Future<void> bulkRestore({
+    required List<String> fileIds,
+    List<String> folderIds = const [],
+  }) async {
+    final files = List<String>.unmodifiable(fileIds);
+    final folders = List<String>.unmodifiable(folderIds);
+    await _runMutation(
+      (isCurrent) => StorageBulkRestoreCommands(repository).execute(
+        fileIds: files,
+        folderIds: folders,
+        isCurrent: isCurrent,
+      ),
+    );
   }
 
   Future<void> bulkDelete({

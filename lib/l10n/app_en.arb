@@ -479,7 +479,7 @@
   "workspacesMenuCreateWhiteboard": "Create whiteboard",
   "workspacesMenuAddAnotherWhiteboard": "Add another whiteboard",
   "workspacesCreateTaskTitle": "New task",
-  "workspacesCreateTaskSubtitle": "Add a task to the project workflow.",
+  "workspacesCreateTaskSubtitle": "Name the task and choose its initial status.",
   "workspacesTaskTitleLabel": "Task title *",
   "workspacesTaskTitleHint": "Task title...",
   "workspacesTaskTitleRequired": "Please enter a task title",
@@ -1967,7 +1967,7 @@
   "tasksTemplatesClearDefault": "Clear default template",
   "tasksTemplatesNew": "New template",
   "tasksTemplatesNewDescription": "Create a new template from scratch with custom default values.",
-  "tasksTemplateForThisTask": "Template for this task",
+  "tasksTemplateForThisTask": "Template",
   "tasksTemplateNoTemplate": "No template",
   "tasksTemplateDefaultChip": "Template: {name}",
   "@tasksTemplateDefaultChip": {"placeholders": {"name": {"type": "String"}}},
@@ -4036,5 +4036,12 @@
   "storageShareWorkspaceUnavailable": "Workspace unavailable",
   "storageShareProjectUnavailable": "Project unavailable",
   "storageSelectItem": "Select {name}",
-  "@storageSelectItem": {"placeholders": {"name": {"type": "String"}}}
+  "@storageSelectItem": {"placeholders": {"name": {"type": "String"}}},
+  "storageRestoreFolderTitle": "Restore folder",
+  "storageRestoreFolderExplanation": "The folder will return to its previous location. If there is a conflict, change its name or choose the root folder.",
+  "storageRestoreFolderRoot": "Restore to root folder",
+  "storageRestoreFolderNameConflict": "A folder with this name already exists. Enter another name or choose the root folder.",
+  "storageRestoreFolderParentDeleted": "The previous location is in the trash. Restore the parent folder first or choose the root folder.",
+  "storageRestoreFolderVersionConflict": "The folder was changed by another person. Refresh the list and check its current state before trying again.",
+  "storagePartialRestoreFailed": "Some items could not be restored. Items that were not restored remain selected."
 }

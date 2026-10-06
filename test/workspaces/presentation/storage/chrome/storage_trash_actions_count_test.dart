@@ -31,6 +31,8 @@ void main() {
   setUpAll(registerStorageFallbacks);
   setUp(() {
     repository = _Repository();
+    when(repository.listTrashFolders)
+        .thenAnswer((_) async => right(<StorageFolderResponse>[]));
     files = [storageTestFile(), storageTestFile(id: 'file-2')];
     folders = [storageTestFolder()];
     when(

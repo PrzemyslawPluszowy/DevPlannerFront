@@ -20,6 +20,12 @@ final class DevPlannerFilesTheme {
   /// Wspólna gęstość, typografia i role powierzchni modułów danych.
   final DevPlannerTasksTheme common;
 
+  /// Wspólny akcent folderu w Liście i Siatce.
+  Color get folderIconColor => const Color(0xFFD58A00);
+
+  /// Delikatne tło ikony folderu, niezależne od stanu zaznaczenia.
+  Color get folderIconSurface => Colors.amber.withValues(alpha: .16);
+
   /// Docelowa szerokość kafelka pliku.
   double get gridCardExtent => 200;
 

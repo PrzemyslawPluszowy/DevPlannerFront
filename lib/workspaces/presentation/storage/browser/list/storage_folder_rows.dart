@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/theme/files_theme.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/icons/app_icons.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
@@ -79,7 +81,7 @@ final class _FolderRow extends StatelessWidget {
 
   void _activate(BuildContext context) {
     final selection = context.read<StorageSelectionCubit>();
-    if (selection.state.hasSelection) {
+    if (folder.isDeleted || selection.state.hasSelection) {
       selection.toggleFolder(folder);
     } else {
       unawaited(context.read<StorageBrowserCubit>().openFolder(folder));
@@ -89,7 +91,7 @@ final class _FolderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => StorageFolderDropTarget(
     folder: folder,
-    enabled: capabilities.canMove && folder.canEdit,
+    enabled: capabilities.canMove && folder.canEdit && !folder.isDeleted,
     child: GestureDetector(
       onSecondaryTapDown: (details) => StorageFolderActionsMenu.showContextMenu(
         context,
@@ -135,12 +137,12 @@ final class _FolderRow extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: Colors.amber.withValues(alpha: 0.16),
+                      color: context.filesTheme.folderIconSurface,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       AppIcons.folder,
-                      color: Color(0xFFD58A00),
+                      color: context.filesTheme.folderIconColor,
                       size: 20,
                     ),
                   ),
@@ -153,7 +155,9 @@ final class _FolderRow extends StatelessWidget {
                   subtitle: folder.itemCount > 0
                       ? Text(context.l10n.storageItemsCount(folder.itemCount))
                       : null,
-                  trailing: const Icon(AppIcons.chevronRight, size: 16),
+                  trailing: folder.isDeleted
+                      ? null
+                      : const Icon(AppIcons.chevronRight, size: 16),
                   onTap: () => _activate(context),
                   onLongPress: () => context
                       .read<StorageSelectionCubit>()

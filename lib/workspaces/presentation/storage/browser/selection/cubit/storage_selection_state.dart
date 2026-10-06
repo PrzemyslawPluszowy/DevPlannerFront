@@ -8,6 +8,7 @@ class StorageSelectionState extends Equatable {
     this.selectedFolderIds = const {},
     this.anchorId,
     this.canDelete = false,
+    this.canRestore = false,
     this.canDownloadZip = false,
     this.canShare = false,
     this.canFavorite = false,
@@ -25,6 +26,7 @@ class StorageSelectionState extends Equatable {
 
   /// Czy użytkownik może usunąć zaznaczone elementy.
   final bool canDelete;
+  final bool canRestore;
 
   /// Czy zaznaczone pliki można pobrać w archiwum ZIP.
   final bool canDownloadZip;
@@ -58,6 +60,7 @@ class StorageSelectionState extends Equatable {
     String? anchorId,
     bool clearAnchor = false,
     bool? canDelete,
+    bool? canRestore,
     bool? canDownloadZip,
     bool? canShare,
     bool? canFavorite,
@@ -67,6 +70,7 @@ class StorageSelectionState extends Equatable {
     selectedFolderIds: selectedFolderIds ?? this.selectedFolderIds,
     anchorId: clearAnchor ? null : (anchorId ?? this.anchorId),
     canDelete: canDelete ?? this.canDelete,
+    canRestore: canRestore ?? this.canRestore,
     canDownloadZip: canDownloadZip ?? this.canDownloadZip,
     canShare: canShare ?? this.canShare,
     canFavorite: canFavorite ?? this.canFavorite,
@@ -79,6 +83,7 @@ class StorageSelectionState extends Equatable {
     selectedFolderIds,
     anchorId,
     canDelete,
+    canRestore,
     canDownloadZip,
     canShare,
     canFavorite,

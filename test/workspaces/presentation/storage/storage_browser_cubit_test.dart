@@ -25,6 +25,8 @@ void main() {
 
   setUp(() {
     repository = _MockStorageRepository();
+    when(repository.listTrashFolders)
+        .thenAnswer((_) async => right(<StorageFolderResponse>[]));
   });
 
   final now = DateTime.utc(2026, 9, 9, 12);

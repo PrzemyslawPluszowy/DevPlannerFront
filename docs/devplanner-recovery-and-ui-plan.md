@@ -348,3 +348,18 @@ Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.l
 - [ ] Pełna bramka Flutter pozostaje niezaliczona: 2476 PASS / 25 FAIL. Jeden nieaktualny mock poprawiony, plik repozytorium 12 PASS. Pozostałe 24 błędy odtworzone na poprzednim HEAD: 23 referencje obrazów i 1 stary tekst. Nie podmieniano goldenów. To osobna świadoma kolejka odbioru, nie dowód nowych regresji pakietu.
 
 Dalsza kolejność po tym retescie: QA31, QA15 Listy, Kanban loading/rollback i powiązane regresje; następnie brakujące scenariusze modalu, czatu, obecności, ról i awarii zgodnie z macierzą. Nie deklarowano odbioru całej aplikacji ani wszystkich kontrolek.
+
+### Audyt UI wznowiony — 2026-10-06
+
+Właściciel zlecił dalsze przeklikiwanie Chrome/Edge na stagingu oraz naprawę błędów i niespójnego lub brzydkiego UI. UI UX Pro Max + Impeccable Operate, oddzielna ocena funkcji/UX/UI, wspólny rejestr Backend/docs/ui-testing.md. Retest cfd0c8b/e27db3b: ZIP dwóch TXT bajtowo poprawny, sortlabel, filtermouseclear i nazwyplikówgrid PASS w opisanym dark. Lista: suwakwidoczny i kliktrack działa, ale groupheader znika poziomo i priorityheader ucięty; kolumnymodal/emptytitlevalidation wymagają naprawy. TASK-176 QA UI audit2026-10-06 utworzony i otwarty w modalu. QA31/33 Storage oraz QA15/34/35 List/quickcreate lokalnie w testach/review; jeden wspólny deploy Wasm+Backend dopiero po bramkach. Pełnego UI nie uznano za odebrane.
+
+## Pakiet QA31/33/15/34/35 — 2026-10-06, przed publikacją
+
+- [x] Kod Kosza folderów i restore Backend+Front oraz addytywna migracja izolacji nazw osobistych folderów. Backend44focused+3PostgreSQL+1folder404 PASS, pełny format exit0, skrypty idempotent Up/rollback wygenerowane. OpenAPI/JSON/FolderType4/AccessLevel5 potwierdzone; niezależny review bez blokera.
+- [x] Front: Storage64focused, Tasks12focused, search9PASS; wspólne folderIconColor/folderIconSurface list/grid, sticky groupheader, priorytet132px, zwarte okno kolumn i walidacja pustego tytułu. UI UX Pro Max i Impeccable Operate zastosowane; lifecycle/mounted/generation/buildreview wykonany.
+- [ ] Pełne suity nadal czerwone: Backend1526PASS/1FAIL/4SKIP (notification groupoutbox, focused1PASS, przyczyna fullfail otwarta); Front2489PASS/25FAIL (24 wcześniejsze visual/recurrence; nowy mock listTrashFolders poprawiany z retestem). Nie deklarować pełnego PASS.
+- [ ] Commit/push skipci, jedna publikacja obu komponentów i FrontWasm oraz dokładny Chrome staging retest QA31/33/15/34/35. Dalszy audyt wszystkich nieodebranych kontrolek aktywny; QA36 kontekst Kosza i QA37 komunikat podglądu kaskady do następnego pakietu. Faktyczne kroki/dowody/wersje i rezerwacje: Backend/docs/ui-testing.md.
+
+QA33 finalserialrun:28/28PASS exit0, /tmp/qa33-folder-accent-persistence-tests.log; brakujący mocklistTrashFolders naprawiony. Pełnej suity nie powtarzano, wcześniejsze24baseline pozostają otwarte. Final rootanalyzer45911 w toku.
+
+Final fullFrontend analyzer45911 exit0 Noissues; log /tmp/devplanner-qa31-35-final-analyze.log. Pakiet źródeł zamrożony, bramki ukierunkowane PASS z powyższymi jawnymi ograniczeniami pełnych suit.

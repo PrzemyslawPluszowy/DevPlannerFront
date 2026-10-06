@@ -281,6 +281,11 @@ _StorageFolderResponse _$StorageFolderResponseFromJson(
   canEdit: json['canEdit'] as bool,
   canShare: json['canShare'] as bool,
   canDelete: json['canDelete'] as bool,
+  isDeleted: json['isDeleted'] as bool? ?? false,
+  deletedAtUtc: json['deletedAtUtc'] == null
+      ? null
+      : DateTime.parse(json['deletedAtUtc'] as String),
+  canRestore: json['canRestore'] as bool? ?? false,
   itemCount: (json['itemCount'] as num).toInt(),
   updatedAtUtc: DateTime.parse(json['updatedAtUtc'] as String),
   accessLevel: $enumDecode(
@@ -303,7 +308,26 @@ Map<String, dynamic> _$StorageFolderResponseToJson(
   'canEdit': instance.canEdit,
   'canShare': instance.canShare,
   'canDelete': instance.canDelete,
+  'isDeleted': instance.isDeleted,
+  'deletedAtUtc': instance.deletedAtUtc?.toIso8601String(),
+  'canRestore': instance.canRestore,
   'itemCount': instance.itemCount,
   'updatedAtUtc': instance.updatedAtUtc.toIso8601String(),
   'accessLevel': _$StorageEffectiveAccessLevelEnumMap[instance.accessLevel]!,
+};
+
+_RestoreStorageFolderPayload _$RestoreStorageFolderPayloadFromJson(
+  Map<String, dynamic> json,
+) => _RestoreStorageFolderPayload(
+  name: json['name'] as String?,
+  parentFolderId: json['parentFolderId'] as String?,
+  restoreToRoot: json['restoreToRoot'] as bool? ?? false,
+);
+
+Map<String, dynamic> _$RestoreStorageFolderPayloadToJson(
+  _RestoreStorageFolderPayload instance,
+) => <String, dynamic>{
+  'name': instance.name,
+  'parentFolderId': instance.parentFolderId,
+  'restoreToRoot': instance.restoreToRoot,
 };

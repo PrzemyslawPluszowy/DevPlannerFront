@@ -73,6 +73,9 @@ void main() {
 
   setUp(() {
     repository = _MockStorageRepository();
+    when(repository.listTrashFolders).thenAnswer(
+      (_) async => right(const <StorageFolderResponse>[]),
+    );
     when(
       () => repository.listFolders(
         scope: any(named: 'scope'),

@@ -79,7 +79,8 @@ final class _StorageFileMutationListenerState
     if (snapshot == null) return;
     if (state is StorageFileMutationSuccess) {
       final affectedIds = switch (state.type) {
-        StorageFileMutationType.bulkDeleted => {
+        StorageFileMutationType.bulkDeleted ||
+        StorageFileMutationType.bulkRestored => {
           ...snapshot.fileIds,
           ...snapshot.folderIds,
         },
@@ -114,6 +115,8 @@ final class _StorageFileMutationListenerState
           message: switch (state.messageCode) {
             StorageFileMutationMessage.partialDelete =>
               context.l10n.storagePartialDeleteFailed,
+            StorageFileMutationMessage.partialRestore =>
+              context.l10n.storagePartialRestoreFailed,
             StorageFileMutationMessage.partialMove =>
               context.l10n.storagePartialMoveFailed,
             _ => state.errorMessage,

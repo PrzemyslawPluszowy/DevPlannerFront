@@ -87,6 +87,28 @@ final class StorageRepositoryImpl extends ApiRepository
   );
 
   @override
+  Future<Either<ApiError, List<StorageFolderResponse>>> listTrashFolders() =>
+      guardApiCall(_api.listTrashFolders, fallbackMessage: '');
+
+  @override
+  Future<Either<ApiError, StorageFolderResponse>> restoreFolder({
+    required String folderId,
+    String? name,
+    String? parentFolderId,
+    bool restoreToRoot = false,
+  }) => guardApiCall(
+    () => _api.restoreFolder(
+      folderId,
+      RestoreStorageFolderPayload(
+        name: name,
+        parentFolderId: parentFolderId,
+        restoreToRoot: restoreToRoot,
+      ),
+    ),
+    fallbackMessage: '',
+  );
+
+  @override
   Future<Either<ApiError, StorageFolderResponse>> getFolder(String folderId) =>
       guardApiCall(
         () => _api.getFolder(folderId),

@@ -32,6 +32,15 @@ abstract interface class StorageRepository {
     String? parentFolderId,
   });
 
+  Future<Either<ApiError, List<StorageFolderResponse>>> listTrashFolders();
+
+  Future<Either<ApiError, StorageFolderResponse>> restoreFolder({
+    required String folderId,
+    String? name,
+    String? parentFolderId,
+    bool restoreToRoot = false,
+  });
+
   /// Pobiera szczegóły pojedynczego folderu wraz z podfolderami i plikami.
   Future<Either<ApiError, StorageFolderResponse>> getFolder(String folderId);
 

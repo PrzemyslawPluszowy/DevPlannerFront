@@ -2807,7 +2807,7 @@ abstract class AppLocalizations {
   /// No description provided for @workspacesCreateTaskSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Add a task to the project workflow.'**
+  /// **'Name the task and choose its initial status.'**
   String get workspacesCreateTaskSubtitle;
 
   /// No description provided for @workspacesTaskTitleLabel.
@@ -10973,7 +10973,7 @@ abstract class AppLocalizations {
   /// No description provided for @tasksTemplateForThisTask.
   ///
   /// In en, this message translates to:
-  /// **'Template for this task'**
+  /// **'Template'**
   String get tasksTemplateForThisTask;
 
   /// No description provided for @tasksTemplateNoTemplate.
@@ -22327,6 +22327,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select {name}'**
   String storageSelectItem(String name);
+
+  /// No description provided for @storageRestoreFolderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore folder'**
+  String get storageRestoreFolderTitle;
+
+  /// No description provided for @storageRestoreFolderExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'The folder will return to its previous location. If there is a conflict, change its name or choose the root folder.'**
+  String get storageRestoreFolderExplanation;
+
+  /// No description provided for @storageRestoreFolderRoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore to root folder'**
+  String get storageRestoreFolderRoot;
+
+  /// No description provided for @storageRestoreFolderNameConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A folder with this name already exists. Enter another name or choose the root folder.'**
+  String get storageRestoreFolderNameConflict;
+
+  /// No description provided for @storageRestoreFolderParentDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'The previous location is in the trash. Restore the parent folder first or choose the root folder.'**
+  String get storageRestoreFolderParentDeleted;
+
+  /// No description provided for @storageRestoreFolderVersionConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The folder was changed by another person. Refresh the list and check its current state before trying again.'**
+  String get storageRestoreFolderVersionConflict;
+
+  /// No description provided for @storagePartialRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items could not be restored. Items that were not restored remain selected.'**
+  String get storagePartialRestoreFailed;
 }
 
 class _AppLocalizationsDelegate

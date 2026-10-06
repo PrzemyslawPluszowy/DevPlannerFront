@@ -143,7 +143,9 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
         if (isClosed || requestGeneration != _requestGeneration) return null;
       }
 
-      final foldersResult = scope.isFavorites || scope.isRecent || scope.isTrash
+      final foldersResult = scope.isTrash
+          ? await repository.listTrashFolders()
+          : scope.isFavorites || scope.isRecent
           ? const Right<ApiError, List<StorageFolderResponse>>([])
           : await repository.listFolders(
               scope: scope,
@@ -207,7 +209,15 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
         return error;
       }
 
-      final folders = foldersResult.getOrElse(() => <StorageFolderResponse>[]);
+      final allFolders = foldersResult.getOrElse(
+        () => <StorageFolderResponse>[],
+      );
+      final query = _searchQuery?.toLowerCase();
+      final folders = scope.isTrash && query != null
+          ? allFolders
+                .where((folder) => folder.name.toLowerCase().contains(query))
+                .toList()
+          : allFolders;
       final filesPage = filesResult.getOrElse(
         () => const CursorPageResponse<StorageFileResponse>(items: []),
       );
@@ -310,6 +320,12 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
 
   /// Otwiera wskazany folder podrzędny.
   Future<void> openFolder(StorageFolderResponse folder) async {
+    if (isClosed ||
+        currentScope.isTrash ||
+        folder.isDeleted ||
+        !folder.canRead) {
+      return;
+    }
     _folderParents[folder.id] = currentScope.folderId;
     final newScope = currentScope.copyWithFolder(folder.id);
     await setScope(newScope);
@@ -470,6 +486,13 @@ final class StorageBrowserCubit extends Cubit<StorageBrowserState> {
     required bool failureAsState,
     int? minimumItems,
   }) async {
+    if (currentScope.isTrash) {
+      return _loadListing(
+        showLoading: showLoading,
+        failureAsState: failureAsState,
+        minimumItems: minimumItems,
+      );
+    }
     _loadDepth++;
     try {
       final requestGeneration = ++_requestGeneration;

@@ -18,6 +18,7 @@ import 'package:devplanner/workspaces/presentation/tasks/list/preferences/cubit/
 import 'package:devplanner/workspaces/presentation/tasks/list/preferences/widgets/task_list_columns_sheet.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/header/task_list_header.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_group_row.dart';
+import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_horizontal_sticky_row.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/rows/task_list_row.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_empty_result.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_grid.dart';
@@ -237,8 +238,11 @@ class _TaskListTableState extends State<TaskListTable> {
           caseInsensitiveWidths[id.toLowerCase()] ??
           caseInsensitiveWidths[column.name.toLowerCase()];
       if (width != null) {
-        _columnWidths[column] = width;
-        _columnWidthsById[id] = width;
+        final resolvedWidth = column == TaskSavedViewColumn.priority
+            ? width.clamp(TaskListGrid.priority, double.infinity)
+            : width;
+        _columnWidths[column] = resolvedWidth;
+        _columnWidthsById[id] = resolvedWidth;
       }
     }
   }

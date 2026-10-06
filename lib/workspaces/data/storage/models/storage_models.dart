@@ -165,6 +165,9 @@ abstract class StorageFolderResponse with _$StorageFolderResponse {
     required bool canEdit,
     required bool canShare,
     required bool canDelete,
+    @Default(false) bool isDeleted,
+    DateTime? deletedAtUtc,
+    @Default(false) bool canRestore,
     required int itemCount,
     required DateTime updatedAtUtc,
     required StorageEffectiveAccessLevel accessLevel,
@@ -173,4 +176,16 @@ abstract class StorageFolderResponse with _$StorageFolderResponse {
   /// Odtwarza odpowiedź z JSON.
   factory StorageFolderResponse.fromJson(Map<String, dynamic> json) =>
       _$StorageFolderResponseFromJson(json);
+}
+
+@freezed
+abstract class RestoreStorageFolderPayload with _$RestoreStorageFolderPayload {
+  const factory RestoreStorageFolderPayload({
+    String? name,
+    String? parentFolderId,
+    @Default(false) bool restoreToRoot,
+  }) = _RestoreStorageFolderPayload;
+
+  factory RestoreStorageFolderPayload.fromJson(Map<String, dynamic> json) =>
+      _$RestoreStorageFolderPayloadFromJson(json);
 }

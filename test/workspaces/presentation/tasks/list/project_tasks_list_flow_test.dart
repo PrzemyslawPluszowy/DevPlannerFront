@@ -32,6 +32,7 @@ import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_em
 import 'package:devplanner/workspaces/presentation/tasks/list/table/task_list_table.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -283,9 +284,13 @@ void main() {
         const EffectiveTaskListConfigurationResponse(
           workspaceId: 'w-1',
           projectId: 'p-1',
-          effectiveVisibleColumns: ['sys:key', 'sys:title'],
-          effectiveColumnWidths: {'sys:Key': 90, 'sys:Title': 1000},
-          availableColumns: ['sys:key', 'sys:title'],
+          effectiveVisibleColumns: ['sys:key', 'sys:title', 'sys:priority'],
+          effectiveColumnWidths: {
+            'sys:Key': 90,
+            'sys:Title': 1000,
+            'sys:Priority': 110,
+          },
+          availableColumns: ['sys:key', 'sys:title', 'sys:priority'],
           requiredColumns: ['sys:title'],
           sortField: TaskSavedViewSortField.position,
           sortDirection: TaskSavedViewSortDirection.ascending,
@@ -340,6 +345,18 @@ void main() {
     );
 
     await tester.pumpAndSettle();
+    final priorityHeader = find.byWidgetPredicate(
+      (widget) => widget is TaskListHeaderCell && widget.label == 'Priorytet',
+    );
+    expect(tester.widget<TaskListHeaderCell>(priorityHeader).width, 132);
+    final priorityText = find.descendant(
+      of: priorityHeader,
+      matching: find.text('Priorytet'),
+    );
+    expect(
+      tester.renderObject<RenderParagraph>(priorityText).didExceedMaxLines,
+      isFalse,
+    );
     final scrollbarFinder = find.byWidgetPredicate(
       (widget) =>
           widget is Scrollbar &&
@@ -353,6 +370,8 @@ void main() {
       find.descendant(of: scrollbarFinder, matching: find.byType(ListView)),
     );
     expect(rowsViewport.bottom, lessThanOrEqualTo(rect.bottom - 12));
+    expect(find.text('Zadanie 0'), findsOneWidget);
+    final groupBefore = tester.getTopLeft(find.text('Do zrobienia').first);
     final start = Offset(rect.left + 50, rect.bottom - 3);
     expect(scrollbar.controller!.position.maxScrollExtent, greaterThan(0));
     await tester.dragFrom(
@@ -362,6 +381,13 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(scrollbar.controller!.offset, greaterThan(0));
+    expect(
+      tester.getTopLeft(find.text('Do zrobienia').first).dx,
+      closeTo(groupBefore.dx, .01),
+    );
+    await tester.tap(find.byTooltip('Zwiń grupę').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Zadanie 0'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

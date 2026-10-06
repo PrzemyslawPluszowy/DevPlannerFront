@@ -24,6 +24,7 @@ enum StorageFileMutationType {
 
   /// Zbiorcze usunięcie elementów.
   bulkDeleted,
+  bulkRestored,
 
   /// Pobranie archiwum ZIP.
   zipDownloaded,
@@ -40,6 +41,7 @@ enum StorageFileMutationType {
 
 enum StorageFileMutationMessage {
   partialDelete,
+  partialRestore,
   deleteFailed,
 
   /// Przeniesienie części elementów nie powiodło się.

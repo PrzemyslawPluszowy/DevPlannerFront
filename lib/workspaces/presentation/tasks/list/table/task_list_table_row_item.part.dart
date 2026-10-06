@@ -5,6 +5,7 @@ extension _TaskListTableRowItemExtension on _TaskListTableState {
   Widget _buildRowItem(
     BuildContext context, {
     required ProjectTasksListReady state,
+    required double viewportWidth,
     required _ListRow row,
     required List<TaskSavedViewColumn> visibleColumns,
     required List<TaskColumnReference>? effectiveColumnRefs,
@@ -22,33 +23,37 @@ extension _TaskListTableRowItemExtension on _TaskListTableState {
         :final count,
         :final status,
       ) =>
-        TaskListGroupRow(
-          label: label,
-          count: count,
-          status: status,
-          isCollapsed: _collapsedGroupIds.contains(id),
-          onToggle: () => updateState(() {
-            if (!_collapsedGroupIds.add(id)) {
-              _collapsedGroupIds.remove(id);
-            }
-          }),
-          onTaskDropped: !canMoveBetweenGroups
-              ? null
-              : (task) {
-                  final group = state.groups
-                      .where((item) => item.key == id)
-                      .firstOrNull;
-                  final previous = group?.items
-                      .where((item) => item.id != task.id)
-                      .lastOrNull;
-                  unawaited(
-                    context.read<ProjectTasksListCubit>().moveTask(
-                      task: task,
-                      targetGroupKey: id,
-                      previousTaskId: previous?.id,
-                    ),
-                  );
-                },
+        TaskListHorizontalStickyRow(
+          controller: _horizontalController,
+          viewportWidth: viewportWidth,
+          child: TaskListGroupRow(
+            label: label,
+            count: count,
+            status: status,
+            isCollapsed: _collapsedGroupIds.contains(id),
+            onToggle: () => updateState(() {
+              if (!_collapsedGroupIds.add(id)) {
+                _collapsedGroupIds.remove(id);
+              }
+            }),
+            onTaskDropped: !canMoveBetweenGroups
+                ? null
+                : (task) {
+                    final group = state.groups
+                        .where((item) => item.key == id)
+                        .firstOrNull;
+                    final previous = group?.items
+                        .where((item) => item.id != task.id)
+                        .lastOrNull;
+                    unawaited(
+                      context.read<ProjectTasksListCubit>().moveTask(
+                        task: task,
+                        targetGroupKey: id,
+                        previousTaskId: previous?.id,
+                      ),
+                    );
+                  },
+          ),
         ),
       _ListGroupTableHeader(:final groupKey) => TaskListTableHeader(
         columnReferences: effectiveColumnRefs,

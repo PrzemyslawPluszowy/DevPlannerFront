@@ -33,4 +33,5 @@ export '../models/storage_models.dart'
         CreateStorageDocumentPayload,
         CreateStorageFileSharePayload,
         CreateStorageFolderPayload,
+        RestoreStorageFolderPayload,
         StorageUploadTicketPayload;

@@ -22,6 +22,7 @@ class TaskQuickCreateDialog extends StatefulWidget {
 
 class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
   late final TextEditingController _titleController;
+  final FocusNode _titleFocus = FocusNode();
   late final ValueNotifier<_TaskQuickCreateDialogViewState> _viewState;
 
   @override
@@ -36,6 +37,7 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
   @override
   void dispose() {
     _titleController.dispose();
+    _titleFocus.dispose();
     _viewState.dispose();
     super.dispose();
   }
@@ -43,7 +45,12 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
   Future<void> _submit() async {
     final title = _titleController.text.trim();
     final viewState = _viewState.value;
-    if (viewState.isSubmitting || title.isEmpty) return;
+    if (viewState.isSubmitting) return;
+    if (title.isEmpty) {
+      _viewState.value = viewState.copyWith(showTitleError: true);
+      _titleFocus.requestFocus();
+      return;
+    }
     _viewState.value = viewState.copyWith(isSubmitting: true);
     final created = await widget.onCreate(
       title: title,
@@ -59,17 +66,68 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
     }
   }
 
+  void _onTitleChanged(String title) {
+    if (_viewState.value.showTitleError && title.trim().isNotEmpty) {
+      _viewState.value = _viewState.value.copyWith(showTitleError: false);
+    }
+  }
+
+  void _onColumnChanged(KanbanColumnResponse column) {
+    _viewState.value = _viewState.value.copyWith(column: column);
+  }
+
+  void _onTemplateChanged(String? value) {
+    _viewState.value = _viewState.value.copyWith(
+      selectedTemplateId: value,
+      clearSelectedTemplateId: value == null,
+      useDefaultTemplate: false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) =>
       ValueListenableBuilder<_TaskQuickCreateDialogViewState>(
         valueListenable: _viewState,
-        builder: (context, viewState, _) => _buildDialog(context, viewState),
+        builder: (context, viewState, _) => _TaskQuickCreateContent(
+          columns: widget.columns,
+          viewState: viewState,
+          titleController: _titleController,
+          titleFocus: _titleFocus,
+          onSubmit: _submit,
+          onTitleChanged: _onTitleChanged,
+          onColumnChanged: _onColumnChanged,
+          onTemplateChanged: _onTemplateChanged,
+        ),
       );
+}
 
-  Widget _buildDialog(
-    BuildContext context,
-    _TaskQuickCreateDialogViewState viewState,
-  ) {
+final class _TaskQuickCreateContent extends StatelessWidget {
+  const _TaskQuickCreateContent({
+    required this.columns,
+    required this.viewState,
+    required this.titleController,
+    required this.titleFocus,
+    required this.onSubmit,
+    required this.onTitleChanged,
+    required this.onColumnChanged,
+    required this.onTemplateChanged,
+  });
+  final List<KanbanColumnResponse> columns;
+  final _TaskQuickCreateDialogViewState viewState;
+  final TextEditingController titleController;
+  final FocusNode titleFocus;
+  final VoidCallback onSubmit;
+  final ValueChanged<String> onTitleChanged;
+  final ValueChanged<KanbanColumnResponse> onColumnChanged;
+  final ValueChanged<String?> onTemplateChanged;
+
+  static Color _columnColor(String color, Color fallback) {
+    final hex = int.tryParse(color.replaceFirst('#', ''), radix: 16);
+    return hex == null ? fallback : Color(0xFF000000 | hex);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final colors = context.colors;
 
@@ -82,7 +140,7 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
       submitLabel: l10n.create,
       cancelLabel: l10n.cancel,
       maxWidth: 460,
-      onSubmit: _submit,
+      onSubmit: onSubmit,
       body: Column(
         mainAxisSize: .min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,12 +155,17 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
           ),
           Gaps.h8,
           TextField(
-            controller: _titleController,
+            controller: titleController,
+            focusNode: titleFocus,
+            onChanged: onTitleChanged,
             autofocus: true,
             enabled: !viewState.isSubmitting,
             textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               hintText: l10n.tasksQuickCreateHint,
+              errorText: viewState.showTitleError
+                  ? l10n.workspacesTaskTitleRequired
+                  : null,
               border: const OutlineInputBorder(
                 borderRadius: .all(.circular(10)),
               ),
@@ -111,7 +174,7 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
                 vertical: Sizes.p12,
               ),
             ),
-            onSubmitted: (_) => _submit(),
+            onSubmitted: (_) => onSubmit(),
           ),
           Gaps.h16,
           Text(
@@ -136,7 +199,7 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
               ),
             ),
             items: [
-              for (final column in widget.columns)
+              for (final column in columns)
                 DropdownMenuItem(
                   value: column,
                   child: Row(
@@ -146,14 +209,7 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
                         width: 10,
                         height: 10,
                         decoration: BoxDecoration(
-                          color: () {
-                            try {
-                              final hex = column.color.replaceFirst('#', '');
-                              return Color(int.parse('0xFF$hex'));
-                            } catch (_) {
-                              return colors.primary;
-                            }
-                          }(),
+                          color: _columnColor(column.color, colors.primary),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -166,11 +222,7 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
             onChanged: viewState.isSubmitting
                 ? null
                 : (column) {
-                    if (column != null) {
-                      _viewState.value = _viewState.value.copyWith(
-                        column: column,
-                      );
-                    }
+                    if (column != null) onColumnChanged(column);
                   },
           ),
           Builder(
@@ -253,13 +305,7 @@ class _TaskQuickCreateDialogState extends State<TaskQuickCreateDialog> {
                     ],
                     onChanged: viewState.isSubmitting
                         ? null
-                        : (value) {
-                            _viewState.value = _viewState.value.copyWith(
-                              selectedTemplateId: value,
-                              clearSelectedTemplateId: value == null,
-                              useDefaultTemplate: false,
-                            );
-                          },
+                        : onTemplateChanged,
                   ),
                 ],
               );
@@ -275,24 +321,28 @@ class _TaskQuickCreateDialogViewState {
   const _TaskQuickCreateDialogViewState({
     required this.column,
     this.isSubmitting = false,
+    this.showTitleError = false,
     this.selectedTemplateId,
     this.useDefaultTemplate = true,
   });
 
   final KanbanColumnResponse column;
   final bool isSubmitting;
+  final bool showTitleError;
   final String? selectedTemplateId;
   final bool useDefaultTemplate;
 
   _TaskQuickCreateDialogViewState copyWith({
     KanbanColumnResponse? column,
     bool? isSubmitting,
+    bool? showTitleError,
     String? selectedTemplateId,
     bool clearSelectedTemplateId = false,
     bool? useDefaultTemplate,
   }) => _TaskQuickCreateDialogViewState(
     column: column ?? this.column,
     isSubmitting: isSubmitting ?? this.isSubmitting,
+    showTitleError: showTitleError ?? this.showTitleError,
     selectedTemplateId: clearSelectedTemplateId
         ? null
         : selectedTemplateId ?? this.selectedTemplateId,

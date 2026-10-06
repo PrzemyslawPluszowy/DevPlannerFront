@@ -211,6 +211,16 @@ void main() {
 
     // Sprawdź nagłówek arkusza
     expect(find.text('Dostosuj kolumny'), findsOneWidget);
+    expect(
+      tester.getSize(find.byType(TaskListColumnsSheet)).height,
+      lessThanOrEqualTo(560),
+    );
+    final semantics = tester.ensureSemantics();
+    expect(find.byTooltip('Zamknij'), findsOneWidget);
+    expect(find.bySemanticsLabel('Zamknij'), findsOneWidget);
+    final heading = tester.getSemantics(find.text('Dostosuj kolumny'));
+    expect(heading.getSemanticsData().flagsCollection.isHeader, isTrue);
+    semantics.dispose();
 
     // Sprawdź obecność kolumny wymaganej 'Zadanie' (sys:title) i ikony kłódki
     expect(find.text('Zadanie'), findsOneWidget);

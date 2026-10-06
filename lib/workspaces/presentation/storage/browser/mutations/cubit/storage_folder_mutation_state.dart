@@ -3,7 +3,7 @@ import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
 import 'package:equatable/equatable.dart';
 
 /// Typ wykonanej mutacji na folderze.
-enum StorageFolderMutationType { created, updated, moved, deleted }
+enum StorageFolderMutationType { created, updated, moved, deleted, restored }
 
 /// Bazowy stan mutacji folderów.
 sealed class StorageFolderMutationState extends Equatable {

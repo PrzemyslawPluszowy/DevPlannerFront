@@ -105,13 +105,15 @@ abstract final class StorageFileContextMenu {
               onTap: (_) =>
                   StorageDismissSharedAction.confirm(context, file.id),
             ),
-          if (capabilities.canDownload && file.canDownload)
+          if (capabilities.canDownload && file.canDownload && !isTrash)
             AppContextMenuAction(
               label: l10n.storageDownloadAction,
               icon: AppIcons.download,
               onTap: (_) => mutation.downloadFile(file),
             ),
-          if (capabilities.canManageVersions && file.canManageVersions)
+          if (capabilities.canManageVersions &&
+              file.canManageVersions &&
+              !isTrash)
             AppContextMenuAction(
               label: l10n.storageVersionsTitle,
               icon: AppIcons.documentText,
@@ -124,7 +126,7 @@ abstract final class StorageFileContextMenu {
               icon: AppIcons.refresh,
               onTap: (_) => mutation.restoreFile(file.id),
             )
-          else if (capabilities.canDelete && file.canDelete)
+          else if (capabilities.canDelete && file.canDelete && !isTrash)
             AppContextMenuAction(
               label: l10n.storageDeleteAction,
               icon: AppIcons.delete,

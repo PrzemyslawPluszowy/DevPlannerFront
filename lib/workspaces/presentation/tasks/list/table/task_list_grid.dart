@@ -18,7 +18,7 @@ abstract final class TaskListGrid {
   static const status = 148.0;
 
   /// Szerokość kolumny priorytetu zadania.
-  static const priority = 116.0;
+  static const priority = 132.0;
 
   /// Szerokość kolumny osoby przypisanej / właściciela.
   static const assignee = 166.0;

@@ -297,6 +297,15 @@ abstract class StorageApi {
   @DELETE('/api/v1/storage/folders/{folderId}')
   Future<void> deleteFolder(@Path('folderId') String folderId);
 
+  @GET('/api/v1/storage/folders/trash')
+  Future<List<StorageFolderResponse>> listTrashFolders();
+
+  @POST('/api/v1/storage/folders/{folderId}/restore')
+  Future<StorageFolderResponse> restoreFolder(
+    @Path('folderId') String folderId,
+    @Body() RestoreStorageFolderPayload payload,
+  );
+
   /// Pobiera dzieci folderu.
   @GET('/api/v1/storage/folders/{folderId}/children')
   Future<StorageFolderChildrenResponse> getFolderChildren(

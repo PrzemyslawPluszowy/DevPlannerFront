@@ -32,9 +32,14 @@ class TaskColumnsSheetHeader extends StatelessWidget {
             children: [
               Icon(Symbols.tune_rounded, size: 20, color: colors.primary),
               const SizedBox(width: 8),
-              Text(
-                l10n.tasksListColumnsTitle,
-                style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.tasksListColumnsTitle,
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
               const SizedBox(width: 8),
               _ScopeBadge(label: l10n.tasksListColumnsScopeUser),
@@ -64,9 +69,12 @@ class TaskColumnsSheetHeader extends StatelessWidget {
           children: [
             Icon(Symbols.tune_rounded, size: 20, color: colors.primary),
             const SizedBox(width: 8),
-            Text(
-              l10n.tasksListColumnsTitle,
-              style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            Semantics(
+              header: true,
+              child: Text(
+                l10n.tasksListColumnsTitle,
+                style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
             ),
             if (isSaving && selectedTab == TaskColumnsSheetTab.user) ...[
               const SizedBox(width: 8),

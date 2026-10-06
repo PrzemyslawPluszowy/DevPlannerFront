@@ -31,6 +31,10 @@ final class _FakeRepository extends Fake implements StorageRepository {
   int folderListCalls = 0;
 
   @override
+  Future<Either<ApiError, List<StorageFolderResponse>>>
+  listTrashFolders() async => right([]);
+
+  @override
   Future<Either<ApiError, List<StorageFolderResponse>>> listFolders({
     required StorageScope scope,
     String? parentFolderId,
@@ -106,51 +110,56 @@ void main() {
     ),
   );
 
-  testWidgets('shell podłącza kanał zakresu trasy i odświeża listę zdarzeniem', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1440, 900);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
+  testWidgets(
+    'shell podłącza kanał zakresu trasy i odświeża listę zdarzeniem',
+    (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1440, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
 
-    final repository = _FakeRepository(files: [file('file-1', 'dokument.pdf')]);
-    final client = FakeStorageRealtimeClient();
-    addTearDown(client.dispose);
+      final repository = _FakeRepository(
+        files: [file('file-1', 'dokument.pdf')],
+      );
+      final client = FakeStorageRealtimeClient();
+      addTearDown(client.dispose);
 
-    await tester.pumpWidget(
-      harness(
-        repository: repository,
-        scope: const StorageScope.workspace('w-1'),
-        clientFactory: () => client,
-      ),
-    );
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        harness(
+          repository: repository,
+          scope: const StorageScope.workspace('w-1'),
+          clientFactory: () => client,
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    // Zakres trasy wybiera kanał: workspace, a nie pliki prywatne, bo to inny
-    // zbiór zdarzeń i inna grupa po stronie serwera.
-    expect(client.started, [const StorageRealtimeTarget.workspace('w-1')]);
-    expect(repository.limits, [null]);
-    expect(find.text('dokument.pdf'), findsOneWidget);
+      // Zakres trasy wybiera kanał: workspace, a nie pliki prywatne, bo to inny
+      // zbiór zdarzeń i inna grupa po stronie serwera.
+      expect(client.started, [const StorageRealtimeTarget.workspace('w-1')]);
+      expect(repository.limits, [null]);
+      expect(find.text('dokument.pdf'), findsOneWidget);
 
-    repository.files = [
-      file('file-1', 'dokument.pdf'),
-      file('file-2', 'cudza-zmiana.pdf'),
-    ];
-    client.emit(
-      const StorageRealtimeEvent(
-        type: StorageRealtimeEventType.fileCreated,
-        eventId: 'e-1',
-      ),
-    );
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.pump();
+      repository.files = [
+        file('file-1', 'dokument.pdf'),
+        file('file-2', 'cudza-zmiana.pdf'),
+      ];
+      client.emit(
+        const StorageRealtimeEvent(
+          type: StorageRealtimeEventType.fileCreated,
+          eventId: 'e-1',
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();
 
-    // Odświeżenie pokazuje cudzą zmianę, nie zwija listy do pierwszej strony
-    // i nie pokazuje spinnera: użytkownik zostaje w tym samym widoku.
-    expect(repository.limits, [null, 1]);
-    expect(find.text('cudza-zmiana.pdf'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsNothing);
-  });
+      // Odświeżenie pokazuje cudzą zmianę, nie zwija listy do pierwszej strony
+      // i nie pokazuje spinnera: użytkownik zostaje w tym samym widoku.
+      expect(repository.limits, [null, 1]);
+      expect(find.text('cudza-zmiana.pdf'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    },
+  );
 
   testWidgets('zakres bez kanału nie otwiera subskrypcji', (tester) async {
     final repository = _FakeRepository(files: [file('file-1', 'dokument.pdf')]);

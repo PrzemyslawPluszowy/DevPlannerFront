@@ -12,6 +12,7 @@ import 'package:devplanner/workspaces/presentation/storage/browser/mutations/cub
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_action_dialogs.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_action_result.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_delete_dialog.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/shared/storage_folder_restore_dialog.dart';
 import 'package:devplanner/workspaces/presentation/storage/shell/storage_shell_capabilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,34 @@ final class StorageFolderActionsMenu extends StatelessWidget {
     Offset position, {
     StorageShellCapabilities capabilities = StorageShellCapabilities.readOnly,
   }) {
+    if (folder.isDeleted) {
+      if (capabilities.canDelete && folder.canRestore) {
+        final source = context.read<StorageFolderMutationCubit>();
+        final browser = context.read<StorageBrowserCubit>();
+        final scope = browser.currentScope;
+        unawaited(
+          AppContextMenu.show(
+            context,
+            globalPosition: position,
+            headerTitle: folder.name,
+            actions: [
+              AppContextMenuAction(
+                label: context.l10n.storageRestoreSelected,
+                icon: AppIcons.refresh,
+                onTap: (_) => _restore(
+                  context,
+                  folder,
+                  capturedSource: source,
+                  capturedBrowser: browser,
+                  capturedScope: scope,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
     final canRename = capabilities.canRenameFolder && folder.canEdit;
     final canDelete = capabilities.canDelete && folder.canDelete;
     if (!canRename && !canDelete) return;
@@ -69,6 +98,17 @@ final class StorageFolderActionsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (folder.isDeleted) {
+      if (!capabilities.canDelete || !folder.canRestore) {
+        return const SizedBox.shrink();
+      }
+      return StorageChromePill(
+        key: ValueKey('folder-restore-${folder.id}'),
+        icon: AppIcons.refresh,
+        tooltip: context.l10n.storageRestoreSelected,
+        onTap: () => unawaited(_restore(context, folder)),
+      );
+    }
     final canRename = capabilities.canRenameFolder && folder.canEdit;
     final canDelete = capabilities.canDelete && folder.canDelete;
     if (!canRename && !canDelete) return const SizedBox.shrink();
@@ -150,6 +190,38 @@ final class StorageFolderActionsMenu extends StatelessWidget {
       ),
     };
     await action;
+  }
+
+  static Future<void> _restore(
+    BuildContext context,
+    StorageFolderResponse folder, {
+    StorageFolderMutationCubit? capturedSource,
+    StorageBrowserCubit? capturedBrowser,
+    StorageScope? capturedScope,
+  }) async {
+    if (!context.mounted) return;
+    final source = capturedSource ?? context.read<StorageFolderMutationCubit>();
+    final browser = capturedBrowser ?? context.read<StorageBrowserCubit>();
+    final owner = _StorageFolderActionOwner(
+      context: context,
+      source: source,
+      browser: browser,
+      scope: capturedScope ?? browser.currentScope,
+      folder: folder,
+    );
+    if (!owner.isCurrent ||
+        !folder.isDeleted ||
+        !folder.canRestore ||
+        !source.canMutate) {
+      return;
+    }
+    source.reset();
+    await StorageFolderRestoreDialog.show(
+      context,
+      source: source,
+      folderName: folder.name,
+      onSave: owner.restore,
+    );
   }
 
   static Future<void> showRename(
@@ -238,6 +310,23 @@ final class _StorageFolderActionOwner {
     if (!isCurrent) return StorageFolderActionOutcome.stale;
     if (!source.canMutate) return StorageFolderActionOutcome.failed;
     await source.renameFolder(folderId: folder.id, newName: name);
+    if (!isCurrent) return StorageFolderActionOutcome.stale;
+    return source.state is StorageFolderMutationSuccess
+        ? StorageFolderActionOutcome.succeeded
+        : StorageFolderActionOutcome.failed;
+  }
+
+  Future<StorageFolderActionOutcome> restore(
+    String name,
+    bool restoreToRoot,
+  ) async {
+    if (!isCurrent) return StorageFolderActionOutcome.stale;
+    if (!source.canMutate) return StorageFolderActionOutcome.failed;
+    await source.restoreFolder(
+      folderId: folder.id,
+      name: name == folder.name ? null : name,
+      restoreToRoot: restoreToRoot,
+    );
     if (!isCurrent) return StorageFolderActionOutcome.stale;
     return source.state is StorageFolderMutationSuccess
         ? StorageFolderActionOutcome.succeeded

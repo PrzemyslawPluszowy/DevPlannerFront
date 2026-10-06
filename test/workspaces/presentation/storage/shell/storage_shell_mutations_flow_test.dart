@@ -95,6 +95,8 @@ void main() {
 
   setUp(() async {
     repository = _MockStorageRepository();
+    when(repository.listTrashFolders)
+        .thenAnswer((_) async => right(<StorageFolderResponse>[]));
     l10n = await AppLocalizations.delegate.load(const Locale('pl'));
     folderReadCount = 0;
     when(

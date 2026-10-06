@@ -98,6 +98,19 @@ final class StorageBulkBar extends StatelessWidget {
                 ),
                 SizedBox(width: common.controlGap),
               ],
+              if (capabilities.canDelete && state.canRestore)
+                StorageChromePill(
+                  key: const ValueKey('storage_bulk_restore'),
+                  icon: AppIcons.refresh,
+                  label: context.l10n.storageRestoreSelected,
+                  tooltip: context.l10n.storageRestoreSelected,
+                  onTap: () => unawaited(
+                    fileMutationCubit.bulkRestore(
+                      fileIds: state.selectedFileIds.toList(),
+                      folderIds: state.selectedFolderIds.toList(),
+                    ),
+                  ),
+                ),
               if (canDelete)
                 StorageChromePill(
                   key: const ValueKey('storage_bulk_delete'),

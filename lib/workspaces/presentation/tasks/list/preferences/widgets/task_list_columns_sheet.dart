@@ -50,7 +50,7 @@ class TaskListColumnsSheet extends StatefulWidget {
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: (size.width * .94).clamp(720.0, 980.0),
-              maxHeight: (size.height * .90).clamp(580.0, 780.0),
+              maxHeight: (size.height * .85).clamp(0.0, 560.0),
             ),
             child: TaskListColumnsSheet(
               cubit: cubit,
@@ -115,88 +115,25 @@ class _TaskListColumnsSheetState extends State<TaskListColumnsSheet> {
                   message: message,
                   onReload: widget.cubit.load,
                 ),
-                TaskListPreferencesReady() => _readySheet(context, state, ui),
+                TaskListPreferencesReady() => _ReadyColumnsSheet(
+                  state: state,
+                  ui: ui,
+                  cubit: widget.cubit,
+                  customFields: widget.customFields,
+                  canManage: widget.canManage,
+                  searchController: _searchController,
+                  scrollController: _poolScrollController,
+                  onTabChanged: _changeTab,
+                  onQueryChanged: _onQueryChanged,
+                  onReset: _resetColumns,
+                  onSaveProjectPolicy: _saveProjectPolicy,
+                ),
               },
             ),
       );
 
-  Widget _readySheet(
-    BuildContext context,
-    TaskListPreferencesReady state,
-    _TaskColumnsSheetUiState ui,
-  ) {
-    final isProjectTab = ui.selectedTab == TaskColumnsSheetTab.project;
-    final visible = isProjectTab
-        ? state.effectiveProjectDefaultColumns
-        : state.effectiveVisibleColumns;
-    return Padding(
-      padding: const .all(20),
-      child: Column(
-        crossAxisAlignment: .start,
-        children: [
-          Row(
-            crossAxisAlignment: .start,
-            children: [
-              Expanded(
-                child: TaskColumnsSheetHeader(
-                  canManage: widget.canManage,
-                  selectedTab: ui.selectedTab,
-                  isSaving: state.isSaving,
-                  onTabChanged: _changeTab,
-                ),
-              ),
-              const SizedBox(width: 12),
-              IconButton(
-                icon: const Icon(Symbols.close_rounded, size: 20),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SheetSaveError(state: state, onRetry: widget.cubit.saveNow),
-          if (isProjectTab) ...[
-            ProjectPolicyBanner(isLoading: state.isLoadingProjectPolicy),
-            const SizedBox(height: 12),
-          ],
-          ColumnsSheetPreview(
-            visible: visible,
-            state: state,
-            cubit: widget.cubit,
-            customFields: widget.customFields,
-            isProjectTab: isProjectTab,
-          ),
-          const SizedBox(height: 16),
-          Divider(
-            height: 1,
-            color: context.colors.outlineVariant.withValues(alpha: .4),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: TaskColumnsSheetColumnPool(
-              state: state,
-              customFields: widget.customFields,
-              isProjectTab: isProjectTab,
-              searchController: _searchController,
-              scrollController: _poolScrollController,
-              query: ui.query,
-              onQueryChanged: (query) =>
-                  _ui.value = _ui.value.copyWith(query: query),
-              onAdd: isProjectTab
-                  ? widget.cubit.toggleProjectDefaultColumn
-                  : widget.cubit.toggleColumn,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ColumnsSheetActions(
-            isProjectTab: isProjectTab,
-            isSavingProjectPolicy: ui.isSavingProjectPolicy,
-            onReset: _resetColumns,
-            onDone: () => Navigator.of(context).pop(),
-            onSaveProjectPolicy: _saveProjectPolicy,
-          ),
-        ],
-      ),
-    );
+  void _onQueryChanged(String query) {
+    _ui.value = _ui.value.copyWith(query: query);
   }
 
   Future<void> _resetColumns() async {
@@ -218,6 +155,108 @@ class _TaskListColumnsSheetState extends State<TaskListColumnsSheet> {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
     if (success) Navigator.of(context).pop();
+  }
+}
+
+final class _ReadyColumnsSheet extends StatelessWidget {
+  const _ReadyColumnsSheet({
+    required this.state,
+    required this.ui,
+    required this.cubit,
+    required this.customFields,
+    required this.canManage,
+    required this.searchController,
+    required this.scrollController,
+    required this.onTabChanged,
+    required this.onQueryChanged,
+    required this.onReset,
+    required this.onSaveProjectPolicy,
+  });
+  final TaskListPreferencesReady state;
+  final _TaskColumnsSheetUiState ui;
+  final TaskListPreferencesCubit cubit;
+  final List<TaskCustomFieldResponse> customFields;
+  final bool canManage;
+  final TextEditingController searchController;
+  final ScrollController scrollController;
+  final ValueChanged<TaskColumnsSheetTab> onTabChanged;
+  final ValueChanged<String> onQueryChanged;
+  final Future<void> Function() onReset;
+  final Future<void> Function() onSaveProjectPolicy;
+  @override
+  Widget build(BuildContext context) {
+    final isProjectTab = ui.selectedTab == TaskColumnsSheetTab.project;
+    final visible = isProjectTab
+        ? state.effectiveProjectDefaultColumns
+        : state.effectiveVisibleColumns;
+    return Padding(
+      padding: const .all(20),
+      child: Column(
+        crossAxisAlignment: .start,
+        children: [
+          Row(
+            crossAxisAlignment: .start,
+            children: [
+              Expanded(
+                child: TaskColumnsSheetHeader(
+                  canManage: canManage,
+                  selectedTab: ui.selectedTab,
+                  isSaving: state.isSaving,
+                  onTabChanged: onTabChanged,
+                ),
+              ),
+              const SizedBox(width: 12),
+              IconButton(
+                tooltip: context.l10n.close,
+                icon: const Icon(Symbols.close_rounded, size: 20),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SheetSaveError(state: state, onRetry: cubit.saveNow),
+          if (isProjectTab) ...[
+            ProjectPolicyBanner(isLoading: state.isLoadingProjectPolicy),
+            const SizedBox(height: 12),
+          ],
+          ColumnsSheetPreview(
+            visible: visible,
+            state: state,
+            cubit: cubit,
+            customFields: customFields,
+            isProjectTab: isProjectTab,
+          ),
+          const SizedBox(height: 16),
+          Divider(
+            height: 1,
+            color: context.colors.outlineVariant.withValues(alpha: .4),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: TaskColumnsSheetColumnPool(
+              state: state,
+              customFields: customFields,
+              isProjectTab: isProjectTab,
+              searchController: searchController,
+              scrollController: scrollController,
+              query: ui.query,
+              onQueryChanged: onQueryChanged,
+              onAdd: isProjectTab
+                  ? cubit.toggleProjectDefaultColumn
+                  : cubit.toggleColumn,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ColumnsSheetActions(
+            isProjectTab: isProjectTab,
+            isSavingProjectPolicy: ui.isSavingProjectPolicy,
+            onReset: onReset,
+            onDone: () => Navigator.of(context).pop(),
+            onSaveProjectPolicy: onSaveProjectPolicy,
+          ),
+        ],
+      ),
+    );
   }
 }
 
