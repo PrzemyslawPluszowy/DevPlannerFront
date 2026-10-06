@@ -7640,3 +7640,5 @@ Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.l
 - [x] QA52 częściowy Chrome PASS na rzeczywistym bootstrap e89cfe4: suwak, invaliddue bez zapisu, EntireResult5→Cancel zachowujeerror/wybór/retry, pełny error i Escape. SQL177/178 daty niezmienione.
 - [ ] QA54/55 pakiet: stały licznik i clearselection, spójny confirmationDialog, mounted po menu i czytelny chevron tylko menu. Bramki/review, jedna publikacjaWasm, manualnyretest wymagane.
 - [ ] Pozostałe warianty i kolejka centralna nadal otwarte: QA50/51, QA53, pełny chat/Office/modal/role i jasny/EN/wąski/klawiatura. Nie oznaczać pełnego UI jako przetestowanego.
+
+QA54/55 wynik: źródła +55/55 focused tests + analyzer Noissues12,4s + niezależny review zamknięte. Front Wasm0681e37 opublikowany i bootstrap potwierdzony w Chrome. Manualnie PASS dla menuStatus, stałego licznika/clear po scrollu, spójnej powierzchni confirmation, pełnej treści AX, Tabloop i Escape. Zakres dokładnie w Backend/docs/ui-testing.md. Pozostałe warianty nadal otwarte; QA56 zbiera powrót focusu i nadmierną pustą rezerwę toolbaru do kolejnego pakietu. Pełny audyt kontrolek nadal w toku.
