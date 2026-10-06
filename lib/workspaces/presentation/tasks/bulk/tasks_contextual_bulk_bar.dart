@@ -61,98 +61,114 @@ class _TasksContextualBulkBarState extends State<TasksContextualBulkBar> {
     final tasksTheme = context.tasksTheme;
     final colors = context.colors;
 
-    return Scrollbar(
-      controller: _scrollController,
-      thumbVisibility: true,
-      trackVisibility: true,
-      thickness: 3,
-      scrollbarOrientation: ScrollbarOrientation.bottom,
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          key: const ValueKey('contextual_bulk_bar'),
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: tasksTheme.controlGap,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: tasksTheme.rowSelected,
-                  borderRadius: BorderRadius.circular(tasksTheme.controlRadius),
-                ),
-                child: Text(
-                  context.l10n.tasksBulkSelected(widget.selectedCount),
-                  style: tasksTheme.controlText.copyWith(color: colors.primary),
-                ),
-              ),
-              SizedBox(width: tasksTheme.controlGap),
-              SizedBox(
-                width: 320,
-                height: 36,
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: tasksTheme.controlGap,
+            vertical: 4,
+          ),
+          decoration: BoxDecoration(
+            color: tasksTheme.rowSelected,
+            borderRadius: BorderRadius.circular(tasksTheme.controlRadius),
+          ),
+          child: Text(
+            context.l10n.tasksBulkSelected(widget.selectedCount),
+            style: tasksTheme.controlText.copyWith(color: colors.primary),
+          ),
+        ),
+        SizedBox(width: tasksTheme.controlGap),
+        Expanded(
+          child: Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: true,
+            trackVisibility: true,
+            thickness: 3,
+            scrollbarOrientation: ScrollbarOrientation.bottom,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context)
+                  .copyWith(scrollbars: false),
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                key: const ValueKey('contextual_bulk_bar'),
+                scrollDirection: Axis.horizontal,
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox.square(
-                      dimension: 16,
-                      child: widget.isSaving
-                          ? const CircularProgressIndicator(strokeWidth: 2)
-                          : widget.errorMessage == null
-                          ? const SizedBox.shrink()
-                          : Icon(
-                              Symbols.error_outline_rounded,
-                              size: 16,
-                              color: colors.error,
+                    SizedBox(
+                      width: 320,
+                      height: 36,
+                      child: Row(
+                        children: [
+                          SizedBox.square(
+                            dimension: 16,
+                            child: widget.isSaving
+                                ? const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  )
+                                : widget.errorMessage == null
+                                ? const SizedBox.shrink()
+                                : Icon(
+                                    Symbols.error_outline_rounded,
+                                    size: 16,
+                                    color: colors.error,
+                                  ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child:
+                                widget.errorMessage != null && !widget.isSaving
+                                ? TextButton(
+                                    key: const ValueKey('bulk_error_details'),
+                                    onPressed: () => _showError(context),
+                                    child: Text(
+                                      widget.errorMessage!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: tasksTheme.metaText.copyWith(
+                                        color: colors.error,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    widget.isSaving
+                                        ? context.l10n.tasksBulkSaving
+                                        : '',
+                                    style: tasksTheme.metaText,
+                                  ),
+                          ),
+                          if (widget.errorMessage != null &&
+                              widget.onRetry != null)
+                            TextButton(
+                              onPressed: widget.isSaving
+                                  ? null
+                                  : widget.onRetry,
+                              child: Text(context.l10n.retry),
                             ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: widget.errorMessage != null && !widget.isSaving
-                          ? TextButton(
-                              key: const ValueKey('bulk_error_details'),
-                              onPressed: () => _showError(context),
-                              child: Text(
-                                widget.errorMessage!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: tasksTheme.metaText.copyWith(
-                                  color: colors.error,
-                                ),
-                              ),
-                            )
-                          : Text(
-                              widget.isSaving
-                                  ? context.l10n.tasksBulkSaving
-                                  : '',
-                              style: tasksTheme.metaText,
-                            ),
-                    ),
-                    if (widget.errorMessage != null && widget.onRetry != null)
-                      TextButton(
-                        onPressed: widget.isSaving ? null : widget.onRetry,
-                        child: Text(context.l10n.retry),
+                        ],
                       ),
+                    ),
+                    for (final control in widget.controls) ...[
+                      SizedBox(width: tasksTheme.controlGap),
+                      control,
+                    ],
+                    SizedBox(width: tasksTheme.controlGap),
                   ],
                 ),
               ),
-              for (final control in widget.controls) ...[
-                SizedBox(width: tasksTheme.controlGap),
-                control,
-              ],
-              SizedBox(width: tasksTheme.controlGap),
-              TasksBulkButton(
-                key: const ValueKey('bulk_clear_selection'),
-                icon: Symbols.close_rounded,
-                label: context.l10n.tasksBulkClearSelection,
-                onTap: widget.isSaving ? null : widget.onClearSelection,
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+        SizedBox(width: tasksTheme.controlGap),
+        IconButton(
+          key: const ValueKey('bulk_clear_selection'),
+          tooltip: context.l10n.tasksBulkClearSelection,
+          visualDensity: VisualDensity.compact,
+          iconSize: 16,
+          onPressed: widget.isSaving ? null : widget.onClearSelection,
+          icon: const Icon(Symbols.close_rounded),
+        ),
+      ],
     );
   }
 }

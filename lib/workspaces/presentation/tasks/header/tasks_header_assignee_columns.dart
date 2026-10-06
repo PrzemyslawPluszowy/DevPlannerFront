@@ -19,6 +19,7 @@ class _KanbanAssigneeColumnsMenu extends StatelessWidget {
 
     return TasksCommandButton(
       key: const ValueKey('board_assignee_columns_menu'),
+      isMenu: true,
       icon: Symbols.view_column_rounded,
       label: context.l10n.tasksBoardAssigneeColumns,
       isActive: isActive,

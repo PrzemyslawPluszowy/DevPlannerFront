@@ -7633,3 +7633,10 @@ Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.l
 - [x] 24/24 focused PASS, niezależny review bez blockera, gen-l10n i diff-check PASS. Pełny analyzer No issues12,5s/exit0. Pliki: StoragePublicShareForm, ARB/generowane lokalizacje, storage_public_share_form_test; API/DTO/enumy/backend bez zmian.
 - [x] Commit/push skipci i jedna publikacja Front Wasm `e89cfe4ba1aad7f42a2213f74a896cf1ffefe8b0`, exit0/build111,0s. Publiczne version.json, Wasm9892394B/application/wasm, SPA i Healthy potwierdzone; Backend00ccb6b bez zmian.
 - [ ] Manualny Chrome: expiry→clear/cancel, password edit po sukcesie, pending/error/retry, klawiatura i PL/EN light/dark. Source/test nie oznaczają PASS funkcji/UX/UI runtime.
+
+### QA54/55 — audyt kontrolek uruchomiony, 2026-10-06
+
+- [x] Zapisane wymaganie: przeklikiwać dalsze nieodebrane kontrolki, zbierać defekty funkcji i niespójny/brzydki UI, naprawiać powiązanymi pakietami. Wspólny status Backend/docs/ui-testing.md.
+- [x] QA52 częściowy Chrome PASS na rzeczywistym bootstrap e89cfe4: suwak, invaliddue bez zapisu, EntireResult5→Cancel zachowujeerror/wybór/retry, pełny error i Escape. SQL177/178 daty niezmienione.
+- [ ] QA54/55 pakiet: stały licznik i clearselection, spójny confirmationDialog, mounted po menu i czytelny chevron tylko menu. Bramki/review, jedna publikacjaWasm, manualnyretest wymagane.
+- [ ] Pozostałe warianty i kolejka centralna nadal otwarte: QA50/51, QA53, pełny chat/Office/modal/role i jasny/EN/wąski/klawiatura. Nie oznaczać pełnego UI jako przetestowanego.

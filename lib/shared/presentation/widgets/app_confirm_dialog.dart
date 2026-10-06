@@ -1,5 +1,5 @@
-import 'package:devplanner/core/theme/theme.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_action_button.dart';
 import 'package:devplanner/shared/presentation/widgets/app_icon.dart';
 import 'package:devplanner/shared/presentation/widgets/app_text.dart';
@@ -93,6 +93,13 @@ class _AppConfirmDialogState extends State<AppConfirmDialog> {
     final palette = _resolvePalette(context, widget.tone);
 
     return Dialog(
+      backgroundColor: context.colors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
+        side: BorderSide(color: context.colors.outlineVariant),
+      ),
       insetPadding: const EdgeInsets.symmetric(
         horizontal: Sizes.p24,
         vertical: Sizes.p24,
@@ -109,12 +116,12 @@ class _AppConfirmDialogState extends State<AppConfirmDialog> {
                 crossAxisAlignment: .start,
                 children: [
                   Container(
-                    width: Sizes.p40,
-                    height: Sizes.p40,
+                    width: Sizes.p28,
+                    height: Sizes.p28,
                     decoration: BoxDecoration(
                       color: palette.background,
-                      borderRadius: const BorderRadius.all(
-                        .circular(Sizes.p12),
+                      borderRadius: BorderRadius.circular(
+                        context.tasksTheme.controlRadius,
                       ),
                     ),
                     alignment: .center,

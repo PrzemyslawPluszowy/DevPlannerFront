@@ -25,22 +25,25 @@ class TasksCommandMenu extends StatelessWidget {
   final ValueChanged<String> onSelected;
   final Widget? leading;
 
+  Future<void> _openMenu(BuildContext context) async {
+    final selected = await AppContextMenu.select<String>(
+      context,
+      globalPosition: AppContextMenu.positionFor(context),
+      options: options,
+      headerTitle: label,
+    );
+    if (!context.mounted || selected == null) return;
+    onSelected(selected);
+  }
+
   @override
   Widget build(BuildContext context) => TasksCommandButton(
     icon: icon,
     label: activeLabel ?? label,
     isActive: activeLabel != null,
     leading: leading,
-    onTap: () async {
-      final selected = await AppContextMenu.select<String>(
-        context,
-        globalPosition: AppContextMenu.positionFor(context),
-        options: options,
-        headerTitle: label,
-      );
-      if (selected == null) return;
-      onSelected(selected);
-    },
+    isMenu: true,
+    onTap: () => _openMenu(context),
   );
 }
 
@@ -52,6 +55,7 @@ class TasksCommandButton extends StatelessWidget {
     required this.onTap,
     this.isActive = false,
     this.compact = false,
+    this.isMenu = false,
     this.leading,
     super.key,
   });
@@ -61,6 +65,7 @@ class TasksCommandButton extends StatelessWidget {
   final VoidCallback onTap;
   final bool isActive;
   final bool compact;
+  final bool isMenu;
   final Widget? leading;
 
   @override
@@ -105,8 +110,14 @@ class TasksCommandButton extends StatelessWidget {
                       style: tasksTheme.controlText.copyWith(color: foreground),
                     ),
                   ),
-                  const SizedBox(width: 2),
-                  Icon(icon, size: 12, color: colors.onSurfaceVariant),
+                  if (isMenu) ...[
+                    const SizedBox(width: 2),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 12,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ],
                 ],
               ],
             ),

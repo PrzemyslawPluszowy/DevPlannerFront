@@ -42,13 +42,19 @@ void main() {
       await tester.pumpWidget(app(false));
       final bar = find.byKey(const ValueKey('contextual_bulk_bar'));
       final height = tester.getSize(bar).height;
+      final countRect = tester.getRect(find.text('Selected: 2'));
+      final clear = find.byKey(const ValueKey('bulk_clear_selection'));
+      final clearRect = tester.getRect(clear);
       final scrollbar = tester.widget<Scrollbar>(find.byType(Scrollbar));
       expect(scrollbar.thumbVisibility, isTrue);
       await tester.drag(bar, const Offset(-1200, 0));
       await tester.pumpAndSettle();
       final offset = scrollbar.controller!.offset;
       expect(offset, greaterThan(0));
-      await tester.tap(find.text('Clear selection'));
+      expect(tester.getRect(find.text('Selected: 2')), countRect);
+      expect(tester.getRect(clear), clearRect);
+      expect(clearRect.right, lessThanOrEqualTo(500));
+      await tester.tap(clear);
       expect(cleared, 1);
       await tester.pumpWidget(app(true));
       await tester.pump();
@@ -57,7 +63,7 @@ void main() {
         tester.widget<Scrollbar>(find.byType(Scrollbar)).controller!.offset,
         offset,
       );
-      await tester.tap(find.text('Clear selection'));
+      await tester.tap(clear);
       expect(cleared, 1);
       await tester.pumpWidget(const SizedBox());
       expect(tester.takeException(), isNull);
@@ -177,7 +183,7 @@ void main() {
             .height,
         height,
       );
-      await tester.tap(find.text('Clear selection'));
+      await tester.tap(find.byKey(const ValueKey('bulk_clear_selection')));
       expect(cleared, 0);
       expect(find.text('Saving changes…'), findsOneWidget);
       await tester.pumpWidget(app(error: 'Due date is before start date.'));
