@@ -395,10 +395,13 @@ Front dodaje optional calendarTimeZoneId do payloadów explicit preview/apply or
 - [x] Audyt działań funkcjonalnych, zrozumiałości dla nietechnicznego użytkownika i spójności UI wpisany jako obowiązkowy zakres; Chrome na stagingu, UI UX Pro Max + Impeccable Operate.
 - [x] QA38 konflikt folderu, opcjonalna diagnostyka i odzyskanie bez starego błędu — rzeczywisty retest17bc81f/c544033.
 - [x] QA37 podgląd bez zmiany dat: brak przesuwania niezależnych zadań; pierwszy termin nie zwraca starego400.
-- [ ] QA39 naprawa strefy kalendarza explicit preview/apply: kod i focused bramki przygotowane; publikacja, Chrome6–7paź, apply120min i reopen wymagane.
+- [x] QA39 strefa kalendarza explicit preview/apply: bramki, publikacja dd331d5/e5d4395 oraz Chrome6–7paź/apply120/reopen/fullreload potwierdzone; pozostałe warianty zgodnie z rejestrem.
 - [ ] Osobny audyt kalendarza automatycznych następców oraz natywnych platform: pozostają legacyUTC, nie zaliczać ich po poprawce Web explicit.
 - [ ] QA40 dopasowanie podpowiedzi konfliktu folderu do bieżącej lokalizacji.
 - [ ] Następne nieodebrane scenariusze z Backend/docs/ui-testing.md: pozostałe kontrolki modalu, Kanban loader/rollback/reconnect, Chat3sesje, presence/lifecycle/ACL, OfficeC06, auth i warianty light/EN/keyboard/narrow/zoom. Każdy zakres rezerwować osobno; nie dublować zakończonego wariantu bez przyczyny.
 
 
 QA39 sourcefreeze i bramki przed publikacją: Backend42/42PASS0skip, rzeczywistyOpenAPI+JSON+enumwire, focusedformat i diffcheckPASS; Front14focused+3enumwirePASS, fullanalyzerNoissues75.2s, Wasm buildEXIT0/538.1s (/tmp/devplanner-qa39-wasm-build.log). Niezależny review Front i root Backend bezblockerów. OwnedPGfixture usunięty. Publikacja aktualnego sprawdzonego Wasm przez deploy_staging_wasm.sh --no-build jest dopuszczalna, bez dalszych zmian źródeł. Commit/pushskipci i Backend+Front publikacja następne; UIQA39 jeszcze NOT RUN.
+
+
+QA39 opublikowany i manualnie odebrany2026-10-06: Backenddd331d5, FrontWasme5d4395, oba deployexit0, image/readiness/wersja/Wasm9817209B/SPA potwierdzone. ChromePLdark1513×895 TASK176 firstdueNULL→draft6–7paź/120→preview zgodny→apply→reopen120→unchangedpreviewbezprzesunięć→hardreloaddates+120 utrwalone. Funkcja/UX/UI opisanego wariantuPASS; automatic/native/DST-west runtime i errorvariants nadal otwarte. QA42 checklistcreate/toggle/edit/reloadPASS. QA41 staleopis po save potwierdzony wChrome, zapisane dane obecne po editorreopen/reload; toolbarPL i savinglock kolejne naprawy. Centralny rejestr Backend/docs/ui-testing.md zawiera exactsteps/wersje/ograniczenia. Rezerwacje tego pakietu zwolnione, pełny audytUI nadal aktywny. Docs-onlycommity bez ponownego deploya.
