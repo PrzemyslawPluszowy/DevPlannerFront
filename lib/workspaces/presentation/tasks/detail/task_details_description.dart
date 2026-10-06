@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_description_toolbar.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
@@ -53,6 +54,21 @@ class TaskDescriptionPreviewState extends State<TaskDescriptionPreview> {
     super.initState();
     _controller = TaskDetailsDescriptionControllerFactory.create(widget.task);
     _controller.readOnly = true;
+  }
+
+  @override
+  void didUpdateWidget(covariant TaskDescriptionPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.task.id != widget.task.id ||
+        oldWidget.task.description != widget.task.description ||
+        oldWidget.task.descriptionDeltaJson !=
+            widget.task.descriptionDeltaJson) {
+      final previousDocument = _controller.document;
+      _controller.document = TaskDetailsDescriptionControllerFactory.document(
+        widget.task,
+      );
+      previousDocument.close();
+    }
   }
 
   @override
@@ -174,47 +190,46 @@ class EditTaskDescriptionDialogState extends State<EditTaskDescriptionDialog> {
       onSubmit: isSaving ? null : _save,
       body: SizedBox(
         height: 480,
-        child: Column(
-          children: [
-            const TaskDetailsDialogMutationError(),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: context.colors.outlineVariant),
-                ),
-              ),
-              child: quill.QuillSimpleToolbar(
-                controller: _controller,
-                config: const quill.QuillSimpleToolbarConfig(
-                  multiRowsDisplay: false,
-                  showFontFamily: false,
-                  showFontSize: false,
-                  showCodeBlock: false,
-                  showSearchButton: false,
-                  showInlineCode: false,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border.all(color: context.colors.outlineVariant),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: quill.QuillEditor(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  scrollController: _scrollController,
-                  config: const quill.QuillEditorConfig(
-                    padding: EdgeInsets.all(14),
-                    autoFocus: true,
-                    expands: true,
+        child: ExcludeFocus(
+          excluding: isSaving,
+          child: AbsorbPointer(
+            absorbing: isSaving,
+            child: Column(
+              children: [
+                const TaskDetailsDialogMutationError(),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: context.colors.outlineVariant),
+                    ),
+                  ),
+                  child: TaskDescriptionToolbar(
+                    controller: _controller,
+                    editorFocusNode: _focusNode,
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: context.colors.outlineVariant),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: quill.QuillEditor(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      scrollController: _scrollController,
+                      config: const quill.QuillEditorConfig(
+                        padding: EdgeInsets.all(14),
+                        autoFocus: true,
+                        expands: true,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     ),
@@ -223,6 +238,8 @@ class EditTaskDescriptionDialogState extends State<EditTaskDescriptionDialog> {
   Future<void> _save() async {
     if (_saving.value) return;
     _saving.value = true;
+    _controller.readOnly = true;
+    _focusNode.unfocus();
     final document = _controller.document;
     final source = context.read<TaskDetailsCubit>();
     final saved = await source.updateDescription(
@@ -232,6 +249,7 @@ class EditTaskDescriptionDialogState extends State<EditTaskDescriptionDialog> {
     if (!mounted) return;
     if (source.isClosed ||
         !identical(source, context.read<TaskDetailsCubit>())) {
+      _controller.readOnly = false;
       _saving.value = false;
       return;
     }
@@ -239,7 +257,11 @@ class EditTaskDescriptionDialogState extends State<EditTaskDescriptionDialog> {
       _draft?.clear();
       Navigator.of(context).pop();
     } else {
+      _controller.readOnly = false;
       _saving.value = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_saving.value) _focusNode.requestFocus();
+      });
     }
   }
 }
@@ -248,25 +270,25 @@ class EditTaskDescriptionDialogState extends State<EditTaskDescriptionDialog> {
 final class TaskDetailsDescriptionControllerFactory {
   const TaskDetailsDescriptionControllerFactory._();
 
-  static quill.QuillController create(ProjectTaskResponse task) {
+  static quill.QuillController create(ProjectTaskResponse task) =>
+      quill.QuillController(
+        document: document(task),
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+
+  static quill.Document document(ProjectTaskResponse task) {
     final delta = task.descriptionDeltaJson;
     if (delta != null && delta.trim().isNotEmpty) {
       try {
         final decoded = jsonDecode(delta);
         if (decoded is List) {
-          return quill.QuillController(
-            document: quill.Document.fromJson(decoded),
-            selection: const TextSelection.collapsed(offset: 0),
-          );
+          return quill.Document.fromJson(decoded);
         }
       } on FormatException {
         // Stary lub niepoprawny Delta nie może uniemożliwić odczytu zadania.
       }
     }
-    return quill.QuillController(
-      document: quill.Document()..insert(0, task.description ?? ''),
-      selection: const TextSelection.collapsed(offset: 0),
-    );
+    return quill.Document()..insert(0, task.description ?? '');
   }
 
   static bool isEmpty(quill.Document document) =>

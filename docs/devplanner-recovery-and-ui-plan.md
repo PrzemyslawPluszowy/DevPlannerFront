@@ -405,3 +405,14 @@ QA39 sourcefreeze i bramki przed publikacją: Backend42/42PASS0skip, rzeczywisty
 
 
 QA39 opublikowany i manualnie odebrany2026-10-06: Backenddd331d5, FrontWasme5d4395, oba deployexit0, image/readiness/wersja/Wasm9817209B/SPA potwierdzone. ChromePLdark1513×895 TASK176 firstdueNULL→draft6–7paź/120→preview zgodny→apply→reopen120→unchangedpreviewbezprzesunięć→hardreloaddates+120 utrwalone. Funkcja/UX/UI opisanego wariantuPASS; automatic/native/DST-west runtime i errorvariants nadal otwarte. QA42 checklistcreate/toggle/edit/reloadPASS. QA41 staleopis po save potwierdzony wChrome, zapisane dane obecne po editorreopen/reload; toolbarPL i savinglock kolejne naprawy. Centralny rejestr Backend/docs/ui-testing.md zawiera exactsteps/wersje/ograniczenia. Rezerwacje tego pakietu zwolnione, pełny audytUI nadal aktywny. Docs-onlycommity bez ponownego deploya.
+
+
+## QA40/41 — pakiet opisu i komunikatów folderu, 2026-10-06
+
+- [x] Potwierdzone w Chrome: stary podgląd po zapisie opisu; angielskie etykiety toolbaru; domyślny picker kolorów z angielskim Clear, nieopisanymi próbkami i uciętym układem; mały dialog linku z angielskim przykładem i bez jawnego Anuluj. UI UX Pro Max + Impeccable Operate/Clarify: wspólne tokeny, zwarte formularze webowe, zrozumiałe akcje i błędy.
+- [x] Lokalne naprawy: odświeżanie podglądu po zmianie danych; blokada edycji podczas zapisu i zachowanie szkicu/focus po błędzie; PL/EN toolbar; własny picker RGB/ARGB z Cancel/Clear, HEX i walidacją; własny formularz linku z zachowaniem całego zakresu i dotychczasowych schematów. QA40 konflikt nazwy zaleca zmianę nazwy, a katalog główny tylko przy niedostępnej poprzedniej lokalizacji.
+- [x] Testy ukierunkowane: 10/10 opis/link/formaty/recovery i 2/2 picker (480×700), logi /tmp/devplanner-qa41-tools-tests.log oraz /tmp/devplanner-qa41-picker-tests.log. Root review opisu/toolbaru/linku i niezależny review pickera bez blokera. Brak zmiany API/enumów/backendowego kodu.
+- [ ] Pełny analyzer, aktualny build Wasm, jedna publikacja Frontu oraz dokładny Chrome retest QA40/41. Staging backend pozostaje dd331d5. Naprawa lokalna nie oznacza odbioru UI.
+- [ ] Pełny audyt UI nadal aktywny: dalsza kolejka i warianty w Backend/docs/ui-testing.md; osobno diagnoza Quill po włączeniu nakładki Semantics, saving/error runtime, light/EN/klawiatura, Office, Chat i pozostałe kontrolki.
+
+QA40/41 finalny pełny analyzer exit0 No issues (201.3s), /tmp/devplanner-qa41-final-analyze.log. Pięć uwag stylu poprzedniego przebiegu poprawiono bez zmiany zachowania; wcześniejszy build jawnie przerwany, nie jest dowodem sukcesu. Źródła teraz zamrożone do nowego Wasm. Testy12PASS i review zgodnie z wpisem powyżej. Commit/push skipci oraz publikacja Frontu następne; Backend bez zmian kodu.

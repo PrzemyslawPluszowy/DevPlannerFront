@@ -12650,14 +12650,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageRestoreFolderExplanation =>
-      'Folder wróci do poprzedniej lokalizacji. W razie konfliktu zmień nazwę lub wybierz katalog główny.';
+      'Folder wróci do poprzedniej lokalizacji. W razie konfliktu zmień nazwę. Jeśli poprzednia lokalizacja jest niedostępna, wybierz katalog główny.';
 
   @override
   String get storageRestoreFolderRoot => 'Przywróć do katalogu głównego';
 
   @override
   String get storageRestoreFolderNameConflict =>
-      'Folder o tej nazwie już istnieje. Wprowadź inną nazwę lub wybierz katalog główny.';
+      'Folder o tej nazwie już istnieje. Wprowadź inną nazwę.';
 
   @override
   String get storageRestoreFolderParentDeleted =>
@@ -12670,4 +12670,93 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get storagePartialRestoreFailed =>
       'Nie udało się przywrócić wszystkich elementów. Nieprzywrócone pozostały zaznaczone.';
+
+  @override
+  String get taskDescriptionUndo => 'Cofnij';
+
+  @override
+  String get taskDescriptionRedo => 'Ponów';
+
+  @override
+  String get taskDescriptionBold => 'Pogrubienie';
+
+  @override
+  String get taskDescriptionItalic => 'Kursywa';
+
+  @override
+  String get taskDescriptionUnderline => 'Podkreślenie';
+
+  @override
+  String get taskDescriptionStrike => 'Przekreślenie';
+
+  @override
+  String get taskDescriptionSubscript => 'Indeks dolny';
+
+  @override
+  String get taskDescriptionSuperscript => 'Indeks górny';
+
+  @override
+  String get taskDescriptionFontColor => 'Kolor tekstu';
+
+  @override
+  String get taskDescriptionBackgroundColor => 'Kolor tła';
+
+  @override
+  String get taskDescriptionClearFormat => 'Usuń formatowanie';
+
+  @override
+  String get taskDescriptionHeader => 'Styl nagłówka';
+
+  @override
+  String get taskDescriptionNumberedList => 'Lista numerowana';
+
+  @override
+  String get taskDescriptionBulletList => 'Lista punktowana';
+
+  @override
+  String get taskDescriptionCheckList => 'Lista kontrolna';
+
+  @override
+  String get taskDescriptionQuote => 'Cytat';
+
+  @override
+  String get taskDescriptionIncreaseIndent => 'Zwiększ wcięcie';
+
+  @override
+  String get taskDescriptionDecreaseIndent => 'Zmniejsz wcięcie';
+
+  @override
+  String get taskDescriptionLink => 'Wstaw link';
+
+  @override
+  String get taskDescriptionColorHex => 'Kolor HEX';
+
+  @override
+  String get taskDescriptionColorInvalid =>
+      'Wpisz kolor w formacie #RRGGBB lub #AARRGGBB.';
+
+  @override
+  String get taskDescriptionColorDefault => 'Kolor domyślny';
+
+  @override
+  String get taskDescriptionLinkTitle => 'Edytuj link';
+
+  @override
+  String get taskDescriptionLinkText => 'Tekst linku';
+
+  @override
+  String get taskDescriptionLinkTextRequired => 'Wpisz tekst linku.';
+
+  @override
+  String get taskDescriptionLinkUrl => 'Adres linku';
+
+  @override
+  String get taskDescriptionLinkUrlHint => 'https://przyklad.pl';
+
+  @override
+  String get taskDescriptionLinkInvalid =>
+      'Wpisz poprawny adres linku, np. https://przyklad.pl lub mailto:kontakt@przyklad.pl.';
+
+  @override
+  String get taskDescriptionRemoveLink => 'Usuń link';
 }

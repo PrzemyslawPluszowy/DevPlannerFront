@@ -12547,14 +12547,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageRestoreFolderExplanation =>
-      'The folder will return to its previous location. If there is a conflict, change its name or choose the root folder.';
+      'The folder will return to its previous location. If the name conflicts, change it. If the previous location is unavailable, choose the root folder.';
 
   @override
   String get storageRestoreFolderRoot => 'Restore to root folder';
 
   @override
   String get storageRestoreFolderNameConflict =>
-      'A folder with this name already exists. Enter another name or choose the root folder.';
+      'A folder with this name already exists. Enter another name.';
 
   @override
   String get storageRestoreFolderParentDeleted =>
@@ -12567,4 +12567,93 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storagePartialRestoreFailed =>
       'Some items could not be restored. Items that were not restored remain selected.';
+
+  @override
+  String get taskDescriptionUndo => 'Undo';
+
+  @override
+  String get taskDescriptionRedo => 'Redo';
+
+  @override
+  String get taskDescriptionBold => 'Bold';
+
+  @override
+  String get taskDescriptionItalic => 'Italic';
+
+  @override
+  String get taskDescriptionUnderline => 'Underline';
+
+  @override
+  String get taskDescriptionStrike => 'Strike through';
+
+  @override
+  String get taskDescriptionSubscript => 'Subscript';
+
+  @override
+  String get taskDescriptionSuperscript => 'Superscript';
+
+  @override
+  String get taskDescriptionFontColor => 'Text color';
+
+  @override
+  String get taskDescriptionBackgroundColor => 'Background color';
+
+  @override
+  String get taskDescriptionClearFormat => 'Clear formatting';
+
+  @override
+  String get taskDescriptionHeader => 'Heading style';
+
+  @override
+  String get taskDescriptionNumberedList => 'Numbered list';
+
+  @override
+  String get taskDescriptionBulletList => 'Bullet list';
+
+  @override
+  String get taskDescriptionCheckList => 'Checklist';
+
+  @override
+  String get taskDescriptionQuote => 'Quote';
+
+  @override
+  String get taskDescriptionIncreaseIndent => 'Increase indent';
+
+  @override
+  String get taskDescriptionDecreaseIndent => 'Decrease indent';
+
+  @override
+  String get taskDescriptionLink => 'Insert link';
+
+  @override
+  String get taskDescriptionColorHex => 'HEX color';
+
+  @override
+  String get taskDescriptionColorInvalid =>
+      'Enter a color as #RRGGBB or #AARRGGBB.';
+
+  @override
+  String get taskDescriptionColorDefault => 'Default color';
+
+  @override
+  String get taskDescriptionLinkTitle => 'Edit link';
+
+  @override
+  String get taskDescriptionLinkText => 'Link text';
+
+  @override
+  String get taskDescriptionLinkTextRequired => 'Enter link text.';
+
+  @override
+  String get taskDescriptionLinkUrl => 'Link address';
+
+  @override
+  String get taskDescriptionLinkUrlHint => 'https://example.com';
+
+  @override
+  String get taskDescriptionLinkInvalid =>
+      'Enter a valid link address, such as https://example.com or mailto:contact@example.com.';
+
+  @override
+  String get taskDescriptionRemoveLink => 'Remove link';
 }

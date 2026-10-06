@@ -22367,7 +22367,7 @@ abstract class AppLocalizations {
   /// No description provided for @storageRestoreFolderExplanation.
   ///
   /// In en, this message translates to:
-  /// **'The folder will return to its previous location. If there is a conflict, change its name or choose the root folder.'**
+  /// **'The folder will return to its previous location. If the name conflicts, change it. If the previous location is unavailable, choose the root folder.'**
   String get storageRestoreFolderExplanation;
 
   /// No description provided for @storageRestoreFolderRoot.
@@ -22379,7 +22379,7 @@ abstract class AppLocalizations {
   /// No description provided for @storageRestoreFolderNameConflict.
   ///
   /// In en, this message translates to:
-  /// **'A folder with this name already exists. Enter another name or choose the root folder.'**
+  /// **'A folder with this name already exists. Enter another name.'**
   String get storageRestoreFolderNameConflict;
 
   /// No description provided for @storageRestoreFolderParentDeleted.
@@ -22399,6 +22399,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Some items could not be restored. Items that were not restored remain selected.'**
   String get storagePartialRestoreFailed;
+
+  /// No description provided for @taskDescriptionUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get taskDescriptionUndo;
+
+  /// No description provided for @taskDescriptionRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get taskDescriptionRedo;
+
+  /// No description provided for @taskDescriptionBold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get taskDescriptionBold;
+
+  /// No description provided for @taskDescriptionItalic.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get taskDescriptionItalic;
+
+  /// No description provided for @taskDescriptionUnderline.
+  ///
+  /// In en, this message translates to:
+  /// **'Underline'**
+  String get taskDescriptionUnderline;
+
+  /// No description provided for @taskDescriptionStrike.
+  ///
+  /// In en, this message translates to:
+  /// **'Strike through'**
+  String get taskDescriptionStrike;
+
+  /// No description provided for @taskDescriptionSubscript.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscript'**
+  String get taskDescriptionSubscript;
+
+  /// No description provided for @taskDescriptionSuperscript.
+  ///
+  /// In en, this message translates to:
+  /// **'Superscript'**
+  String get taskDescriptionSuperscript;
+
+  /// No description provided for @taskDescriptionFontColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Text color'**
+  String get taskDescriptionFontColor;
+
+  /// No description provided for @taskDescriptionBackgroundColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Background color'**
+  String get taskDescriptionBackgroundColor;
+
+  /// No description provided for @taskDescriptionClearFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear formatting'**
+  String get taskDescriptionClearFormat;
+
+  /// No description provided for @taskDescriptionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Heading style'**
+  String get taskDescriptionHeader;
+
+  /// No description provided for @taskDescriptionNumberedList.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbered list'**
+  String get taskDescriptionNumberedList;
+
+  /// No description provided for @taskDescriptionBulletList.
+  ///
+  /// In en, this message translates to:
+  /// **'Bullet list'**
+  String get taskDescriptionBulletList;
+
+  /// No description provided for @taskDescriptionCheckList.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist'**
+  String get taskDescriptionCheckList;
+
+  /// No description provided for @taskDescriptionQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote'**
+  String get taskDescriptionQuote;
+
+  /// No description provided for @taskDescriptionIncreaseIndent.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase indent'**
+  String get taskDescriptionIncreaseIndent;
+
+  /// No description provided for @taskDescriptionDecreaseIndent.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease indent'**
+  String get taskDescriptionDecreaseIndent;
+
+  /// No description provided for @taskDescriptionLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert link'**
+  String get taskDescriptionLink;
+
+  /// No description provided for @taskDescriptionColorHex.
+  ///
+  /// In en, this message translates to:
+  /// **'HEX color'**
+  String get taskDescriptionColorHex;
+
+  /// No description provided for @taskDescriptionColorInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a color as #RRGGBB or #AARRGGBB.'**
+  String get taskDescriptionColorInvalid;
+
+  /// No description provided for @taskDescriptionColorDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default color'**
+  String get taskDescriptionColorDefault;
+
+  /// No description provided for @taskDescriptionLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit link'**
+  String get taskDescriptionLinkTitle;
+
+  /// No description provided for @taskDescriptionLinkText.
+  ///
+  /// In en, this message translates to:
+  /// **'Link text'**
+  String get taskDescriptionLinkText;
+
+  /// No description provided for @taskDescriptionLinkTextRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter link text.'**
+  String get taskDescriptionLinkTextRequired;
+
+  /// No description provided for @taskDescriptionLinkUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Link address'**
+  String get taskDescriptionLinkUrl;
+
+  /// No description provided for @taskDescriptionLinkUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://example.com'**
+  String get taskDescriptionLinkUrlHint;
+
+  /// No description provided for @taskDescriptionLinkInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid link address, such as https://example.com or mailto:contact@example.com.'**
+  String get taskDescriptionLinkInvalid;
+
+  /// No description provided for @taskDescriptionRemoveLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove link'**
+  String get taskDescriptionRemoveLink;
 }
 
 class _AppLocalizationsDelegate
