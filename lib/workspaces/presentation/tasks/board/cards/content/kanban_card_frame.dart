@@ -39,6 +39,13 @@ class KanbanCardFrame extends StatefulWidget {
 class _KanbanCardFrameState extends State<KanbanCardFrame> {
   final _isHovered = ValueNotifier<bool>(false);
   final _isFocused = ValueNotifier<bool>(false);
+  late final Listenable _interactionChanges;
+
+  @override
+  void initState() {
+    super.initState();
+    _interactionChanges = Listenable.merge([_isHovered, _isFocused]);
+  }
 
   @override
   void dispose() {
@@ -49,43 +56,76 @@ class _KanbanCardFrameState extends State<KanbanCardFrame> {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: Listenable.merge([_isHovered, _isFocused]),
-    builder: (context, _) => _buildCard(
-      context,
+    animation: _interactionChanges,
+    builder: (context, _) => _KanbanCardSurface(
       isHovered: _isHovered.value,
       isFocused: _isFocused.value,
+      isSelected: widget.isSelected,
+      isPending: widget.isPending,
+      hasError: widget.hasError,
+      onTap: widget.onTap,
+      onSecondaryTapUp: widget.onSecondaryTapUp,
+      onShowContextMenu: widget.onShowContextMenu,
+      semanticsLabel: widget.semanticsLabel,
+      padding: widget.padding,
+      focusNode: widget.focusNode,
+      onHoverChanged: (hovered) => _isHovered.value = hovered,
+      onFocusChanged: (focused) => _isFocused.value = focused,
+      child: widget.child,
     ),
   );
+}
 
-  Widget _buildCard(
-    BuildContext context, {
-    required bool isHovered,
-    required bool isFocused,
-  }) {
+/// Rysuje kartę z aktualnego stanu interakcji i zachowuje jej geometrię.
+class _KanbanCardSurface extends StatelessWidget {
+  const _KanbanCardSurface({
+    required this.child,
+    required this.isHovered,
+    required this.isFocused,
+    required this.isSelected,
+    required this.isPending,
+    required this.hasError,
+    required this.onHoverChanged,
+    required this.onFocusChanged,
+    this.onTap,
+    this.onSecondaryTapUp,
+    this.onShowContextMenu,
+    this.semanticsLabel,
+    this.padding,
+    this.focusNode,
+  });
+
+  final Widget child;
+  final bool isHovered;
+  final bool isFocused;
+  final bool isSelected;
+  final bool isPending;
+  final bool hasError;
+  final ValueChanged<bool> onHoverChanged;
+  final ValueChanged<bool> onFocusChanged;
+  final VoidCallback? onTap;
+  final void Function(TapUpDetails details)? onSecondaryTapUp;
+  final VoidCallback? onShowContextMenu;
+  final String? semanticsLabel;
+  final EdgeInsetsGeometry? padding;
+  final FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Systemowe preferencje dostępności: bez animacji nie mrugamy layoutem,
-    // a wysoki kontrast wzmacnia obrys zamiast subtelnej alfy.
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final highContrast = MediaQuery.maybeHighContrastOf(context) ?? false;
-    // Focus klawiatury ma pierwszeństwo nad błędem i zaznaczeniem: bez tego
-    // użytkownik klawiatury nie widzi, która karta jest aktywna.
     final solidBorderColor = isFocused
         ? KanbanCardTokens.cardFocusRing(colors)
-        : widget.hasError
+        : hasError
         ? KanbanCardTokens.cardBorderError(colors)
         : KanbanCardTokens.cardBorderSelected(colors);
-    // Hover podświetla wyłącznie ramkę kafelka; tło zostaje spokojne, żeby
-    // czytanie tablicy nie mrugało pod kursorem.
-    final cardBackgroundColor = widget.isSelected
+    final cardBackgroundColor = isSelected
         ? KanbanCardTokens.cardSurfaceSelected(colors)
-        : widget.isPending
+        : isPending
         ? KanbanCardTokens.cardSurfacePending(colors)
         : KanbanCardTokens.cardSurfaceRest(colors);
-    // Obrys kafelka jest przerywany: w spoczynku biel w motywie ciemnym
-    // i czerń w jasnym, a hover zamienia go na niebieski. Zaznaczenie, błąd
-    // i focus zostają ciągłą ramką, bo niosą znaczenie, którego kropki nie
-    // zastąpią.
     final dashedBorderColor = isHovered
         ? KanbanCardTokens.cardFocusRing(colors)
         : KanbanCardTokens.cardDashedBorderRest(
@@ -93,7 +133,7 @@ class _KanbanCardFrameState extends State<KanbanCardFrame> {
             isDark: isDark,
             highContrast: highContrast,
           );
-    final usesSolidBorder = widget.isSelected || widget.hasError || isFocused;
+    final usesSolidBorder = isSelected || hasError || isFocused;
     final card = AnimatedContainer(
       duration: reduceMotion
           ? Duration.zero
@@ -114,17 +154,31 @@ class _KanbanCardFrameState extends State<KanbanCardFrame> {
         clipBehavior: Clip.antiAlias,
         borderRadius: BorderRadius.circular(KanbanCardTokens.cardRadius),
         child: InkWell(
-          focusNode: widget.focusNode,
-          onTap: widget.onTap,
-          onSecondaryTapUp: widget.onSecondaryTapUp,
+          focusNode: focusNode,
+          onTap: onTap,
+          onSecondaryTapUp: onSecondaryTapUp,
           borderRadius: BorderRadius.circular(KanbanCardTokens.cardRadius),
           hoverColor: Colors.transparent,
           focusColor: Colors.transparent,
-          onFocusChange: (focused) => _isFocused.value = focused,
-          child: Padding(
-            padding:
-                widget.padding ?? KanbanCardTokens.contentPaddingComfortable,
-            child: widget.child,
+          onFocusChange: onFocusChanged,
+          child: Stack(
+            children: [
+              Padding(
+                padding: padding ?? KanbanCardTokens.contentPaddingComfortable,
+                child: child,
+              ),
+              if (isPending)
+                Positioned(
+                  left: 10,
+                  right: 10,
+                  bottom: 0,
+                  child: _KanbanCardPendingIndicator(
+                    label: context.l10n.tasksBulkSaving,
+                    color: colors.primary,
+                    reduceMotion: reduceMotion,
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -139,7 +193,7 @@ class _KanbanCardFrameState extends State<KanbanCardFrame> {
             ),
             child: card,
           );
-    final keyboardEnabledCard = widget.onShowContextMenu == null
+    final keyboardEnabledCard = onShowContextMenu == null
         ? dashedCard
         : Shortcuts(
             shortcuts: const <ShortcutActivator, Intent>{
@@ -153,7 +207,7 @@ class _KanbanCardFrameState extends State<KanbanCardFrame> {
                 _ShowKanbanContextMenuIntent:
                     CallbackAction<_ShowKanbanContextMenuIntent>(
                       onInvoke: (_) {
-                        widget.onShowContextMenu?.call();
+                        onShowContextMenu?.call();
                         return null;
                       },
                     ),
@@ -173,15 +227,70 @@ class _KanbanCardFrameState extends State<KanbanCardFrame> {
           )
         : keyboardEnabledCard;
     final result = MouseRegion(
-      onEnter: (_) => _isHovered.value = true,
-      onExit: (_) => _isHovered.value = false,
+      onEnter: (_) => onHoverChanged(true),
+      onExit: (_) => onHoverChanged(false),
       child: framedCard,
     );
-    if (widget.semanticsLabel case final label?) {
-      return Semantics(button: true, label: label, child: result);
+    if (semanticsLabel != null || isPending) {
+      final savingLabel = isPending ? context.l10n.tasksBulkSaving : null;
+      return Semantics(
+        button: onTap != null,
+        label: semanticsLabel,
+        value: savingLabel,
+        liveRegion: isPending,
+        child: result,
+      );
     }
     return result;
   }
+}
+
+/// Delikatny pasek zapisu mieści się w wewnętrznym odstępie bez zmiany układu.
+class _KanbanCardPendingIndicator extends StatelessWidget {
+  const _KanbanCardPendingIndicator({
+    required this.label,
+    required this.color,
+    required this.reduceMotion,
+  });
+
+  final String label;
+  final Color color;
+  final bool reduceMotion;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: label,
+    child: ExcludeSemantics(
+      child: SizedBox(
+        height: 8,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: reduceMotion
+              ? SizedBox(
+                  width: 32,
+                  height: 2,
+                  child: ColoredBox(
+                    key: const ValueKey<String>(
+                      'kanban-card-pending-indicator',
+                    ),
+                    color: color,
+                  ),
+                )
+              : SizedBox(
+                  height: 2,
+                  child: LinearProgressIndicator(
+                    key: const ValueKey<String>(
+                      'kanban-card-pending-indicator',
+                    ),
+                    minHeight: 2,
+                    color: color,
+                    backgroundColor: color.withValues(alpha: .18),
+                  ),
+                ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _ShowKanbanContextMenuIntent extends Intent {

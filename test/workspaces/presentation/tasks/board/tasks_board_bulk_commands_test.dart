@@ -128,6 +128,8 @@ void main() {
     () async {
       final collaboration = _CollaborationRepo();
       final cards = TasksBoardCardCommands(
+        refreshAssigneeBoard: () async {},
+        scopeRevision: () => context.scopeRevision,
         context: context,
         tasksRepository: tasks,
         collaborationRepository: collaboration,

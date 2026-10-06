@@ -49,6 +49,7 @@ final class TasksBoardReady extends TasksBoardState {
     this.selectedTaskIds = const <String>{},
     this.pendingTaskIds = const <String>{},
     this.pendingMoveOwners = const {},
+    this.pendingCardOwners = const {},
     this.isBulkSaving = false,
     this.bulkError,
     this.canRetryBulk = false,
@@ -92,6 +93,9 @@ final class TasksBoardReady extends TasksBoardState {
   /// Właściciel konkretnego ruchu; nie pozwala starej odpowiedzi zwolnić
   /// blokady należącej do nowszej operacji tego samego zadania.
   final Map<String, Object> pendingMoveOwners;
+
+  /// Oddzielni właściciele pin/watch/inline, niezależni od ruchów DnD.
+  final Map<String, Object> pendingCardOwners;
   final bool isBulkSaving;
   final TasksViewError? bulkError;
   final bool canRetryBulk;
@@ -170,6 +174,7 @@ final class TasksBoardReady extends TasksBoardState {
     Set<String>? selectedTaskIds,
     Set<String>? pendingTaskIds,
     Map<String, Object>? pendingMoveOwners,
+    Map<String, Object>? pendingCardOwners,
     bool? isBulkSaving,
     TasksViewError? bulkError,
     bool clearBulkError = false,
@@ -207,6 +212,11 @@ final class TasksBoardReady extends TasksBoardState {
     pendingTaskIds: pendingTaskIds ?? this.pendingTaskIds,
     pendingMoveOwners: Map.unmodifiable({
       for (final entry in (pendingMoveOwners ?? this.pendingMoveOwners).entries)
+        if ((pendingTaskIds ?? this.pendingTaskIds).contains(entry.key))
+          entry.key: entry.value,
+    }),
+    pendingCardOwners: Map.unmodifiable({
+      for (final entry in (pendingCardOwners ?? this.pendingCardOwners).entries)
         if ((pendingTaskIds ?? this.pendingTaskIds).contains(entry.key))
           entry.key: entry.value,
     }),

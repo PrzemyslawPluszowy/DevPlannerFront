@@ -22759,6 +22759,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load more tasks. Your current data is preserved. Try again.'**
   String get tasksListPageFailed;
+
+  /// No description provided for @tasksBoardReloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not refresh the board. Try again.'**
+  String get tasksBoardReloadFailed;
+
+  /// No description provided for @tasksBoardCommittedReloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your changes were saved, but the board could not be refreshed. Refresh the view.'**
+  String get tasksBoardCommittedReloadFailed;
 }
 
 class _AppLocalizationsDelegate

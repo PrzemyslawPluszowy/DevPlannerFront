@@ -12771,4 +12771,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tasksListPageFailed =>
       'Could not load more tasks. Your current data is preserved. Try again.';
+
+  @override
+  String get tasksBoardReloadFailed =>
+      'Could not refresh the board. Try again.';
+
+  @override
+  String get tasksBoardCommittedReloadFailed =>
+      'Your changes were saved, but the board could not be refreshed. Refresh the view.';
 }

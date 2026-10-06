@@ -6,6 +6,36 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test(
+    'refresh feedback distinguishes read failure from committed changes',
+    () async {
+      for (final locale in ['pl', 'en']) {
+        final l10n = await AppLocalizations.delegate.load(Locale(locale));
+        expect(
+          tasksViewErrorText(l10n, TasksViewErrorCodes.boardReloadFailed),
+          l10n.tasksBoardReloadFailed,
+        );
+        expect(
+          tasksViewErrorText(
+            l10n,
+            TasksViewErrorCodes.boardCommittedReloadFailed,
+          ),
+          l10n.tasksBoardCommittedReloadFailed,
+        );
+        expect(
+          tasksViewErrorText(l10n, TasksViewErrorCodes.boardReloadFailed),
+          isNot(l10n.tasksBoardRefreshAfterCreateFailed),
+        );
+        expect(
+          tasksViewErrorText(
+            l10n,
+            TasksViewErrorCodes.boardCommittedReloadFailed,
+          ),
+          isNot(l10n.tasksBoardRefreshAfterCreateFailed),
+        );
+      }
+    },
+  );
+  test(
     'unexpected save failure uses existing PL and EN localized feedback',
     () async {
       for (final locale in ['pl', 'en']) {

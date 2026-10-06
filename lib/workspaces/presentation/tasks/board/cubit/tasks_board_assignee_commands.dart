@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/error/api_error.dart';
+
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/domain/models/tasks_board_assignee_columns_preference.dart';
 import 'package:devplanner/workspaces/domain/models/tasks_board_grouping.dart';
 import 'package:devplanner/workspaces/domain/ports/tasks_board_view_preference_store.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_assignee_move_commands.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_assignee_read_snapshot.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_command_context.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
@@ -21,8 +24,18 @@ final class TasksBoardAssigneeCommands {
     required this._context,
     required this._repository,
     required this._viewPreferenceStore,
+    required this._scopeRevision,
     this._realtimeRefreshDebounce = const Duration(milliseconds: 180),
-  });
+  }) {
+    _moves = TasksBoardAssigneeMoveCommands(
+      context: _context,
+      repository: _repository,
+      scopeRevision: _scopeRevision,
+      reloadAfterSettingsConflict: loadBoard,
+    );
+  }
+
+  late final TasksBoardAssigneeMoveCommands _moves;
 
   /// Klucz grupy „Nieprzypisane”; Backend używa dla niej `null`, a mapa błędów
   /// doładowania potrzebuje stabilnego klucza.
@@ -32,6 +45,7 @@ final class TasksBoardAssigneeCommands {
   final KanbanRepository _repository;
   final TasksBoardViewPreferenceStore _viewPreferenceStore;
   final Duration _realtimeRefreshDebounce;
+  final int Function() _scopeRevision;
 
   Timer? _realtimeRefreshTimer;
 
@@ -185,40 +199,90 @@ final class TasksBoardAssigneeCommands {
   ///
   /// Nieudany odczyt wraca do poprzedniego, działającego widoku i zostawia
   /// trwały banner: pusta tablica osób nie może udawać, że projekt nie ma zadań.
-  Future<void> loadBoard() async {
+  Future<void> loadBoard() => _loadBoard(retryStale: true);
+
+  Future<void> _loadBoard({required bool retryStale}) async {
     final current = _context.currentState;
     if (current is! TasksBoardReady || _context.isBoardClosed) return;
     final revision = ++_boardRevision;
+    final scope = _scopeRevision();
     final filter = current.filter;
+    final snapshot = TasksBoardAssigneeReadSnapshot(current);
     _context.publish(current.copyWith(isAssigneeBoardLoading: true));
-    final result = await _repository.getAssigneeBoard(
-      workspaceId: _context.workspaceId,
-      projectId: _context.projectId,
-      filter: filter,
-    );
-    if (_context.isBoardClosed || revision != _boardRevision) return;
-    final published = _context.currentState;
-    if (published is! TasksBoardReady) return;
-    // Filtr mógł się zmienić bez nowego odczytu grup (np. gdy użytkownik zdążył
-    // wrócić do statusów), a wtedy ta odpowiedź opisuje już inny zbiór kart.
-    if (published.filter != filter) return;
-    result.fold(
-      (error) => _context.publish(
-        published.copyWith(
-          grouping: TasksBoardGrouping.status,
-          isAssigneeBoardLoading: false,
-          error: tasksViewErrorFrom(error),
+    try {
+      final result = await _repository.getAssigneeBoard(
+        workspaceId: _context.workspaceId,
+        projectId: _context.projectId,
+        filter: filter,
+      );
+      if (_context.isBoardClosed || revision != _boardRevision) return;
+      final published = _context.currentState;
+      if (published is! TasksBoardReady) return;
+      // Po zmianie zakresu odpowiedź opisuje inny zbiór kart.
+      if (_scopeRevision() != scope ||
+          published.filter != filter ||
+          published.grouping != current.grouping ||
+          published.userPreference?.quickFilter !=
+              current.userPreference?.quickFilter) {
+        return;
+      }
+      if (result.isRight() && snapshot.changed(published)) {
+        // GET opisuje wcześniejsze dane/grupy. Nigdy nie scalać starej
+        // membership z nową; co najwyżej jeden świeży odczyt bez replay zapisu.
+        _context.publish(
+          published.copyWith(
+            isAssigneeBoardLoading: false,
+            error: const TasksViewError(
+              code: TasksViewErrorCodes.boardReloadFailed,
+            ),
+          ),
+        );
+        if (retryStale) await _loadBoard(retryStale: false);
+        return;
+      }
+      result.fold(
+        (error) => _context.publish(
+          published.copyWith(
+            grouping: TasksBoardGrouping.status,
+            isAssigneeBoardLoading: false,
+            error: tasksViewErrorFrom(error),
+          ),
         ),
-      ),
-      (board) => _context.publish(
-        published.copyWith(
-          assigneeBoard: board,
-          isAssigneeBoardLoading: false,
-          assigneeGroupLoadErrors: const <String, String>{},
-          clearError: true,
+        (board) => _context.publish(
+          published.copyWith(
+            assigneeBoard: board,
+            isAssigneeBoardLoading: false,
+            assigneeGroupLoadErrors: const <String, String>{},
+            clearError: true,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (_) {
+      final latest = _context.currentState;
+      if (!_context.isBoardClosed &&
+          revision == _boardRevision &&
+          _scopeRevision() == scope &&
+          latest is TasksBoardReady) {
+        _context.publish(
+          latest.copyWith(
+            error: tasksViewErrorFrom(
+              const ApiError(
+                type: ApiErrorType.unknown,
+                message: TasksViewErrorCodes.boardReloadFailed,
+              ),
+            ),
+          ),
+        );
+      }
+    } finally {
+      final latest = _context.currentState;
+      if (!_context.isBoardClosed &&
+          revision == _boardRevision &&
+          latest is TasksBoardReady &&
+          latest.isAssigneeBoardLoading) {
+        _context.publish(latest.copyWith(isAssigneeBoardLoading: false));
+      }
+    }
   }
 
   /// Odświeża grupy po zmianie filtrów tablicy.
@@ -311,120 +375,7 @@ final class TasksBoardAssigneeCommands {
   Future<bool> moveToAssignee({
     required KanbanTaskCardResponse task,
     required String? targetUserId,
-  }) async {
-    final current = _context.currentState;
-    if (current is! TasksBoardReady) return false;
-    final board = current.assigneeBoard;
-    if (board == null) return false;
-    final sourceGroup = board.groups
-        .where((group) => group.tasks.any((item) => item.id == task.id))
-        .firstOrNull;
-    if (sourceGroup == null) {
-      _publishError(
-        current,
-        'Zadanie nie jest już dostępne na aktualnej tablicy.',
-      );
-      return false;
-    }
-    final sourceKey = keyOf(sourceGroup);
-    final targetKey = targetUserId ?? unassignedGroupKey;
-    if (sourceKey == targetKey) return true;
-    final latest = sourceGroup.tasks.firstWhere((item) => item.id == task.id);
-    if (current.pendingTaskIds.contains(latest.id)) return false;
-
-    final optimistic = latest.copyWith(
-      primaryAssigneeUserId: targetUserId,
-      assigneeUserIds: targetUserId == null
-          ? const <String>[]
-          : ({...?latest.assigneeUserIds, targetUserId}.toList()..sort()),
-    );
-    final snapshot = board;
-    _context.publish(
-      current.copyWith(
-        assigneeBoard: _withCardMoved(
-          board,
-          card: optimistic,
-          sourceKey: sourceKey,
-          targetKey: targetKey,
-        ),
-        pendingTaskIds: {...current.pendingTaskIds, latest.id},
-        clearError: true,
-      ),
-    );
-
-    final result = await _repository.changePrimaryAssignee(
-      workspaceId: _context.workspaceId,
-      projectId: _context.projectId,
-      taskId: latest.id,
-      targetUserId: targetUserId,
-      expectedVersion: latest.version,
-    );
-    if (_context.isBoardClosed) return false;
-    final published = _context.currentState;
-    if (published is! TasksBoardReady) return false;
-
-    return result.fold(
-      (error) {
-        final pending = {...published.pendingTaskIds}..remove(latest.id);
-        final notFound =
-            error.statusCode == 404 || error.apiCode == 'task.not_found';
-        // Rollback działa na bieżącym stanie i cofa wyłącznie tę jedną kartę:
-        // w czasie oczekiwania na odpowiedź mogła dojść kolejna strona, zmiana
-        // innej karty albo event realtime i nie wolno ich nadpisać snapshotem.
-        final rollbackBoard = published.assigneeBoard ?? snapshot;
-        _context.publish(
-          published.copyWith(
-            // Karta zniknęła albo wypadła z projektu: usuwamy ją lokalnie
-            // zamiast pokazywać stan, którego Backend już nie zna.
-            assigneeBoard: notFound
-                ? _withoutCard(rollbackBoard, latest.id)
-                : _withCardMoved(
-                    rollbackBoard,
-                    card: latest,
-                    sourceKey: targetKey,
-                    targetKey: sourceKey,
-                  ),
-            pendingTaskIds: pending,
-            failedTaskIds: notFound
-                ? ({...published.failedTaskIds}..remove(latest.id))
-                : {...published.failedTaskIds, latest.id},
-            error: tasksViewErrorFrom(error),
-          ),
-        );
-        if (!notFound && isTaskSettingsVersionConflict(error)) {
-          unawaited(loadBoard());
-        }
-        return false;
-      },
-      (response) {
-        final confirmed = _context.currentState;
-        if (confirmed is! TasksBoardReady) return true;
-        final confirmedBoard = confirmed.assigneeBoard;
-        if (confirmedBoard == null) return true;
-        _context.publish(
-          confirmed.copyWith(
-            assigneeBoard: _withCardMoved(
-              confirmedBoard,
-              card: response.task,
-              sourceKey: sourceKey,
-              targetKey: targetKey,
-              sourceCount: _serverCountsAreComparable(confirmed)
-                  ? response.previousGroupTaskCount
-                  : null,
-              targetCount: _serverCountsAreComparable(confirmed)
-                  ? response.targetGroupTaskCount
-                  : null,
-            ),
-            pendingTaskIds: {...confirmed.pendingTaskIds}..remove(latest.id),
-            failedTaskIds: {...confirmed.failedTaskIds}..remove(latest.id),
-            taskDataRevision: confirmed.taskDataRevision + 1,
-            clearError: true,
-          ),
-        );
-        return true;
-      },
-    );
-  }
+  }) => _moves.move(task: task, targetUserId: targetUserId);
 
   /// Odświeża grupy po zmianie z innej sesji.
   ///
@@ -446,69 +397,4 @@ final class TasksBoardAssigneeCommands {
     _realtimeRefreshTimer?.cancel();
     _realtimeRefreshTimer = null;
   }
-
-  /// Liczniki z odpowiedzi mutacji opisują tablicę bez filtrów i bez szybkiego
-  /// filtra, więc wolno je przyjąć tylko wtedy, gdy ekran pokazuje pełny projekt.
-  bool _serverCountsAreComparable(TasksBoardReady state) =>
-      !state.filter.isActive &&
-      (state.userPreference?.quickFilter ?? KanbanQuickFilter.all) ==
-          KanbanQuickFilter.all;
-
-  AssigneeKanbanBoardResponse _withCardMoved(
-    AssigneeKanbanBoardResponse board, {
-    required KanbanTaskCardResponse card,
-    required String sourceKey,
-    required String targetKey,
-    int? sourceCount,
-    int? targetCount,
-  }) => board.copyWith(
-    groups: board.groups
-        .map((group) {
-          final key = keyOf(group);
-          if (key == sourceKey) {
-            final remaining = group.tasks
-                .where((item) => item.id != card.id)
-                .toList(growable: false);
-            return group.copyWith(
-              tasks: remaining,
-              totalTaskCount:
-                  sourceCount ?? (group.totalTaskCount - 1).clamp(0, 1 << 31),
-            );
-          }
-          if (key == targetKey) {
-            final withoutDuplicates =
-                group.tasks
-                    .where((item) => item.id != card.id)
-                    .toList(growable: true)
-                  ..insert(0, card);
-            return group.copyWith(
-              tasks: withoutDuplicates,
-              totalTaskCount:
-                  targetCount ?? (group.totalTaskCount + 1).clamp(0, 1 << 31),
-            );
-          }
-          return group;
-        })
-        .toList(growable: false),
-  );
-
-  AssigneeKanbanBoardResponse _withoutCard(
-    AssigneeKanbanBoardResponse board,
-    String taskId,
-  ) => board.copyWith(
-    groups: board.groups
-        .map((group) {
-          if (!group.tasks.any((item) => item.id == taskId)) return group;
-          return group.copyWith(
-            tasks: group.tasks
-                .where((item) => item.id != taskId)
-                .toList(growable: false),
-            totalTaskCount: (group.totalTaskCount - 1).clamp(0, 1 << 31),
-          );
-        })
-        .toList(growable: false),
-  );
-
-  void _publishError(TasksBoardReady state, String message) =>
-      _context.publish(state.copyWith(error: TasksViewError(code: message)));
 }

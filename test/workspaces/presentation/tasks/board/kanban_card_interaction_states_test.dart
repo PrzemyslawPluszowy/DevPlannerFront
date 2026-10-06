@@ -10,6 +10,7 @@ import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Klucz probki pikselowej: karta na białym tle, żeby zmierzyć narysowane
@@ -72,8 +73,11 @@ void main() {
   Future<void> pumpCard(
     WidgetTester tester, {
     bool isSelected = false,
+    bool isPending = false,
     FocusNode? focusNode,
     bool withProbe = false,
+    Locale locale = const Locale('pl'),
+    bool disableAnimations = false,
   }) async {
     final theme = MaterialTheme.crm().light();
     final card = KanbanTaskCard(
@@ -83,29 +87,35 @@ void main() {
       visibleCardFields: const [],
       density: KanbanCardDensity.comfortable,
       isSelected: isSelected,
+      isPending: isPending,
       memberProfilesByUserId: const {},
       focusNode: focusNode,
     );
     await tester.pumpWidget(
       MaterialApp(
         theme: theme,
-        locale: const Locale('pl'),
+        locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: Center(
-            child: withProbe
-                ? RepaintBoundary(
-                    key: _probeKey,
-                    child: ColoredBox(
-                      color: const Color(0xffffffff),
-                      child: Padding(
-                        padding: const EdgeInsets.all(_probeInset),
-                        child: SizedBox(width: 290, child: card),
+          body: MediaQuery(
+            data: MediaQueryData.fromView(tester.view).copyWith(
+              disableAnimations: disableAnimations,
+            ),
+            child: Center(
+              child: withProbe
+                  ? RepaintBoundary(
+                      key: _probeKey,
+                      child: ColoredBox(
+                        color: const Color(0xffffffff),
+                        child: Padding(
+                          padding: const EdgeInsets.all(_probeInset),
+                          child: SizedBox(width: 290, child: card),
+                        ),
                       ),
-                    ),
-                  )
-                : SizedBox(width: 290, child: card),
+                    )
+                  : SizedBox(width: 290, child: card),
+            ),
           ),
         ),
       ),
@@ -255,5 +265,93 @@ void main() {
       decoration.color,
       KanbanCardTokens.cardSurfaceSelected(theme.colorScheme),
     );
+  });
+
+  testWidgets('pending pokazuje pasek i nie zmienia bounds karty', (
+    tester,
+  ) async {
+    await pumpCard(tester, disableAnimations: true);
+    final restingBounds = tester.getRect(find.byType(KanbanTaskCard));
+
+    await pumpCard(tester, isPending: true, disableAnimations: true);
+    final pendingBounds = tester.getRect(find.byType(KanbanTaskCard));
+    final staticProgress = tester.widget<ColoredBox>(
+      find.byKey(const ValueKey('kanban-card-pending-indicator')),
+    );
+
+    expect(pendingBounds, restingBounds);
+    expect(
+      staticProgress.color,
+      MaterialTheme.crm().light().colorScheme.primary,
+    );
+  });
+
+  for (final locale in const [Locale('pl'), Locale('en')]) {
+    testWidgets(
+      'pending exposes localized busy label and tooltip (${locale.languageCode})',
+      (tester) async {
+        await pumpCard(
+          tester,
+          isPending: true,
+          locale: locale,
+          disableAnimations: true,
+        );
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(KanbanTaskCard)),
+        )!;
+        final semanticsFinder = find.bySemanticsLabel(RegExp('TASK-101'));
+        final semantics = tester.getSemantics(semanticsFinder);
+        final tooltip = tester.widget<Tooltip>(
+          find.descendant(
+            of: find.byType(KanbanCardFrame),
+            matching: find.byWidgetPredicate(
+              (widget) =>
+                  widget is Tooltip && widget.message == l10n.tasksBulkSaving,
+            ),
+          ),
+        );
+
+        expect(semantics.flagsCollection.isLiveRegion, isTrue);
+        expect(semantics.value, l10n.tasksBulkSaving);
+        expect(tooltip.message, l10n.tasksBulkSaving);
+      },
+    );
+  }
+
+  testWidgets('pending zachowuje focus i menu Shift+F10', (tester) async {
+    final focusNode = FocusNode();
+    addTearDown(focusNode.dispose);
+    var menuInvocations = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: MaterialTheme.crm().light(),
+        locale: const Locale('pl'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 290,
+              child: KanbanCardFrame(
+                focusNode: focusNode,
+                isPending: true,
+                semanticsLabel: 'Karta TASK-101',
+                onTap: () {},
+                onShowContextMenu: () => menuInvocations++,
+                child: const SizedBox(height: 72, child: Text('Treść karty')),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    focusNode.requestFocus();
+    await tester.pump();
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.f10);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+
+    expect(focusNode.hasFocus, isTrue);
+    expect(menuInvocations, 1);
   });
 }

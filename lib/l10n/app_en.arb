@@ -4113,5 +4113,7 @@
   "tasksBulkScopeExpired": "The confirmed scope has expired or the filters have changed. Choose the entire-result action again and review its current scope.",
   "tasksListPageLoading": "Loading more tasks…",
   "tasksListPageChanged": "Tasks changed while the page was loading. Your current data is preserved. Retry loading the next page.",
-  "tasksListPageFailed": "Could not load more tasks. Your current data is preserved. Try again."
+  "tasksListPageFailed": "Could not load more tasks. Your current data is preserved. Try again.",
+  "tasksBoardReloadFailed": "Could not refresh the board. Try again.",
+  "tasksBoardCommittedReloadFailed": "Your changes were saved, but the board could not be refreshed. Refresh the view."
 }

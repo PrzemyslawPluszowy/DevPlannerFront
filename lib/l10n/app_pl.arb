@@ -4100,5 +4100,7 @@
   "tasksBulkScopeExpired": "Potwierdzony zakres wygasł lub zmieniły się filtry. Wybierz ponownie akcję dla całego wyniku i sprawdź aktualny zakres.",
   "tasksListPageLoading": "Wczytywanie kolejnych zadań…",
   "tasksListPageChanged": "Zadania zmieniły się podczas wczytywania. Zachowaliśmy aktualne dane. Ponów wczytywanie kolejnej strony.",
-  "tasksListPageFailed": "Nie udało się wczytać kolejnych zadań. Wyświetlane dane zachowano. Spróbuj ponownie."
+  "tasksListPageFailed": "Nie udało się wczytać kolejnych zadań. Wyświetlane dane zachowano. Spróbuj ponownie.",
+  "tasksBoardReloadFailed": "Nie udało się odświeżyć tablicy. Spróbuj ponownie.",
+  "tasksBoardCommittedReloadFailed": "Zmiany zostały zapisane, ale nie udało się odświeżyć tablicy. Odśwież widok."
 }

@@ -12875,4 +12875,12 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get tasksListPageFailed =>
       'Nie udało się wczytać kolejnych zadań. Wyświetlane dane zachowano. Spróbuj ponownie.';
+
+  @override
+  String get tasksBoardReloadFailed =>
+      'Nie udało się odświeżyć tablicy. Spróbuj ponownie.';
+
+  @override
+  String get tasksBoardCommittedReloadFailed =>
+      'Zmiany zostały zapisane, ale nie udało się odświeżyć tablicy. Odśwież widok.';
 }

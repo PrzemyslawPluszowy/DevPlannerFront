@@ -57,6 +57,8 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
       memberProfilesRepository: memberProfilesRepository,
     );
     _cards = TasksBoardCardCommands(
+      refreshAssigneeBoard: () => _assignee.loadBoard(),
+      scopeRevision: () => _bulkScopeRevision,
       calendarTimeZoneId: timeZoneId,
       context: this,
       tasksRepository: tasksRepository,
@@ -85,6 +87,7 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
       canMoveTaskTo: _canMoveFromBulkCommand,
     );
     _assignee = TasksBoardAssigneeCommands(
+      scopeRevision: () => _bulkScopeRevision,
       context: this,
       repository: repository,
       viewPreferenceStore:

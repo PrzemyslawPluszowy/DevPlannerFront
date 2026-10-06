@@ -20,6 +20,9 @@ abstract final class TasksViewErrorCodes {
 
   /// Zadanie zostało zapisane, ale świeżego widoku nie udało się odczytać.
   static const String boardRefreshFailed = 'tasks.view.board_refresh_failed';
+  static const String boardReloadFailed = 'tasks.view.board_reload_failed';
+  static const String boardCommittedReloadFailed =
+      'tasks.view.board_committed_reload_failed';
 }
 
 /// Błąd operacji widoku Tasks gotowy do pokazania w trwałym bannerze.
@@ -76,6 +79,9 @@ String? tasksViewErrorText(AppLocalizations l10n, String code) =>
       TasksViewErrorCodes.versionConflict => l10n.tasksListPreferencesConflict,
       TasksViewErrorCodes.loadFailed => l10n.tasksViewPreferencesLoadFailed,
       TasksViewErrorCodes.quickCreateFailed => l10n.tasksQuickCreateFailed,
+      TasksViewErrorCodes.boardReloadFailed => l10n.tasksBoardReloadFailed,
+      TasksViewErrorCodes.boardCommittedReloadFailed =>
+        l10n.tasksBoardCommittedReloadFailed,
       TasksViewErrorCodes.boardRefreshFailed =>
         l10n.tasksBoardRefreshAfterCreateFailed,
       _ => null,
