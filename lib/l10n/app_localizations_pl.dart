@@ -12771,4 +12771,13 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get tasksBulkSelectionLimit =>
       'Możesz zmienić naraz maksymalnie 500 zaznaczonych zadań. Zmniejsz zaznaczenie albo użyj akcji dla całego wyniku.';
+
+  @override
+  String get taskDetailsPeopleLoadFailed =>
+      'Nie udało się odświeżyć danych osób.';
+
+  @override
+  String taskAssigneesSelectionSummary(int count, int hidden) {
+    return 'Zaznaczono: $count. Poza aktualnym filtrem: $hidden.';
+  }
 }

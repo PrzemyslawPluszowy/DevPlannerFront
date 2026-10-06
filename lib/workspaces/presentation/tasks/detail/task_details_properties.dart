@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_detail_person.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_collaboration.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_milestone.dart';
@@ -5,7 +6,11 @@ import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_pro
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
 class TaskProperties extends StatelessWidget {
-  const TaskProperties({required this.details, required this.canEdit, super.key});
+  const TaskProperties({
+    required this.details,
+    required this.canEdit,
+    super.key,
+  });
 
   final ProjectTaskDetailsResponse details;
   final bool canEdit;
@@ -16,9 +21,6 @@ class TaskProperties extends StatelessWidget {
     final users = {
       for (final user in details.includedUsers) user.userId: user,
     };
-    final assignees = task.assignees
-        .map((item) => users[item.userId]?.displayName ?? item.userId)
-        .join(', ');
     final dateFormat = DateFormat.yMMMd(
       Localizations.localeOf(context).toLanguageTag(),
     );
@@ -67,9 +69,23 @@ class TaskProperties extends StatelessWidget {
             PropertyRow(
               icon: Symbols.people_outline_rounded,
               label: context.l10n.taskDetailsAssignees,
-              value: assignees.isEmpty
-                  ? context.l10n.taskDetailsNobody
-                  : assignees,
+              value: context.l10n.taskDetailsNobody,
+              valueWidget: task.assignees.isEmpty
+                  ? null
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final item in task.assignees)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: TaskDetailPerson(
+                              userId: item.userId,
+                              user: users[item.userId],
+                              showName: true,
+                            ),
+                          ),
+                      ],
+                    ),
             ),
             PropertyRow(
               icon: Symbols.play_circle_rounded,

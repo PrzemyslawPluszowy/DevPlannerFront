@@ -105,36 +105,59 @@ class EditAssigneesDialogState extends State<EditAssigneesDialog> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                BlocBuilder<TaskMemberProfilesCubit, TaskMemberProfilesState>(
-                  bloc: _profilesCubit,
-                  builder: (context, state) => switch (state) {
-                    TaskMemberProfilesLoading() => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    TaskMemberProfilesFailure(:final error) => Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TaskDetailsModalError(error: error),
-                        TextButton.icon(
-                          onPressed: () => unawaited(_profilesCubit.load()),
-                          icon: const Icon(Symbols.refresh_rounded),
-                          label: Text(context.l10n.retry),
+                Text(
+                  profilesState is TaskMemberProfilesReady
+                      ? context.l10n.taskAssigneesSelectionSummary(
+                          _selected.value.length,
+                          _selected.value
+                              .difference(profilesState.visibleUserIds)
+                              .length,
+                        )
+                      : context.l10n.taskAssigneesSelectionSummary(
+                          _selected.value.length,
+                          0,
                         ),
-                      ],
-                    ),
-                    TaskMemberProfilesReady(
-                      :final profiles,
-                      :final totalCount,
-                    ) =>
-                      profiles.isEmpty
-                          ? Text(
-                              totalCount == 0
-                                  ? context.l10n.taskDetailsNoProjectMembers
-                                  : context.l10n.taskAssigneesNoSearchResults,
-                            )
-                          : ConstrainedBox(
-                              constraints: const BoxConstraints(maxHeight: 420),
-                              child: ListView.separated(
+                  style: context.tasksTheme.metaText,
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: (MediaQuery.sizeOf(context).height * .45).clamp(
+                    120.0,
+                    420.0,
+                  ),
+                  child: BlocBuilder<TaskMemberProfilesCubit, TaskMemberProfilesState>(
+                    bloc: _profilesCubit,
+                    builder: (context, state) => switch (state) {
+                      TaskMemberProfilesLoading() => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      TaskMemberProfilesFailure(:final error) => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TaskDetailsModalError(error: error),
+                          TextButton.icon(
+                            onPressed: () => unawaited(_profilesCubit.load()),
+                            icon: const Icon(Symbols.refresh_rounded),
+                            label: Text(context.l10n.retry),
+                          ),
+                        ],
+                      ),
+                      TaskMemberProfilesReady(
+                        :final profiles,
+                        :final totalCount,
+                      ) =>
+                        profiles.isEmpty
+                            ? Center(
+                                child: Text(
+                                  totalCount == 0
+                                      ? context.l10n.taskDetailsNoProjectMembers
+                                      : context
+                                            .l10n
+                                            .taskAssigneesNoSearchResults,
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                            : ListView.separated(
                                 shrinkWrap: true,
                                 itemCount: profiles.length,
                                 separatorBuilder: (_, _) =>
@@ -210,8 +233,8 @@ class EditAssigneesDialogState extends State<EditAssigneesDialog> {
                                   );
                                 },
                               ),
-                            ),
-                  },
+                    },
+                  ),
                 ),
               ],
             ),

@@ -134,8 +134,9 @@ void main() {
         () => fixture.memberProfilesRepository.listProfiles(
           workspaceId: visualWorkspaceId,
           projectId: visualProjectId,
+          forceRefresh: true,
         ),
-      ).called(1);
+      ).called(greaterThanOrEqualTo(1)); // Rail omija cache; timer może odświeżyć ponownie.
     },
   );
 }

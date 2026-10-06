@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_detail_person.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
@@ -90,7 +91,8 @@ final class TaskWatchersAvatars extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         for (final watcher in visible)
-          WatcherAvatar(
+          TaskDetailPerson(
+            userId: watcher.userId,
             user: details.includedUsers
                 .where((user) => user.userId == watcher.userId)
                 .firstOrNull,
@@ -110,7 +112,7 @@ class WatcherAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = user?.displayName?.trim().isNotEmpty == true
         ? user!.displayName!.trim()
-        : user?.userId ?? '?';
+        : context.l10n.taskDetailsProjectMember;
     final initial = label.characters.first.toUpperCase();
     final avatarUrl = user?.avatarUrl?.trim();
     return Tooltip(

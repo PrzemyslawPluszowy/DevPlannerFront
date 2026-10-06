@@ -1,4 +1,5 @@
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_attachments_section.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_detail_people_scope.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_acceptance.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_checklist.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_collaboration.dart';
@@ -110,21 +111,23 @@ class TaskDetailsPropertyRail extends StatelessWidget {
   final bool canEdit;
 
   @override
-  Widget build(BuildContext context) => ListView(
-    key: const PageStorageKey<String>('task-details-properties'),
-    padding: const EdgeInsets.fromLTRB(18, 20, 18, 24),
-    children: [
-      TaskProperties(details: details, canEdit: canEdit),
-      const SizedBox(height: 20),
-      TaskWatchersSection(details: details, isSaving: isSaving),
-      const SizedBox(height: 20),
-      TaskLabelsSection(details: details, isSaving: isSaving || !canEdit),
-      const SizedBox(height: 20),
-      TaskCustomFieldsSection(
-        fields: details.customFields,
-        isSaving: isSaving || !canEdit,
-      ),
-    ],
+  Widget build(BuildContext context) => TaskDetailPeopleScope(
+    child: ListView(
+      key: const PageStorageKey<String>('task-details-properties'),
+      padding: const EdgeInsets.fromLTRB(18, 20, 18, 24),
+      children: [
+        TaskProperties(details: details, canEdit: canEdit),
+        const SizedBox(height: 20),
+        TaskWatchersSection(details: details, isSaving: isSaving),
+        const SizedBox(height: 20),
+        TaskLabelsSection(details: details, isSaving: isSaving || !canEdit),
+        const SizedBox(height: 20),
+        TaskCustomFieldsSection(
+          fields: details.customFields,
+          isSaving: isSaving || !canEdit,
+        ),
+      ],
+    ),
   );
 }
 

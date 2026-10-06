@@ -12668,4 +12668,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tasksBulkSelectionLimit =>
       'You can change up to 500 selected tasks at once. Reduce the selection or use the action for the entire result.';
+
+  @override
+  String get taskDetailsPeopleLoadFailed => 'Could not refresh people details.';
+
+  @override
+  String taskAssigneesSelectionSummary(int count, int hidden) {
+    return 'Selected: $count. Outside the current filter: $hidden.';
+  }
 }

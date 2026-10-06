@@ -4080,5 +4080,8 @@
   "taskDescriptionRemoveLink": "Remove link",
   "taskAssigneesNoSearchResults": "No people found. Change your search.",
   "taskLabelsEmptyGuidance": "This project has no active labels yet. A project administrator can create them in project settings, under Labels.",
-  "tasksBulkSelectionLimit": "You can change up to 500 selected tasks at once. Reduce the selection or use the action for the entire result."
+  "tasksBulkSelectionLimit": "You can change up to 500 selected tasks at once. Reduce the selection or use the action for the entire result.",
+  "taskDetailsPeopleLoadFailed": "Could not refresh people details.",
+  "taskAssigneesSelectionSummary": "Selected: {count}. Outside the current filter: {hidden}.",
+  "@taskAssigneesSelectionSummary": {"placeholders": {"count": {"type": "int"}, "hidden": {"type": "int"}}}
 }

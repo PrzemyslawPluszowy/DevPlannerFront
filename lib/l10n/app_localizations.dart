@@ -22591,6 +22591,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can change up to 500 selected tasks at once. Reduce the selection or use the action for the entire result.'**
   String get tasksBulkSelectionLimit;
+
+  /// No description provided for @taskDetailsPeopleLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not refresh people details.'**
+  String get taskDetailsPeopleLoadFailed;
+
+  /// No description provided for @taskAssigneesSelectionSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected: {count}. Outside the current filter: {hidden}.'**
+  String taskAssigneesSelectionSummary(int count, int hidden);
 }
 
 class _AppLocalizationsDelegate

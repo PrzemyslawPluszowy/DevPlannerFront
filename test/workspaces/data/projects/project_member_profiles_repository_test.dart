@@ -3,10 +3,69 @@ import 'package:devplanner/workspaces/data/projects/repositories/project_member_
 import 'package:devplanner/workspaces/data/projects/responses/project_member_profile_response.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_role.dart';
+import 'package:devplanner/workspaces/domain/models/project_people_request.dart';
+import 'package:devplanner/workspaces/presentation/projects/people/project_people_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 void main() {
+  test(
+    'rail people owner bypasses a warm repository cache on open and retry',
+    () async {
+      final api = _ProjectsApi();
+      var online = true;
+      when(
+        () => api.listProjectMemberProfiles(
+          'workspace',
+          'project',
+          null,
+          limit: 100,
+        ),
+      ).thenAnswer(
+        (_) async => CursorPageResponse(
+          items: [
+            ProjectMemberProfileResponse(
+              userId: 'member',
+              displayName: 'Jan Nowak',
+              role: ProjectRole.member,
+              isOnline: online,
+            ),
+          ],
+        ),
+      );
+      final repository = ProjectMemberProfilesRepositoryImpl(api: api);
+      final cached = await repository.listProfiles(
+        workspaceId: 'workspace',
+        projectId: 'project',
+      );
+      expect(cached.getOrElse(() => []).single.isOnline, true);
+      online = false;
+      final cubit = ProjectPeopleCubit(
+        ProjectPeopleRequest(
+          workspaceId: 'workspace',
+          projectId: 'project',
+          projectName: '',
+          repository: repository,
+        ),
+      );
+      addTearDown(cubit.close);
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.presenceIsFresh, true);
+      expect(cubit.state.members.single.isOnline, false);
+      online = true;
+      await cubit.refresh();
+      expect(cubit.state.members.single.isOnline, true);
+      verify(
+        () => api.listProjectMemberProfiles(
+          'workspace',
+          'project',
+          null,
+          limit: 100,
+        ),
+      ).called(3);
+    },
+  );
   test(
     'profiles preserve global presence and every ProjectRole wire value',
     () {

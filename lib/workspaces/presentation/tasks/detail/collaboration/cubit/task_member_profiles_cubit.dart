@@ -16,9 +16,13 @@ final class TaskMemberProfilesReady extends TaskMemberProfilesState {
     List<ProjectMemberProfile> profiles, {
     this.query = '',
     this.totalCount = 0,
-  }) : profiles = List.unmodifiable(profiles);
+  }) : profiles = List.unmodifiable(profiles),
+       visibleUserIds = Set.unmodifiable(
+         profiles.map((profile) => profile.userId),
+       );
 
   final List<ProjectMemberProfile> profiles;
+  final Set<String> visibleUserIds;
   final String query;
   final int totalCount;
 }
@@ -43,7 +47,6 @@ final class TaskMemberProfilesCubit extends Cubit<TaskMemberProfilesState> {
   int _generation = 0;
   List<ProjectMemberProfile> _allProfiles = const [];
   String _query = '';
-
   void search(String query) {
     if (isClosed) return;
     _query = query;

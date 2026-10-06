@@ -6,6 +6,7 @@ class PropertyRow extends StatelessWidget {
     required this.label,
     required this.value,
     this.showDivider = true,
+    this.valueWidget,
     this.onTap,
     super.key,
   });
@@ -13,6 +14,7 @@ class PropertyRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final Widget? valueWidget;
   final bool showDivider;
   final VoidCallback? onTap;
 
@@ -54,7 +56,9 @@ class PropertyRow extends StatelessWidget {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 28, top: 3),
-                          child: Text(value, style: context.text.bodyMedium),
+                          child:
+                              valueWidget ??
+                              Text(value, style: context.text.bodyMedium),
                         ),
                       ],
                     )
@@ -67,7 +71,9 @@ class PropertyRow extends StatelessWidget {
                           child: Text(label, style: context.text.bodySmall),
                         ),
                         Expanded(
-                          child: Text(value, style: context.text.bodyMedium),
+                          child:
+                              valueWidget ??
+                              Text(value, style: context.text.bodyMedium),
                         ),
                       ],
                     ),

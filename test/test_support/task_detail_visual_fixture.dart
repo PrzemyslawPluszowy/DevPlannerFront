@@ -137,6 +137,7 @@ final class TaskDetailVisualFixture {
       () => memberProfilesRepository.listProfiles(
         workspaceId: visualWorkspaceId,
         projectId: visualProjectId,
+        forceRefresh: any(named: 'forceRefresh'),
       ),
     ).thenAnswer(
       (_) async => const Right<ApiError, List<ProjectMemberProfile>>([
