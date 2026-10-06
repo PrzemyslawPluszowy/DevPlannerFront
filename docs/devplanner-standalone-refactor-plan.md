@@ -7624,3 +7624,12 @@ Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.l
 - [x] Wymaganie właściciela zapisane: przeklikiwać kolejne nieodebrane scenariusze na stagingu w Chrome/Edge, poprawiać błędy funkcjonalne i brzydkie/niespójne kontrolki, używając UI UX Pro Max i Impeccable Operate. Jeden centralny rejestr: Backend/docs/ui-testing.md; zbiorcze pakiety, niezależny review, bramki kodu, Wasm i manualny retest.
 - [x] QA51 Cards/Assignee/Frame: 157/157 PASS, pełny analyzer czysty47,5s, wdrożony Wasm e2a4eae81a6ff9a3f272de883910edc9a223aebc. Publiczny SHA/Wasm/SPA/readiness potwierdzone; Backend API niezmieniony.
 - [ ] Pełny odbiór QA49/50/51 pozostaje otwarty. Centralny rejestr rozróżnia konkretne manualne PASS od nieodebranych wariantów i ograniczeń sterowania. QA52 zbiera toolbar, focus, modalne semantyki i responsywność dużego modalu do następnego wspólnego pakietu.
+
+### QA53 — odzyskanie pracy w formularzu publicznego linku, 2026-10-06
+
+- [x] Bieżący kod potwierdza istniejący wspólny webowy TaskDatePicker; stara notatka o Material pickerze jest nieaktualna i nie jest powodem kolejnej przebudowy.
+- [x] Można wyczyścić expiry do null i anulować wybór bez tworzenia linku. Edycja hasła/daty usuwa poprzedni URL, copied i stare błędy; pola disabled podczas tworzenia; enabled rewalidowany po kalendarzu.
+- [x] Revision + URL odrzucają wynik schowka poprzedniego draftu. Wyjątek kopiowania zachowuje utworzony link i daje lokalizowany PL/EN recovery; retry kopiuje bez nowego POST.
+- [x] 24/24 focused PASS, niezależny review bez blockera, gen-l10n i diff-check PASS. Pełny analyzer No issues12,5s/exit0. Pliki: StoragePublicShareForm, ARB/generowane lokalizacje, storage_public_share_form_test; API/DTO/enumy/backend bez zmian.
+- [ ] Po analyzerze commit/push skipci i jedna publikacja Front Wasm; sprawdzić publiczne wersję/Wasm/SPA/readiness.
+- [ ] Manualny Chrome: expiry→clear/cancel, password edit po sukcesie, pending/error/retry, klawiatura i PL/EN light/dark. Source/test nie oznaczają PASS funkcji/UX/UI runtime.

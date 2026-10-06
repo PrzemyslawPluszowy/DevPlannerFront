@@ -17474,6 +17474,12 @@ abstract class AppLocalizations {
   /// **'Generate link'**
   String get storageGenerateLinkButton;
 
+  /// No description provided for @storagePublicLinkCopyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The link was created, but could not be copied. Try the copy button again or select the link and copy it manually.'**
+  String get storagePublicLinkCopyFailed;
+
   /// No description provided for @storageLinkCopied.
   ///
   /// In en, this message translates to:

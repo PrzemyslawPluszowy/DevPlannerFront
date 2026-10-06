@@ -9821,6 +9821,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageGenerateLinkButton => 'Generuj link';
 
   @override
+  String get storagePublicLinkCopyFailed =>
+      'Link został utworzony, ale nie udało się go skopiować. Użyj ponownie przycisku kopiowania lub zaznacz link i skopiuj go ręcznie.';
+
+  @override
   String get storageLinkCopied => 'Link skopiowany do schowka';
 
   @override

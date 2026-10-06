@@ -3090,6 +3090,7 @@
   "@storagePublicLinkExpires": {"placeholders": {"date": {"type": "String"}}},
   "storageCopyPublicLink": "Copy public link",
   "storageGenerateLinkButton": "Generate link",
+  "storagePublicLinkCopyFailed": "The link was created, but could not be copied. Try the copy button again or select the link and copy it manually.",
   "storageLinkCopied": "Link copied to clipboard",
   "storageAccessReader": "Viewer",
   "storageAccessCommenter": "Commenter",

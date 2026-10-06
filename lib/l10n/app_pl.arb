@@ -3093,6 +3093,7 @@
   "@storagePublicLinkExpires": {"placeholders": {"date": {"type": "String"}}},
   "storageCopyPublicLink": "Kopiuj link publiczny",
   "storageGenerateLinkButton": "Generuj link",
+  "storagePublicLinkCopyFailed": "Link został utworzony, ale nie udało się go skopiować. Użyj ponownie przycisku kopiowania lub zaznacz link i skopiuj go ręcznie.",
   "storageLinkCopied": "Link skopiowany do schowka",
   "storageAccessReader": "Podgląd",
   "storageAccessCommenter": "Komentarz",

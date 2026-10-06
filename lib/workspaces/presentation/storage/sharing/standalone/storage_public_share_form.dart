@@ -60,6 +60,8 @@ final class StoragePublicShareForm extends StatefulWidget {
 }
 
 final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
+  int _draftRevision = 0;
+
   final _passwordController = TextEditingController();
   final _viewState = ValueNotifier<_StoragePublicShareFormViewState>(
     const _StoragePublicShareFormViewState(),
@@ -116,6 +118,8 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
               const SizedBox(height: 12),
               TextField(
                 controller: _passwordController,
+                enabled: widget.enabled && !state.isCreating,
+                onChanged: _onPasswordChanged,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: context.l10n.storagePublicSharePassword,
@@ -140,7 +144,7 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
                     Expanded(child: SelectableText(url, maxLines: 2)),
                     IconButton(
                       tooltip: context.l10n.storageCopyPublicLink,
-                      onPressed: () => _copy(url),
+                      onPressed: widget.enabled ? () => _copy(url) : null,
                       icon: const Icon(Icons.copy_outlined),
                     ),
                   ],
@@ -208,29 +212,47 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
       initialValue:
           _viewState.value.expiresAtUtc?.toLocal() ??
           now.add(const Duration(days: 7)),
-      allowClear: false,
     );
-    if (!mounted || !buttonContext.mounted || _viewState.value.isCreating) {
+    if (!mounted ||
+        !buttonContext.mounted ||
+        !widget.enabled ||
+        _viewState.value.isCreating) {
       return;
     }
-    final date = selection?.value;
-    if (date == null) return;
+    if (selection == null) return;
+    _draftRevision++;
+    final date = selection.value;
     _viewState.value = _viewState.value.copyWith(
-      expiresAtUtc: DateTime(
-        date.year,
-        date.month,
-        date.day,
-        23,
-        59,
-        59,
-      ).toUtc(),
+      expiresAtUtc: date == null
+          ? null
+          : DateTime(date.year, date.month, date.day, 23, 59, 59).toUtc(),
+      clearExpiry: date == null,
       clearCreatedUrl: true,
+      clearError: true,
+      clearApiError: true,
+      copied: false,
+    );
+  }
+
+  void _onPasswordChanged(String _) {
+    if (_viewState.value.isCreating || !widget.enabled) return;
+    _draftRevision++;
+    _viewState.value = _viewState.value.copyWith(
+      clearCreatedUrl: true,
+      clearError: true,
+      clearApiError: true,
+      copied: false,
     );
   }
 
   Future<void> _create() async {
     if (_viewState.value.isCreating || !widget.enabled) return;
-    _viewState.value = _viewState.value.copyWith(isCreating: true);
+    _viewState.value = _viewState.value.copyWith(
+      isCreating: true,
+      copied: false,
+      clearError: true,
+      clearApiError: true,
+    );
     final password = _passwordController.text.trim();
     late final StoragePublicShareCreation result;
     try {
@@ -273,9 +295,32 @@ final class _StoragePublicShareFormState extends State<StoragePublicShareForm> {
   }
 
   Future<void> _copy(String url) async {
-    await Clipboard.setData(ClipboardData(text: url));
-    if (!mounted) return;
-    _viewState.value = _viewState.value.copyWith(copied: true);
+    final revision = _draftRevision;
+    final copyFailure = context.l10n.storagePublicLinkCopyFailed;
+    try {
+      await Clipboard.setData(ClipboardData(text: url));
+    } on Object {
+      if (!mounted ||
+          revision != _draftRevision ||
+          _viewState.value.createdUrl != url) {
+        return;
+      }
+      _viewState.value = _viewState.value.copyWith(
+        copied: false,
+        errorMessage: copyFailure,
+        clearApiError: true,
+      );
+      return;
+    }
+    if (!mounted ||
+        revision != _draftRevision ||
+        _viewState.value.createdUrl != url) {
+      return;
+    }
+    _viewState.value = _viewState.value.copyWith(
+      copied: true,
+      clearError: true,
+    );
   }
 }
 
@@ -306,8 +351,9 @@ final class _StoragePublicShareFormViewState {
     bool clearApiError = false,
     bool? copied,
     bool clearCreatedUrl = false,
+    bool clearExpiry = false,
   }) => _StoragePublicShareFormViewState(
-    expiresAtUtc: expiresAtUtc ?? this.expiresAtUtc,
+    expiresAtUtc: clearExpiry ? null : expiresAtUtc ?? this.expiresAtUtc,
     createdUrl: clearCreatedUrl ? null : createdUrl ?? this.createdUrl,
     isCreating: isCreating ?? this.isCreating,
     errorMessage: clearError ? null : errorMessage ?? this.errorMessage,

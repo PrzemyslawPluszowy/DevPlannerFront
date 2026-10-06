@@ -1,3 +1,7 @@
+### QA53 — formularz publicznego linku, źródła i bramki, 2026-10-06
+
+StoragePublicShareForm: wspólny picker zachowany; allowClear/clearExpiry, reset stale URL/copied/error po password/date, disabled pól w pending, enabled po await, draftRevision+URL w clipboard completion, exception recovery z zachowanym linkiem i retry bez POST. API/backend/enums bez zmian. Teksty ARB PL/EN wygenerowane flutter gen-l10n. 24/24 focused PASS /tmp/devplanner-qa53-final-tests.log, niezależny read-only review zamknięty bez blockera. Fullanalyzer No issues12,5s/exit0 /tmp/devplanner-qa53-final-analyze.log; źródła przed publikacją. Pierwszy analyzer znalazł tylko redundant allowClear:true, usunięto argument równy domyślnej wartości. UI UX Pro Max ErrorRecovery/SubmitFeedback + Impeccable Operate, istniejące tokeny/picker. Runtime funkcja/UX/UI NOT RUN; centralny status ../Backend/docs/ui-testing.md.
+
 ### QA52 — aktualizacja publikacji i odbioru, 2026-10-06
 
 Kod7e85154eb89d4a8db24641ce078c7bdb7295cbc1 commit/push [skip ci], jeden skrypt Wasm exit0/build119,7s. version.json dokładny SHA, Wasm9891299B HTTP200/application/wasm, root/workspaces identyczny SPA, readinessHealthy. Backend00ccb6b bez zmian kodu/API.
