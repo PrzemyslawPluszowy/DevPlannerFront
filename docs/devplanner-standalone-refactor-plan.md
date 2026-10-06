@@ -7631,5 +7631,5 @@ Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.l
 - [x] Można wyczyścić expiry do null i anulować wybór bez tworzenia linku. Edycja hasła/daty usuwa poprzedni URL, copied i stare błędy; pola disabled podczas tworzenia; enabled rewalidowany po kalendarzu.
 - [x] Revision + URL odrzucają wynik schowka poprzedniego draftu. Wyjątek kopiowania zachowuje utworzony link i daje lokalizowany PL/EN recovery; retry kopiuje bez nowego POST.
 - [x] 24/24 focused PASS, niezależny review bez blockera, gen-l10n i diff-check PASS. Pełny analyzer No issues12,5s/exit0. Pliki: StoragePublicShareForm, ARB/generowane lokalizacje, storage_public_share_form_test; API/DTO/enumy/backend bez zmian.
-- [ ] Po analyzerze commit/push skipci i jedna publikacja Front Wasm; sprawdzić publiczne wersję/Wasm/SPA/readiness.
+- [x] Commit/push skipci i jedna publikacja Front Wasm `e89cfe4ba1aad7f42a2213f74a896cf1ffefe8b0`, exit0/build111,0s. Publiczne version.json, Wasm9892394B/application/wasm, SPA i Healthy potwierdzone; Backend00ccb6b bez zmian.
 - [ ] Manualny Chrome: expiry→clear/cancel, password edit po sukcesie, pending/error/retry, klawiatura i PL/EN light/dark. Source/test nie oznaczają PASS funkcji/UX/UI runtime.
