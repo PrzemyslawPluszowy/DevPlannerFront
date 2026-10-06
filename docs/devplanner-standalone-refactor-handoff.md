@@ -1,3 +1,9 @@
+### QA52 — aktualizacja publikacji i odbioru, 2026-10-06
+
+Kod7e85154eb89d4a8db24641ce078c7bdb7295cbc1 commit/push [skip ci], jeden skrypt Wasm exit0/build119,7s. version.json dokładny SHA, Wasm9891299B HTTP200/application/wasm, root/workspaces identyczny SPA, readinessHealthy. Backend00ccb6b bez zmian kodu/API.
+
+Chrome własny PL/dark1513×895: Reload po publikacji; screenshot Listy, ale AX bez HTML i click Status noWindowsAvailable. Nowe scrollbar/EntireResult Cancel/error/modal semantics/focus nadal manualnie NOT RUN w trzech wymiarach funkcja/UX/UI. Następne kroki i dowody wyłącznie centralnie ../Backend/docs/ui-testing.md; nie powtarzać deploya dla samych dokumentów. Audyt wszystkich kontrolek aktywny, source88PASS/analyzer/review nie oznaczają gotowości wizualnej.
+
 ## 2026-10-02 — Chrome Office: zapis, reopen i PDF
 
 - Kopia DOCX QA przyjęła znacznik, backend potwierdził Version=2; po zamknięciu i ponownym otwarciu znacznik widoczny. Aplikacyjne Drukuj wygenerowało jednokartkowy preview i zapis PDF do /tmp/QA-Office-Chrome-2026-10-02.pdf (26860 B, %PDF-1.7). Nie drukowano fizycznie. Dowód /tmp/devplanner-chrome-office-reopen-marker-2026-10-02.png.
