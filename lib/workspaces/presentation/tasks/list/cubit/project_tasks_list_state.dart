@@ -58,6 +58,7 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     this.taskErrorsByTaskId = const {},
     this.selectedTaskIds = const {},
     this.isBulkSaving = false,
+    this.bulkPreparationOwner,
     this.bulkError,
     this.canRetryBulk = false,
     this.selectionAnchorTaskId,
@@ -91,6 +92,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
   final Map<String, String> taskErrorsByTaskId;
   final Set<String> selectedTaskIds;
   final bool isBulkSaving;
+
+  /// Owner of the read-only scope preparation; stale responses release only it.
+  final Object? bulkPreparationOwner;
   final ApiError? bulkError;
   final bool canRetryBulk;
   final String? selectionAnchorTaskId;
@@ -147,6 +151,7 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     Map<String, String>? taskErrorsByTaskId,
     Set<String>? selectedTaskIds,
     bool? isBulkSaving,
+    Object? bulkPreparationOwner,
     ApiError? bulkError,
     bool clearBulkError = false,
     bool? canRetryBulk,
@@ -184,6 +189,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     taskErrorsByTaskId: taskErrorsByTaskId ?? this.taskErrorsByTaskId,
     selectedTaskIds: selectedTaskIds ?? this.selectedTaskIds,
     isBulkSaving: isBulkSaving ?? this.isBulkSaving,
+    bulkPreparationOwner: (isBulkSaving ?? this.isBulkSaving)
+        ? bulkPreparationOwner ?? this.bulkPreparationOwner
+        : null,
     bulkError: clearBulkError ? null : bulkError ?? this.bulkError,
     canRetryBulk: canRetryBulk ?? this.canRetryBulk,
     selectionAnchorTaskId: clearSelectionAnchor

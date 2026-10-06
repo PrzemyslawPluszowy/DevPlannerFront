@@ -13,16 +13,15 @@ mixin TaskListBulkScopeMixin on ProjectTasksListCubitPort {
         _localMutationDepth > 0) {
       return null;
     }
-    _resetBulkRetry();
+    // Preparing a scope is not a new mutation. Cancel must retain the
+    // previous validation and its retry command. A failed preparation has its
+    // own error and invalidates that retry.
     _preparedBulkSelection = null;
     _preparedRevision = -1;
     final revision = _requestSerial;
+    final owner = Object();
     emit(
-      initial.copyWith(
-        isBulkSaving: true,
-        clearBulkError: true,
-        canRetryBulk: false,
-      ),
+      initial.copyWith(isBulkSaving: true, bulkPreparationOwner: owner),
     );
     try {
       final result = await repository.createTaskSelectionToken(
@@ -40,6 +39,7 @@ mixin TaskListBulkScopeMixin on ProjectTasksListCubitPort {
       if (latest is! ProjectTasksListReady) return null;
       return result.fold<TaskSelectionTokenResponse?>(
         (error) {
+          _resetBulkRetry();
           emit(
             latest.copyWith(
               isBulkSaving: false,
@@ -60,12 +60,14 @@ mixin TaskListBulkScopeMixin on ProjectTasksListCubitPort {
       if (!isClosed && revision == _requestSerial) {
         final current = state;
         if (current is ProjectTasksListReady) {
+          _resetBulkRetry();
           emit(
             current.copyWith(
               bulkError: const ApiError(
                 type: ApiErrorType.unknown,
                 message: 'tasks.bulk.save_failed',
               ),
+              canRetryBulk: false,
             ),
           );
         }
@@ -74,8 +76,8 @@ mixin TaskListBulkScopeMixin on ProjectTasksListCubitPort {
     } finally {
       final current = state;
       if (!isClosed &&
-          revision == _requestSerial &&
-          current is ProjectTasksListReady) {
+          current is ProjectTasksListReady &&
+          identical(current.bulkPreparationOwner, owner)) {
         emit(current.copyWith(isBulkSaving: false));
       }
     }

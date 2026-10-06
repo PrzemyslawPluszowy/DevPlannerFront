@@ -7,6 +7,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets(
+    'overflow bulk actions remain reachable and scroll survives saving',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(500, 200));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      var cleared = 0;
+      Widget app(bool saving) => MaterialApp(
+        locale: const Locale('en'),
+        theme: MaterialTheme.crm().dark().copyWith(
+          platform: TargetPlatform.macOS,
+        ),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.topLeft,
+            child: TasksContextualBulkBar(
+              selectedCount: 2,
+              isSaving: saving,
+              controls: [
+                for (var i = 0; i < 5; i++)
+                  TasksBulkButton(
+                    icon: Icons.edit,
+                    label: 'Action $i',
+                    onTap: saving ? null : () {},
+                  ),
+              ],
+              onClearSelection: () => cleared++,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpWidget(app(false));
+      final bar = find.byKey(const ValueKey('contextual_bulk_bar'));
+      final height = tester.getSize(bar).height;
+      final scrollbar = tester.widget<Scrollbar>(find.byType(Scrollbar));
+      expect(scrollbar.thumbVisibility, isTrue);
+      await tester.drag(bar, const Offset(-1200, 0));
+      await tester.pumpAndSettle();
+      final offset = scrollbar.controller!.offset;
+      expect(offset, greaterThan(0));
+      await tester.tap(find.text('Clear selection'));
+      expect(cleared, 1);
+      await tester.pumpWidget(app(true));
+      await tester.pump();
+      expect(tester.getSize(bar).height, height);
+      expect(
+        tester.widget<Scrollbar>(find.byType(Scrollbar)).controller!.offset,
+        offset,
+      );
+      await tester.tap(find.text('Clear selection'));
+      expect(cleared, 1);
+      await tester.pumpWidget(const SizedBox());
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   test('changing only day preserves the complete local clock and UTC instant precision', () {
     final clock = DateTime(2026, 10, 10, 12, 34, 56, 123, 456);
     final result = TasksBulkDueDateDialog.resolve(

@@ -30,6 +30,8 @@ final class _TasksRepository implements TasksRepository {
   BulkUpdateTaskSelectionPayload? bulkSelectionPayload;
   ApiError? bulkError;
   ApiError? selectionTokenError;
+  Completer<Either<ApiError, TaskSelectionTokenResponse>>?
+  deferredSelectionToken;
   int archiveCalls = 0;
   ApiError? flatPageError;
   bool throwFlatPage = false;
@@ -316,6 +318,7 @@ final class _TasksRepository implements TasksRepository {
   }) async {
     selectionTokenPayload = payload;
     if (selectionTokenError case final error?) return Left(error);
+    if (deferredSelectionToken case final pending?) return pending.future;
     return Right(
       TaskSelectionTokenResponse(
         token: 'selection-token',
@@ -674,6 +677,96 @@ void main() {
       expect(repository.bulkCalls, 1);
     },
   );
+
+  test(
+    'preparing a scope without confirming preserves validation and retry',
+    () async {
+      await cubit.load();
+      final task = (cubit.state as ProjectTasksListReady).tasks.single;
+      cubit.toggleSelection(task.id);
+      repository.bulkError = const ApiError(
+        type: ApiErrorType.validation,
+        statusCode: 400,
+        message: 'Due date precedes start',
+      );
+      await cubit.bulkUpdateSelected(clearDueAtUtc: true);
+      final failed = cubit.state as ProjectTasksListReady;
+      expect(failed.canRetryBulk, isTrue);
+
+      // The caller can cancel its confirmation after receiving this token.
+      expect(await cubit.prepareBulkSelection(), isNotNull);
+      final prepared = cubit.state as ProjectTasksListReady;
+      expect(prepared.bulkError, failed.bulkError);
+      expect(prepared.selectedTaskIds, failed.selectedTaskIds);
+      expect(prepared.canRetryBulk, isTrue);
+      expect(prepared.isBulkSaving, isFalse);
+      expect(repository.bulkCalls, 1);
+      await cubit.retryBulkOperation();
+      expect(repository.bulkCalls, 2);
+      expect(repository.bulkSelectionPayload?.clearDueAtUtc, isTrue);
+    },
+  );
+
+  test(
+    'stale scope preparation releases its busy marker after failed filter read',
+    () async {
+      await cubit.load();
+      final pending = Completer<Either<ApiError, TaskSelectionTokenResponse>>();
+      repository.deferredSelectionToken = pending;
+      final preparation = cubit.prepareBulkSelection();
+      expect((cubit.state as ProjectTasksListReady).isBulkSaving, isTrue);
+      repository.groupedListError = const ApiError(
+        type: ApiErrorType.server,
+        message: 'Filter read failed',
+      );
+      await cubit.load(status: ProjectTaskStatus.done);
+      pending.complete(
+        const Left(
+          ApiError(type: ApiErrorType.server, message: 'Old token failed'),
+        ),
+      );
+      expect(await preparation, isNull);
+      final current = cubit.state as ProjectTasksListReady;
+      expect(current.isBulkSaving, isFalse);
+      expect(current.bulkPreparationOwner, isNull);
+      expect(current.filterError, 'Filter read failed');
+      expect(current.bulkError, isNull);
+    },
+  );
+
+  test('stale scope cleanup does not unlock a newer actual mutation', () async {
+    await cubit.load();
+    final pending = Completer<Either<ApiError, TaskSelectionTokenResponse>>();
+    repository.deferredSelectionToken = pending;
+    final preparation = cubit.prepareBulkSelection();
+    await cubit.load(status: ProjectTaskStatus.todo);
+    final current = cubit.state as ProjectTasksListReady;
+    cubit.toggleSelection(current.tasks.single.id);
+    final mutation =
+        Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>();
+    repository.deferredBulk = mutation;
+    final save = cubit.bulkUpdateSelected(clearDueAtUtc: true);
+    expect((cubit.state as ProjectTasksListReady).isBulkSaving, isTrue);
+    pending.complete(
+      const Left(
+        ApiError(type: ApiErrorType.server, message: 'Old token failed'),
+      ),
+    );
+    expect(await preparation, isNull);
+    expect((cubit.state as ProjectTasksListReady).isBulkSaving, isTrue);
+    expect((cubit.state as ProjectTasksListReady).bulkPreparationOwner, isNull);
+    mutation.complete(
+      const Left(
+        ApiError(type: ApiErrorType.validation, message: 'New save rejected'),
+      ),
+    );
+    await save;
+    expect((cubit.state as ProjectTasksListReady).isBulkSaving, isFalse);
+    expect(
+      (cubit.state as ProjectTasksListReady).bulkError?.message,
+      'New save rejected',
+    );
+  });
 
   test('all inline item operations are blocked during atomic bulk', () async {
     final collaboration = _TaskCollaborationRepository();

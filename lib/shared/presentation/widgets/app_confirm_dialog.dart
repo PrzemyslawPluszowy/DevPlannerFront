@@ -136,11 +136,16 @@ class _AppConfirmDialogState extends State<AppConfirmDialog> {
                         ),
                         Gaps.h8,
                         widget.content ??
-                            AppText(
-                              widget.message,
-                              style: context.text.bodyMedium?.copyWith(
-                                color: context.colors.onSurfaceVariant,
-                                height: 1.35,
+                            Semantics(
+                              container: true,
+                              label: widget.message,
+                              excludeSemantics: true,
+                              child: AppText(
+                                widget.message,
+                                style: context.text.bodyMedium?.copyWith(
+                                  color: context.colors.onSurfaceVariant,
+                                  height: 1.35,
+                                ),
                               ),
                             ),
                       ],

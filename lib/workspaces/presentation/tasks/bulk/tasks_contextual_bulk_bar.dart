@@ -11,7 +11,7 @@ import 'package:material_symbols_icons/symbols.dart';
 /// nad treścią nie pojawia się drugi pasek. Kontrolki przewijają się poziomo i
 /// korzystają z tokenów gęstości oraz wspólnego menu kontekstowego; zestaw akcji
 /// zależy od widoku i ACL, ale wygląd oraz obsługa pozostają identyczne.
-class TasksContextualBulkBar extends StatelessWidget {
+class TasksContextualBulkBar extends StatefulWidget {
   const TasksContextualBulkBar({
     required this.selectedCount,
     required this.controls,
@@ -34,9 +34,22 @@ class TasksContextualBulkBar extends StatelessWidget {
   final String? errorMessage;
   final VoidCallback? onRetry;
 
+  @override
+  State<TasksContextualBulkBar> createState() => _TasksContextualBulkBarState();
+}
+
+class _TasksContextualBulkBarState extends State<TasksContextualBulkBar> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   Future<void> _showError(BuildContext context) async {
-    final message = errorMessage;
-    if (message == null || isSaving) return;
+    final message = widget.errorMessage;
+    if (message == null || widget.isSaving) return;
     await DevPlannerModalHost.showDialog<void>(
       context,
       builder: (_) => TasksBulkErrorDialog(message: message),
@@ -48,84 +61,97 @@ class TasksContextualBulkBar extends StatelessWidget {
     final tasksTheme = context.tasksTheme;
     final colors = context.colors;
 
-    return SingleChildScrollView(
-      key: const ValueKey('contextual_bulk_bar'),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: tasksTheme.controlGap,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: tasksTheme.rowSelected,
-              borderRadius: BorderRadius.circular(tasksTheme.controlRadius),
-            ),
-            child: Text(
-              context.l10n.tasksBulkSelected(selectedCount),
-              style: tasksTheme.controlText.copyWith(color: colors.primary),
-            ),
-          ),
-          SizedBox(width: tasksTheme.controlGap),
-          SizedBox(
-            width: 320,
-            height: 36,
-            child: Row(
-              children: [
-                SizedBox.square(
-                  dimension: 16,
-                  child: isSaving
-                      ? const CircularProgressIndicator(strokeWidth: 2)
-                      : errorMessage == null
-                      ? const SizedBox.shrink()
-                      : Icon(
-                          Symbols.error_outline_rounded,
-                          size: 16,
-                          color: colors.error,
-                        ),
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      trackVisibility: true,
+      thickness: 3,
+      scrollbarOrientation: ScrollbarOrientation.bottom,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          key: const ValueKey('contextual_bulk_bar'),
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: tasksTheme.controlGap,
+                  vertical: 4,
                 ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: errorMessage != null && !isSaving
-                      ? TextButton(
-                          key: const ValueKey('bulk_error_details'),
-                          onPressed: () => _showError(context),
-                          child: Text(
-                            errorMessage!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: tasksTheme.metaText.copyWith(
+                decoration: BoxDecoration(
+                  color: tasksTheme.rowSelected,
+                  borderRadius: BorderRadius.circular(tasksTheme.controlRadius),
+                ),
+                child: Text(
+                  context.l10n.tasksBulkSelected(widget.selectedCount),
+                  style: tasksTheme.controlText.copyWith(color: colors.primary),
+                ),
+              ),
+              SizedBox(width: tasksTheme.controlGap),
+              SizedBox(
+                width: 320,
+                height: 36,
+                child: Row(
+                  children: [
+                    SizedBox.square(
+                      dimension: 16,
+                      child: widget.isSaving
+                          ? const CircularProgressIndicator(strokeWidth: 2)
+                          : widget.errorMessage == null
+                          ? const SizedBox.shrink()
+                          : Icon(
+                              Symbols.error_outline_rounded,
+                              size: 16,
                               color: colors.error,
                             ),
-                          ),
-                        )
-                      : Text(
-                          isSaving ? context.l10n.tasksBulkSaving : '',
-                          style: tasksTheme.metaText,
-                        ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: widget.errorMessage != null && !widget.isSaving
+                          ? TextButton(
+                              key: const ValueKey('bulk_error_details'),
+                              onPressed: () => _showError(context),
+                              child: Text(
+                                widget.errorMessage!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: tasksTheme.metaText.copyWith(
+                                  color: colors.error,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              widget.isSaving
+                                  ? context.l10n.tasksBulkSaving
+                                  : '',
+                              style: tasksTheme.metaText,
+                            ),
+                    ),
+                    if (widget.errorMessage != null && widget.onRetry != null)
+                      TextButton(
+                        onPressed: widget.isSaving ? null : widget.onRetry,
+                        child: Text(context.l10n.retry),
+                      ),
+                  ],
                 ),
-                if (errorMessage != null && onRetry != null)
-                  TextButton(
-                    onPressed: isSaving ? null : onRetry,
-                    child: Text(context.l10n.retry),
-                  ),
+              ),
+              for (final control in widget.controls) ...[
+                SizedBox(width: tasksTheme.controlGap),
+                control,
               ],
-            ),
+              SizedBox(width: tasksTheme.controlGap),
+              TasksBulkButton(
+                key: const ValueKey('bulk_clear_selection'),
+                icon: Symbols.close_rounded,
+                label: context.l10n.tasksBulkClearSelection,
+                onTap: widget.isSaving ? null : widget.onClearSelection,
+              ),
+            ],
           ),
-          for (final control in controls) ...[
-            SizedBox(width: tasksTheme.controlGap),
-            control,
-          ],
-          SizedBox(width: tasksTheme.controlGap),
-          TasksBulkButton(
-            key: const ValueKey('bulk_clear_selection'),
-            icon: Symbols.close_rounded,
-            label: context.l10n.tasksBulkClearSelection,
-            onTap: isSaving ? null : onClearSelection,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -252,7 +278,15 @@ class TasksBulkErrorDialog extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
-              SelectableText(message, style: context.tasksTheme.controlText),
+              Semantics(
+                container: true,
+                label: message,
+                excludeSemantics: true,
+                child: SelectableText(
+                  message,
+                  style: context.tasksTheme.controlText,
+                ),
+              ),
               const SizedBox(height: 16),
               Align(
                 alignment: Alignment.centerRight,
