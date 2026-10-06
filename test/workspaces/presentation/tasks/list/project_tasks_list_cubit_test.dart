@@ -28,6 +28,9 @@ final class _TasksRepository implements TasksRepository {
   MoveProjectTaskPayload? movePayload;
   CreateTaskSelectionTokenPayload? selectionTokenPayload;
   BulkUpdateTaskSelectionPayload? bulkSelectionPayload;
+  ApiError? bulkError;
+  int bulkCalls = 0;
+  Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>? deferredBulk;
   int rootSubtaskCount = 0;
   int page = 0;
   int subtaskPage = 0;
@@ -319,9 +322,12 @@ final class _TasksRepository implements TasksRepository {
     required BulkUpdateTaskSelectionPayload payload,
   }) async {
     bulkSelectionPayload = payload;
+    bulkCalls++;
+    if (bulkError case final error?) return Left(error);
+    if (deferredBulk case final pending?) return pending.future;
     return Right(
       BulkUpdateTaskSelectionResponse(
-        updatedCount: 5000,
+        updatedCount: payload.tasks?.length ?? 5000,
         updatedTasks: [
           for (final taskId in payload.returnTaskIds)
             BulkUpdatedTaskVersionResponse(
@@ -569,6 +575,7 @@ void main() {
       recurrenceRepository: recurrenceRepository,
       workspaceId: 'workspace-1',
       projectId: 'project-1',
+      calendarTimeZoneId: 'Europe/Warsaw',
     );
   });
   tearDown(() => cubit.close());
@@ -1585,10 +1592,15 @@ void main() {
 
       expect(updated, 1);
       expect(
-        repository.updateListItemPayload?.status,
+        repository.bulkSelectionPayload?.status,
         ProjectTaskStatus.inProgress,
       );
-      expect(repository.updateListItemPayload?.expectedVersion, task.version);
+      expect(
+        repository.bulkSelectionPayload?.tasks?.single.expectedVersion,
+        task.version,
+      );
+      expect(repository.bulkSelectionPayload?.tasks?.single.taskId, task.id);
+      expect(repository.updateListItemPayloads, isEmpty);
       expect((cubit.state as ProjectTasksListReady).selectedTaskIds, isEmpty);
     },
   );
@@ -1866,6 +1878,303 @@ void main() {
     cubit.setLoadedSubtasksSelected(parent.id, selected: false);
     state = cubit.state as ProjectTasksListReady;
     expect(state.selectedTaskIds, {parent.id});
+  });
+
+  test(
+    'inline list date captures zone; non-date updates keep legacy omission',
+    () async {
+      await cubit.load();
+      final task = (cubit.state as ProjectTasksListReady).tasks.single;
+      final start = DateTime.utc(2026, 10, 27, 8, 23, 4, 123);
+      expect(
+        await cubit.updateListItem(
+          task: task,
+          payload: UpdateTaskListItemPayload(
+            startAtUtc: start,
+            expectedVersion: task.version,
+          ),
+        ),
+        isTrue,
+      );
+      expect(
+        repository.updateListItemPayload!.calendarTimeZoneId,
+        'Europe/Warsaw',
+      );
+      expect(repository.updateListItemPayload!.startAtUtc, start);
+      final latest = (cubit.state as ProjectTasksListReady).tasks.single;
+      expect(
+        await cubit.updateListItem(
+          task: latest,
+          payload: UpdateTaskListItemPayload(
+            priority: TaskPriority.high,
+            expectedVersion: latest.version,
+          ),
+        ),
+        isTrue,
+      );
+      expect(repository.updateListItemPayload!.calendarTimeZoneId, isNull);
+    },
+  );
+
+  test('entire-result dates capture same zone with token mode', () async {
+    await cubit.load();
+    final due = DateTime.utc(2026, 10, 27, 8, 23, 4, 123);
+    expect(await cubit.bulkUpdateEntireResult(dueAtUtc: due), 5000);
+    expect(
+      repository.bulkSelectionPayload!.calendarTimeZoneId,
+      'Europe/Warsaw',
+    );
+    expect(repository.bulkSelectionPayload!.dueAtUtc, due);
+    expect(repository.bulkSelectionPayload!.tasks, isNull);
+    expect(repository.bulkSelectionPayload!.selectionToken, 'selection-token');
+  });
+
+  test(
+    'entire result keeps new selection made while request is pending',
+    () async {
+      await cubit.load();
+      final task = (cubit.state as ProjectTasksListReady).tasks.single;
+      final pending =
+          Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>();
+      repository.deferredBulk = pending;
+      final bulk = cubit.bulkUpdateEntireResult(priority: TaskPriority.high);
+      await Future<void>.delayed(Duration.zero);
+      cubit.toggleSelection(task.id);
+      pending.complete(
+        Right(
+          BulkUpdateTaskSelectionResponse(
+            updatedCount: 5000,
+            updatedTasks: [
+              BulkUpdatedTaskVersionResponse(
+                taskId: task.id,
+                version: task.version + 1,
+                updatedAtUtc: DateTime.utc(2026, 10, 27),
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(await bulk, 5000);
+      expect((cubit.state as ProjectTasksListReady).selectedTaskIds, {task.id});
+    },
+  );
+
+  test(
+    'queued successor snapshot and replay survive base bulk response',
+    () async {
+      await cubit.load();
+      final parent = (cubit.state as ProjectTasksListReady).tasks.single;
+      await cubit.toggleSubtasks(parent);
+      final child = (cubit.state as ProjectTasksListReady)
+          .subtasksByParentId[parent.id]!
+          .single;
+      cubit.toggleSelection(parent.id);
+      final pending =
+          Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>();
+      repository.deferredBulk = pending;
+      final start = DateTime.utc(2026, 10, 27, 8, 23, 4, 123);
+      final due = DateTime.utc(2026, 10, 28, 16, 15, 4, 123);
+      final bulk = cubit.bulkUpdateSelected(dueAtUtc: start);
+      final successor = TaskRealtimeMutation(
+        eventId: 'successor',
+        type: TaskRealtimeMutationType.updated,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: child.id,
+        number: child.number,
+        key: child.key,
+        version: child.version + 1,
+        occurredAtUtc: due,
+        isReplay: true,
+        startAtUtc: start,
+        hasStartAtUtc: true,
+        dueAtUtc: due,
+        hasDueAtUtc: true,
+      );
+      await cubit.applyRealtimeMutation(successor);
+      pending.complete(
+        Right(
+          BulkUpdateTaskSelectionResponse(
+            updatedCount: 1,
+            updatedTasks: [
+              BulkUpdatedTaskVersionResponse(
+                taskId: parent.id,
+                version: parent.version + 1,
+                updatedAtUtc: due,
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(await bulk, 1);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await cubit.applyRealtimeMutation(successor);
+      final updated = (cubit.state as ProjectTasksListReady)
+          .subtasksByParentId[parent.id]!
+          .single;
+      expect(updated.startAtUtc, start);
+      expect(updated.dueAtUtc, due);
+      expect(updated.version, child.version + 1);
+    },
+  );
+
+  test(
+    'inline cannot start during atomic bulk and overwrite confirmed dates',
+    () async {
+      await cubit.load();
+      final task = (cubit.state as ProjectTasksListReady).tasks.single;
+      cubit.toggleSelection(task.id);
+      final pending =
+          Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>();
+      repository.deferredBulk = pending;
+      final due = DateTime.utc(2026, 10, 27, 8, 23);
+      final bulk = cubit.bulkUpdateSelected(dueAtUtc: due);
+      expect(
+        await cubit.updateListItem(
+          task: task,
+          payload: UpdateTaskListItemPayload(
+            dueAtUtc: DateTime.utc(2026, 10, 26),
+            expectedVersion: task.version,
+          ),
+        ),
+        isFalse,
+      );
+      expect(repository.updateListItemPayloads, isEmpty);
+      pending.complete(
+        Right(
+          BulkUpdateTaskSelectionResponse(
+            updatedCount: 1,
+            updatedTasks: [
+              BulkUpdatedTaskVersionResponse(
+                taskId: task.id,
+                version: task.version + 1,
+                updatedAtUtc: due,
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(await bulk, 1);
+      final ready = cubit.state as ProjectTasksListReady;
+      expect(ready.tasks.single.dueAtUtc, due);
+      expect(ready.tasks.single.version, task.version + 1);
+    },
+  );
+
+  test(
+    '501 selected tasks stay selected and no non-atomic request is sent',
+    () async {
+      await cubit.load();
+      final initial = cubit.state as ProjectTasksListReady;
+      final tasks = [for (var i = 0; i < 501; i++) _task('limit-$i')];
+      cubit.emit(
+        initial.copyWith(
+          tasks: tasks,
+          groups: [],
+          selectedTaskIds: tasks.map((task) => task.id).toSet(),
+        ),
+      );
+      expect(
+        await cubit.bulkUpdateSelected(dueAtUtc: DateTime.utc(2026, 10, 27)),
+        0,
+      );
+      expect(repository.bulkCalls, 0);
+      expect(repository.updateListItemPayloads, isEmpty);
+      expect(
+        (cubit.state as ProjectTasksListReady).selectedTaskIds,
+        hasLength(501),
+      );
+    },
+  );
+
+  test(
+    'atomic selected dates carry all versions and captured IANA once',
+    () async {
+      await cubit.load();
+      await cubit.loadMoreGroup('status:Todo');
+      final tasks = (cubit.state as ProjectTasksListReady).tasks;
+      for (final task in tasks) {
+        cubit.toggleSelection(task.id);
+      }
+      final due = DateTime.utc(2026, 10, 27, 8, 23, 4, 123);
+      expect(await cubit.bulkUpdateSelected(dueAtUtc: due), tasks.length);
+      expect(repository.bulkCalls, 1);
+      expect(repository.updateListItemPayloads, isEmpty);
+      final payload = repository.bulkSelectionPayload!;
+      expect(payload.selectionToken, isEmpty);
+      expect(
+        payload.tasks!.map((task) => task.taskId),
+        tasks.map((task) => task.id),
+      );
+      expect(
+        payload.tasks!.map((task) => task.expectedVersion),
+        tasks.map((task) => task.version),
+      );
+      expect(payload.calendarTimeZoneId, 'Europe/Warsaw');
+      expect(payload.dueAtUtc, due);
+      expect(
+        (cubit.state as ProjectTasksListReady).tasks.every(
+          (task) => task.dueAtUtc == due,
+        ),
+        isTrue,
+      );
+    },
+  );
+
+  test('rejected atomic bulk preserves selection and dates with visible row errors', () async {
+    await cubit.load();
+    final task = (cubit.state as ProjectTasksListReady).tasks.single;
+    cubit.toggleSelection(task.id);
+    repository.bulkError = const ApiError(
+      type: ApiErrorType.conflict,
+      message: 'Zadanie zmieniono.',
+    );
+    expect(await cubit.bulkUpdateSelected(clearDueAtUtc: true), 0);
+    final ready = cubit.state as ProjectTasksListReady;
+    expect(ready.selectedTaskIds, {task.id});
+    expect(ready.tasks.single.dueAtUtc, task.dueAtUtc);
+    expect(ready.taskErrorsByTaskId[task.id], 'Zadanie zmieniono.');
+    expect(
+      repository.bulkSelectionPayload!.calendarTimeZoneId,
+      'Europe/Warsaw',
+    );
+  });
+
+  test('realtime start updates expanded child; missing preserves and explicit null clears', () async {
+    await cubit.load();
+    final parent = (cubit.state as ProjectTasksListReady).tasks.single;
+    await cubit.toggleSubtasks(parent);
+    final initial = (cubit.state as ProjectTasksListReady)
+        .subtasksByParentId[parent.id]!
+        .single;
+    final start = DateTime.utc(2026, 10, 27, 8, 23, 4, 123);
+    for (final version in [
+      initial.version + 1,
+      initial.version + 2,
+      initial.version + 3,
+    ]) {
+      await cubit.applyRealtimeMutation(
+        TaskRealtimeMutation(
+          eventId: 'event-$version',
+          type: TaskRealtimeMutationType.updated,
+          workspaceId: 'workspace-1',
+          projectId: 'project-1',
+          taskId: initial.id,
+          number: initial.number,
+          key: initial.key,
+          version: version,
+          occurredAtUtc: DateTime.utc(2026, 10, 28),
+          isReplay: false,
+          startAtUtc: version == initial.version + 1 ? start : null,
+          hasStartAtUtc: version != initial.version + 2,
+        ),
+      );
+      final child = (cubit.state as ProjectTasksListReady)
+          .subtasksByParentId[parent.id]!
+          .single;
+      expect(child.startAtUtc, version == initial.version + 3 ? null : start);
+      expect(child.version, version);
+    }
   });
 
   test('zaznacza i mutuje rozwinięte podzadanie przez bulk toolbar', () async {

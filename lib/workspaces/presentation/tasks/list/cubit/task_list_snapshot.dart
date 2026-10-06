@@ -246,7 +246,7 @@ abstract final class TaskListSnapshot {
     var next = current;
     for (final updated in updatedTasks) {
       final task = findLoadedTask(next, updated.taskId);
-      if (task == null) continue;
+      if (task == null || task.version > updated.version) continue;
       if (archive) {
         next = removeTask(next, task.id);
         continue;

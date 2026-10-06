@@ -57,9 +57,7 @@ mixin TaskListRealtimeMixin on ProjectTasksListCubitPort {
     }
     switch (mutation.type) {
       case TaskRealtimeMutationType.updated:
-        final task = current.tasks
-            .where((item) => item.id == mutation.taskId)
-            .firstOrNull;
+        final task = TaskListSnapshot.findLoadedTask(current, mutation.taskId);
         if (task == null || mutation.version <= task.version) return;
         emit(
           _replaceTask(
@@ -68,6 +66,9 @@ mixin TaskListRealtimeMixin on ProjectTasksListCubitPort {
               title: mutation.title ?? task.title,
               status: mutation.status ?? task.status,
               priority: mutation.priority ?? task.priority,
+              startAtUtc: mutation.hasStartAtUtc
+                  ? mutation.startAtUtc
+                  : task.startAtUtc,
               dueAtUtc: mutation.hasDueAtUtc
                   ? mutation.dueAtUtc
                   : task.dueAtUtc,
@@ -179,6 +180,9 @@ mixin TaskListRealtimeMixin on ProjectTasksListCubitPort {
     final replacement = task.copyWith(
       title: mutation.title ?? task.title,
       priority: mutation.priority ?? task.priority,
+      startAtUtc: mutation.hasStartAtUtc
+          ? mutation.startAtUtc
+          : task.startAtUtc,
       dueAtUtc: mutation.hasDueAtUtc ? mutation.dueAtUtc : task.dueAtUtc,
       status: mutation.status!,
       version: mutation.version,

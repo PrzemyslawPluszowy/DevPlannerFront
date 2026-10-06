@@ -4248,7 +4248,7 @@ as int,
 /// @nodoc
 mixin _$BulkUpdateKanbanTasksPayload {
 
- List<BulkUpdateKanbanTaskItemPayload> get tasks; TaskPriority? get priority; DateTime? get dueAtUtc; List<String>? get assigneeIds; List<String>? get labelIds;
+ List<BulkUpdateKanbanTaskItemPayload> get tasks; TaskPriority? get priority; DateTime? get dueAtUtc;@JsonKey(includeIfNull: false) String? get calendarTimeZoneId; List<String>? get assigneeIds; List<String>? get labelIds;
 /// Create a copy of BulkUpdateKanbanTasksPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4261,16 +4261,16 @@ $BulkUpdateKanbanTasksPayloadCopyWith<BulkUpdateKanbanTasksPayload> get copyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkUpdateKanbanTasksPayload&&const DeepCollectionEquality().equals(other.tasks, tasks)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeIds, assigneeIds)&&const DeepCollectionEquality().equals(other.labelIds, labelIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkUpdateKanbanTasksPayload&&const DeepCollectionEquality().equals(other.tasks, tasks)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId)&&const DeepCollectionEquality().equals(other.assigneeIds, assigneeIds)&&const DeepCollectionEquality().equals(other.labelIds, labelIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(tasks),priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeIds),const DeepCollectionEquality().hash(labelIds));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(tasks),priority,dueAtUtc,calendarTimeZoneId,const DeepCollectionEquality().hash(assigneeIds),const DeepCollectionEquality().hash(labelIds));
 
 @override
 String toString() {
-  return 'BulkUpdateKanbanTasksPayload(tasks: $tasks, priority: $priority, dueAtUtc: $dueAtUtc, assigneeIds: $assigneeIds, labelIds: $labelIds)';
+  return 'BulkUpdateKanbanTasksPayload(tasks: $tasks, priority: $priority, dueAtUtc: $dueAtUtc, calendarTimeZoneId: $calendarTimeZoneId, assigneeIds: $assigneeIds, labelIds: $labelIds)';
 }
 
 
@@ -4281,7 +4281,7 @@ abstract mixin class $BulkUpdateKanbanTasksPayloadCopyWith<$Res>  {
   factory $BulkUpdateKanbanTasksPayloadCopyWith(BulkUpdateKanbanTasksPayload value, $Res Function(BulkUpdateKanbanTasksPayload) _then) = _$BulkUpdateKanbanTasksPayloadCopyWithImpl;
 @useResult
 $Res call({
- List<BulkUpdateKanbanTaskItemPayload> tasks, TaskPriority? priority, DateTime? dueAtUtc, List<String>? assigneeIds, List<String>? labelIds
+ List<BulkUpdateKanbanTaskItemPayload> tasks, TaskPriority? priority, DateTime? dueAtUtc,@JsonKey(includeIfNull: false) String? calendarTimeZoneId, List<String>? assigneeIds, List<String>? labelIds
 });
 
 
@@ -4298,12 +4298,13 @@ class _$BulkUpdateKanbanTasksPayloadCopyWithImpl<$Res>
 
 /// Create a copy of BulkUpdateKanbanTasksPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? tasks = null,Object? priority = freezed,Object? dueAtUtc = freezed,Object? assigneeIds = freezed,Object? labelIds = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? tasks = null,Object? priority = freezed,Object? dueAtUtc = freezed,Object? calendarTimeZoneId = freezed,Object? assigneeIds = freezed,Object? labelIds = freezed,}) {
   return _then(_self.copyWith(
 tasks: null == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
 as List<BulkUpdateKanbanTaskItemPayload>,priority: freezed == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,assigneeIds: freezed == assigneeIds ? _self.assigneeIds : assigneeIds // ignore: cast_nullable_to_non_nullable
+as DateTime?,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,assigneeIds: freezed == assigneeIds ? _self.assigneeIds : assigneeIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,labelIds: freezed == labelIds ? _self.labelIds : labelIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,
   ));
@@ -4390,10 +4391,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<BulkUpdateKanbanTaskItemPayload> tasks,  TaskPriority? priority,  DateTime? dueAtUtc,  List<String>? assigneeIds,  List<String>? labelIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<BulkUpdateKanbanTaskItemPayload> tasks,  TaskPriority? priority,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  List<String>? assigneeIds,  List<String>? labelIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BulkUpdateKanbanTasksPayload() when $default != null:
-return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.assigneeIds,_that.labelIds);case _:
+return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.calendarTimeZoneId,_that.assigneeIds,_that.labelIds);case _:
   return orElse();
 
 }
@@ -4411,10 +4412,10 @@ return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.assigneeIds,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<BulkUpdateKanbanTaskItemPayload> tasks,  TaskPriority? priority,  DateTime? dueAtUtc,  List<String>? assigneeIds,  List<String>? labelIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<BulkUpdateKanbanTaskItemPayload> tasks,  TaskPriority? priority,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  List<String>? assigneeIds,  List<String>? labelIds)  $default,) {final _that = this;
 switch (_that) {
 case _BulkUpdateKanbanTasksPayload():
-return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.assigneeIds,_that.labelIds);case _:
+return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.calendarTimeZoneId,_that.assigneeIds,_that.labelIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4431,10 +4432,10 @@ return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.assigneeIds,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<BulkUpdateKanbanTaskItemPayload> tasks,  TaskPriority? priority,  DateTime? dueAtUtc,  List<String>? assigneeIds,  List<String>? labelIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<BulkUpdateKanbanTaskItemPayload> tasks,  TaskPriority? priority,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  List<String>? assigneeIds,  List<String>? labelIds)?  $default,) {final _that = this;
 switch (_that) {
 case _BulkUpdateKanbanTasksPayload() when $default != null:
-return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.assigneeIds,_that.labelIds);case _:
+return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.calendarTimeZoneId,_that.assigneeIds,_that.labelIds);case _:
   return null;
 
 }
@@ -4446,12 +4447,13 @@ return $default(_that.tasks,_that.priority,_that.dueAtUtc,_that.assigneeIds,_tha
 @JsonSerializable()
 
 class _BulkUpdateKanbanTasksPayload implements BulkUpdateKanbanTasksPayload {
-  const _BulkUpdateKanbanTasksPayload({required this.tasks, this.priority, this.dueAtUtc, this.assigneeIds, this.labelIds});
+  const _BulkUpdateKanbanTasksPayload({required this.tasks, this.priority, this.dueAtUtc, @JsonKey(includeIfNull: false) this.calendarTimeZoneId, this.assigneeIds, this.labelIds});
   factory _BulkUpdateKanbanTasksPayload.fromJson(Map<String, dynamic> json) => _$BulkUpdateKanbanTasksPayloadFromJson(json);
 
 @override final  List<BulkUpdateKanbanTaskItemPayload> tasks;
 @override final  TaskPriority? priority;
 @override final  DateTime? dueAtUtc;
+@override@JsonKey(includeIfNull: false) final  String? calendarTimeZoneId;
 @override final  List<String>? assigneeIds;
 @override final  List<String>? labelIds;
 
@@ -4468,16 +4470,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkUpdateKanbanTasksPayload&&const DeepCollectionEquality().equals(other.tasks, tasks)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeIds, assigneeIds)&&const DeepCollectionEquality().equals(other.labelIds, labelIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkUpdateKanbanTasksPayload&&const DeepCollectionEquality().equals(other.tasks, tasks)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId)&&const DeepCollectionEquality().equals(other.assigneeIds, assigneeIds)&&const DeepCollectionEquality().equals(other.labelIds, labelIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(tasks),priority,dueAtUtc,const DeepCollectionEquality().hash(assigneeIds),const DeepCollectionEquality().hash(labelIds));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(tasks),priority,dueAtUtc,calendarTimeZoneId,const DeepCollectionEquality().hash(assigneeIds),const DeepCollectionEquality().hash(labelIds));
 
 @override
 String toString() {
-  return 'BulkUpdateKanbanTasksPayload(tasks: $tasks, priority: $priority, dueAtUtc: $dueAtUtc, assigneeIds: $assigneeIds, labelIds: $labelIds)';
+  return 'BulkUpdateKanbanTasksPayload(tasks: $tasks, priority: $priority, dueAtUtc: $dueAtUtc, calendarTimeZoneId: $calendarTimeZoneId, assigneeIds: $assigneeIds, labelIds: $labelIds)';
 }
 
 
@@ -4488,7 +4490,7 @@ abstract mixin class _$BulkUpdateKanbanTasksPayloadCopyWith<$Res> implements $Bu
   factory _$BulkUpdateKanbanTasksPayloadCopyWith(_BulkUpdateKanbanTasksPayload value, $Res Function(_BulkUpdateKanbanTasksPayload) _then) = __$BulkUpdateKanbanTasksPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- List<BulkUpdateKanbanTaskItemPayload> tasks, TaskPriority? priority, DateTime? dueAtUtc, List<String>? assigneeIds, List<String>? labelIds
+ List<BulkUpdateKanbanTaskItemPayload> tasks, TaskPriority? priority, DateTime? dueAtUtc,@JsonKey(includeIfNull: false) String? calendarTimeZoneId, List<String>? assigneeIds, List<String>? labelIds
 });
 
 
@@ -4505,12 +4507,13 @@ class __$BulkUpdateKanbanTasksPayloadCopyWithImpl<$Res>
 
 /// Create a copy of BulkUpdateKanbanTasksPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? tasks = null,Object? priority = freezed,Object? dueAtUtc = freezed,Object? assigneeIds = freezed,Object? labelIds = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? tasks = null,Object? priority = freezed,Object? dueAtUtc = freezed,Object? calendarTimeZoneId = freezed,Object? assigneeIds = freezed,Object? labelIds = freezed,}) {
   return _then(_BulkUpdateKanbanTasksPayload(
 tasks: null == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
 as List<BulkUpdateKanbanTaskItemPayload>,priority: freezed == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,assigneeIds: freezed == assigneeIds ? _self.assigneeIds : assigneeIds // ignore: cast_nullable_to_non_nullable
+as DateTime?,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,assigneeIds: freezed == assigneeIds ? _self.assigneeIds : assigneeIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,labelIds: freezed == labelIds ? _self.labelIds : labelIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,
   ));

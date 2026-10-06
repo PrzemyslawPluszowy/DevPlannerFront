@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/platform/calendar_time_zone.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
@@ -42,7 +43,9 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
     this.viewPreferenceStore,
     required this.workspaceId,
     required this.projectId,
+    String? calendarTimeZoneId,
   }) : super(const TasksBoardInitial()) {
+    final timeZoneId = calendarTimeZoneId ?? const CalendarTimeZone().read();
     _runtime = TasksBoardRuntimeCoordinator(
       context: this,
       repository: repository,
@@ -51,6 +54,7 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
       memberProfilesRepository: memberProfilesRepository,
     );
     _cards = TasksBoardCardCommands(
+      calendarTimeZoneId: timeZoneId,
       context: this,
       tasksRepository: tasksRepository,
       collaborationRepository: collaborationRepository,
@@ -64,6 +68,7 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
     );
     _filters = TasksBoardFilterCommands(context: this, runtime: _runtime);
     _bulk = TasksBoardBulkCommands(
+      calendarTimeZoneId: timeZoneId,
       context: this,
       repository: repository,
       canMoveTaskTo: _canMoveFromBulkCommand,

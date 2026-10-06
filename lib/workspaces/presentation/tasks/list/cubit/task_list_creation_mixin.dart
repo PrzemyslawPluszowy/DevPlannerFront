@@ -127,6 +127,7 @@ mixin TaskListCreationMixin on ProjectTasksListCubitPort {
     required ProjectTaskListItemResponse task,
     required UpdateTaskListItemPayload payload,
   }) async {
+    if (_bulkMutationInFlight || isClosed) return false;
     final inFlight = _inFlightListItemUpdates[task.id];
     if (inFlight != null) {
       // Szybka druga zmiana nie może wysłać starego expectedVersion.
@@ -194,7 +195,16 @@ mixin TaskListCreationMixin on ProjectTasksListCubitPort {
         workspaceId: workspaceId,
         projectId: projectId,
         taskId: task.id,
-        payload: payload,
+        payload: payload.copyWith(
+          calendarTimeZoneId:
+              payload.calendarTimeZoneId ??
+              ((payload.startAtUtc != null ||
+                      payload.dueAtUtc != null ||
+                      payload.clearStartAtUtc ||
+                      payload.clearDueAtUtc)
+                  ? calendarTimeZoneId
+                  : null),
+        ),
       );
       if (isClosed) return false;
       final latest = state;

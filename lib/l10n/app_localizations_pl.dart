@@ -12759,4 +12759,16 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get taskDescriptionRemoveLink => 'Usuń link';
+
+  @override
+  String get taskAssigneesNoSearchResults =>
+      'Nie znaleziono osób. Zmień wyszukiwany tekst.';
+
+  @override
+  String get taskLabelsEmptyGuidance =>
+      'Projekt nie ma jeszcze aktywnych etykiet. Administrator projektu może je utworzyć w ustawieniach projektu, w sekcji Etykiety.';
+
+  @override
+  String get tasksBulkSelectionLimit =>
+      'Możesz zmienić naraz maksymalnie 500 zaznaczonych zadań. Zmniejsz zaznaczenie albo użyj akcji dla całego wyniku.';
 }

@@ -450,6 +450,7 @@ _BulkUpdateKanbanTasksPayload _$BulkUpdateKanbanTasksPayloadFromJson(
   dueAtUtc: json['dueAtUtc'] == null
       ? null
       : DateTime.parse(json['dueAtUtc'] as String),
+  calendarTimeZoneId: json['calendarTimeZoneId'] as String?,
   assigneeIds: (json['assigneeIds'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
@@ -464,6 +465,7 @@ Map<String, dynamic> _$BulkUpdateKanbanTasksPayloadToJson(
   'tasks': instance.tasks,
   'priority': _$TaskPriorityEnumMap[instance.priority],
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
+  'calendarTimeZoneId': ?instance.calendarTimeZoneId,
   'assigneeIds': instance.assigneeIds,
   'labelIds': instance.labelIds,
 };

@@ -96,6 +96,48 @@ void main() {
     await adapter.dispose();
   });
 
+  test(
+    'startAtUtc wire distinguishes missing, precision and explicit null',
+    () async {
+      final transport = _TaskTransport();
+      final adapter = TaskProjectRealtimeAdapter(
+        WorkspaceScopedRealtimeService(client: transport),
+      );
+      final updates = <TaskProjectRealtimeUpdate>[];
+      final subscription = adapter.updates.listen(updates.add);
+      await adapter.start(workspaceId: 'workspace-1', projectId: 'project-1');
+      for (var index = 0; index < 4; index++) {
+        transport.emit('task.updated', <String, dynamic>{
+          'eventId': 'date-event-$index',
+          'workspaceId': 'workspace-1',
+          'projectId': 'project-1',
+          'taskId': 'task-1',
+          'number': 42,
+          'key': 'TASK-42',
+          'version': index + 1,
+          'occurredAtUtc': '2026-10-27T12:00:00Z',
+          if (index == 1) 'startAtUtc': '2026-10-27T08:23:04.123456Z',
+          if (index >= 2) 'startAtUtc': null,
+          if (index == 3) 'hasStartAtUtc': false,
+        });
+      }
+      await Future<void>.delayed(Duration.zero);
+      final mutations = updates.whereType<TaskRealtimeMutation>().toList();
+      expect(mutations, hasLength(4));
+      expect(mutations[0].hasStartAtUtc, isFalse);
+      expect(mutations[1].hasStartAtUtc, isTrue);
+      expect(
+        mutations[1].startAtUtc,
+        DateTime.utc(2026, 10, 27, 8, 23, 4, 123, 456),
+      );
+      expect(mutations[2].hasStartAtUtc, isTrue);
+      expect(mutations[2].startAtUtc, isNull);
+      expect(mutations[3].hasStartAtUtc, isFalse);
+      await subscription.cancel();
+      await adapter.dispose();
+    },
+  );
+
   test('mapuje wszystkie eventy Kanban wraz z kontekstem workflow', () async {
     final transport = _TaskTransport();
     final adapter = TaskProjectRealtimeAdapter(

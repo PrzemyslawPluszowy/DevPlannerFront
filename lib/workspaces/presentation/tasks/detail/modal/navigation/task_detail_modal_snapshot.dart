@@ -1,5 +1,6 @@
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
@@ -22,6 +23,7 @@ final class TaskDetailModalSnapshot {
     required this.storageRepository,
     required this.emojiRecentCubit,
     required this.userId,
+    this.settingsComposition,
   });
 
   final String? taskId;
@@ -36,6 +38,7 @@ final class TaskDetailModalSnapshot {
   final StorageRepository? storageRepository;
   final ChatEmojiRecentCubit? emojiRecentCubit;
   final String? userId;
+  final ProjectSettingsComposition? settingsComposition;
 
   bool hasSameScope(TaskDetailModalSnapshot? other) =>
       other != null &&
@@ -43,6 +46,7 @@ final class TaskDetailModalSnapshot {
       workspaceId == other.workspaceId &&
       projectId == other.projectId &&
       identical(composition, other.composition) &&
+      identical(settingsComposition, other.settingsComposition) &&
       identical(memberProfilesRepository, other.memberProfilesRepository) &&
       identical(chatComposition, other.chatComposition) &&
       identical(authSession, other.authSession) &&

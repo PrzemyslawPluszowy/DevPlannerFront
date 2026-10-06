@@ -122,6 +122,7 @@ final class TasksBoardRoutePage extends StatelessWidget {
       projectId: projectId,
       taskId: taskId,
       detailsComposition: detailsComposition,
+      settingsComposition: projectSettings,
       memberProfilesRepository: composition.memberProfilesRepository,
       child: Consumer<AuthSessionPort>(
         builder: (context, session, _) => TasksBoardPage(

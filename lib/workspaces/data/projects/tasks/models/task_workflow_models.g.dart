@@ -252,6 +252,7 @@ _UpdateProjectTaskPayload _$UpdateProjectTaskPayloadFromJson(
   dueAtUtc: json['dueAtUtc'] == null
       ? null
       : DateTime.parse(json['dueAtUtc'] as String),
+  calendarTimeZoneId: json['calendarTimeZoneId'] as String?,
   position: (json['position'] as num).toInt(),
   expectedVersion: (json['expectedVersion'] as num).toInt(),
   taskType: json['taskType'] as String?,
@@ -276,6 +277,7 @@ Map<String, dynamic> _$UpdateProjectTaskPayloadToJson(
   'priority': _$TaskPriorityEnumMap[instance.priority]!,
   'startAtUtc': instance.startAtUtc?.toIso8601String(),
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
+  'calendarTimeZoneId': ?instance.calendarTimeZoneId,
   'position': instance.position,
   'expectedVersion': instance.expectedVersion,
   'taskType': instance.taskType,

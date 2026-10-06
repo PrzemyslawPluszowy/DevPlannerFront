@@ -294,6 +294,7 @@ abstract class BulkUpdateKanbanTasksPayload
     required List<BulkUpdateKanbanTaskItemPayload> tasks,
     TaskPriority? priority,
     DateTime? dueAtUtc,
+    @JsonKey(includeIfNull: false) String? calendarTimeZoneId,
     List<String>? assigneeIds,
     List<String>? labelIds,
   }) = _BulkUpdateKanbanTasksPayload;

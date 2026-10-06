@@ -183,11 +183,13 @@ abstract class BulkUpdateTaskSelectionPayload
     with _$BulkUpdateTaskSelectionPayload {
   const factory BulkUpdateTaskSelectionPayload({
     required String selectionToken,
+    @JsonKey(includeIfNull: false) List<BulkUpdateTaskItemPayload>? tasks,
     ProjectTaskStatus? status,
     String? customStatusId,
     @Default(false) bool clearCustomStatus,
     TaskPriority? priority,
     DateTime? dueAtUtc,
+    @JsonKey(includeIfNull: false) String? calendarTimeZoneId,
     @Default(false) bool clearDueAtUtc,
     List<String>? assigneeIds,
     @Default(false) bool archive,
@@ -233,6 +235,7 @@ abstract class UpdateTaskListItemPayload with _$UpdateTaskListItemPayload {
     TaskPriority? priority,
     DateTime? startAtUtc,
     DateTime? dueAtUtc,
+    @JsonKey(includeIfNull: false) String? calendarTimeZoneId,
     @Default(false) bool clearStartAtUtc,
     @Default(false) bool clearDueAtUtc,
     String? taskType,
@@ -287,4 +290,16 @@ abstract class MovedProjectTaskResponse with _$MovedProjectTaskResponse {
 
   factory MovedProjectTaskResponse.fromJson(Map<String, dynamic> json) =>
       _$MovedProjectTaskResponseFromJson(json);
+}
+
+/// Jawne zaznaczenie z wersjami; alternatywa dla tokenu całego wyniku.
+@freezed
+abstract class BulkUpdateTaskItemPayload with _$BulkUpdateTaskItemPayload {
+  const factory BulkUpdateTaskItemPayload({
+    required String taskId,
+    required int expectedVersion,
+  }) = _BulkUpdateTaskItemPayload;
+
+  factory BulkUpdateTaskItemPayload.fromJson(Map<String, dynamic> json) =>
+      _$BulkUpdateTaskItemPayloadFromJson(json);
 }

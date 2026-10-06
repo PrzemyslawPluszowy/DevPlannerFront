@@ -4077,5 +4077,8 @@
   "taskDescriptionLinkUrl": "Link address",
   "taskDescriptionLinkUrlHint": "https://example.com",
   "taskDescriptionLinkInvalid": "Enter a valid link address, such as https://example.com or mailto:contact@example.com.",
-  "taskDescriptionRemoveLink": "Remove link"
+  "taskDescriptionRemoveLink": "Remove link",
+  "taskAssigneesNoSearchResults": "No people found. Change your search.",
+  "taskLabelsEmptyGuidance": "This project has no active labels yet. A project administrator can create them in project settings, under Labels.",
+  "tasksBulkSelectionLimit": "You can change up to 500 selected tasks at once. Reduce the selection or use the action for the entire result."
 }

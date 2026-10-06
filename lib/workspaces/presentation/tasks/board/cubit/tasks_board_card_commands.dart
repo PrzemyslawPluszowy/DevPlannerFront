@@ -14,11 +14,13 @@ import 'package:devplanner/workspaces/presentation/tasks/recurrence/task_recurre
 final class TasksBoardCardCommands {
   TasksBoardCardCommands({
     required this._context,
+    this.calendarTimeZoneId,
     required this._tasksRepository,
     this.collaborationRepository,
   });
 
   final TasksBoardCommandContext _context;
+  final String? calendarTimeZoneId;
   final TasksRepository _tasksRepository;
   final TaskCollaborationRepository? collaborationRepository;
 
@@ -116,6 +118,7 @@ final class TasksBoardCardCommands {
         taskId,
         (card) => UpdateTaskListItemPayload(
           dueAtUtc: dueAtUtc,
+          calendarTimeZoneId: calendarTimeZoneId,
           clearDueAtUtc: dueAtUtc == null,
           expectedVersion: card.version,
         ),

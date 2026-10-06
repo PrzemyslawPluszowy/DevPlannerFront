@@ -153,6 +153,7 @@ abstract class UpdateProjectTaskPayload with _$UpdateProjectTaskPayload {
     required TaskPriority priority,
     DateTime? startAtUtc,
     DateTime? dueAtUtc,
+    @JsonKey(includeIfNull: false) String? calendarTimeZoneId,
     required int position,
     required int expectedVersion,
     String? taskType,

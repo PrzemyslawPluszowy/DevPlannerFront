@@ -1,6 +1,12 @@
+import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
+import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
+import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
+import 'package:devplanner/workspaces/presentation/projects/settings/project_settings_modal.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/project_labels_load_failure.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_labels_settings_button.dart';
 
 /// Etykiety taska z edycją atomową opartą o katalog projektu.
 class TaskLabelsSection extends StatelessWidget {
@@ -24,7 +30,12 @@ class TaskLabelsSection extends StatelessWidget {
               context,
               builder: (_) => BlocProvider.value(
                 value: context.read<TaskDetailsCubit>(),
-                child: EditLabelsDialog(selected: details.labels),
+                child: EditLabelsDialog(
+                  selected: details.labels,
+                  settingsComposition: context
+                      .read<ProjectSettingsComposition?>(),
+                  authSession: context.read<AuthSessionPort?>(),
+                ),
               ),
             ),
       icon: const Icon(Symbols.sell, size: 20),
@@ -68,9 +79,16 @@ class TaskLabelChip extends StatelessWidget {
 }
 
 class EditLabelsDialog extends StatefulWidget {
-  const EditLabelsDialog({required this.selected, super.key});
+  const EditLabelsDialog({
+    required this.selected,
+    this.settingsComposition,
+    this.authSession,
+    super.key,
+  });
 
   final List<TaskLabelResponse> selected;
+  final ProjectSettingsComposition? settingsComposition;
+  final AuthSessionPort? authSession;
 
   @override
   State<EditLabelsDialog> createState() => EditLabelsDialogState();
@@ -85,6 +103,18 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
   final ValueNotifier<bool> _saving = ValueNotifier(false);
   late final Listenable _formChanges;
   var _loadToken = 0;
+  int _projectToken = 0;
+  final ValueNotifier<ProjectListItem?> _project = ValueNotifier(null);
+  final ValueNotifier<ApiError?> _projectError = ValueNotifier(null);
+  final ValueNotifier<bool> _projectLoading = ValueNotifier(false);
+  bool get _canManageLabels =>
+      !_projectLoading.value &&
+      _projectError.value == null &&
+      _project.value?.capabilities?.canManage == true;
+  late final Set<String> _initialIds;
+  bool get _changed =>
+      _selectedIds.value.length != _initialIds.length ||
+      !_selectedIds.value.containsAll(_initialIds);
 
   @override
   void didChangeDependencies() {
@@ -107,6 +137,7 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
   @override
   void initState() {
     super.initState();
+    _initialIds = Set.unmodifiable(widget.selected.map((label) => label.id));
     _selectedIds = ValueNotifier(
       Set.unmodifiable(widget.selected.map((label) => label.id)),
     );
@@ -116,8 +147,12 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
       _loadError,
       _loading,
       _saving,
+      _project,
+      _projectError,
+      _projectLoading,
     ]);
     unawaited(_load());
+    unawaited(_loadProject());
   }
 
   Future<void> _load() async {
@@ -142,6 +177,60 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
     _loading.value = false;
   }
 
+  Future<void> _loadProject() async {
+    final settings = widget.settingsComposition;
+    if (settings == null) return;
+    final token = ++_projectToken;
+    final source = context.read<TaskDetailsCubit>();
+    _projectLoading.value = true;
+    _projectError.value = null;
+    final result = await settings.projects.getProject(
+      workspaceId: source.workspaceId,
+      projectId: source.projectId,
+    );
+    if (!mounted ||
+        token != _projectToken ||
+        source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      return;
+    }
+    result.fold(
+      (error) => _projectError.value = error,
+      (project) => _project.value = project,
+    );
+    _projectLoading.value = false;
+  }
+
+  Future<void> _manageLabels(BuildContext settingsContext) async {
+    final project = _project.value;
+    final settings = widget.settingsComposition;
+    if (!_canManageLabels ||
+        project == null ||
+        settings == null ||
+        _saving.value) {
+      return;
+    }
+    final source = context.read<TaskDetailsCubit>();
+    await ProjectSettingsDialogs.show(
+      context: settingsContext,
+      project: project,
+      userRole: project.myRole,
+      initialTab: ProjectSettingsTab.labels,
+    );
+    if (!mounted ||
+        source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      return;
+    }
+    await _load();
+    if (!mounted ||
+        source.isClosed ||
+        !identical(source, context.read<TaskDetailsCubit>())) {
+      return;
+    }
+    await _loadProject();
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: _formChanges,
@@ -157,11 +246,21 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
         context,
         _draft,
       ),
-      onSubmit: _loading.value || _loadError.value != null ? null : _save,
+      onSubmit: _loading.value || _loadError.value != null || !_changed
+          ? null
+          : _save,
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const TaskDetailsDialogMutationError(),
+          if (_projectError.value case final error?) ...[
+            TaskDetailsModalError(error: error),
+            TextButton.icon(
+              onPressed: _projectLoading.value ? null : _loadProject,
+              icon: const Icon(Symbols.refresh_rounded),
+              label: Text(context.l10n.retry),
+            ),
+          ],
           if (_loading.value)
             const SizedBox(
               height: 120,
@@ -176,7 +275,7 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
             Padding(
               padding: const .symmetric(vertical: Sizes.p16),
               child: Text(
-                context.l10n.taskDetailsNoProjectLabels,
+                context.l10n.taskLabelsEmptyGuidance,
                 style: TextStyle(color: context.colors.onSurfaceVariant),
               ),
             )
@@ -216,13 +315,25 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
                 ],
               ),
             ),
+          if (_canManageLabels)
+            TaskLabelsSettingsButton(
+              settings: widget.settingsComposition!,
+              authSession: widget.authSession,
+              enabled: !_saving.value,
+              onPressed: _manageLabels,
+            ),
         ],
       ),
     ),
   );
 
   Future<void> _save() async {
-    if (_saving.value) return;
+    if (_saving.value ||
+        _loading.value ||
+        _loadError.value != null ||
+        !_changed) {
+      return;
+    }
     _saving.value = true;
     final source = context.read<TaskDetailsCubit>();
     final saved = await source.replaceLabels(
@@ -244,6 +355,9 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
   @override
   void dispose() {
     _draft?.dispose();
+    _project.dispose();
+    _projectError.dispose();
+    _projectLoading.dispose();
     _selectedIds.dispose();
     _labels.dispose();
     _loadError.dispose();
@@ -251,38 +365,6 @@ class EditLabelsDialogState extends State<EditLabelsDialog> {
     _saving.dispose();
     super.dispose();
   }
-}
-
-class ProjectLabelsLoadFailure extends StatelessWidget {
-  const ProjectLabelsLoadFailure({
-    required this.error,
-    required this.onRetry,
-    super.key,
-  });
-
-  final ApiError error;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Text(
-        context.l10n.taskDetailsProjectLabelsLoadFailed,
-        style: context.tasksTheme.dataStrongText,
-      ),
-      const SizedBox(height: 6),
-      TaskDetailsModalError(error: error),
-      Align(
-        alignment: Alignment.centerRight,
-        child: TextButton.icon(
-          onPressed: onRetry,
-          icon: const Icon(Symbols.refresh_rounded),
-          label: Text(context.l10n.retry),
-        ),
-      ),
-    ],
-  );
 }
 
 /// Parser koloru etykiety z bezpiecznym fallbackiem motywu.

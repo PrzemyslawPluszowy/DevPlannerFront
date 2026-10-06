@@ -3,12 +3,18 @@ import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_description_link_button.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_description_toolbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_test/flutter_test.dart';
 
-Widget _app(quill.QuillController controller, FocusNode focus) => MaterialApp(
-  locale: const Locale('pl'),
-  theme: MaterialTheme.crm().dark(),
+Widget _app(
+  quill.QuillController controller,
+  FocusNode focus, {
+  Locale locale = const Locale('pl'),
+  bool light = false,
+}) => MaterialApp(
+  locale: locale,
+  theme: light ? MaterialTheme.crm().light() : MaterialTheme.crm().dark(),
   localizationsDelegates: const [
     ...AppLocalizations.localizationsDelegates,
     quill.FlutterQuillLocalizations.delegate,
@@ -37,6 +43,38 @@ Future<void> _open(WidgetTester tester, String label) async {
 }
 
 void main() {
+  for (final locale in ['pl', 'en']) {
+    testWidgets(
+      'invalid link error wraps fully in narrow light $locale dialog',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(380, 800));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: MaterialTheme.crm().light(),
+            locale: Locale(locale),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const Scaffold(body: TaskDescriptionLinkDialog(text: 'QA')),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final fields = find.byType(TextField);
+        await tester.enterText(fields.first, 'QA');
+        await tester.enterText(fields.last, 'javascript:alert(1)');
+        await tester.tap(find.text(locale == 'pl' ? 'Zapisz' : 'Save'));
+        await tester.pumpAndSettle();
+        final input = tester.widget<TextField>(fields.last);
+        expect(input.decoration!.errorMaxLines, 8);
+        final error = find.text(input.decoration!.errorText!);
+        expect(error, findsOneWidget);
+        final paragraph = tester.renderObject<RenderParagraph>(error);
+        expect(paragraph.didExceedMaxLines, isFalse);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+      },
+    );
+  }
   test('link URL validation permits absolute web URLs and rejects unsafe/non-web input', () {
     for (final value in [
       'https://example.com/a?q=x#tag',

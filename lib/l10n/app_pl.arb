@@ -4064,5 +4064,8 @@
   "taskDescriptionLinkUrl": "Adres linku",
   "taskDescriptionLinkUrlHint": "https://przyklad.pl",
   "taskDescriptionLinkInvalid": "Wpisz poprawny adres linku, np. https://przyklad.pl lub mailto:kontakt@przyklad.pl.",
-  "taskDescriptionRemoveLink": "Usuń link"
+  "taskDescriptionRemoveLink": "Usuń link",
+  "taskAssigneesNoSearchResults": "Nie znaleziono osób. Zmień wyszukiwany tekst.",
+  "taskLabelsEmptyGuidance": "Projekt nie ma jeszcze aktywnych etykiet. Administrator projektu może je utworzyć w ustawieniach projektu, w sekcji Etykiety.",
+  "tasksBulkSelectionLimit": "Możesz zmienić naraz maksymalnie 500 zaznaczonych zadań. Zmniejsz zaznaczenie albo użyj akcji dla całego wyniku."
 }

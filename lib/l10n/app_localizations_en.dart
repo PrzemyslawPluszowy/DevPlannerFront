@@ -12656,4 +12656,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskDescriptionRemoveLink => 'Remove link';
+
+  @override
+  String get taskAssigneesNoSearchResults =>
+      'No people found. Change your search.';
+
+  @override
+  String get taskLabelsEmptyGuidance =>
+      'This project has no active labels yet. A project administrator can create them in project settings, under Labels.';
+
+  @override
+  String get tasksBulkSelectionLimit =>
+      'You can change up to 500 selected tasks at once. Reduce the selection or use the action for the entire result.';
 }

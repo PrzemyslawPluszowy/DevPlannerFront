@@ -14,11 +14,13 @@ import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error
 final class TasksBoardBulkCommands {
   TasksBoardBulkCommands({
     required this._context,
+    this.calendarTimeZoneId,
     required this._repository,
     required this._canMoveTaskTo,
   });
 
   final TasksBoardCommandContext _context;
+  final String? calendarTimeZoneId;
   final KanbanRepository _repository;
   final bool Function({
     required KanbanTaskCardResponse task,
@@ -94,6 +96,7 @@ final class TasksBoardBulkCommands {
       payload: BulkUpdateKanbanTasksPayload(
         priority: priority,
         dueAtUtc: dueAtUtc,
+        calendarTimeZoneId: dueAtUtc == null ? null : calendarTimeZoneId,
         tasks: _selectedCards(current)
             .map(
               (card) => BulkUpdateKanbanTaskItemPayload(

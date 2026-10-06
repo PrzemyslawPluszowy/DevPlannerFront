@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/foundation/platform/calendar_time_zone.dart';
 import 'package:devplanner/workspaces/data/projects/custom_workflow/models/custom_workflow_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
@@ -42,6 +43,7 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
+    String? calendarTimeZoneId,
   }) : _acceptanceCriteriaService = TaskAcceptanceCriteriaService(
          repository: acceptanceCriteriaRepository,
          workspaceId: workspaceId,
@@ -55,6 +57,8 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
          taskId: taskId,
        ),
        _basicMutationService = TaskDetailsBasicMutationService(
+         calendarTimeZoneId:
+             calendarTimeZoneId ?? const CalendarTimeZone().read(),
          repository: repository,
          workspaceId: workspaceId,
          projectId: projectId,

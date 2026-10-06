@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:devplanner/foundation/l10n/l10n.dart';
+
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
@@ -55,6 +57,16 @@ class TaskListBulkBar extends StatelessWidget {
       selectedCount: selectedCount,
       onClearSelection: listCubit.clearSelection,
       controls: [
+        if (selectedCount > 500)
+          SizedBox(
+            width: 360,
+            child: Text(
+              context.l10n.tasksBulkSelectionLimit,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ),
         TasksBulkMenu<ProjectTaskStatus>(
           key: const ValueKey('bulk_status'),
           icon: Symbols.playlist_add_check_rounded,

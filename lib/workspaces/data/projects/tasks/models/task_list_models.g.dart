@@ -304,6 +304,11 @@ _BulkUpdateTaskSelectionPayload _$BulkUpdateTaskSelectionPayloadFromJson(
   Map<String, dynamic> json,
 ) => _BulkUpdateTaskSelectionPayload(
   selectionToken: json['selectionToken'] as String,
+  tasks: (json['tasks'] as List<dynamic>?)
+      ?.map(
+        (e) => BulkUpdateTaskItemPayload.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
   status: $enumDecodeNullable(_$ProjectTaskStatusEnumMap, json['status']),
   customStatusId: json['customStatusId'] as String?,
   clearCustomStatus: json['clearCustomStatus'] as bool? ?? false,
@@ -311,6 +316,7 @@ _BulkUpdateTaskSelectionPayload _$BulkUpdateTaskSelectionPayloadFromJson(
   dueAtUtc: json['dueAtUtc'] == null
       ? null
       : DateTime.parse(json['dueAtUtc'] as String),
+  calendarTimeZoneId: json['calendarTimeZoneId'] as String?,
   clearDueAtUtc: json['clearDueAtUtc'] as bool? ?? false,
   assigneeIds: (json['assigneeIds'] as List<dynamic>?)
       ?.map((e) => e as String)
@@ -327,11 +333,13 @@ Map<String, dynamic> _$BulkUpdateTaskSelectionPayloadToJson(
   _BulkUpdateTaskSelectionPayload instance,
 ) => <String, dynamic>{
   'selectionToken': instance.selectionToken,
+  'tasks': ?instance.tasks,
   'status': _$ProjectTaskStatusEnumMap[instance.status],
   'customStatusId': instance.customStatusId,
   'clearCustomStatus': instance.clearCustomStatus,
   'priority': _$TaskPriorityEnumMap[instance.priority],
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
+  'calendarTimeZoneId': ?instance.calendarTimeZoneId,
   'clearDueAtUtc': instance.clearDueAtUtc,
   'assigneeIds': instance.assigneeIds,
   'archive': instance.archive,
@@ -388,6 +396,7 @@ _UpdateTaskListItemPayload _$UpdateTaskListItemPayloadFromJson(
   dueAtUtc: json['dueAtUtc'] == null
       ? null
       : DateTime.parse(json['dueAtUtc'] as String),
+  calendarTimeZoneId: json['calendarTimeZoneId'] as String?,
   clearStartAtUtc: json['clearStartAtUtc'] as bool? ?? false,
   clearDueAtUtc: json['clearDueAtUtc'] as bool? ?? false,
   taskType: json['taskType'] as String?,
@@ -415,6 +424,7 @@ Map<String, dynamic> _$UpdateTaskListItemPayloadToJson(
   'priority': _$TaskPriorityEnumMap[instance.priority],
   'startAtUtc': instance.startAtUtc?.toIso8601String(),
   'dueAtUtc': instance.dueAtUtc?.toIso8601String(),
+  'calendarTimeZoneId': ?instance.calendarTimeZoneId,
   'clearStartAtUtc': instance.clearStartAtUtc,
   'clearDueAtUtc': instance.clearDueAtUtc,
   'taskType': instance.taskType,
@@ -478,4 +488,18 @@ Map<String, dynamic> _$MovedProjectTaskResponseToJson(
   'version': instance.version,
   'updatedAtUtc': instance.updatedAtUtc.toIso8601String(),
   'customStatusId': instance.customStatusId,
+};
+
+_BulkUpdateTaskItemPayload _$BulkUpdateTaskItemPayloadFromJson(
+  Map<String, dynamic> json,
+) => _BulkUpdateTaskItemPayload(
+  taskId: json['taskId'] as String,
+  expectedVersion: (json['expectedVersion'] as num).toInt(),
+);
+
+Map<String, dynamic> _$BulkUpdateTaskItemPayloadToJson(
+  _BulkUpdateTaskItemPayload instance,
+) => <String, dynamic>{
+  'taskId': instance.taskId,
+  'expectedVersion': instance.expectedVersion,
 };

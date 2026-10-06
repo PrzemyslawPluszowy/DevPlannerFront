@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:devplanner/auth/domain/ports/auth_session_port.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
+import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/tasks_details_composition.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
@@ -32,6 +33,7 @@ final class TaskDetailModalNavigationHost extends StatefulWidget {
     required this.taskId,
     required this.detailsComposition,
     this.memberProfilesRepository,
+    this.settingsComposition,
     super.key,
   });
 
@@ -40,6 +42,7 @@ final class TaskDetailModalNavigationHost extends StatefulWidget {
   final String projectId;
   final String? taskId;
   final TasksDetailsComposition? detailsComposition;
+  final ProjectSettingsComposition? settingsComposition;
   final ProjectMemberProfilesRepository? memberProfilesRepository;
 
   @override
@@ -95,6 +98,7 @@ final class _TaskDetailModalNavigationHostState
         oldWidget.workspaceId != widget.workspaceId ||
         oldWidget.projectId != widget.projectId ||
         !identical(oldWidget.detailsComposition, widget.detailsComposition) ||
+        !identical(oldWidget.settingsComposition, widget.settingsComposition) ||
         !identical(
           oldWidget.memberProfilesRepository,
           widget.memberProfilesRepository,
@@ -156,6 +160,7 @@ final class _TaskDetailModalNavigationHostState
       workspaceId: widget.workspaceId,
       projectId: widget.projectId,
       composition: widget.detailsComposition,
+      settingsComposition: widget.settingsComposition,
       memberProfilesRepository: widget.memberProfilesRepository,
       location: currentLocation,
       targetTab: TaskDetailModalTabIntent.fromUri(Uri.parse(currentLocation)),

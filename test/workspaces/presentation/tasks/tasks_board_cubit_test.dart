@@ -270,6 +270,7 @@ final class _TaskCollaborationRepository
 }
 
 final class _TasksRepository implements TasksRepository {
+  UpdateTaskListItemPayload? datePayload;
   QuickCreateProjectTaskPayload? createPayload;
   Object? createException;
   TaskMutationResponse<ProjectTaskResponse>? createResponse;
@@ -296,6 +297,39 @@ final class _TasksRepository implements TasksRepository {
     if (createCompleter case final completer?) return completer.future;
     if (createResponse case final response?) return Right(response);
     return Left(createError);
+  }
+
+  @override
+  Future<Either<ApiError, TaskMutationResponse<ProjectTaskListItemResponse>>>
+  updateListItem({
+    required String workspaceId,
+    required String projectId,
+    required String taskId,
+    required UpdateTaskListItemPayload payload,
+  }) async {
+    datePayload = payload;
+    final updated = DateTime.utc(2026, 10, 27);
+    return Right(
+      TaskMutationResponse(
+        taskId: taskId,
+        taskVersion: payload.expectedVersion + 1,
+        taskUpdatedAtUtc: updated,
+        data: ProjectTaskListItemResponse(
+          id: taskId,
+          number: 1,
+          key: 'TASK-1',
+          title: 'Pierwsze zadanie',
+          status: ProjectTaskStatus.todo,
+          priority: TaskPriority.normal,
+          dueAtUtc: payload.dueAtUtc,
+          assignees: const [],
+          checklistCompletedCount: 0,
+          checklistTotalCount: 0,
+          updatedAtUtc: updated,
+          version: payload.expectedVersion + 1,
+        ),
+      ),
+    );
   }
 
   @override
@@ -1860,6 +1894,30 @@ void main() {
     await cubit.close();
   });
 
+  test('inline board date and clear retain captured calendar zone', () async {
+    final tasks = _TasksRepository();
+    final cubit = TasksBoardCubit(
+      _KanbanRepository(_board()),
+      _Realtime(),
+      tasks,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      calendarTimeZoneId: 'Europe/Warsaw',
+    );
+    addTearDown(cubit.close);
+    await cubit.start();
+    final card =
+        (cubit.state as TasksBoardReady).board.columns.first.tasks.single;
+    final due = DateTime.utc(2026, 10, 27, 8, 23, 4, 123);
+    expect(await cubit.updateTaskDueDate(card.id, due), isTrue);
+    expect(tasks.datePayload?.calendarTimeZoneId, 'Europe/Warsaw');
+    expect(tasks.datePayload?.dueAtUtc, due);
+    expect(await cubit.updateTaskDueDate(card.id, null), isTrue);
+    expect(tasks.datePayload?.calendarTimeZoneId, 'Europe/Warsaw');
+    expect(tasks.datePayload?.clearDueAtUtc, isTrue);
+    expect(tasks.datePayload?.expectedVersion, card.version + 1);
+  });
+
   test('normalizuje termin bulk update do UTC', () async {
     final repository = _KanbanRepository(_board());
     final cubit = TasksBoardCubit(
@@ -1868,6 +1926,7 @@ void main() {
       _TasksRepository(),
       workspaceId: 'workspace-1',
       projectId: 'project-1',
+      calendarTimeZoneId: 'Europe/Warsaw',
     );
     await cubit.start();
     final card =
@@ -1878,6 +1937,7 @@ void main() {
     await cubit.bulkUpdateDueDate(dueAt);
 
     expect(repository.bulkUpdatePayload?.dueAtUtc, dueAt.toUtc());
+    expect(repository.bulkUpdatePayload?.calendarTimeZoneId, 'Europe/Warsaw');
     expect(repository.bulkUpdatePayload?.tasks.single.taskId, card.id);
     await cubit.close();
   });

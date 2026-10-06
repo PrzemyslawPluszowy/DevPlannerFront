@@ -15,12 +15,14 @@ final class TaskDetailsBasicMutationService {
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
+    this.calendarTimeZoneId,
   });
 
   final TasksRepository repository;
   final String workspaceId;
   final String projectId;
   final String taskId;
+  final String? calendarTimeZoneId;
 
   Future<Either<ApiError, TaskMutationResponse<ProjectTaskResponse>>> update({
     required UpdateProjectTaskPayload payload,
@@ -125,6 +127,7 @@ final class TaskDetailsBasicMutationService {
     priority: priority ?? task.priority,
     startAtUtc: replacePlanning ? startAtUtc : task.startAtUtc,
     dueAtUtc: replacePlanning ? dueAtUtc : task.dueAtUtc,
+    calendarTimeZoneId: replacePlanning ? calendarTimeZoneId : null,
     position: task.position,
     expectedVersion: task.version,
     taskType: task.taskType,

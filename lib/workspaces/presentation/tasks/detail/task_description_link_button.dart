@@ -153,6 +153,7 @@ final class _TaskDescriptionLinkDialogState
             autofocus: true,
             decoration: InputDecoration(
               labelText: context.l10n.taskDescriptionLinkText,
+              errorMaxLines: 8,
               errorText: showValidation && _text.text.trim().isEmpty
                   ? context.l10n.taskDescriptionLinkTextRequired
                   : null,
@@ -166,6 +167,7 @@ final class _TaskDescriptionLinkDialogState
             decoration: InputDecoration(
               labelText: context.l10n.taskDescriptionLinkUrl,
               hintText: context.l10n.taskDescriptionLinkUrlHint,
+              errorMaxLines: 8,
               errorText:
                   showValidation &&
                       !TaskDescriptionLinkDialog.isValidUrl(_url.text.trim())

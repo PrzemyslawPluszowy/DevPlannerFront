@@ -2,6 +2,7 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_description_color_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -19,6 +20,46 @@ void main() {
       expect(TaskDescriptionColorPicker.normalize(invalid), isNull);
     }
   });
+
+  for (final locale in ['pl', 'en']) {
+    testWidgets('invalid HEX wraps fully at 380px in light $locale', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(380, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: MaterialTheme.crm().light(),
+          locale: Locale(locale),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () =>
+                    TaskDescriptionColorPicker.show(context, title: 'Color'),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      final input = find.byType(TextField);
+      await tester.enterText(input, '#XYZ');
+      await tester.tap(find.text(locale == 'pl' ? 'Zapisz' : 'Save'));
+      await tester.pumpAndSettle();
+      final field = tester.widget<TextField>(input);
+      expect(field.decoration!.errorMaxLines, 8);
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.text(field.decoration!.errorText!),
+      );
+      expect(paragraph.didExceedMaxLines, isFalse);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
 
   testWidgets('błąd nie zapisuje; cancel, kolor i reset mają osobne wyniki', (
     tester,

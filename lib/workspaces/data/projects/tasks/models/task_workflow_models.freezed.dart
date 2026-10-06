@@ -1737,7 +1737,7 @@ as String?,
 /// @nodoc
 mixin _$UpdateProjectTaskPayload {
 
- String get title; String? get description; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; int get position; int get expectedVersion; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; int? get actualMinutes; String? get descriptionDeltaJson; String? get milestoneId; String? get customStatusId; bool get clearMilestone;
+ String get title; String? get description; ProjectTaskStatus get status; TaskPriority get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc;@JsonKey(includeIfNull: false) String? get calendarTimeZoneId; int get position; int get expectedVersion; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; int? get actualMinutes; String? get descriptionDeltaJson; String? get milestoneId; String? get customStatusId; bool get clearMilestone;
 /// Create a copy of UpdateProjectTaskPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1750,16 +1750,16 @@ $UpdateProjectTaskPayloadCopyWith<UpdateProjectTaskPayload> get copyWith => _$Up
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProjectTaskPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.position, position) || other.position == position)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.clearMilestone, clearMilestone) || other.clearMilestone == clearMilestone));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProjectTaskPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId)&&(identical(other.position, position) || other.position == position)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.clearMilestone, clearMilestone) || other.clearMilestone == clearMilestone));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,description,status,priority,startAtUtc,dueAtUtc,position,expectedVersion,taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,descriptionDeltaJson,milestoneId,customStatusId,clearMilestone]);
+int get hashCode => Object.hashAll([runtimeType,title,description,status,priority,startAtUtc,dueAtUtc,calendarTimeZoneId,position,expectedVersion,taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,descriptionDeltaJson,milestoneId,customStatusId,clearMilestone]);
 
 @override
 String toString() {
-  return 'UpdateProjectTaskPayload(title: $title, description: $description, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, position: $position, expectedVersion: $expectedVersion, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, descriptionDeltaJson: $descriptionDeltaJson, milestoneId: $milestoneId, customStatusId: $customStatusId, clearMilestone: $clearMilestone)';
+  return 'UpdateProjectTaskPayload(title: $title, description: $description, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, calendarTimeZoneId: $calendarTimeZoneId, position: $position, expectedVersion: $expectedVersion, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, descriptionDeltaJson: $descriptionDeltaJson, milestoneId: $milestoneId, customStatusId: $customStatusId, clearMilestone: $clearMilestone)';
 }
 
 
@@ -1770,7 +1770,7 @@ abstract mixin class $UpdateProjectTaskPayloadCopyWith<$Res>  {
   factory $UpdateProjectTaskPayloadCopyWith(UpdateProjectTaskPayload value, $Res Function(UpdateProjectTaskPayload) _then) = _$UpdateProjectTaskPayloadCopyWithImpl;
 @useResult
 $Res call({
- String title, String? description, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, int position, int expectedVersion, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, String? descriptionDeltaJson, String? milestoneId, String? customStatusId, bool clearMilestone
+ String title, String? description, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc,@JsonKey(includeIfNull: false) String? calendarTimeZoneId, int position, int expectedVersion, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, String? descriptionDeltaJson, String? milestoneId, String? customStatusId, bool clearMilestone
 });
 
 
@@ -1787,7 +1787,7 @@ class _$UpdateProjectTaskPayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProjectTaskPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? position = null,Object? expectedVersion = null,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? descriptionDeltaJson = freezed,Object? milestoneId = freezed,Object? customStatusId = freezed,Object? clearMilestone = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? calendarTimeZoneId = freezed,Object? position = null,Object? expectedVersion = null,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? descriptionDeltaJson = freezed,Object? milestoneId = freezed,Object? customStatusId = freezed,Object? clearMilestone = null,}) {
   return _then(_self.copyWith(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
@@ -1795,7 +1795,8 @@ as String?,status: null == status ? _self.status : status // ignore: cast_nullab
 as ProjectTaskStatus,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,startAtUtc: freezed == startAtUtc ? _self.startAtUtc : startAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
+as DateTime?,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
 as int,taskType: freezed == taskType ? _self.taskType : taskType // ignore: cast_nullable_to_non_nullable
 as String?,size: freezed == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
@@ -1893,10 +1894,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String? description,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  int position,  int expectedVersion,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  String? customStatusId,  bool clearMilestone)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String? description,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  int position,  int expectedVersion,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  String? customStatusId,  bool clearMilestone)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateProjectTaskPayload() when $default != null:
-return $default(_that.title,_that.description,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.position,_that.expectedVersion,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.customStatusId,_that.clearMilestone);case _:
+return $default(_that.title,_that.description,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.calendarTimeZoneId,_that.position,_that.expectedVersion,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.customStatusId,_that.clearMilestone);case _:
   return orElse();
 
 }
@@ -1914,10 +1915,10 @@ return $default(_that.title,_that.description,_that.status,_that.priority,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String? description,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  int position,  int expectedVersion,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  String? customStatusId,  bool clearMilestone)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String? description,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  int position,  int expectedVersion,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  String? customStatusId,  bool clearMilestone)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProjectTaskPayload():
-return $default(_that.title,_that.description,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.position,_that.expectedVersion,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.customStatusId,_that.clearMilestone);case _:
+return $default(_that.title,_that.description,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.calendarTimeZoneId,_that.position,_that.expectedVersion,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.customStatusId,_that.clearMilestone);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1934,10 +1935,10 @@ return $default(_that.title,_that.description,_that.status,_that.priority,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String? description,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  int position,  int expectedVersion,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  String? customStatusId,  bool clearMilestone)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String? description,  ProjectTaskStatus status,  TaskPriority priority,  DateTime? startAtUtc,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  int position,  int expectedVersion,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  int? actualMinutes,  String? descriptionDeltaJson,  String? milestoneId,  String? customStatusId,  bool clearMilestone)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProjectTaskPayload() when $default != null:
-return $default(_that.title,_that.description,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.position,_that.expectedVersion,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.customStatusId,_that.clearMilestone);case _:
+return $default(_that.title,_that.description,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.calendarTimeZoneId,_that.position,_that.expectedVersion,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.actualMinutes,_that.descriptionDeltaJson,_that.milestoneId,_that.customStatusId,_that.clearMilestone);case _:
   return null;
 
 }
@@ -1949,7 +1950,7 @@ return $default(_that.title,_that.description,_that.status,_that.priority,_that.
 @JsonSerializable()
 
 class _UpdateProjectTaskPayload implements UpdateProjectTaskPayload {
-  const _UpdateProjectTaskPayload({required this.title, this.description, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, required this.position, required this.expectedVersion, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.actualMinutes, this.descriptionDeltaJson, this.milestoneId, this.customStatusId, this.clearMilestone = false});
+  const _UpdateProjectTaskPayload({required this.title, this.description, required this.status, required this.priority, this.startAtUtc, this.dueAtUtc, @JsonKey(includeIfNull: false) this.calendarTimeZoneId, required this.position, required this.expectedVersion, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.actualMinutes, this.descriptionDeltaJson, this.milestoneId, this.customStatusId, this.clearMilestone = false});
   factory _UpdateProjectTaskPayload.fromJson(Map<String, dynamic> json) => _$UpdateProjectTaskPayloadFromJson(json);
 
 @override final  String title;
@@ -1958,6 +1959,7 @@ class _UpdateProjectTaskPayload implements UpdateProjectTaskPayload {
 @override final  TaskPriority priority;
 @override final  DateTime? startAtUtc;
 @override final  DateTime? dueAtUtc;
+@override@JsonKey(includeIfNull: false) final  String? calendarTimeZoneId;
 @override final  int position;
 @override final  int expectedVersion;
 @override final  String? taskType;
@@ -1985,16 +1987,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProjectTaskPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.position, position) || other.position == position)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.clearMilestone, clearMilestone) || other.clearMilestone == clearMilestone));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProjectTaskPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId)&&(identical(other.position, position) || other.position == position)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.actualMinutes, actualMinutes) || other.actualMinutes == actualMinutes)&&(identical(other.descriptionDeltaJson, descriptionDeltaJson) || other.descriptionDeltaJson == descriptionDeltaJson)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.clearMilestone, clearMilestone) || other.clearMilestone == clearMilestone));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,description,status,priority,startAtUtc,dueAtUtc,position,expectedVersion,taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,descriptionDeltaJson,milestoneId,customStatusId,clearMilestone]);
+int get hashCode => Object.hashAll([runtimeType,title,description,status,priority,startAtUtc,dueAtUtc,calendarTimeZoneId,position,expectedVersion,taskType,size,complexity,risk,businessValue,estimatedMinutes,actualMinutes,descriptionDeltaJson,milestoneId,customStatusId,clearMilestone]);
 
 @override
 String toString() {
-  return 'UpdateProjectTaskPayload(title: $title, description: $description, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, position: $position, expectedVersion: $expectedVersion, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, descriptionDeltaJson: $descriptionDeltaJson, milestoneId: $milestoneId, customStatusId: $customStatusId, clearMilestone: $clearMilestone)';
+  return 'UpdateProjectTaskPayload(title: $title, description: $description, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, calendarTimeZoneId: $calendarTimeZoneId, position: $position, expectedVersion: $expectedVersion, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, actualMinutes: $actualMinutes, descriptionDeltaJson: $descriptionDeltaJson, milestoneId: $milestoneId, customStatusId: $customStatusId, clearMilestone: $clearMilestone)';
 }
 
 
@@ -2005,7 +2007,7 @@ abstract mixin class _$UpdateProjectTaskPayloadCopyWith<$Res> implements $Update
   factory _$UpdateProjectTaskPayloadCopyWith(_UpdateProjectTaskPayload value, $Res Function(_UpdateProjectTaskPayload) _then) = __$UpdateProjectTaskPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String title, String? description, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc, int position, int expectedVersion, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, String? descriptionDeltaJson, String? milestoneId, String? customStatusId, bool clearMilestone
+ String title, String? description, ProjectTaskStatus status, TaskPriority priority, DateTime? startAtUtc, DateTime? dueAtUtc,@JsonKey(includeIfNull: false) String? calendarTimeZoneId, int position, int expectedVersion, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, int? actualMinutes, String? descriptionDeltaJson, String? milestoneId, String? customStatusId, bool clearMilestone
 });
 
 
@@ -2022,7 +2024,7 @@ class __$UpdateProjectTaskPayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProjectTaskPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? position = null,Object? expectedVersion = null,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? descriptionDeltaJson = freezed,Object? milestoneId = freezed,Object? customStatusId = freezed,Object? clearMilestone = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = freezed,Object? status = null,Object? priority = null,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? calendarTimeZoneId = freezed,Object? position = null,Object? expectedVersion = null,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? actualMinutes = freezed,Object? descriptionDeltaJson = freezed,Object? milestoneId = freezed,Object? customStatusId = freezed,Object? clearMilestone = null,}) {
   return _then(_UpdateProjectTaskPayload(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
@@ -2030,7 +2032,8 @@ as String?,status: null == status ? _self.status : status // ignore: cast_nullab
 as ProjectTaskStatus,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority,startAtUtc: freezed == startAtUtc ? _self.startAtUtc : startAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
+as DateTime?,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
 as int,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
 as int,taskType: freezed == taskType ? _self.taskType : taskType // ignore: cast_nullable_to_non_nullable
 as String?,size: freezed == size ? _self.size : size // ignore: cast_nullable_to_non_nullable

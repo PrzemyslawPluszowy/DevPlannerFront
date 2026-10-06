@@ -40,6 +40,8 @@ final class TaskRealtimeMutation extends TaskProjectRealtimeUpdate {
     this.title,
     this.description,
     this.priority,
+    this.startAtUtc,
+    this.hasStartAtUtc = false,
     this.dueAtUtc,
     this.hasDueAtUtc = false,
     this.archivedAtUtc,
@@ -64,6 +66,8 @@ final class TaskRealtimeMutation extends TaskProjectRealtimeUpdate {
   final String? title;
   final String? description;
   final TaskPriority? priority;
+  final DateTime? startAtUtc;
+  final bool hasStartAtUtc;
   final DateTime? dueAtUtc;
   final bool hasDueAtUtc;
   final DateTime? archivedAtUtc;

@@ -6,6 +6,7 @@
 import 'dart:async';
 
 import 'package:devplanner/foundation/error/api_error.dart';
+import 'package:devplanner/foundation/platform/calendar_time_zone.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_advanced_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
@@ -28,12 +29,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 export 'project_tasks_list_state.dart';
 
-part 'task_list_realtime_mixin.dart';
-part 'task_list_loading_mixin.dart';
 part 'task_list_creation_mixin.dart';
-part 'task_list_mutation_mixin.dart';
-part 'task_list_selection_mixin.dart';
 part 'task_list_item_mutation_mixin.dart';
+part 'task_list_loading_mixin.dart';
+part 'task_list_mutation_mixin.dart';
+part 'task_list_realtime_mixin.dart';
+part 'task_list_selection_mixin.dart';
 part 'task_list_subtasks_mixin.dart';
 
 /// Kontrakt operacji listy. Cubit pozostaje tylko właścicielem strumienia stanu;
@@ -48,11 +49,14 @@ abstract interface class ProjectTasksListCubitPort {
   TaskRecurrenceRepository? get recurrenceRepository;
   String get workspaceId;
   String get projectId;
+  String? get calendarTimeZoneId;
   String? get savedViewId;
   TaskSavedViewGroupBy get groupBy;
   int get _requestSerial;
   set _requestSerial(int value);
   int get _localMutationDepth;
+  bool get _bulkMutationInFlight;
+  set _bulkMutationInFlight(bool value);
   DateTime? get _realtimeSuppressedUntil;
   set _realtimeSuppressedUntil(DateTime? value);
   Timer? get _deferredRealtimeTimer;
@@ -139,7 +143,10 @@ final class ProjectTasksListCubit extends ProjectTasksListCubitBase
     this.recurrenceRepository,
     this.savedViewId,
     TaskSavedViewGroupBy? groupBy,
-  }) : _groupBy = groupBy ?? TaskSavedViewGroupBy.status,
+    String? calendarTimeZoneId,
+  }) : calendarTimeZoneId =
+           calendarTimeZoneId ?? const CalendarTimeZone().read(),
+       _groupBy = groupBy ?? TaskSavedViewGroupBy.status,
        super(const ProjectTasksListLoading());
 
   @override
@@ -154,6 +161,8 @@ final class ProjectTasksListCubit extends ProjectTasksListCubitBase
   final String workspaceId;
   @override
   final String projectId;
+  @override
+  final String? calendarTimeZoneId;
   @override
   final String? savedViewId;
   TaskSavedViewGroupBy _groupBy;
@@ -173,6 +182,8 @@ final class ProjectTasksListCubit extends ProjectTasksListCubitBase
   int _requestSerial = 0;
   @override
   int _localMutationDepth = 0;
+  @override
+  bool _bulkMutationInFlight = false;
   @override
   DateTime? _realtimeSuppressedUntil;
   @override

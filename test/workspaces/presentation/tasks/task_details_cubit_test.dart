@@ -1194,6 +1194,7 @@ void main() {
       workspaceId: 'workspace-1',
       projectId: 'project-1',
       taskId: 'task-1',
+      calendarTimeZoneId: 'Europe/Warsaw',
     );
     await cubit.load();
 
@@ -1204,6 +1205,7 @@ void main() {
     );
 
     expect(saved, isTrue);
+    expect(repository.updatePayload?.calendarTimeZoneId, 'Europe/Warsaw');
     expect(repository.updatePayload?.title, original.task.title);
     expect(repository.updatePayload?.status, original.task.status);
     expect(repository.updatePayload?.startAtUtc, start);

@@ -22573,6 +22573,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove link'**
   String get taskDescriptionRemoveLink;
+
+  /// No description provided for @taskAssigneesNoSearchResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No people found. Change your search.'**
+  String get taskAssigneesNoSearchResults;
+
+  /// No description provided for @taskLabelsEmptyGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'This project has no active labels yet. A project administrator can create them in project settings, under Labels.'**
+  String get taskLabelsEmptyGuidance;
+
+  /// No description provided for @tasksBulkSelectionLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change up to 500 selected tasks at once. Reduce the selection or use the action for the entire result.'**
+  String get tasksBulkSelectionLimit;
 }
 
 class _AppLocalizationsDelegate

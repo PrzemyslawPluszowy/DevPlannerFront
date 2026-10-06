@@ -113,6 +113,10 @@ final class TaskProjectRealtimeAdapter implements TaskProjectRealtime {
       title: _string(payload, 'title'),
       description: _string(payload, 'description'),
       priority: _priority(_string(payload, 'priority')),
+      startAtUtc: _date(payload, 'startAtUtc'),
+      hasStartAtUtc: _value(payload, 'hasStartAtUtc') is bool
+          ? _value(payload, 'hasStartAtUtc') == true
+          : payload.containsKey('startAtUtc'),
       dueAtUtc: _date(payload, 'dueAtUtc'),
       hasDueAtUtc: payload.containsKey('dueAtUtc'),
       archivedAtUtc: _date(payload, 'archivedAtUtc'),

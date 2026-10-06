@@ -153,6 +153,7 @@ final class _DescriptionColorDialogState
                     labelText: context.l10n.taskDescriptionColorHex,
                     hintText: '#RRGGBB / #AARRGGBB',
                     counterText: '',
+                    errorMaxLines: 8,
                     errorText:
                         _attempted &&
                             TaskDescriptionColorPicker.normalize(_hex.text) ==

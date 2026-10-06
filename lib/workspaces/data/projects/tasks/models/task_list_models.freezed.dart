@@ -2613,7 +2613,7 @@ as DateTime,
 /// @nodoc
 mixin _$BulkUpdateTaskSelectionPayload {
 
- String get selectionToken; ProjectTaskStatus? get status; String? get customStatusId; bool get clearCustomStatus; TaskPriority? get priority; DateTime? get dueAtUtc; bool get clearDueAtUtc; List<String>? get assigneeIds; bool get archive; List<String> get returnTaskIds;
+ String get selectionToken;@JsonKey(includeIfNull: false) List<BulkUpdateTaskItemPayload>? get tasks; ProjectTaskStatus? get status; String? get customStatusId; bool get clearCustomStatus; TaskPriority? get priority; DateTime? get dueAtUtc;@JsonKey(includeIfNull: false) String? get calendarTimeZoneId; bool get clearDueAtUtc; List<String>? get assigneeIds; bool get archive; List<String> get returnTaskIds;
 /// Create a copy of BulkUpdateTaskSelectionPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2626,16 +2626,16 @@ $BulkUpdateTaskSelectionPayloadCopyWith<BulkUpdateTaskSelectionPayload> get copy
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkUpdateTaskSelectionPayload&&(identical(other.selectionToken, selectionToken) || other.selectionToken == selectionToken)&&(identical(other.status, status) || other.status == status)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.clearCustomStatus, clearCustomStatus) || other.clearCustomStatus == clearCustomStatus)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.clearDueAtUtc, clearDueAtUtc) || other.clearDueAtUtc == clearDueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeIds, assigneeIds)&&(identical(other.archive, archive) || other.archive == archive)&&const DeepCollectionEquality().equals(other.returnTaskIds, returnTaskIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkUpdateTaskSelectionPayload&&(identical(other.selectionToken, selectionToken) || other.selectionToken == selectionToken)&&const DeepCollectionEquality().equals(other.tasks, tasks)&&(identical(other.status, status) || other.status == status)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.clearCustomStatus, clearCustomStatus) || other.clearCustomStatus == clearCustomStatus)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId)&&(identical(other.clearDueAtUtc, clearDueAtUtc) || other.clearDueAtUtc == clearDueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeIds, assigneeIds)&&(identical(other.archive, archive) || other.archive == archive)&&const DeepCollectionEquality().equals(other.returnTaskIds, returnTaskIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,selectionToken,status,customStatusId,clearCustomStatus,priority,dueAtUtc,clearDueAtUtc,const DeepCollectionEquality().hash(assigneeIds),archive,const DeepCollectionEquality().hash(returnTaskIds));
+int get hashCode => Object.hash(runtimeType,selectionToken,const DeepCollectionEquality().hash(tasks),status,customStatusId,clearCustomStatus,priority,dueAtUtc,calendarTimeZoneId,clearDueAtUtc,const DeepCollectionEquality().hash(assigneeIds),archive,const DeepCollectionEquality().hash(returnTaskIds));
 
 @override
 String toString() {
-  return 'BulkUpdateTaskSelectionPayload(selectionToken: $selectionToken, status: $status, customStatusId: $customStatusId, clearCustomStatus: $clearCustomStatus, priority: $priority, dueAtUtc: $dueAtUtc, clearDueAtUtc: $clearDueAtUtc, assigneeIds: $assigneeIds, archive: $archive, returnTaskIds: $returnTaskIds)';
+  return 'BulkUpdateTaskSelectionPayload(selectionToken: $selectionToken, tasks: $tasks, status: $status, customStatusId: $customStatusId, clearCustomStatus: $clearCustomStatus, priority: $priority, dueAtUtc: $dueAtUtc, calendarTimeZoneId: $calendarTimeZoneId, clearDueAtUtc: $clearDueAtUtc, assigneeIds: $assigneeIds, archive: $archive, returnTaskIds: $returnTaskIds)';
 }
 
 
@@ -2646,7 +2646,7 @@ abstract mixin class $BulkUpdateTaskSelectionPayloadCopyWith<$Res>  {
   factory $BulkUpdateTaskSelectionPayloadCopyWith(BulkUpdateTaskSelectionPayload value, $Res Function(BulkUpdateTaskSelectionPayload) _then) = _$BulkUpdateTaskSelectionPayloadCopyWithImpl;
 @useResult
 $Res call({
- String selectionToken, ProjectTaskStatus? status, String? customStatusId, bool clearCustomStatus, TaskPriority? priority, DateTime? dueAtUtc, bool clearDueAtUtc, List<String>? assigneeIds, bool archive, List<String> returnTaskIds
+ String selectionToken,@JsonKey(includeIfNull: false) List<BulkUpdateTaskItemPayload>? tasks, ProjectTaskStatus? status, String? customStatusId, bool clearCustomStatus, TaskPriority? priority, DateTime? dueAtUtc,@JsonKey(includeIfNull: false) String? calendarTimeZoneId, bool clearDueAtUtc, List<String>? assigneeIds, bool archive, List<String> returnTaskIds
 });
 
 
@@ -2663,15 +2663,17 @@ class _$BulkUpdateTaskSelectionPayloadCopyWithImpl<$Res>
 
 /// Create a copy of BulkUpdateTaskSelectionPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? selectionToken = null,Object? status = freezed,Object? customStatusId = freezed,Object? clearCustomStatus = null,Object? priority = freezed,Object? dueAtUtc = freezed,Object? clearDueAtUtc = null,Object? assigneeIds = freezed,Object? archive = null,Object? returnTaskIds = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? selectionToken = null,Object? tasks = freezed,Object? status = freezed,Object? customStatusId = freezed,Object? clearCustomStatus = null,Object? priority = freezed,Object? dueAtUtc = freezed,Object? calendarTimeZoneId = freezed,Object? clearDueAtUtc = null,Object? assigneeIds = freezed,Object? archive = null,Object? returnTaskIds = null,}) {
   return _then(_self.copyWith(
 selectionToken: null == selectionToken ? _self.selectionToken : selectionToken // ignore: cast_nullable_to_non_nullable
-as String,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,tasks: freezed == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
+as List<BulkUpdateTaskItemPayload>?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ProjectTaskStatus?,customStatusId: freezed == customStatusId ? _self.customStatusId : customStatusId // ignore: cast_nullable_to_non_nullable
 as String?,clearCustomStatus: null == clearCustomStatus ? _self.clearCustomStatus : clearCustomStatus // ignore: cast_nullable_to_non_nullable
 as bool,priority: freezed == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,clearDueAtUtc: null == clearDueAtUtc ? _self.clearDueAtUtc : clearDueAtUtc // ignore: cast_nullable_to_non_nullable
+as DateTime?,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,clearDueAtUtc: null == clearDueAtUtc ? _self.clearDueAtUtc : clearDueAtUtc // ignore: cast_nullable_to_non_nullable
 as bool,assigneeIds: freezed == assigneeIds ? _self.assigneeIds : assigneeIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,archive: null == archive ? _self.archive : archive // ignore: cast_nullable_to_non_nullable
 as bool,returnTaskIds: null == returnTaskIds ? _self.returnTaskIds : returnTaskIds // ignore: cast_nullable_to_non_nullable
@@ -2760,10 +2762,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String selectionToken,  ProjectTaskStatus? status,  String? customStatusId,  bool clearCustomStatus,  TaskPriority? priority,  DateTime? dueAtUtc,  bool clearDueAtUtc,  List<String>? assigneeIds,  bool archive,  List<String> returnTaskIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String selectionToken, @JsonKey(includeIfNull: false)  List<BulkUpdateTaskItemPayload>? tasks,  ProjectTaskStatus? status,  String? customStatusId,  bool clearCustomStatus,  TaskPriority? priority,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  bool clearDueAtUtc,  List<String>? assigneeIds,  bool archive,  List<String> returnTaskIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BulkUpdateTaskSelectionPayload() when $default != null:
-return $default(_that.selectionToken,_that.status,_that.customStatusId,_that.clearCustomStatus,_that.priority,_that.dueAtUtc,_that.clearDueAtUtc,_that.assigneeIds,_that.archive,_that.returnTaskIds);case _:
+return $default(_that.selectionToken,_that.tasks,_that.status,_that.customStatusId,_that.clearCustomStatus,_that.priority,_that.dueAtUtc,_that.calendarTimeZoneId,_that.clearDueAtUtc,_that.assigneeIds,_that.archive,_that.returnTaskIds);case _:
   return orElse();
 
 }
@@ -2781,10 +2783,10 @@ return $default(_that.selectionToken,_that.status,_that.customStatusId,_that.cle
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String selectionToken,  ProjectTaskStatus? status,  String? customStatusId,  bool clearCustomStatus,  TaskPriority? priority,  DateTime? dueAtUtc,  bool clearDueAtUtc,  List<String>? assigneeIds,  bool archive,  List<String> returnTaskIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String selectionToken, @JsonKey(includeIfNull: false)  List<BulkUpdateTaskItemPayload>? tasks,  ProjectTaskStatus? status,  String? customStatusId,  bool clearCustomStatus,  TaskPriority? priority,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  bool clearDueAtUtc,  List<String>? assigneeIds,  bool archive,  List<String> returnTaskIds)  $default,) {final _that = this;
 switch (_that) {
 case _BulkUpdateTaskSelectionPayload():
-return $default(_that.selectionToken,_that.status,_that.customStatusId,_that.clearCustomStatus,_that.priority,_that.dueAtUtc,_that.clearDueAtUtc,_that.assigneeIds,_that.archive,_that.returnTaskIds);case _:
+return $default(_that.selectionToken,_that.tasks,_that.status,_that.customStatusId,_that.clearCustomStatus,_that.priority,_that.dueAtUtc,_that.calendarTimeZoneId,_that.clearDueAtUtc,_that.assigneeIds,_that.archive,_that.returnTaskIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2801,10 +2803,10 @@ return $default(_that.selectionToken,_that.status,_that.customStatusId,_that.cle
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String selectionToken,  ProjectTaskStatus? status,  String? customStatusId,  bool clearCustomStatus,  TaskPriority? priority,  DateTime? dueAtUtc,  bool clearDueAtUtc,  List<String>? assigneeIds,  bool archive,  List<String> returnTaskIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String selectionToken, @JsonKey(includeIfNull: false)  List<BulkUpdateTaskItemPayload>? tasks,  ProjectTaskStatus? status,  String? customStatusId,  bool clearCustomStatus,  TaskPriority? priority,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  bool clearDueAtUtc,  List<String>? assigneeIds,  bool archive,  List<String> returnTaskIds)?  $default,) {final _that = this;
 switch (_that) {
 case _BulkUpdateTaskSelectionPayload() when $default != null:
-return $default(_that.selectionToken,_that.status,_that.customStatusId,_that.clearCustomStatus,_that.priority,_that.dueAtUtc,_that.clearDueAtUtc,_that.assigneeIds,_that.archive,_that.returnTaskIds);case _:
+return $default(_that.selectionToken,_that.tasks,_that.status,_that.customStatusId,_that.clearCustomStatus,_that.priority,_that.dueAtUtc,_that.calendarTimeZoneId,_that.clearDueAtUtc,_that.assigneeIds,_that.archive,_that.returnTaskIds);case _:
   return null;
 
 }
@@ -2816,15 +2818,17 @@ return $default(_that.selectionToken,_that.status,_that.customStatusId,_that.cle
 @JsonSerializable()
 
 class _BulkUpdateTaskSelectionPayload implements BulkUpdateTaskSelectionPayload {
-  const _BulkUpdateTaskSelectionPayload({required this.selectionToken, this.status, this.customStatusId, this.clearCustomStatus = false, this.priority, this.dueAtUtc, this.clearDueAtUtc = false, this.assigneeIds, this.archive = false, this.returnTaskIds = const <String>[]});
+  const _BulkUpdateTaskSelectionPayload({required this.selectionToken, @JsonKey(includeIfNull: false) this.tasks, this.status, this.customStatusId, this.clearCustomStatus = false, this.priority, this.dueAtUtc, @JsonKey(includeIfNull: false) this.calendarTimeZoneId, this.clearDueAtUtc = false, this.assigneeIds, this.archive = false, this.returnTaskIds = const <String>[]});
   factory _BulkUpdateTaskSelectionPayload.fromJson(Map<String, dynamic> json) => _$BulkUpdateTaskSelectionPayloadFromJson(json);
 
 @override final  String selectionToken;
+@override@JsonKey(includeIfNull: false) final  List<BulkUpdateTaskItemPayload>? tasks;
 @override final  ProjectTaskStatus? status;
 @override final  String? customStatusId;
 @override@JsonKey() final  bool clearCustomStatus;
 @override final  TaskPriority? priority;
 @override final  DateTime? dueAtUtc;
+@override@JsonKey(includeIfNull: false) final  String? calendarTimeZoneId;
 @override@JsonKey() final  bool clearDueAtUtc;
 @override final  List<String>? assigneeIds;
 @override@JsonKey() final  bool archive;
@@ -2843,16 +2847,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkUpdateTaskSelectionPayload&&(identical(other.selectionToken, selectionToken) || other.selectionToken == selectionToken)&&(identical(other.status, status) || other.status == status)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.clearCustomStatus, clearCustomStatus) || other.clearCustomStatus == clearCustomStatus)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.clearDueAtUtc, clearDueAtUtc) || other.clearDueAtUtc == clearDueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeIds, assigneeIds)&&(identical(other.archive, archive) || other.archive == archive)&&const DeepCollectionEquality().equals(other.returnTaskIds, returnTaskIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkUpdateTaskSelectionPayload&&(identical(other.selectionToken, selectionToken) || other.selectionToken == selectionToken)&&const DeepCollectionEquality().equals(other.tasks, tasks)&&(identical(other.status, status) || other.status == status)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.clearCustomStatus, clearCustomStatus) || other.clearCustomStatus == clearCustomStatus)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId)&&(identical(other.clearDueAtUtc, clearDueAtUtc) || other.clearDueAtUtc == clearDueAtUtc)&&const DeepCollectionEquality().equals(other.assigneeIds, assigneeIds)&&(identical(other.archive, archive) || other.archive == archive)&&const DeepCollectionEquality().equals(other.returnTaskIds, returnTaskIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,selectionToken,status,customStatusId,clearCustomStatus,priority,dueAtUtc,clearDueAtUtc,const DeepCollectionEquality().hash(assigneeIds),archive,const DeepCollectionEquality().hash(returnTaskIds));
+int get hashCode => Object.hash(runtimeType,selectionToken,const DeepCollectionEquality().hash(tasks),status,customStatusId,clearCustomStatus,priority,dueAtUtc,calendarTimeZoneId,clearDueAtUtc,const DeepCollectionEquality().hash(assigneeIds),archive,const DeepCollectionEquality().hash(returnTaskIds));
 
 @override
 String toString() {
-  return 'BulkUpdateTaskSelectionPayload(selectionToken: $selectionToken, status: $status, customStatusId: $customStatusId, clearCustomStatus: $clearCustomStatus, priority: $priority, dueAtUtc: $dueAtUtc, clearDueAtUtc: $clearDueAtUtc, assigneeIds: $assigneeIds, archive: $archive, returnTaskIds: $returnTaskIds)';
+  return 'BulkUpdateTaskSelectionPayload(selectionToken: $selectionToken, tasks: $tasks, status: $status, customStatusId: $customStatusId, clearCustomStatus: $clearCustomStatus, priority: $priority, dueAtUtc: $dueAtUtc, calendarTimeZoneId: $calendarTimeZoneId, clearDueAtUtc: $clearDueAtUtc, assigneeIds: $assigneeIds, archive: $archive, returnTaskIds: $returnTaskIds)';
 }
 
 
@@ -2863,7 +2867,7 @@ abstract mixin class _$BulkUpdateTaskSelectionPayloadCopyWith<$Res> implements $
   factory _$BulkUpdateTaskSelectionPayloadCopyWith(_BulkUpdateTaskSelectionPayload value, $Res Function(_BulkUpdateTaskSelectionPayload) _then) = __$BulkUpdateTaskSelectionPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String selectionToken, ProjectTaskStatus? status, String? customStatusId, bool clearCustomStatus, TaskPriority? priority, DateTime? dueAtUtc, bool clearDueAtUtc, List<String>? assigneeIds, bool archive, List<String> returnTaskIds
+ String selectionToken,@JsonKey(includeIfNull: false) List<BulkUpdateTaskItemPayload>? tasks, ProjectTaskStatus? status, String? customStatusId, bool clearCustomStatus, TaskPriority? priority, DateTime? dueAtUtc,@JsonKey(includeIfNull: false) String? calendarTimeZoneId, bool clearDueAtUtc, List<String>? assigneeIds, bool archive, List<String> returnTaskIds
 });
 
 
@@ -2880,15 +2884,17 @@ class __$BulkUpdateTaskSelectionPayloadCopyWithImpl<$Res>
 
 /// Create a copy of BulkUpdateTaskSelectionPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? selectionToken = null,Object? status = freezed,Object? customStatusId = freezed,Object? clearCustomStatus = null,Object? priority = freezed,Object? dueAtUtc = freezed,Object? clearDueAtUtc = null,Object? assigneeIds = freezed,Object? archive = null,Object? returnTaskIds = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? selectionToken = null,Object? tasks = freezed,Object? status = freezed,Object? customStatusId = freezed,Object? clearCustomStatus = null,Object? priority = freezed,Object? dueAtUtc = freezed,Object? calendarTimeZoneId = freezed,Object? clearDueAtUtc = null,Object? assigneeIds = freezed,Object? archive = null,Object? returnTaskIds = null,}) {
   return _then(_BulkUpdateTaskSelectionPayload(
 selectionToken: null == selectionToken ? _self.selectionToken : selectionToken // ignore: cast_nullable_to_non_nullable
-as String,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,tasks: freezed == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
+as List<BulkUpdateTaskItemPayload>?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ProjectTaskStatus?,customStatusId: freezed == customStatusId ? _self.customStatusId : customStatusId // ignore: cast_nullable_to_non_nullable
 as String?,clearCustomStatus: null == clearCustomStatus ? _self.clearCustomStatus : clearCustomStatus // ignore: cast_nullable_to_non_nullable
 as bool,priority: freezed == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,clearDueAtUtc: null == clearDueAtUtc ? _self.clearDueAtUtc : clearDueAtUtc // ignore: cast_nullable_to_non_nullable
+as DateTime?,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,clearDueAtUtc: null == clearDueAtUtc ? _self.clearDueAtUtc : clearDueAtUtc // ignore: cast_nullable_to_non_nullable
 as bool,assigneeIds: freezed == assigneeIds ? _self.assigneeIds : assigneeIds // ignore: cast_nullable_to_non_nullable
 as List<String>?,archive: null == archive ? _self.archive : archive // ignore: cast_nullable_to_non_nullable
 as bool,returnTaskIds: null == returnTaskIds ? _self.returnTaskIds : returnTaskIds // ignore: cast_nullable_to_non_nullable
@@ -3438,7 +3444,7 @@ as DateTime,
 /// @nodoc
 mixin _$UpdateTaskListItemPayload {
 
- String? get title;@JsonKey(includeIfNull: false) ProjectTaskStatus? get status; TaskPriority? get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc; bool get clearStartAtUtc; bool get clearDueAtUtc; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; bool get clearSize; bool get clearComplexity; bool get clearRisk; bool get clearBusinessValue; bool get clearEstimatedMinutes; String? get milestoneId; bool get clearMilestone;@JsonKey(includeIfNull: false) String? get customStatusId; int get expectedVersion;
+ String? get title;@JsonKey(includeIfNull: false) ProjectTaskStatus? get status; TaskPriority? get priority; DateTime? get startAtUtc; DateTime? get dueAtUtc;@JsonKey(includeIfNull: false) String? get calendarTimeZoneId; bool get clearStartAtUtc; bool get clearDueAtUtc; String? get taskType; int? get size; int? get complexity; int? get risk; int? get businessValue; int? get estimatedMinutes; bool get clearSize; bool get clearComplexity; bool get clearRisk; bool get clearBusinessValue; bool get clearEstimatedMinutes; String? get milestoneId; bool get clearMilestone;@JsonKey(includeIfNull: false) String? get customStatusId; int get expectedVersion;
 /// Create a copy of UpdateTaskListItemPayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3451,16 +3457,16 @@ $UpdateTaskListItemPayloadCopyWith<UpdateTaskListItemPayload> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateTaskListItemPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.clearStartAtUtc, clearStartAtUtc) || other.clearStartAtUtc == clearStartAtUtc)&&(identical(other.clearDueAtUtc, clearDueAtUtc) || other.clearDueAtUtc == clearDueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.clearSize, clearSize) || other.clearSize == clearSize)&&(identical(other.clearComplexity, clearComplexity) || other.clearComplexity == clearComplexity)&&(identical(other.clearRisk, clearRisk) || other.clearRisk == clearRisk)&&(identical(other.clearBusinessValue, clearBusinessValue) || other.clearBusinessValue == clearBusinessValue)&&(identical(other.clearEstimatedMinutes, clearEstimatedMinutes) || other.clearEstimatedMinutes == clearEstimatedMinutes)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.clearMilestone, clearMilestone) || other.clearMilestone == clearMilestone)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateTaskListItemPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId)&&(identical(other.clearStartAtUtc, clearStartAtUtc) || other.clearStartAtUtc == clearStartAtUtc)&&(identical(other.clearDueAtUtc, clearDueAtUtc) || other.clearDueAtUtc == clearDueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.clearSize, clearSize) || other.clearSize == clearSize)&&(identical(other.clearComplexity, clearComplexity) || other.clearComplexity == clearComplexity)&&(identical(other.clearRisk, clearRisk) || other.clearRisk == clearRisk)&&(identical(other.clearBusinessValue, clearBusinessValue) || other.clearBusinessValue == clearBusinessValue)&&(identical(other.clearEstimatedMinutes, clearEstimatedMinutes) || other.clearEstimatedMinutes == clearEstimatedMinutes)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.clearMilestone, clearMilestone) || other.clearMilestone == clearMilestone)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,status,priority,startAtUtc,dueAtUtc,clearStartAtUtc,clearDueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,clearSize,clearComplexity,clearRisk,clearBusinessValue,clearEstimatedMinutes,milestoneId,clearMilestone,customStatusId,expectedVersion]);
+int get hashCode => Object.hashAll([runtimeType,title,status,priority,startAtUtc,dueAtUtc,calendarTimeZoneId,clearStartAtUtc,clearDueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,clearSize,clearComplexity,clearRisk,clearBusinessValue,clearEstimatedMinutes,milestoneId,clearMilestone,customStatusId,expectedVersion]);
 
 @override
 String toString() {
-  return 'UpdateTaskListItemPayload(title: $title, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, clearStartAtUtc: $clearStartAtUtc, clearDueAtUtc: $clearDueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, clearSize: $clearSize, clearComplexity: $clearComplexity, clearRisk: $clearRisk, clearBusinessValue: $clearBusinessValue, clearEstimatedMinutes: $clearEstimatedMinutes, milestoneId: $milestoneId, clearMilestone: $clearMilestone, customStatusId: $customStatusId, expectedVersion: $expectedVersion)';
+  return 'UpdateTaskListItemPayload(title: $title, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, calendarTimeZoneId: $calendarTimeZoneId, clearStartAtUtc: $clearStartAtUtc, clearDueAtUtc: $clearDueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, clearSize: $clearSize, clearComplexity: $clearComplexity, clearRisk: $clearRisk, clearBusinessValue: $clearBusinessValue, clearEstimatedMinutes: $clearEstimatedMinutes, milestoneId: $milestoneId, clearMilestone: $clearMilestone, customStatusId: $customStatusId, expectedVersion: $expectedVersion)';
 }
 
 
@@ -3471,7 +3477,7 @@ abstract mixin class $UpdateTaskListItemPayloadCopyWith<$Res>  {
   factory $UpdateTaskListItemPayloadCopyWith(UpdateTaskListItemPayload value, $Res Function(UpdateTaskListItemPayload) _then) = _$UpdateTaskListItemPayloadCopyWithImpl;
 @useResult
 $Res call({
- String? title,@JsonKey(includeIfNull: false) ProjectTaskStatus? status, TaskPriority? priority, DateTime? startAtUtc, DateTime? dueAtUtc, bool clearStartAtUtc, bool clearDueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, bool clearSize, bool clearComplexity, bool clearRisk, bool clearBusinessValue, bool clearEstimatedMinutes, String? milestoneId, bool clearMilestone,@JsonKey(includeIfNull: false) String? customStatusId, int expectedVersion
+ String? title,@JsonKey(includeIfNull: false) ProjectTaskStatus? status, TaskPriority? priority, DateTime? startAtUtc, DateTime? dueAtUtc,@JsonKey(includeIfNull: false) String? calendarTimeZoneId, bool clearStartAtUtc, bool clearDueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, bool clearSize, bool clearComplexity, bool clearRisk, bool clearBusinessValue, bool clearEstimatedMinutes, String? milestoneId, bool clearMilestone,@JsonKey(includeIfNull: false) String? customStatusId, int expectedVersion
 });
 
 
@@ -3488,14 +3494,15 @@ class _$UpdateTaskListItemPayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateTaskListItemPayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = freezed,Object? status = freezed,Object? priority = freezed,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? clearStartAtUtc = null,Object? clearDueAtUtc = null,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? clearSize = null,Object? clearComplexity = null,Object? clearRisk = null,Object? clearBusinessValue = null,Object? clearEstimatedMinutes = null,Object? milestoneId = freezed,Object? clearMilestone = null,Object? customStatusId = freezed,Object? expectedVersion = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = freezed,Object? status = freezed,Object? priority = freezed,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? calendarTimeZoneId = freezed,Object? clearStartAtUtc = null,Object? clearDueAtUtc = null,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? clearSize = null,Object? clearComplexity = null,Object? clearRisk = null,Object? clearBusinessValue = null,Object? clearEstimatedMinutes = null,Object? milestoneId = freezed,Object? clearMilestone = null,Object? customStatusId = freezed,Object? expectedVersion = null,}) {
   return _then(_self.copyWith(
 title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ProjectTaskStatus?,priority: freezed == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority?,startAtUtc: freezed == startAtUtc ? _self.startAtUtc : startAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,clearStartAtUtc: null == clearStartAtUtc ? _self.clearStartAtUtc : clearStartAtUtc // ignore: cast_nullable_to_non_nullable
+as DateTime?,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,clearStartAtUtc: null == clearStartAtUtc ? _self.clearStartAtUtc : clearStartAtUtc // ignore: cast_nullable_to_non_nullable
 as bool,clearDueAtUtc: null == clearDueAtUtc ? _self.clearDueAtUtc : clearDueAtUtc // ignore: cast_nullable_to_non_nullable
 as bool,taskType: freezed == taskType ? _self.taskType : taskType // ignore: cast_nullable_to_non_nullable
 as String?,size: freezed == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
@@ -3597,10 +3604,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? title, @JsonKey(includeIfNull: false)  ProjectTaskStatus? status,  TaskPriority? priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  bool clearStartAtUtc,  bool clearDueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  bool clearSize,  bool clearComplexity,  bool clearRisk,  bool clearBusinessValue,  bool clearEstimatedMinutes,  String? milestoneId,  bool clearMilestone, @JsonKey(includeIfNull: false)  String? customStatusId,  int expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? title, @JsonKey(includeIfNull: false)  ProjectTaskStatus? status,  TaskPriority? priority,  DateTime? startAtUtc,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  bool clearStartAtUtc,  bool clearDueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  bool clearSize,  bool clearComplexity,  bool clearRisk,  bool clearBusinessValue,  bool clearEstimatedMinutes,  String? milestoneId,  bool clearMilestone, @JsonKey(includeIfNull: false)  String? customStatusId,  int expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateTaskListItemPayload() when $default != null:
-return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.clearStartAtUtc,_that.clearDueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.clearSize,_that.clearComplexity,_that.clearRisk,_that.clearBusinessValue,_that.clearEstimatedMinutes,_that.milestoneId,_that.clearMilestone,_that.customStatusId,_that.expectedVersion);case _:
+return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.calendarTimeZoneId,_that.clearStartAtUtc,_that.clearDueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.clearSize,_that.clearComplexity,_that.clearRisk,_that.clearBusinessValue,_that.clearEstimatedMinutes,_that.milestoneId,_that.clearMilestone,_that.customStatusId,_that.expectedVersion);case _:
   return orElse();
 
 }
@@ -3618,10 +3625,10 @@ return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.d
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? title, @JsonKey(includeIfNull: false)  ProjectTaskStatus? status,  TaskPriority? priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  bool clearStartAtUtc,  bool clearDueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  bool clearSize,  bool clearComplexity,  bool clearRisk,  bool clearBusinessValue,  bool clearEstimatedMinutes,  String? milestoneId,  bool clearMilestone, @JsonKey(includeIfNull: false)  String? customStatusId,  int expectedVersion)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? title, @JsonKey(includeIfNull: false)  ProjectTaskStatus? status,  TaskPriority? priority,  DateTime? startAtUtc,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  bool clearStartAtUtc,  bool clearDueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  bool clearSize,  bool clearComplexity,  bool clearRisk,  bool clearBusinessValue,  bool clearEstimatedMinutes,  String? milestoneId,  bool clearMilestone, @JsonKey(includeIfNull: false)  String? customStatusId,  int expectedVersion)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateTaskListItemPayload():
-return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.clearStartAtUtc,_that.clearDueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.clearSize,_that.clearComplexity,_that.clearRisk,_that.clearBusinessValue,_that.clearEstimatedMinutes,_that.milestoneId,_that.clearMilestone,_that.customStatusId,_that.expectedVersion);case _:
+return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.calendarTimeZoneId,_that.clearStartAtUtc,_that.clearDueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.clearSize,_that.clearComplexity,_that.clearRisk,_that.clearBusinessValue,_that.clearEstimatedMinutes,_that.milestoneId,_that.clearMilestone,_that.customStatusId,_that.expectedVersion);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3638,10 +3645,10 @@ return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.d
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? title, @JsonKey(includeIfNull: false)  ProjectTaskStatus? status,  TaskPriority? priority,  DateTime? startAtUtc,  DateTime? dueAtUtc,  bool clearStartAtUtc,  bool clearDueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  bool clearSize,  bool clearComplexity,  bool clearRisk,  bool clearBusinessValue,  bool clearEstimatedMinutes,  String? milestoneId,  bool clearMilestone, @JsonKey(includeIfNull: false)  String? customStatusId,  int expectedVersion)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? title, @JsonKey(includeIfNull: false)  ProjectTaskStatus? status,  TaskPriority? priority,  DateTime? startAtUtc,  DateTime? dueAtUtc, @JsonKey(includeIfNull: false)  String? calendarTimeZoneId,  bool clearStartAtUtc,  bool clearDueAtUtc,  String? taskType,  int? size,  int? complexity,  int? risk,  int? businessValue,  int? estimatedMinutes,  bool clearSize,  bool clearComplexity,  bool clearRisk,  bool clearBusinessValue,  bool clearEstimatedMinutes,  String? milestoneId,  bool clearMilestone, @JsonKey(includeIfNull: false)  String? customStatusId,  int expectedVersion)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateTaskListItemPayload() when $default != null:
-return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.clearStartAtUtc,_that.clearDueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.clearSize,_that.clearComplexity,_that.clearRisk,_that.clearBusinessValue,_that.clearEstimatedMinutes,_that.milestoneId,_that.clearMilestone,_that.customStatusId,_that.expectedVersion);case _:
+return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.dueAtUtc,_that.calendarTimeZoneId,_that.clearStartAtUtc,_that.clearDueAtUtc,_that.taskType,_that.size,_that.complexity,_that.risk,_that.businessValue,_that.estimatedMinutes,_that.clearSize,_that.clearComplexity,_that.clearRisk,_that.clearBusinessValue,_that.clearEstimatedMinutes,_that.milestoneId,_that.clearMilestone,_that.customStatusId,_that.expectedVersion);case _:
   return null;
 
 }
@@ -3653,7 +3660,7 @@ return $default(_that.title,_that.status,_that.priority,_that.startAtUtc,_that.d
 @JsonSerializable()
 
 class _UpdateTaskListItemPayload implements UpdateTaskListItemPayload {
-  const _UpdateTaskListItemPayload({this.title, @JsonKey(includeIfNull: false) this.status, this.priority, this.startAtUtc, this.dueAtUtc, this.clearStartAtUtc = false, this.clearDueAtUtc = false, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.clearSize = false, this.clearComplexity = false, this.clearRisk = false, this.clearBusinessValue = false, this.clearEstimatedMinutes = false, this.milestoneId, this.clearMilestone = false, @JsonKey(includeIfNull: false) this.customStatusId, required this.expectedVersion});
+  const _UpdateTaskListItemPayload({this.title, @JsonKey(includeIfNull: false) this.status, this.priority, this.startAtUtc, this.dueAtUtc, @JsonKey(includeIfNull: false) this.calendarTimeZoneId, this.clearStartAtUtc = false, this.clearDueAtUtc = false, this.taskType, this.size, this.complexity, this.risk, this.businessValue, this.estimatedMinutes, this.clearSize = false, this.clearComplexity = false, this.clearRisk = false, this.clearBusinessValue = false, this.clearEstimatedMinutes = false, this.milestoneId, this.clearMilestone = false, @JsonKey(includeIfNull: false) this.customStatusId, required this.expectedVersion});
   factory _UpdateTaskListItemPayload.fromJson(Map<String, dynamic> json) => _$UpdateTaskListItemPayloadFromJson(json);
 
 @override final  String? title;
@@ -3661,6 +3668,7 @@ class _UpdateTaskListItemPayload implements UpdateTaskListItemPayload {
 @override final  TaskPriority? priority;
 @override final  DateTime? startAtUtc;
 @override final  DateTime? dueAtUtc;
+@override@JsonKey(includeIfNull: false) final  String? calendarTimeZoneId;
 @override@JsonKey() final  bool clearStartAtUtc;
 @override@JsonKey() final  bool clearDueAtUtc;
 @override final  String? taskType;
@@ -3692,16 +3700,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateTaskListItemPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.clearStartAtUtc, clearStartAtUtc) || other.clearStartAtUtc == clearStartAtUtc)&&(identical(other.clearDueAtUtc, clearDueAtUtc) || other.clearDueAtUtc == clearDueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.clearSize, clearSize) || other.clearSize == clearSize)&&(identical(other.clearComplexity, clearComplexity) || other.clearComplexity == clearComplexity)&&(identical(other.clearRisk, clearRisk) || other.clearRisk == clearRisk)&&(identical(other.clearBusinessValue, clearBusinessValue) || other.clearBusinessValue == clearBusinessValue)&&(identical(other.clearEstimatedMinutes, clearEstimatedMinutes) || other.clearEstimatedMinutes == clearEstimatedMinutes)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.clearMilestone, clearMilestone) || other.clearMilestone == clearMilestone)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateTaskListItemPayload&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.startAtUtc, startAtUtc) || other.startAtUtc == startAtUtc)&&(identical(other.dueAtUtc, dueAtUtc) || other.dueAtUtc == dueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId)&&(identical(other.clearStartAtUtc, clearStartAtUtc) || other.clearStartAtUtc == clearStartAtUtc)&&(identical(other.clearDueAtUtc, clearDueAtUtc) || other.clearDueAtUtc == clearDueAtUtc)&&(identical(other.taskType, taskType) || other.taskType == taskType)&&(identical(other.size, size) || other.size == size)&&(identical(other.complexity, complexity) || other.complexity == complexity)&&(identical(other.risk, risk) || other.risk == risk)&&(identical(other.businessValue, businessValue) || other.businessValue == businessValue)&&(identical(other.estimatedMinutes, estimatedMinutes) || other.estimatedMinutes == estimatedMinutes)&&(identical(other.clearSize, clearSize) || other.clearSize == clearSize)&&(identical(other.clearComplexity, clearComplexity) || other.clearComplexity == clearComplexity)&&(identical(other.clearRisk, clearRisk) || other.clearRisk == clearRisk)&&(identical(other.clearBusinessValue, clearBusinessValue) || other.clearBusinessValue == clearBusinessValue)&&(identical(other.clearEstimatedMinutes, clearEstimatedMinutes) || other.clearEstimatedMinutes == clearEstimatedMinutes)&&(identical(other.milestoneId, milestoneId) || other.milestoneId == milestoneId)&&(identical(other.clearMilestone, clearMilestone) || other.clearMilestone == clearMilestone)&&(identical(other.customStatusId, customStatusId) || other.customStatusId == customStatusId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,status,priority,startAtUtc,dueAtUtc,clearStartAtUtc,clearDueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,clearSize,clearComplexity,clearRisk,clearBusinessValue,clearEstimatedMinutes,milestoneId,clearMilestone,customStatusId,expectedVersion]);
+int get hashCode => Object.hashAll([runtimeType,title,status,priority,startAtUtc,dueAtUtc,calendarTimeZoneId,clearStartAtUtc,clearDueAtUtc,taskType,size,complexity,risk,businessValue,estimatedMinutes,clearSize,clearComplexity,clearRisk,clearBusinessValue,clearEstimatedMinutes,milestoneId,clearMilestone,customStatusId,expectedVersion]);
 
 @override
 String toString() {
-  return 'UpdateTaskListItemPayload(title: $title, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, clearStartAtUtc: $clearStartAtUtc, clearDueAtUtc: $clearDueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, clearSize: $clearSize, clearComplexity: $clearComplexity, clearRisk: $clearRisk, clearBusinessValue: $clearBusinessValue, clearEstimatedMinutes: $clearEstimatedMinutes, milestoneId: $milestoneId, clearMilestone: $clearMilestone, customStatusId: $customStatusId, expectedVersion: $expectedVersion)';
+  return 'UpdateTaskListItemPayload(title: $title, status: $status, priority: $priority, startAtUtc: $startAtUtc, dueAtUtc: $dueAtUtc, calendarTimeZoneId: $calendarTimeZoneId, clearStartAtUtc: $clearStartAtUtc, clearDueAtUtc: $clearDueAtUtc, taskType: $taskType, size: $size, complexity: $complexity, risk: $risk, businessValue: $businessValue, estimatedMinutes: $estimatedMinutes, clearSize: $clearSize, clearComplexity: $clearComplexity, clearRisk: $clearRisk, clearBusinessValue: $clearBusinessValue, clearEstimatedMinutes: $clearEstimatedMinutes, milestoneId: $milestoneId, clearMilestone: $clearMilestone, customStatusId: $customStatusId, expectedVersion: $expectedVersion)';
 }
 
 
@@ -3712,7 +3720,7 @@ abstract mixin class _$UpdateTaskListItemPayloadCopyWith<$Res> implements $Updat
   factory _$UpdateTaskListItemPayloadCopyWith(_UpdateTaskListItemPayload value, $Res Function(_UpdateTaskListItemPayload) _then) = __$UpdateTaskListItemPayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String? title,@JsonKey(includeIfNull: false) ProjectTaskStatus? status, TaskPriority? priority, DateTime? startAtUtc, DateTime? dueAtUtc, bool clearStartAtUtc, bool clearDueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, bool clearSize, bool clearComplexity, bool clearRisk, bool clearBusinessValue, bool clearEstimatedMinutes, String? milestoneId, bool clearMilestone,@JsonKey(includeIfNull: false) String? customStatusId, int expectedVersion
+ String? title,@JsonKey(includeIfNull: false) ProjectTaskStatus? status, TaskPriority? priority, DateTime? startAtUtc, DateTime? dueAtUtc,@JsonKey(includeIfNull: false) String? calendarTimeZoneId, bool clearStartAtUtc, bool clearDueAtUtc, String? taskType, int? size, int? complexity, int? risk, int? businessValue, int? estimatedMinutes, bool clearSize, bool clearComplexity, bool clearRisk, bool clearBusinessValue, bool clearEstimatedMinutes, String? milestoneId, bool clearMilestone,@JsonKey(includeIfNull: false) String? customStatusId, int expectedVersion
 });
 
 
@@ -3729,14 +3737,15 @@ class __$UpdateTaskListItemPayloadCopyWithImpl<$Res>
 
 /// Create a copy of UpdateTaskListItemPayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = freezed,Object? status = freezed,Object? priority = freezed,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? clearStartAtUtc = null,Object? clearDueAtUtc = null,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? clearSize = null,Object? clearComplexity = null,Object? clearRisk = null,Object? clearBusinessValue = null,Object? clearEstimatedMinutes = null,Object? milestoneId = freezed,Object? clearMilestone = null,Object? customStatusId = freezed,Object? expectedVersion = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = freezed,Object? status = freezed,Object? priority = freezed,Object? startAtUtc = freezed,Object? dueAtUtc = freezed,Object? calendarTimeZoneId = freezed,Object? clearStartAtUtc = null,Object? clearDueAtUtc = null,Object? taskType = freezed,Object? size = freezed,Object? complexity = freezed,Object? risk = freezed,Object? businessValue = freezed,Object? estimatedMinutes = freezed,Object? clearSize = null,Object? clearComplexity = null,Object? clearRisk = null,Object? clearBusinessValue = null,Object? clearEstimatedMinutes = null,Object? milestoneId = freezed,Object? clearMilestone = null,Object? customStatusId = freezed,Object? expectedVersion = null,}) {
   return _then(_UpdateTaskListItemPayload(
 title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ProjectTaskStatus?,priority: freezed == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as TaskPriority?,startAtUtc: freezed == startAtUtc ? _self.startAtUtc : startAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueAtUtc: freezed == dueAtUtc ? _self.dueAtUtc : dueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime?,clearStartAtUtc: null == clearStartAtUtc ? _self.clearStartAtUtc : clearStartAtUtc // ignore: cast_nullable_to_non_nullable
+as DateTime?,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,clearStartAtUtc: null == clearStartAtUtc ? _self.clearStartAtUtc : clearStartAtUtc // ignore: cast_nullable_to_non_nullable
 as bool,clearDueAtUtc: null == clearDueAtUtc ? _self.clearDueAtUtc : clearDueAtUtc // ignore: cast_nullable_to_non_nullable
 as bool,taskType: freezed == taskType ? _self.taskType : taskType // ignore: cast_nullable_to_non_nullable
 as String?,size: freezed == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
@@ -4313,6 +4322,272 @@ as int,version: null == version ? _self.version : version // ignore: cast_nullab
 as int,updatedAtUtc: null == updatedAtUtc ? _self.updatedAtUtc : updatedAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,customStatusId: freezed == customStatusId ? _self.customStatusId : customStatusId // ignore: cast_nullable_to_non_nullable
 as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$BulkUpdateTaskItemPayload {
+
+ String get taskId; int get expectedVersion;
+/// Create a copy of BulkUpdateTaskItemPayload
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$BulkUpdateTaskItemPayloadCopyWith<BulkUpdateTaskItemPayload> get copyWith => _$BulkUpdateTaskItemPayloadCopyWithImpl<BulkUpdateTaskItemPayload>(this as BulkUpdateTaskItemPayload, _$identity);
+
+  /// Serializes this BulkUpdateTaskItemPayload to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkUpdateTaskItemPayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,taskId,expectedVersion);
+
+@override
+String toString() {
+  return 'BulkUpdateTaskItemPayload(taskId: $taskId, expectedVersion: $expectedVersion)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $BulkUpdateTaskItemPayloadCopyWith<$Res>  {
+  factory $BulkUpdateTaskItemPayloadCopyWith(BulkUpdateTaskItemPayload value, $Res Function(BulkUpdateTaskItemPayload) _then) = _$BulkUpdateTaskItemPayloadCopyWithImpl;
+@useResult
+$Res call({
+ String taskId, int expectedVersion
+});
+
+
+
+
+}
+/// @nodoc
+class _$BulkUpdateTaskItemPayloadCopyWithImpl<$Res>
+    implements $BulkUpdateTaskItemPayloadCopyWith<$Res> {
+  _$BulkUpdateTaskItemPayloadCopyWithImpl(this._self, this._then);
+
+  final BulkUpdateTaskItemPayload _self;
+  final $Res Function(BulkUpdateTaskItemPayload) _then;
+
+/// Create a copy of BulkUpdateTaskItemPayload
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? taskId = null,Object? expectedVersion = null,}) {
+  return _then(_self.copyWith(
+taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as String,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [BulkUpdateTaskItemPayload].
+extension BulkUpdateTaskItemPayloadPatterns on BulkUpdateTaskItemPayload {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _BulkUpdateTaskItemPayload value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _BulkUpdateTaskItemPayload() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _BulkUpdateTaskItemPayload value)  $default,){
+final _that = this;
+switch (_that) {
+case _BulkUpdateTaskItemPayload():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _BulkUpdateTaskItemPayload value)?  $default,){
+final _that = this;
+switch (_that) {
+case _BulkUpdateTaskItemPayload() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String taskId,  int expectedVersion)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _BulkUpdateTaskItemPayload() when $default != null:
+return $default(_that.taskId,_that.expectedVersion);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String taskId,  int expectedVersion)  $default,) {final _that = this;
+switch (_that) {
+case _BulkUpdateTaskItemPayload():
+return $default(_that.taskId,_that.expectedVersion);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String taskId,  int expectedVersion)?  $default,) {final _that = this;
+switch (_that) {
+case _BulkUpdateTaskItemPayload() when $default != null:
+return $default(_that.taskId,_that.expectedVersion);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _BulkUpdateTaskItemPayload implements BulkUpdateTaskItemPayload {
+  const _BulkUpdateTaskItemPayload({required this.taskId, required this.expectedVersion});
+  factory _BulkUpdateTaskItemPayload.fromJson(Map<String, dynamic> json) => _$BulkUpdateTaskItemPayloadFromJson(json);
+
+@override final  String taskId;
+@override final  int expectedVersion;
+
+/// Create a copy of BulkUpdateTaskItemPayload
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$BulkUpdateTaskItemPayloadCopyWith<_BulkUpdateTaskItemPayload> get copyWith => __$BulkUpdateTaskItemPayloadCopyWithImpl<_BulkUpdateTaskItemPayload>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$BulkUpdateTaskItemPayloadToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkUpdateTaskItemPayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.expectedVersion, expectedVersion) || other.expectedVersion == expectedVersion));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,taskId,expectedVersion);
+
+@override
+String toString() {
+  return 'BulkUpdateTaskItemPayload(taskId: $taskId, expectedVersion: $expectedVersion)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$BulkUpdateTaskItemPayloadCopyWith<$Res> implements $BulkUpdateTaskItemPayloadCopyWith<$Res> {
+  factory _$BulkUpdateTaskItemPayloadCopyWith(_BulkUpdateTaskItemPayload value, $Res Function(_BulkUpdateTaskItemPayload) _then) = __$BulkUpdateTaskItemPayloadCopyWithImpl;
+@override @useResult
+$Res call({
+ String taskId, int expectedVersion
+});
+
+
+
+
+}
+/// @nodoc
+class __$BulkUpdateTaskItemPayloadCopyWithImpl<$Res>
+    implements _$BulkUpdateTaskItemPayloadCopyWith<$Res> {
+  __$BulkUpdateTaskItemPayloadCopyWithImpl(this._self, this._then);
+
+  final _BulkUpdateTaskItemPayload _self;
+  final $Res Function(_BulkUpdateTaskItemPayload) _then;
+
+/// Create a copy of BulkUpdateTaskItemPayload
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? expectedVersion = null,}) {
+  return _then(_BulkUpdateTaskItemPayload(
+taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as String,expectedVersion: null == expectedVersion ? _self.expectedVersion : expectedVersion // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

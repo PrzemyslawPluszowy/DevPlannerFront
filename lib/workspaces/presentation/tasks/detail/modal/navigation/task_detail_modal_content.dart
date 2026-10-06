@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/data/projects/settings/project_settings_composition.dart';
 import 'package:devplanner/workspaces/domain/repositories/project_member_profiles_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/conversation/task_detail_chat_dependency_scope.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/conversation/task_detail_resource_conversation_slot.dart';
@@ -62,11 +63,14 @@ final class TaskDetailModalContent extends StatelessWidget {
             value: repository,
             child: detailChild,
           );
-    return TaskDetailScheduleRepositoryScope(
-      repository: snapshot.composition?.scheduleRepository,
-      child: TaskDetailMemberProfilesScope(
-        repository: repository,
-        child: scopedChild,
+    return RepositoryProvider<ProjectSettingsComposition?>.value(
+      value: snapshot.settingsComposition,
+      child: TaskDetailScheduleRepositoryScope(
+        repository: snapshot.composition?.scheduleRepository,
+        child: TaskDetailMemberProfilesScope(
+          repository: repository,
+          child: scopedChild,
+        ),
       ),
     );
   }
