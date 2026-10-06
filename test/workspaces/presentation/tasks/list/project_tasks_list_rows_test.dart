@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 void main() {
-  testWidgets('wiersz listy renderuje dane i opis semantyczny', (tester) async {
+  testWidgets('wiersz listy renderuje dane, semantykę i błąd bez zmiany wysokości', (tester) async {
     tester.view.physicalSize = const Size(1200, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -46,6 +46,7 @@ void main() {
               width: 2000,
               child: TaskListRow(
                 task: task,
+                errorMessage: 'Termin nie może być wcześniejszy od rozpoczęcia.',
                 memberProfilesByUserId: const {},
                 columns: const [
                   TaskSavedViewColumn.key,
@@ -61,6 +62,13 @@ void main() {
 
     expect(find.text('TASK-1'), findsNWidgets(2));
     expect(find.text('Przygotuj ofertę'), findsOneWidget);
+    expect(find.byIcon(Icons.error_outline), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(
+        'Termin nie może być wcześniejszy od rozpoczęcia.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('2/4'), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('TASK-1')), findsOneWidget);
 
@@ -212,6 +220,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('pl'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
@@ -231,7 +240,7 @@ void main() {
     await tester.longPress(find.byIcon(Symbols.repeat_rounded));
     await tester.pumpAndSettle();
     expect(
-      find.text('Cykliczność aktywna: co 2 tydzień (według harmonogramu)'),
+      find.text('Cykliczność: Aktywna. Co 2 tyg. (Według harmonogramu)'),
       findsOneWidget,
     );
   });

@@ -2,46 +2,60 @@ part of 'project_tasks_list_cubit.dart';
 
 /// Operacje item wydzielone poza klasę stanu listy.
 mixin TaskListItemMutationMixin on ProjectTasksListCubitPort {
+  bool get _canStartItemMutation {
+    final current = state;
+    return !isClosed &&
+        !_bulkMutationInFlight &&
+        current is ProjectTasksListReady &&
+        !current.isBulkSaving;
+  }
+
   /// Archiwizuje wyłącznie załadowany rekord i usuwa go z lokalnego snapshotu
   /// po potwierdzeniu serwera. Błąd pozostawia wiersz na miejscu z komunikatem,
   /// dzięki czemu użytkownik nie traci kontekstu. Jest używane przez bulk toolbar
   /// i menu kontekstowe pojedynczego wiersza.
   Future<bool> archiveLoadedTask(ProjectTaskListItemResponse task) async {
-    final result = await repository.archiveTask(
-      workspaceId: workspaceId,
-      projectId: projectId,
-      taskId: task.id,
-      expectedVersion: task.version,
-    );
-    if (isClosed) return false;
-    final current = state;
-    if (current is! ProjectTasksListReady) return false;
-    return result.fold(
-      (error) {
-        emit(
-          current.copyWith(
-            taskErrorsByTaskId: {
-              ...current.taskErrorsByTaskId,
-              task.id: error.message,
-            },
-          ),
-        );
-        return false;
-      },
-      (_) {
-        final sourceIndex = current.groups.indexWhere(
-          (group) => group.items.any((item) => item.id == task.id),
-        );
-        emit(TaskListSnapshot.removeTask(current, task.id));
-        // Zadanie może być załadowanym podzadaniem, wtedy nie jest w grupie,
-        // lecz znika wyłącznie z cache'u swojej gałęzi powyżej.
-        assert(
-          sourceIndex >= 0 || task.parentTaskId != null,
-          'Aktywne zadanie musi należeć do grupy lub do cache podzadań.',
-        );
-        return true;
-      },
-    );
+    if (!_canStartItemMutation) return false;
+    _beginLocalMutation();
+    try {
+      final result = await repository.archiveTask(
+        workspaceId: workspaceId,
+        projectId: projectId,
+        taskId: task.id,
+        expectedVersion: task.version,
+      );
+      if (isClosed) return false;
+      final current = state;
+      if (current is! ProjectTasksListReady) return false;
+      return result.fold<bool>(
+        (error) {
+          emit(
+            current.copyWith(
+              taskErrorsByTaskId: {
+                ...current.taskErrorsByTaskId,
+                task.id: error.message,
+              },
+            ),
+          );
+          return false;
+        },
+        (_) {
+          final sourceIndex = current.groups.indexWhere(
+            (group) => group.items.any((item) => item.id == task.id),
+          );
+          emit(TaskListSnapshot.removeTask(current, task.id));
+          // Zadanie może być załadowanym podzadaniem, wtedy nie jest w grupie,
+          // lecz znika wyłącznie z cache'u swojej gałęzi powyżej.
+          assert(
+            sourceIndex >= 0 || task.parentTaskId != null,
+            'Aktywne zadanie musi należeć do grupy lub do cache podzadań.',
+          );
+          return true;
+        },
+      );
+    } finally {
+      _endLocalMutation();
+    }
   }
 
   /// Zastępuje ownera i współpracowników jednego już załadowanego zadania.
@@ -51,6 +65,7 @@ mixin TaskListItemMutationMixin on ProjectTasksListCubitPort {
     ProjectTaskListItemResponse task,
     List<String> userIds,
   ) async {
+    if (!_canStartItemMutation) return false;
     final collaboration = collaborationRepository;
     if (collaboration == null) return false;
     _beginLocalMutation();
@@ -103,6 +118,7 @@ mixin TaskListItemMutationMixin on ProjectTasksListCubitPort {
     ProjectTaskListItemResponse task,
     bool isPinned,
   ) async {
+    if (!_canStartItemMutation) return false;
     final collaboration = collaborationRepository;
     if (collaboration == null) return false;
     _beginLocalMutation();
@@ -144,6 +160,7 @@ mixin TaskListItemMutationMixin on ProjectTasksListCubitPort {
   Future<bool> toggleWatchingForLoadedTask(
     ProjectTaskListItemResponse task,
   ) async {
+    if (!_canStartItemMutation) return false;
     final collaboration = collaborationRepository;
     if (collaboration == null) return false;
     _beginLocalMutation();
@@ -205,6 +222,7 @@ mixin TaskListItemMutationMixin on ProjectTasksListCubitPort {
     ProjectTaskListItemResponse task,
     List<String> labelIds,
   ) async {
+    if (!_canStartItemMutation) return false;
     final metadata = metadataRepository;
     if (metadata == null) return false;
     final current = state;

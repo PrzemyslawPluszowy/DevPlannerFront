@@ -122,6 +122,22 @@ class _BulkSelectionToolbar extends StatelessWidget {
 
     return TasksContextualBulkBar(
       selectedCount: count,
+      isSaving: state.isBulkSaving,
+      errorMessage: state.bulkError == null
+          ? null
+          : switch (state.bulkError!.code) {
+              'tasks.bulk.kanban_selection_limit' =>
+                context.l10n.tasksBulkKanbanLimit,
+              'tasks.bulk.save_failed' => context.l10n.tasksBulkSaveFailed,
+              _ =>
+                tasksViewErrorText(context.l10n, state.bulkError!.code) ??
+                    state.bulkError!.apiError?.message ??
+                    state.bulkError!.code,
+            },
+      onRetry: state.canRetryBulk
+          ? () =>
+                unawaited(context.read<TasksBoardCubit>().retryBulkOperation())
+          : null,
       onClearSelection: () =>
           context.read<TasksBoardCubit?>()?.clearTaskSelection(),
       controls: [
@@ -182,13 +198,32 @@ class _BulkDueDateAction {
 
   static Future<void> pick(BuildContext context) async {
     final cubit = context.read<TasksBoardCubit>();
-    final selected = await DevPlannerModalPickerHost.showDate(
+    final initial = cubit.state;
+    if (initial is! TasksBoardReady || initial.isBulkSaving) return;
+    final scope = TasksBoardBulkDueScope.fromReady(initial);
+    final choice = await TasksBulkDueDateDialog.show(
       context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDate: DateTime.now(),
+      currentValues: scope.values,
+      hasCompleteClockScope: scope.isComplete,
+      scopeLabel: context.l10n.tasksBulkSelected(
+        initial.selectedTaskIds.length,
+      ),
+      calendarTimeZoneId: cubit.calendarTimeZoneId,
     );
-    if (selected == null) return;
-    await cubit.bulkUpdateDueDate(selected);
+    if (!context.mounted || cubit.isClosed || choice == null) return;
+    final current = cubit.state;
+    if (current is! TasksBoardReady ||
+        current.isBulkSaving ||
+        current.filter != initial.filter ||
+        current.grouping != initial.grouping ||
+        current.selectedTaskIds.length != initial.selectedTaskIds.length ||
+        !current.selectedTaskIds.containsAll(initial.selectedTaskIds)) {
+      return;
+    }
+    if (choice.value == null) {
+      await cubit.bulkClearDueDate();
+    } else {
+      await cubit.bulkUpdateDueDate(choice.value!);
+    }
   }
 }

@@ -45,7 +45,11 @@ class _TasksHeaderLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final tasksTheme = context.tasksTheme;
-    final hasSelection = showBulkBar || state.selectedTaskIds.isNotEmpty;
+    final hasSelection =
+        showBulkBar ||
+        state.selectedTaskIds.isNotEmpty ||
+        state.isBulkSaving ||
+        state.bulkError != null;
     final quickFilter = state.userPreference?.quickFilter;
     final boardFilter = state.filter;
     final hasActiveQuickFilter =

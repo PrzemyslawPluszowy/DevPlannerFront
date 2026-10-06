@@ -55,6 +55,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     this.subtaskErrorsByParentId = const {},
     this.taskErrorsByTaskId = const {},
     this.selectedTaskIds = const {},
+    this.isBulkSaving = false,
+    this.bulkError,
+    this.canRetryBulk = false,
     this.selectionAnchorTaskId,
   });
 
@@ -82,6 +85,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
   final Map<String, String> subtaskErrorsByParentId;
   final Map<String, String> taskErrorsByTaskId;
   final Set<String> selectedTaskIds;
+  final bool isBulkSaving;
+  final ApiError? bulkError;
+  final bool canRetryBulk;
   final String? selectionAnchorTaskId;
 
   /// Jedno źródło informacji dla paska filtrów i prezentacji grup.
@@ -133,6 +139,10 @@ final class ProjectTasksListReady extends ProjectTasksListState {
     Map<String, String>? subtaskErrorsByParentId,
     Map<String, String>? taskErrorsByTaskId,
     Set<String>? selectedTaskIds,
+    bool? isBulkSaving,
+    ApiError? bulkError,
+    bool clearBulkError = false,
+    bool? canRetryBulk,
     String? selectionAnchorTaskId,
     bool clearSelectionAnchor = false,
   }) => ProjectTasksListReady(
@@ -164,6 +174,9 @@ final class ProjectTasksListReady extends ProjectTasksListState {
         subtaskErrorsByParentId ?? this.subtaskErrorsByParentId,
     taskErrorsByTaskId: taskErrorsByTaskId ?? this.taskErrorsByTaskId,
     selectedTaskIds: selectedTaskIds ?? this.selectedTaskIds,
+    isBulkSaving: isBulkSaving ?? this.isBulkSaving,
+    bulkError: clearBulkError ? null : bulkError ?? this.bulkError,
+    canRetryBulk: canRetryBulk ?? this.canRetryBulk,
     selectionAnchorTaskId: clearSelectionAnchor
         ? null
         : selectionAnchorTaskId ?? this.selectionAnchorTaskId,

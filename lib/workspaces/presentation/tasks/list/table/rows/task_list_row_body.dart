@@ -44,7 +44,29 @@ final class TaskListRowBody extends StatelessWidget {
         opacity: .35,
         child: TaskListRowInteraction(body: this, attachFocus: false),
       ),
-      child: TaskListRowInteraction(body: this),
+      child: row.errorMessage == null
+          ? TaskListRowInteraction(body: this)
+          : Stack(
+              children: [
+                TaskListRowInteraction(body: this),
+                if (row.errorMessage != null)
+                  Positioned(
+                    right: 5,
+                    top: 4,
+                    child: Tooltip(
+                      message: row.errorMessage,
+                      child: Semantics(
+                        label: row.errorMessage,
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 16,
+                          color: context.colors.error,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
     ),
   );
 

@@ -171,8 +171,14 @@ class _TaskListChromeHostState extends State<TaskListChromeHost> {
                   listCubit: _cubit,
                   preferencesCubit: _preferencesCubit,
                   showBulkBar: switch (listState) {
-                    ProjectTasksListReady(:final selectedTaskIds) =>
-                      selectedTaskIds.isNotEmpty,
+                    ProjectTasksListReady(
+                      :final selectedTaskIds,
+                      :final isBulkSaving,
+                      :final bulkError,
+                    ) =>
+                      selectedTaskIds.isNotEmpty ||
+                          isBulkSaving ||
+                          bulkError != null,
                     _ => false,
                   },
                   commandBar: TaskListCommandBar(

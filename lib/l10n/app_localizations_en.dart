@@ -12676,4 +12676,88 @@ class AppLocalizationsEn extends AppLocalizations {
   String taskAssigneesSelectionSummary(int count, int hidden) {
     return 'Selected: $count. Outside the current filter: $hidden.';
   }
+
+  @override
+  String get tasksBulkSaving => 'Saving changes…';
+
+  @override
+  String get tasksBulkStatus => 'Status';
+
+  @override
+  String get tasksBulkArchive => 'Archive';
+
+  @override
+  String get tasksBulkEntireResult => 'Entire filtered result';
+
+  @override
+  String get tasksBulkEntireGroup => 'Group of entire result';
+
+  @override
+  String tasksBulkGroup(String name) {
+    return 'Entire result: $name';
+  }
+
+  @override
+  String get tasksBulkDueExplanation =>
+      'This day and time will replace the existing due dates of all tasks in the chosen scope.';
+
+  @override
+  String get tasksBulkDueMixed =>
+      'Due date times differ, are not all known, or some tasks have none. The default common time is 00:00; you can change it.';
+
+  @override
+  String get tasksBulkHour => 'Hour';
+
+  @override
+  String get tasksBulkMinute => 'Minute';
+
+  @override
+  String tasksBulkTimeZone(String zone) {
+    return 'Time zone: $zone';
+  }
+
+  @override
+  String get tasksBulkInvalidLocalTime =>
+      'This local time does not exist on the chosen day because of daylight saving time. Choose another time.';
+
+  @override
+  String get tasksBulkClearDueDate => 'Clear due dates in this scope';
+
+  @override
+  String get tasksBulkConfirmScope => 'Confirm the scope of the change';
+
+  @override
+  String tasksBulkEntireScope(String filters, int count) {
+    return 'This change will affect $count tasks in the entire result, including pages that are not loaded. Filters: $filters.';
+  }
+
+  @override
+  String tasksBulkArchiveSelected(int count) {
+    return 'Archive $count selected tasks?';
+  }
+
+  @override
+  String get tasksBulkPinnedFilter => 'Pinned only';
+
+  @override
+  String get tasksBulkNoFilters =>
+      'No limiting filters — all tasks in the project';
+
+  @override
+  String get tasksBulkKanbanLimit =>
+      'You can change up to 100 selected cards at once. Reduce the selection.';
+
+  @override
+  String get tasksBulkErrorTitle => 'The operation could not be completed';
+
+  @override
+  String get tasksBulkSaveFailed =>
+      'Could not save the changes. Your selection is preserved; you can retry this operation.';
+
+  @override
+  String get tasksBulkSavedViewFilter => 'Saved view filters';
+
+  @override
+  String get tasksBulkScopeExpired =>
+      'The confirmed scope has expired or the filters have changed. Choose the entire-result action again and review its current scope.';
 }

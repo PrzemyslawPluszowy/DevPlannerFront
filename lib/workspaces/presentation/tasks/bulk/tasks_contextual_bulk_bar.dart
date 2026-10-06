@@ -1,4 +1,5 @@
 import 'package:devplanner/foundation/l10n/l10n.dart';
+import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,9 @@ class TasksContextualBulkBar extends StatelessWidget {
     required this.selectedCount,
     required this.controls,
     required this.onClearSelection,
+    this.isSaving = false,
+    this.errorMessage,
+    this.onRetry,
     super.key,
   });
 
@@ -26,6 +30,18 @@ class TasksContextualBulkBar extends StatelessWidget {
 
   /// Czyści zaznaczenie i zamyka pasek.
   final VoidCallback onClearSelection;
+  final bool isSaving;
+  final String? errorMessage;
+  final VoidCallback? onRetry;
+
+  Future<void> _showError(BuildContext context) async {
+    final message = errorMessage;
+    if (message == null || isSaving) return;
+    await DevPlannerModalHost.showDialog<void>(
+      context,
+      builder: (_) => TasksBulkErrorDialog(message: message),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +68,52 @@ class TasksContextualBulkBar extends StatelessWidget {
               style: tasksTheme.controlText.copyWith(color: colors.primary),
             ),
           ),
+          SizedBox(width: tasksTheme.controlGap),
+          SizedBox(
+            width: 320,
+            height: 36,
+            child: Row(
+              children: [
+                SizedBox.square(
+                  dimension: 16,
+                  child: isSaving
+                      ? const CircularProgressIndicator(strokeWidth: 2)
+                      : errorMessage == null
+                      ? const SizedBox.shrink()
+                      : Icon(
+                          Symbols.error_outline_rounded,
+                          size: 16,
+                          color: colors.error,
+                        ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: errorMessage != null && !isSaving
+                      ? TextButton(
+                          key: const ValueKey('bulk_error_details'),
+                          onPressed: () => _showError(context),
+                          child: Text(
+                            errorMessage!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: tasksTheme.metaText.copyWith(
+                              color: colors.error,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          isSaving ? context.l10n.tasksBulkSaving : '',
+                          style: tasksTheme.metaText,
+                        ),
+                ),
+                if (errorMessage != null && onRetry != null)
+                  TextButton(
+                    onPressed: isSaving ? null : onRetry,
+                    child: Text(context.l10n.retry),
+                  ),
+              ],
+            ),
+          ),
           for (final control in controls) ...[
             SizedBox(width: tasksTheme.controlGap),
             control,
@@ -60,8 +122,8 @@ class TasksContextualBulkBar extends StatelessWidget {
           TasksBulkButton(
             key: const ValueKey('bulk_clear_selection'),
             icon: Symbols.close_rounded,
-            label: 'Wyczyść',
-            onTap: onClearSelection,
+            label: context.l10n.tasksBulkClearSelection,
+            onTap: isSaving ? null : onClearSelection,
           ),
         ],
       ),
@@ -88,7 +150,11 @@ class TasksBulkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final tasksTheme = context.tasksTheme;
     final colors = context.colors;
-    final foreground = isDestructive ? colors.error : colors.onSurface;
+    final foreground = onTap == null
+        ? colors.onSurface.withValues(alpha: .38)
+        : isDestructive
+        ? colors.error
+        : colors.onSurface;
 
     return Tooltip(
       message: label,
@@ -154,8 +220,51 @@ class TasksBulkMenu<T> extends StatelessWidget {
               options: options,
               headerTitle: label,
             );
-            if (selected == null) return;
+            if (!context.mounted || selected == null) return;
             onSelected(selected);
           },
+  );
+}
+
+/// Czytelny pełny komunikat bez zwiększania wysokości nagłówka.
+class TasksBulkErrorDialog extends StatelessWidget {
+  const TasksBulkErrorDialog({required this.message, super.key});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Dialog(
+    backgroundColor: context.colors.surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(context.tasksTheme.controlRadius),
+      side: BorderSide(color: context.colors.outlineVariant),
+    ),
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 520),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n.tasksBulkErrorTitle,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              SelectableText(message, style: context.tasksTheme.controlText),
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(context.l10n.close),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }

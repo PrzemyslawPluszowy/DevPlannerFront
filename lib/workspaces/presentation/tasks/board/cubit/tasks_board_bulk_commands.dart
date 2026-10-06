@@ -1,385 +1,352 @@
 import 'package:dartz/dartz.dart';
-import 'package:devplanner/foundation/error/error.dart';
+import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/kanban/models/kanban_models.dart';
-import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
+import 'package:devplanner/workspaces/domain/models/tasks_board_grouping.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
-import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_card_state_mutator.dart';
+import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_command_context.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
-import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_error_messages.dart';
 import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
 
-/// Operacje zaznaczenia, masowe oraz przeciąganie kart Kanbana.
+/// Atomowe operacje zaznaczenia z jawnym stanem zapisu i ponowienia.
 final class TasksBoardBulkCommands {
   TasksBoardBulkCommands({
     required this._context,
-    this.calendarTimeZoneId,
     required this._repository,
-    required this._canMoveTaskTo,
+    required this._tasksRepository,
+    required this._boardQueryRevision,
+    required this._scopeRevision,
+    this.calendarTimeZoneId,
   });
 
   final TasksBoardCommandContext _context;
-  final String? calendarTimeZoneId;
   final KanbanRepository _repository;
-  final bool Function({
-    required KanbanTaskCardResponse task,
-    required KanbanColumnResponse targetColumn,
-  })
-  _canMoveTaskTo;
+  final TasksRepository _tasksRepository;
+  final int Function() _boardQueryRevision;
+  final int Function() _scopeRevision;
+  final String? calendarTimeZoneId;
+  bool _inFlight = false;
+  Future<void> Function()? _retry;
+  TasksBoardReady? _failedScope;
+  Set<String> _failedIds = const {};
 
   void toggleSelection(KanbanTaskCardResponse task) {
     final current = _context.currentState;
-    if (current is! TasksBoardReady || current.isBulkSaving) return;
+    if (current is! TasksBoardReady || _inFlight || current.isBulkSaving) {
+      return;
+    }
     final selected = {...current.selectedTaskIds};
     selected.contains(task.id)
         ? selected.remove(task.id)
         : selected.add(task.id);
-    _context.publish(current.copyWith(selectedTaskIds: selected));
+    _selectionChanged(current, selected);
   }
 
   void clearSelection() {
     final current = _context.currentState;
-    if (current is! TasksBoardReady || current.selectedTaskIds.isEmpty) return;
-    _context.publish(current.copyWith(selectedTaskIds: const <String>{}));
+    if (current is! TasksBoardReady ||
+        _inFlight ||
+        current.isBulkSaving ||
+        current.selectedTaskIds.isEmpty) {
+      return;
+    }
+    _selectionChanged(current, const {});
   }
 
   void selectAllLoaded() {
     final current = _context.currentState;
-    if (current is! TasksBoardReady || current.isBulkSaving) return;
-    final ids = {
-      for (final column in current.board.columns)
-        for (final task in column.tasks) task.id,
-    };
-    if (ids.isEmpty ||
-        (ids.length == current.selectedTaskIds.length &&
-            ids.containsAll(current.selectedTaskIds))) {
+    if (current is! TasksBoardReady || _inFlight || current.isBulkSaving) {
       return;
     }
-    _context.publish(current.copyWith(selectedTaskIds: ids));
+    _selectionChanged(current, {
+      for (final task in _loadedCards(current)) task.id,
+    });
   }
 
-  Future<void> bulkMove(KanbanColumnResponse targetColumn) async {
-    final current = _beginBulk(_context.currentState);
-    if (current == null) return;
-    final result = await _repository.bulkMove(
+  void _selectionChanged(TasksBoardReady current, Set<String> selected) {
+    _retry = null;
+    _context.publish(
+      current.copyWith(
+        selectedTaskIds: selected,
+        clearBulkError: true,
+        canRetryBulk: false,
+      ),
+    );
+  }
+
+  Future<void> retryBulkOperation() async {
+    final current = _context.currentState;
+    final retry = _retry;
+    if (_inFlight ||
+        _context.isBoardClosed ||
+        retry == null ||
+        current is! TasksBoardReady ||
+        !current.canRetryBulk ||
+        !_sameScope(current, _failedScope) ||
+        current.selectedTaskIds.length != _failedIds.length ||
+        !current.selectedTaskIds.containsAll(_failedIds)) {
+      return;
+    }
+    await retry();
+  }
+
+  Future<void> bulkMove(KanbanColumnResponse targetColumn) => _run(
+    (current) => _repository.bulkMove(
       workspaceId: _context.workspaceId,
       projectId: _context.projectId,
       payload: BulkMoveKanbanTasksPayload(
         targetStatus: targetColumn.status,
         customStatusId: targetColumn.customStatusId,
-        tasks: _selectedCards(current)
-            .map(
-              (card) => BulkMoveKanbanTaskItemPayload(
-                taskId: card.id,
-                expectedVersion: card.version,
-              ),
-            )
-            .toList(growable: false),
+        tasks: [
+          for (final card in _selectedCards(current))
+            BulkMoveKanbanTaskItemPayload(
+              taskId: card.id,
+              expectedVersion: card.version,
+            ),
+        ],
       ),
-    );
-    await _completeBulk(result);
-  }
+    ),
+    retry: () => bulkMove(targetColumn),
+  );
 
   Future<void> bulkUpdatePriority(TaskPriority priority) =>
       _bulkUpdate(priority: priority);
-
   Future<void> bulkUpdateDueDate(DateTime dueAtUtc) =>
       _bulkUpdate(dueAtUtc: dueAtUtc.toUtc());
 
-  Future<void> _bulkUpdate({TaskPriority? priority, DateTime? dueAtUtc}) async {
-    final current = _beginBulk(_context.currentState);
-    if (current == null) return;
-    final result = await _repository.bulkUpdate(
+  Future<void> bulkClearDueDate() => _run(
+    (current) => _tasksRepository.bulkUpdateTaskSelection(
       workspaceId: _context.workspaceId,
       projectId: _context.projectId,
-      payload: BulkUpdateKanbanTasksPayload(
-        priority: priority,
-        dueAtUtc: dueAtUtc,
-        calendarTimeZoneId: dueAtUtc == null ? null : calendarTimeZoneId,
-        tasks: _selectedCards(current)
-            .map(
-              (card) => BulkUpdateKanbanTaskItemPayload(
-                taskId: card.id,
-                expectedVersion: card.version,
-              ),
-            )
-            .toList(growable: false),
-      ),
-    );
-    await _completeBulk(result);
-  }
-
-  Future<void> move({
-    required KanbanTaskCardResponse task,
-    required KanbanColumnResponse targetColumn,
-    required int targetIndex,
-  }) async {
-    final current = _context.currentState;
-    if (current is! TasksBoardReady) return;
-    final latestTask = TasksBoardCardStateMutator.findCard(current, task.id);
-    if (latestTask == null) {
-      _publishError(
-        current,
-        'Zadanie nie jest już dostępne na aktualnej tablicy.',
-      );
-      return;
-    }
-    if (!_canMoveTaskTo(task: latestTask, targetColumn: targetColumn)) {
-      _publishError(
-        current,
-        'To przejście statusu nie jest dozwolone w workflow.',
-      );
-      return;
-    }
-    final sourceColumn = current.board.columns
-        .where((column) => column.tasks.any((item) => item.id == latestTask.id))
-        .firstOrNull;
-    if (sourceColumn == null) return;
-    final sourceKey = _columnKey(sourceColumn);
-    final targetKey = _columnKey(targetColumn);
-    final sameColumn = sourceKey == targetKey;
-    final sourceIndex = sourceColumn.tasks.indexWhere(
-      (item) => item.id == latestTask.id,
-    );
-    final adjustedIndex =
-        sameColumn && sourceIndex >= 0 && sourceIndex < targetIndex
-        ? targetIndex - 1
-        : targetIndex;
-    final targetCards = targetColumn.tasks
-        .where((item) => item.id != latestTask.id)
-        .toList(growable: true);
-    // Backend waliduje wstawienie względem pełnej kolumny, a filtr może ukryć
-    // całą jej zawartość. Wtedy nie da się wskazać sąsiada, więc zamiast
-    // wysyłać żądanie, które Backend musi odrzucić, zatrzymujemy ruch lokalnie.
-    if (targetCards.isEmpty && _hidesColumnContents(current)) {
-      _publishError(current, TasksBoardErrorCodes.moveBlockedByFilter);
-      return;
-    }
-    final safeIndex = adjustedIndex.clamp(0, targetCards.length);
-    final previousTaskId = safeIndex == 0
-        ? null
-        : targetCards[safeIndex - 1].id;
-    final nextTaskId = safeIndex == targetCards.length
-        ? null
-        : targetCards[safeIndex].id;
-    targetCards.insert(
-      safeIndex,
-      latestTask.copyWith(
-        status: targetColumn.status,
-        customStatusId: targetColumn.customStatusId,
-      ),
-    );
-    _context.publish(
-      current.copyWith(
-        board: current.board.copyWith(
-          columns: current.board.columns
-              .map((column) {
-                final key = _columnKey(column);
-                if (key == targetKey) {
-                  return column.copyWith(
-                    tasks: targetCards,
-                    totalTaskCount: sameColumn
-                        ? column.totalTaskCount
-                        : column.totalTaskCount + 1,
-                  );
-                }
-                if (key == sourceKey) {
-                  return column.copyWith(
-                    tasks: column.tasks
-                        .where((item) => item.id != latestTask.id)
-                        .toList(),
-                    totalTaskCount: (column.totalTaskCount - 1).clamp(
-                      0,
-                      1 << 31,
-                    ),
-                  );
-                }
-                return column;
-              })
-              .toList(growable: false),
-        ),
-        pendingTaskIds: {...current.pendingTaskIds, latestTask.id},
-        clearError: true,
-      ),
-    );
-    final result = await _repository.moveTask(
-      workspaceId: _context.workspaceId,
-      projectId: _context.projectId,
-      taskId: latestTask.id,
-      payload: MoveKanbanTaskPayload(
-        targetStatus: targetColumn.status,
-        previousTaskId: previousTaskId,
-        nextTaskId: nextTaskId,
-        expectedVersion: latestTask.version,
-        customStatusId: targetColumn.customStatusId,
-      ),
-    );
-    if (_context.isBoardClosed) return;
-    result.fold(
-      (error) => _rollbackMove(
-        task: latestTask,
-        sourceKey: sourceKey,
-        targetKey: targetKey,
-        sourceIndex: sourceIndex,
-        sameColumn: sameColumn,
-        errorMessage: error.message,
-      ),
-      (response) => _confirmMove(
-        taskId: latestTask.id,
-        targetKey: targetKey,
-        response: response,
-      ),
-    );
-  }
-
-  TasksBoardReady? _beginBulk(TasksBoardState state) {
-    if (state is! TasksBoardReady ||
-        state.isBulkSaving ||
-        state.selectedTaskIds.isEmpty) {
-      return null;
-    }
-    final cards = _selectedCards(state);
-    if (cards.isEmpty) return null;
-    _context.publish(
-      state.copyWith(isBulkSaving: true, clearError: true),
-    );
-    return state;
-  }
-
-  Future<void> _completeBulk<T>(Either<ApiError, T> result) async {
-    if (_context.isBoardClosed) return;
-    await result.fold(
-      (error) async {
-        final ready = _context.currentState;
-        if (ready is TasksBoardReady) {
-          _context.publish(
-            ready.copyWith(
-              isBulkSaving: false,
-              error: tasksViewErrorFrom(error),
+      payload: BulkUpdateTaskSelectionPayload(
+        selectionToken: '',
+        clearDueAtUtc: true,
+        calendarTimeZoneId: calendarTimeZoneId,
+        tasks: [
+          for (final card in _selectedCards(current))
+            BulkUpdateTaskItemPayload(
+              taskId: card.id,
+              expectedVersion: card.version,
             ),
-          );
-        }
-      },
-      (_) async {
-        // Zaznaczenie czyścimy jawnie: karty zmieniły kolumnę, a odczyt tablicy
-        // zachowuje stan operacyjny, więc nie zniknie już przy okazji.
-        final ready = _context.currentState;
-        if (ready is TasksBoardReady && ready.selectedTaskIds.isNotEmpty) {
-          _context.publish(
-            ready.copyWith(selectedTaskIds: const <String>{}),
-          );
-        }
-        await _context.reloadBoard(force: true);
-      },
-    );
-  }
-
-  List<KanbanTaskCardResponse> _selectedCards(TasksBoardReady state) => [
-    for (final column in state.board.columns)
-      for (final task in column.tasks)
-        if (state.selectedTaskIds.contains(task.id)) task,
-  ];
-
-  void _rollbackMove({
-    required KanbanTaskCardResponse task,
-    required String sourceKey,
-    required String targetKey,
-    required int sourceIndex,
-    required bool sameColumn,
-    required String errorMessage,
-  }) {
-    final current = _context.currentState;
-    if (current is! TasksBoardReady) return;
-    final columns = current.board.columns
-        .map((column) {
-          final key = _columnKey(column);
-          if (key == targetKey) {
-            return column.copyWith(
-              tasks: column.tasks.where((item) => item.id != task.id).toList(),
-              totalTaskCount: sameColumn
-                  ? column.totalTaskCount
-                  : (column.totalTaskCount - 1).clamp(0, 1 << 31),
-            );
-          }
-          if (key == sourceKey) {
-            final restored = column.tasks
-                .where((item) => item.id != task.id)
-                .toList();
-            restored.insert(sourceIndex.clamp(0, restored.length), task);
-            return column.copyWith(
-              tasks: restored,
-              totalTaskCount: sameColumn
-                  ? column.totalTaskCount
-                  : column.totalTaskCount + 1,
-            );
-          }
-          return column;
-        })
-        .toList(growable: false);
-    _context.publish(
-      current.copyWith(
-        board: current.board.copyWith(columns: columns),
-        pendingTaskIds: {...current.pendingTaskIds}..remove(task.id),
-        failedTaskIds: {...current.failedTaskIds, task.id},
-        error: TasksViewError(code: errorMessage),
+        ],
+        returnTaskIds: [for (final card in _selectedCards(current)) card.id],
       ),
-    );
-  }
-
-  void _confirmMove({
-    required String taskId,
-    required String targetKey,
-    required MoveKanbanTaskResponse response,
-  }) {
-    final current = _context.currentState;
-    if (current is! TasksBoardReady) return;
-    final card = TasksBoardCardStateMutator.findCard(current, response.task.id);
-    if (card != null && card.version > response.task.version) {
-      _context.publish(
-        current.copyWith(
-          pendingTaskIds: {...current.pendingTaskIds}..remove(taskId),
-        ),
-      );
-      return;
-    }
-    final columns = current.board.columns
-        .map((column) {
-          if (_columnKey(column) != targetKey) return column;
-          return column.copyWith(
-            tasks: column.tasks
-                .map(
-                  (item) => item.id == response.task.id ? response.task : item,
-                )
-                .toList(growable: false),
-            totalTaskCount: response.targetColumnTaskCount,
-            wipLimit: response.targetColumnWipLimit,
-            isWipLimitExceeded: response.isWipLimitExceeded,
-          );
-        })
-        .toList(growable: false);
-    _context.publish(
-      current.copyWith(
-        board: current.board.copyWith(columns: columns),
-        pendingTaskIds: {...current.pendingTaskIds}..remove(taskId),
-        failedTaskIds: {...current.failedTaskIds}..remove(taskId),
-      ),
-    );
-  }
-
-  /// Czy aktywny filtr może ukrywać karty poza tym, co widać na tablicy.
-  ///
-  /// Filtr tablicy i osobisty szybki filtr zawężają karty po stronie Backendu,
-  /// więc pusta kolumna na ekranie nie musi być pusta w bazie.
-  bool _hidesColumnContents(TasksBoardReady state) =>
-      state.filter.isActive ||
-      (state.userPreference?.quickFilter ?? KanbanQuickFilter.all) !=
-          KanbanQuickFilter.all;
-
-  void _publishError(TasksBoardReady state, String message) => _context.publish(
-    state.copyWith(error: TasksViewError(code: message)),
+    ),
+    retry: bulkClearDueDate,
   );
 
-  String _columnKey(KanbanColumnResponse column) =>
-      column.customStatusId ?? column.status.name;
+  Future<void> _bulkUpdate({TaskPriority? priority, DateTime? dueAtUtc}) =>
+      _run(
+        (current) => _repository.bulkUpdate(
+          workspaceId: _context.workspaceId,
+          projectId: _context.projectId,
+          payload: BulkUpdateKanbanTasksPayload(
+            priority: priority,
+            dueAtUtc: dueAtUtc,
+            calendarTimeZoneId: dueAtUtc == null ? null : calendarTimeZoneId,
+            tasks: [
+              for (final card in _selectedCards(current))
+                BulkUpdateKanbanTaskItemPayload(
+                  taskId: card.id,
+                  expectedVersion: card.version,
+                ),
+            ],
+          ),
+        ),
+        retry: () => _bulkUpdate(priority: priority, dueAtUtc: dueAtUtc),
+      );
+
+  Future<void> _run<T>(
+    Future<Either<ApiError, T>> Function(TasksBoardReady) operation, {
+    required Future<void> Function() retry,
+  }) async {
+    final initial = _context.currentState;
+    if (_context.isBoardClosed ||
+        _inFlight ||
+        initial is! TasksBoardReady ||
+        initial.isBulkSaving ||
+        initial.pendingTaskIds.isNotEmpty ||
+        initial.selectedTaskIds.isEmpty) {
+      return;
+    }
+    final cards = _selectedCards(initial);
+    if (cards.isEmpty) {
+      return;
+    }
+    if (cards.length > 100) {
+      _context.publish(
+        initial.copyWith(
+          bulkError: const TasksViewError(
+            code: 'tasks.bulk.kanban_selection_limit',
+            canRetry: false,
+          ),
+          canRetryBulk: false,
+        ),
+      );
+      return;
+    }
+    final revision = _scopeRevision();
+    _retry = null;
+    _inFlight = true;
+    _context.publish(
+      initial.copyWith(
+        isBulkSaving: true,
+        clearBulkError: true,
+        canRetryBulk: false,
+      ),
+    );
+    try {
+      final result = await operation(initial);
+      final current = _context.currentState;
+      if (_context.isBoardClosed ||
+          current is! TasksBoardReady ||
+          revision != _scopeRevision() ||
+          !_sameScope(current, initial)) {
+        return;
+      }
+      await result.fold(
+        (error) async {
+          _failedScope = current;
+          _failedIds = Set.unmodifiable(current.selectedTaskIds);
+          final allowed =
+              error.type != ApiErrorType.unauthorized &&
+              error.type != ApiErrorType.forbidden &&
+              error.type != ApiErrorType.notFound;
+          _retry = allowed ? retry : null;
+          _context.publish(
+            current.copyWith(
+              isBulkSaving: false,
+              bulkError: tasksViewErrorFrom(error, canRetry: allowed),
+              canRetryBulk: allowed,
+            ),
+          );
+        },
+        (_) async {
+          final saved = current.copyWith(
+            selectedTaskIds: current.selectedTaskIds.difference(
+              initial.selectedTaskIds,
+            ),
+            clearBulkError: true,
+            canRetryBulk: false,
+          );
+          _context.publish(saved);
+          await _refreshSaved(saved);
+        },
+      );
+    } catch (_) {
+      final current = _context.currentState;
+      if (!_context.isBoardClosed &&
+          current is TasksBoardReady &&
+          revision == _scopeRevision() &&
+          _sameScope(current, initial)) {
+        _failedScope = current;
+        _failedIds = Set.unmodifiable(current.selectedTaskIds);
+        _retry = retry;
+        _context.publish(
+          current.copyWith(
+            bulkError: const TasksViewError(code: 'tasks.bulk.save_failed'),
+            canRetryBulk: true,
+          ),
+        );
+      }
+    } finally {
+      _inFlight = false;
+      final current = _context.currentState;
+      if (!_context.isBoardClosed &&
+          current is TasksBoardReady &&
+          current.isBulkSaving) {
+        _context.publish(current.copyWith(isBulkSaving: false));
+      }
+    }
+  }
+
+  /// Po udanym zapisie ponawiamy tylko odczyt, nigdy samą mutację.
+  Future<void> _refreshSaved(TasksBoardReady saved) async {
+    final revision = _boardQueryRevision();
+    final scopeRevision = _scopeRevision();
+    try {
+      await _context.reloadActiveBoard(force: true);
+      if (_context.isBoardClosed ||
+          _scopeRevision() != scopeRevision ||
+          _boardQueryRevision() != revision + 1) {
+        return;
+      }
+      if (_context.currentState is! TasksBoardFailure) {
+        return;
+      }
+    } catch (_) {
+      if (_context.isBoardClosed ||
+          _scopeRevision() != scopeRevision ||
+          _boardQueryRevision() != revision + 1) {
+        return;
+      }
+    }
+    _failedScope = saved;
+    _failedIds = Set.unmodifiable(saved.selectedTaskIds);
+    _retry = () {
+      final current = _context.currentState;
+      if (current is! TasksBoardReady) return Future<void>.value();
+      return _retryRefresh(current);
+    };
+    _context.publish(
+      saved.copyWith(
+        isBulkSaving: false,
+        bulkError: const TasksViewError(
+          code: TasksViewErrorCodes.boardRefreshFailed,
+        ),
+        canRetryBulk: true,
+      ),
+    );
+  }
+
+  Future<void> _retryRefresh(TasksBoardReady saved) async {
+    if (_inFlight) {
+      return;
+    }
+    _inFlight = true;
+    _context.publish(
+      saved.copyWith(
+        isBulkSaving: true,
+        clearBulkError: true,
+        canRetryBulk: false,
+      ),
+    );
+    try {
+      await _refreshSaved(saved);
+    } finally {
+      _inFlight = false;
+      final current = _context.currentState;
+      if (!_context.isBoardClosed && current is TasksBoardReady) {
+        _context.publish(current.copyWith(isBulkSaving: false));
+      }
+    }
+  }
+
+  bool _sameScope(TasksBoardReady current, TasksBoardReady? initial) =>
+      initial != null &&
+      current.filter == initial.filter &&
+      current.grouping == initial.grouping;
+
+  List<KanbanTaskCardResponse> _selectedCards(TasksBoardReady state) => [
+    for (final task in _loadedCards(state))
+      if (state.selectedTaskIds.contains(task.id)) task,
+  ];
+
+  List<KanbanTaskCardResponse> _loadedCards(TasksBoardReady state) {
+    final cards = state.grouping == TasksBoardGrouping.assignee
+        ? [
+            for (final group
+                in state.assigneeBoard?.groups ??
+                    <AssigneeKanbanGroupResponse>[])
+              ...group.tasks,
+          ]
+        : [for (final column in state.board.columns) ...column.tasks];
+    final byId = <String, KanbanTaskCardResponse>{};
+    for (final card in cards) {
+      if (card.version >= (byId[card.id]?.version ?? 0)) byId[card.id] = card;
+    }
+    return byId.values.toList(growable: false);
+  }
 }

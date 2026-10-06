@@ -29,6 +29,8 @@ final class _TasksRepository implements TasksRepository {
   CreateTaskSelectionTokenPayload? selectionTokenPayload;
   BulkUpdateTaskSelectionPayload? bulkSelectionPayload;
   ApiError? bulkError;
+  ApiError? selectionTokenError;
+  int archiveCalls = 0;
   int bulkCalls = 0;
   Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>? deferredBulk;
   int rootSubtaskCount = 0;
@@ -286,6 +288,7 @@ final class _TasksRepository implements TasksRepository {
     required String taskId,
     required int expectedVersion,
   }) async {
+    archiveCalls++;
     final task = _taskResponse(id: taskId, title: 'Zadanie $taskId');
     return Right(
       TaskMutationResponse(
@@ -305,6 +308,7 @@ final class _TasksRepository implements TasksRepository {
     required CreateTaskSelectionTokenPayload payload,
   }) async {
     selectionTokenPayload = payload;
+    if (selectionTokenError case final error?) return Left(error);
     return Right(
       TaskSelectionTokenResponse(
         token: 'selection-token',
@@ -579,6 +583,141 @@ void main() {
     );
   });
   tearDown(() => cubit.close());
+
+  test('bulk failure keeps selection, shows pending and supports explicit same-command retry', () async {
+    await cubit.load();
+    final task = (cubit.state as ProjectTasksListReady).tasks.single;
+    cubit.toggleSelection(task.id);
+    final pending =
+        Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>();
+    repository.deferredBulk = pending;
+    final due = DateTime.utc(2026, 10, 9, 8, 15, 4, 123, 456);
+    final operation = cubit.bulkUpdateSelected(dueAtUtc: due);
+    expect((cubit.state as ProjectTasksListReady).isBulkSaving, isTrue);
+    cubit.clearSelection();
+    expect((cubit.state as ProjectTasksListReady).selectedTaskIds, {task.id});
+    expect(await cubit.bulkUpdateSelected(archive: true), 0);
+    pending.complete(
+      const Left(
+        ApiError(
+          type: ApiErrorType.validation,
+          statusCode: 400,
+          message: 'Termin nie może poprzedzać rozpoczęcia.',
+        ),
+      ),
+    );
+    expect(await operation, 0);
+    final failed = cubit.state as ProjectTasksListReady;
+    expect(failed.isBulkSaving, isFalse);
+    expect(failed.bulkError?.statusCode, 400);
+    expect(failed.selectedTaskIds, {task.id});
+    expect(
+      failed.taskErrorsByTaskId[task.id],
+      'Termin nie może poprzedzać rozpoczęcia.',
+    );
+    repository.deferredBulk = null;
+    expect(await cubit.retryBulkOperation(), 1);
+    expect(repository.bulkCalls, 2);
+    expect(repository.bulkSelectionPayload?.dueAtUtc, due);
+    expect((cubit.state as ProjectTasksListReady).selectedTaskIds, isEmpty);
+    expect((cubit.state as ProjectTasksListReady).bulkError, isNull);
+  });
+
+  for (final type in [
+    ApiErrorType.unauthorized,
+    ApiErrorType.forbidden,
+    ApiErrorType.notFound,
+  ]) {
+    test('bulk $type never offers or executes retry', () async {
+      await cubit.load();
+      cubit.toggleSelection(
+        (cubit.state as ProjectTasksListReady).tasks.single.id,
+      );
+      repository.bulkError = ApiError(
+        type: type,
+        message: 'Access unavailable',
+      );
+      expect(await cubit.bulkUpdateSelected(archive: true), 0);
+      expect((cubit.state as ProjectTasksListReady).canRetryBulk, isFalse);
+      expect(await cubit.retryBulkOperation(), 0);
+      expect(repository.bulkCalls, 1);
+    });
+  }
+
+  test(
+    'failed scope preparation discards the previous retry command',
+    () async {
+      await cubit.load();
+      cubit.toggleSelection(
+        (cubit.state as ProjectTasksListReady).tasks.single.id,
+      );
+      repository.bulkError = const ApiError(
+        type: ApiErrorType.server,
+        message: 'Temporary',
+      );
+      await cubit.bulkUpdateSelected(archive: true);
+      expect((cubit.state as ProjectTasksListReady).canRetryBulk, isTrue);
+      repository.selectionTokenError = const ApiError(
+        type: ApiErrorType.forbidden,
+        message: 'Access unavailable',
+      );
+      expect(await cubit.prepareBulkSelection(), isNull);
+      expect((cubit.state as ProjectTasksListReady).canRetryBulk, isFalse);
+      expect(await cubit.retryBulkOperation(), 0);
+      expect(repository.bulkCalls, 1);
+    },
+  );
+
+  test('all inline item operations are blocked during atomic bulk', () async {
+    final collaboration = _TaskCollaborationRepository();
+    final metadata = _TaskMetadataRepository();
+    final guarded = ProjectTasksListCubit(
+      repository: repository,
+      collaborationRepository: collaboration,
+      metadataRepository: metadata,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+    );
+    addTearDown(guarded.close);
+    await guarded.load();
+    final task = (guarded.state as ProjectTasksListReady).tasks.single;
+    guarded.toggleSelection(task.id);
+    final pending =
+        Completer<Either<ApiError, BulkUpdateTaskSelectionResponse>>();
+    repository.deferredBulk = pending;
+    final bulk = guarded.bulkUpdateSelected(archive: true);
+    expect(await guarded.archiveLoadedTask(task), isFalse);
+    expect(
+      await guarded.replaceAssigneesForLoadedTask(task, ['user']),
+      isFalse,
+    );
+    expect(await guarded.setPinnedForLoadedTask(task, true), isFalse);
+    expect(await guarded.toggleWatchingForLoadedTask(task), isFalse);
+    expect(await guarded.replaceLabelsForLoadedTask(task, ['label']), isFalse);
+    expect(repository.archiveCalls, 0);
+    verifyZeroInteractions(collaboration);
+    verifyZeroInteractions(metadata);
+    pending.complete(
+      const Left(ApiError(type: ApiErrorType.validation, message: 'Rejected')),
+    );
+    expect(await bulk, 0);
+  });
+
+  test('entire result prepares count without a mutation; confirmed token matches scope revision', () async {
+    await cubit.load();
+    final token = await cubit.prepareBulkSelection();
+    expect(token?.totalCount, 5000);
+    expect(repository.bulkCalls, 0);
+    // Fixture token wygasł; nie wolno wysłać mutacji starym potwierdzeniem.
+    expect(
+      await cubit.bulkUpdateEntireResult(
+        preparedSelection: token,
+        archive: true,
+      ),
+      0,
+    );
+    expect(repository.bulkCalls, 0);
+  });
 
   test('pauzuje cykliczność bez przeładowania grupy', () async {
     recurrenceRepository.pauseResult = Right(
@@ -1930,7 +2069,7 @@ void main() {
   });
 
   test(
-    'entire result keeps new selection made while request is pending',
+    'entire result blocks selection changes while request is pending',
     () async {
       await cubit.load();
       final task = (cubit.state as ProjectTasksListReady).tasks.single;
@@ -1955,7 +2094,7 @@ void main() {
         ),
       );
       expect(await bulk, 5000);
-      expect((cubit.state as ProjectTasksListReady).selectedTaskIds, {task.id});
+      expect((cubit.state as ProjectTasksListReady).selectedTaskIds, isEmpty);
     },
   );
 
@@ -2084,6 +2223,11 @@ void main() {
         (cubit.state as ProjectTasksListReady).selectedTaskIds,
         hasLength(501),
       );
+      expect(
+        (cubit.state as ProjectTasksListReady).bulkError?.message,
+        'tasks.bulk.selection_limit',
+      );
+      expect((cubit.state as ProjectTasksListReady).canRetryBulk, isFalse);
     },
   );
 

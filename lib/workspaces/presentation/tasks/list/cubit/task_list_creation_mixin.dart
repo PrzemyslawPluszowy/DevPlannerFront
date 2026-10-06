@@ -127,7 +127,12 @@ mixin TaskListCreationMixin on ProjectTasksListCubitPort {
     required ProjectTaskListItemResponse task,
     required UpdateTaskListItemPayload payload,
   }) async {
-    if (_bulkMutationInFlight || isClosed) return false;
+    if (_bulkMutationInFlight ||
+        isClosed ||
+        (state is ProjectTasksListReady &&
+            (state as ProjectTasksListReady).isBulkSaving)) {
+      return false;
+    }
     final inFlight = _inFlightListItemUpdates[task.id];
     if (inFlight != null) {
       // Szybka druga zmiana nie może wysłać starego expectedVersion.

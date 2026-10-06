@@ -22603,6 +22603,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Selected: {count}. Outside the current filter: {hidden}.'**
   String taskAssigneesSelectionSummary(int count, int hidden);
+
+  /// No description provided for @tasksBulkSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving changes…'**
+  String get tasksBulkSaving;
+
+  /// No description provided for @tasksBulkStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get tasksBulkStatus;
+
+  /// No description provided for @tasksBulkArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get tasksBulkArchive;
+
+  /// No description provided for @tasksBulkEntireResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Entire filtered result'**
+  String get tasksBulkEntireResult;
+
+  /// No description provided for @tasksBulkEntireGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group of entire result'**
+  String get tasksBulkEntireGroup;
+
+  /// No description provided for @tasksBulkGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Entire result: {name}'**
+  String tasksBulkGroup(String name);
+
+  /// No description provided for @tasksBulkDueExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'This day and time will replace the existing due dates of all tasks in the chosen scope.'**
+  String get tasksBulkDueExplanation;
+
+  /// No description provided for @tasksBulkDueMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date times differ, are not all known, or some tasks have none. The default common time is 00:00; you can change it.'**
+  String get tasksBulkDueMixed;
+
+  /// No description provided for @tasksBulkHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Hour'**
+  String get tasksBulkHour;
+
+  /// No description provided for @tasksBulkMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Minute'**
+  String get tasksBulkMinute;
+
+  /// No description provided for @tasksBulkTimeZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Time zone: {zone}'**
+  String tasksBulkTimeZone(String zone);
+
+  /// No description provided for @tasksBulkInvalidLocalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'This local time does not exist on the chosen day because of daylight saving time. Choose another time.'**
+  String get tasksBulkInvalidLocalTime;
+
+  /// No description provided for @tasksBulkClearDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear due dates in this scope'**
+  String get tasksBulkClearDueDate;
+
+  /// No description provided for @tasksBulkConfirmScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the scope of the change'**
+  String get tasksBulkConfirmScope;
+
+  /// No description provided for @tasksBulkEntireScope.
+  ///
+  /// In en, this message translates to:
+  /// **'This change will affect {count} tasks in the entire result, including pages that are not loaded. Filters: {filters}.'**
+  String tasksBulkEntireScope(String filters, int count);
+
+  /// No description provided for @tasksBulkArchiveSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive {count} selected tasks?'**
+  String tasksBulkArchiveSelected(int count);
+
+  /// No description provided for @tasksBulkPinnedFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned only'**
+  String get tasksBulkPinnedFilter;
+
+  /// No description provided for @tasksBulkNoFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No limiting filters — all tasks in the project'**
+  String get tasksBulkNoFilters;
+
+  /// No description provided for @tasksBulkKanbanLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change up to 100 selected cards at once. Reduce the selection.'**
+  String get tasksBulkKanbanLimit;
+
+  /// No description provided for @tasksBulkErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation could not be completed'**
+  String get tasksBulkErrorTitle;
+
+  /// No description provided for @tasksBulkSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the changes. Your selection is preserved; you can retry this operation.'**
+  String get tasksBulkSaveFailed;
+
+  /// No description provided for @tasksBulkSavedViewFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved view filters'**
+  String get tasksBulkSavedViewFilter;
+
+  /// No description provided for @tasksBulkScopeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The confirmed scope has expired or the filters have changed. Choose the entire-result action again and review its current scope.'**
+  String get tasksBulkScopeExpired;
 }
 
 class _AppLocalizationsDelegate

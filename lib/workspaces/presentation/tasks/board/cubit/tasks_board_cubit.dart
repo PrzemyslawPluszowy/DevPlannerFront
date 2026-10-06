@@ -20,6 +20,7 @@ import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_card_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_command_context.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_filter_commands.dart';
+import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_move_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_preference_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_runtime_coordinator.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
@@ -44,8 +45,10 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
     required this.workspaceId,
     required this.projectId,
     String? calendarTimeZoneId,
-  }) : super(const TasksBoardInitial()) {
-    final timeZoneId = calendarTimeZoneId ?? const CalendarTimeZone().read();
+  }) : calendarTimeZoneId =
+           calendarTimeZoneId ?? const CalendarTimeZone().read(),
+       super(const TasksBoardInitial()) {
+    final timeZoneId = this.calendarTimeZoneId;
     _runtime = TasksBoardRuntimeCoordinator(
       context: this,
       repository: repository,
@@ -69,6 +72,13 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
     _filters = TasksBoardFilterCommands(context: this, runtime: _runtime);
     _bulk = TasksBoardBulkCommands(
       calendarTimeZoneId: timeZoneId,
+      context: this,
+      repository: repository,
+      tasksRepository: tasksRepository,
+      boardQueryRevision: () => _runtime.boardQueryRevision,
+      scopeRevision: () => _bulkScopeRevision,
+    );
+    _moves = TasksBoardMoveCommands(
       context: this,
       repository: repository,
       canMoveTaskTo: _canMoveFromBulkCommand,
@@ -98,8 +108,12 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
   late final TasksBoardPreferenceCommands _preferences;
   late final TasksBoardFilterCommands _filters;
   late final TasksBoardBulkCommands _bulk;
+  late final TasksBoardMoveCommands _moves;
+  final String? calendarTimeZoneId;
   late final TasksBoardAssigneeCommands _assignee;
   bool _isClosing = false;
+  int _bulkScopeRevision = 0;
+  TasksBoardReady? _lastBulkScope;
 
   @override
   TasksBoardState get currentState => state;
@@ -110,7 +124,17 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
   @override
   void publish(TasksBoardState state) {
     final previous = this.state;
-    emit(state);
+    var next = state;
+    if (state is TasksBoardReady) {
+      final scope = _lastBulkScope;
+      if (scope != null &&
+          (scope.filter != state.filter || scope.grouping != state.grouping)) {
+        _bulkScopeRevision++;
+        next = state.copyWith(clearBulkError: true, canRetryBulk: false);
+      }
+      _lastBulkScope = state;
+    }
+    emit(next);
     // Zmiana z innej sesji podnosi licznik realtime; przy aktywnym widoku osób
     // grupy trzeba przeczytać ponownie, bo event nie niesie ich stanu.
     if (state is TasksBoardReady &&
@@ -300,11 +324,13 @@ final class TasksBoardCubit extends Cubit<TasksBoardState>
       _bulk.bulkUpdatePriority(priority);
   Future<void> bulkUpdateDueDate(DateTime dueAtUtc) =>
       _bulk.bulkUpdateDueDate(dueAtUtc);
+  Future<void> bulkClearDueDate() => _bulk.bulkClearDueDate();
+  Future<void> retryBulkOperation() => _bulk.retryBulkOperation();
   Future<void> moveTask({
     required KanbanTaskCardResponse task,
     required KanbanColumnResponse targetColumn,
     required int targetIndex,
-  }) => _bulk.move(
+  }) => _moves.move(
     task: task,
     targetColumn: targetColumn,
     targetIndex: targetIndex,

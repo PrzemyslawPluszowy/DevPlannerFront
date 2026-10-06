@@ -49,6 +49,8 @@ final class TasksBoardReady extends TasksBoardState {
     this.selectedTaskIds = const <String>{},
     this.pendingTaskIds = const <String>{},
     this.isBulkSaving = false,
+    this.bulkError,
+    this.canRetryBulk = false,
     this.userPreference,
     this.savingUserPreference = false,
     this.error,
@@ -86,6 +88,8 @@ final class TasksBoardReady extends TasksBoardState {
   final Set<String> selectedTaskIds;
   final Set<String> pendingTaskIds;
   final bool isBulkSaving;
+  final TasksViewError? bulkError;
+  final bool canRetryBulk;
   final UserKanbanPreferenceResponse? userPreference;
   final bool savingUserPreference;
 
@@ -161,6 +165,9 @@ final class TasksBoardReady extends TasksBoardState {
     Set<String>? selectedTaskIds,
     Set<String>? pendingTaskIds,
     bool? isBulkSaving,
+    TasksViewError? bulkError,
+    bool clearBulkError = false,
+    bool? canRetryBulk,
     UserKanbanPreferenceResponse? userPreference,
     bool clearUserPreference = false,
     bool? savingUserPreference,
@@ -193,6 +200,8 @@ final class TasksBoardReady extends TasksBoardState {
     selectedTaskIds: selectedTaskIds ?? this.selectedTaskIds,
     pendingTaskIds: pendingTaskIds ?? this.pendingTaskIds,
     isBulkSaving: isBulkSaving ?? this.isBulkSaving,
+    bulkError: clearBulkError ? null : bulkError ?? this.bulkError,
+    canRetryBulk: canRetryBulk ?? this.canRetryBulk,
     userPreference: clearUserPreference
         ? null
         : userPreference ?? this.userPreference,

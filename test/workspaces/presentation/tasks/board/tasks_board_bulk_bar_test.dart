@@ -11,12 +11,14 @@ import 'package:devplanner/workspaces/data/shared/enums/kanban_enums.dart';
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/models/task_project_realtime_update.dart';
+import 'package:devplanner/workspaces/domain/models/tasks_board_grouping.dart';
 import 'package:devplanner/workspaces/domain/repositories/kanban_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_project_realtime.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/cubit/tasks_board_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/board/tasks_board_page.dart';
+import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_board_bulk_due_scope.dart';
 import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_contextual_bulk_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -175,6 +177,55 @@ final class _NoRealtime implements TaskProjectRealtime {
 }
 
 void main() {
+  test(
+    'bulk clock scope uses active assignee groups and newest duplicate version',
+    () {
+      final old = _card(
+        'task-1',
+        'One',
+        1,
+      ).copyWith(version: 1, dueAtUtc: DateTime.utc(2026, 10, 10, 8));
+      final newest = old.copyWith(
+        version: 3,
+        dueAtUtc: DateTime.utc(2026, 10, 10, 14, 23, 4, 123, 456),
+      );
+      final state = TasksBoardReady(
+        board: _board(),
+        connectionState: WorkspaceSignalRConnectionState.disconnected,
+        presence: const [],
+        grouping: TasksBoardGrouping.assignee,
+        selectedTaskIds: const {'task-1'},
+        assigneeBoard: AssigneeKanbanBoardResponse(
+          projectId: 'project-1',
+          grouping: KanbanSwimlaneMode.none,
+          settingsVersion: 1,
+          visibleCardFields: const [],
+          defaultCardDensity: KanbanCardDensity.comfortable,
+          groups: [
+            AssigneeKanbanGroupResponse(
+              displayName: 'A',
+              totalTaskCount: 1,
+              tasks: [newest],
+            ),
+            AssigneeKanbanGroupResponse(
+              displayName: 'B',
+              totalTaskCount: 1,
+              tasks: [old],
+            ),
+          ],
+        ),
+      );
+      final scope = TasksBoardBulkDueScope.fromReady(state);
+      expect(scope.values, [newest.dueAtUtc]);
+      expect(scope.isComplete, isTrue);
+      final partial = TasksBoardBulkDueScope.fromReady(
+        state.copyWith(selectedTaskIds: const {'task-1', 'unloaded'}),
+      );
+      expect(partial.values, [newest.dueAtUtc]);
+      expect(partial.isComplete, isFalse);
+    },
+  );
+
   testWidgets(
     'pasek Kanbanu to wspólny contextual bulk bar i wykonuje bulk move',
     (

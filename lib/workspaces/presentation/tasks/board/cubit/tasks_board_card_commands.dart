@@ -27,7 +27,12 @@ final class TasksBoardCardCommands {
   Future<bool> togglePinned(KanbanTaskCardResponse task) async {
     final current = _context.currentState;
     final repository = collaborationRepository;
-    if (current is! TasksBoardReady || repository == null) return false;
+    if (_context.isBoardClosed ||
+        current is! TasksBoardReady ||
+        current.isBulkSaving ||
+        repository == null) {
+      return false;
+    }
     final result = await repository.updatePinned(
       workspaceId: _context.workspaceId,
       projectId: _context.projectId,
@@ -60,7 +65,12 @@ final class TasksBoardCardCommands {
   Future<bool> toggleWatching(KanbanTaskCardResponse task) async {
     final current = _context.currentState;
     final repository = collaborationRepository;
-    if (current is! TasksBoardReady || repository == null) return false;
+    if (_context.isBoardClosed ||
+        current is! TasksBoardReady ||
+        current.isBulkSaving ||
+        repository == null) {
+      return false;
+    }
     final result = task.isWatchedByMe
         ? await repository.unfollow(
             workspaceId: _context.workspaceId,
@@ -127,7 +137,9 @@ final class TasksBoardCardCommands {
   Future<bool> replaceAssignees(String taskId, List<String> userIds) async {
     final current = _context.currentState;
     final repository = collaborationRepository;
-    if (current is! TasksBoardReady ||
+    if (_context.isBoardClosed ||
+        current is! TasksBoardReady ||
+        current.isBulkSaving ||
         repository == null ||
         current.pendingTaskIds.contains(taskId)) {
       return false;
@@ -192,7 +204,9 @@ final class TasksBoardCardCommands {
     UpdateTaskListItemPayload Function(KanbanTaskCardResponse card) payload,
   ) async {
     final current = _context.currentState;
-    if (current is! TasksBoardReady ||
+    if (_context.isBoardClosed ||
+        current is! TasksBoardReady ||
+        current.isBulkSaving ||
         current.pendingTaskIds.contains(taskId)) {
       return false;
     }

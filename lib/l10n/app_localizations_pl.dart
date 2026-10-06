@@ -12780,4 +12780,88 @@ class AppLocalizationsPl extends AppLocalizations {
   String taskAssigneesSelectionSummary(int count, int hidden) {
     return 'Zaznaczono: $count. Poza aktualnym filtrem: $hidden.';
   }
+
+  @override
+  String get tasksBulkSaving => 'Zapisywanie zmian…';
+
+  @override
+  String get tasksBulkStatus => 'Status';
+
+  @override
+  String get tasksBulkArchive => 'Archiwizuj';
+
+  @override
+  String get tasksBulkEntireResult => 'Cały wynik filtrów';
+
+  @override
+  String get tasksBulkEntireGroup => 'Grupa całego wyniku';
+
+  @override
+  String tasksBulkGroup(String name) {
+    return 'Cały wynik: $name';
+  }
+
+  @override
+  String get tasksBulkDueExplanation =>
+      'Ten sam dzień i czas zastąpi dotychczasowe terminy wszystkich zadań w wybranym zakresie.';
+
+  @override
+  String get tasksBulkDueMixed =>
+      'Terminy mają różne godziny, nie są wszystkie znane lub część zadań nie ma terminu. Domyślna wspólna godzina to 00:00; możesz ją zmienić.';
+
+  @override
+  String get tasksBulkHour => 'Godzina';
+
+  @override
+  String get tasksBulkMinute => 'Minuta';
+
+  @override
+  String tasksBulkTimeZone(String zone) {
+    return 'Strefa czasu: $zone';
+  }
+
+  @override
+  String get tasksBulkInvalidLocalTime =>
+      'Ta godzina nie istnieje w wybranym dniu z powodu zmiany czasu. Wybierz inną godzinę.';
+
+  @override
+  String get tasksBulkClearDueDate => 'Usuń terminy w tym zakresie';
+
+  @override
+  String get tasksBulkConfirmScope => 'Potwierdź zakres zmiany';
+
+  @override
+  String tasksBulkEntireScope(String filters, int count) {
+    return 'Ta zmiana obejmie $count zadań z całego wyniku, również spoza załadowanych stron. Filtry: $filters.';
+  }
+
+  @override
+  String tasksBulkArchiveSelected(int count) {
+    return 'Zarchiwizować $count zaznaczonych zadań?';
+  }
+
+  @override
+  String get tasksBulkPinnedFilter => 'Tylko przypięte';
+
+  @override
+  String get tasksBulkNoFilters =>
+      'Brak ograniczających filtrów — wszystkie zadania w projekcie';
+
+  @override
+  String get tasksBulkKanbanLimit =>
+      'Możesz zmienić naraz maksymalnie 100 zaznaczonych kart. Zmniejsz zaznaczenie.';
+
+  @override
+  String get tasksBulkErrorTitle => 'Nie udało się ukończyć operacji';
+
+  @override
+  String get tasksBulkSaveFailed =>
+      'Nie udało się zapisać zmian. Zaznaczenie zachowano; możesz ponowić tę operację.';
+
+  @override
+  String get tasksBulkSavedViewFilter => 'Filtry zapisanego widoku';
+
+  @override
+  String get tasksBulkScopeExpired =>
+      'Potwierdzony zakres wygasł lub zmieniły się filtry. Wybierz ponownie akcję dla całego wyniku i sprawdź aktualny zakres.';
 }
