@@ -27,6 +27,7 @@ abstract class PreviewScheduleCascadePayload
     required String taskId,
     required DateTime newStartAtUtc,
     required DateTime newDueAtUtc,
+    String? calendarTimeZoneId,
   }) = _PreviewScheduleCascadePayload;
 
   /// Odtwarza payload z JSON.
@@ -43,6 +44,7 @@ abstract class ApplyScheduleCascadePayload with _$ApplyScheduleCascadePayload {
     required DateTime newStartAtUtc,
     required DateTime newDueAtUtc,
     required Map<String, int> expectedTaskVersions,
+    String? calendarTimeZoneId,
   }) = _ApplyScheduleCascadePayload;
 
   /// Odtwarza payload z JSON.

@@ -278,7 +278,7 @@ as AutoScheduleMode,
 /// @nodoc
 mixin _$PreviewScheduleCascadePayload {
 
- String get taskId; DateTime get newStartAtUtc; DateTime get newDueAtUtc;
+ String get taskId; DateTime get newStartAtUtc; DateTime get newDueAtUtc; String? get calendarTimeZoneId;
 /// Create a copy of PreviewScheduleCascadePayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -291,16 +291,16 @@ $PreviewScheduleCascadePayloadCopyWith<PreviewScheduleCascadePayload> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreviewScheduleCascadePayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.newStartAtUtc, newStartAtUtc) || other.newStartAtUtc == newStartAtUtc)&&(identical(other.newDueAtUtc, newDueAtUtc) || other.newDueAtUtc == newDueAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreviewScheduleCascadePayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.newStartAtUtc, newStartAtUtc) || other.newStartAtUtc == newStartAtUtc)&&(identical(other.newDueAtUtc, newDueAtUtc) || other.newDueAtUtc == newDueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,taskId,newStartAtUtc,newDueAtUtc);
+int get hashCode => Object.hash(runtimeType,taskId,newStartAtUtc,newDueAtUtc,calendarTimeZoneId);
 
 @override
 String toString() {
-  return 'PreviewScheduleCascadePayload(taskId: $taskId, newStartAtUtc: $newStartAtUtc, newDueAtUtc: $newDueAtUtc)';
+  return 'PreviewScheduleCascadePayload(taskId: $taskId, newStartAtUtc: $newStartAtUtc, newDueAtUtc: $newDueAtUtc, calendarTimeZoneId: $calendarTimeZoneId)';
 }
 
 
@@ -311,7 +311,7 @@ abstract mixin class $PreviewScheduleCascadePayloadCopyWith<$Res>  {
   factory $PreviewScheduleCascadePayloadCopyWith(PreviewScheduleCascadePayload value, $Res Function(PreviewScheduleCascadePayload) _then) = _$PreviewScheduleCascadePayloadCopyWithImpl;
 @useResult
 $Res call({
- String taskId, DateTime newStartAtUtc, DateTime newDueAtUtc
+ String taskId, DateTime newStartAtUtc, DateTime newDueAtUtc, String? calendarTimeZoneId
 });
 
 
@@ -328,12 +328,13 @@ class _$PreviewScheduleCascadePayloadCopyWithImpl<$Res>
 
 /// Create a copy of PreviewScheduleCascadePayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? taskId = null,Object? newStartAtUtc = null,Object? newDueAtUtc = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? taskId = null,Object? newStartAtUtc = null,Object? newDueAtUtc = null,Object? calendarTimeZoneId = freezed,}) {
   return _then(_self.copyWith(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as String,newStartAtUtc: null == newStartAtUtc ? _self.newStartAtUtc : newStartAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,newDueAtUtc: null == newDueAtUtc ? _self.newDueAtUtc : newDueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -418,10 +419,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  String? calendarTimeZoneId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PreviewScheduleCascadePayload() when $default != null:
-return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc);case _:
+return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.calendarTimeZoneId);case _:
   return orElse();
 
 }
@@ -439,10 +440,10 @@ return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  String? calendarTimeZoneId)  $default,) {final _that = this;
 switch (_that) {
 case _PreviewScheduleCascadePayload():
-return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc);case _:
+return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.calendarTimeZoneId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -459,10 +460,10 @@ return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  String? calendarTimeZoneId)?  $default,) {final _that = this;
 switch (_that) {
 case _PreviewScheduleCascadePayload() when $default != null:
-return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc);case _:
+return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.calendarTimeZoneId);case _:
   return null;
 
 }
@@ -474,12 +475,13 @@ return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc);case _:
 @JsonSerializable()
 
 class _PreviewScheduleCascadePayload implements PreviewScheduleCascadePayload {
-  const _PreviewScheduleCascadePayload({required this.taskId, required this.newStartAtUtc, required this.newDueAtUtc});
+  const _PreviewScheduleCascadePayload({required this.taskId, required this.newStartAtUtc, required this.newDueAtUtc, this.calendarTimeZoneId});
   factory _PreviewScheduleCascadePayload.fromJson(Map<String, dynamic> json) => _$PreviewScheduleCascadePayloadFromJson(json);
 
 @override final  String taskId;
 @override final  DateTime newStartAtUtc;
 @override final  DateTime newDueAtUtc;
+@override final  String? calendarTimeZoneId;
 
 /// Create a copy of PreviewScheduleCascadePayload
 /// with the given fields replaced by the non-null parameter values.
@@ -494,16 +496,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreviewScheduleCascadePayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.newStartAtUtc, newStartAtUtc) || other.newStartAtUtc == newStartAtUtc)&&(identical(other.newDueAtUtc, newDueAtUtc) || other.newDueAtUtc == newDueAtUtc));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreviewScheduleCascadePayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.newStartAtUtc, newStartAtUtc) || other.newStartAtUtc == newStartAtUtc)&&(identical(other.newDueAtUtc, newDueAtUtc) || other.newDueAtUtc == newDueAtUtc)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,taskId,newStartAtUtc,newDueAtUtc);
+int get hashCode => Object.hash(runtimeType,taskId,newStartAtUtc,newDueAtUtc,calendarTimeZoneId);
 
 @override
 String toString() {
-  return 'PreviewScheduleCascadePayload(taskId: $taskId, newStartAtUtc: $newStartAtUtc, newDueAtUtc: $newDueAtUtc)';
+  return 'PreviewScheduleCascadePayload(taskId: $taskId, newStartAtUtc: $newStartAtUtc, newDueAtUtc: $newDueAtUtc, calendarTimeZoneId: $calendarTimeZoneId)';
 }
 
 
@@ -514,7 +516,7 @@ abstract mixin class _$PreviewScheduleCascadePayloadCopyWith<$Res> implements $P
   factory _$PreviewScheduleCascadePayloadCopyWith(_PreviewScheduleCascadePayload value, $Res Function(_PreviewScheduleCascadePayload) _then) = __$PreviewScheduleCascadePayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String taskId, DateTime newStartAtUtc, DateTime newDueAtUtc
+ String taskId, DateTime newStartAtUtc, DateTime newDueAtUtc, String? calendarTimeZoneId
 });
 
 
@@ -531,12 +533,13 @@ class __$PreviewScheduleCascadePayloadCopyWithImpl<$Res>
 
 /// Create a copy of PreviewScheduleCascadePayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? newStartAtUtc = null,Object? newDueAtUtc = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? newStartAtUtc = null,Object? newDueAtUtc = null,Object? calendarTimeZoneId = freezed,}) {
   return _then(_PreviewScheduleCascadePayload(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as String,newStartAtUtc: null == newStartAtUtc ? _self.newStartAtUtc : newStartAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,newDueAtUtc: null == newDueAtUtc ? _self.newDueAtUtc : newDueAtUtc // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -547,7 +550,7 @@ as DateTime,
 /// @nodoc
 mixin _$ApplyScheduleCascadePayload {
 
- String get taskId; DateTime get newStartAtUtc; DateTime get newDueAtUtc; Map<String, int> get expectedTaskVersions;
+ String get taskId; DateTime get newStartAtUtc; DateTime get newDueAtUtc; Map<String, int> get expectedTaskVersions; String? get calendarTimeZoneId;
 /// Create a copy of ApplyScheduleCascadePayload
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -560,16 +563,16 @@ $ApplyScheduleCascadePayloadCopyWith<ApplyScheduleCascadePayload> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ApplyScheduleCascadePayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.newStartAtUtc, newStartAtUtc) || other.newStartAtUtc == newStartAtUtc)&&(identical(other.newDueAtUtc, newDueAtUtc) || other.newDueAtUtc == newDueAtUtc)&&const DeepCollectionEquality().equals(other.expectedTaskVersions, expectedTaskVersions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ApplyScheduleCascadePayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.newStartAtUtc, newStartAtUtc) || other.newStartAtUtc == newStartAtUtc)&&(identical(other.newDueAtUtc, newDueAtUtc) || other.newDueAtUtc == newDueAtUtc)&&const DeepCollectionEquality().equals(other.expectedTaskVersions, expectedTaskVersions)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,taskId,newStartAtUtc,newDueAtUtc,const DeepCollectionEquality().hash(expectedTaskVersions));
+int get hashCode => Object.hash(runtimeType,taskId,newStartAtUtc,newDueAtUtc,const DeepCollectionEquality().hash(expectedTaskVersions),calendarTimeZoneId);
 
 @override
 String toString() {
-  return 'ApplyScheduleCascadePayload(taskId: $taskId, newStartAtUtc: $newStartAtUtc, newDueAtUtc: $newDueAtUtc, expectedTaskVersions: $expectedTaskVersions)';
+  return 'ApplyScheduleCascadePayload(taskId: $taskId, newStartAtUtc: $newStartAtUtc, newDueAtUtc: $newDueAtUtc, expectedTaskVersions: $expectedTaskVersions, calendarTimeZoneId: $calendarTimeZoneId)';
 }
 
 
@@ -580,7 +583,7 @@ abstract mixin class $ApplyScheduleCascadePayloadCopyWith<$Res>  {
   factory $ApplyScheduleCascadePayloadCopyWith(ApplyScheduleCascadePayload value, $Res Function(ApplyScheduleCascadePayload) _then) = _$ApplyScheduleCascadePayloadCopyWithImpl;
 @useResult
 $Res call({
- String taskId, DateTime newStartAtUtc, DateTime newDueAtUtc, Map<String, int> expectedTaskVersions
+ String taskId, DateTime newStartAtUtc, DateTime newDueAtUtc, Map<String, int> expectedTaskVersions, String? calendarTimeZoneId
 });
 
 
@@ -597,13 +600,14 @@ class _$ApplyScheduleCascadePayloadCopyWithImpl<$Res>
 
 /// Create a copy of ApplyScheduleCascadePayload
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? taskId = null,Object? newStartAtUtc = null,Object? newDueAtUtc = null,Object? expectedTaskVersions = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? taskId = null,Object? newStartAtUtc = null,Object? newDueAtUtc = null,Object? expectedTaskVersions = null,Object? calendarTimeZoneId = freezed,}) {
   return _then(_self.copyWith(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as String,newStartAtUtc: null == newStartAtUtc ? _self.newStartAtUtc : newStartAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,newDueAtUtc: null == newDueAtUtc ? _self.newDueAtUtc : newDueAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,expectedTaskVersions: null == expectedTaskVersions ? _self.expectedTaskVersions : expectedTaskVersions // ignore: cast_nullable_to_non_nullable
-as Map<String, int>,
+as Map<String, int>,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -688,10 +692,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  Map<String, int> expectedTaskVersions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  Map<String, int> expectedTaskVersions,  String? calendarTimeZoneId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ApplyScheduleCascadePayload() when $default != null:
-return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expectedTaskVersions);case _:
+return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expectedTaskVersions,_that.calendarTimeZoneId);case _:
   return orElse();
 
 }
@@ -709,10 +713,10 @@ return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expecte
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  Map<String, int> expectedTaskVersions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  Map<String, int> expectedTaskVersions,  String? calendarTimeZoneId)  $default,) {final _that = this;
 switch (_that) {
 case _ApplyScheduleCascadePayload():
-return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expectedTaskVersions);case _:
+return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expectedTaskVersions,_that.calendarTimeZoneId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -729,10 +733,10 @@ return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expecte
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  Map<String, int> expectedTaskVersions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String taskId,  DateTime newStartAtUtc,  DateTime newDueAtUtc,  Map<String, int> expectedTaskVersions,  String? calendarTimeZoneId)?  $default,) {final _that = this;
 switch (_that) {
 case _ApplyScheduleCascadePayload() when $default != null:
-return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expectedTaskVersions);case _:
+return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expectedTaskVersions,_that.calendarTimeZoneId);case _:
   return null;
 
 }
@@ -744,13 +748,14 @@ return $default(_that.taskId,_that.newStartAtUtc,_that.newDueAtUtc,_that.expecte
 @JsonSerializable()
 
 class _ApplyScheduleCascadePayload implements ApplyScheduleCascadePayload {
-  const _ApplyScheduleCascadePayload({required this.taskId, required this.newStartAtUtc, required this.newDueAtUtc, required this.expectedTaskVersions});
+  const _ApplyScheduleCascadePayload({required this.taskId, required this.newStartAtUtc, required this.newDueAtUtc, required this.expectedTaskVersions, this.calendarTimeZoneId});
   factory _ApplyScheduleCascadePayload.fromJson(Map<String, dynamic> json) => _$ApplyScheduleCascadePayloadFromJson(json);
 
 @override final  String taskId;
 @override final  DateTime newStartAtUtc;
 @override final  DateTime newDueAtUtc;
 @override final  Map<String, int> expectedTaskVersions;
+@override final  String? calendarTimeZoneId;
 
 /// Create a copy of ApplyScheduleCascadePayload
 /// with the given fields replaced by the non-null parameter values.
@@ -765,16 +770,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ApplyScheduleCascadePayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.newStartAtUtc, newStartAtUtc) || other.newStartAtUtc == newStartAtUtc)&&(identical(other.newDueAtUtc, newDueAtUtc) || other.newDueAtUtc == newDueAtUtc)&&const DeepCollectionEquality().equals(other.expectedTaskVersions, expectedTaskVersions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ApplyScheduleCascadePayload&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.newStartAtUtc, newStartAtUtc) || other.newStartAtUtc == newStartAtUtc)&&(identical(other.newDueAtUtc, newDueAtUtc) || other.newDueAtUtc == newDueAtUtc)&&const DeepCollectionEquality().equals(other.expectedTaskVersions, expectedTaskVersions)&&(identical(other.calendarTimeZoneId, calendarTimeZoneId) || other.calendarTimeZoneId == calendarTimeZoneId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,taskId,newStartAtUtc,newDueAtUtc,const DeepCollectionEquality().hash(expectedTaskVersions));
+int get hashCode => Object.hash(runtimeType,taskId,newStartAtUtc,newDueAtUtc,const DeepCollectionEquality().hash(expectedTaskVersions),calendarTimeZoneId);
 
 @override
 String toString() {
-  return 'ApplyScheduleCascadePayload(taskId: $taskId, newStartAtUtc: $newStartAtUtc, newDueAtUtc: $newDueAtUtc, expectedTaskVersions: $expectedTaskVersions)';
+  return 'ApplyScheduleCascadePayload(taskId: $taskId, newStartAtUtc: $newStartAtUtc, newDueAtUtc: $newDueAtUtc, expectedTaskVersions: $expectedTaskVersions, calendarTimeZoneId: $calendarTimeZoneId)';
 }
 
 
@@ -785,7 +790,7 @@ abstract mixin class _$ApplyScheduleCascadePayloadCopyWith<$Res> implements $App
   factory _$ApplyScheduleCascadePayloadCopyWith(_ApplyScheduleCascadePayload value, $Res Function(_ApplyScheduleCascadePayload) _then) = __$ApplyScheduleCascadePayloadCopyWithImpl;
 @override @useResult
 $Res call({
- String taskId, DateTime newStartAtUtc, DateTime newDueAtUtc, Map<String, int> expectedTaskVersions
+ String taskId, DateTime newStartAtUtc, DateTime newDueAtUtc, Map<String, int> expectedTaskVersions, String? calendarTimeZoneId
 });
 
 
@@ -802,13 +807,14 @@ class __$ApplyScheduleCascadePayloadCopyWithImpl<$Res>
 
 /// Create a copy of ApplyScheduleCascadePayload
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? newStartAtUtc = null,Object? newDueAtUtc = null,Object? expectedTaskVersions = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? newStartAtUtc = null,Object? newDueAtUtc = null,Object? expectedTaskVersions = null,Object? calendarTimeZoneId = freezed,}) {
   return _then(_ApplyScheduleCascadePayload(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as String,newStartAtUtc: null == newStartAtUtc ? _self.newStartAtUtc : newStartAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,newDueAtUtc: null == newDueAtUtc ? _self.newDueAtUtc : newDueAtUtc // ignore: cast_nullable_to_non_nullable
 as DateTime,expectedTaskVersions: null == expectedTaskVersions ? _self.expectedTaskVersions : expectedTaskVersions // ignore: cast_nullable_to_non_nullable
-as Map<String, int>,
+as Map<String, int>,calendarTimeZoneId: freezed == calendarTimeZoneId ? _self.calendarTimeZoneId : calendarTimeZoneId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

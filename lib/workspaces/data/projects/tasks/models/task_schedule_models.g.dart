@@ -28,6 +28,7 @@ _PreviewScheduleCascadePayload _$PreviewScheduleCascadePayloadFromJson(
   taskId: json['taskId'] as String,
   newStartAtUtc: DateTime.parse(json['newStartAtUtc'] as String),
   newDueAtUtc: DateTime.parse(json['newDueAtUtc'] as String),
+  calendarTimeZoneId: json['calendarTimeZoneId'] as String?,
 );
 
 Map<String, dynamic> _$PreviewScheduleCascadePayloadToJson(
@@ -36,6 +37,7 @@ Map<String, dynamic> _$PreviewScheduleCascadePayloadToJson(
   'taskId': instance.taskId,
   'newStartAtUtc': instance.newStartAtUtc.toIso8601String(),
   'newDueAtUtc': instance.newDueAtUtc.toIso8601String(),
+  'calendarTimeZoneId': instance.calendarTimeZoneId,
 };
 
 _ApplyScheduleCascadePayload _$ApplyScheduleCascadePayloadFromJson(
@@ -47,6 +49,7 @@ _ApplyScheduleCascadePayload _$ApplyScheduleCascadePayloadFromJson(
   expectedTaskVersions: Map<String, int>.from(
     json['expectedTaskVersions'] as Map,
   ),
+  calendarTimeZoneId: json['calendarTimeZoneId'] as String?,
 );
 
 Map<String, dynamic> _$ApplyScheduleCascadePayloadToJson(
@@ -56,6 +59,7 @@ Map<String, dynamic> _$ApplyScheduleCascadePayloadToJson(
   'newStartAtUtc': instance.newStartAtUtc.toIso8601String(),
   'newDueAtUtc': instance.newDueAtUtc.toIso8601String(),
   'expectedTaskVersions': instance.expectedTaskVersions,
+  'calendarTimeZoneId': instance.calendarTimeZoneId,
 };
 
 _TaskDateShiftResponse _$TaskDateShiftResponseFromJson(

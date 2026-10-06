@@ -53,6 +53,7 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
     required this.projectId,
     this.canEdit,
     this.onAccessLost,
+    this.calendarTimeZoneId,
   }) : super(const TaskScheduleCascadeState());
 
   final TaskScheduleRepository repository;
@@ -60,6 +61,9 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
   final String projectId;
   final bool Function()? canEdit;
   final void Function(ApiError)? onAccessLost;
+
+  /// Odczytana raz dla sesji planowania; podgląd i zapis używają tego kalendarza.
+  final String? calendarTimeZoneId;
   ({String taskId, DateTime start, DateTime due, int draftGeneration})?
   _previewInput;
   late final _lifecycle = TaskDetailSectionLifecycle(
@@ -95,6 +99,7 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
         taskId: taskId,
         newStartAtUtc: newStartAtUtc,
         newDueAtUtc: newDueAtUtc,
+        calendarTimeZoneId: calendarTimeZoneId,
       ),
     );
     if (!_lifecycle.isCurrent(generation)) return false;
@@ -170,6 +175,7 @@ final class TaskScheduleCascadeCubit extends Cubit<TaskScheduleCascadeState> {
           for (final shift in preview.dateShifts)
             shift.taskId: shift.expectedVersion,
         },
+        calendarTimeZoneId: calendarTimeZoneId,
       ),
     );
     if (!_lifecycle.isCurrent(generation)) return false;

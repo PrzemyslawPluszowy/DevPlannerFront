@@ -74,6 +74,51 @@ void main() {
 
   tearDown(() => cubit.close());
 
+  test(
+    'preview and apply preserve instants and the session calendar zone',
+    () async {
+      await cubit.close();
+      cubit = TaskScheduleCascadeCubit(
+        repository: repository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        calendarTimeZoneId: 'Europe/Warsaw',
+      );
+      repository.previewResult = Right(
+        _previewWith(taskId: 'task-1', expectedVersion: 7),
+      );
+      repository.applyResult = repository.previewResult;
+      final start = DateTime.utc(2026, 10, 5, 22);
+      final due = DateTime.utc(2026, 10, 6, 22);
+      expect(
+        await cubit.preview(
+          taskId: 'task-1',
+          newStartAtUtc: start,
+          newDueAtUtc: due,
+        ),
+        isTrue,
+      );
+      expect(
+        await cubit.apply(
+          taskId: 'task-1',
+          newStartAtUtc: start,
+          newDueAtUtc: due,
+        ),
+        isTrue,
+      );
+      final preview = repository.previews.single;
+      final apply = repository.applies.single;
+      expect(preview.calendarTimeZoneId, 'Europe/Warsaw');
+      expect(apply.calendarTimeZoneId, preview.calendarTimeZoneId);
+      expect(preview.newStartAtUtc, start);
+      expect(apply.newDueAtUtc, due);
+      expect(PreviewScheduleCascadePayload.fromJson(preview.toJson()), preview);
+      expect(ApplyScheduleCascadePayload.fromJson(apply.toJson()), apply);
+      expect(preview.toJson()['newStartAtUtc'], '2026-10-05T22:00:00.000Z');
+      expect(apply.toJson()['calendarTimeZoneId'], 'Europe/Warsaw');
+    },
+  );
+
   test('pierwszy harmonogram zachowuje nullable poprzednie daty w JSON', () {
     final shift = TaskDateShiftResponse.fromJson({
       'taskId': 'task-1',

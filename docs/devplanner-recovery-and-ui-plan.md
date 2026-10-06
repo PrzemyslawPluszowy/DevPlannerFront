@@ -382,3 +382,23 @@ QA31 Kosz teraz pokazuje wcześniejszy softdeletedQAlicznik2026-10-05, licznik1,
 Backend28/28PASS0skip, w tym2runtimePostgreSQLatomic/staleversionrollback; buildPASS, scopedformatPASS i rootfullformat56170exit0 (/tmp/devplanner-qa37-full-format.log). JSON/OpenAPI pełne AutoScheduleMode3/DependencyType3/Kind4 oraz niezmiennyDTO nullablebefore zgodne; Front24/24enum/model/cascadePASS (/tmp/devplanner-qa37-wire-focused.log). Frontcombined26/26PASS (/tmp/devplanner-qa37-38-focused.log): Tab/Enterpreview, nullablebefore→after, disabledapply, currentversion/canonicaldates+estimatepayload, partialfailureformretained/retrywithoutreplay, AXrestoreerror/optionaldiagnostics/nooldglobalbanner. Overflowstopki poprawionyprzezWrap wtreści. Niezależnyreview Backend/Front bezblockera; rootExpansionkey teraz obejmuje także message/contract/backend, wcześniejszenotereview o tymkey stale. Pełnehistorycznesuityniepowtarzane; istniejące24Frontbaseline/1Backendnotificationfail nieuznanezaPASS. Frontfullanalyzer wpracy; brak nowegopublish/runtimeproof.
 
 QA37/38 final rootfullanalyzer42210exit0 Noissues12.1s, /tmp/devplanner-qa37-38-final-full-analyze.log. Ostatni formatbackendexit0 i26Front/24wire/28BackendPASS potwierdzone; sourcefreeze, niezależnyreview bezblockers. Następnykrok commitpushskipci ijednapublikacjaobukomponentów, potem dokładnyChrome runtime.
+
+
+## 2026-10-06 — QA39 kalendarz kaskady, praca w toku
+
+Manualny Chrome staging Front17bc81f/Backendc544033 PL/dark1513×895: wybór6–7paź pokazywał propozycję5–6paź. Kaskady nie zastosowano; szkic odrzucono. QA37 firstdates i brak unrelatedbranch odebrane częściowo, apply/estimate blokuje QA39. QA38 conflict→rename→restore i brak staleglobalerror odebrane w opisanym wariancie; centralny rejestr Backend/docs/ui-testing.md.
+
+Front dodaje optional calendarTimeZoneId do payloadów explicit preview/apply oraz conditional CalendarTimeZone z IANA Intl.resolvedOptions().timeZone w Web. Odczyt raz w initState sesji planowania, final field Cubita identyczny dla preview/apply, instants pozostają dokładne. Native stub null zachowuje legacyUTC: native IANA i automatyczne ApplySuccessors nie są objęte tym pakietem. Backend przygotowuje lokalny-calendar adapter bez zmiany globalnego pickera. Generator modeli wykonany, nowe focusedtesty w pracy; brak publikacji ani runtimePASS QA39. Wymagane buildWasm, codegates, niezależny review i dokładny Chrome preview→apply→reopen120min przed odbiorem.
+
+### Bieżąca kolejność audytu i napraw
+
+- [x] Audyt działań funkcjonalnych, zrozumiałości dla nietechnicznego użytkownika i spójności UI wpisany jako obowiązkowy zakres; Chrome na stagingu, UI UX Pro Max + Impeccable Operate.
+- [x] QA38 konflikt folderu, opcjonalna diagnostyka i odzyskanie bez starego błędu — rzeczywisty retest17bc81f/c544033.
+- [x] QA37 podgląd bez zmiany dat: brak przesuwania niezależnych zadań; pierwszy termin nie zwraca starego400.
+- [ ] QA39 naprawa strefy kalendarza explicit preview/apply: kod i focused bramki przygotowane; publikacja, Chrome6–7paź, apply120min i reopen wymagane.
+- [ ] Osobny audyt kalendarza automatycznych następców oraz natywnych platform: pozostają legacyUTC, nie zaliczać ich po poprawce Web explicit.
+- [ ] QA40 dopasowanie podpowiedzi konfliktu folderu do bieżącej lokalizacji.
+- [ ] Następne nieodebrane scenariusze z Backend/docs/ui-testing.md: pozostałe kontrolki modalu, Kanban loader/rollback/reconnect, Chat3sesje, presence/lifecycle/ACL, OfficeC06, auth i warianty light/EN/keyboard/narrow/zoom. Każdy zakres rezerwować osobno; nie dublować zakończonego wariantu bez przyczyny.
+
+
+QA39 sourcefreeze i bramki przed publikacją: Backend42/42PASS0skip, rzeczywistyOpenAPI+JSON+enumwire, focusedformat i diffcheckPASS; Front14focused+3enumwirePASS, fullanalyzerNoissues75.2s, Wasm buildEXIT0/538.1s (/tmp/devplanner-qa39-wasm-build.log). Niezależny review Front i root Backend bezblockerów. OwnedPGfixture usunięty. Publikacja aktualnego sprawdzonego Wasm przez deploy_staging_wasm.sh --no-build jest dopuszczalna, bez dalszych zmian źródeł. Commit/pushskipci i Backend+Front publikacja następne; UIQA39 jeszcze NOT RUN.

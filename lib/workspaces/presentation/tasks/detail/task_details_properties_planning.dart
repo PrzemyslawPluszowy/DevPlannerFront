@@ -1,3 +1,4 @@
+import 'package:devplanner/foundation/platform/calendar_time_zone.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cascade/task_schedule_cascade_preview.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
@@ -39,6 +40,7 @@ class EditPlanningDialogState extends State<EditPlanningDialog> {
       repository: context.read<TaskScheduleRepository>(),
       workspaceId: detailsCubit.workspaceId,
       projectId: detailsCubit.projectId,
+      calendarTimeZoneId: const CalendarTimeZone().read(),
       canEdit: () => switch (detailsCubit.state) {
         TaskDetailsReady(:final canEdit) => canEdit,
         _ => false,

@@ -10758,3 +10758,13 @@ Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.l
 - [ ] Pełna bramka Flutter pozostaje niezaliczona: 2476 PASS / 25 FAIL. Jeden nieaktualny mock poprawiony, plik repozytorium 12 PASS. Pozostałe 24 błędy odtworzone na poprzednim HEAD: 23 referencje obrazów i 1 stary tekst. Nie podmieniano goldenów. To osobna świadoma kolejka odbioru, nie dowód nowych regresji pakietu.
 
 Dalsza kolejność po tym retescie: QA31, QA15 Listy, Kanban loading/rollback i powiązane regresje; następnie brakujące scenariusze modalu, czatu, obecności, ról i awarii zgodnie z macierzą. Nie deklarowano odbioru całej aplikacji ani wszystkich kontrolek.
+
+
+## 2026-10-06 — QA39 kalendarz kaskady, praca w toku
+
+Manualny Chrome staging Front17bc81f/Backendc544033 PL/dark1513×895: wybór6–7paź pokazywał propozycję5–6paź. Kaskady nie zastosowano; szkic odrzucono. QA37 firstdates i brak unrelatedbranch odebrane częściowo, apply/estimate blokuje QA39. QA38 conflict→rename→restore i brak staleglobalerror odebrane w opisanym wariancie; centralny rejestr Backend/docs/ui-testing.md.
+
+Front dodaje optional calendarTimeZoneId do payloadów explicit preview/apply oraz conditional CalendarTimeZone z IANA Intl.resolvedOptions().timeZone w Web. Odczyt raz w initState sesji planowania, final field Cubita identyczny dla preview/apply, instants pozostają dokładne. Native stub null zachowuje legacyUTC: native IANA i automatyczne ApplySuccessors nie są objęte tym pakietem. Backend przygotowuje lokalny-calendar adapter bez zmiany globalnego pickera. Generator modeli wykonany, nowe focusedtesty w pracy; brak publikacji ani runtimePASS QA39. Wymagane buildWasm, codegates, niezależny review i dokładny Chrome preview→apply→reopen120min przed odbiorem.
+
+
+QA39 sourcefreeze i bramki przed publikacją: Backend42/42PASS0skip, rzeczywistyOpenAPI+JSON+enumwire, focusedformat i diffcheckPASS; Front14focused+3enumwirePASS, fullanalyzerNoissues75.2s, Wasm buildEXIT0/538.1s (/tmp/devplanner-qa39-wasm-build.log). Niezależny review Front i root Backend bezblockerów. OwnedPGfixture usunięty. Publikacja aktualnego sprawdzonego Wasm przez deploy_staging_wasm.sh --no-build jest dopuszczalna, bez dalszych zmian źródeł. Commit/pushskipci i Backend+Front publikacja następne; UIQA39 jeszcze NOT RUN.
