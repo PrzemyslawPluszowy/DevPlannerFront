@@ -7,12 +7,16 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/shared/presentation/widgets/app_context_menu.dart';
 import 'package:devplanner/shared/presentation/widgets/app_user_avatar.dart';
 import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/members/chat_members_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/members/models/chat_member.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/models/chat_user_status.dart';
+import 'package:devplanner/workspaces/presentation/chat/members/chat_member_display_label.dart';
 import 'package:devplanner/workspaces/presentation/chat/members/chat_person_card.dart';
 import 'package:devplanner/workspaces/presentation/chat/members/cubit/chat_members_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/members/cubit/chat_members_presence_cubit.dart';
 import 'package:devplanner/workspaces/presentation/chat/presence/chat_status_label.dart';
+import 'package:devplanner/workspaces/presentation/chat/presence/widgets/chat_inbox_presence_label.dart';
 import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +26,7 @@ class ChatMembersList extends StatefulWidget {
   const ChatMembersList({
     required this.state,
     this.presenceRepository,
+    this.membersPresenceRepository,
     this.conversationManagement,
     this.onOpenConversation,
     this.onAddPeople,
@@ -30,6 +35,7 @@ class ChatMembersList extends StatefulWidget {
 
   final ChatMembersReady state;
   final ChatPresenceRepository? presenceRepository;
+  final ChatMembersPresenceRepository? membersPresenceRepository;
 
   /// Port zarządzania rozmową dla akcji „Napisz” w karcie osoby.
   final ChatConversationManagementRepository? conversationManagement;
@@ -45,6 +51,9 @@ class ChatMembersList extends StatefulWidget {
 }
 
 class _ChatMembersListState extends State<ChatMembersList> {
+  ChatMembersPresenceCubit? _presence;
+  AppLifecycleListener? _lifecycle;
+  StreamSubscription<ChatMembersPresenceState>? _presenceSubscription;
   final Map<String, ChatUserStatus?> _statuses = <String, ChatUserStatus?>{};
   int _statusRequestGeneration = 0;
 
@@ -55,7 +64,9 @@ class _ChatMembersListState extends State<ChatMembersList> {
         title: dialogContext.l10n.chatMembersRemoveConfirmationTitle,
         maxWidth: 420,
         content: Text(
-          dialogContext.l10n.chatMembersRemoveConfirmationBody(member.label),
+          dialogContext.l10n.chatMembersRemoveConfirmationBody(
+            member.displayLabel(dialogContext),
+          ),
           style: dialogContext.chatTheme.contentStyle.copyWith(
             color: dialogContext.chatTheme.incomingText,
           ),
@@ -78,12 +89,58 @@ class _ChatMembersListState extends State<ChatMembersList> {
   @override
   void initState() {
     super.initState();
+    _createPresence();
     unawaited(_loadStatuses());
+  }
+
+  void _createPresence() {
+    final repository = widget.membersPresenceRepository;
+    if (repository == null) return;
+    final cubit = ChatMembersPresenceCubit(
+      repository: repository,
+      conversationId: context.read<ChatMembersCubit>().conversationId,
+    );
+    _presence = cubit;
+    final members = context.read<ChatMembersCubit>();
+    _presenceSubscription = cubit.stream.listen((snapshot) {
+      final error = snapshot.failure;
+      if (error != null &&
+          (error.statusCode == 401 ||
+              error.statusCode == 403 ||
+              error.statusCode == 404)) {
+        members.invalidateAccess(error);
+      }
+    });
+    _lifecycle = AppLifecycleListener(
+      onHide: () => cubit.setActive(false),
+      onPause: () => cubit.setActive(false),
+      onResume: () => cubit.setActive(true),
+    );
+    unawaited(cubit.refresh());
+  }
+
+  @override
+  void dispose() {
+    _lifecycle?.dispose();
+    unawaited(_presenceSubscription?.cancel());
+    final presence = _presence;
+    if (presence != null) unawaited(presence.close());
+    _statusRequestGeneration++;
+    super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant ChatMembersList oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.membersPresenceRepository !=
+        widget.membersPresenceRepository) {
+      _lifecycle?.dispose();
+      unawaited(_presenceSubscription?.cancel());
+      final oldPresence = _presence;
+      if (oldPresence != null) unawaited(oldPresence.close());
+      _presence = null;
+      _createPresence();
+    }
     final oldUserIds = oldWidget.state.members
         .map((member) => member.userId)
         .toSet();
@@ -94,6 +151,7 @@ class _ChatMembersListState extends State<ChatMembersList> {
         oldWidget.presenceRepository == widget.presenceRepository) {
       return;
     }
+    if (membersChanged) unawaited(_presence?.refresh());
     _statusRequestGeneration++;
     _statuses.removeWhere((userId, _) => !userIds.contains(userId));
     if (oldWidget.presenceRepository != widget.presenceRepository) {
@@ -135,6 +193,43 @@ class _ChatMembersListState extends State<ChatMembersList> {
     final cubit = context.read<ChatMembersCubit>();
     return Column(
       children: [
+        if (_presence case final presence?)
+          BlocBuilder<ChatMembersPresenceCubit, ChatMembersPresenceState>(
+            bloc: presence,
+            builder: (context, presenceState) => presenceState.failure == null
+                ? const SizedBox.shrink()
+                : Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          presenceState.failure?.retryAfterUtc == null
+                              ? context.l10n.projectPeoplePresenceUnknown
+                              : context.l10n.tasksViewErrorRetryAfter(
+                                  MaterialLocalizations.of(context)
+                                      .formatTimeOfDay(
+                                        TimeOfDay.fromDateTime(
+                                          presenceState.failure!.retryAfterUtc!
+                                              .toLocal(),
+                                        ),
+                                      ),
+                                ),
+                          style: chat.metadataStyle.copyWith(color: chat.error),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed:
+                            presenceState.isLoading ||
+                                (presenceState.failure?.retryAfterUtc?.isAfter(
+                                      DateTime.now().toUtc(),
+                                    ) ??
+                                    false)
+                            ? null
+                            : () => unawaited(presence.refresh()),
+                        child: Text(context.l10n.frameworkRetry),
+                      ),
+                    ],
+                  ),
+          ),
         if (state.failureCode != null)
           Padding(
             padding: const EdgeInsets.only(bottom: Sizes.p8),
@@ -192,7 +287,7 @@ class _ChatMembersListState extends State<ChatMembersList> {
                         children: [
                           AppUserAvatar(
                             userId: member.userId,
-                            displayName: member.label,
+                            displayName: member.displayLabel(context),
                             avatarUrl: member.avatarUrl,
                             hasCustomAvatar:
                                 member.avatarUrl?.trim().isNotEmpty == true,
@@ -206,8 +301,8 @@ class _ChatMembersListState extends State<ChatMembersList> {
                               children: [
                                 Text(
                                   isCurrent
-                                      ? '${member.label} (${context.l10n.chatMembersYou})'
-                                      : member.label,
+                                      ? '${member.displayLabel(context)} (${context.l10n.chatMembersYou})'
+                                      : member.displayLabel(context),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: chat.contentStyle.copyWith(
@@ -216,6 +311,20 @@ class _ChatMembersListState extends State<ChatMembersList> {
                                   ),
                                 ),
                                 const SizedBox(height: Sizes.p2),
+                                if (_presence case final presence?)
+                                  BlocSelector<
+                                    ChatMembersPresenceCubit,
+                                    ChatMembersPresenceState,
+                                    bool?
+                                  >(
+                                    bloc: presence,
+                                    selector: (snapshot) =>
+                                        snapshot.users[member.userId],
+                                    builder: (context, online) =>
+                                        ChatInboxPresenceLabel(
+                                          isOnline: online,
+                                        ),
+                                  ),
                                 Text(
                                   _roleLabel(context, member.role),
                                   style: chat.metadataStyle.copyWith(

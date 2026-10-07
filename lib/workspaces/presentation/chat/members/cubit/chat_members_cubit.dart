@@ -79,9 +79,10 @@ final class ChatMembersReady extends ChatMembersState {
 /// Porażka pobrania listy członków.
 final class ChatMembersFailure extends ChatMembersState {
   /// Tworzy stan błędu z kodem domenowym.
-  const ChatMembersFailure(this.message);
+  const ChatMembersFailure(this.message, {this.accessRevoked = false});
 
   final String message;
+  final bool accessRevoked;
 }
 
 /// Bieżący użytkownik opuścił rozmowę.
@@ -110,16 +111,33 @@ final class ChatMembersCubit extends Cubit<ChatMembersState> {
   final ChatConversationManagementRepository? _management;
   final String conversationId;
   final String currentUserId;
+  int _loadGeneration = 0;
+  bool _accessRevoked = false;
+
+  /// Odczyt ACL obecności zamyka widok danych po odebraniu dostępu.
+  void invalidateAccess(ApiError error) {
+    if (isClosed || _accessRevoked) return;
+    _accessRevoked = true;
+    _loadGeneration++;
+    emit(ChatMembersFailure(error.message, accessRevoked: true));
+  }
 
   /// Pobiera aktywnych członków rozmowy.
-  Future<void> load() => _reload(showLoading: true);
+  Future<void> load() {
+    final current = state;
+    if (current is ChatMembersReady && current.isMutating) {
+      return Future<void>.value();
+    }
+    return _reload(showLoading: true);
+  }
 
   /// Odświeża listę po mutacji bez migotania pustym stanem.
   Future<void> _reload({bool showLoading = false}) async {
-    if (isClosed) return;
+    if (isClosed || _accessRevoked) return;
+    final generation = ++_loadGeneration;
     if (showLoading) emit(const ChatMembersLoading());
     final result = await _members.listMembers(conversationId);
-    if (isClosed) return;
+    if (isClosed || _accessRevoked || generation != _loadGeneration) return;
     result.fold(
       (error) => emit(ChatMembersFailure(error.message)),
       (members) => emit(
@@ -133,7 +151,7 @@ final class ChatMembersCubit extends Cubit<ChatMembersState> {
     required String targetUserId,
     required ChatMemberRole role,
   }) => _mutate(
-    _members.updateMemberRole(
+    () => _members.updateMemberRole(
       conversationId: conversationId,
       targetUserId: targetUserId,
       role: role,
@@ -142,7 +160,7 @@ final class ChatMembersCubit extends Cubit<ChatMembersState> {
 
   /// Usuwa członka z rozmowy po potwierdzeniu.
   Future<void> removeMember(String targetUserId) => _mutate(
-    _members.removeMember(
+    () => _members.removeMember(
       conversationId: conversationId,
       targetUserId: targetUserId,
     ),
@@ -155,17 +173,25 @@ final class ChatMembersCubit extends Cubit<ChatMembersState> {
   Future<void> addMembers(List<String> userIds) {
     if (userIds.isEmpty) return Future<void>.value();
     return _mutate(
-      _members.addMembers(conversationId: conversationId, userIds: userIds),
+      () =>
+          _members.addMembers(conversationId: conversationId, userIds: userIds),
     );
   }
 
   /// Opuszcza rozmowę bieżącym użytkownikiem.
   Future<void> leave() async {
     final management = _management;
-    if (isClosed || management == null) return;
+    final current = state;
+    if (isClosed ||
+        _accessRevoked ||
+        management == null ||
+        current is! ChatMembersReady ||
+        current.isMutating) {
+      return;
+    }
     _emitMutating(true);
     final result = await management.leaveConversation(conversationId);
-    if (isClosed) return;
+    if (isClosed || _accessRevoked) return;
     switch (result) {
       case Left(value: final error):
         _emitFailure(error);
@@ -174,18 +200,25 @@ final class ChatMembersCubit extends Cubit<ChatMembersState> {
     }
   }
 
-  Future<void> _mutate<T>(Future<Either<ApiError, T>> operation) async {
-    if (isClosed || state is! ChatMembersReady) return;
+  Future<void> _mutate<T>(
+    Future<Either<ApiError, T>> Function() operation,
+  ) async {
+    final current = state;
+    if (isClosed ||
+        _accessRevoked ||
+        current is! ChatMembersReady ||
+        current.isMutating) {
+      return;
+    }
     _emitMutating(true);
-    final result = await operation;
-    if (isClosed) return;
+    final result = await operation();
+    if (isClosed || _accessRevoked) return;
     // Odświeżenie jest czekane: wołający nie może zobaczyć starej listy jako
     // wyniku zakończonej mutacji.
     switch (result) {
       case Left(value: final error):
         _emitFailure(error);
       case Right():
-        _emitMutating(false);
         await _reload();
     }
   }

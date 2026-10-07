@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/data/chat/models/chat_members_presence_response.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:dio/dio.dart';
@@ -160,6 +161,12 @@ abstract class ChatApi {
   /// Listuje aktywnych członków rozmowy.
   @GET('/api/v1/chat/conversations/{conversationId}/members')
   Future<List<ChatMemberResponse>> listMembers(
+    @Path('conversationId') String conversationId,
+  );
+
+  /// Odczytuje obecność aplikacyjną uczestników bez zmiany członkostwa.
+  @GET('/api/v1/chat/conversations/{conversationId}/members/presence')
+  Future<ChatMembersPresenceResponse> loadMembersPresence(
     @Path('conversationId') String conversationId,
   );
 

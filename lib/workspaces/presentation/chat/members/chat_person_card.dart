@@ -10,6 +10,7 @@ import 'package:devplanner/workspaces/domain/chat/members/models/chat_member.dar
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/models/chat_user_status.dart';
 import 'package:devplanner/workspaces/presentation/chat/creation/cubit/chat_creation_cubit.dart';
+import 'package:devplanner/workspaces/presentation/chat/members/chat_member_display_label.dart';
 import 'package:devplanner/workspaces/presentation/chat/presence/chat_status_label.dart';
 import 'package:devplanner/workspaces/presentation/chat/shared/chat_surface_dialog.dart';
 import 'package:flutter/material.dart';
@@ -96,8 +97,8 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
           userId: widget.member.userId,
           login: widget.member.login?.trim().isNotEmpty == true
               ? widget.member.login!.trim()
-              : widget.member.label,
-          displayName: widget.member.label,
+              : widget.member.displayLabel(context),
+          displayName: widget.member.displayLabel(context),
           avatarUrl: widget.member.avatarUrl,
         ),
       );
@@ -126,11 +127,11 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
         widget.conversationManagement != null &&
         widget.onOpenConversation != null;
     return ChatSurfaceDialog(
-      title: member.label,
+      title: member.displayLabel(context),
       subtitle: _roleLabel(context, member.role),
       leading: AppUserAvatar(
         userId: member.userId,
-        displayName: member.label,
+        displayName: member.displayLabel(context),
         avatarUrl: member.avatarUrl,
         hasCustomAvatar: member.avatarUrl?.trim().isNotEmpty == true,
         radius: chat.avatarInbox / 2,

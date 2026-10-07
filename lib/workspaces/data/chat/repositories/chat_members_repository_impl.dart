@@ -3,17 +3,33 @@ import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/chat/api/chat_api.dart';
 import 'package:devplanner/workspaces/data/chat/errors/chat_api_error_mapper.dart';
 import 'package:devplanner/workspaces/data/chat/models/chat_models.dart';
+import 'package:devplanner/workspaces/domain/chat/members/chat_members_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/members/models/chat_member.dart';
 import 'package:dio/dio.dart';
 
 /// Implementacja portu członkostwa rozmowy Chat.
-final class ChatMembersRepositoryImpl implements ChatMembersRepository {
+final class ChatMembersRepositoryImpl
+    implements ChatMembersRepository, ChatMembersPresenceRepository {
   /// Tworzy adapter na uwzględnionym kliencie Chat.
   ChatMembersRepositoryImpl(this._api);
 
   final ChatApi _api;
   static const _errorMapper = ChatApiErrorMapper();
+
+  @override
+  Future<Either<ApiError, ChatMembersPresenceSnapshot>> loadMembersPresence(
+    String conversationId,
+  ) => _guard(
+    () async {
+      final response = await _api.loadMembersPresence(conversationId);
+      return ChatMembersPresenceSnapshot(
+        users: response.users,
+        snapshotAtUtc: response.snapshotAtUtc,
+      );
+    },
+    code: ChatApiErrorCode.loadInboxPresence,
+  );
 
   @override
   Future<Either<ApiError, List<ChatMember>>> listMembers(

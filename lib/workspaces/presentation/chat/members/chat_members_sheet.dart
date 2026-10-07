@@ -8,6 +8,7 @@ import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
 import 'package:devplanner/workspaces/domain/chat/directory/chat_directory_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/management/chat_conversation_management_repository.dart';
+import 'package:devplanner/workspaces/domain/chat/members/chat_members_presence_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/members/chat_members_repository.dart';
 import 'package:devplanner/workspaces/domain/chat/presence/chat_presence_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/members/chat_add_members_view.dart';
@@ -232,14 +233,26 @@ class _ChatMembersSheetBodyState extends State<_ChatMembersSheetBody> {
                         ChatMembersFailure() => _MembersMessage(
                           icon: Symbols.error_outline,
                           title: context.l10n.chatMembersLoadFailureTitle,
-                          message: context.l10n.chatMembersLoadFailureMessage,
-                          onRetry: () => unawaited(
-                            context.read<ChatMembersCubit>().load(),
-                          ),
+                          message: state.accessRevoked
+                              ? context
+                                    .l10n
+                                    .chatConversationAccessRevokedMessage
+                              : context.l10n.chatMembersLoadFailureMessage,
+                          onRetry: state.accessRevoked
+                              ? null
+                              : () => unawaited(
+                                  context.read<ChatMembersCubit>().load(),
+                                ),
                         ),
                         ChatMembersLeft() => const SizedBox.shrink(),
                         ChatMembersReady() => ChatMembersList(
                           state: state,
+                          membersPresenceRepository:
+                              context.read<ChatMembersRepository>()
+                                  is ChatMembersPresenceRepository
+                              ? context.read<ChatMembersRepository>()
+                                    as ChatMembersPresenceRepository
+                              : null,
                           presenceRepository: widget.presenceRepository,
                           conversationManagement: widget.conversationManagement,
                           onOpenConversation: widget.onOpenConversation,
