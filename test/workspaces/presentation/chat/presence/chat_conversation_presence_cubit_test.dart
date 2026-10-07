@@ -112,6 +112,10 @@ void main() {
     expect(cubit.state.hasStatusUpdateForUser('peer'), isTrue);
     expect(cubit.state.statusForUser('peer'), isNull);
     expect(cubit.state.snapshot, initialSnapshot);
+    presenceController.add(null);
+    await Future<void>.delayed(Duration.zero);
+    expect(cubit.state.hasStatusUpdateForUser('peer'), isFalse);
+    expect(cubit.state.userStatuses, isEmpty);
 
     await cubit.close();
     await presenceController.close();

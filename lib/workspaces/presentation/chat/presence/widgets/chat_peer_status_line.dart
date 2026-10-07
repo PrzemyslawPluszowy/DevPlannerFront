@@ -32,6 +32,8 @@ class _ChatPeerStatusLineState extends State<ChatPeerStatusLine> {
   StreamSubscription<ChatConversationPresenceState>? _presenceSubscription;
   ChatUserStatus? _realtimeStatus;
   bool _hasRealtimeStatus = false;
+  bool _hadPresenceSnapshot = false;
+  bool _statusRefreshPending = false;
 
   @override
   void initState() {
@@ -64,9 +66,30 @@ class _ChatPeerStatusLineState extends State<ChatPeerStatusLine> {
   }
 
   void _applyRealtimeStatus(ChatConversationPresenceState state) {
-    if (!state.hasStatusUpdateForUser(widget.userId)) return;
+    final hasSnapshot = state.snapshot != null;
+    final hasUpdate = state.hasStatusUpdateForUser(widget.userId);
+    if (!hasSnapshot &&
+        (_hadPresenceSnapshot || (_hasRealtimeStatus && !hasUpdate))) {
+      _statusRequestGeneration++;
+      _expiryTimer?.cancel();
+      _expiryTimer = null;
+      _hasRealtimeStatus = false;
+      _realtimeStatus = null;
+      _status = null;
+      _statusRefreshPending = true;
+      if (mounted) setState(() {});
+    }
+    _hadPresenceSnapshot = hasSnapshot;
+    if (hasSnapshot && _statusRefreshPending) {
+      _statusRefreshPending = false;
+      unawaited(_load());
+    }
+    if (!hasUpdate) return;
     final status = state.statusForUser(widget.userId);
     if (_hasRealtimeStatus && _realtimeStatus == status) return;
+    // Nowszy realtime jest właścicielem statusu i jego timera. Odrzuć
+    // rozpoczęty wcześniej odczyt REST, także gdy zwróci pusty status.
+    _statusRequestGeneration++;
     _hasRealtimeStatus = true;
     _realtimeStatus = status;
     _expiryTimer?.cancel();
@@ -88,11 +111,16 @@ class _ChatPeerStatusLineState extends State<ChatPeerStatusLine> {
   }
 
   Future<void> _load() async {
+    if (_statusRefreshPending) return;
     final generation = ++_statusRequestGeneration;
     final repository = context.read<ChatPresenceRepository?>();
     if (repository == null || widget.userId.isEmpty) return;
     final result = await repository.getUserStatus(widget.userId);
-    if (!mounted || generation != _statusRequestGeneration) return;
+    if (!mounted ||
+        generation != _statusRequestGeneration ||
+        _hasRealtimeStatus) {
+      return;
+    }
     result.fold((_) {}, (status) {
       final nowUtc = DateTime.now().toUtc();
       final activeStatus = status?.isExpiredAt(nowUtc) == true ? null : status;

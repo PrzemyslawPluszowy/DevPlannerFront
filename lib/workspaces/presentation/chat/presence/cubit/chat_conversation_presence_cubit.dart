@@ -50,7 +50,7 @@ final class ChatConversationPresenceCubit
     emit(
       ChatConversationPresenceState(
         snapshot: snapshot,
-        userStatuses: state.userStatuses,
+        userStatuses: snapshot == null ? const {} : state.userStatuses,
       ),
     );
   }
