@@ -13,6 +13,7 @@ import 'package:devplanner/workspaces/presentation/chat/resource/cubit/resource_
 import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_file_details_metadata.dart';
 import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_state.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_office_editor_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -41,12 +42,14 @@ final class StorageFileDetailsPage extends StatelessWidget {
       unawaited(cubit.load());
       return cubit;
     },
-    child: const _StorageFileDetailsView(),
+    child: _StorageFileDetailsView(repository: repository),
   );
 }
 
 final class _StorageFileDetailsView extends StatelessWidget {
-  const _StorageFileDetailsView();
+  const _StorageFileDetailsView({required this.repository});
+
+  final StorageRepository repository;
 
   @override
   Widget build(BuildContext context) =>
@@ -57,7 +60,10 @@ final class _StorageFileDetailsView extends StatelessWidget {
           StorageFileDetailsFailure(:final message) =>
             _StorageFileDetailsFailure(message: message),
           StorageFileDetailsLoaded(:final details) =>
-            _StorageFileDetailsContent(details: details),
+            _StorageFileDetailsContent(
+              details: details,
+              repository: repository,
+            ),
         },
       );
 }
@@ -99,7 +105,12 @@ final class _StorageFileDetailsFailure extends StatelessWidget {
 }
 
 final class _StorageFileDetailsContent extends StatelessWidget {
-  const _StorageFileDetailsContent({required this.details});
+  const _StorageFileDetailsContent({
+    required this.details,
+    required this.repository,
+  });
+
+  final StorageRepository repository;
 
   final StorageFileDetailsResponse details;
 
@@ -113,18 +124,31 @@ final class _StorageFileDetailsContent extends StatelessWidget {
         details.permissions.canRead &&
         file.accessLevel != StorageEffectiveAccessLevel.none;
 
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        StorageFileDetailsMetadata(details: details),
-        if (canOpenResourceChat)
-          _StorageFileResourceChatAction(
-            file: file,
-            repository: resourceRepository,
-          ),
-        const SizedBox(height: 24),
-        StorageFileDetailsHistory(details: details),
-      ],
+    return Align(
+      alignment: Alignment.topLeft,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1040),
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            StorageFileDetailsMetadata(details: details),
+            if (details.permissions.canRead &&
+                file.canEditOnline &&
+                !file.isDeleted)
+              _StorageFileOpenDocumentAction(
+                file: file,
+                repository: repository,
+              ),
+            if (canOpenResourceChat)
+              _StorageFileResourceChatAction(
+                file: file,
+                repository: resourceRepository,
+              ),
+            const SizedBox(height: 24),
+            StorageFileDetailsHistory(details: details),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -178,6 +202,65 @@ final class _StorageFileResourceChatAction extends StatelessWidget {
                   ),
                 ),
               ),
+      ),
+    ),
+  );
+}
+
+/// Opens the existing Office surface and refreshes the permission snapshot.
+final class _StorageFileOpenDocumentAction extends StatefulWidget {
+  const _StorageFileOpenDocumentAction({
+    required this.file,
+    required this.repository,
+  });
+
+  final StorageFileResponse file;
+  final StorageRepository repository;
+
+  @override
+  State<_StorageFileOpenDocumentAction> createState() =>
+      _StorageFileOpenDocumentActionState();
+}
+
+final class _StorageFileOpenDocumentActionState
+    extends State<_StorageFileOpenDocumentAction> {
+  final ValueNotifier<bool> _opening = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _opening.dispose();
+    super.dispose();
+  }
+
+  Future<void> _open() async {
+    if (_opening.value) return;
+    _opening.value = true;
+    final cubit = context.read<StorageFileDetailsCubit>();
+    try {
+      await StorageOfficeEditorDialog.show(
+        context,
+        file: widget.file,
+        repository: widget.repository,
+      );
+      if (!mounted) return;
+      await cubit.load();
+    } finally {
+      if (mounted) _opening.value = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _opening,
+        builder: (context, opening, child) => FilledButton.tonalIcon(
+          onPressed: opening ? null : _open,
+          icon: const Icon(Symbols.description_rounded, size: 18),
+          label: Text(context.l10n.storageOpenOfficeAction),
+        ),
       ),
     ),
   );

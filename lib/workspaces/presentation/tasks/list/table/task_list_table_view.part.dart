@@ -2,6 +2,10 @@ part of 'task_list_table.dart';
 
 /// Rozszerzenie budujące główny widok przewijany tabeli zadań wraz z paskiem filtrów i masowych akcji.
 extension _TaskListTableViewExtension on _TaskListTableState {
+  bool _isGroupStart(_ListRow row) => row is _ListGroupHeader;
+
+  bool _isColumnHeader(_ListRow row) => row is _ListGroupTableHeader;
+
   void _openColumnSettings(
     BuildContext context,
     TaskListPreferencesCubit? preferences,
@@ -213,32 +217,33 @@ extension _TaskListTableViewExtension on _TaskListTableState {
                                                   hasActiveFilters:
                                                       state.hasActiveFilters,
                                                 )
-                                              : ListView.builder(
+                                              : TaskListGroupedViewport<
+                                                  _ListRow
+                                                >(
                                                   controller: _controller,
-                                                  padding: EdgeInsets.zero,
-                                                  itemCount:
-                                                      rows.length +
-                                                      (state.hasNextPage
-                                                          ? 1
-                                                          : 0),
-                                                  itemBuilder: (context, index) {
-                                                    if (index == rows.length) {
-                                                      return const SizedBox(
-                                                        height: 48,
-                                                        child: Center(
-                                                          child:
-                                                              CircularProgressIndicator(
-                                                                strokeWidth: 2,
-                                                              ),
-                                                        ),
-                                                      );
-                                                    }
+                                                  rows: rows,
+                                                  isGroupStart: _isGroupStart,
+                                                  isColumnHeader:
+                                                      _isColumnHeader,
+                                                  trailing: state.hasNextPage
+                                                      ? const SizedBox(
+                                                          height: 48,
+                                                          child: Center(
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2,
+                                                                ),
+                                                          ),
+                                                        )
+                                                      : null,
+                                                  rowBuilder: (context, row) {
                                                     return _buildRowItem(
                                                       context,
                                                       state: state,
                                                       viewportWidth:
                                                           constraints.maxWidth,
-                                                      row: rows[index],
+                                                      row: row,
                                                       visibleColumns:
                                                           visibleColumns,
                                                       effectiveColumnRefs:
