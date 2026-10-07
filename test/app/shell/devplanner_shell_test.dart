@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:devplanner/app/shell/devplanner_shell.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_item.dart';
 import 'package:devplanner/workspaces/domain/models/project_list_query.dart';
 import 'package:devplanner/workspaces/domain/models/workspace_summary.dart';
 import 'package:devplanner/workspaces/domain/ports/projects_gateway.dart';
+import 'package:devplanner/workspaces/domain/ports/workspace_management_gateway.dart';
 import 'package:devplanner/workspaces/domain/ports/workspace_navigation_gateway.dart';
+import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
 import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/create_project_dialog.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +18,75 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  testWidgets('workspace creation explains empty names without a request', (
+    tester,
+  ) async {
+    final gateway = _CreateWorkspaceGateway();
+    await _openWorkspaceCreation(tester, gateway);
+    await tester.tap(find.text('Create'));
+    await tester.pump();
+    expect(find.text('Name cannot be empty'), findsOneWidget);
+    expect(gateway.names, isEmpty);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+  });
+
+  testWidgets(
+    'workspace create blocks dismissal, preserves failure and retries once',
+    (tester) async {
+      final gateway = _CreateWorkspaceGateway();
+      await _openWorkspaceCreation(tester, gateway);
+      await tester.enterText(find.byType(TextField), '  QA space  ');
+      await tester.tap(find.text('Create'));
+      await tester.pump();
+      expect(gateway.names, ['QA space']);
+      expect(tester.widget<TextField>(find.byType(TextField)).enabled, isFalse);
+      expect(
+        tester
+            .widget<TextButton>(find.widgetWithText(TextButton, 'Cancel'))
+            .onPressed,
+        isNull,
+      );
+      await tester.tapAt(const Offset(10, 600));
+      await tester.pump();
+      final dialogContext = tester.element(find.byType(AlertDialog));
+      await Navigator.of(dialogContext).maybePop();
+      await tester.pump();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(gateway.names, hasLength(1));
+      gateway.pending.completeError(
+        const WorkspacesGatewayException(
+          reason: WorkspacesFailureReason.forbidden,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text('You do not have permission to create a workspace.'),
+        findsOneWidget,
+      );
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        '  QA space  ',
+      );
+      await tester.tap(find.text('Create'));
+      await tester.pump();
+      expect(gateway.names, ['QA space', 'QA space']);
+      gateway.pending.complete(
+        const WorkspaceSummary(
+          id: 'created',
+          name: 'QA space',
+          isPinned: false,
+          isHidden: false,
+          isOwner: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('created workspace content'), findsOneWidget);
+      expect(find.byType(AlertDialog), findsNothing);
+    },
+  );
+
   for (final query in ['?view=favorites', '?folder=qa-folder']) {
     testWidgets('Files title is preserved with query $query', (tester) async {
       final router = GoRouter(
@@ -601,4 +674,46 @@ final class _ProjectsGateway implements ProjectsGateway {
       name: 'Project Alpha',
     ),
   ];
+}
+
+Future<void> _openWorkspaceCreation(
+  WidgetTester tester,
+  _CreateWorkspaceGateway gateway,
+) async {
+  await tester.binding.setSurfaceSize(const Size(1024, 768));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  final router = GoRouter(
+    initialLocation: '/workspaces',
+    routes: [
+      GoRoute(
+        path: '/workspaces',
+        builder: (_, _) => DevPlannerShellRoute(
+          workspaceNavigationGateway: _WorkspaceGateway(),
+          projectsGateway: _ProjectsGateway(),
+          workspaceManagementGateway: gateway,
+          child: const Text('workspace content'),
+        ),
+      ),
+      GoRoute(
+        path: '/workspaces/:id',
+        builder: (_, _) => const Text('created workspace content'),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
+  await tester.pumpWidget(_LocalizedRouter(router));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const ValueKey('workspace-create-button')));
+  await tester.pumpAndSettle();
+}
+
+final class _CreateWorkspaceGateway implements WorkspaceManagementGateway {
+  final List<String> names = [];
+  Completer<WorkspaceSummary> pending = Completer<WorkspaceSummary>();
+  @override
+  Future<WorkspaceSummary> createWorkspace({required String name}) {
+    if (pending.isCompleted) pending = Completer<WorkspaceSummary>();
+    names.add(name);
+    return pending.future;
+  }
 }

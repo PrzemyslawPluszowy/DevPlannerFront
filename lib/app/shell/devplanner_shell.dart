@@ -16,6 +16,8 @@ import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_na
 import 'package:devplanner/workspaces/presentation/navigation/cubit/workspace_navigation_tree_state.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/project_resource_creation_dialogs.dart';
 import 'package:devplanner/workspaces/presentation/tasks/tasks_project_view_contract.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/manage_workspace/cubit/workspace_quick_create_cubit.dart';
+import 'package:devplanner/workspaces/presentation/workspaces_home/manage_workspace/cubit/workspace_quick_create_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';

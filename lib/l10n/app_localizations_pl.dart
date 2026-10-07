@@ -466,6 +466,25 @@ class AppLocalizationsPl extends AppLocalizations {
       'np. Marketing, Projekt A, Finanse';
 
   @override
+  String get workspacesCreateFailedMessage =>
+      'Nie udało się utworzyć przestrzeni. Wpisana nazwa została zachowana. Spróbuj ponownie.';
+
+  @override
+  String get workspacesCreateSessionMessage =>
+      'Zaloguj się ponownie, aby utworzyć przestrzeń roboczą.';
+
+  @override
+  String get workspacesCreateForbiddenMessage =>
+      'Nie masz uprawnień do tworzenia przestrzeni roboczej.';
+
+  @override
+  String get workspacesCreatedOpenFailedMessage =>
+      'Przestrzeń została utworzona, ale nie udało się jej otworzyć. Spróbuj otworzyć ją ponownie; nie utworzy to kolejnej przestrzeni.';
+
+  @override
+  String get workspacesOpenCreatedButton => 'Otwórz przestrzeń';
+
+  @override
   String get workspacesNameRequiredError => 'Nazwa nie może być pusta';
 
   @override

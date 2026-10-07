@@ -950,6 +950,36 @@ abstract class AppLocalizations {
   /// **'e.g. Marketing, Project A, Finance'**
   String get workspacesNameFieldPlaceholder;
 
+  /// No description provided for @workspacesCreateFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the workspace. Your name is preserved. Try again.'**
+  String get workspacesCreateFailedMessage;
+
+  /// No description provided for @workspacesCreateSessionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again to create a workspace.'**
+  String get workspacesCreateSessionMessage;
+
+  /// No description provided for @workspacesCreateForbiddenMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to create a workspace.'**
+  String get workspacesCreateForbiddenMessage;
+
+  /// No description provided for @workspacesCreatedOpenFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The workspace was created, but could not be opened. Try opening it again; this will not create another workspace.'**
+  String get workspacesCreatedOpenFailedMessage;
+
+  /// No description provided for @workspacesOpenCreatedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Open workspace'**
+  String get workspacesOpenCreatedButton;
+
   /// No description provided for @workspacesNameRequiredError.
   ///
   /// In en, this message translates to:

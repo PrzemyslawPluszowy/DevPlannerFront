@@ -461,6 +461,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'e.g. Marketing, Project A, Finance';
 
   @override
+  String get workspacesCreateFailedMessage =>
+      'Could not create the workspace. Your name is preserved. Try again.';
+
+  @override
+  String get workspacesCreateSessionMessage =>
+      'Sign in again to create a workspace.';
+
+  @override
+  String get workspacesCreateForbiddenMessage =>
+      'You do not have permission to create a workspace.';
+
+  @override
+  String get workspacesCreatedOpenFailedMessage =>
+      'The workspace was created, but could not be opened. Try opening it again; this will not create another workspace.';
+
+  @override
+  String get workspacesOpenCreatedButton => 'Open workspace';
+
+  @override
   String get workspacesNameRequiredError => 'Name cannot be empty';
 
   @override

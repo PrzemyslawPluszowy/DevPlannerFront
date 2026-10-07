@@ -336,6 +336,7 @@ final class _CreateWorkspaceFromSidebarDialog extends StatefulWidget {
     required Future<void> Function(String workspaceId) onCreated,
   }) => showDialog<void>(
     context: context,
+    barrierDismissible: false,
     builder: (_) => _CreateWorkspaceFromSidebarDialog(
       gateway: gateway,
       onCreated: onCreated,
@@ -350,77 +351,152 @@ final class _CreateWorkspaceFromSidebarDialog extends StatefulWidget {
 final class _CreateWorkspaceFromSidebarDialogState
     extends State<_CreateWorkspaceFromSidebarDialog> {
   late final TextEditingController _controller;
-  final ValueNotifier<bool> _isSubmitting = ValueNotifier(false);
-  final ValueNotifier<String?> _error = ValueNotifier(null);
+  late final WorkspaceQuickCreateCubit _cubit;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _cubit = WorkspaceQuickCreateCubit(gateway: widget.gateway);
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _isSubmitting.dispose();
-    _error.dispose();
+    unawaited(_cubit.close());
     super.dispose();
   }
 
+  void _cancel() {
+    if (!_cubit.state.isSubmitting) Navigator.of(context).pop();
+  }
+
   Future<void> _submit() async {
-    final name = _controller.text.trim();
-    if (name.isEmpty || _isSubmitting.value) return;
-    _isSubmitting.value = true;
-    _error.value = null;
+    final createdId = await _cubit.createOrRetry(_controller.text);
+    if (!mounted || createdId == null) return;
     try {
-      final workspace = await widget.gateway.createWorkspace(name: name);
-      await widget.onCreated(workspace.id);
-      if (mounted) Navigator.of(context).pop();
-    } on WorkspacesGatewayException catch (_) {
-      if (mounted) {
-        _error.value = AppLocalizations.of(context)!
-            .workspacesRequestFailedMessage;
+      await widget.onCreated(createdId);
+      if (!mounted) return;
+      _cubit.finishOpening(succeeded: true);
+      if (ModalRoute.of(context)?.isCurrent == true) {
+        Navigator.of(context).pop();
       }
     } catch (_) {
-      if (mounted) {
-        _error.value = AppLocalizations.of(context)!
-            .workspacesRequestFailedMessage;
-      }
-    } finally {
-      if (mounted) _isSubmitting.value = false;
+      if (mounted) _cubit.finishOpening(succeeded: false);
     }
+  }
+
+  String? _errorMessage(
+    AppLocalizations l10n,
+    WorkspaceQuickCreateState state,
+  ) {
+    if (state.openFailed) return l10n.workspacesCreatedOpenFailedMessage;
+    return switch (state.failure) {
+      null => null,
+      WorkspacesFailureReason.unauthorized =>
+        l10n.workspacesCreateSessionMessage,
+      WorkspacesFailureReason.forbidden =>
+        l10n.workspacesCreateForbiddenMessage,
+      _ => l10n.workspacesCreateFailedMessage,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return AlertDialog(
-      title: Text(l10n.workspacesCreateWorkspaceTitle),
-      content: ValueListenableBuilder<String?>(
-        valueListenable: _error,
-        builder: (context, error, _) => TextField(
-          controller: _controller,
-          autofocus: true,
-          onSubmitted: (_) => _submit(),
-          decoration: InputDecoration(
-            labelText: l10n.workspacesNameFieldLabel,
-            errorText: error,
+    final tasks = context.tasksTheme;
+    return BlocBuilder<WorkspaceQuickCreateCubit, WorkspaceQuickCreateState>(
+      bloc: _cubit,
+      builder: (context, state) => PopScope(
+        canPop: !state.isSubmitting,
+        child: AlertDialog(
+          backgroundColor: tasks.cardSurface,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(tasks.panelRadius),
+            side: BorderSide(color: tasks.cardBorder),
           ),
+          titleTextStyle: tasks.projectTitleText,
+          title: Text(l10n.workspacesCreateWorkspaceTitle),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _controller,
+                  autofocus: true,
+                  enabled:
+                      !state.isSubmitting && state.createdWorkspaceId == null,
+                  onChanged: (_) => _cubit.clearNameError(),
+                  onSubmitted: (_) => _submit(),
+                  style: tasks.dataText,
+                  decoration: InputDecoration(
+                    labelText: l10n.workspacesNameFieldLabel,
+                    hintText: l10n.workspacesNameFieldPlaceholder,
+                    errorText: state.nameInvalid
+                        ? l10n.workspacesNameRequiredError
+                        : null,
+                    errorMaxLines: 3,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        tasks.controlRadius,
+                      ),
+                    ),
+                  ),
+                ),
+                if (_errorMessage(l10n, state) case final error?)
+                  Padding(
+                    padding: EdgeInsets.only(top: tasks.sectionGap),
+                    child: Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        error,
+                        style: tasks.dataText.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: state.isSubmitting ? null : _cancel,
+              child: Text(l10n.workspacesCancelButton),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(tasks.controlRadius),
+                ),
+                textStyle: tasks.controlText,
+              ),
+              onPressed: state.isSubmitting ? null : _submit,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: state.isSubmitting
+                        ? const CircularProgressIndicator(strokeWidth: 2)
+                        : const SizedBox.shrink(),
+                  ),
+                  SizedBox(width: tasks.controlGap),
+                  Text(
+                    state.createdWorkspaceId == null
+                        ? l10n.workspacesCreateButton
+                        : l10n.workspacesOpenCreatedButton,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.workspacesCancelButton),
-        ),
-        ValueListenableBuilder<bool>(
-          valueListenable: _isSubmitting,
-          builder: (context, isSubmitting, _) => FilledButton(
-            onPressed: isSubmitting ? null : _submit,
-            child: Text(l10n.workspacesCreateButton),
-          ),
-        ),
-      ],
     );
   }
 }
