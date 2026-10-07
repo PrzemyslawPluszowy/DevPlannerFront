@@ -10218,6 +10218,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Twoje aktywne rozmowy pojawią się tutaj.';
 
   @override
+  String get chatInboxNoMessages => 'Brak wiadomości';
+
+  @override
   String get chatInboxEmptyUnread => 'Nie masz nieprzeczytanych rozmów.';
 
   @override
@@ -11723,6 +11726,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatStatusPresets => 'Gotowe statusy';
+
+  @override
+  String chatPersonAccount(String login) {
+    return 'Konto: $login';
+  }
+
+  @override
+  String get chatPersonWriteHint =>
+      'Otwórz prywatną rozmowę z tą osobą. Wiadomość wyślesz dopiero po jej napisaniu.';
+
+  @override
+  String get chatPersonOpening => 'Otwieranie rozmowy…';
 
   @override
   String get chatPersonWrite => 'Napisz';

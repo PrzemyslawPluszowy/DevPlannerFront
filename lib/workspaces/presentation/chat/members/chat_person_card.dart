@@ -24,21 +24,21 @@ import 'package:material_symbols_icons/symbols.dart';
 /// brak portu albo błąd nie udaje wysłania wiadomości.
 abstract final class ChatPersonCard {
   /// Otwiera kartę wybranej osoby.
-  static Future<void> show(
+  static Future<String?> show(
     BuildContext context, {
     required ChatMember member,
     required bool isCurrentUser,
     ChatPresenceRepository? presenceRepository,
     ChatConversationManagementRepository? conversationManagement,
-    ValueChanged<String>? onOpenConversation,
-  }) => DevPlannerModalHost.showDialog<void>(
+    bool canOpenConversation = false,
+  }) => DevPlannerModalHost.showDialog<String>(
     context,
     builder: (_) => _ChatPersonCardDialog(
       member: member,
       isCurrentUser: isCurrentUser,
       presenceRepository: presenceRepository,
       conversationManagement: conversationManagement,
-      onOpenConversation: onOpenConversation,
+      canOpenConversation: canOpenConversation,
     ),
   );
 }
@@ -49,14 +49,14 @@ class _ChatPersonCardDialog extends StatefulWidget {
     required this.isCurrentUser,
     this.presenceRepository,
     this.conversationManagement,
-    this.onOpenConversation,
+    this.canOpenConversation = false,
   });
 
   final ChatMember member;
   final bool isCurrentUser;
   final ChatPresenceRepository? presenceRepository;
   final ChatConversationManagementRepository? conversationManagement;
-  final ValueChanged<String>? onOpenConversation;
+  final bool canOpenConversation;
 
   @override
   State<_ChatPersonCardDialog> createState() => _ChatPersonCardDialogState();
@@ -103,7 +103,9 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
         ),
       );
       final created = cubit.state.created;
-      if (!mounted) return;
+      // Podczas reverse transition State jest jeszcze mounted, ale karta
+      // nie jest już bieżącą trasą. Późny resolve nie może popnąć sheetu.
+      if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
       if (created == null) {
         setState(() {
           _writing = false;
@@ -111,8 +113,7 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
         });
         return;
       }
-      widget.onOpenConversation?.call(created.id);
-      Navigator.of(context).maybePop();
+      Navigator.of(context).pop(created.id);
     } finally {
       await cubit.close();
     }
@@ -125,7 +126,7 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
     final canWrite =
         !widget.isCurrentUser &&
         widget.conversationManagement != null &&
-        widget.onOpenConversation != null;
+        widget.canOpenConversation;
     return ChatSurfaceDialog(
       title: member.displayLabel(context),
       subtitle: _roleLabel(context, member.role),
@@ -142,6 +143,18 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (member.login?.trim().isNotEmpty == true)
+            Text(
+              context.l10n.chatPersonAccount(member.login!.trim()),
+              style: chat.metadataStyle.copyWith(color: chat.metadataText),
+            ),
+          if (canWrite) ...[
+            const SizedBox(height: Sizes.p8),
+            Text(
+              context.l10n.chatPersonWriteHint,
+              style: chat.contentStyle.copyWith(color: chat.incomingText),
+            ),
+          ],
           if (_status != null)
             ChatStatusLabel(
               status: _status,
@@ -165,7 +178,22 @@ class _ChatPersonCardDialogState extends State<_ChatPersonCardDialog> {
           FilledButton.icon(
             key: const ValueKey('chat-person-write'),
             onPressed: _writing ? null : () => unawaited(_write()),
-            icon: const Icon(Symbols.chat_bubble, size: 18),
+            style: FilledButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  context.tasksTheme.controlRadius,
+                ),
+              ),
+            ),
+            icon: _writing
+                ? SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      semanticsLabel: context.l10n.chatPersonOpening,
+                    ),
+                  )
+                : const Icon(Symbols.chat_bubble, size: 18),
             label: Text(context.l10n.chatPersonWrite),
           ),
       ],

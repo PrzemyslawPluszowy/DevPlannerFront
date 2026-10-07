@@ -18122,6 +18122,12 @@ abstract class AppLocalizations {
   /// **'Your active conversations will appear here.'**
   String get globalChatEmptyMessage;
 
+  /// No description provided for @chatInboxNoMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get chatInboxNoMessages;
+
   /// No description provided for @chatInboxEmptyUnread.
   ///
   /// In en, this message translates to:
@@ -20779,6 +20785,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ready statuses'**
   String get chatStatusPresets;
+
+  /// No description provided for @chatPersonAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account: {login}'**
+  String chatPersonAccount(String login);
+
+  /// No description provided for @chatPersonWriteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a private conversation with this person. A message is sent only when you write and send it.'**
+  String get chatPersonWriteHint;
+
+  /// No description provided for @chatPersonOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening conversation…'**
+  String get chatPersonOpening;
 
   /// No description provided for @chatPersonWrite.
   ///

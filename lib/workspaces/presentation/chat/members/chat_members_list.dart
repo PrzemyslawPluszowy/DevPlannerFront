@@ -57,6 +57,20 @@ class _ChatMembersListState extends State<ChatMembersList> {
   final Map<String, ChatUserStatus?> _statuses = <String, ChatUserStatus?>{};
   int _statusRequestGeneration = 0;
 
+  Future<void> _openPersonCard(ChatMember member) async {
+    final openConversation = widget.onOpenConversation;
+    final conversationId = await ChatPersonCard.show(
+      context,
+      member: member,
+      isCurrentUser: member.userId == widget.state.currentUserId,
+      presenceRepository: widget.presenceRepository,
+      conversationManagement: widget.conversationManagement,
+      canOpenConversation: openConversation != null,
+    );
+    if (!mounted || conversationId == null) return;
+    openConversation?.call(conversationId);
+  }
+
   Future<bool> _confirmRemoval(ChatMember member) async {
     final result = await DevPlannerModalHost.showDialog<bool>(
       context,
@@ -268,16 +282,7 @@ class _ChatMembersListState extends State<ChatMembersList> {
                   borderRadius: BorderRadius.circular(12),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () => unawaited(
-                      ChatPersonCard.show(
-                        context,
-                        member: member,
-                        isCurrentUser: isCurrent,
-                        presenceRepository: widget.presenceRepository,
-                        conversationManagement: widget.conversationManagement,
-                        onOpenConversation: widget.onOpenConversation,
-                      ),
-                    ),
+                    onTap: () => unawaited(_openPersonCard(member)),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: Sizes.p12,

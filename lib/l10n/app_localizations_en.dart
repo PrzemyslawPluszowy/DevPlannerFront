@@ -10128,6 +10128,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your active conversations will appear here.';
 
   @override
+  String get chatInboxNoMessages => 'No messages yet';
+
+  @override
   String get chatInboxEmptyUnread => 'You have no unread conversations.';
 
   @override
@@ -11631,6 +11634,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatStatusPresets => 'Ready statuses';
+
+  @override
+  String chatPersonAccount(String login) {
+    return 'Account: $login';
+  }
+
+  @override
+  String get chatPersonWriteHint =>
+      'Open a private conversation with this person. A message is sent only when you write and send it.';
+
+  @override
+  String get chatPersonOpening => 'Opening conversation…';
 
   @override
   String get chatPersonWrite => 'Message';

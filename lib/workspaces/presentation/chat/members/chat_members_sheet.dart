@@ -149,6 +149,13 @@ class _ChatMembersSheetBody extends StatefulWidget {
 }
 
 class _ChatMembersSheetBodyState extends State<_ChatMembersSheetBody> {
+  void _openConversation(String conversationId) {
+    if (!mounted) return;
+    final openConversation = widget.onOpenConversation;
+    Navigator.of(context).pop(false);
+    openConversation?.call(conversationId);
+  }
+
   bool _addingPeople = false;
 
   static const int _maxGroupMembers = 50;
@@ -255,7 +262,9 @@ class _ChatMembersSheetBodyState extends State<_ChatMembersSheetBody> {
                               : null,
                           presenceRepository: widget.presenceRepository,
                           conversationManagement: widget.conversationManagement,
-                          onOpenConversation: widget.onOpenConversation,
+                          onOpenConversation: widget.onOpenConversation == null
+                              ? null
+                              : _openConversation,
                           onAddPeople: canAddPeople
                               ? () => setState(() => _addingPeople = true)
                               : null,

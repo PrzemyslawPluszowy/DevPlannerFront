@@ -279,7 +279,7 @@ class ChatInboxRow extends StatelessWidget {
       return l10n.chatInboxDraftPreview(draft);
     }
     final message = item.lastMessage;
-    if (message == null) return l10n.globalChatEmptyMessage;
+    if (message == null) return l10n.chatInboxNoMessages;
     final author = _authorPrefix(context);
     final prefix = author == null ? '' : '$author: ';
     if (message.isDeleted) return '$prefix${l10n.globalChatDeletedMessage}';
