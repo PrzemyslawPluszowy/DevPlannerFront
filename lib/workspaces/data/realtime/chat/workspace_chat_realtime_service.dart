@@ -166,13 +166,16 @@ final class WorkspaceChatRealtimeService
         !_isConnected) {
       return;
     }
+    final generation = _generation;
     _heartbeatInFlight = true;
     try {
       await _client.invoke('HeartbeatPresence', args: <Object>[conversationId]);
     } catch (error, stackTrace) {
-      _report(error, stackTrace);
+      if (_started && _isConnected && generation == _generation) {
+        _report(error, stackTrace);
+      }
     } finally {
-      _heartbeatInFlight = false;
+      if (generation == _generation) _heartbeatInFlight = false;
     }
   }
 
@@ -195,10 +198,22 @@ final class WorkspaceChatRealtimeService
   }
 
   void _handleState(WorkspaceSignalRConnectionState state) {
+    final wasConnected = _isConnected;
     _isConnected = state == WorkspaceSignalRConnectionState.connected;
-    if (state != WorkspaceSignalRConnectionState.connected || !_started) {
+    if (!_started) return;
+    if (!_isConnected) {
+      // Snapshot przestaje być wiarygodny po utracie transportu. Nie oznacza
+      // to offline uczestników: brak potwierdzenia jest stanem nieznanym.
+      _generation++;
+      _recovering = false;
+      _pendingLive.clear();
+      _presenceHeartbeat?.cancel();
+      _presenceHeartbeat = null;
+      _heartbeatInFlight = false;
+      if (!_presenceSnapshots.isClosed) _presenceSnapshots.add(null);
       return;
     }
+    if (wasConnected) return;
     _generation++;
     final reconnect = _wasConnected;
     _wasConnected = true;
@@ -297,7 +312,7 @@ final class WorkspaceChatRealtimeService
     Map<String, dynamic> payload, {
     bool isReplay = false,
   }) {
-    if (!_started || method == 'chat.inbox.changed') return;
+    if (!_started || !_isConnected || method == 'chat.inbox.changed') return;
     final normalizedPayload = _eventMapper.normalizeLiveEnvelope(payload);
     if (normalizedPayload == null) return;
     final eventConversationId = normalizedPayload['conversationId'];

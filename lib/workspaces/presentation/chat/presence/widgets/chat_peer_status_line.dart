@@ -159,13 +159,10 @@ class _ChatPeerStatusLineState extends State<ChatPeerStatusLine> {
     final presenceLabel = switch (livePresence) {
       ChatPeerLivePresence.online => context.l10n.chatPeerOnline,
       ChatPeerLivePresence.offline => context.l10n.chatPeerOffline,
-      ChatPeerLivePresence.unknown =>
-        inboxPresenceOwner == null
-            ? null
-            : context.l10n.projectPeoplePresenceUnknown,
+      ChatPeerLivePresence.unknown => context.l10n.projectPeoplePresenceUnknown,
     };
     final text = [
-      ?presenceLabel,
+      presenceLabel,
       if (customStatus.isNotEmpty) customStatus,
     ].join(' · ');
     if (text.isEmpty) return const SizedBox.shrink();

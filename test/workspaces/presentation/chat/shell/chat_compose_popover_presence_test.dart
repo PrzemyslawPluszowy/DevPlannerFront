@@ -23,6 +23,33 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('header outside global chat explicitly shows unknown presence', (
+    tester,
+  ) async {
+    final presence = ChatConversationPresenceCubit(realtime: null);
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: BlocProvider.value(
+            value: presence,
+            child: const ChatPeerStatusLine(userId: 'peer'),
+          ),
+        ),
+      ),
+    );
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(ChatPeerStatusLine)),
+    )!;
+    expect(find.text(l10n.projectPeoplePresenceUnknown), findsOneWidget);
+    expect(find.text(l10n.chatPeerOnline), findsNothing);
+    expect(find.text(l10n.chatPeerOffline), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await presence.close();
+  });
+
   for (final status in <bool?>[true, false, null]) {
     testWidgets('directory result shows presence $status before opening chat', (
       tester,

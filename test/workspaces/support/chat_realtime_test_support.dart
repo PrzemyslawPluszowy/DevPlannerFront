@@ -50,7 +50,10 @@ final class ChatRealtimeTestTransport implements WorkspaceSignalRTransport {
   }
 
   /// Emuluje poprawnie zakończony reconnect tego samego połączenia.
-  void reconnect() => _states.add(WorkspaceSignalRConnectionState.connected);
+  void reconnect() {
+    _states.add(WorkspaceSignalRConnectionState.reconnecting);
+    _states.add(WorkspaceSignalRConnectionState.connected);
+  }
 
   /// Emuluje stan transportu bez otwierania prawdziwego połączenia SignalR.
   void emitConnectionState(WorkspaceSignalRConnectionState state) =>

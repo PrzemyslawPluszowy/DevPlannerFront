@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:devplanner/workspaces/data/realtime/chat/workspace_chat_realtime_service.dart';
 import 'package:devplanner/workspaces/data/realtime/signalr/workspace_signalr_client.dart';
+import 'package:devplanner/workspaces/presentation/chat/presence/cubit/chat_conversation_presence_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:signalr_netcore/signalr_client.dart';
@@ -13,6 +14,8 @@ final class _FakeChatTransport implements WorkspaceSignalRTransport {
   final List<(String, List<Object>?)> invocations = [];
   final Map<String, Object?> replayResultsByCursor = <String, Object?>{};
   Object? replayResult;
+  Completer<Object?>? replayCompletion;
+  Completer<Object?>? heartbeatCompletion;
 
   @override
   Stream<WorkspaceSignalRConnectionState> get states => _states.stream;
@@ -30,7 +33,11 @@ final class _FakeChatTransport implements WorkspaceSignalRTransport {
   @override
   Future<Object?> invoke(String methodName, {List<Object>? args}) async {
     invocations.add((methodName, args));
+    if (methodName == 'HeartbeatPresence' && heartbeatCompletion != null) {
+      return heartbeatCompletion!.future;
+    }
     if (methodName == 'GetConversationEvents') {
+      if (replayCompletion case final pending?) return pending.future;
       final cursor = args != null && args.length > 1 ? args[1] as String : '';
       return replayResultsByCursor[cursor] ?? replayResult;
     }
@@ -47,7 +54,10 @@ final class _FakeChatTransport implements WorkspaceSignalRTransport {
     unawaited(_states.close());
   }
 
-  void reconnect() => _states.add(WorkspaceSignalRConnectionState.connected);
+  void reconnect() {
+    _states.add(WorkspaceSignalRConnectionState.reconnecting);
+    _states.add(WorkspaceSignalRConnectionState.connected);
+  }
 
   void emit(String method, Map<String, dynamic> payload) {
     handlers[method]?.call(<Object?>[payload]);
@@ -55,6 +65,106 @@ final class _FakeChatTransport implements WorkspaceSignalRTransport {
 }
 
 void main() {
+  test('duplicate connected does not strand a pending heartbeat', () async {
+    final transport = _FakeChatTransport()
+      ..heartbeatCompletion = Completer<Object?>();
+    final service = WorkspaceChatRealtimeService(
+      client: transport,
+      presenceHeartbeatInterval: const Duration(milliseconds: 5),
+    );
+    await service.start('conversation-1');
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      transport.invocations.where((entry) => entry.$1 == 'HeartbeatPresence'),
+      hasLength(1),
+    );
+    transport._states.add(WorkspaceSignalRConnectionState.connected);
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      transport.invocations.where(
+        (entry) => entry.$1 == 'SubscribeConversation',
+      ),
+      hasLength(1),
+    );
+    transport.heartbeatCompletion!.complete(null);
+    await Future<void>.delayed(const Duration(milliseconds: 25));
+    expect(
+      transport.invocations
+          .where((entry) => entry.$1 == 'HeartbeatPresence')
+          .length,
+      greaterThan(1),
+    );
+    await service.dispose();
+  });
+
+  for (final disconnectedState in [
+    WorkspaceSignalRConnectionState.disconnected,
+    WorkspaceSignalRConnectionState.reconnecting,
+  ]) {
+    test(
+      'presence becomes unknown on $disconnectedState until a fresh snapshot',
+      () async {
+        final transport = _FakeChatTransport();
+        final service = WorkspaceChatRealtimeService(client: transport);
+        final cubit = ChatConversationPresenceCubit(realtime: service);
+        await service.start('conversation-1');
+        await Future<void>.delayed(Duration.zero);
+        transport.emit('chat.presence.changed', _presencePayload);
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.forUser('peer'), ChatPeerLivePresence.online);
+        transport._states.add(disconnectedState);
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.forUser('peer'), ChatPeerLivePresence.unknown);
+        transport.emit('chat.presence.changed', _presencePayload);
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.forUser('peer'), ChatPeerLivePresence.unknown);
+        transport.reconnect();
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.forUser('peer'), ChatPeerLivePresence.unknown);
+        transport.emit('chat.presence.changed', _presencePayload);
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.forUser('peer'), ChatPeerLivePresence.online);
+        await cubit.close();
+        await service.dispose();
+      },
+    );
+  }
+
+  test(
+    'disconnect invalidates an outstanding replay before its reply arrives',
+    () async {
+      final transport = _FakeChatTransport();
+      final service = WorkspaceChatRealtimeService(client: transport);
+      final events = <ChatRealtimeEvent>[];
+      final sub = service.events.listen(events.add);
+      await service.start('conversation-1');
+      await Future<void>.delayed(Duration.zero);
+      transport.replayCompletion = Completer<Object?>();
+      transport.reconnect();
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        transport.invocations.where(
+          (entry) => entry.$1 == 'GetConversationEvents',
+        ),
+        hasLength(1),
+      );
+      await transport.disconnect();
+      await Future<void>.delayed(Duration.zero);
+      transport.replayCompletion!.complete(<String, dynamic>{
+        'events': [
+          <String, dynamic>{
+            'method': 'chat.message.created',
+            'payload': <String, dynamic>{'eventId': 'stale', 'sequence': 7},
+          },
+        ],
+      });
+      await Future<void>.delayed(Duration.zero);
+      expect(events, isEmpty);
+      await sub.cancel();
+      await service.dispose();
+    },
+  );
+
   test('subskrybuje rozmowę, obsługuje akcje i odsubskrybowuje ją', () async {
     final transport = _FakeChatTransport();
     final service = WorkspaceChatRealtimeService(client: transport);
@@ -166,3 +276,11 @@ void main() {
     await service.dispose();
   });
 }
+
+const _presencePayload = <String, dynamic>{
+  'conversationId': 'conversation-1',
+  'changedAtUtc': '2026-10-07T12:00:00Z',
+  'users': [
+    <String, dynamic>{'userId': 'peer', 'connectionCount': 1, 'isOnline': true},
+  ],
+};
