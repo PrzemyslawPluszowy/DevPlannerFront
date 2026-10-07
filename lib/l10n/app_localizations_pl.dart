@@ -17,7 +17,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageRouteInvalidWorkspaceId =>
-      'Adres workspace jest nieprawidłowy.';
+      'Adres przestrzeni roboczej jest nieprawidłowy.';
 
   @override
   String get storageRouteNotConfigured =>
@@ -255,7 +255,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get globalModuleBhp => 'BHP';
 
   @override
-  String get globalModuleWorkspaces => 'Workspaces';
+  String get globalModuleWorkspaces => 'Przestrzenie';
 
   @override
   String get appShellChangelogTitle => 'Dziennik zmian';
@@ -281,7 +281,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appModalDismiss => 'Zamknij okno';
 
   @override
-  String get workspacesMenuTitle => 'Workspaces';
+  String get workspacesMenuTitle => 'Przestrzenie robocze';
 
   @override
   String get workspacesMenuSubtitle => 'Przestrzenie, projekty i współpraca';
@@ -317,7 +317,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workspacesProjectCorkboard => 'Tablica korkowa';
 
   @override
-  String get workspaceShellTitle => 'Workspace';
+  String get workspaceShellTitle => 'Przestrzeń robocza';
 
   @override
   String get workspaceShellSubtitle => 'Przestrzeń robocza';
@@ -335,7 +335,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workspaceNavigationExpandBranch => 'Rozwiń gałąź';
 
   @override
-  String get workspaceShellNavigationTitle => 'Workspace';
+  String get workspaceShellNavigationTitle => 'Przestrzeń robocza';
 
   @override
   String get workspaceShellDashboard => 'Dashboard';
@@ -361,7 +361,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workspaceShellWidgetActivity => 'Aktywność';
 
   @override
-  String get workspaceShellBackToDirectory => 'Wróć do katalogu workspace’ów';
+  String get workspaceShellBackToDirectory => 'Wróć do listy przestrzeni';
 
   @override
   String get workspacesSectionTasks => 'Zadania';
@@ -382,48 +382,50 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workspacesSectionNotifications => 'Powiadomienia';
 
   @override
-  String get workspacesSectionPending =>
-      'Struktura sekcji jest gotowa. Kolejny ekran zostanie podłączony do właściwego kontraktu backendu Workspaces.';
+  String get workspacesSectionPending => 'Ta sekcja nie jest jeszcze dostępna.';
 
   @override
-  String get workspacesEmptyTitle => 'Nie masz jeszcze żadnego workspace’u';
+  String get workspacesEmptyTitle =>
+      'Nie masz jeszcze żadnej przestrzeni roboczej';
 
   @override
   String get workspacesEmptyMessage =>
-      'Workspace’y dostępne dla Twojego konta pojawią się tutaj.';
+      'Przestrzenie robocze dostępne dla Twojego konta pojawią się tutaj.';
 
   @override
-  String get workspacesErrorTitle => 'Nie udało się pobrać workspace’ów';
+  String get workspacesErrorTitle =>
+      'Nie udało się pobrać przestrzeni roboczych';
 
   @override
-  String get workspacesForbiddenTitle => 'Brak dostępu do workspace’ów';
+  String get workspacesForbiddenTitle =>
+      'Brak dostępu do przestrzeni roboczych';
 
   @override
   String get workspacesSessionTitle => 'Sesja wymaga ponownego zalogowania';
 
   @override
   String get workspacesTransportUnavailableTitle =>
-      'Transport workspace niedostępny';
+      'Połączenie z przestrzeniami roboczymi jest niedostępne';
 
   @override
   String get workspacesTransportUnavailableMessage =>
-      'Transport workspace nie został jeszcze skonfigurowany.';
+      'Połączenie nie zostało jeszcze skonfigurowane.';
 
   @override
   String get workspacesSessionMessage =>
-      'Zaloguj się ponownie, aby pobrać swoje workspace’y.';
+      'Zaloguj się ponownie, aby pobrać swoje przestrzenie robocze.';
 
   @override
   String get workspacesForbiddenMessage =>
-      'Nie masz uprawnień do odczytu workspace’ów.';
+      'Nie masz uprawnień do przeglądania przestrzeni roboczych.';
 
   @override
   String get workspacesRequestFailedMessage =>
-      'Serwer nie zwrócił listy workspace’ów. Spróbuj ponownie.';
+      'Serwer nie zwrócił listy przestrzeni roboczych. Spróbuj ponownie.';
 
   @override
   String get workspacesInvalidResponseMessage =>
-      'Serwer zwrócił nieprawidłowe dane workspace’ów.';
+      'Serwer zwrócił nieprawidłowe dane przestrzeni roboczych.';
 
   @override
   String workspacesHttpStatus(int statusCode) {
@@ -437,27 +439,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workspacesRetry => 'Spróbuj ponownie';
 
   @override
-  String get workspacesCreatePrivateWorkspace => 'Utwórz prywatny workspace';
+  String get workspacesCreatePrivateWorkspace => 'Utwórz prywatną przestrzeń';
 
   @override
-  String get workspacesCreateWorkspace => 'Utwórz workspace';
+  String get workspacesCreateWorkspace => 'Utwórz przestrzeń';
 
   @override
-  String get workspacesCreateWorkspaceTitle => 'Nowy workspace';
+  String get workspacesCreateWorkspaceTitle => 'Nowa przestrzeń robocza';
 
   @override
   String get workspacesCreateWorkspaceSubtitle =>
       'Wpisz nazwę i utwórz nową przestrzeń roboczą.';
 
   @override
-  String get workspacesEditWorkspaceTitle => 'Edytuj workspace';
+  String get workspacesEditWorkspaceTitle => 'Edytuj przestrzeń roboczą';
 
   @override
   String get workspacesEditWorkspaceSubtitle =>
       'Wpisz nową nazwę i dostosuj wygląd przestrzeni roboczej.';
 
   @override
-  String get workspacesNameFieldLabel => 'Nazwa workspace’u';
+  String get workspacesNameFieldLabel => 'Nazwa przestrzeni roboczej';
 
   @override
   String get workspacesNameFieldPlaceholder =>
@@ -617,7 +619,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupTemplatesEmpty =>
-      'W tym workspace nie ma jeszcze szablonów projektów.';
+      'W tej przestrzeni roboczej nie ma jeszcze szablonów projektów.';
 
   @override
   String get projectSetupTemplatesUnavailable =>
@@ -679,11 +681,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get projectSetupProjectStatusCompleted => 'Zakończony';
 
   @override
-  String get projectSetupAccessSharedTitle => 'Dla wszystkich w workspace';
+  String get projectSetupAccessSharedTitle =>
+      'Dla wszystkich w przestrzeni roboczej';
 
   @override
   String get projectSetupAccessSharedDescription =>
-      'Projekt widzą wszyscy aktywni członkowie workspace, a lista startowych członków jest pomijana.';
+      'Projekt widzą wszyscy aktywni członkowie przestrzeni roboczej, a lista startowych członków jest pomijana.';
 
   @override
   String get projectSetupAccessPrivateTitle => 'Prywatny';
@@ -700,15 +703,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupAccessMembersLoading =>
-      'Pobieranie członków workspace…';
+      'Pobieranie członków przestrzeni roboczej…';
 
   @override
   String get projectSetupAccessMembersEmpty =>
-      'Brak innych aktywnych członków workspace.';
+      'Brak innych aktywnych członków przestrzeni roboczej.';
 
   @override
   String get projectSetupAccessMembersUnavailable =>
-      'Nie możemy teraz pobrać listy członków workspace.';
+      'Nie możemy teraz pobrać listy członków przestrzeni roboczej.';
 
   @override
   String get projectSetupAccessMembersUnavailableReason =>
@@ -936,18 +939,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupCapacityLegend =>
-      'Domyślna dzienna pojemność workspace';
+      'Domyślny dzienny czas pracy w przestrzeni roboczej';
 
   @override
   String get projectSetupCapacityDescription =>
-      'W minutach na osobę. Zmiana dotyczy wszystkich członków workspace.';
+      'W minutach na osobę. Zmiana dotyczy wszystkich członków przestrzeni roboczej.';
 
   @override
   String get projectSetupCapacityFieldLabel => 'Minuty na dzień';
 
   @override
   String get projectSetupCapacityAdminOnly =>
-      'Zmiana pojemności wymaga roli Admin albo Owner w workspace.';
+      'Zmiana czasu pracy wymaga roli administratora albo właściciela przestrzeni roboczej.';
 
   @override
   String get projectSetupStartersDescription =>
@@ -1013,7 +1016,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupSummaryMembersShared =>
-      'Wszyscy aktywni członkowie workspace';
+      'Wszyscy aktywni członkowie przestrzeni roboczej';
 
   @override
   String projectSetupSummaryMembersCount(int count) {
@@ -1046,7 +1049,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get projectSetupSummarySchedule => 'Harmonogram';
 
   @override
-  String get projectSetupSummaryCapacity => 'Dzienna pojemność';
+  String get projectSetupSummaryCapacity => 'Dzienny czas pracy';
 
   @override
   String projectSetupSummaryCapacityValue(int minutes) {
@@ -1176,7 +1179,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupPreviewMembersShared =>
-      'Wszyscy aktywni członkowie workspace.';
+      'Wszyscy aktywni członkowie przestrzeni roboczej.';
 
   @override
   String projectSetupPreviewMembersPrivate(int count) {
@@ -1277,18 +1280,18 @@ class AppLocalizationsPl extends AppLocalizations {
       'Gdy termin jednego zadania się przesunie, system może automatycznie przesunąć zadania od niego zależne.';
 
   @override
-  String get projectSetupHelpCapacityTitle => 'Dzienna pojemność';
+  String get projectSetupHelpCapacityTitle => 'Dzienny czas pracy';
 
   @override
   String get projectSetupHelpCapacityBody =>
-      'Liczba minut pracy planowana dziennie na osobę. To ustawienie dotyczy całego workspace.';
+      'Liczba minut pracy planowana dziennie na osobę. To ustawienie dotyczy całej przestrzeni roboczej.';
 
   @override
   String get projectSetupHelpVisibilityTitle => 'Widoczność prywatna';
 
   @override
   String get projectSetupHelpVisibilityBody =>
-      'Projekt zobaczą tylko dodani członkowie. Osoby zarządzające workspace mają dostęp zgodnie ze swoimi uprawnieniami.';
+      'Projekt zobaczą tylko dodani członkowie. Osoby zarządzające przestrzenią roboczą mają dostęp zgodnie ze swoimi uprawnieniami.';
 
   @override
   String get projectSetupHelpAutomationsTitle => 'Automatyzacje';
@@ -1432,11 +1435,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupErrorForbidden =>
-      'Nie masz uprawnień do utworzenia projektu w tym workspace.';
+      'Nie masz uprawnień do utworzenia projektu w tej przestrzeni roboczej.';
 
   @override
   String get projectSetupErrorNotFound =>
-      'Workspace albo szablon nie jest już dostępny.';
+      'Przestrzeń robocza albo szablon nie są już dostępne.';
 
   @override
   String get projectSetupErrorValidation =>
@@ -1456,7 +1459,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupWarningMembersIgnoredForShared =>
-      'Projekt współdzielony widzą wszyscy członkowie workspace, dlatego lista startowych członków zostanie pominięta.';
+      'Projekt współdzielony widzą wszyscy członkowie przestrzeni roboczej, dlatego lista startowych członków zostanie pominięta.';
 
   @override
   String get projectSetupWarningPrivateMembersLimited =>
@@ -1468,7 +1471,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupWarningWorkspaceCapacityChanged =>
-      'Domyślna dzienna pojemność workspace zostanie zmieniona dla wszystkich jego członków.';
+      'Domyślny dzienny czas pracy zostanie zmieniony dla wszystkich członków przestrzeni roboczej.';
 
   @override
   String get projectSetupValidationNameRequired => 'Wprowadź nazwę projektu.';
@@ -1507,7 +1510,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectSetupValidationCapacityOutOfRange =>
-      'Pojemność musi mieścić się w zakresie 0-1440 minut.';
+      'Dzienny czas pracy musi mieścić się w zakresie 0–1440 minut.';
 
   @override
   String get projectSetupValidationBoardFieldsRequired =>
@@ -1683,7 +1686,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workspacesMyPrivateSectionLabel => 'Prywatne';
 
   @override
-  String get workspacesMyWorkspacesSection => 'Moje workspace’y';
+  String get workspacesMyWorkspacesSection => 'Moje przestrzenie';
 
   @override
   String workspacesFavoritesSection(int count) {
@@ -1696,10 +1699,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get workspacesAllWorkspacesSection => 'Wszystkie workspace’y';
+  String get workspacesAllWorkspacesSection => 'Wszystkie przestrzenie';
 
   @override
-  String get workspacesHiddenWorkspacesLabel => 'Ukryte workspace’y';
+  String get workspacesHiddenWorkspacesLabel => 'Ukryte przestrzenie';
 
   @override
   String get workspacesOwnerBadge => 'Właściciel';
@@ -6250,7 +6253,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tasksTemplatesEmpty =>
-      'W tym workspace nie ma jeszcze szablonów zadań.';
+      'W tej przestrzeni roboczej nie ma jeszcze szablonów zadań.';
 
   @override
   String get tasksTemplatesDefault => 'Twój domyślny szablon';
@@ -7031,7 +7034,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get taskDetailsCreateTemplateDescription =>
-      'Aktualny stan tego zadania zostanie zapisany jako szablon w tym workspace.';
+      'Aktualny stan tego zadania zostanie zapisany jako szablon w tej przestrzeni roboczej.';
 
   @override
   String get taskDetailsTemplateName => 'Nazwa szablonu';
@@ -8075,7 +8078,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsProfileSubtitle =>
-      'Zdjęcie będzie widoczne w Workspaces i przy Twoich zadaniach.';
+      'Zdjęcie będzie widoczne w przestrzeniach roboczych i przy Twoich zadaniach.';
 
   @override
   String get settingsProfileChooseAvatar => 'Wybierz zdjęcie';
@@ -8102,7 +8105,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tasksScheduleDescription =>
-      'Ustal sposób automatycznego przesuwania terminów i dni wolne dla całego workspace’u.';
+      'Ustal sposób automatycznego przesuwania terminów i dni wolne dla całej przestrzeni roboczej.';
 
   @override
   String get tasksScheduleMode => 'Tryb harmonogramu';
@@ -8276,7 +8279,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tasksCapacityDescription =>
-      'Ustaw domyślną dzienną dostępność workspace’u i okresowe wyjątki dla osób w tym projekcie.';
+      'Ustaw domyślny dzienny czas pracy w przestrzeni roboczej i okresowe wyjątki dla osób w tym projekcie.';
 
   @override
   String get tasksCapacityDefaultDaily => 'Domyślna dzienna dostępność';
@@ -8688,7 +8691,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wpisz poprawną datę z dozwolonego zakresu.';
 
   @override
-  String get tasksListCustomStatusLabel => 'Status własny';
+  String get tasksListCustomStatusLabel => 'Status zadania';
 
   @override
   String get tasksListCustomStatusNone => 'Brak własnego statusu';
@@ -9736,7 +9739,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String storageShareWorkspaceLabel(String identifier) {
-    return 'Workspace: $identifier';
+    return 'Przestrzeń robocza: $identifier';
   }
 
   @override
@@ -9876,7 +9879,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageShareProjectSection => 'Projekt';
 
   @override
-  String get storageShareWorkspaceSection => 'Workspace';
+  String get storageShareWorkspaceSection => 'Przestrzeń robocza';
 
   @override
   String get storageAddFavoriteAction => 'Dodaj do ulubionych';
@@ -10109,7 +10112,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storageFolderTitle => 'Katalog';
 
   @override
-  String get storageWorkspaceFilesTitle => 'Pliki workspace';
+  String get storageWorkspaceFilesTitle => 'Pliki przestrzeni roboczej';
 
   @override
   String get storageProjectFilesTitle => 'Pliki projektu';
@@ -10254,7 +10257,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get globalChatGroupProject => 'Projekt';
 
   @override
-  String get globalChatGroupWorkspace => 'Workspace';
+  String get globalChatGroupWorkspace => 'Przestrzeń robocza';
 
   @override
   String get globalChatGroupPrivate => 'Prywatne';
@@ -10458,7 +10461,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get notificationPreferencesCategoryMembership => 'Członkostwo';
 
   @override
-  String get notificationPreferencesCategoryWorkspace => 'Workspace’y';
+  String get notificationPreferencesCategoryWorkspace => 'Przestrzenie robocze';
 
   @override
   String get notificationPreferencesCategoryProject => 'Projekty';
@@ -10862,7 +10865,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectsTreeArchiveSectionNote =>
-      'Sekcja pokazuje projekty zarchiwizowane w tym workspace, pobrane z serwera.';
+      'Sekcja pokazuje projekty zarchiwizowane w tej przestrzeni roboczej, pobrane z serwera.';
 
   @override
   String get projectsMenuOpen => 'Otwórz';
@@ -10898,7 +10901,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get projectsMenuDeletePermanently => 'Usuń trwale';
 
   @override
-  String get projectsMenuMoveToWorkspace => 'Przenieś do workspace';
+  String get projectsMenuMoveToWorkspace => 'Przenieś do przestrzeni roboczej';
 
   @override
   String get projectsMenuLeaveProject => 'Opuść projekt';
@@ -10932,7 +10935,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get projectsMenuReasonTransferContract =>
-      'Kontrakt przenoszenia projektu między workspace’ami nie został jeszcze dostarczony.';
+      'Przenoszenie projektu między przestrzeniami roboczymi nie jest jeszcze dostępne.';
 
   @override
   String get projectsMenuReasonLeaveRule =>
@@ -11125,7 +11128,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String projectsLeaveConfirmBody(String projectName) {
-    return 'Opuszczenie projektu $projectName cofa Twoje jawne członkostwo. Projekt Shared może pozostać widoczny, bo dostęp dziedziczy się z workspace.';
+    return 'Opuszczenie projektu $projectName usuwa Cię z jego listy członków. Projekt współdzielony może pozostać widoczny dzięki dostępowi z przestrzeni roboczej.';
   }
 
   @override
@@ -12346,10 +12349,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskDetailsErrorFields => 'Pola';
 
   @override
-  String get taskDetailsCustomStatusTitle => 'Status własny projektu';
+  String get taskDetailsCustomStatusTitle => 'Status zadania w projekcie';
 
   @override
-  String get taskDetailsCustomStatusChoose => 'Ustaw status własny';
+  String get taskDetailsCustomStatusChoose => 'Zmień status zadania';
 
   @override
   String get taskDetailsCustomStatusEmpty =>

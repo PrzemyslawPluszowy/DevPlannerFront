@@ -116,7 +116,7 @@ void main() {
         projectId: 'project-1',
       ),
     ).called(1);
-    expect(find.text('Status własny projektu'), findsOneWidget);
+    expect(find.text('Status zadania w projekcie'), findsOneWidget);
     expect(
       find.text('Projekt nie ma aktywnych statusów własnych.'),
       findsOneWidget,
