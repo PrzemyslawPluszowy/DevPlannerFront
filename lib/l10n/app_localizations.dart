@@ -22801,6 +22801,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your changes were saved, but the board could not be refreshed. Refresh the view.'**
   String get tasksBoardCommittedReloadFailed;
+
+  /// No description provided for @chatMembersLeaveConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave conversation?'**
+  String get chatMembersLeaveConfirmationTitle;
+
+  /// No description provided for @chatMembersLeaveConfirmationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will stop receiving new messages from this conversation after leaving.'**
+  String get chatMembersLeaveConfirmationBody;
 }
 
 class _AppLocalizationsDelegate

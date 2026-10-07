@@ -12798,4 +12798,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tasksBoardCommittedReloadFailed =>
       'Your changes were saved, but the board could not be refreshed. Refresh the view.';
+
+  @override
+  String get chatMembersLeaveConfirmationTitle => 'Leave conversation?';
+
+  @override
+  String get chatMembersLeaveConfirmationBody =>
+      'You will stop receiving new messages from this conversation after leaving.';
 }

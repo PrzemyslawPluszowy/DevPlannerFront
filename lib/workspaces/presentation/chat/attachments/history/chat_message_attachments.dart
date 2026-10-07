@@ -151,8 +151,8 @@ class _AttachmentCardState extends State<_AttachmentCard> {
         ),
       if (canUse && _thumbnailBytes == null)
         AppContextMenuAction(
-          label: context.l10n.chatAttachmentOpen,
-          icon: Symbols.open_in_new,
+          label: context.l10n.chatAttachmentDownload,
+          icon: Symbols.download,
           onTap: (_) => unawaited(_download(port)),
         ),
       if (canUse && _thumbnailBytes != null)
@@ -348,7 +348,9 @@ class _AttachmentCardState extends State<_AttachmentCard> {
                         )
                       else
                         Tooltip(
-                          message: context.l10n.chatAttachmentOpen,
+                          message: _thumbnailBytes == null
+                              ? context.l10n.chatAttachmentDownload
+                              : context.l10n.chatAttachmentPreview,
                           child: Icon(
                             _thumbnailBytes == null
                                 ? Symbols.download

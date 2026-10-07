@@ -31,6 +31,77 @@ class _Observer extends NavigatorObserver {
 }
 
 void main() {
+  for (final confirm in [false, true]) {
+    testWidgets('leave requires confirmation; confirm=$confirm', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final members = _Members();
+      final management = _Management();
+      when(() => members.listMembers('group')).thenAnswer(
+        (_) async => Right([
+          ChatMember(
+            userId: 'me',
+            role: ChatMemberRole.member,
+            joinedAtUtc: DateTime.utc(2026),
+            displayName: 'Me',
+          ),
+        ]),
+      );
+      final pending = Completer<Either<ApiError, void>>();
+      when(() => management.leaveConversation('group'))
+          .thenAnswer((_) => pending.future);
+      final controller = DevPlannerPanelsController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: MaterialTheme.crm().dark(),
+          locale: const Locale('pl'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: DevPlannerPanelsScope(
+            controller: controller,
+            openConversation: (_) {},
+            child: Scaffold(
+              body: _Launcher(members: members, management: management),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Members'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Opuść rozmowę'));
+      await tester.pumpAndSettle();
+      expect(find.text('Opuścić rozmowę?'), findsOneWidget);
+      verifyNever(() => management.leaveConversation('group'));
+      if (!confirm) {
+        await tester.tap(find.text('Anuluj'));
+        await tester.pumpAndSettle();
+        expect(find.byType(ChatMembersList), findsOneWidget);
+        verifyNever(() => management.leaveConversation('group'));
+      } else {
+        await tester.tap(find.widgetWithText(FilledButton, 'Opuść rozmowę'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        verify(() => management.leaveConversation('group')).called(1);
+        final leave = tester.widget<TextButton>(
+          find.widgetWithText(TextButton, 'Opuść rozmowę'),
+        );
+        expect(leave.onPressed, isNull);
+        await tester.tap(find.text('Me (Ty)'));
+        await tester.pump();
+        expect(find.text('Napisz'), findsNothing);
+        expect(find.byType(ChatMembersList), findsOneWidget);
+        pending.complete(const Right(null));
+        await tester.pumpAndSettle();
+        expect(find.byType(ChatMembersList), findsNothing);
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
   for (final closeWhilePending in [false, true]) {
     testWidgets(
       'Napisz closes originating layers; cancel during pending=$closeWhilePending',

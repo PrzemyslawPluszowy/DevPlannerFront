@@ -12902,4 +12902,11 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get tasksBoardCommittedReloadFailed =>
       'Zmiany zostały zapisane, ale nie udało się odświeżyć tablicy. Odśwież widok.';
+
+  @override
+  String get chatMembersLeaveConfirmationTitle => 'Opuścić rozmowę?';
+
+  @override
+  String get chatMembersLeaveConfirmationBody =>
+      'Po opuszczeniu rozmowy przestaniesz otrzymywać z niej nowe wiadomości.';
 }

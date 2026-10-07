@@ -110,12 +110,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
     final author = widget.authorLabel?.trim();
     final showAuthor = widget.showAuthor && author != null && author.isNotEmpty;
     final menu = widget.menu;
-    final menuOverlay = menu == null
-        ? null
-        : Focus(
-            onFocusChange: (value) => setState(() => _focused = value),
-            child: menu,
-          );
+    final menuOverlay = menu;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onSecondaryTapUp: (details) =>
@@ -255,38 +250,45 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                   child: AnimatedOpacity(
                     opacity: _menuVisible ? 1 : 0,
                     duration: const Duration(milliseconds: 120),
-                    child: IgnorePointer(
-                      ignoring: !_menuVisible,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: chat.panelSurface,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(20),
+                    child: Focus(
+                      skipTraversal: true,
+                      onFocusChange: (value) =>
+                          setState(() => _focused = value),
+                      child: IgnorePointer(
+                        ignoring: !_menuVisible,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: chat.panelSurface,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(20),
+                            ),
+                            border: Border.all(color: chat.separator),
                           ),
-                          border: Border.all(color: chat.separator),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (widget.onPickReaction case final pick?)
-                              SizedBox.square(
-                                dimension: 36,
-                                child: Builder(
-                                  builder: (buttonContext) => IconButton(
-                                    key: const ValueKey('chat-bubble-react'),
-                                    onPressed: () => pick(
-                                      AppContextMenu.positionFor(buttonContext),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (widget.onPickReaction case final pick?)
+                                SizedBox.square(
+                                  dimension: 36,
+                                  child: Builder(
+                                    builder: (buttonContext) => IconButton(
+                                      key: const ValueKey('chat-bubble-react'),
+                                      onPressed: () => pick(
+                                        AppContextMenu.positionFor(
+                                          buttonContext,
+                                        ),
+                                      ),
+                                      tooltip: context.l10n.chatReactionAdd,
+                                      padding: EdgeInsets.zero,
+                                      iconSize: 18,
+                                      color: chat.metadataText,
+                                      icon: const Icon(Symbols.add_reaction),
                                     ),
-                                    tooltip: context.l10n.chatReactionAdd,
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 18,
-                                    color: chat.metadataText,
-                                    icon: const Icon(Symbols.add_reaction),
                                   ),
                                 ),
-                              ),
-                            ?menuOverlay,
-                          ],
+                              ?menuOverlay,
+                            ],
+                          ),
                         ),
                       ),
                     ),

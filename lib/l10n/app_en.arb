@@ -4121,5 +4121,7 @@
   "tasksListPageChanged": "Tasks changed while the page was loading. Your current data is preserved. Retry loading the next page.",
   "tasksListPageFailed": "Could not load more tasks. Your current data is preserved. Try again.",
   "tasksBoardReloadFailed": "Could not refresh the board. Try again.",
-  "tasksBoardCommittedReloadFailed": "Your changes were saved, but the board could not be refreshed. Refresh the view."
+  "tasksBoardCommittedReloadFailed": "Your changes were saved, but the board could not be refreshed. Refresh the view.",
+"chatMembersLeaveConfirmationTitle": "Leave conversation?",
+"chatMembersLeaveConfirmationBody": "You will stop receiving new messages from this conversation after leaving."
 }

@@ -4108,5 +4108,7 @@
   "tasksListPageChanged": "Zadania zmieniły się podczas wczytywania. Zachowaliśmy aktualne dane. Ponów wczytywanie kolejnej strony.",
   "tasksListPageFailed": "Nie udało się wczytać kolejnych zadań. Wyświetlane dane zachowano. Spróbuj ponownie.",
   "tasksBoardReloadFailed": "Nie udało się odświeżyć tablicy. Spróbuj ponownie.",
-  "tasksBoardCommittedReloadFailed": "Zmiany zostały zapisane, ale nie udało się odświeżyć tablicy. Odśwież widok."
+  "tasksBoardCommittedReloadFailed": "Zmiany zostały zapisane, ale nie udało się odświeżyć tablicy. Odśwież widok.",
+"chatMembersLeaveConfirmationTitle": "Opuścić rozmowę?",
+"chatMembersLeaveConfirmationBody": "Po opuszczeniu rozmowy przestaniesz otrzymywać z niej nowe wiadomości."
 }

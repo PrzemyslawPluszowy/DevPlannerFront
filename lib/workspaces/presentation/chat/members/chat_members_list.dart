@@ -58,6 +58,8 @@ class _ChatMembersListState extends State<ChatMembersList> {
   int _statusRequestGeneration = 0;
 
   Future<void> _openPersonCard(ChatMember member) async {
+    final current = context.read<ChatMembersCubit>().state;
+    if (current is! ChatMembersReady || current.isMutating) return;
     final openConversation = widget.onOpenConversation;
     final conversationId = await ChatPersonCard.show(
       context,
@@ -69,6 +71,51 @@ class _ChatMembersListState extends State<ChatMembersList> {
     );
     if (!mounted || conversationId == null) return;
     openConversation?.call(conversationId);
+  }
+
+  bool _leaveConfirmationOpen = false;
+
+  Future<void> _confirmLeave() async {
+    if (_leaveConfirmationOpen) return;
+    final cubit = context.read<ChatMembersCubit>();
+    final state = cubit.state;
+    if (state is! ChatMembersReady || state.isMutating || state.isSoleOwner) {
+      return;
+    }
+    _leaveConfirmationOpen = true;
+    try {
+      final confirmed = await DevPlannerModalHost.showDialog<bool>(
+        context,
+        builder: (dialogContext) => ChatSurfaceDialog(
+          title: dialogContext.l10n.chatMembersLeaveConfirmationTitle,
+          maxWidth: 420,
+          content: Text(
+            dialogContext.l10n.chatMembersLeaveConfirmationBody,
+            style: dialogContext.chatTheme.contentStyle.copyWith(
+              color: dialogContext.chatTheme.incomingText,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(dialogContext.l10n.chatMembersAddCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: dialogContext.chatTheme.error,
+                foregroundColor: Theme.of(dialogContext).colorScheme.onError,
+              ),
+              child: Text(dialogContext.l10n.chatMembersLeave),
+            ),
+          ],
+        ),
+      );
+      if (!mounted || confirmed != true) return;
+      await cubit.leave();
+    } finally {
+      _leaveConfirmationOpen = false;
+    }
   }
 
   Future<bool> _confirmRemoval(ChatMember member) async {
@@ -282,7 +329,9 @@ class _ChatMembersListState extends State<ChatMembersList> {
                   borderRadius: BorderRadius.circular(12),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () => unawaited(_openPersonCard(member)),
+                    onTap: state.isMutating
+                        ? null
+                        : () => unawaited(_openPersonCard(member)),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: Sizes.p12,
@@ -452,7 +501,8 @@ class _ChatMembersListState extends State<ChatMembersList> {
               TextButton.icon(
                 onPressed: state.isMutating || state.isSoleOwner
                     ? null
-                    : () => unawaited(context.read<ChatMembersCubit>().leave()),
+                    : () => unawaited(_confirmLeave()),
+                style: TextButton.styleFrom(foregroundColor: chat.error),
                 icon: const Icon(Symbols.logout, size: 18),
                 label: Text(context.l10n.chatMembersLeave),
               ),
