@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:devplanner/foundation/l10n/l10n.dart';
 import 'package:devplanner/foundation/presentation/devplanner_panels.dart';
+import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
@@ -10,6 +11,7 @@ import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_file_re
 import 'package:devplanner/workspaces/domain/chat/resource/resource_chat_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
 import 'package:devplanner/workspaces/presentation/chat/resource/cubit/resource_chat_cubit.dart';
+import 'package:devplanner/workspaces/presentation/storage/browser/chrome/storage_error_banner.dart';
 import 'package:devplanner/workspaces/presentation/storage/browser/standalone/storage_file_details_metadata.dart';
 import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_cubit.dart';
 import 'package:devplanner/workspaces/presentation/storage/cubit/storage_file_details_state.dart';
@@ -163,6 +165,21 @@ final class _StorageFileResourceChatAction extends StatelessWidget {
   final StorageFileResponse file;
   final ResourceChatRepository repository;
 
+  void _resolve(BuildContext context) =>
+      context.read<ResourceChatCubit>().resolveFile(
+        ResourceChatFileRequest(
+          fileId: file.id,
+          workspaceId: file.workspaceId,
+          projectId: file.projectId,
+          fileContext: ResourceChatFileContext(
+            fileId: file.id,
+            fileName: file.originalFileName,
+            ownerUserId: file.ownerUserId,
+            accessLevel: file.accessLevel.name,
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) => BlocProvider(
     create: (_) => ResourceChatCubit(repository),
@@ -177,31 +194,35 @@ final class _StorageFileResourceChatAction extends StatelessWidget {
           unawaited(context.read<StorageFileDetailsCubit>().load());
         }
       },
-      builder: (context, state) => ListTile(
-        leading: const Icon(Symbols.chat_bubble_outline_rounded),
-        title: Text(context.l10n.resourceChatFileAction),
-        subtitle: Text(context.l10n.resourceChatFileDescription),
-        trailing: state is ResourceChatResolving
-            ? const SizedBox.square(
-                dimension: 20,
-                child: CircularProgressIndicator.adaptive(strokeWidth: 2),
-              )
-            : null,
-        onTap: state is ResourceChatResolving
-            ? null
-            : () => context.read<ResourceChatCubit>().resolveFile(
-                ResourceChatFileRequest(
-                  fileId: file.id,
-                  workspaceId: file.workspaceId,
-                  projectId: file.projectId,
-                  fileContext: ResourceChatFileContext(
-                    fileId: file.id,
-                    fileName: file.originalFileName,
-                    ownerUserId: file.ownerUserId,
-                    accessLevel: file.accessLevel.name,
-                  ),
-                ),
-              ),
+      builder: (context, state) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (state case ResourceChatFailure(:final error))
+            StorageErrorBanner(
+              message: error.message.isEmpty
+                  ? context.l10n.storageActionFailed
+                  : error.message,
+              code: error.contractCode ?? error.apiCode,
+              traceId: error.traceId,
+              retryAfterUtc: error.retryAfterUtc,
+              onRetry: () => _resolve(context),
+              onRefresh: () => context.read<StorageFileDetailsCubit>().load(),
+            ),
+          ListTile(
+            leading: const Icon(Symbols.chat_bubble_outline_rounded),
+            title: Text(context.l10n.resourceChatFileAction),
+            subtitle: Text(context.l10n.resourceChatFileDescription),
+            trailing: state is ResourceChatResolving
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                  )
+                : null,
+            onTap: state is ResourceChatResolving
+                ? null
+                : () => _resolve(context),
+          ),
+        ],
       ),
     ),
   );
@@ -257,6 +278,13 @@ final class _StorageFileOpenDocumentActionState
       child: ValueListenableBuilder<bool>(
         valueListenable: _opening,
         builder: (context, opening, child) => FilledButton.tonalIcon(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                context.tasksTheme.controlRadius,
+              ),
+            ),
+          ),
           onPressed: opening ? null : _open,
           icon: const Icon(Symbols.description_rounded, size: 18),
           label: Text(context.l10n.storageOpenOfficeAction),

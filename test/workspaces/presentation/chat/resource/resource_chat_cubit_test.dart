@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/domain/chat/conversation/models/chat_conversation.dart';
@@ -25,6 +27,72 @@ void main() {
       );
     },
   );
+
+  test('równoległe aktywacje nie wysyłają drugiego resolvera', () async {
+    final repository = _PendingResourceChatRepository();
+    final cubit = ResourceChatCubit(repository);
+    addTearDown(cubit.close);
+    final first = cubit.resolveFile(ResourceChatCubitFixture.request());
+    await cubit.resolveFile(ResourceChatCubitFixture.request());
+    expect(repository.calls, 1);
+    repository.result.complete(
+      const Left(
+        ApiError(
+          type: ApiErrorType.connection,
+          message: 'Offline',
+        ),
+      ),
+    );
+    await first;
+    expect(cubit.state, isA<ResourceChatFailure>());
+  });
+
+  test('Retry-After blokuje ponowne żądanie także poza widgetem', () async {
+    final repository = _PendingResourceChatRepository();
+    final cubit = ResourceChatCubit(repository);
+    addTearDown(cubit.close);
+    final first = cubit.resolveFile(ResourceChatCubitFixture.request());
+    repository.result.complete(
+      Left(
+        ApiError(
+          type: ApiErrorType.server,
+          message: 'Spróbuj później.',
+          retryAfterUtc: DateTime.now().toUtc().add(const Duration(minutes: 1)),
+        ),
+      ),
+    );
+    await first;
+    await cubit.resolveFile(ResourceChatCubitFixture.request());
+    expect(repository.calls, 1);
+    expect(cubit.state, isA<ResourceChatFailure>());
+  });
+
+  test('odpowiedź po zamknięciu nie emituje ani nie otwiera panelu', () async {
+    final repository = _PendingResourceChatRepository();
+    final cubit = ResourceChatCubit(repository);
+    final first = cubit.resolveFile(ResourceChatCubitFixture.request());
+    await cubit.close();
+    repository.result.complete(
+      const Left(
+        ApiError(
+          type: ApiErrorType.connection,
+          message: 'Offline',
+        ),
+      ),
+    );
+    await first;
+    expect(cubit.isClosed, isTrue);
+    expect(cubit.state, isA<ResourceChatResolving>());
+  });
+
+  test('retry po upływie Retry-After znów wywołuje resolver', () async {
+    final repository = _ExpiredRetryResourceChatRepository();
+    final cubit = ResourceChatCubit(repository);
+    addTearDown(cubit.close);
+    await cubit.resolveFile(ResourceChatCubitFixture.request());
+    await cubit.resolveFile(ResourceChatCubitFixture.request());
+    expect(repository.calls, 2);
+  });
 
   test('401 i 403 nie emitują identyfikatora rozmowy', () async {
     for (final error in const <ApiError>[
@@ -95,4 +163,36 @@ abstract final class ResourceChatCubitFixture {
     projectId: null,
     fileContext: ResourceChatCubitFixture.context,
   );
+}
+
+final class _PendingResourceChatRepository extends _ResourceChatRepository {
+  final result = Completer<Either<ApiError, ChatConversation>>();
+  int calls = 0;
+  @override
+  Future<Either<ApiError, ChatConversation>> resolveFileConversation(
+    ResourceChatFileRequest request,
+  ) {
+    calls++;
+    return result.future;
+  }
+}
+
+final class _ExpiredRetryResourceChatRepository
+    extends _ResourceChatRepository {
+  int calls = 0;
+  @override
+  Future<Either<ApiError, ChatConversation>> resolveFileConversation(
+    ResourceChatFileRequest request,
+  ) async {
+    calls++;
+    return Left(
+      ApiError(
+        type: ApiErrorType.server,
+        message: 'Spróbuj ponownie.',
+        retryAfterUtc: DateTime.now().toUtc().subtract(
+          const Duration(seconds: 1),
+        ),
+      ),
+    );
+  }
 }

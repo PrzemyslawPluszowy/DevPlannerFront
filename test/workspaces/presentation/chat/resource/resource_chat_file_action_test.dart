@@ -51,6 +51,36 @@ void main() {
     },
   );
 
+  testWidgets('błąd resolvera pozostaje widoczny, a Ponów otwiera rozmowę', (
+    tester,
+  ) async {
+    final storageRepository = _StorageRepository();
+    when(() => storageRepository.getFileDetails('file-1')).thenAnswer(
+      (_) async => Right(ResourceChatFixture.fileDetails()),
+    );
+    final repository = _RetryResourceChatRepository();
+    final opened = <String>[];
+    await tester.pumpWidget(
+      _ResourceChatFileHarness(
+        storageRepository: storageRepository,
+        resourceChatRepository: repository,
+        navigatorObserver: _CountingNavigatorObserver(),
+        onOpenConversation: opened.add,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Czat pliku'));
+    await tester.pumpAndSettle();
+    expect(find.text('Nie udało się połączyć.'), findsOneWidget);
+    expect(find.textContaining('qa.resolve_failed'), findsOneWidget);
+    expect(opened, isEmpty);
+    await tester.tap(find.text('Ponów'));
+    await tester.pumpAndSettle();
+    expect(repository.calls, 2);
+    expect(opened, ['conversation-file-1']);
+    expect(find.text('Nie udało się połączyć.'), findsNothing);
+  });
+
   testWidgets(
     'brak canRead nie ujawnia akcji przed rozstrzygnięciem backendu',
     (tester) async {
@@ -340,4 +370,25 @@ abstract final class ResourceChatFixture {
     ),
     canOpenResourceChat: canOpenResourceChat,
   );
+}
+
+final class _RetryResourceChatRepository extends _ResourceChatRepository {
+  int calls = 0;
+  @override
+  Future<Either<ApiError, ChatConversation>> resolveFileConversation(
+    ResourceChatFileRequest request,
+  ) async {
+    calls++;
+    if (calls == 1) {
+      return const Left(
+        ApiError(
+          type: ApiErrorType.connection,
+          message: 'Nie udało się połączyć.',
+          apiCode: 'qa.resolve_failed',
+          traceId: 'qa-trace',
+        ),
+      );
+    }
+    return Right(ResourceChatFixture.conversation(request.fileId));
+  }
 }

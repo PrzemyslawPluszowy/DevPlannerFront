@@ -34,9 +34,10 @@ final class ResourceChatDenied extends ResourceChatState {
 }
 
 final class ResourceChatFailure extends ResourceChatState {
-  const ResourceChatFailure(this.message);
+  const ResourceChatFailure(this.error);
 
-  final String message;
+  final ApiError error;
+  String get message => error.message;
 }
 
 /// Orkiestruje pojedyncze, idempotentne otwarcie Chat pliku.
@@ -46,7 +47,14 @@ final class ResourceChatCubit extends Cubit<ResourceChatState> {
   final ResourceChatRepository _repository;
 
   Future<void> resolveFile(ResourceChatFileRequest request) async {
-    if (request.fileId.isEmpty || isClosed) return;
+    if (request.fileId.isEmpty || isClosed || state is ResourceChatResolving) {
+      return;
+    }
+    final current = state;
+    if (current is ResourceChatFailure) {
+      final deadline = current.error.retryAfterUtc;
+      if (deadline != null && DateTime.now().toUtc().isBefore(deadline)) return;
+    }
     emit(const ResourceChatResolving());
     final result = await _repository.resolveFileConversation(request);
     if (isClosed) return;
@@ -55,7 +63,7 @@ final class ResourceChatCubit extends Cubit<ResourceChatState> {
         error.type == ApiErrorType.forbidden ||
                 error.type == ApiErrorType.unauthorized
             ? ResourceChatDenied(error.message)
-            : ResourceChatFailure(error.message),
+            : ResourceChatFailure(error),
       ),
       (conversation) => emit(
         ResourceChatResolved(
