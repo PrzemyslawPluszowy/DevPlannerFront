@@ -6,6 +6,7 @@ import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
 import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_bulk_due_date_dialog.dart';
+import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_bulk_interaction.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cubit/project_tasks_list_cubit.dart';
@@ -15,7 +16,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final class TaskListBulkActions {
-  const TaskListBulkActions(this.source, {this.profiles = const {}});
+  const TaskListBulkActions(
+    this.source, {
+    required this.dueDateInteraction,
+    required this.isCurrentSource,
+    this.profiles = const {},
+  });
+  final TasksBulkInteraction dueDateInteraction;
+  final bool Function() isCurrentSource;
   final Map<String, ProjectMemberProfile> profiles;
   final ProjectTasksListCubit source;
   Future<void> apply(
@@ -30,6 +38,7 @@ final class TaskListBulkActions {
     bool archive = false,
     bool entireResult = false,
   }) async {
+    if (!isCurrentSource() || source.isClosed) return;
     final revision = source.queryRevision;
     final ready = source.state;
     if (ready is! ProjectTasksListReady || ready.isBulkSaving) return;
@@ -38,6 +47,7 @@ final class TaskListBulkActions {
       token = await source.prepareBulkSelection();
       if (!context.mounted ||
           source.isClosed ||
+          !isCurrentSource() ||
           token == null ||
           source.queryRevision != revision) {
         return;
@@ -55,6 +65,7 @@ final class TaskListBulkActions {
       );
       if (!context.mounted ||
           source.isClosed ||
+          !isCurrentSource() ||
           !confirmed ||
           source.queryRevision != revision) {
         return;
@@ -85,6 +96,7 @@ final class TaskListBulkActions {
       );
       if (!context.mounted ||
           source.isClosed ||
+          !isCurrentSource() ||
           !confirmed ||
           source.queryRevision != revision ||
           !_sameSelection(ready, source.state)) {
@@ -220,7 +232,15 @@ final class TaskListBulkActions {
   Future<void> pickDueDate(
     BuildContext context, {
     bool entireResult = false,
+  }) => dueDateInteraction.run(
+    () => _pickDueDate(context, entireResult: entireResult),
+  );
+
+  Future<void> _pickDueDate(
+    BuildContext context, {
+    required bool entireResult,
   }) async {
+    if (!isCurrentSource() || source.isClosed) return;
     final ready = source.state;
     if (ready is! ProjectTasksListReady || ready.isBulkSaving) return;
     final revision = source.queryRevision;
@@ -242,6 +262,7 @@ final class TaskListBulkActions {
     );
     if (!context.mounted ||
         source.isClosed ||
+        !isCurrentSource() ||
         choice == null ||
         source.queryRevision != revision ||
         (!entireResult && !_sameSelection(ready, source.state))) {

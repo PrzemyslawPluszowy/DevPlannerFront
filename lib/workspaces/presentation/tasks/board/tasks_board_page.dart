@@ -69,6 +69,7 @@ import 'package:devplanner/workspaces/presentation/tasks/board/templates/cubit/t
 import 'package:devplanner/workspaces/presentation/tasks/board/viewport/kanban_auto_scroll_coordinator.dart';
 import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_board_bulk_due_scope.dart';
 import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_bulk_due_date_dialog.dart';
+import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_bulk_interaction.dart';
 import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_contextual_bulk_bar.dart';
 import 'package:devplanner/workspaces/presentation/tasks/chrome/tasks_command_menu.dart';
 import 'package:devplanner/workspaces/presentation/tasks/chrome/tasks_error_banner_host.dart';

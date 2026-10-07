@@ -14,9 +14,12 @@
   }
 
   async function fetchBuildVersion() {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     try {
       const response = await fetch(`version.json?t=${Date.now()}`, {
         cache: 'no-store',
+        signal: controller.signal,
       });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -31,7 +34,31 @@
     } catch (error) {
       console.warn('Failed to fetch fresh build version.', error);
       return null;
+    } finally {
+      clearTimeout(timeout);
     }
+  }
+
+  function readStoredVersion() {
+    try {
+      return localStorage.getItem(buildVersionStorageKey);
+    } catch (error) {
+      console.warn('Build version storage is unavailable.', error);
+      return null;
+    }
+  }
+
+  function storeVersion(version) {
+    try {
+      localStorage.setItem(buildVersionStorageKey, version);
+    } catch (error) {
+      console.warn('Build version storage is unavailable.', error);
+    }
+  }
+
+  function reportStartupFailure(error) {
+    console.error('App initialization failed.', error);
+    window.dispatchEvent(new Event('devplanner-startup-error'));
   }
 
   async function clearOldWebCaches() {
@@ -58,29 +85,37 @@
     }
   }
 
-  const buildVersion = await fetchBuildVersion();
-  const previousBuildVersion = localStorage.getItem(buildVersionStorageKey);
+  try {
+    const buildVersion = await fetchBuildVersion();
+    const previousBuildVersion = readStoredVersion();
 
-  if (buildVersion) {
-    for (const build of _flutter.buildConfig.builds) {
-      build.mainJsPath = withVersion(build.mainJsPath, buildVersion);
-      build.mainWasmPath = withVersion(build.mainWasmPath, buildVersion);
-      build.jsSupportRuntimePath = withVersion(
-        build.jsSupportRuntimePath,
-        buildVersion,
-      );
+    if (buildVersion) {
+      for (const build of _flutter.buildConfig.builds) {
+        build.mainJsPath = withVersion(build.mainJsPath, buildVersion);
+        build.mainWasmPath = withVersion(build.mainWasmPath, buildVersion);
+        build.jsSupportRuntimePath = withVersion(
+          build.jsSupportRuntimePath,
+          buildVersion,
+        );
+      }
+
+      storeVersion(buildVersion);
+
+      if (previousBuildVersion && previousBuildVersion !== buildVersion) {
+        await clearOldWebCaches();
+      }
     }
 
-    localStorage.setItem(buildVersionStorageKey, buildVersion);
-
-    if (previousBuildVersion && previousBuildVersion !== buildVersion) {
-      await clearOldWebCaches();
-    }
-  }
-
-  await _flutter.loader.load({
-    serviceWorkerSettings: {
-      serviceWorkerVersion: {{flutter_service_worker_version}},
-    },
-  });
+    await _flutter.loader.load({
+      onEntrypointLoaded: async (engineInitializer) => {
+        try {
+          const appRunner = await engineInitializer.initializeEngine();
+          await appRunner.runApp();
+        } catch (error) { reportStartupFailure(error); }
+      },
+      serviceWorkerSettings: {
+        serviceWorkerVersion: {{flutter_service_worker_version}},
+      },
+    });
+  } catch (error) { reportStartupFailure(error); }
 })();

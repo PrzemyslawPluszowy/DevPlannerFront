@@ -17,6 +17,7 @@
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Standalone workspace planning for teams.">
 
@@ -31,16 +32,91 @@
 
   <title>DevPlanner</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    :root { color-scheme: light dark; --start-bg: #f6f7f9; --start-fg: #20242c; --start-muted: #4d5665; --start-border: #ccd2dc; --start-accent: #2556a8; }
+    @media (prefers-color-scheme: dark) { :root { --start-bg: #111116; --start-fg: #f0f2f6; --start-muted: #b7bdc9; --start-border: #444a57; --start-accent: #aac8ff; } }
+    body { margin: 0; background: var(--start-bg); }
+    #app-startup { position: fixed; inset: 0; z-index: 100000; display: grid; place-items: center; background: var(--start-bg); color: var(--start-fg); font: 14px/1.5 system-ui, sans-serif; }
+    .startup-content { width: min(360px, calc(100% - 48px)); text-align: center; }
+    .startup-logo { display: block; width: 200px; height: auto; margin: 0 auto 24px; }
+    #startup-title { font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+    #startup-message { color: var(--start-muted); margin: 0 0 20px; }
+    #startup-retry { color: var(--start-fg); background: transparent; border: 1px solid var(--start-border); border-radius: 8px; padding: 8px 16px; font: inherit; cursor: pointer; }
+    #startup-retry:hover { border-color: var(--start-accent); }
+    #startup-retry:focus-visible { outline: 2px solid var(--start-accent); outline-offset: 3px; }
+    .startup-progress { width: 120px; height: 2px; margin: 0 auto; background: var(--start-border); overflow: hidden; }
+    .startup-progress::after { content: ''; display: block; width: 40%; height: 100%; background: var(--start-accent); animation: startup-progress 1.4s ease-in-out infinite alternate; }
+    @keyframes startup-progress { from { transform: translateX(0); } to { transform: translateX(150%); } }
+    @media (prefers-reduced-motion: reduce) { .startup-progress::after { animation: none; width: 100%; } }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+  <div id="app-startup">
+    <div class="startup-content">
+      <img class="startup-logo" src="assets/assets/images/logo.png" alt="BANKAI flow" width="200" height="67">
+      <div role="status" aria-live="polite" aria-atomic="true">
+        <h1 id="startup-title">Uruchamianie aplikacji</h1>
+        <p id="startup-message">Przygotowujemy Twoje miejsce pracy…</p>
+      </div>
+      <div class="startup-progress" aria-hidden="true"></div>
+      <button id="startup-retry" type="button" hidden>Spróbuj ponownie</button>
+    </div>
+  </div>
+  <noscript><style>#app-startup { display: none; }</style><p>Włącz JavaScript w przeglądarce, aby korzystać z aplikacji. Enable JavaScript to use this app.</p></noscript>
+  <script id="startup-controller" data-bootstrap="flutter_bootstrap.js">
+(function () {
+  const startup = document.getElementById('app-startup');
+  const title = document.getElementById('startup-title');
+  const message = document.getElementById('startup-message');
+  const retry = document.getElementById('startup-retry');
+  const progress = startup.querySelector('.startup-progress');
+  const polish = (navigator.language || '').toLowerCase().startsWith('pl');
+  const copy = polish ? {
+    title: 'Uruchamianie aplikacji', message: 'Przygotowujemy Twoje miejsce pracy…',
+    slowTitle: 'Uruchamianie trwa dłużej', slowMessage: 'Możesz poczekać lub spróbować ponownie.',
+    errorTitle: 'Nie udało się uruchomić aplikacji', errorMessage: 'Sprawdź połączenie i spróbuj ponownie.',
+    retry: 'Spróbuj ponownie',
+  } : {
+    title: 'Starting the app', message: 'Preparing your workspace…',
+    slowTitle: 'Starting is taking longer', slowMessage: 'You can wait or try again.',
+    errorTitle: 'The app could not start', errorMessage: 'Check your connection and try again.',
+    retry: 'Try again',
+  };
+  document.documentElement.lang = polish ? 'pl' : 'en';
+  title.textContent = copy.title;
+  message.textContent = copy.message;
+  retry.textContent = copy.retry;
+  retry.addEventListener('click', () => window.location.reload());
+  let finished = false;
+  let failed = false;
+  const slowTimer = setTimeout(() => {
+    if (finished || failed) return;
+    title.textContent = copy.slowTitle;
+    message.textContent = copy.slowMessage;
+    retry.hidden = false;
+  }, 45000);
+  function fail() {
+    if (finished) return;
+    failed = true;
+    clearTimeout(slowTimer);
+    title.textContent = copy.errorTitle;
+    message.textContent = copy.errorMessage;
+    progress.hidden = true;
+    retry.hidden = false;
+  }
+  // Flutter's rendering binding emits this only after its first frame.
+  window.addEventListener('flutter-first-frame', () => {
+    finished = true;
+    clearTimeout(slowTimer);
+    startup.remove();
+  }, { once: true });
+  window.addEventListener('devplanner-startup-error', fail);
+  const bootstrap = document.createElement('script');
+  bootstrap.src = document.currentScript.dataset.bootstrap;
+  bootstrap.async = true;
+  bootstrap.addEventListener('error', fail, { once: true });
+  document.body.appendChild(bootstrap);
+})();
+  </script>
 </body>
 </html>

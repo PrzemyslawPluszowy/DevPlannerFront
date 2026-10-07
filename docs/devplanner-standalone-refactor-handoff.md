@@ -10976,3 +10976,17 @@ QA56 publikacja2026-10-07 PASS: Front Wasm d819e3e9e46c416ded060dbcff7da869769cf
 QA56 manualnyChrome2026-10-07: bootstrapd819e3e potwierdzony; EntireResult5→Tab/Tab→Escape focusdoakcji, zaznaczenie2 zachowane PASS. Idle toolbar bez luki320px i error recovery spójne wPLdark1513×895; invaliddue5paź iRetry odrzucone, SQL177/178 wersje/daty bez zmian. Pozostałe warianty NOTRUN. QA58 zbiera wielokrotne otwarcie due dialog i różnice promieni kontrolek do kolejnego pakietu; rootcause/repro wymagane. Centralnie Backend/docs/ui-testing.md.
 
 QA59 następny pakiet: rzeczywisty pusty startup po Reload bez informacji, potem app wróciła; source index body bez loading/recovery. QA58/59 wąski niezależny source diagnosis qa55_review uruchomiony. Nie deklarować funkcjonalnej przyczyny ani pełnego UI PASS. QA56 cleanup po reload potwierdzony.
+
+### Kontynuacja ręcznego audytu — 2026-10-07
+
+Wymaganie właściciela zapisane w obu bieżących planach: klikana weryfikacja i naprawa funkcji oraz brzydkich/niespójnych kontrolek, UI UX Pro Max + Impeccable Operate, Chrome na stagingu, zbiorcze pakiety i dokładny retest. Audyt uruchomiony; centralny status Backend/docs/ui-testing.md. C06/O01: istniejąca kopia QA OnlyOffice otwarta, widoczny testowy wiersz D bez ręcznego Save; OO zgłasza wszystkie zmiany zapisane, host nadal oczekiwanie. Trwałość i close/reopen NIEODEBRANE. Edytor pozostawiony otwarty, dalszy odczyt wersji/callbacków wymagany. QA58/59 niezależny review źródeł potwierdził reentrancy gap i brak startup/recovery; naprawa/publikacja pozostają w następnym pakiecie. Bez zmian kodu i deploya w tym checkpointcie.
+
+### QA58/59 — lokalne naprawy do wspólnej publikacji, 2026-10-07
+
+- [x] Single-flight terminu w State Listy/Kanbanu i nestedcalendar, stale-source guard po picker/prepare/confirmation; scoped controlRadius/border/focus spójne z Tasks.
+- [x] Systemowy startup/recovery z logo, inline controller i first-frame cleanup, bounded metadata fetch oraz odporność na wyjątki localStorage.
+- [x] Flutter14/14, Node7/7, analyzer No issues55,5s, diff-check; niezależny review bez blockerów po naprawie wykrytych luk. Logi i źródła Backend/docs/ui-testing.md.
+- [ ] Jedna publikacja Front Wasm i manualny Chrome retest QA58/59; runtime wyglądu/recovery NIEODEBRANY. Backend kod/API/enumy bez zmian.
+- [ ] C06 autosave: staging SQL Version8 nadal z5paź mimo widocznego D i OO wszystkie zmiany zapisane. Poczekaj zachowuje edytor. Recovery ręczny Save rozpoczęty; końcowy odczyt wymagany. QA60: zbyt szeroki/techniczny warning do kolejnego pakietu po diagnozie zapisu.
+
+Pełny audyt aktywny; QA57, Office callback, pełny Chat i pozostałe role/warianty nadal w centralnej kolejce.

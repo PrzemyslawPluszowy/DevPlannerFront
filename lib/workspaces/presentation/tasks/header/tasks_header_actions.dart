@@ -105,7 +105,7 @@ class _HeaderMoreMenu extends StatelessWidget {
 }
 
 /// Kontekstowy pasek akcji masowych, zastępujący Rząd 2 po zaznaczeniu zadań.
-class _BulkSelectionToolbar extends StatelessWidget {
+class _BulkSelectionToolbar extends StatefulWidget {
   const _BulkSelectionToolbar({
     required this.state,
     required this.isCompact,
@@ -114,6 +114,17 @@ class _BulkSelectionToolbar extends StatelessWidget {
 
   final TasksBoardReady state;
   final bool isCompact;
+
+  @override
+  State<_BulkSelectionToolbar> createState() => _BulkSelectionToolbarState();
+}
+
+final class _BulkSelectionToolbarState extends State<_BulkSelectionToolbar> {
+  final TasksBulkInteraction _dueDateInteraction = TasksBulkInteraction();
+  TasksBoardReady get state => widget.state;
+
+  Future<void> _pickDueDate() =>
+      _dueDateInteraction.run(() => _BulkDueDateAction.pick(context));
 
   @override
   Widget build(BuildContext context) {
@@ -183,9 +194,7 @@ class _BulkSelectionToolbar extends StatelessWidget {
           key: const ValueKey('board_bulk_due_date'),
           icon: Symbols.event,
           label: l10n.tasksBulkDueDate,
-          onTap: state.isBulkSaving
-              ? null
-              : () => _BulkDueDateAction.pick(context),
+          onTap: state.isBulkSaving ? null : () => unawaited(_pickDueDate()),
         ),
       ],
     );
@@ -210,7 +219,12 @@ class _BulkDueDateAction {
       ),
       calendarTimeZoneId: cubit.calendarTimeZoneId,
     );
-    if (!context.mounted || cubit.isClosed || choice == null) return;
+    if (!context.mounted ||
+        cubit.isClosed ||
+        choice == null ||
+        !identical(context.read<TasksBoardCubit>(), cubit)) {
+      return;
+    }
     final current = cubit.state;
     if (current is! TasksBoardReady ||
         current.isBulkSaving ||

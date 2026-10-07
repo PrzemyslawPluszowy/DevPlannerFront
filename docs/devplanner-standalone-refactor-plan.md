@@ -7659,3 +7659,22 @@ QA56 publikacja2026-10-07 PASS: Front Wasm d819e3e9e46c416ded060dbcff7da869769cf
 QA56 manualnyChrome2026-10-07: bootstrapd819e3e potwierdzony; EntireResult5→Tab/Tab→Escape focusdoakcji, zaznaczenie2 zachowane PASS. Idle toolbar bez luki320px i error recovery spójne wPLdark1513×895; invaliddue5paź iRetry odrzucone, SQL177/178 wersje/daty bez zmian. Pozostałe warianty NOTRUN. QA58 zbiera wielokrotne otwarcie due dialog i różnice promieni kontrolek do kolejnego pakietu; rootcause/repro wymagane. Centralnie Backend/docs/ui-testing.md.
 
 QA59 następny pakiet: rzeczywisty pusty startup po Reload bez informacji, potem app wróciła; source index body bez loading/recovery. QA58/59 wąski niezależny source diagnosis qa55_review uruchomiony. Nie deklarować funkcjonalnej przyczyny ani pełnego UI PASS. QA56 cleanup po reload potwierdzony.
+
+### Potwierdzenie bieżącego zlecenia — 2026-10-07
+
+- [x] Uruchomiono dalszy manualny audyt w Chrome na stagingu. Właściciel: root; aktualna rezerwacja C06/O01 — autosave istniejącej kopii QA OnlyOffice.
+- [ ] Przeklikać kolejne nieodebrane kontrolki z centralnego rejestru, osobno oceniając działanie, zrozumiałość dla nietechnicznego użytkownika oraz spójność wizualną z Listą/Kanbanem. Obowiązkowe UI UX Pro Max + Impeccable Operate; naprawiać także brzydkie i niespójne elementy.
+- [ ] Zbierać powiązane dowody przed naprawą; przygotowywać wspólne pakiety, niezależny review, bramki kodu, publikację Wasm na staging i dokładny manualny retest. Nie publikować każdej drobnej zmiany oddzielnie.
+- [ ] Następny pakiet QA58/59: blokada równoczesnego otwarcia dialogów terminu oraz widoczny startup/recovery. Review źródeł potwierdza luki; kontrolowana reprodukcja i odbiór runtime pozostają otwarte. QA57 sticky, pełny czat wielokontowy, role i warianty motywu/języka również pozostają w kolejce.
+
+Jedyny rejestr odbioru: Backend/docs/ui-testing.md. Nie powtarzać zaliczonych scenariuszy tej samej wersji bez powiązanej zmiany lub sprzecznego dowodu. Nie deklarować pełnego odbioru na podstawie samego builda.
+
+### QA58/59 — lokalne naprawy do wspólnej publikacji, 2026-10-07
+
+- [x] Single-flight terminu w State Listy/Kanbanu i nestedcalendar, stale-source guard po picker/prepare/confirmation; scoped controlRadius/border/focus spójne z Tasks.
+- [x] Systemowy startup/recovery z logo, inline controller i first-frame cleanup, bounded metadata fetch oraz odporność na wyjątki localStorage.
+- [x] Flutter14/14, Node7/7, analyzer No issues55,5s, diff-check; niezależny review bez blockerów po naprawie wykrytych luk. Logi i źródła Backend/docs/ui-testing.md.
+- [ ] Jedna publikacja Front Wasm i manualny Chrome retest QA58/59; runtime wyglądu/recovery NIEODEBRANY. Backend kod/API/enumy bez zmian.
+- [ ] C06 autosave: staging SQL Version8 nadal z5paź mimo widocznego D i OO wszystkie zmiany zapisane. Poczekaj zachowuje edytor. Recovery ręczny Save rozpoczęty; końcowy odczyt wymagany. QA60: zbyt szeroki/techniczny warning do kolejnego pakietu po diagnozie zapisu.
+
+Pełny audyt aktywny; QA57, Office callback, pełny Chat i pozostałe role/warianty nadal w centralnej kolejce.

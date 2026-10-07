@@ -1,4 +1,5 @@
 import 'package:devplanner/foundation/platform/calendar_time_zone.dart';
+import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_bulk_interaction.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/menu/pickers/task_date_picker.dart';
@@ -73,6 +74,7 @@ final class _TasksBulkDueDateDialogState extends State<TasksBulkDueDateDialog> {
   late final List<TaskDetailsSelectOption<int>> _hours;
   late final List<TaskDetailsSelectOption<int>> _minutes;
   late final String _zone;
+  final TasksBulkInteraction _dayInteraction = TasksBulkInteraction();
 
   @override
   void initState() {
@@ -121,7 +123,11 @@ final class _TasksBulkDueDateDialogState extends State<TasksBulkDueDateDialog> {
       a.millisecond == b.millisecond &&
       a.microsecond == b.microsecond;
 
-  Future<void> _pickDay(BuildContext anchor) async {
+  Future<void> _pickDay(BuildContext anchor) =>
+      _dayInteraction.run(() => _pickSingleDay(anchor));
+
+  Future<void> _pickSingleDay(BuildContext anchor) async {
+    if (!mounted || !anchor.mounted) return;
     final selection = await TaskDatePicker.pick(
       anchor,
       initialValue: _day.value,
@@ -158,87 +164,126 @@ final class _TasksBulkDueDateDialogState extends State<TasksBulkDueDateDialog> {
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: _changes,
-    builder: (context, _) => WorkspaceCreationModalWrapper(
-      title: context.l10n.tasksBulkDueDate,
-      icon: Symbols.event_rounded,
-      accentColor: context.colors.primary,
-      submitLabel: context.l10n.save,
-      cancelLabel: context.l10n.cancel,
-      maxWidth: 460,
-      onSubmit: _submit,
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(widget.scopeLabel, style: context.tasksTheme.dataStrongText),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.tasksBulkDueExplanation,
-            style: context.tasksTheme.metaText,
+    builder: (context, _) => Theme(
+      data: Theme.of(context).copyWith(
+        inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(
+              context.tasksTheme.controlRadius,
+            ),
+            borderSide: BorderSide(color: context.tasksTheme.canvasBorder),
           ),
-          if (_mixedClock) ...[
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(
+              context.tasksTheme.controlRadius,
+            ),
+            borderSide: BorderSide(color: context.tasksTheme.canvasBorder),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(
+              context.tasksTheme.controlRadius,
+            ),
+            borderSide: BorderSide(
+              color: context.tasksTheme.selectionAccent,
+              width: 2,
+            ),
+          ),
+        ),
+      ),
+      child: WorkspaceCreationModalWrapper(
+        title: context.l10n.tasksBulkDueDate,
+        icon: Symbols.event_rounded,
+        accentColor: context.colors.primary,
+        submitLabel: context.l10n.save,
+        cancelLabel: context.l10n.cancel,
+        maxWidth: 460,
+        onSubmit: _submit,
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(widget.scopeLabel, style: context.tasksTheme.dataStrongText),
             const SizedBox(height: 8),
             Text(
-              context.l10n.tasksBulkDueMixed,
+              context.l10n.tasksBulkDueExplanation,
               style: context.tasksTheme.metaText,
             ),
-          ],
-          const SizedBox(height: 16),
-          Builder(
-            builder: (anchor) => OutlinedButton.icon(
-              onPressed: () => _pickDay(anchor),
-              icon: const Icon(Symbols.calendar_today, size: 18),
-              label: Text(
-                DateFormat.yMMMd(
-                  Localizations.localeOf(context).toLanguageTag(),
-                ).format(_day.value),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: TaskDetailsSelectField<int>(
-                  label: context.l10n.tasksBulkHour,
-                  value: _clock.value.hour,
-                  options: _hours,
-                  onChanged: _hour,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TaskDetailsSelectField<int>(
-                  label: context.l10n.tasksBulkMinute,
-                  value: _clock.value.minute,
-                  options: _minutes,
-                  onChanged: _minute,
-                ),
+            if (_mixedClock) ...[
+              const SizedBox(height: 8),
+              Text(
+                context.l10n.tasksBulkDueMixed,
+                style: context.tasksTheme.metaText,
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.tasksBulkTimeZone(_zone),
-            style: context.tasksTheme.metaText,
-          ),
-          if (_invalid.value) ...[
+            const SizedBox(height: 16),
+            Builder(
+              builder: (anchor) => OutlinedButton.icon(
+                onPressed: () => _pickDay(anchor),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 36),
+                  alignment: Alignment.centerLeft,
+                  foregroundColor: context.colors.onSurface,
+                  textStyle: context.tasksTheme.controlText,
+                  side: BorderSide(color: context.tasksTheme.canvasBorder),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      context.tasksTheme.controlRadius,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Symbols.calendar_today, size: 18),
+                label: Text(
+                  DateFormat.yMMMd(
+                    Localizations.localeOf(context).toLanguageTag(),
+                  ).format(_day.value),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TaskDetailsSelectField<int>(
+                    label: context.l10n.tasksBulkHour,
+                    value: _clock.value.hour,
+                    options: _hours,
+                    onChanged: _hour,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TaskDetailsSelectField<int>(
+                    label: context.l10n.tasksBulkMinute,
+                    value: _clock.value.minute,
+                    options: _minutes,
+                    onChanged: _minute,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 8),
             Text(
-              context.l10n.tasksBulkInvalidLocalTime,
-              style: TextStyle(color: context.colors.error),
+              context.l10n.tasksBulkTimeZone(_zone),
+              style: context.tasksTheme.metaText,
+            ),
+            if (_invalid.value) ...[
+              const SizedBox(height: 8),
+              Text(
+                context.l10n.tasksBulkInvalidLocalTime,
+                style: TextStyle(color: context.colors.error),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _clear,
+                icon: const Icon(Symbols.event_busy_rounded, size: 18),
+                label: Text(context.l10n.tasksBulkClearDueDate),
+              ),
             ),
           ],
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: _clear,
-              icon: const Icon(Symbols.event_busy_rounded, size: 18),
-              label: Text(context.l10n.tasksBulkClearDueDate),
-            ),
-          ),
-        ],
+        ),
       ),
     ),
   );

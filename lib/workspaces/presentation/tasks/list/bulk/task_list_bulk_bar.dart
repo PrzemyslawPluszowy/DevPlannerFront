@@ -6,6 +6,7 @@ import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_mode
 import 'package:devplanner/workspaces/data/shared/enums/project_task_status.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_priority.dart';
 import 'package:devplanner/workspaces/domain/models/project_member_profile.dart';
+import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_bulk_interaction.dart';
 import 'package:devplanner/workspaces/presentation/tasks/bulk/tasks_contextual_bulk_bar.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/bulk/task_list_bulk_actions.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
@@ -45,11 +46,12 @@ final class _TaskListBulkBarState extends State<TaskListBulkBar> {
   Map<String, ProjectMemberProfile> get memberProfiles => widget.memberProfiles;
   late List<ProjectMemberProfile> _profiles;
   late TaskListBulkActions _actions;
+  final TasksBulkInteraction _dueDateInteraction = TasksBulkInteraction();
   @override
   void initState() {
     super.initState();
     _prepareProfiles();
-    _actions = TaskListBulkActions(listCubit, profiles: memberProfiles);
+    _actions = _createActions();
   }
 
   @override
@@ -57,11 +59,21 @@ final class _TaskListBulkBarState extends State<TaskListBulkBar> {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.listCubit, widget.listCubit) ||
         !identical(oldWidget.memberProfiles, widget.memberProfiles)) {
-      _actions = TaskListBulkActions(listCubit, profiles: memberProfiles);
+      _actions = _createActions();
     }
     if (!identical(oldWidget.memberProfiles, widget.memberProfiles)) {
       _prepareProfiles();
     }
+  }
+
+  TaskListBulkActions _createActions() {
+    final source = listCubit;
+    return TaskListBulkActions(
+      source,
+      profiles: memberProfiles,
+      dueDateInteraction: _dueDateInteraction,
+      isCurrentSource: () => mounted && identical(listCubit, source),
+    );
   }
 
   void _prepareProfiles() {
