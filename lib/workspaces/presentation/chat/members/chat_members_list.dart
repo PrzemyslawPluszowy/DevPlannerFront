@@ -103,6 +103,11 @@ class _ChatMembersListState extends State<ChatMembersList> {
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
               style: FilledButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    dialogContext.tasksTheme.controlRadius,
+                  ),
+                ),
                 backgroundColor: dialogContext.chatTheme.error,
                 foregroundColor: Theme.of(dialogContext).colorScheme.onError,
               ),

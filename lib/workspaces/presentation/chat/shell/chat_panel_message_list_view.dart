@@ -178,6 +178,7 @@ final class ChatPanelMessageListView extends StatelessWidget {
                                 message: message,
                                 isOwnMessage: item.isOwnAuthor,
                                 canModerate: list.canModerate,
+                                hasTextSelection: hasTextSelection,
                                 isPinned: isPinned.contains(message.id),
                                 isBookmarked: isBookmarked.contains(message.id),
                                 currentUserId: currentUserId,

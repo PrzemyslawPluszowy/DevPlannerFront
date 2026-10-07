@@ -12,6 +12,7 @@ class AppContextMenuPanel<T> extends StatefulWidget {
     this.headerTitle,
     this.headerSubtitle,
     this.contentBuilder,
+    this.onDismiss,
     super.key,
   });
 
@@ -24,6 +25,7 @@ class AppContextMenuPanel<T> extends StatefulWidget {
   final String? headerTitle;
   final String? headerSubtitle;
   final AppContextMenuContentBuilder? contentBuilder;
+  final VoidCallback? onDismiss;
 
   @override
   State<AppContextMenuPanel<T>> createState() => _AppContextMenuPanelState<T>();
@@ -107,7 +109,7 @@ class _AppContextMenuPanelState<T> extends State<AppContextMenuPanel<T>> {
                           subtitle: widget.headerSubtitle,
                         ),
                       if (widget.contentBuilder case final builder?)
-                        builder(context, () => Navigator.of(context).pop())
+                        builder(context, _dismiss)
                       else
                         for (
                           var index = 0;
@@ -136,9 +138,25 @@ class _AppContextMenuPanelState<T> extends State<AppContextMenuPanel<T>> {
     );
   }
 
+  void _dismiss() {
+    if (!mounted) return;
+    final dismiss = widget.onDismiss;
+    if (dismiss != null) {
+      dismiss();
+    } else if (ModalRoute.of(context)?.isCurrent ?? false) {
+      Navigator.of(context).pop();
+    }
+  }
+
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      final dismiss = widget.onDismiss;
+      if (dismiss == null) return KeyEventResult.ignored;
+      dismiss();
+      return KeyEventResult.handled;
     }
     final selectable = _selectableIndexes;
     if (selectable.isEmpty) return KeyEventResult.ignored;

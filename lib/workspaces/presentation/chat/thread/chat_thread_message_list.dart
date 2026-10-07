@@ -202,6 +202,7 @@ class ChatThreadMessageList extends StatelessWidget {
       message: message,
       isOwnMessage: message.authorUserId == currentUserId,
       canModerate: canModerate,
+      hasTextSelection: hasTextSelection,
       isPinned: secondary.state.pinnedMessageIds.contains(message.id),
       isBookmarked: secondary.state.bookmarkedMessageIds.contains(message.id),
       currentUserId: currentUserId,
@@ -238,10 +239,11 @@ class ChatThreadMessageList extends StatelessWidget {
       icon: Symbols.content_copy,
       onTap: (_) => unawaited(copyChatMessage(context, message)),
     ),
-    AppContextMenuAction(
-      label: context.l10n.chatMessageCopySelection,
-      icon: Symbols.copy_all,
-      onTap: (_) => unawaited(copyChatSelection(context)),
-    ),
+    if (hasTextSelection)
+      AppContextMenuAction(
+        label: context.l10n.chatMessageCopySelection,
+        icon: Symbols.copy_all,
+        onTap: (_) => unawaited(copyChatSelection(context)),
+      ),
   ];
 }

@@ -31,6 +31,7 @@ class ChatMessageActionMenu extends StatelessWidget {
     required this.isPinned,
     required this.isBookmarked,
     required this.currentUserId,
+    this.hasTextSelection = false,
     this.onReply,
     this.onThread,
     this.onEdit,
@@ -48,6 +49,9 @@ class ChatMessageActionMenu extends StatelessWidget {
 
   /// Local UserId bieżącej sesji, potrzebny do rozpoznania własnej reakcji.
   final String currentUserId;
+
+  /// Czy region historii ma rzeczywisty, niepusty zaznaczony fragment.
+  final bool hasTextSelection;
 
   final ValueChanged<ChatMessage>? onReply;
 
@@ -154,11 +158,12 @@ class ChatMessageActionMenu extends StatelessWidget {
       if (onReply != null)
         action('reply', context.l10n.chatComposerReplyAction, Symbols.reply),
       action('copy', context.l10n.chatMessageCopy, Symbols.content_copy),
-      action(
-        'copySelection',
-        context.l10n.chatMessageCopySelection,
-        Symbols.copy_all,
-      ),
+      if (hasTextSelection)
+        action(
+          'copySelection',
+          context.l10n.chatMessageCopySelection,
+          Symbols.copy_all,
+        ),
       if (onThread != null)
         action('thread', context.l10n.chatThreadOpen, Symbols.forum),
       action('react', context.l10n.chatMessageReact, Symbols.add_reaction),

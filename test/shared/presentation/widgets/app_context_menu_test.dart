@@ -124,6 +124,53 @@ List<AppContextMenuOption<String>> _options() => const [
 ];
 
 void main() {
+  testWidgets(
+    'custom content Escape closes only menu, even during transition',
+    (tester) async {
+      VoidCallback? dismissFromPicker;
+      await tester.pumpWidget(
+        _harness(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Text('Underlying dialog'),
+                  content: Builder(
+                    builder: (anchorContext) => TextButton(
+                      autofocus: true,
+                      onPressed: () => AppContextMenu.showCustom(
+                        anchorContext,
+                        globalPosition: const Offset(200, 200),
+                        contentBuilder: (_, dismiss) {
+                          dismissFromPicker = dismiss;
+                          return const Text('Custom picker');
+                        },
+                      ),
+                      child: const Text('Open custom'),
+                    ),
+                  ),
+                ),
+              ),
+              child: const Text('Open underlying'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open underlying'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Open custom'));
+      await tester.pumpAndSettle();
+      expect(find.text('Custom picker'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      dismissFromPicker!();
+      await tester.pumpAndSettle();
+      expect(find.text('Custom picker'), findsNothing);
+      expect(find.text('Underlying dialog'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('pokazuje jedną powierzchnię z sekcjami i skrótami', (
     tester,
   ) async {

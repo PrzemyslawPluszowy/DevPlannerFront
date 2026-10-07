@@ -94,10 +94,19 @@ class AppContextMenuRoute<T> extends PopupRoute<T> {
           headerTitle: headerTitle,
           headerSubtitle: headerSubtitle,
           contentBuilder: contentBuilder,
-          onSelected: (value) => Navigator.of(context).pop(value),
+          onSelected: _select,
+          onDismiss: _dismiss,
         ),
       ),
     );
+  }
+
+  void _dismiss() {
+    if (isCurrent) navigator?.pop();
+  }
+
+  void _select(T value) {
+    if (isCurrent) navigator?.pop(value);
   }
 
   @override
