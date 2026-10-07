@@ -18,7 +18,9 @@ abstract final class StorageOfficeCloseConfirmation {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => _StorageOfficeCloseDialog(
-        awaiting: !hasUnsavedChanges && isAwaitingSaveConfirmation,
+        awaiting:
+            !hasUnsavedChanges &&
+            (isAwaitingSaveConfirmation || isSaveUnconfirmed),
       ),
     );
     return confirmed ?? false;
@@ -48,6 +50,8 @@ final class _StorageOfficeCloseDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(tasks.panelRadius),
         side: BorderSide(color: tasks.canvasBorder),
       ),
+      constraints: const BoxConstraints(maxWidth: 480),
+      elevation: 0,
       titleTextStyle: tasks.dataStrongText,
       contentTextStyle: tasks.controlText,
       title: Text(

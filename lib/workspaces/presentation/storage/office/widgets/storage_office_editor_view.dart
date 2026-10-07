@@ -98,14 +98,8 @@ final class StorageOfficeEditorView extends StatelessWidget {
       actions.cancelClosing();
       return;
     }
-    // Zamknięcie nie może wyprzedzić potwierdzenia zapisu: odświeżenie listy
-    // wykonane przed callbackiem pokazałoby starą wersję pliku, zwłaszcza
-    // w kompozycji bez kanału realtime. Czekanie jest ograniczone oknem kontroli,
-    // a decyzja użytkownika o zamknięciu nadal obowiązuje.
-    if (actions.isAwaitingSaveConfirmation) {
-      await actions.waitForConfirmedSave();
-      if (!context.mounted || !_isCurrent(context, actions)) return;
-    }
+    // Niepotwierdzony zapis wymagał powyżej jawnej decyzji „Zamknij”.
+    // „Poczekaj” pozostawia edytor i kontrolę callbacku aktywne.
     try {
       await hostController.closeEditor().timeout(const Duration(seconds: 30));
     } on Object {

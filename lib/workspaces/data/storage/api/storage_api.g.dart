@@ -1126,6 +1126,67 @@ class _StorageApi implements StorageApi {
   }
 
   @override
+  Future<OnlyOfficeSaveResponse> requestOfficeSave(
+    String fileId,
+    Map<String, dynamic> payload,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(payload);
+    final _options = _setStreamType<OnlyOfficeSaveResponse>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/storage/files/${fileId}/office-save',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late OnlyOfficeSaveResponse _value;
+    try {
+      _value = OnlyOfficeSaveResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<OnlyOfficeSaveResponse> getOfficeSaveResult(
+    String fileId,
+    String operationId,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<OnlyOfficeSaveResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/v1/storage/files/${fileId}/office-save/${operationId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late OnlyOfficeSaveResponse _value;
+    try {
+      _value = OnlyOfficeSaveResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<StorageFileResponse> convertToPdf(String fileId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

@@ -3509,7 +3509,7 @@
   "storageOfficeSavingChanges": "Waiting for the server…",
   "storageOfficeSaveUnconfirmed": "Save not confirmed",
   "storageOfficeCloseAwaitingTitle": "Wait for the save to be confirmed?",
-  "storageOfficeCloseAwaitingBody": "The editor has no local changes left, but the backend has not confirmed a new version yet. Closing now may show the list with the previous version of the file.",
+  "storageOfficeCloseAwaitingBody": "The file save has not yet been confirmed. Choose “Wait” and wait for the “Saved” status. If “Save unconfirmed” appears, choose “Retry” in the document toolbar. Closing now may lose your changes.",
   "storageOfficeCloseWaitForSave": "Wait",
   "chatInboxTitle": "Messages",
   "chatInboxSearchHint": "Search conversations",

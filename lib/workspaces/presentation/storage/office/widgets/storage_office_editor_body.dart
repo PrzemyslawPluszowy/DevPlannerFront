@@ -40,7 +40,10 @@ final class StorageOfficeEditorBody extends StatelessWidget {
             // Dokument sam raportuje połączenie i stan zapisu; bez tego ekran
             // nie wie, czy użytkownik widzi zapisane zmiany.
             onDocumentReady: () =>
-                context.read<StorageOfficeEditorActionsCubit>().sessionReady(),
+                context.read<StorageOfficeEditorActionsCubit>().sessionReady(
+                  documentKey: session.documentKey,
+                  canEdit: session.canEdit,
+                ),
             onDocumentStateChanged: (isModified) => context
                 .read<StorageOfficeEditorActionsCubit>()
                 .documentStateChanged(isModified: isModified),

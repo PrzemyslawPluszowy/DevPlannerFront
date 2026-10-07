@@ -1,6 +1,7 @@
 import 'package:devplanner/workspaces/data/admin/models/admin_models.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/storage/ai/models/storage_ai_models.dart';
+import 'package:devplanner/workspaces/data/storage/models/onlyoffice_save_response.dart';
 import 'package:devplanner/workspaces/data/storage/payloads/storage_payloads.dart';
 import 'package:devplanner/workspaces/data/storage/responses/storage_responses.dart';
 import 'package:dio/dio.dart';
@@ -260,6 +261,19 @@ abstract class StorageApi {
   @GET('/api/v1/storage/files/{fileId}/office-session')
   Future<OnlyOfficeSessionResponse> getOfficeSession(
     @Path('fileId') String fileId,
+  );
+
+  /// Żąda zapisu bieżącej sesji; przyjęcie nie oznacza jeszcze potwierdzenia.
+  @POST('/api/v1/storage/files/{fileId}/office-save')
+  Future<OnlyOfficeSaveResponse> requestOfficeSave(
+    @Path('fileId') String fileId,
+    @Body() Map<String, dynamic> payload,
+  );
+
+  @GET('/api/v1/storage/files/{fileId}/office-save/{operationId}')
+  Future<OnlyOfficeSaveResponse> getOfficeSaveResult(
+    @Path('fileId') String fileId,
+    @Path('operationId') String operationId,
   );
 
   /// Konwertuje dokument do PDF.

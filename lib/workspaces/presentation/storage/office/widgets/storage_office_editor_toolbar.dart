@@ -54,6 +54,17 @@ final class StorageOfficeEditorAppBar extends StatelessWidget
                 : onClose,
           ),
           actions: [
+            if (actions.saveConfirmation ==
+                StorageOfficeSaveConfirmation.unconfirmed)
+              TextButton(
+                key: const ValueKey('storage_office_retry_save'),
+                onPressed: actions.isClosing || actions.hasUnsavedChanges
+                    ? null
+                    : context
+                          .read<StorageOfficeEditorActionsCubit>()
+                          .requestSave,
+                child: Text(context.l10n.retry),
+              ),
             _StorageOfficeEditorActionButton(
               tooltip: context.l10n.storageOfficeSaveCopyAction,
               icon: AppIcons.saveCopy,

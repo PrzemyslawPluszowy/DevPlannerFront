@@ -6,6 +6,7 @@ import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
 import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
+import 'package:devplanner/workspaces/data/storage/models/onlyoffice_save_response.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
@@ -451,6 +452,23 @@ final class StorageRepositoryImpl extends ApiRepository
   Future<Either<ApiError, OnlyOfficeSessionResponse>> getOfficeSession(
     String fileId,
   ) => _extended.getOfficeSession(fileId);
+
+  @override
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> requestOfficeSave({
+    required String fileId,
+    required String documentKey,
+    required String operationId,
+  }) => _extended.requestOfficeSave(
+    fileId: fileId,
+    documentKey: documentKey,
+    operationId: operationId,
+  );
+
+  @override
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> getOfficeSaveResult({
+    required String fileId,
+    required String operationId,
+  }) => _extended.getOfficeSaveResult(fileId: fileId, operationId: operationId);
 
   @override
   Future<Either<ApiError, StorageFileResponse>> convertToPdf(String fileId) =>

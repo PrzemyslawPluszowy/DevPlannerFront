@@ -11,6 +11,7 @@ import 'package:devplanner/workspaces/domain/storage/ports/upload_transport.dart
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_editor_actions_state.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_export_names.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_save_confirmation_watch.dart';
+import 'package:devplanner/workspaces/presentation/storage/office/cubit/storage_office_save_operation_id.dart';
 import 'package:devplanner/workspaces/presentation/storage/office/widgets/storage_onlyoffice_host.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:printing/printing.dart';
@@ -53,6 +54,12 @@ final class StorageOfficeEditorActionsCubit
   final Duration confirmationTimeout;
 
   late final StorageOfficeSaveConfirmationWatch _confirmationWatch;
+
+  bool _canEdit = false;
+  String? _documentKey;
+  String? _saveOperationId;
+  int _saveGeneration = 0;
+  int? _requestGeneration;
 
   bool get _isExportBusy =>
       state.isDownloading || state.isPrinting || state.isSavingCopy;
@@ -204,8 +211,25 @@ final class StorageOfficeEditorActionsCubit
 
   /// Zwalnia rezerwację, gdy użytkownik odmówił wymuszonego zamknięcia.
   /// Zapisuje status połączenia sesji zgłoszony przez dokument.
-  void sessionReady() {
-    emit(state.copyWith(isSessionReady: true));
+  void sessionReady({required String documentKey, bool canEdit = true}) {
+    if (isClosed) return;
+    final changed = _documentKey != documentKey || _canEdit != canEdit;
+    if (changed) {
+      _saveGeneration++;
+      _saveOperationId = null;
+      _confirmationWatch.stop();
+    }
+    _documentKey = documentKey;
+    _canEdit = canEdit;
+    emit(
+      state.copyWith(
+        isSessionReady: true,
+        hasUnsavedChanges: !changed && state.hasUnsavedChanges,
+        saveConfirmation: changed
+            ? StorageOfficeSaveConfirmation.none
+            : state.saveConfirmation,
+      ),
+    );
   }
 
   /// Zapisuje status dokumentu zgłoszony przez OnlyOffice.
@@ -215,7 +239,10 @@ final class StorageOfficeEditorActionsCubit
   /// włącza kontrolę potwierdzenia po stronie backendu, a „zapisano” pojawia się
   /// dopiero z nową wersją pliku.
   void documentStateChanged({required bool isModified}) {
+    if (isClosed || !_canEdit) return;
     if (isModified) {
+      _saveGeneration++;
+      _saveOperationId = null;
       _confirmationWatch.stop();
       emit(
         state.copyWith(
@@ -236,13 +263,71 @@ final class StorageOfficeEditorActionsCubit
       ),
     );
     if (editedBefore) {
-      _confirmationWatch.start(state.confirmedVersion ?? _file.version);
+      unawaited(requestSave());
+    }
+  }
+
+  /// Zapisuje treść już zsynchronizowaną z DocumentServer i śledzi dokładny callback.
+  Future<void> requestSave() async {
+    final documentKey = _documentKey;
+    final generation = _saveGeneration;
+    if (isClosed ||
+        !_canEdit ||
+        documentKey == null ||
+        state.hasUnsavedChanges ||
+        !state.isSessionReady ||
+        _requestGeneration == generation ||
+        state.saveConfirmation == StorageOfficeSaveConfirmation.confirmed) {
+      return;
+    }
+    final operationId = _saveOperationId ??=
+        StorageOfficeSaveOperationId.create();
+    _requestGeneration = generation;
+    _confirmationWatch.stop();
+    emit(
+      state.copyWith(
+        saveConfirmation: StorageOfficeSaveConfirmation.awaitingServer,
+      ),
+    );
+    try {
+      final result = await _repository.requestOfficeSave(
+        fileId: _file.id,
+        documentKey: documentKey,
+        operationId: operationId,
+      );
+      if (isClosed || generation != _saveGeneration) return;
+      result.fold(
+        (_) => _markSaveUnconfirmed(),
+        (save) {
+          if (save.operationId != operationId) {
+            _markSaveUnconfirmed();
+          } else if (save.confirmed) {
+            _confirmVersion(save.version!);
+          } else {
+            // Odczyt jest korelowany operationId, więc także ta sama wersja
+            // może być potwierdzeniem dwóch zapisów identycznej treści.
+            _confirmationWatch.start(0);
+          }
+        },
+      );
+    } on Object {
+      if (!isClosed && generation == _saveGeneration) _markSaveUnconfirmed();
+    } finally {
+      if (_requestGeneration == generation) _requestGeneration = null;
     }
   }
 
   Future<int?> _readServerVersion() async {
-    final result = await _repository.getFileDetails(_file.id);
-    return result.fold((_) => null, (details) => details.file.version);
+    final operationId = _saveOperationId;
+    if (operationId == null) return null;
+    final result = await _repository.getOfficeSaveResult(
+      fileId: _file.id,
+      operationId: operationId,
+    );
+    return result.fold((_) => null, (save) {
+      if (save.operationId != operationId) return null;
+      return save.confirmed ? save.version : 0;
+    });
   }
 
   void _confirmVersion(int version) {
@@ -267,6 +352,7 @@ final class StorageOfficeEditorActionsCubit
 
   @override
   Future<void> close() async {
+    _saveGeneration++;
     _confirmationWatch.stop();
     return super.close();
   }

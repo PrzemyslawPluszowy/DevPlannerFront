@@ -7678,3 +7678,33 @@ Jedyny rejestr odbioru: Backend/docs/ui-testing.md. Nie powtarzać zaliczonych s
 - [ ] C06 autosave: staging SQL Version8 nadal z5paź mimo widocznego D i OO wszystkie zmiany zapisane. Poczekaj zachowuje edytor. Recovery ręczny Save rozpoczęty; końcowy odczyt wymagany. QA60: zbyt szeroki/techniczny warning do kolejnego pakietu po diagnozie zapisu.
 
 Pełny audyt aktywny; QA57, Office callback, pełny Chat i pozostałe role/warianty nadal w centralnej kolejce.
+
+
+### QA58/59 — publikacja i bieżący odbiór, 2026-10-07
+
+- [x] Publikacja Front Wasm zakończona: `1b423a953a2ad57913f5712c7fce04869a012b46`, skrypt exit 0. Log `/tmp/devplanner-qa58-59-front-deploy.log`; session93053 zakończona, nie restartować wdrożenia. Publiczne version.json zgodne, main.dart.wasm HTTP200/application/wasm9895793B; root i /workspaces zgodny fallback SPA. Backend `00ccb6be88ace1db0422b1cf2413d6a07b481ea6` healthy/readinessready, bez zmiany binarki.
+- [x] QA59 wybrany przebieg Chrome PL/dark1513×895: widoczny startup z logo BANKAI i informacją o uruchamianiu; overlay zniknął, otworzyły się Moje pliki. Console potwierdził bootstrap1b423a9. Funkcja, zrozumiałość i spójność tego obserwowanego wariantu PASS.
+- [ ] QA59 slow45s/Retry, błędy ładowania, EN/light/reduced-motion: manualnie NIEODEBRANE. Kolejny Reload z listy pokazał szary obszar bez drzewa strony; nie przypisywać automatycznie przyczyny aplikacji ani zaliczać kolejnego przebiegu.
+- [ ] QA58 kontrolowane double activation i nested calendar: NIEODEBRANE. Lista Backlog5 otwarta; AX/coordinate/space/doubleclick TASK177 tylko ustawiały focus, checkbox pozostawał0 i brak toolbaru. Bez mutacji danych. Browserowy Reload zadziałał. Źródło problemu wejścia nieustalone; nie oznaczać PASS ani błędu konkretnego checkboxa na podstawie narzędzia.
+- [x] C06 ręczny Save jako recovery: SQL Version9/UpdatedAt2026-10-07 05:31:16.257990UTC/29336B i host Zapisano. Autosave nadal FAIL w obserwowanym wariancie, reopen D pozostaje do odbioru.
+- [ ] Kolejny wspólny pakiet: QA57 sticky header, C06 diagnostyka callback/forcesave i QA60 zrozumiały kompaktowy warning; dalsza kolejka pełnego czatu wielokontowego, online/offline, ról oraz wariantów według centralnego rejestru.
+
+Zlecenie właściciela pozostaje aktywne: przeklikiwać nieodebrane kontrolki i naprawiać zarówno działanie, jak i brzydkie/niespójne UI. UI UX Pro Max (widoczny, niezasłonięty focus) + Impeccable Operate; źródłem statusu jest Backend/docs/ui-testing.md. Nie uznawać całej aplikacji za odebraną.
+
+
+### QA60/C06 — warning naprawiony lokalnie, przyczyna przepływu ustalona, 2026-10-07
+
+QA60 root: powierzchnia close warning ograniczona do480px (zachowane tokens Tasks, elevation0), PL/EN bez słowa backend i z potwierdzonym recovery Poczekaj→Zapisz w edytorze→Zapisano. Niepotwierdzony zapis bez dirty nie jest błędnie opisany jako lokalne niezapisane zmiany. Flutter gen-l10n zakończony. `storage_office_session_status_test.dart`:23/23PASS, `/tmp/devplanner-qa60-warning-tests.log`; pierwsza próba mierzyła outer AlertDialog800 zamiast powierzchni, finder poprawiony. Niezależny qa55_review bez blockerów. Nie wdrożono tej drobnej poprawki osobno; do pakietu z C06. Funkcja/UX/UI staging nowego warningu NIEODEBRANE.
+
+C06 niezależny review/source: modified(false) oznacza synchronizację z serwerem edytora, a nie żądanie utrwalenia do Storage. `_close` czeka na wersję przed closeEditor/destroyEditor, chociaż końcowy callbackstatus2 wymaga zakończenia ostatniej sesji; wynik waitForConfirmedSave jest ignorowany, dispose zatrzymuje polling przed późnymcallback. Samo wydłużenie/skrócenie timeout nie naprawia. Oficjalny protokół: https://api.onlyoffice.com/docs/docs-api/get-started/how-it-works/saving-file . `customization.forcesave=true` działa przy Save; okresowe autoAssembly jest osobnym mechanizmem. SSH odczyt bieżącego `/opt/devplanner/docker-compose.yml` potwierdził onlyoffice8.2, brak wpisu autoAssembly i brak mount konfiguracji. Nie odczytano runtime ustawień wewnątrz kontenera; brak w compose nie dowodzi wartości effective config.
+
+Następna implementacja: jawny force-save przez uwierzytelniony backend dla aktualnego klucza sesji z ACL, aktualnym uczestnikiem, identyfikatorem cyklu i potwierdzeniem callbacku; source enum/HTTP/OpenAPI audyt przed zmianą kontraktu. Rozróżnić synchronizację edytora od zapisu pliku; po nieudanym zapisie zachować sesję i dać retry. Testy: last/nonlast editor, status6/status2 opóźniony/odrzucony, wynik oczekiwania false, nowe zmiany i stale scope, doubleclose oraz listrefresh. Nie oznaczać C06 naprawionego po samej zmianie tekstu.
+
+Manual QA58 nadal otwarte: browser Reload działa, ale własna karta później nadal szara bez HTMLtree; źródło narzędzie/browser/produkt nieustalone. Nie ma nowych mutacji zadania ani potwierdzenia doubleactivation. Aktualna rezerwacja QA60 źródeł zakończona; C06 pełny przepływ pozostaje następnym zakresem. Pełny audyt UI aktywny.
+
+QA60 bramki końcowe: analyzer No issues18,1s/exit0 (`/tmp/devplanner-qa60-analyze.log`), Front git diff --check PASS. Bez commita/deploya nowego warningu do czasu połączenia z C06.
+
+
+C06 checkpoint2026-10-07: backend exact-operation receipt i signed forcesave lokalnie, 17+1callback+1OpenAPI PASS; Front exact-operation autosave/retry generation guards, Office60/60 PASS. Fullgates/review/deploy/retest otwarte; szczegóły i aktywne handle w handoffie oraz Backend/docs/ui-testing.md. Cały ręczny audyt UI pozostaje aktywny.
+
+C06 bramki końcowe: Backend1673PASS/4SKIP/0FAIL; Front62Office+10contractPASS, analyzer/WasmPASS, reviewsourcebezblockerów. Commit/deploy/retest w kolejnym kroku; pominięte integracje i pełny UI pozostają otwarte.

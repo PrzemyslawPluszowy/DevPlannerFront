@@ -11064,7 +11064,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageOfficeCloseAwaitingBody =>
-      'The editor has no local changes left, but the backend has not confirmed a new version yet. Closing now may show the list with the previous version of the file.';
+      'The file save has not yet been confirmed. Choose “Wait” and wait for the “Saved” status. If “Save unconfirmed” appears, choose “Retry” in the document toolbar. Closing now may lose your changes.';
 
   @override
   String get storageOfficeCloseWaitForSave => 'Wait';

@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/models/onlyoffice_save_response.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:devplanner/workspaces/domain/repositories/storage_repository.dart';
@@ -35,6 +36,152 @@ void main() {
 
     tearDown(() => cubit.close());
 
+    test('potwierdzenie operacji może dotyczyć tej samej wersji', () async {
+      final repository = _ControlledSaveRepository()..confirmedVersion = 4;
+      cubit = _controlledCubit(repository);
+      cubit.sessionReady(documentKey: 'key');
+      cubit.documentStateChanged(isModified: true);
+      cubit.documentStateChanged(isModified: false);
+      await Future<void>.delayed(const Duration(milliseconds: 25));
+      expect(cubit.state.confirmedVersion, 4);
+      expect(cubit.state.hasSavedChanges, isTrue);
+    });
+
+    test('cudzy identyfikator operacji nie potwierdza zapisu', () async {
+      final repository = _ControlledSaveRepository()
+        ..confirmedVersion = 9
+        ..wrongOperation = true;
+      cubit = _controlledCubit(repository);
+      cubit.sessionReady(documentKey: 'key');
+      cubit.documentStateChanged(isModified: true);
+      cubit.documentStateChanged(isModified: false);
+      await Future<void>.delayed(const Duration(milliseconds: 25));
+      expect(cubit.state.hasSavedChanges, isFalse);
+      expect(
+        cubit.state.saveConfirmation,
+        StorageOfficeSaveConfirmation.unconfirmed,
+      );
+    });
+
+    test('retry zachowuje ID i nie dubluje żądania w toku', () async {
+      final repository = _ControlledSaveRepository()..failRequest = true;
+      cubit = _controlledCubit(repository);
+      cubit.sessionReady(documentKey: 'key');
+      cubit.documentStateChanged(isModified: true);
+      cubit.documentStateChanged(isModified: false);
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        cubit.state.saveConfirmation,
+        StorageOfficeSaveConfirmation.unconfirmed,
+      );
+      repository.failRequest = false;
+      repository.pending =
+          Completer<Either<ApiError, OnlyOfficeSaveResponse>>();
+      final retry = cubit.requestSave();
+      await cubit.requestSave();
+      expect(repository.operations, hasLength(2));
+      expect(repository.operations.toSet(), hasLength(1));
+      repository.pending!.complete(
+        right(
+          OnlyOfficeSaveResponse(
+            operationId: repository.operations.last,
+            confirmed: true,
+            version: 4,
+          ),
+        ),
+      );
+      await retry;
+      expect(cubit.state.hasSavedChanges, isTrue);
+    });
+
+    test(
+      'odpowiedź command po nowej edycji lub dispose jest odrzucana',
+      () async {
+        final repository = _ControlledSaveRepository()
+          ..pending = Completer<Either<ApiError, OnlyOfficeSaveResponse>>();
+        cubit = _controlledCubit(repository);
+        cubit.sessionReady(documentKey: 'key');
+        cubit.documentStateChanged(isModified: true);
+        cubit.documentStateChanged(isModified: false);
+        cubit.documentStateChanged(isModified: true);
+        repository.pending!.complete(
+          right(
+            OnlyOfficeSaveResponse(
+              operationId: repository.operations.last,
+              confirmed: true,
+              version: 7,
+            ),
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.hasUnsavedChanges, isTrue);
+        expect(cubit.state.hasSavedChanges, isFalse);
+        repository.pending =
+            Completer<Either<ApiError, OnlyOfficeSaveResponse>>();
+        cubit.documentStateChanged(isModified: false);
+        await cubit.close();
+        repository.pending!.complete(
+          right(
+            OnlyOfficeSaveResponse(
+              operationId: repository.operations.last,
+              confirmed: true,
+              version: 8,
+            ),
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.hasSavedChanges, isFalse);
+      },
+    );
+
+    test('podgląd ignoruje zdarzenia edycji i nie wysyła zapisu', () async {
+      final repository = _ControlledSaveRepository();
+      cubit = _controlledCubit(repository);
+      cubit.sessionReady(documentKey: 'key', canEdit: false);
+      cubit.documentStateChanged(isModified: true);
+      cubit.documentStateChanged(isModified: false);
+      await cubit.requestSave();
+      expect(repository.operations, isEmpty);
+      expect(cubit.state.hasUnsavedChanges, isFalse);
+      expect(cubit.state.saveConfirmation, StorageOfficeSaveConfirmation.none);
+    });
+
+    test(
+      'zmiana sesji odrzuca stare potwierdzenie i pozwala zapisać nową',
+      () async {
+        final repository = _ControlledSaveRepository()
+          ..pending = Completer<Either<ApiError, OnlyOfficeSaveResponse>>();
+        cubit = _controlledCubit(repository);
+        cubit.sessionReady(documentKey: 'key-A');
+        cubit.documentStateChanged(isModified: true);
+        cubit.documentStateChanged(isModified: false);
+        final oldOperation = repository.operations.last;
+        cubit.sessionReady(documentKey: 'key-B');
+        repository.pending!.complete(
+          right(
+            OnlyOfficeSaveResponse(
+              operationId: oldOperation,
+              confirmed: true,
+              version: 7,
+            ),
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(cubit.state.hasSavedChanges, isFalse);
+        expect(
+          cubit.state.saveConfirmation,
+          StorageOfficeSaveConfirmation.none,
+        );
+        repository.pending = null;
+        repository.confirmedVersion = 8;
+        cubit.documentStateChanged(isModified: true);
+        cubit.documentStateChanged(isModified: false);
+        await Future<void>.delayed(const Duration(milliseconds: 25));
+        expect(repository.operations.last, isNot(oldOperation));
+        expect(cubit.state.confirmedVersion, 8);
+      },
+    );
+
     test('startuje bez połączenia i bez zmian', () {
       expect(cubit.state.isSessionReady, isFalse);
       expect(cubit.state.hasUnsavedChanges, isFalse);
@@ -42,14 +189,14 @@ void main() {
     });
 
     test('gotowość dokumentu oznacza połączoną sesję', () {
-      cubit.sessionReady();
+      cubit.sessionReady(documentKey: 'test-document-key');
 
       expect(cubit.state.isSessionReady, isTrue);
       expect(cubit.state.hasUnsavedChanges, isFalse);
     });
 
     test('brak lokalnych zmian czeka na potwierdzenie, nie ogłasza zapisu', () {
-      cubit.sessionReady();
+      cubit.sessionReady(documentKey: 'test-document-key');
 
       cubit.documentStateChanged(isModified: true);
       expect(cubit.state.hasUnsavedChanges, isTrue);
@@ -77,7 +224,7 @@ void main() {
         confirmationInterval: const Duration(milliseconds: 5),
       );
 
-      cubit.sessionReady();
+      cubit.sessionReady(documentKey: 'test-document-key');
       cubit.documentStateChanged(isModified: true);
       cubit.documentStateChanged(isModified: false);
       await Future<void>.delayed(const Duration(milliseconds: 20));
@@ -109,7 +256,7 @@ void main() {
         );
 
         // Pierwszy zapis: edytor bez zmian, backend potwierdza wersję 5.
-        cubit.sessionReady();
+        cubit.sessionReady(documentKey: 'test-document-key');
         cubit.documentStateChanged(isModified: true);
         cubit.documentStateChanged(isModified: false);
         repository.version = 5;
@@ -151,7 +298,7 @@ void main() {
           confirmationTimeout: const Duration(milliseconds: 200),
         );
 
-        cubit.sessionReady();
+        cubit.sessionReady(documentKey: 'test-document-key');
         cubit.documentStateChanged(isModified: true);
         cubit.documentStateChanged(isModified: false);
         repository.version = 5;
@@ -184,7 +331,7 @@ void main() {
           confirmationTimeout: const Duration(milliseconds: 15),
         );
 
-        cubit.sessionReady();
+        cubit.sessionReady(documentKey: 'test-document-key');
         cubit.documentStateChanged(isModified: true);
         cubit.documentStateChanged(isModified: false);
         await Future<void>.delayed(const Duration(milliseconds: 60));
@@ -199,9 +346,16 @@ void main() {
 
     test('spóźniona odpowiedź nie potwierdza nowej edycji', () async {
       final repository = _NoopRepository();
-      final pending = Completer<Either<ApiError, StorageFileDetailsResponse>>();
+      final pending = Completer<Either<ApiError, OnlyOfficeSaveResponse>>();
       final requested = Completer<void>();
-      when(() => repository.getFileDetails(_sampleFile.id)).thenAnswer((_) {
+      String? requestedOperation;
+      when(
+        () => repository.getOfficeSaveResult(
+          fileId: _sampleFile.id,
+          operationId: any(named: 'operationId'),
+        ),
+      ).thenAnswer((invocation) {
+        requestedOperation = invocation.namedArguments[#operationId] as String;
         if (!requested.isCompleted) requested.complete();
         return pending.future;
       });
@@ -213,13 +367,19 @@ void main() {
         StorageOnlyOfficeHostController(),
         confirmationInterval: const Duration(milliseconds: 5),
       );
+      cubit.sessionReady(documentKey: 'test-document-key');
       cubit.documentStateChanged(isModified: true);
       cubit.documentStateChanged(isModified: false);
       await requested.future;
       cubit.documentStateChanged(isModified: true);
       pending.complete(
-        await _VersionedRepository(initialVersion: 5)
-            .getFileDetails(_sampleFile.id),
+        right(
+          OnlyOfficeSaveResponse(
+            operationId: requestedOperation!,
+            confirmed: true,
+            version: 5,
+          ),
+        ),
       );
       await Future<void>.delayed(Duration.zero);
       expect(cubit.state.hasUnsavedChanges, isTrue);
@@ -238,7 +398,7 @@ void main() {
         confirmationInterval: const Duration(milliseconds: 5),
       );
 
-      cubit.sessionReady();
+      cubit.sessionReady(documentKey: 'test-document-key');
       cubit.documentStateChanged(isModified: true);
       cubit.documentStateChanged(isModified: false);
       repository.version = 5;
@@ -443,6 +603,7 @@ void main() {
       WidgetTester tester, {
       required bool hasUnsavedChanges,
       required bool isAwaitingSaveConfirmation,
+      bool isSaveUnconfirmed = false,
     }) async {
       bool? result;
       await tester.pumpWidget(
@@ -464,6 +625,7 @@ void main() {
                       context,
                       hasUnsavedChanges: hasUnsavedChanges,
                       isAwaitingSaveConfirmation: isAwaitingSaveConfirmation,
+                      isSaveUnconfirmed: isSaveUnconfirmed,
                     );
                   },
                   child: const Text('Zamknij'),
@@ -498,6 +660,41 @@ void main() {
       // Sam brak lokalnych zmian nie znaczy, że treść jest utrwalona.
       expect(find.text('Poczekać na potwierdzenie zapisu?'), findsOneWidget);
       expect(find.text('Zamknąć bez zapisu?'), findsNothing);
+    });
+
+    testWidgets('niepotwierdzony zapis oferuje recovery zamiast utraty zmian', (
+      tester,
+    ) async {
+      await pumpClose(
+        tester,
+        hasUnsavedChanges: false,
+        isAwaitingSaveConfirmation: false,
+        isSaveUnconfirmed: true,
+      );
+      expect(find.text('Poczekać na potwierdzenie zapisu?'), findsOneWidget);
+      expect(find.text('Zamknąć bez zapisu?'), findsNothing);
+      expect(
+        find.textContaining('Jeśli pojawi się „Zapis niepotwierdzony”'),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .getSize(
+              find
+                  .descendant(
+                    of: find.byType(AlertDialog),
+                    matching: find.byType(Material),
+                  )
+                  .last,
+            )
+            .width,
+        lessThanOrEqualTo(480),
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('storage_office_wait_for_save')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
     });
 
     testWidgets('„Poczekaj” wstrzymuje zamknięcie', (tester) async {
@@ -553,18 +750,76 @@ final _sampleFile = StorageFileResponse(
 );
 
 /// Atrapy portów wystarczające do złożenia Cubita: ten test nie wykonuje I/O.
-final class _NoopRepository extends Mock implements StorageRepository {}
+final class _NoopRepository extends Mock implements StorageRepository {
+  _NoopRepository() {
+    when(
+      () => requestOfficeSave(
+        fileId: any(named: 'fileId'),
+        documentKey: any(named: 'documentKey'),
+        operationId: any(named: 'operationId'),
+      ),
+    ).thenAnswer(
+      (invocation) async => right(
+        OnlyOfficeSaveResponse(
+          operationId: invocation.namedArguments[#operationId] as String,
+          confirmed: false,
+        ),
+      ),
+    );
+    when(
+      () => getOfficeSaveResult(
+        fileId: any(named: 'fileId'),
+        operationId: any(named: 'operationId'),
+      ),
+    ).thenAnswer(
+      (invocation) async => right(
+        OnlyOfficeSaveResponse(
+          operationId: invocation.namedArguments[#operationId] as String,
+          confirmed: false,
+        ),
+      ),
+    );
+  }
+}
 
 final class _NoopDownloadTransport extends Mock implements DownloadTransport {}
 
 final class _NoopUploadTransport extends Mock implements UploadTransport {}
 
 /// Repozytorium raportujące wskazaną wersję pliku.
-final class _VersionedRepository extends _NoopRepository {
+final class _VersionedRepository extends Mock implements StorageRepository {
   _VersionedRepository({required int initialVersion})
     : version = initialVersion;
 
   int version;
+  final Map<String, int> _floors = {};
+
+  @override
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> requestOfficeSave({
+    required String fileId,
+    required String documentKey,
+    required String operationId,
+  }) async {
+    _floors.putIfAbsent(operationId, () => version);
+    return right(
+      OnlyOfficeSaveResponse(operationId: operationId, confirmed: false),
+    );
+  }
+
+  @override
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> getOfficeSaveResult({
+    required String fileId,
+    required String operationId,
+  }) async {
+    final confirmed = version > _floors[operationId]!;
+    return right(
+      OnlyOfficeSaveResponse(
+        operationId: operationId,
+        confirmed: confirmed,
+        version: confirmed ? version : null,
+      ),
+    );
+  }
 
   @override
   Future<Either<ApiError, StorageFileDetailsResponse>> getFileDetails(
@@ -591,3 +846,53 @@ final class _VersionedRepository extends _NoopRepository {
 /// Plik testowy o wskazanej wersji, używany też jako baseline sesji.
 StorageFileResponse _sampleFileForVersion(int version) =>
     _sampleFile.copyWith(version: version);
+
+StorageOfficeEditorActionsCubit _controlledCubit(
+  StorageRepository repository,
+) => StorageOfficeEditorActionsCubit(
+  _sampleFileForVersion(4),
+  repository,
+  _NoopDownloadTransport(),
+  _NoopUploadTransport(),
+  StorageOnlyOfficeHostController(),
+  confirmationInterval: const Duration(milliseconds: 5),
+);
+
+final class _ControlledSaveRepository extends Mock
+    implements StorageRepository {
+  final operations = <String>[];
+  int? confirmedVersion;
+  bool wrongOperation = false;
+  bool failRequest = false;
+  Completer<Either<ApiError, OnlyOfficeSaveResponse>>? pending;
+
+  @override
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> requestOfficeSave({
+    required String fileId,
+    required String documentKey,
+    required String operationId,
+  }) async {
+    operations.add(operationId);
+    if (failRequest) {
+      return left(
+        const ApiError(type: ApiErrorType.connection, message: 'Unavailable'),
+      );
+    }
+    if (pending != null) return pending!.future;
+    return right(
+      OnlyOfficeSaveResponse(operationId: operationId, confirmed: false),
+    );
+  }
+
+  @override
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> getOfficeSaveResult({
+    required String fileId,
+    required String operationId,
+  }) async => right(
+    OnlyOfficeSaveResponse(
+      operationId: wrongOperation ? 'another-operation' : operationId,
+      confirmed: confirmedVersion != null,
+      version: confirmedVersion,
+    ),
+  );
+}

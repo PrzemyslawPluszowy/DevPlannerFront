@@ -11157,7 +11157,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get storageOfficeCloseAwaitingBody =>
-      'Edytor nie ma już lokalnych zmian, ale backend nie potwierdził jeszcze nowej wersji. Zamknięcie teraz może pokazać listę ze starą wersją pliku.';
+      'Zapis pliku nie został jeszcze potwierdzony. Wybierz „Poczekaj” i zaczekaj na status „Zapisano”. Jeśli pojawi się „Zapis niepotwierdzony”, wybierz „Ponów próbę” na górnym pasku dokumentu. Zamknięcie teraz może spowodować utratę zmian.';
 
   @override
   String get storageOfficeCloseWaitForSave => 'Poczekaj';

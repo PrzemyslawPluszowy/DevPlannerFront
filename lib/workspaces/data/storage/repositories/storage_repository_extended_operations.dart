@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/data/api_repository.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
+import 'package:devplanner/workspaces/data/storage/models/onlyoffice_save_response.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
@@ -20,6 +21,29 @@ final class StorageRepositoryExtendedOperations extends ApiRepository {
     () => _api.getOfficeSession(fileId),
     fallbackMessage: 'Nie udało się utworzyć sesji edycji dokumentu.',
     parsingMessage: 'Backend zwrócił nieprawidłowe dane sesji edytora.',
+  );
+
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> requestOfficeSave({
+    required String fileId,
+    required String documentKey,
+    required String operationId,
+  }) => guardApiCall(
+    () => _api.requestOfficeSave(fileId, {
+      'documentKey': documentKey,
+      'operationId': operationId,
+    }),
+    fallbackMessage:
+        'Nie udało się zapisać dokumentu. Treść pozostaje w edytorze.',
+    parsingMessage: 'Nie udało się potwierdzić zapisu dokumentu.',
+  );
+
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> getOfficeSaveResult({
+    required String fileId,
+    required String operationId,
+  }) => guardApiCall(
+    () => _api.getOfficeSaveResult(fileId, operationId),
+    fallbackMessage: 'Nie udało się potwierdzić zapisu dokumentu.',
+    parsingMessage: 'Nie udało się potwierdzić zapisu dokumentu.',
   );
 
   Future<Either<ApiError, StorageFileResponse>> convertToPdf(String fileId) =>

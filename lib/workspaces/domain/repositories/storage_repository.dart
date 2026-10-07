@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/core/error/api_error.dart';
 import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/data/shared/enums/storage_enums.dart';
+import 'package:devplanner/workspaces/data/storage/models/onlyoffice_save_response.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_contract_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_extended_models.dart';
 import 'package:devplanner/workspaces/data/storage/models/storage_models.dart';
@@ -182,6 +183,16 @@ abstract interface class StorageRepository {
   Future<Either<ApiError, OnlyOfficeSessionResponse>> getOfficeSession(
     String fileId,
   );
+
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> requestOfficeSave({
+    required String fileId,
+    required String documentKey,
+    required String operationId,
+  });
+  Future<Either<ApiError, OnlyOfficeSaveResponse>> getOfficeSaveResult({
+    required String fileId,
+    required String operationId,
+  });
 
   /// Konwertuje dokument do PDF.
   Future<Either<ApiError, StorageFileResponse>> convertToPdf(String fileId);
