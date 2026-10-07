@@ -10957,3 +10957,16 @@ Odbiór UI UX Pro Max + Impeccable Operate, Chrome PL/ciemny1513×895 z accessib
 Fixture177: klik Odepnij usunął osobistą gwiazdę i odpowiednio zmienił pozycję, następnie Przestańobserwować usunął własne oko; cleanup UI potwierdzony. Innych watcherów/danych nie usuwano. Daty177/178 nadal10/9paź. Nie wykonano Save całych5. Nowe warianty invaliddate/errorpending na0681e37, Kanban, EN/jasny/wąski i pozostałe scenariusze pozostają NOT RUN.
 
 QA56 do następnego zbiorczego pakietu: (1) po Escape focus wraca do checkboxa178, zamiast inicjującej akcji EntireResult — realny AX dowód; (2) pusta rezerwa320px na feedback bez błędu/loading daje nadmierną lukę przed akcjami; poprawić bez skoku wysokości i bez utraty recovery. Nie wdrażać osobno drobnych poprawek. Rezerwacja QA54/55 zwolniona. Cały audyt kontrolek aktywny.
+
+### QA50/51 runtime oraz QA56/57 — kontynuacja uruchomionego audytu, 2026-10-06
+
+- [x] Chrome PL/ciemny1513×895, Front0681e37/Backend00ccb6b: paginacja Backlog50→56 przez „Pokaż kolejne zadania”, końcowa strona bez stopki. Testowy zestaw51 zadań usunięty; SQL pozostało0. Happy path funkcja/UX/UI PASS; loading/error/retry/stale scope pozostają NOT RUN.
+- [x] Własne TASK-177 przeniesione menu Backlog→Do zrobienia→Backlog, liczniki5/27→4/28→5/27 i stabilny nagłówek. SQL przywrócił Position1031/Version10, terminy bez zmian. Drag nieodebrany: dwie próby narzędzia otworzyły modal; przyczyna niepotwierdzona.
+- [x] QA56 lokalna naprawa: akcja przejmuje focus przed snapshotem menu; łańcuch menu→opóźnione przygotowanie→confirmation→Escape wraca do inicjatora. Feedback64px poza suwakiem usuwa lukę320px; błąd/Retry mają tooltipy, pełny dialog i liveRegion, bez zmiany geometrii.
+- [ ] Końcowe bramki/review/publikacja QA56 oraz manualny retest w Chrome. Mac zablokowany; ręczne odblokowanie wymagane przez Computer Use. Kod/test nie oznaczają odbioru UI.
+- [ ] QA57: nagłówki kolumn znikają przy pionowym przewijaniu długiej grupy. Kod potwierdza zwykły wiersz nagłówka w ListView; przygotować spójne rozwiązanie sticky z resize/sort/group-selection, bez szybkiego overlay.
+- [ ] Dalsze nieodebrane scenariusze: Office, pełny czat wielokontowy, role oraz warianty języka/motywu/klawiatury. Pełny audyt pozostaje aktywny; rejestr Backend/docs/ui-testing.md.
+
+Źródła QA56: Front/lib/workspaces/presentation/tasks/bulk/tasks_contextual_bulk_bar.dart; test/tasks_bulk_focus_test.dart oraz tasks_bulk_due_date_dialog_test.dart pod test/workspaces/presentation/tasks/bulk. Logi /tmp/devplanner-qa56-focus-tests.log, /tmp/devplanner-qa56-bulk-tests.log, /tmp/devplanner-qa56-analyze.log. Aktualny centralny status i następny krok: Backend/docs/ui-testing.md.
+
+QA56 końcowe bramki2026-10-07: realistic pending focus/disabledEnterSpace/TabEscape oraz stabilna geometria i recovery po scrollu6/6 PASS; analyzer No issues1841,3s, niezależny qa55_review bez blockerów, diff-check PASS. Logi /tmp/devplanner-qa56-pending-final-tests.log i /tmp/devplanner-qa56-final-analyze.log. Publikacja następna; manualny retest NOT RUN — Mac locked.

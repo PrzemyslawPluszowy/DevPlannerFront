@@ -95,59 +95,6 @@ class _TasksContextualBulkBarState extends State<TasksContextualBulkBar> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: 320,
-                      height: 36,
-                      child: Row(
-                        children: [
-                          SizedBox.square(
-                            dimension: 16,
-                            child: widget.isSaving
-                                ? const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  )
-                                : widget.errorMessage == null
-                                ? const SizedBox.shrink()
-                                : Icon(
-                                    Symbols.error_outline_rounded,
-                                    size: 16,
-                                    color: colors.error,
-                                  ),
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child:
-                                widget.errorMessage != null && !widget.isSaving
-                                ? TextButton(
-                                    key: const ValueKey('bulk_error_details'),
-                                    onPressed: () => _showError(context),
-                                    child: Text(
-                                      widget.errorMessage!,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: tasksTheme.metaText.copyWith(
-                                        color: colors.error,
-                                      ),
-                                    ),
-                                  )
-                                : Text(
-                                    widget.isSaving
-                                        ? context.l10n.tasksBulkSaving
-                                        : '',
-                                    style: tasksTheme.metaText,
-                                  ),
-                          ),
-                          if (widget.errorMessage != null &&
-                              widget.onRetry != null)
-                            TextButton(
-                              onPressed: widget.isSaving
-                                  ? null
-                                  : widget.onRetry,
-                              child: Text(context.l10n.retry),
-                            ),
-                        ],
-                      ),
-                    ),
                     for (final control in widget.controls) ...[
                       SizedBox(width: tasksTheme.controlGap),
                       control,
@@ -160,6 +107,12 @@ class _TasksContextualBulkBarState extends State<TasksContextualBulkBar> {
           ),
         ),
         SizedBox(width: tasksTheme.controlGap),
+        _TasksBulkFeedback(
+          isSaving: widget.isSaving,
+          errorMessage: widget.errorMessage,
+          onShowError: () => _showError(context),
+          onRetry: widget.onRetry,
+        ),
         IconButton(
           key: const ValueKey('bulk_clear_selection'),
           tooltip: context.l10n.tasksBulkClearSelection,
@@ -173,8 +126,75 @@ class _TasksContextualBulkBarState extends State<TasksContextualBulkBar> {
   }
 }
 
+/// Stałe, kompaktowe miejsce na stan i odzyskanie pracy poza suwakiem akcji.
+class _TasksBulkFeedback extends StatelessWidget {
+  const _TasksBulkFeedback({
+    required this.isSaving,
+    required this.errorMessage,
+    required this.onShowError,
+    required this.onRetry,
+  });
+
+  final bool isSaving;
+  final String? errorMessage;
+  final VoidCallback onShowError;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: true,
+    label: isSaving ? context.l10n.tasksBulkSaving : errorMessage,
+    child: SizedBox(
+      key: const ValueKey('bulk_feedback'),
+      width: 64,
+      height: 36,
+      child: Row(
+        children: [
+          SizedBox.square(
+            dimension: 32,
+            child: isSaving
+                ? Tooltip(
+                    message: context.l10n.tasksBulkSaving,
+                    child: const Center(
+                      child: SizedBox.square(
+                        dimension: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  )
+                : errorMessage == null
+                ? const SizedBox.shrink()
+                : IconButton(
+                    key: const ValueKey('bulk_error_details'),
+                    tooltip: errorMessage,
+                    padding: EdgeInsets.zero,
+                    iconSize: 16,
+                    color: context.colors.error,
+                    onPressed: onShowError,
+                    icon: const Icon(Symbols.error_outline_rounded),
+                  ),
+          ),
+          SizedBox.square(
+            dimension: 32,
+            child: errorMessage != null && onRetry != null
+                ? IconButton(
+                    key: const ValueKey('bulk_retry'),
+                    tooltip: context.l10n.retry,
+                    padding: EdgeInsets.zero,
+                    iconSize: 16,
+                    onPressed: isSaving ? null : onRetry,
+                    icon: const Icon(Symbols.refresh_rounded),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 /// Klawisz akcji masowej w kontekstowym pasku.
-class TasksBulkButton extends StatelessWidget {
+class TasksBulkButton extends StatefulWidget {
   const TasksBulkButton({
     required this.icon,
     required this.label,
@@ -189,39 +209,86 @@ class TasksBulkButton extends StatelessWidget {
   final bool isDestructive;
 
   @override
+  State<TasksBulkButton> createState() => _TasksBulkButtonState();
+}
+
+class _TasksBulkButtonState extends State<TasksBulkButton> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode(skipTraversal: widget.onTap == null);
+  }
+
+  @override
+  void didUpdateWidget(covariant TasksBulkButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _focusNode.skipTraversal = widget.onTap == null;
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    final onTap = widget.onTap;
+    if (onTap == null) return;
+    _focusNode.requestFocus();
+    // Menu snapshots primaryFocus synchronously, before pushing its route.
+    FocusManager.instance.applyFocusChangesIfNeeded();
+    onTap();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final tasksTheme = context.tasksTheme;
     final colors = context.colors;
-    final foreground = onTap == null
+    final foreground = widget.onTap == null
         ? colors.onSurface.withValues(alpha: .38)
-        : isDestructive
+        : widget.isDestructive
         ? colors.error
         : colors.onSurface;
 
     return Tooltip(
-      message: label,
-      child: Material(
-        color: colors.surfaceContainerLow,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(tasksTheme.controlRadius),
-          side: BorderSide(color: colors.outlineVariant.withValues(alpha: .6)),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(tasksTheme.controlRadius),
-          onTap: onTap,
-          child: Container(
-            height: 28,
-            padding: EdgeInsets.symmetric(horizontal: tasksTheme.controlGap),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 16, color: foreground),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: tasksTheme.controlText.copyWith(color: foreground),
-                ),
-              ],
+      message: widget.label,
+      child: Semantics(
+        button: true,
+        enabled: widget.onTap != null,
+        onTap: widget.onTap == null ? null : _handleTap,
+        child: Material(
+          color: colors.surfaceContainerLow,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(tasksTheme.controlRadius),
+            side: BorderSide(
+              color: colors.outlineVariant.withValues(alpha: .6),
+            ),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(tasksTheme.controlRadius),
+            focusNode: _focusNode,
+            // Keep the current focus during pending preparation. The handler
+            // guards disabled activation; traversal and semantics stay disabled.
+            excludeFromSemantics: true,
+            onTap: _handleTap,
+            mouseCursor: widget.onTap == null ? SystemMouseCursors.basic : null,
+            hoverColor: widget.onTap == null ? Colors.transparent : null,
+            child: Container(
+              height: 28,
+              padding: EdgeInsets.symmetric(horizontal: tasksTheme.controlGap),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(widget.icon, size: 16, color: foreground),
+                  const SizedBox(width: 6),
+                  Text(
+                    widget.label,
+                    style: tasksTheme.controlText.copyWith(color: foreground),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -249,22 +316,22 @@ class TasksBulkMenu<T> extends StatelessWidget {
   /// Blokuje kontrolkę w trakcie zapisu akcji masowej.
   final bool isLoading;
 
+  Future<void> _openMenu(BuildContext context) async {
+    final selected = await AppContextMenu.select<T>(
+      context,
+      globalPosition: AppContextMenu.positionFor(context),
+      options: options,
+      headerTitle: label,
+    );
+    if (!context.mounted || selected == null) return;
+    onSelected(selected);
+  }
+
   @override
   Widget build(BuildContext context) => TasksBulkButton(
     icon: icon,
     label: label,
-    onTap: isLoading
-        ? null
-        : () async {
-            final selected = await AppContextMenu.select<T>(
-              context,
-              globalPosition: AppContextMenu.positionFor(context),
-              options: options,
-              headerTitle: label,
-            );
-            if (!context.mounted || selected == null) return;
-            onSelected(selected);
-          },
+    onTap: isLoading ? null : () => _openMenu(context),
   );
 }
 

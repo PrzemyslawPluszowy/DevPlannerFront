@@ -153,6 +153,8 @@ void main() {
   testWidgets(
     'bulk pending reserves height, disables clear and renders durable error with retry',
     (tester) async {
+      await tester.binding.setSurfaceSize(const Size(500, 220));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       var cleared = 0;
       var retried = 0;
       Widget app({bool saving = false, String? error}) => MaterialApp(
@@ -163,7 +165,14 @@ void main() {
         home: Scaffold(
           body: TasksContextualBulkBar(
             selectedCount: 2,
-            controls: const [],
+            controls: [
+              for (var i = 0; i < 5; i++)
+                TasksBulkButton(
+                  icon: Icons.edit,
+                  label: 'Action $i',
+                  onTap: saving ? null : () {},
+                ),
+            ],
             isSaving: saving,
             errorMessage: error,
             onClearSelection: () => cleared++,
@@ -175,6 +184,9 @@ void main() {
       final height = tester
           .getSize(find.byKey(const ValueKey('contextual_bulk_bar')))
           .height;
+      final actionRect = tester.getRect(find.text('Action 0'));
+      final feedback = find.byKey(const ValueKey('bulk_feedback'));
+      final feedbackRect = tester.getRect(feedback);
       await tester.pumpWidget(app(saving: true));
       await tester.pump();
       expect(
@@ -185,16 +197,26 @@ void main() {
       );
       await tester.tap(find.byKey(const ValueKey('bulk_clear_selection')));
       expect(cleared, 0);
-      expect(find.text('Saving changes…'), findsOneWidget);
+      expect(find.byTooltip('Saving changes…'), findsOneWidget);
+      expect(tester.getRect(find.text('Action 0')), actionRect);
+      expect(tester.getRect(feedback), feedbackRect);
       await tester.pumpWidget(app(error: 'Due date is before start date.'));
       await tester.pumpAndSettle();
-      expect(find.text('Due date is before start date.'), findsOneWidget);
+      expect(find.byTooltip('Due date is before start date.'), findsOneWidget);
+      expect(tester.getRect(find.text('Action 0')), actionRect);
+      expect(tester.getRect(feedback), feedbackRect);
+      await tester.drag(
+        find.byKey(const ValueKey('contextual_bulk_bar')),
+        const Offset(-1200, 0),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getRect(feedback), feedbackRect);
       await tester.tap(find.byKey(const ValueKey('bulk_error_details')));
       await tester.pumpAndSettle();
       expect(find.byType(SelectableText), findsOneWidget);
       await tester.tap(find.text('Close'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Retry'));
+      await tester.tap(find.byTooltip('Retry'));
       expect(retried, 1);
       expect(
         tester

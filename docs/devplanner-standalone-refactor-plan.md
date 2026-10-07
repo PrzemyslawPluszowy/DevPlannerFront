@@ -7642,3 +7642,14 @@ Dowody /tmp/devplanner-qa29-32-full-tests.log, /tmp/devplanner-qa29-32-analyze.l
 - [ ] Pozostałe warianty i kolejka centralna nadal otwarte: QA50/51, QA53, pełny chat/Office/modal/role i jasny/EN/wąski/klawiatura. Nie oznaczać pełnego UI jako przetestowanego.
 
 QA54/55 wynik: źródła +55/55 focused tests + analyzer Noissues12,4s + niezależny review zamknięte. Front Wasm0681e37 opublikowany i bootstrap potwierdzony w Chrome. Manualnie PASS dla menuStatus, stałego licznika/clear po scrollu, spójnej powierzchni confirmation, pełnej treści AX, Tabloop i Escape. Zakres dokładnie w Backend/docs/ui-testing.md. Pozostałe warianty nadal otwarte; QA56 zbiera powrót focusu i nadmierną pustą rezerwę toolbaru do kolejnego pakietu. Pełny audyt kontrolek nadal w toku.
+
+### QA50/51 runtime oraz QA56/57 — kontynuacja uruchomionego audytu, 2026-10-06
+
+- [x] Chrome PL/ciemny1513×895, Front0681e37/Backend00ccb6b: paginacja Backlog50→56 przez „Pokaż kolejne zadania”, końcowa strona bez stopki. Testowy zestaw51 zadań usunięty; SQL pozostało0. Happy path funkcja/UX/UI PASS; loading/error/retry/stale scope pozostają NOT RUN.
+- [x] Własne TASK-177 przeniesione menu Backlog→Do zrobienia→Backlog, liczniki5/27→4/28→5/27 i stabilny nagłówek. SQL przywrócił Position1031/Version10, terminy bez zmian. Drag nieodebrany: dwie próby narzędzia otworzyły modal; przyczyna niepotwierdzona.
+- [x] QA56 lokalna naprawa: akcja przejmuje focus przed snapshotem menu; łańcuch menu→opóźnione przygotowanie→confirmation→Escape wraca do inicjatora. Feedback64px poza suwakiem usuwa lukę320px; błąd/Retry mają tooltipy, pełny dialog i liveRegion, bez zmiany geometrii.
+- [ ] Końcowe bramki/review/publikacja QA56 oraz manualny retest w Chrome. Mac zablokowany; ręczne odblokowanie wymagane przez Computer Use. Kod/test nie oznaczają odbioru UI.
+- [ ] QA57: nagłówki kolumn znikają przy pionowym przewijaniu długiej grupy. Kod potwierdza zwykły wiersz nagłówka w ListView; przygotować spójne rozwiązanie sticky z resize/sort/group-selection, bez szybkiego overlay.
+- [ ] Dalsze nieodebrane scenariusze: Office, pełny czat wielokontowy, role oraz warianty języka/motywu/klawiatury. Pełny audyt pozostaje aktywny; rejestr Backend/docs/ui-testing.md.
+
+QA56 końcowe bramki2026-10-07: realistic pending focus/disabledEnterSpace/TabEscape oraz stabilna geometria i recovery po scrollu6/6 PASS; analyzer No issues1841,3s, niezależny qa55_review bez blockerów, diff-check PASS. Logi /tmp/devplanner-qa56-pending-final-tests.log i /tmp/devplanner-qa56-final-analyze.log. Publikacja następna; manualny retest NOT RUN — Mac locked.
