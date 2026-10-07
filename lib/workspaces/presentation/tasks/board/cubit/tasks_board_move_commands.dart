@@ -96,36 +96,37 @@ final class TasksBoardMoveCommands {
       ),
     );
     final owner = Object();
+    final optimisticBoard = current.board.copyWith(
+      columns: current.board.columns
+          .map((column) {
+            final key = _columnKey(column);
+            if (key == targetKey) {
+              return column.copyWith(
+                tasks: targetCards,
+                totalTaskCount: sameColumn
+                    ? column.totalTaskCount
+                    : column.totalTaskCount + 1,
+              );
+            }
+            if (key == sourceKey) {
+              return column.copyWith(
+                tasks: column.tasks
+                    .where((item) => item.id != latestTask.id)
+                    .toList(),
+                totalTaskCount: (column.totalTaskCount - 1).clamp(
+                  0,
+                  1 << 31,
+                ),
+              );
+            }
+            return column;
+          })
+          .toList(growable: false),
+    );
     _context.publish(
       current.copyWith(
         pendingMoveOwners: {...current.pendingMoveOwners, latestTask.id: owner},
-        board: current.board.copyWith(
-          columns: current.board.columns
-              .map((column) {
-                final key = _columnKey(column);
-                if (key == targetKey) {
-                  return column.copyWith(
-                    tasks: targetCards,
-                    totalTaskCount: sameColumn
-                        ? column.totalTaskCount
-                        : column.totalTaskCount + 1,
-                  );
-                }
-                if (key == sourceKey) {
-                  return column.copyWith(
-                    tasks: column.tasks
-                        .where((item) => item.id != latestTask.id)
-                        .toList(),
-                    totalTaskCount: (column.totalTaskCount - 1).clamp(
-                      0,
-                      1 << 31,
-                    ),
-                  );
-                }
-                return column;
-              })
-              .toList(growable: false),
-        ),
+        board: optimisticBoard,
         pendingTaskIds: {...current.pendingTaskIds, latestTask.id},
         clearError: true,
       ),
@@ -157,6 +158,7 @@ final class TasksBoardMoveCommands {
           taskId: latestTask.id,
           targetKey: targetKey,
           response: response,
+          optimisticBoard: optimisticBoard,
         ),
       );
     } catch (_) {
@@ -268,6 +270,7 @@ final class TasksBoardMoveCommands {
     required String taskId,
     required String targetKey,
     required MoveKanbanTaskResponse response,
+    required KanbanBoardResponse optimisticBoard,
   }) {
     final current = _context.currentState;
     if (current is! TasksBoardReady) {
@@ -282,6 +285,12 @@ final class TasksBoardMoveCommands {
       );
       return;
     }
+    // Licznik odpowiedzi opisuje moment zapisu tej jednej operacji. Inny
+    // pending move lub odświeżenie mogły już zmienić tę samą kolumnę.
+    final comparable =
+        identical(current.board, optimisticBoard) &&
+        current.pendingMoveOwners.length == 1 &&
+        !_hidesColumnContents(current);
     final columns = current.board.columns
         .map((column) {
           if (_columnKey(column) != targetKey) return column;
@@ -291,9 +300,15 @@ final class TasksBoardMoveCommands {
                   (item) => item.id == response.task.id ? response.task : item,
                 )
                 .toList(growable: false),
-            totalTaskCount: response.targetColumnTaskCount,
-            wipLimit: response.targetColumnWipLimit,
-            isWipLimitExceeded: response.isWipLimitExceeded,
+            totalTaskCount: comparable
+                ? response.targetColumnTaskCount
+                : column.totalTaskCount,
+            wipLimit: comparable
+                ? response.targetColumnWipLimit
+                : column.wipLimit,
+            isWipLimitExceeded: comparable
+                ? response.isWipLimitExceeded
+                : column.isWipLimitExceeded,
           );
         })
         .toList(growable: false);

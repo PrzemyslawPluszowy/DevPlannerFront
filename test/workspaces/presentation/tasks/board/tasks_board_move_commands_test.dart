@@ -176,6 +176,133 @@ void main() {
       expect(context.ready.board.columns.last.totalTaskCount, 1);
     },
   );
+  test('reverse parallel completion preserves shared column count', () async {
+    final board = context.ready.board;
+    context.currentState = context.ready.copyWith(
+      board: board.copyWith(
+        columns: [
+          board.columns.first,
+          board.columns.last.copyWith(
+            totalTaskCount: 1,
+            tasks: [
+              _card('existing').copyWith(status: ProjectTaskStatus.inProgress),
+            ],
+          ),
+        ],
+      ),
+    );
+    final secondPending = Completer<Either<ApiError, MoveKanbanTaskResponse>>();
+    when(
+      () => repository.moveTask(
+        workspaceId: 'workspace',
+        projectId: 'project',
+        taskId: 'task-2',
+        payload: any(named: 'payload'),
+      ),
+    ).thenAnswer((_) => secondPending.future);
+    final first = move();
+    // Both requests use the persisted neighbour, so either server order is valid.
+    final second = commands.move(
+      task: _card('task-2'),
+      targetColumn: context.ready.board.columns.last,
+      targetIndex: 2,
+    );
+    expect(context.ready.board.columns.last.totalTaskCount, 3);
+    secondPending.complete(
+      Right(
+        MoveKanbanTaskResponse(
+          task: _card(
+            'task-2',
+            version: 2,
+          ).copyWith(status: ProjectTaskStatus.inProgress),
+          targetColumnTaskCount: 2,
+          isWipLimitExceeded: false,
+        ),
+      ),
+    );
+    await second;
+    expect(context.ready.board.columns.last.totalTaskCount, 3);
+    expect(context.ready.board.columns.last.tasks, hasLength(3));
+    pending.complete(
+      Right(
+        MoveKanbanTaskResponse(
+          task: _card(
+            'task-1',
+            version: 2,
+          ).copyWith(status: ProjectTaskStatus.inProgress),
+          targetColumnTaskCount: 3,
+          isWipLimitExceeded: false,
+        ),
+      ),
+    );
+    await first;
+    expect(context.ready.board.columns.last.totalTaskCount, 3);
+    expect(context.ready.board.columns.first.totalTaskCount, 0);
+    expect(context.ready.pendingTaskIds, isEmpty);
+  });
+  for (final secondSucceeds in [true, false]) {
+    test(
+      'parallel moves retain optimistic counts (second succeeds: $secondSucceeds)',
+      () async {
+        final secondPending =
+            Completer<Either<ApiError, MoveKanbanTaskResponse>>();
+        when(
+          () => repository.moveTask(
+            workspaceId: 'workspace',
+            projectId: 'project',
+            taskId: 'task-2',
+            payload: any(named: 'payload'),
+          ),
+        ).thenAnswer((_) => secondPending.future);
+        final first = move();
+        final second = commands.move(
+          task: _card('task-2'),
+          targetColumn: context.ready.board.columns.last,
+          targetIndex: 1,
+        );
+        expect(context.ready.board.columns.last.totalTaskCount, 2);
+        pending.complete(
+          Right(
+            MoveKanbanTaskResponse(
+              task: _card(
+                'task-1',
+                version: 2,
+              ).copyWith(status: ProjectTaskStatus.inProgress),
+              targetColumnTaskCount: 1,
+              isWipLimitExceeded: false,
+            ),
+          ),
+        );
+        await first;
+        expect(context.ready.board.columns.last.tasks, hasLength(2));
+        expect(context.ready.board.columns.last.totalTaskCount, 2);
+        secondPending.complete(
+          secondSucceeds
+              ? Right(
+                  MoveKanbanTaskResponse(
+                    task: _card(
+                      'task-2',
+                      version: 2,
+                    ).copyWith(status: ProjectTaskStatus.inProgress),
+                    targetColumnTaskCount: 2,
+                    isWipLimitExceeded: false,
+                  ),
+                )
+              : const Left(error),
+        );
+        await second;
+        expect(
+          context.ready.board.columns.last.totalTaskCount,
+          secondSucceeds ? 2 : 1,
+        );
+        expect(
+          context.ready.board.columns.first.totalTaskCount,
+          secondSucceeds ? 0 : 1,
+        );
+        expect(context.ready.pendingTaskIds, isEmpty);
+      },
+    );
+  }
   test('same-task pending guard prevents a second drag', () async {
     final first = move();
     await move();
