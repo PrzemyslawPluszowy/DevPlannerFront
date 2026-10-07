@@ -7708,3 +7708,5 @@ QA60 bramki końcowe: analyzer No issues18,1s/exit0 (`/tmp/devplanner-qa60-analy
 C06 checkpoint2026-10-07: backend exact-operation receipt i signed forcesave lokalnie, 17+1callback+1OpenAPI PASS; Front exact-operation autosave/retry generation guards, Office60/60 PASS. Fullgates/review/deploy/retest otwarte; szczegóły i aktywne handle w handoffie oraz Backend/docs/ui-testing.md. Cały ręczny audyt UI pozostaje aktywny.
 
 C06 bramki końcowe: Backend1673PASS/4SKIP/0FAIL; Front62Office+10contractPASS, analyzer/WasmPASS, reviewsourcebezblockerów. Commit/deploy/retest w kolejnym kroku; pominięte integracje i pełny UI pozostają otwarte.
+
+C06 runtimecheckpoint: Backend83cb971/Front79ba19aWasm wdrożone+readiness/migracja/version/SPA potwierdzone; ChromePLdark1513x895 autosaveE bezSave→SQLVersion11/receipt1→close/listrefresh→reopenE PASS wybranego wariantu funkcji/UX/UI. Error/retry/coedit/read-only/kolejnezapisy/pozostałewarianty i pełnyUI pozostają otwarte.
