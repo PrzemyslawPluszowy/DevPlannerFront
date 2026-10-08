@@ -33,6 +33,7 @@ final class TaskDetailsDependencyCommands {
     required TaskDependencyType type,
     required TaskDependencyKind dependencyKind,
     required int lagDays,
+    Object? mutationOwner,
   }) async {
     if (coordinator.isClosed()) return false;
     final current = readState();
@@ -42,6 +43,7 @@ final class TaskDetailsDependencyCommands {
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.executeAndRefresh(
       current: current,
+      mutationOwner: mutationOwner,
       operation: service.create(
         targetTaskId: targetTaskId,
         type: type,
@@ -56,6 +58,7 @@ final class TaskDetailsDependencyCommands {
     required TaskDependencyDetailsResponse dependency,
     required TaskDependencyKind dependencyKind,
     required int lagDays,
+    Object? mutationOwner,
   }) async {
     if (coordinator.isClosed()) return false;
     final current = readState();
@@ -65,6 +68,7 @@ final class TaskDetailsDependencyCommands {
     emitReady(current.copyWith(isSaving: true, clearMutationError: true));
     return coordinator.execute(
       current: current,
+      mutationOwner: mutationOwner,
       operation: service.update(
         dependency: dependency,
         dependencyKind: dependencyKind,

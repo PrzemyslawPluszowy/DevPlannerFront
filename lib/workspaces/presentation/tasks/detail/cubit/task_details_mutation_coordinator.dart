@@ -30,6 +30,7 @@ final class TaskDetailsMutationCoordinator {
 
   Future<bool> execute<T>({
     required TaskDetailsReady current,
+    Object? mutationOwner,
     required Future<Either<ApiError, T>> operation,
     required TaskDetailsReady Function(TaskDetailsReady current, T value)
     onSuccess,
@@ -39,7 +40,7 @@ final class TaskDetailsMutationCoordinator {
     final latest = readState();
     if (latest is! TaskDetailsReady) return false;
     return result.fold(
-      (error) => _handleError(current, error),
+      (error) => _handleError(current, error, mutationOwner),
       (value) {
         final updated = onSuccess(latest, value);
         emitState(
@@ -55,7 +56,8 @@ final class TaskDetailsMutationCoordinator {
   /// Błąd gałęzi odświeża ACL; brak odczytu usuwa cały chroniony agregat.
   Future<void> checkAccess(ApiError error) async {
     if (isClosed()) return;
-    if (error.type != ApiErrorType.forbidden) {
+    if (error.type != ApiErrorType.forbidden &&
+        error.type != ApiErrorType.notFound) {
       _emitAccessFailure(error);
       return;
     }
@@ -91,7 +93,10 @@ final class TaskDetailsMutationCoordinator {
     );
   }
 
-  Future<bool> refresh(TaskDetailsReady previous) async {
+  Future<bool> refresh(
+    TaskDetailsReady previous, {
+    Object? mutationOwner,
+  }) async {
     final refreshed = await _load();
     if (isClosed() || readState() is! TaskDetailsReady) return false;
     final latest = readState();
@@ -104,6 +109,7 @@ final class TaskDetailsMutationCoordinator {
             isSaving: false,
             mutationError: error.message,
             mutationFailure: error,
+            mutationOwner: mutationOwner,
             mutationSerial: latest.mutationSerial + 1,
           ),
         );
@@ -126,26 +132,31 @@ final class TaskDetailsMutationCoordinator {
 
   Future<bool> executeAndRefresh<T>({
     required TaskDetailsReady current,
+    Object? mutationOwner,
     required Future<Either<ApiError, T>> operation,
   }) async {
     final result = await operation;
     if (isClosed() || readState() is! TaskDetailsReady) return false;
     return result.fold(
-      (error) => _handleError(current, error),
-      (_) => refresh(current),
+      (error) => _handleError(current, error, mutationOwner),
+      (_) => refresh(current, mutationOwner: mutationOwner),
     );
   }
 
   Future<bool> _handleError(
     TaskDetailsReady current,
     ApiError error,
+    Object? mutationOwner,
   ) async {
     // Odmowa konkretnej akcji nie dowodzi utraty prawa odczytu zasobu.
-    if (error.type != ApiErrorType.forbidden && _emitAccessFailure(error)) {
+    if (error.type != ApiErrorType.forbidden &&
+        error.type != ApiErrorType.notFound &&
+        _emitAccessFailure(error)) {
       return false;
     }
     if (error.type == ApiErrorType.conflict ||
-        error.type == ApiErrorType.forbidden) {
+        error.type == ApiErrorType.forbidden ||
+        error.type == ApiErrorType.notFound) {
       final refreshed = await _load();
       if (isClosed() || readState() is! TaskDetailsReady) return false;
       final latest = readState();
@@ -158,6 +169,7 @@ final class TaskDetailsMutationCoordinator {
               isSaving: false,
               mutationError: error.message,
               mutationFailure: error,
+              mutationOwner: mutationOwner,
               mutationSerial: latest.mutationSerial + 1,
             ),
           );
@@ -178,6 +190,7 @@ final class TaskDetailsMutationCoordinator {
               isSaving: false,
               mutationError: error.message,
               mutationFailure: error,
+              mutationOwner: mutationOwner,
               mutationSerial: latest.mutationSerial + 1,
             ),
           );
@@ -192,6 +205,7 @@ final class TaskDetailsMutationCoordinator {
         isSaving: false,
         mutationError: error.message,
         mutationFailure: error,
+        mutationOwner: mutationOwner,
         mutationSerial: latest.mutationSerial + 1,
       ),
     );

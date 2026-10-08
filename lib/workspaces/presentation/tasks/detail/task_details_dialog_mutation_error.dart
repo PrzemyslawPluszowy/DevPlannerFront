@@ -2,15 +2,23 @@ import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imp
 
 /// Keeps a failed command visible in the editor that initiated it.
 final class TaskDetailsDialogMutationError extends StatelessWidget {
-  const TaskDetailsDialogMutationError({this.hideConflict = false, super.key});
+  const TaskDetailsDialogMutationError({
+    this.hideConflict = false,
+    this.owner,
+    super.key,
+  });
 
   final bool hideConflict;
+  final Object? owner;
 
   @override
   Widget build(BuildContext context) =>
       BlocBuilder<TaskDetailsCubit, TaskDetailsState>(
         builder: (context, state) {
-          if (state is! TaskDetailsReady) return const SizedBox.shrink();
+          if (state is! TaskDetailsReady ||
+              !identical(state.mutationOwner, owner)) {
+            return const SizedBox.shrink();
+          }
           if (state.mutationFailure case final error?
               when !hideConflict || error.type != ApiErrorType.conflict) {
             return Padding(

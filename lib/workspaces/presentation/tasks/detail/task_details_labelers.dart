@@ -34,10 +34,16 @@ final class TaskRecurrenceModeLabeler {
 final class TaskDependencyTypeLabeler {
   const TaskDependencyTypeLabeler._();
 
-  static String label(BuildContext context, TaskDependencyType type) =>
-      switch (type) {
-        TaskDependencyType.blocks => context.l10n.taskDependencyBlocks,
-        TaskDependencyType.relatedTo => context.l10n.taskDependencyRelated,
-        TaskDependencyType.duplicate => context.l10n.taskDependencyDuplicate,
-      };
+  static String label(
+    BuildContext context,
+    TaskDependencyType type, {
+    bool incoming = false,
+  }) => switch (type) {
+    TaskDependencyType.blocks =>
+      incoming
+          ? context.l10n.taskDependencyBlockedBy
+          : context.l10n.taskDependencyBlocks,
+    TaskDependencyType.relatedTo => context.l10n.taskDependencyRelated,
+    TaskDependencyType.duplicate => context.l10n.taskDependencyDuplicate,
+  };
 }

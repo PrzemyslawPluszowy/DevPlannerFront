@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
@@ -10,8 +12,10 @@ import 'package:devplanner/workspaces/domain/repositories/task_acceptance_criter
 import 'package:devplanner/workspaces/domain/repositories/task_checklist_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_cubit.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_state.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_draft_registry.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/task_details_modal_error.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dependencies.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dependency_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,6 +91,71 @@ void main() {
     ),
   );
 
+  testWidgets('late save failure after editor disposal belongs to parent', (
+    tester,
+  ) async {
+    final repository = _Tasks();
+    final registry = TaskDetailDraftRegistry();
+    final pending =
+        Completer<
+          Either<ApiError, TaskMutationResponse<TaskDependencyResponse>>
+        >();
+    const failure = ApiError(
+      type: ApiErrorType.validation,
+      message: 'Rejected',
+    );
+    when(
+      () => repository.updateDependency(
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+        dependencyId: 'dependency-1',
+        payload: any(named: 'payload'),
+      ),
+    ).thenAnswer((_) => pending.future);
+    final cubit = await pumpEditor(tester, repository, registry);
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+    await tester.pumpWidget(const SizedBox.shrink());
+    pending.complete(const Left(failure));
+    await tester.pumpAndSettle();
+    final state = cubit.state as TaskDetailsReady;
+    expect(state.mutationFailure, failure);
+    expect(state.mutationOwner, isNull);
+    await cubit.close();
+    registry.dispose();
+  });
+
+  testWidgets(
+    'incoming dependency offers source navigation, not child mutation',
+    (tester) async {
+      final repository = _Tasks();
+      final registry = TaskDetailDraftRegistry();
+      final incoming = dependency.copyWith(
+        sourceTaskId: 'task-2',
+        targetTaskId: 'task-1',
+      );
+      final cubit = await pumpEditor(
+        tester,
+        repository,
+        registry,
+        child: DependenciesSection(dependencies: [incoming], isSaving: false),
+      );
+      expect(find.byTooltip('Open source task'), findsOneWidget);
+      expect(find.textContaining('Blocked by'), findsOneWidget);
+      expect(find.byTooltip('Edit dependency'), findsNothing);
+      expect(find.byTooltip('Delete dependency'), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+      final state = cubit.state;
+      if (state is TaskDetailsReady) {
+        expect(state.mutationOwner, isNull);
+        expect(state.mutationFailure, isNull);
+      }
+      await cubit.close();
+      registry.dispose();
+    },
+  );
+
   testWidgets(
     'failed dependency save remains visible in the dialog with draft',
     (tester) async {
@@ -94,8 +163,8 @@ void main() {
       final registry = TaskDetailDraftRegistry();
       const failure = ApiError(
         type: ApiErrorType.validation,
-        message: 'Dependency creates a cycle',
-        apiCode: 'task_dependency_cycle',
+        message: 'Zadania blokowałyby się nawzajem.',
+        apiCode: 'task_dependency.cycle',
         traceId: 'trace-dependency',
         fields: {
           'lagDays': ['Invalid schedule'],
@@ -117,6 +186,15 @@ void main() {
 
       expect(find.byType(EditDependencyDialog), findsOneWidget);
       expect(
+        find.textContaining('Choose another task or relationship type.'),
+        findsOneWidget,
+      );
+      final owned = cubit.state as TaskDetailsReady;
+      expect(owned.mutationOwner, isNotNull);
+      cubit.clearEditorMutationError(Object());
+      expect((cubit.state as TaskDetailsReady).mutationFailure, failure);
+
+      expect(
         find.descendant(
           of: find.byType(EditDependencyDialog),
           matching: find.byType(TaskDetailsModalError),
@@ -126,7 +204,7 @@ void main() {
       await tester.tap(find.byType(ExpansionTile));
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('task_dependency_cycle', findRichText: true),
+        find.textContaining('task_dependency.cycle', findRichText: true),
         findsOneWidget,
       );
       expect(
@@ -179,6 +257,11 @@ void main() {
     );
     expect(registry.hasUnsavedDrafts, isTrue);
     await tester.pumpWidget(const SizedBox.shrink());
+    final state = cubit.state;
+    if (state is TaskDetailsReady) {
+      expect(state.mutationOwner, isNull);
+      expect(state.mutationFailure, isNull);
+    }
     await cubit.close();
     registry.dispose();
   });
@@ -187,8 +270,9 @@ void main() {
 Future<TaskDetailsCubit> pumpEditor(
   WidgetTester tester,
   _Tasks repository,
-  TaskDetailDraftRegistry registry,
-) async {
+  TaskDetailDraftRegistry registry, {
+  Widget? child,
+}) async {
   when(
     () => repository.getTask(
       workspaceId: 'workspace-1',
@@ -216,7 +300,7 @@ Future<TaskDetailsCubit> pumpEditor(
           value: cubit,
           child: TaskDetailDraftScope(
             registry: registry,
-            child: EditDependencyDialog(dependency: dependency),
+            child: child ?? EditDependencyDialog(dependency: dependency),
           ),
         ),
       ),

@@ -331,17 +331,37 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
   Future<bool> moveCustomStatus(String statusId) async =>
       _customWorkflowCommands?.move(statusId) ?? false;
 
+  void releaseEditorMutationError(Object owner) {
+    if (isClosed) return;
+    final current = state;
+    if (current is TaskDetailsReady &&
+        identical(current.mutationOwner, owner)) {
+      emit(current.copyWith(clearMutationOwner: true));
+    }
+  }
+
+  void clearEditorMutationError(Object owner) {
+    if (isClosed) return;
+    final current = state;
+    if (current is TaskDetailsReady &&
+        identical(current.mutationOwner, owner)) {
+      emit(current.copyWith(clearMutationError: true));
+    }
+  }
+
   Future<bool> createDependency({
     required String targetTaskId,
     required TaskDependencyType type,
     TaskDependencyKind dependencyKind = TaskDependencyKind.finishToStart,
     int lagDays = 0,
+    Object? mutationOwner,
   }) async {
     return _dependencyCommands.create(
       targetTaskId: targetTaskId,
       type: type,
       dependencyKind: dependencyKind,
       lagDays: lagDays,
+      mutationOwner: mutationOwner,
     );
   }
 
@@ -350,11 +370,13 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     required TaskDependencyDetailsResponse dependency,
     required TaskDependencyKind dependencyKind,
     required int lagDays,
+    Object? mutationOwner,
   }) async {
     return _dependencyCommands.update(
       dependency: dependency,
       dependencyKind: dependencyKind,
       lagDays: lagDays,
+      mutationOwner: mutationOwner,
     );
   }
 

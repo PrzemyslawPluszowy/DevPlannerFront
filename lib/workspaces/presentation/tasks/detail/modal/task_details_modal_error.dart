@@ -32,6 +32,16 @@ final class TaskDetailsModalError extends StatelessWidget {
   final String? fallbackMessage;
   final List<TaskDetailsModalConflictField> conflictFields;
 
+  String _message(BuildContext context) {
+    if (error.apiCode == 'task_dependency.cycle' ||
+        error.contractCode == 'task_dependency.cycle') {
+      return context.l10n.taskDetailsDependencyCycle;
+    }
+    return error.message.isEmpty
+        ? (fallbackMessage ?? error.message)
+        : error.message;
+  }
+
   @override
   Widget build(BuildContext context) {
     final tasks = context.tasksTheme;
@@ -64,9 +74,7 @@ final class TaskDetailsModalError extends StatelessWidget {
                       container: true,
                       liveRegion: true,
                       child: SelectableText(
-                        error.message.isEmpty
-                            ? (fallbackMessage ?? error.message)
-                            : error.message,
+                        _message(context),
                         style: tasks.dataStrongText,
                       ),
                     ),

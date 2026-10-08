@@ -7848,6 +7848,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskDetailsSearchTask => 'Search task';
 
   @override
+  String get taskDetailsEditDependency => 'Edit dependency';
+
+  @override
+  String get taskDetailsOpenDependencySource => 'Open source task';
+
+  @override
+  String get taskDependencyBlockedBy => 'Blocked by';
+
+  @override
+  String get taskDetailsDependencyCycle =>
+      'This dependency would make the tasks block each other. Choose another task or relationship type.';
+
+  @override
   String get taskDetailsDependencyType => 'Dependency type';
 
   @override
@@ -7919,7 +7932,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskDetailsInvalidDependencyLag =>
-      'Lag must be between -365 and 365 days.';
+      'Offset must be between −365 and 365 working days.';
 
   @override
   String get taskDetailsInvalidDateRange =>

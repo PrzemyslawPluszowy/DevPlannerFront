@@ -13988,6 +13988,30 @@ abstract class AppLocalizations {
   /// **'Search task'**
   String get taskDetailsSearchTask;
 
+  /// No description provided for @taskDetailsEditDependency.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit dependency'**
+  String get taskDetailsEditDependency;
+
+  /// No description provided for @taskDetailsOpenDependencySource.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source task'**
+  String get taskDetailsOpenDependencySource;
+
+  /// No description provided for @taskDependencyBlockedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked by'**
+  String get taskDependencyBlockedBy;
+
+  /// No description provided for @taskDetailsDependencyCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'This dependency would make the tasks block each other. Choose another task or relationship type.'**
+  String get taskDetailsDependencyCycle;
+
   /// No description provided for @taskDetailsDependencyType.
   ///
   /// In en, this message translates to:
@@ -14123,7 +14147,7 @@ abstract class AppLocalizations {
   /// No description provided for @taskDetailsInvalidDependencyLag.
   ///
   /// In en, this message translates to:
-  /// **'Lag must be between -365 and 365 days.'**
+  /// **'Offset must be between −365 and 365 working days.'**
   String get taskDetailsInvalidDependencyLag;
 
   /// No description provided for @taskDetailsInvalidDateRange.

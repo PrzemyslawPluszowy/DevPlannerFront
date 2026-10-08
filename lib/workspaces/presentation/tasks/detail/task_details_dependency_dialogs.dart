@@ -14,6 +14,8 @@ class CreateDependencyDialog extends StatefulWidget {
 
 class CreateDependencyDialogState extends State<CreateDependencyDialog> {
   TaskDetailDraftRegistration? _draft;
+  final Object _mutationOwner = Object();
+  TaskDetailsCubit? _source;
   final _searchController = TextEditingController();
   final ValueNotifier<List<TaskDependencyCandidate>> _results = ValueNotifier(
     const [],
@@ -57,6 +59,7 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _source = context.read<TaskDetailsCubit>();
     _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
       label: context.l10n.taskDetailsAddDependency,
     );
@@ -79,6 +82,7 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
 
   @override
   void dispose() {
+    _source?.clearEditorMutationError(_mutationOwner);
     _draft?.dispose();
     _searchController.removeListener(_refreshDraft);
     _lagController.removeListener(_refreshDraft);
@@ -115,7 +119,7 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
         mainAxisSize: .min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const TaskDetailsDialogMutationError(),
+          TaskDetailsDialogMutationError(owner: _mutationOwner),
           TextField(
             controller: _searchController,
             enabled: !_saving.value,
@@ -283,9 +287,14 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
       type: _type.value,
       dependencyKind: _kind.value,
       lagDays: lag,
+      mutationOwner: _mutationOwner,
     );
-    if (!mounted) return;
+    if (!mounted) {
+      source.releaseEditorMutationError(_mutationOwner);
+      return;
+    }
     if (!identical(source, context.read<TaskDetailsCubit>())) {
+      source.releaseEditorMutationError(_mutationOwner);
       _saving.value = false;
       return;
     }
@@ -307,6 +316,8 @@ class EditDependencyDialog extends StatefulWidget {
 
 class EditDependencyDialogState extends State<EditDependencyDialog> {
   TaskDetailDraftRegistration? _draft;
+  final Object _mutationOwner = Object();
+  TaskDetailsCubit? _source;
   late final ValueNotifier<TaskDependencyKind> _kind = ValueNotifier(
     widget.dependency.dependencyKind,
   );
@@ -327,8 +338,9 @@ class EditDependencyDialogState extends State<EditDependencyDialog> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _source = context.read<TaskDetailsCubit>();
     _draft ??= TaskDetailDraftScope.maybeOf(context)?.registerDraft(
-      label: context.l10n.taskDetailsEditPlanning,
+      label: context.l10n.taskDetailsEditDependency,
     );
   }
 
@@ -344,6 +356,7 @@ class EditDependencyDialogState extends State<EditDependencyDialog> {
 
   @override
   void dispose() {
+    _source?.clearEditorMutationError(_mutationOwner);
     _draft?.dispose();
     _lag.removeListener(_refreshDraft);
     _lag.dispose();
@@ -357,7 +370,7 @@ class EditDependencyDialogState extends State<EditDependencyDialog> {
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: _formChanges,
     builder: (context, _) => WorkspaceCreationModalWrapper(
-      title: context.l10n.taskDetailsEditPlanning,
+      title: context.l10n.taskDetailsEditDependency,
       icon: Symbols.edit_calendar_rounded,
       accentColor: context.colors.primary,
       isSubmitting: _saving.value,
@@ -372,7 +385,7 @@ class EditDependencyDialogState extends State<EditDependencyDialog> {
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const TaskDetailsDialogMutationError(),
+          TaskDetailsDialogMutationError(owner: _mutationOwner),
           DependencyScheduleFields(
             kind: _kind.value,
             lagController: _lag,
@@ -399,9 +412,14 @@ class EditDependencyDialogState extends State<EditDependencyDialog> {
       dependency: widget.dependency,
       dependencyKind: _kind.value,
       lagDays: lag,
+      mutationOwner: _mutationOwner,
     );
-    if (!mounted) return;
+    if (!mounted) {
+      source.releaseEditorMutationError(_mutationOwner);
+      return;
+    }
     if (!identical(source, context.read<TaskDetailsCubit>())) {
+      source.releaseEditorMutationError(_mutationOwner);
       _saving.value = false;
       return;
     }

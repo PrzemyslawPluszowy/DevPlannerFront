@@ -206,7 +206,7 @@ class TaskDetailsContentState extends State<TaskDetailsContent> {
         isSaving: state.isSaving,
         canEdit: state.canEdit,
       ),
-      statusBanner: failure == null
+      statusBanner: failure == null || state.mutationOwner != null
           ? null
           : TaskDetailsModalError(
               error: failure,

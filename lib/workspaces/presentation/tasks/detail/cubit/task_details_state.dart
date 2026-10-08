@@ -36,6 +36,7 @@ final class TaskDetailsReady extends TaskDetailsState {
     this.mutationError,
     this.mutationSerial = 0,
     this.mutationFailure,
+    this.mutationOwner,
     this.conflictBase,
   });
 
@@ -44,6 +45,9 @@ final class TaskDetailsReady extends TaskDetailsState {
   final String? mutationError;
   final int mutationSerial;
   final ApiError? mutationFailure;
+
+  /// Local editor token; never transported to the API.
+  final Object? mutationOwner;
 
   /// Agregat sprzed konfliktu do porównania ze szkicem i aktualnym serwerem.
   final ProjectTaskDetailsResponse? conflictBase;
@@ -61,6 +65,8 @@ final class TaskDetailsReady extends TaskDetailsState {
     bool clearMutationError = false,
     int? mutationSerial,
     ApiError? mutationFailure,
+    Object? mutationOwner,
+    bool clearMutationOwner = false,
     ProjectTaskDetailsResponse? conflictBase,
   }) => TaskDetailsReady(
     details ?? this.details,
@@ -72,6 +78,11 @@ final class TaskDetailsReady extends TaskDetailsState {
     mutationFailure: clearMutationError
         ? null
         : mutationFailure ?? this.mutationFailure,
+    mutationOwner: clearMutationError || clearMutationOwner
+        ? null
+        : mutationFailure != null
+        ? mutationOwner
+        : this.mutationOwner,
     conflictBase: clearMutationError ? null : conflictBase ?? this.conflictBase,
   );
 }

@@ -466,7 +466,65 @@ void main() {
     expect((state as TaskDetailsReady).details.task.title, 'Latest task');
   });
 
-  for (final errorType in [ApiErrorType.conflict, ApiErrorType.forbidden]) {
+  test(
+    'successful branch save followed by refresh failure retains editor owner',
+    () async {
+      final original = _details();
+      const failure = ApiError(
+        type: ApiErrorType.connection,
+        message: 'Offline',
+      );
+      final repository = _TasksRepository(const Left(failure));
+      final initial = TaskDetailsReady(original);
+      TaskDetailsState state = initial;
+      final owner = Object();
+      final coordinator = TaskDetailsMutationCoordinator(
+        repository: repository,
+        workspaceId: 'workspace-1',
+        projectId: 'project-1',
+        taskId: 'task-1',
+        emitState: (next) => state = next,
+        isClosed: () => false,
+        readState: () => state,
+      );
+      expect(
+        await coordinator.executeAndRefresh<int>(
+          current: initial,
+          mutationOwner: owner,
+          operation: Future.value(const Right(1)),
+        ),
+        isFalse,
+      );
+      expect((state as TaskDetailsReady).mutationFailure, failure);
+      expect((state as TaskDetailsReady).mutationOwner, same(owner));
+    },
+  );
+
+  test('branch notFound access check preserves a readable task', () async {
+    final original = _details();
+    final repository = _TasksRepository(Right(original));
+    TaskDetailsState state = TaskDetailsReady(original);
+    final coordinator = TaskDetailsMutationCoordinator(
+      repository: repository,
+      workspaceId: 'workspace-1',
+      projectId: 'project-1',
+      taskId: 'task-1',
+      emitState: (next) => state = next,
+      isClosed: () => false,
+      readState: () => state,
+    );
+    await coordinator.checkAccess(
+      const ApiError(type: ApiErrorType.notFound, message: 'Missing relation'),
+    );
+    expect(repository.getCalls, 1);
+    expect(state, isA<TaskDetailsReady>());
+  });
+
+  for (final errorType in [
+    ApiErrorType.conflict,
+    ApiErrorType.forbidden,
+    ApiErrorType.notFound,
+  ]) {
     test('late $errorType recovery preserves newer task data', () async {
       final original = _details();
       final pending = Completer<Either<ApiError, ProjectTaskDetailsResponse>>();

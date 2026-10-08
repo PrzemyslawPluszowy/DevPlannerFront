@@ -7910,6 +7910,19 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskDetailsSearchTask => 'Wyszukaj zadanie';
 
   @override
+  String get taskDetailsEditDependency => 'Edytuj zależność';
+
+  @override
+  String get taskDetailsOpenDependencySource => 'Otwórz zadanie źródłowe';
+
+  @override
+  String get taskDependencyBlockedBy => 'Blokowane przez';
+
+  @override
+  String get taskDetailsDependencyCycle =>
+      'Nie można dodać tej zależności, ponieważ zadania blokowałyby się nawzajem. Wybierz inne zadanie lub typ relacji.';
+
+  @override
   String get taskDetailsDependencyType => 'Typ zależności';
 
   @override
@@ -7981,7 +7994,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get taskDetailsInvalidDependencyLag =>
-      'Lag musi mieścić się w zakresie od -365 do 365 dni.';
+      'Przesunięcie musi mieścić się w zakresie od −365 do 365 dni roboczych.';
 
   @override
   String get taskDetailsInvalidDateRange =>
