@@ -7916,7 +7916,19 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskDetailsDependencyKind => 'Relacja harmonogramu';
 
   @override
-  String get taskDetailsDependencyLagDays => 'Lag (dni robocze)';
+  String get taskDetailsDependencyLagDays => 'Przesunięcie (dni robocze)';
+
+  @override
+  String get taskDetailsDependencyLagHint =>
+      '0 — bez przesunięcia. Liczba dodatnia opóźnia termin, ujemna go przyspiesza. Zakres: od −365 do 365.';
+
+  @override
+  String get taskDetailsDependencySearchHint =>
+      'Wpisz co najmniej dwa znaki tytułu lub klucza zadania. Wyszukujemy także podzadania w tym projekcie.';
+
+  @override
+  String get taskDetailsDependencySearchEmpty =>
+      'Nie znaleziono innego zadania. Spróbuj krótszego tytułu lub klucza, np. TASK-240.';
 
   @override
   String get taskDependencyKindFinishToStart => 'Koniec → początek';

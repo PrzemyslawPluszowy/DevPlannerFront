@@ -1,3 +1,4 @@
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_dependency_candidate.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dependency_fields.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dialog_mutation_error.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imports.dart';
@@ -14,9 +15,10 @@ class CreateDependencyDialog extends StatefulWidget {
 class CreateDependencyDialogState extends State<CreateDependencyDialog> {
   TaskDetailDraftRegistration? _draft;
   final _searchController = TextEditingController();
-  final ValueNotifier<List<ProjectTaskListItemResponse>> _results =
-      ValueNotifier(const []);
-  final ValueNotifier<ProjectTaskListItemResponse?> _selected = ValueNotifier(
+  final ValueNotifier<List<TaskDependencyCandidate>> _results = ValueNotifier(
+    const [],
+  );
+  final ValueNotifier<TaskDependencyCandidate?> _selected = ValueNotifier(
     null,
   );
   final ValueNotifier<TaskDependencyType> _type = ValueNotifier(
@@ -26,6 +28,7 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
     TaskDependencyKind.finishToStart,
   );
   final _lagController = TextEditingController(text: '0');
+  final ValueNotifier<bool> _searched = ValueNotifier(false);
   final ValueNotifier<bool> _loading = ValueNotifier(false);
   final ValueNotifier<ApiError?> _searchError = ValueNotifier(null);
   final ValueNotifier<bool> _saving = ValueNotifier(false);
@@ -40,6 +43,7 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
     _lagController.addListener(_refreshDraft);
     _formChanges = Listenable.merge([
       _results,
+      _searched,
       _selected,
       _type,
       _kind,
@@ -81,6 +85,7 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
     _searchController.dispose();
     _lagController.dispose();
     _results.dispose();
+    _searched.dispose();
     _selected.dispose();
     _type.dispose();
     _kind.dispose();
@@ -113,10 +118,14 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
           const TaskDetailsDialogMutationError(),
           TextField(
             controller: _searchController,
+            enabled: !_saving.value,
+            maxLength: 160,
             autofocus: true,
             onChanged: _search,
             decoration: InputDecoration(
               labelText: context.l10n.taskDetailsSearchTask,
+              helperText: context.l10n.taskDetailsDependencySearchHint,
+              helperMaxLines: 3,
               suffixIcon: _loading.value
                   ? const Padding(
                       padding: EdgeInsets.all(12),
@@ -145,6 +154,16 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
                 icon: const Icon(Symbols.refresh_rounded),
                 label: Text(context.l10n.retry),
               ),
+            ),
+          ],
+          if (_searched.value &&
+              !_loading.value &&
+              _searchError.value == null &&
+              _results.value.isEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              context.l10n.taskDetailsDependencySearchEmpty,
+              style: context.tasksTheme.dataText,
             ),
           ],
           const SizedBox(height: 12),
@@ -212,12 +231,16 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
   Future<void> _search(String value) async {
     final token = ++_searchToken;
     if (value.trim().length < 2) {
+      _searched.value = false;
       _results.value = const [];
       _selected.value = null;
       _searchError.value = null;
       _loading.value = false;
       return;
     }
+    _searched.value = false;
+    _selected.value = null;
+    _results.value = const [];
     _loading.value = true;
     _searchError.value = null;
     final source = context.read<TaskDetailsCubit>();
@@ -240,6 +263,7 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
         _results.value = List.unmodifiable(results);
       },
     );
+    _searched.value = true;
     _loading.value = false;
     if (!_results.value.contains(_selected.value)) _selected.value = null;
   }

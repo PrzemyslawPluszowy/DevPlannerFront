@@ -7854,7 +7854,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskDetailsDependencyKind => 'Schedule relationship';
 
   @override
-  String get taskDetailsDependencyLagDays => 'Lag (working days)';
+  String get taskDetailsDependencyLagDays => 'Offset (working days)';
+
+  @override
+  String get taskDetailsDependencyLagHint =>
+      '0 — no offset. A positive number delays the date; a negative number brings it forward. Range: −365 to 365.';
+
+  @override
+  String get taskDetailsDependencySearchHint =>
+      'Type at least two characters of the task title or key. Subtasks in this project are also included.';
+
+  @override
+  String get taskDetailsDependencySearchEmpty =>
+      'No other task found. Try a shorter title or a task key, e.g. TASK-240.';
 
   @override
   String get taskDependencyKindFinishToStart => 'Finish to start';

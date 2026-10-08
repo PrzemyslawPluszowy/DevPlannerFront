@@ -5,6 +5,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_acceptance_criter
 import 'package:devplanner/workspaces/domain/repositories/task_checklist_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_cubit.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/task_details_modal_tabs.dart';
@@ -44,6 +45,7 @@ class WorkspaceTaskDetailsPage extends StatelessWidget {
         collaborationRepository: context.read<TaskCollaborationRepository>(),
         metadataRepository: context.read<TaskMetadataRepository>(),
         customWorkflowRepository: context.read<CustomWorkflowRepository>(),
+        taskViewRepository: context.read<TaskViewRepository>(),
         workspaceId: workspaceId,
         projectId: projectId,
         taskId: taskId,

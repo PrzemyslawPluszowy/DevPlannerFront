@@ -1,12 +1,17 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:devplanner/app/router/devplanner_navigation.dart';
 import 'package:devplanner/app/shell/overlays/devplanner_global_panels_host.dart';
 import 'package:devplanner/foundation/presentation/devplanner_modal_host.dart';
 import 'package:devplanner/foundation/theme/theme.dart';
 import 'package:devplanner/l10n/app_localizations.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/models/task_views_models.dart';
+import 'package:devplanner/workspaces/data/shared/cursor_page_response.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_schedule_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_schedule_repository_scope.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_dependency_dialogs.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_properties.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_properties_planning.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +24,81 @@ import '../../../../../../test_support/tasks_board_route_fixture.dart';
 
 void main() {
   setUpAll(registerTasksBoardRouteFallbacks);
+  testWidgets('root task dependency dialog has a project-scoped search port', (
+    tester,
+  ) async {
+    final fixture = TaskDetailVisualFixture(TaskDetailVisualMode.editable);
+    addTearDown(fixture.dispose);
+    tester.view.physicalSize = const Size(1440, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repository = fixture.boardFixture.composition.viewRepository;
+    when(
+      () => repository.searchTasks(
+        query: 'QA',
+        workspaceId: visualWorkspaceId,
+        projectId: visualProjectId,
+        limit: 20,
+      ),
+    ).thenAnswer(
+      (_) async => const Right(
+        CursorPageResponse<GlobalTaskSearchItemResponse>(items: []),
+      ),
+    );
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routerConfig: fixture.router.config,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: MaterialTheme.crm().light(),
+        builder: (context, child) => DevPlannerGlobalPanelsHost(
+          navigation: DevPlannerNavigation(fixture.router.config),
+          authSession: fixture.authSession,
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
+    );
+    await _pumpUntil(tester, find.byType(TaskProperties));
+    expect(
+      tester.element(find.byType(TaskProperties)).read<TaskViewRepository>(),
+      same(repository),
+    );
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(TaskProperties)),
+    )!;
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byTooltip(l10n.taskDetailsAddDependency),
+      180,
+      scrollable: find
+          .descendant(
+            of: find.byKey(const PageStorageKey<String>('task-details-work')),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.tap(find.byTooltip(l10n.taskDetailsAddDependency));
+    await _pumpUntil(tester, find.byType(CreateDependencyDialog));
+    final search = find
+        .descendant(
+          of: find.byType(CreateDependencyDialog),
+          matching: find.byType(TextField),
+        )
+        .first;
+    await tester.enterText(search, 'QA');
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.taskDetailsDependencySearchEmpty), findsOneWidget);
+    verify(
+      () => repository.searchTasks(
+        query: 'QA',
+        workspaceId: visualWorkspaceId,
+        projectId: visualProjectId,
+        limit: 20,
+      ),
+    ).called(1);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'root planning dialog receives schedule port captured from task scope',
     (tester) async {

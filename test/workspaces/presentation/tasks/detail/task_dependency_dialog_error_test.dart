@@ -123,6 +123,8 @@ void main() {
         ),
         findsOneWidget,
       );
+      await tester.tap(find.byType(ExpansionTile));
+      await tester.pumpAndSettle();
       expect(
         find.textContaining('task_dependency_cycle', findRichText: true),
         findsOneWidget,

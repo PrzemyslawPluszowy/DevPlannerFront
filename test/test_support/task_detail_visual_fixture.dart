@@ -254,6 +254,7 @@ final class TaskDetailVisualFixture {
       ),
     ).thenAnswer((_) async => Right(visualFiles));
     return TasksDetailsComposition(
+      viewRepository: boardFixture.composition.viewRepository,
       tasksRepository: _tasks,
       acceptanceCriteriaRepository: _AcceptanceRepository(),
       attachmentRepository: attachments,

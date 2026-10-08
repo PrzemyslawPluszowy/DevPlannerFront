@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:devplanner/foundation/error/api_error.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/models/task_models.dart';
 import 'package:devplanner/workspaces/data/shared/enums/task_contract_enums.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_dependency_candidate.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_dependencies_service.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_mutation_coordinator.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_response_assembler.dart';
@@ -23,7 +24,7 @@ final class TaskDetailsDependencyCommands {
   final TaskDetailsState Function() readState;
   final void Function(TaskDetailsReady state) emitReady;
 
-  Future<Either<ApiError, List<ProjectTaskListItemResponse>>> search(
+  Future<Either<ApiError, List<TaskDependencyCandidate>>> search(
     String phrase,
   ) => service.search(phrase);
 

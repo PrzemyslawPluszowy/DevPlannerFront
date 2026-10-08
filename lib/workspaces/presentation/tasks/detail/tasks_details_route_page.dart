@@ -13,6 +13,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_recurrence_reposi
 import 'package:devplanner/workspaces/domain/repositories/task_schedule_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_template_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
 import 'package:devplanner/workspaces/domain/storage/ports/download_transport.dart';
@@ -56,6 +57,9 @@ final class TasksDetailsRoutePage extends StatelessWidget {
         .read<StorageShareRecipientDirectoryPort?>();
     return MultiRepositoryProvider(
       providers: [
+        RepositoryProvider<TaskViewRepository>.value(
+          value: composition.viewRepository,
+        ),
         RepositoryProvider<TasksRepository>.value(
           value: composition.tasksRepository,
         ),

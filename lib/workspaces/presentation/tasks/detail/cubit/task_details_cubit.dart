@@ -11,8 +11,10 @@ import 'package:devplanner/workspaces/domain/repositories/task_acceptance_criter
 import 'package:devplanner/workspaces/domain/repositories/task_checklist_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_collaboration_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_metadata_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_acceptance_criteria_service.dart';
+import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_dependency_candidate.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_acceptance_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_basic_commands.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/cubit/task_details_basic_mutation_service.dart';
@@ -40,6 +42,7 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
     this.collaborationRepository,
     this.metadataRepository,
     this.customWorkflowRepository,
+    TaskViewRepository? taskViewRepository,
     required this.workspaceId,
     required this.projectId,
     required this.taskId,
@@ -52,6 +55,7 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
        ),
        _dependenciesService = TaskDetailsDependenciesService(
          repository: repository,
+         searchRepository: taskViewRepository,
          workspaceId: workspaceId,
          projectId: projectId,
          taskId: taskId,
@@ -293,8 +297,9 @@ final class TaskDetailsCubit extends Cubit<TaskDetailsState> {
   }
 
   /// Wyszukuje zadania projektu do bezpiecznego wyboru relacji w UI.
-  Future<Either<ApiError, List<ProjectTaskListItemResponse>>>
-  searchProjectTasks(String phrase) => _lookup.run(
+  Future<Either<ApiError, List<TaskDependencyCandidate>>> searchProjectTasks(
+    String phrase,
+  ) => _lookup.run(
     () => _dependencyCommands.search(phrase),
     unavailableCode: 'task_search_unavailable',
   );

@@ -14003,8 +14003,26 @@ abstract class AppLocalizations {
   /// No description provided for @taskDetailsDependencyLagDays.
   ///
   /// In en, this message translates to:
-  /// **'Lag (working days)'**
+  /// **'Offset (working days)'**
   String get taskDetailsDependencyLagDays;
+
+  /// No description provided for @taskDetailsDependencyLagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0 — no offset. A positive number delays the date; a negative number brings it forward. Range: −365 to 365.'**
+  String get taskDetailsDependencyLagHint;
+
+  /// No description provided for @taskDetailsDependencySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least two characters of the task title or key. Subtasks in this project are also included.'**
+  String get taskDetailsDependencySearchHint;
+
+  /// No description provided for @taskDetailsDependencySearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No other task found. Try a shorter title or a task key, e.g. TASK-240.'**
+  String get taskDetailsDependencySearchEmpty;
 
   /// No description provided for @taskDependencyKindFinishToStart.
   ///

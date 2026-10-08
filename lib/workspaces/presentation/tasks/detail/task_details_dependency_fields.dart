@@ -42,6 +42,8 @@ class DependencyScheduleFields extends StatelessWidget {
         keyboardType: const TextInputType.numberWithOptions(signed: true),
         decoration: InputDecoration(
           labelText: context.l10n.taskDetailsDependencyLagDays,
+          helperText: context.l10n.taskDetailsDependencyLagHint,
+          helperMaxLines: 4,
           errorText: lagError,
         ),
       ),

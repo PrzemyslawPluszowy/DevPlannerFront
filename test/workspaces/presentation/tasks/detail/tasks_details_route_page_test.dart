@@ -22,6 +22,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_recurrence_reposi
 import 'package:devplanner/workspaces/domain/repositories/task_schedule_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_template_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_page.dart';
@@ -74,6 +75,7 @@ const _taskId = '550e8400-e29b-41d4-a716-446655440002';
 
 TasksDetailsComposition _composition(TasksRepository tasks) =>
     TasksDetailsComposition(
+      viewRepository: _TaskViewMock(),
       tasksRepository: tasks,
       acceptanceCriteriaRepository: _AcceptanceMock(),
       attachmentRepository: _AttachmentMock(),
@@ -175,3 +177,5 @@ void main() {
     expect(composition, isNotNull);
   });
 }
+
+final class _TaskViewMock extends Mock implements TaskViewRepository {}

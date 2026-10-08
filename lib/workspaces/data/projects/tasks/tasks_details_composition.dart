@@ -11,6 +11,7 @@ import 'package:devplanner/workspaces/data/projects/tasks/api/task_recurrence_ti
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_schedule_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_templates_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/task_time_tracking_api.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/api/task_views_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/api/tasks_api.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_acceptance_criteria_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_attachment_repository_impl.dart';
@@ -22,6 +23,7 @@ import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_recu
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_schedule_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_template_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_time_tracking_repository_impl.dart';
+import 'package:devplanner/workspaces/data/projects/tasks/repositories/task_view_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/repositories/tasks_repository_impl.dart';
 import 'package:devplanner/workspaces/data/projects/tasks/services/task_attachment_presigned_upload_transport.dart';
 import 'package:devplanner/workspaces/data/storage/api/storage_api.dart';
@@ -40,6 +42,7 @@ import 'package:devplanner/workspaces/domain/repositories/task_recurrence_reposi
 import 'package:devplanner/workspaces/domain/repositories/task_schedule_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_template_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/task_time_tracking_repository.dart';
+import 'package:devplanner/workspaces/domain/repositories/task_view_repository.dart';
 import 'package:devplanner/workspaces/domain/repositories/tasks_repository.dart';
 import 'package:devplanner/workspaces/domain/services/task_attachment_upload_transport.dart';
 
@@ -51,6 +54,7 @@ import 'package:devplanner/workspaces/domain/services/task_attachment_upload_tra
 final class TasksDetailsComposition {
   const TasksDetailsComposition({
     required this.tasksRepository,
+    required this.viewRepository,
     required this.acceptanceCriteriaRepository,
     required this.attachmentRepository,
     required this.checklistRepository,
@@ -69,6 +73,7 @@ final class TasksDetailsComposition {
   });
 
   final TasksRepository tasksRepository;
+  final TaskViewRepository viewRepository;
   final TaskAcceptanceCriteriaRepository acceptanceCriteriaRepository;
   final TaskAttachmentRepository attachmentRepository;
   final TaskChecklistRepository checklistRepository;
@@ -96,6 +101,9 @@ final class TasksDetailsComposition {
     final operationsApi = TaskOperationsApi(dio, baseUrl: baseUrl);
     final advancedApi = TaskAdvancedApi(dio, baseUrl: baseUrl);
     return TasksDetailsComposition(
+      viewRepository: TaskViewRepositoryImpl(
+        TaskViewsApi(dio, baseUrl: baseUrl),
+      ),
       tasksRepository: TasksRepositoryImpl(
         TasksApi(dio, baseUrl: baseUrl),
       ),
