@@ -17,58 +17,91 @@ import 'package:mocktail/mocktail.dart';
 class _Repository extends Mock implements ChatMessageActionsRepository {}
 
 void main() {
-  for (final selected in [false, true]) {
-    testWidgets('thread fallback without secondary; selected=$selected', (
-      tester,
-    ) async {
-      final message = ChatMessage(
-        id: 'message',
-        conversationId: 'chat',
-        authorUserId: 'peer',
-        clientMessageId: 'client',
-        text: 'Thread QA',
-        payloadHash: 'hash',
-        version: 1,
-        createdAtUtc: DateTime.utc(2026),
-        isDeleted: false,
-        deliveryState: ChatMessageDeliveryState.sent,
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: MaterialTheme.crm().dark(),
-          locale: const Locale('pl'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: ChatThreadMessageList(
-              state: ChatThreadReady(messages: [message]),
-              rootMessage: message,
-              currentUserId: 'me',
-              hasTextSelection: selected,
-              onSelectionChanged: (_) {},
+  for (final (selected, keyboard) in [
+    (false, false),
+    (true, false),
+    (false, true),
+    (true, true),
+  ]) {
+    testWidgets(
+      'thread fallback without secondary; selected=$selected keyboard=$keyboard',
+      (
+        tester,
+      ) async {
+        final message = ChatMessage(
+          id: 'message',
+          conversationId: 'chat',
+          authorUserId: 'peer',
+          clientMessageId: 'client',
+          text: 'Thread QA',
+          payloadHash: 'hash',
+          version: 1,
+          createdAtUtc: DateTime.utc(2026),
+          isDeleted: false,
+          deliveryState: ChatMessageDeliveryState.sent,
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: MaterialTheme.crm().dark(),
+            locale: const Locale('pl'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: ChatThreadMessageList(
+                state: ChatThreadReady(messages: [message]),
+                rootMessage: message,
+                currentUserId: 'me',
+                hasTextSelection: selected,
+                onSelectionChanged: (_) {},
+              ),
             ),
           ),
-        ),
-      );
-      // Fallback używa Material Symbols; dostępny przycisk menu jest jedyny.
-      final button = find.descendant(
-        of: find.byType(ChatMessageBubble),
-        matching: find.byType(IconButton),
-      );
-      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
-      await mouse.addPointer(location: Offset.zero);
-      addTearDown(mouse.removePointer);
-      await mouse.moveTo(tester.getCenter(find.byType(ChatMessageBubble)));
-      await tester.pumpAndSettle();
-      await tester.tap(button);
-      await tester.pumpAndSettle();
-      expect(find.text('Kopiuj wiadomość'), findsOneWidget);
-      expect(
-        find.text('Kopiuj zaznaczenie'),
-        selected ? findsOneWidget : findsNothing,
-      );
-      expect(tester.takeException(), isNull);
-    });
+        );
+        // Fallback używa Material Symbols; dostępny przycisk menu jest jedyny.
+        final button = find.descendant(
+          of: find.byType(ChatMessageBubble),
+          matching: find.byType(IconButton),
+        );
+        if (keyboard) {
+          final overlay = find.descendant(
+            of: find.byType(ChatMessageBubble),
+            matching: find.byType(AnimatedOpacity),
+          );
+          // SelectionArea may receive focus before the message action button.
+          for (var step = 0; step < 4; step++) {
+            await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+            await tester.pumpAndSettle();
+            if (tester.widget<AnimatedOpacity>(overlay).opacity == 1) break;
+          }
+          expect(tester.widget<AnimatedOpacity>(overlay).opacity, 1);
+          await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        } else {
+          final mouse = await tester.createGesture(
+            kind: PointerDeviceKind.mouse,
+          );
+          await mouse.addPointer(location: Offset.zero);
+          addTearDown(mouse.removePointer);
+          await mouse.moveTo(tester.getCenter(find.byType(ChatMessageBubble)));
+          await tester.pumpAndSettle();
+          await tester.tap(button);
+        }
+        await tester.pumpAndSettle();
+        expect(find.text('Kopiuj wiadomość'), findsOneWidget);
+        expect(
+          find.text('Kopiuj zaznaczenie'),
+          selected ? findsOneWidget : findsNothing,
+        );
+        if (keyboard) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+          expect(find.text('Kopiuj wiadomość'), findsNothing);
+          await tester.sendKeyEvent(LogicalKeyboardKey.space);
+          await tester.pumpAndSettle();
+          expect(find.text('Kopiuj wiadomość'), findsOneWidget);
+        }
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
   for (final selection in [false, true]) {
     for (final own in [false, true]) {
