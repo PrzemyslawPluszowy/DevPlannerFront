@@ -33,6 +33,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsNothing);
     expect(find.text('workspace content'), findsOneWidget);
+    expect(
+      tester
+          .widget<IconButton>(
+            find.byKey(const ValueKey('workspace-create-button')),
+          )
+          .focusNode!
+          .hasFocus,
+      isTrue,
+    );
     expect(gateway.names, isEmpty);
   });
 

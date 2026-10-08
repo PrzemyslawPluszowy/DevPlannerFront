@@ -3,7 +3,11 @@ import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_imp
 import 'package:devplanner/workspaces/presentation/tasks/detail/task_details_shared.dart';
 
 class ChecklistSection extends StatefulWidget {
-  const ChecklistSection({required this.task, required this.isSaving, super.key});
+  const ChecklistSection({
+    required this.task,
+    required this.isSaving,
+    super.key,
+  });
 
   final ProjectTaskResponse task;
   final bool isSaving;
@@ -149,6 +153,13 @@ class ChecklistSectionState extends State<ChecklistSection> {
                     ),
                   ),
                   IconButton.filledTonal(
+                    style: IconButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.tasksTheme.controlRadius,
+                        ),
+                      ),
+                    ),
                     tooltip: context.l10n.taskDetailsAddChecklistItem,
                     onPressed: widget.isSaving ? null : _add,
                     icon: widget.isSaving

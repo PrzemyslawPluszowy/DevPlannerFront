@@ -290,10 +290,33 @@ final class _ProjectBranchFailure extends StatelessWidget {
   );
 }
 
-final class _WorkspaceSectionHeader extends StatelessWidget {
+final class _WorkspaceSectionHeader extends StatefulWidget {
   const _WorkspaceSectionHeader({required this.onCreateWorkspace});
 
   final Future<void> Function(BuildContext) onCreateWorkspace;
+
+  @override
+  State<_WorkspaceSectionHeader> createState() =>
+      _WorkspaceSectionHeaderState();
+}
+
+final class _WorkspaceSectionHeaderState
+    extends State<_WorkspaceSectionHeader> {
+  final FocusNode _createFocus = FocusNode(debugLabel: 'workspace-create');
+
+  @override
+  void dispose() {
+    _createFocus.dispose();
+    super.dispose();
+  }
+
+  Future<void> _createWorkspace() async {
+    final location = GoRouterState.of(context).uri;
+    _createFocus.requestFocus();
+    await widget.onCreateWorkspace(context);
+    if (!mounted || GoRouterState.of(context).uri != location) return;
+    _createFocus.requestFocus();
+  }
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -311,8 +334,9 @@ final class _WorkspaceSectionHeader extends StatelessWidget {
         ),
         IconButton(
           key: const ValueKey('workspace-create-button'),
+          focusNode: _createFocus,
           tooltip: AppLocalizations.of(context)!.workspacesCreateWorkspace,
-          onPressed: () => unawaited(onCreateWorkspace(context)),
+          onPressed: _createWorkspace,
           icon: const Icon(Icons.add, size: 18),
           visualDensity: VisualDensity.compact,
         ),

@@ -135,6 +135,13 @@ class AcceptanceCriteriaSectionState extends State<AcceptanceCriteriaSection> {
                   ),
                 ),
                 IconButton.filledTonal(
+                  style: IconButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        context.tasksTheme.controlRadius,
+                      ),
+                    ),
+                  ),
                   tooltip: context.l10n.taskDetailsAddAcceptanceCriterion,
                   onPressed: widget.isSaving ? null : _add,
                   icon: widget.isSaving
