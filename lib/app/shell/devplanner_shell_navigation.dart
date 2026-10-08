@@ -368,7 +368,12 @@ final class _CreateWorkspaceFromSidebarDialogState
   }
 
   void _cancel() {
-    if (!_cubit.state.isSubmitting) Navigator.of(context).pop();
+    if (!mounted ||
+        _cubit.state.isSubmitting ||
+        ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
+    Navigator.of(context).pop();
   }
 
   Future<void> _submit() async {
@@ -409,92 +414,97 @@ final class _CreateWorkspaceFromSidebarDialogState
       bloc: _cubit,
       builder: (context, state) => PopScope(
         canPop: !state.isSubmitting,
-        child: AlertDialog(
-          backgroundColor: tasks.cardSurface,
-          surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(tasks.panelRadius),
-            side: BorderSide(color: tasks.cardBorder),
-          ),
-          titleTextStyle: tasks.projectTitleText,
-          title: Text(l10n.workspacesCreateWorkspaceTitle),
-          content: SizedBox(
-            width: 400,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _controller,
-                  autofocus: true,
-                  enabled:
-                      !state.isSubmitting && state.createdWorkspaceId == null,
-                  onChanged: (_) => _cubit.clearNameError(),
-                  onSubmitted: (_) => _submit(),
-                  style: tasks.dataText,
-                  decoration: InputDecoration(
-                    labelText: l10n.workspacesNameFieldLabel,
-                    hintText: l10n.workspacesNameFieldPlaceholder,
-                    errorText: state.nameInvalid
-                        ? l10n.workspacesNameRequiredError
-                        : null,
-                    errorMaxLines: 3,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        tasks.controlRadius,
-                      ),
-                    ),
-                  ),
-                ),
-                if (_errorMessage(l10n, state) case final error?)
-                  Padding(
-                    padding: EdgeInsets.only(top: tasks.sectionGap),
-                    child: Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        error,
-                        style: tasks.dataText.copyWith(
-                          color: Theme.of(context).colorScheme.error,
+        child: CallbackShortcuts(
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.escape): _cancel,
+          },
+          child: AlertDialog(
+            backgroundColor: tasks.cardSurface,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(tasks.panelRadius),
+              side: BorderSide(color: tasks.cardBorder),
+            ),
+            titleTextStyle: tasks.projectTitleText,
+            title: Text(l10n.workspacesCreateWorkspaceTitle),
+            content: SizedBox(
+              width: 400,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: _controller,
+                    autofocus: true,
+                    enabled:
+                        !state.isSubmitting && state.createdWorkspaceId == null,
+                    onChanged: (_) => _cubit.clearNameError(),
+                    onSubmitted: (_) => _submit(),
+                    style: tasks.dataText,
+                    decoration: InputDecoration(
+                      labelText: l10n.workspacesNameFieldLabel,
+                      hintText: l10n.workspacesNameFieldPlaceholder,
+                      errorText: state.nameInvalid
+                          ? l10n.workspacesNameRequiredError
+                          : null,
+                      errorMaxLines: 3,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          tasks.controlRadius,
                         ),
                       ),
                     ),
                   ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: state.isSubmitting ? null : _cancel,
-              child: Text(l10n.workspacesCancelButton),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(tasks.controlRadius),
-                ),
-                textStyle: tasks.controlText,
-              ),
-              onPressed: state.isSubmitting ? null : _submit,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: state.isSubmitting
-                        ? const CircularProgressIndicator(strokeWidth: 2)
-                        : const SizedBox.shrink(),
-                  ),
-                  SizedBox(width: tasks.controlGap),
-                  Text(
-                    state.createdWorkspaceId == null
-                        ? l10n.workspacesCreateButton
-                        : l10n.workspacesOpenCreatedButton,
-                  ),
+                  if (_errorMessage(l10n, state) case final error?)
+                    Padding(
+                      padding: EdgeInsets.only(top: tasks.sectionGap),
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          error,
+                          style: tasks.dataText.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
-          ],
+            actions: [
+              TextButton(
+                onPressed: state.isSubmitting ? null : _cancel,
+                child: Text(l10n.workspacesCancelButton),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(tasks.controlRadius),
+                  ),
+                  textStyle: tasks.controlText,
+                ),
+                onPressed: state.isSubmitting ? null : _submit,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: state.isSubmitting
+                          ? const CircularProgressIndicator(strokeWidth: 2)
+                          : const SizedBox.shrink(),
+                    ),
+                    SizedBox(width: tasks.controlGap),
+                    Text(
+                      state.createdWorkspaceId == null
+                          ? l10n.workspacesCreateButton
+                          : l10n.workspacesOpenCreatedButton,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

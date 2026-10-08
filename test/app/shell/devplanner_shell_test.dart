@@ -12,12 +12,30 @@ import 'package:devplanner/workspaces/domain/ports/workspaces_gateway.dart';
 import 'package:devplanner/workspaces/domain/repositories/projects_repository.dart';
 import 'package:devplanner/workspaces/presentation/projects/dialogs/create_project_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  testWidgets('workspace creation closes with Escape when idle', (
+    tester,
+  ) async {
+    final gateway = _CreateWorkspaceGateway();
+    await _openWorkspaceCreation(tester, gateway);
+    final staleCancel = tester
+        .widget<TextButton>(find.widgetWithText(TextButton, 'Cancel'))
+        .onPressed!;
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    staleCancel();
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.text('workspace content'), findsOneWidget);
+    expect(gateway.names, isEmpty);
+  });
+
   testWidgets('workspace creation explains empty names without a request', (
     tester,
   ) async {
@@ -48,6 +66,9 @@ void main() {
             .onPressed,
         isNull,
       );
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      expect(find.byType(AlertDialog), findsOneWidget);
       await tester.tapAt(const Offset(10, 600));
       await tester.pump();
       final dialogContext = tester.element(find.byType(AlertDialog));

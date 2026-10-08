@@ -76,6 +76,7 @@ import 'package:devplanner/workspaces/presentation/tasks/chrome/tasks_error_bann
 import 'package:devplanner/workspaces/presentation/tasks/detail/modal/navigation/task_detail_open_intent.dart';
 import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_error_banner.dart';
 import 'package:devplanner/workspaces/presentation/tasks/errors/tasks_view_error.dart';
+import 'package:devplanner/workspaces/presentation/tasks/header/task_quick_create_select.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_priority_visual_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/cells/helpers/task_status_visual_helper.dart';
 import 'package:devplanner/workspaces/presentation/tasks/list/chrome/task_list_chrome_host.dart';

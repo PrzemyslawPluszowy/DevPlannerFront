@@ -186,44 +186,26 @@ final class _TaskQuickCreateContent extends StatelessWidget {
             ),
           ),
           Gaps.h8,
-          DropdownButtonFormField<KanbanColumnResponse>(
-            initialValue: viewState.column,
-            isExpanded: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: .all(.circular(10)),
-              ),
-              contentPadding: .symmetric(
-                horizontal: Sizes.p12,
-                vertical: Sizes.p8,
-              ),
+          TaskQuickCreateSelect(
+            label: viewState.column.displayName,
+            leading: Icon(
+              Icons.circle,
+              size: 10,
+              color: _columnColor(viewState.column.color, colors.primary),
             ),
-            items: [
-              for (final column in columns)
-                DropdownMenuItem(
-                  value: column,
-                  child: Row(
-                    mainAxisSize: .min,
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: _columnColor(column.color, colors.primary),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: Sizes.p8),
-                      Text(column.displayName),
-                    ],
-                  ),
+            options: [
+              for (var index = 0; index < columns.length; index++)
+                AppContextMenuOption<int>(
+                  value: index,
+                  label: columns[index].displayName,
+                  icon: Icons.circle,
+                  iconColor: _columnColor(columns[index].color, colors.primary),
+                  selected: columns[index] == viewState.column,
                 ),
             ],
-            onChanged: viewState.isSubmitting
+            onSelected: viewState.isSubmitting
                 ? null
-                : (column) {
-                    if (column != null) onColumnChanged(column);
-                  },
+                : (index) => onColumnChanged(columns[index]),
           ),
           Builder(
             builder: (context) {
@@ -255,55 +237,15 @@ final class _TaskQuickCreateContent extends StatelessWidget {
                     ),
                   ),
                   Gaps.h8,
-                  DropdownButtonFormField<String?>(
-                    initialValue:
+                  _TaskTemplateSelect(
+                    templates: templates,
+                    selectedId:
                         viewState.selectedTemplateId ??
                         (viewState.useDefaultTemplate
                             ? defaultTemplateId
                             : null),
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: .all(.circular(10)),
-                      ),
-                      contentPadding: .symmetric(
-                        horizontal: Sizes.p12,
-                        vertical: Sizes.p8,
-                      ),
-                    ),
-                    items: [
-                      DropdownMenuItem<String?>(
-                        child: Text(l10n.tasksTemplateNoTemplate),
-                      ),
-                      for (final t in templates)
-                        DropdownMenuItem<String?>(
-                          value: t.id,
-                          child: Row(
-                            children: [
-                              Icon(
-                                t.id == defaultTemplateId
-                                    ? Symbols.star_rounded
-                                    : Symbols.auto_awesome_mosaic_rounded,
-                                size: 16,
-                                color: t.id == defaultTemplateId
-                                    ? colors.primary
-                                    : null,
-                              ),
-                              const SizedBox(width: Sizes.p8),
-                              Expanded(
-                                child: Text(
-                                  t.id == defaultTemplateId
-                                      ? '${t.name} (${l10n.tasksTemplatesDefault})'
-                                      : t.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                    onChanged: viewState.isSubmitting
+                    defaultId: defaultTemplateId,
+                    onSelected: viewState.isSubmitting
                         ? null
                         : onTemplateChanged,
                   ),
@@ -313,6 +255,55 @@ final class _TaskQuickCreateContent extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+final class _TaskTemplateSelect extends StatelessWidget {
+  const _TaskTemplateSelect({
+    required this.templates,
+    required this.selectedId,
+    required this.defaultId,
+    required this.onSelected,
+  });
+  final List<TaskTemplateResponse> templates;
+  final String? selectedId;
+  final String? defaultId;
+  final ValueChanged<String?>? onSelected;
+
+  String _label(BuildContext context, TaskTemplateResponse template) =>
+      template.id == defaultId
+      ? '${template.name} (${context.l10n.tasksTemplatesDefault})'
+      : template.name;
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = templates
+        .where((item) => item.id == selectedId)
+        .firstOrNull;
+    return TaskQuickCreateSelect(
+      label: selected == null
+          ? context.l10n.tasksTemplateNoTemplate
+          : _label(context, selected),
+      options: [
+        AppContextMenuOption<int>(
+          value: 0,
+          label: context.l10n.tasksTemplateNoTemplate,
+          selected: selectedId == null,
+        ),
+        for (var index = 0; index < templates.length; index++)
+          AppContextMenuOption<int>(
+            value: index + 1,
+            label: _label(context, templates[index]),
+            icon: templates[index].id == defaultId
+                ? Symbols.star_rounded
+                : Symbols.auto_awesome_mosaic_rounded,
+            selected: templates[index].id == selectedId,
+          ),
+      ],
+      onSelected: onSelected == null
+          ? null
+          : (index) => onSelected!(index == 0 ? null : templates[index - 1].id),
     );
   }
 }
