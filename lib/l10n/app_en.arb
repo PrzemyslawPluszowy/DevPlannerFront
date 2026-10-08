@@ -3221,6 +3221,8 @@
   "storageDeleteSelectedFailed": "Could not delete the selected items.",
   "globalChatEmptyTitle": "No conversations",
   "globalChatEmptyMessage": "Your active conversations will appear here.",
+  "chatConversationEmptyTitle": "No messages yet",
+  "chatConversationEmptyMessage": "Messages and files from this conversation will appear here.",
   "chatInboxNoMessages": "No messages yet",
   "chatInboxEmptyUnread": "You have no unread conversations.",
   "chatInboxEmptyDirect": "Your direct conversations will appear here.",

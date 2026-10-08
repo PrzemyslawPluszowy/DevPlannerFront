@@ -10265,6 +10265,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Twoje aktywne rozmowy pojawią się tutaj.';
 
   @override
+  String get chatConversationEmptyTitle => 'Brak wiadomości';
+
+  @override
+  String get chatConversationEmptyMessage =>
+      'Wiadomości i pliki z tej rozmowy pojawią się tutaj.';
+
+  @override
   String get chatInboxNoMessages => 'Brak wiadomości';
 
   @override

@@ -200,9 +200,10 @@ class CreateDependencyDialogState extends State<CreateDependencyDialog> {
           ),
           if (_searchError.value == null && _results.value.isNotEmpty) ...[
             const SizedBox(height: 12),
-            SizedBox(
-              height: 190,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 190),
               child: ListView.builder(
+                shrinkWrap: true,
                 itemCount: _results.value.length,
                 itemBuilder: (context, index) {
                   final task = _results.value[index];

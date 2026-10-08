@@ -3224,6 +3224,8 @@
   "storageDeleteSelectedFailed": "Nie udało się usunąć wybranych elementów.",
   "globalChatEmptyTitle": "Brak rozmów",
   "globalChatEmptyMessage": "Twoje aktywne rozmowy pojawią się tutaj.",
+  "chatConversationEmptyTitle": "Brak wiadomości",
+  "chatConversationEmptyMessage": "Wiadomości i pliki z tej rozmowy pojawią się tutaj.",
   "chatInboxNoMessages": "Brak wiadomości",
   "chatInboxEmptyUnread": "Nie masz nieprzeczytanych rozmów.",
   "chatInboxEmptyDirect": "Twoje rozmowy indywidualne pojawią się tutaj.",

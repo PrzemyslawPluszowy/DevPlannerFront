@@ -239,6 +239,7 @@ final class ChatComposerSubmitButton extends StatelessWidget {
               )
             : const CircleBorder(),
         child: InkWell(
+          excludeFromSemantics: true,
           onTap: isEnabled ? onSubmit : null,
           customBorder: desktopWebStyle
               ? RoundedRectangleBorder(
@@ -249,6 +250,7 @@ final class ChatComposerSubmitButton extends StatelessWidget {
             container: true,
             button: true,
             enabled: isEnabled,
+            onTap: isEnabled ? onSubmit : null,
             label: context.l10n.globalChatSendMessage,
             child: SizedBox(
               width: desktopWebStyle ? 88 : chat.composerActionSize,

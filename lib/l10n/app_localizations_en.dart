@@ -10172,6 +10172,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your active conversations will appear here.';
 
   @override
+  String get chatConversationEmptyTitle => 'No messages yet';
+
+  @override
+  String get chatConversationEmptyMessage =>
+      'Messages and files from this conversation will appear here.';
+
+  @override
   String get chatInboxNoMessages => 'No messages yet';
 
   @override

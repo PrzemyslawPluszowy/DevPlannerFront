@@ -18194,6 +18194,18 @@ abstract class AppLocalizations {
   /// **'Your active conversations will appear here.'**
   String get globalChatEmptyMessage;
 
+  /// No description provided for @chatConversationEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get chatConversationEmptyTitle;
+
+  /// No description provided for @chatConversationEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages and files from this conversation will appear here.'**
+  String get chatConversationEmptyMessage;
+
   /// No description provided for @chatInboxNoMessages.
   ///
   /// In en, this message translates to:

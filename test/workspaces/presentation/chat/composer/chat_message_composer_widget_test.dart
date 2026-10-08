@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show SemanticsAction;
 
 import 'package:devplanner/l10n/app_localizations.dart';
 import 'package:devplanner/workspaces/domain/chat/composer/chat_draft_repository.dart';
@@ -22,7 +23,8 @@ void main() {
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
-    await tester.pumpWidget(_ComposerWidgetFixture.app([]));
+    final sent = <ChatComposerDraft>[];
+    await tester.pumpWidget(_ComposerWidgetFixture.app(sent));
     await tester.pump();
     final label = AppLocalizations.of(
       tester.element(find.byType(TextField)),
@@ -38,6 +40,13 @@ void main() {
           .flagsCollection
           .isEnabled
           .toBoolOrNull(),
+      isFalse,
+    );
+    expect(
+      tester
+          .getSemantics(sendSemantics)
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
       isFalse,
     );
     final editorNode = tester.getSemantics(find.byType(TextField));
@@ -63,6 +72,11 @@ void main() {
       tester.widget<TextField>(find.byType(TextField)).controller!.text,
       'Test message',
     );
+    final sendNode = tester.getSemantics(sendSemantics);
+    expect(sendNode.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    sendNode.owner!.performAction(sendNode.id, SemanticsAction.tap);
+    await tester.pump();
+    expect(sent, hasLength(1));
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
     semantics.dispose();

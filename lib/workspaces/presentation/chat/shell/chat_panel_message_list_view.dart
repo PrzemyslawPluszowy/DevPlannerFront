@@ -17,6 +17,7 @@ import 'package:devplanner/workspaces/presentation/chat/messages/chat_message_bu
 import 'package:devplanner/workspaces/presentation/chat/messages/chat_message_date_separator.dart';
 import 'package:devplanner/workspaces/presentation/chat/messages/chat_message_grouping.dart';
 import 'package:devplanner/workspaces/presentation/chat/messages/chat_message_series_view.dart';
+import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_empty_history.dart';
 import 'package:devplanner/workspaces/presentation/chat/shell/chat_panel_message_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
@@ -98,6 +99,12 @@ final class ChatPanelMessageListView extends StatelessWidget {
             onSelectionChanged: onSelectionChanged,
             child: Stack(
               children: [
+                if (timeline.isEmpty &&
+                    !list.isSending &&
+                    !list.isLoadingMore &&
+                    !list.loadMoreFailed &&
+                    list.nextCursor == null)
+                  const ChatPanelEmptyHistory(),
                 ListView.separated(
                   controller: scrollController,
                   padding: EdgeInsets.symmetric(
